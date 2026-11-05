@@ -134,8 +134,24 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
     allow_keys(
         item,
         &[
-            "name", "pack", "priority", "stable", "required", "value", "file", "group_by", "sort_by", "limit",
-            "fields", "round", "query", "kind", "offset", "count",
+            "name",
+            "pack",
+            "priority",
+            "stable",
+            "required",
+            "value",
+            "file",
+            "group_by",
+            "where",
+            "relevant_to",
+            "sort_by",
+            "limit",
+            "fields",
+            "round",
+            "query",
+            "kind",
+            "offset",
+            "count",
         ],
         "section",
     )?;
@@ -170,7 +186,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             _ => Ok(()),
         }
     };
-    only_for(&["group_by", "sort_by", "limit", "fields", "round"], Pack::Table)?;
+    only_for(&["group_by", "where", "relevant_to", "sort_by", "limit", "fields", "round"], Pack::Table)?;
     let view = View::from_json(item)?;
     only_for(&["query", "kind", "offset", "count"], Pack::Catalog)?;
     let group_by = item.get("group_by").map(table::group_columns).transpose()?.unwrap_or_default();

@@ -50,6 +50,9 @@ What the measurements show:
   described once, used 12–14% fewer tokens than packed JSON Schema at equal or better
   accuracy. Plain-text tables, by contrast, saved nothing over JSON tables: tokenizers
   already treat `","` as a single token.
+- **Send only the rows that matter.** Keeping only table rows that match words of the
+  question (`relevant_to`) used 26% fewer input tokens than the full tables, with identical
+  accuracy on every question type (100/106 both, on the two smaller models).
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -81,8 +84,10 @@ packet: 1906 bytes; budget 2000 bytes
 - **Tables** (`table`, lossless): a list of objects with the same keys becomes one header
   plus value rows. With `group_by`, rows are grouped under one or more columns' values
   (nested), which is smaller still and makes filtering on those columns easier for models.
-- **Views** (on tables): `sort_by` + `limit` keep only the rows that matter (the 10 nearest
-  NPCs), `fields` drops columns the decision does not need, and `round` trims long decimals.
+- **Views** (on tables): `where` filters exactly (`count >= 15`), `relevant_to` keeps the rows
+  that match a player's message or the current event, `sort_by` + `limit` keep the top N
+  (the 10 nearest NPCs), `fields` drops columns the decision does not need, and `round`
+  trims long decimals.
 - **Action signatures** (`signatures`, lossless): tool schemas as short text lines, with
   arguments shared between actions described once, such as `power: integer 1..5`. The
   recommended way to describe actions in a prompt.
@@ -170,7 +175,8 @@ game.prompt("rules", "Ilse guards the keep. The game validates every action.")?;
 // Every turn.
 let mut turn = game.turn();
 turn.var("mood", "wary")?;
-turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarity"))?;
+turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarity").relevant_to(player_said))?;
+turn.table("plenty", stock, Table::new().filter("count", ">=", 15).fields(&["id", "count"]))?;
 turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
 turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
 

@@ -25,6 +25,10 @@ know what an upgrade costs:
 - **[api]** `Context` and `Turn`: register tools, prompts and constants once, add variables
   and tables per turn, and build a budgeted packet; `Packet::system_prompt` adds an intro.
   `Table` options cover grouping, views, priority and required.
+- **[format]** Views gain `where` (exact filters: `=`, `!=`, `>`, `>=`, `<`, `<=`, `in`) and
+  `relevant_to` (keep the rows that best match some text, or all rows if none match).
+  Measured: `relevant_to` with each question's text used 26% fewer input tokens at
+  identical accuracy. In Rust: `Table::filter` and `Table::relevant_to`.
 - **[api]** `Value` converts from strings, numbers, booleans, `Option` and `Vec`, and the
   `obj!` macro builds objects.
 - **[api]** `gamectx pack -` reads the manifest from standard input, for calling from any

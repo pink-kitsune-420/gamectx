@@ -123,6 +123,23 @@ def build_packets(workdir, gamectx_bin):
     return packets, (tools, inventory, roster)
 
 
+def relevant_packets(questions, tools, inventory, roster, workdir, gamectx_bin):
+    """Per-question packets for the gamectx-relevant format: tables keep the rows relevant
+    to each question's text (gamectx `relevant_to`), keyed by question text."""
+    out = {}
+    rules = build_data()[3]
+    for n, (_, question, _, _) in enumerate(questions):
+        manifest = {"sections": [
+            {"name": "actions", "pack": "signatures", "value": tools, "priority": 10, "stable": True, "required": True},
+            {"name": "rules", "pack": "raw", "value": rules, "priority": 9, "stable": True, "required": True},
+            {"name": "inventory", "pack": "table", "value": inventory, "relevant_to": question,
+             "group_by": ["kind", "rarity"], "priority": 6},
+            {"name": "npcs", "pack": "table", "value": roster, "relevant_to": question, "group_by": "faction", "priority": 5},
+        ]}
+        out[question] = pack(manifest, os.path.join(workdir, f"manifest-relevant-{n}.json"), gamectx_bin)
+    return out
+
+
 def pack(manifest, path, gamectx_bin):
     json.dump(manifest, open(path, "w"))
     return subprocess.run([gamectx_bin, "pack", path], check=True, capture_output=True, text=True).stdout.strip()
@@ -334,6 +351,9 @@ def main():
         questions = [q for q in questions if q[0] in args.kinds.split(",")]
     models = [m for m in args.models.split(",") if m]
     formats = [f for f in args.formats.split(",") if f]
+    if "gamectx-relevant" in formats:
+        per_question = relevant_packets(questions, tools, inventory, roster, run_dir, args.gamectx)
+        packets["gamectx-relevant"] = max(per_question.values(), key=len)  # for size reports
     unknown = {f.removesuffix("+reason") for f in formats} - set(packets)
     if unknown:
         sys.exit(f"unknown formats: {sorted(unknown)}; choose from {sorted(packets)}")
@@ -366,7 +386,8 @@ def main():
         for n, (kind, question, answer_type, expected) in enumerate(questions):
             for fmt in (formats if n % 2 == 0 else formats[::-1]):
                 reason = fmt.endswith("+reason") and answer_type != "action"
-                system = SYSTEM + packets[fmt.removesuffix("+reason")]
+                base = fmt.removesuffix("+reason")
+                system = SYSTEM + (per_question[question] if base == "gamectx-relevant" else packets[base])
                 user = question + (ACTION_RULE if answer_type == "action" else REASON_RULE if reason else ANSWER_RULE)
                 out_tokens = REASON_OUTPUT_TOKENS if reason else MAX_OUTPUT_TOKENS
                 # Worst case: one token per byte in, full output allowance out.

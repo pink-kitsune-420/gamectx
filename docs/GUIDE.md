@@ -18,6 +18,13 @@ results instead of a whole registry.
 `sort_by` runs before `fields`, so you can sort by a column you do not send. *Standard
 practice; the savings scale with how much you leave out.*
 
+When the game does not know exactly which rows matter, `relevant_to` keeps the rows that
+best match the words of some text: the player's message, the current event, or the
+question. Rows matching more words win, so "any rare weapons?" keeps rows that are rare
+*and* weapons; if nothing matches, the whole table is sent. *Measured on all 53 eval
+questions with the question as the text: −26% input tokens, identical accuracy on every
+question type, and the answer stayed in the table every time.*
+
 Round numbers to the precision decisions need. *Measured: rounding two number columns
 from two decimals to one saved 5% of the whole packet; each dropped digit costs about one
 token per number. Rounding to whole numbers saved 13%, but made a 0–1 trust score useless,
@@ -56,7 +63,8 @@ gamectx does not do this. *Measured: 102 → 74 of 108 correct.*
 Asking a model to filter long lists is unreliable in every format. "Items with count at
 least 15" was right 1 time in 27 without help.
 
-- **Best:** compute the answer in game code and send the result.
+- **Best:** compute the answer in game code and send the result. `where` makes the common
+  cases one line: `{"count": {">=": 15}}`, or `.filter("count", ">=", 15)` in Rust.
 - **Otherwise:** ask for a brief list of candidate rows before the final JSON. *Measured on
   18 filtering questions: 37/54 → 46/54 correct, numeric filters 1/9 → 6/9, for about 60
   extra output tokens per answer.*

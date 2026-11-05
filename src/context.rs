@@ -31,7 +31,7 @@
 use crate::budget::{assemble, Packet, Section};
 use crate::estimate::{self, Calibration};
 use crate::json::{Error, Result, Value};
-use crate::view::{self, View};
+use crate::view::{self, Op, View};
 use crate::{schema, signatures, table};
 
 /// Registered sections and budgets shared by every turn.
@@ -51,6 +51,8 @@ pub struct Table {
     view: View,
     priority: Option<i64>,
     required: bool,
+    /// A setting that could not be applied, reported when the table is added.
+    error: Option<Error>,
 }
 
 impl Table {
@@ -63,6 +65,25 @@ impl Table {
     /// Group by the columns your game filters on most.
     pub fn group_by(mut self, column: &str) -> Table {
         self.group_by.push(column.to_owned());
+        self
+    }
+
+    /// Keep only rows where `column` compares to `value` with `op`: `=`, `!=`, `>`, `>=`,
+    /// `<`, `<=` or `in` (value is a list). Call again to require more conditions. This is
+    /// how to do numeric filtering, which models get wrong when asked to do it themselves.
+    pub fn filter(mut self, column: &str, op: &str, value: impl Into<Value>) -> Table {
+        match Op::parse(op) {
+            Ok(op) => self.view.filters.push((column.to_owned(), op, value.into())),
+            Err(e) => self.error = Some(e),
+        }
+        self
+    }
+
+    /// Keep only the rows that best match the words of `text`, such as the player's message
+    /// or the current event; if nothing matches, every row is kept. See
+    /// [`crate::view::relevant_rows`].
+    pub fn relevant_to(mut self, text: &str) -> Table {
+        self.view.relevant_to = Some(text.to_owned());
         self
     }
 
@@ -126,6 +147,9 @@ fn rows(value: Value, what: &str) -> Result<Vec<Value>> {
 }
 
 fn table_section(name: &str, items: Value, options: Table, stable: bool) -> Result<Section> {
+    if let Some(e) = options.error {
+        return Err(Error::new(format!("table \"{name}\": {e}")));
+    }
     let items = rows(items, &format!("table \"{name}\""))?;
     let viewed = view::apply(&items, &options.view).map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
     let value = table::pack(&viewed, &options.group_by.iter().map(String::as_str).collect::<Vec<_>>())
@@ -314,6 +338,24 @@ mod tests {
         let packet = turn.build().unwrap();
         assert_eq!(packet.text, r#"{"rules":"Be brief.","near":{"columns":["name","trust"],"rows":[["Midor",0.2]]}}"#);
         assert_eq!(packet.receipt.dropped[0].name, "lore");
+    }
+
+    #[test]
+    fn filters_and_relevance() {
+        let game = Context::new();
+        let items = vec![
+            obj! {"id" => "ash_knife", "kind" => "weapon", "count" => 20},
+            obj! {"id" => "salt_sling", "kind" => "weapon", "count" => 4},
+            obj! {"id" => "moon_trout", "kind" => "food", "count" => 18},
+        ];
+        let mut turn = game.turn();
+        turn.table("plenty", items.clone(), Table::new().filter("count", ">=", 15).fields(&["id"])).unwrap();
+        turn.table("asked", items.clone(), Table::new().relevant_to("got any trout?").fields(&["id"])).unwrap();
+        assert!(turn.table("bad", items, Table::new().filter("count", "~", 1)).is_err());
+        assert_eq!(
+            turn.build().unwrap().text,
+            r#"{"plenty":{"columns":["id"],"rows":[["ash_knife"],["moon_trout"]]},"asked":{"columns":["id"],"rows":[["moon_trout"]]}}"#
+        );
     }
 
     #[test]

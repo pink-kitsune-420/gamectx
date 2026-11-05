@@ -23,7 +23,11 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
 
     let mut turn = game.turn();
     turn.var("mood", "wary")?;
-    turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarity"))?;
+    let player_said = "Do you have any rare weapons?";
+    let stock = inventory.clone();
+    turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarity").relevant_to(player_said))?;
+    // The README uses 15; the Ember Keep inventory's largest count is 12.
+    turn.table("plenty", stock, Table::new().filter("count", ">=", 5).fields(&["id", "count"]))?;
     turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
     turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
 
@@ -36,6 +40,11 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
         .text
         .contains(r#""nearby_npcs":{"columns":["name","role"],"rows":[["Midor","smith"],["Velmi","guard"]]}"#));
     assert!(packet.text.contains(r#""inventory":{"group_by":["kind","rarity"]"#));
+    // "rare" matches only the quiet bell; there are no weapons, so that word matches nothing.
+    assert!(packet.text.contains(r#""inventory":{"group_by":["kind","rarity"],"columns":["id","count","durability"],"groups":{"tool":{"rare":[["quiet_bell",1,1.0]]}}}"#));
+    assert!(packet.text.contains(
+        r#""plenty":{"columns":["id","count"],"rows":[["salt_pouch",12],["mend_moss",7],["wardstone_chip",5]]}"#
+    ));
     assert!(system.starts_with("You are the game logic for Warden Ilse.\n\nGAME DATA:\n{"));
     Ok(())
 }

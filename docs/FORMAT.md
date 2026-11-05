@@ -45,6 +45,8 @@ Each section:
 | `stable` | bool | false | Rarely changes between requests. Stable sections are placed first, keeping the start of the packet identical so it can be cached. |
 | `required` | bool | false | Never dropped. Assembly fails if required sections alone exceed the budget. |
 | `group_by` | string or string array | none | `table` only: group rows under this column's values, or nest groups by several columns, outermost first. Grouping columns must hold strings. |
+| `where` | object | none | `table` only, [view](#views): keep rows meeting every condition, e.g. `{"kind": "weapon", "count": {">=": 15}}`. |
+| `relevant_to` | string | none | `table` only, view: keep the rows that best match the words of this text. |
 | `sort_by` | string | none | `table` only, [view](#views): sort rows by a column; `"-col"` sorts descending. |
 | `limit` | integer | none | `table` only, view: keep the first N rows after sorting. |
 | `fields` | string array | all | `table` only, view: keep only these columns, in this order. |
@@ -94,12 +96,22 @@ the measurements in the README for why.
 
 A table section can shape its rows before packing. Steps always run in this order:
 
-1. `sort_by`: stable sort by one column. Numbers compare as numbers, strings by Unicode
+1. `where`: keep rows meeting every condition. A plain value means equal (`1` equals `1.0`);
+   otherwise one operator object: `{"=": v}`, `{"!=": v}`, `{">": n}`, `{">=": n}`, `{"<": n}`,
+   `{"<=": n}` or `{"in": [v, ...]}`. Ordering operators compare numbers only; a cell that
+   is not a number (such as `null`) does not match them. A missing column is an error.
+2. `relevant_to`: split the text into words (runs of letters, digits and `_`, lowercased),
+   ignoring all-digit words and also trying each word of four or more letters without a
+   trailing `s`. A word matches a row when it equals one of the row's string cells, or one
+   `_`-separated part of one, lowercased. Rows with the most matching words are kept; if no
+   row matches any word, every row is kept.
+3. `sort_by`: stable sort by one column. Numbers compare as numbers, strings by Unicode
    code point; a column that mixes the two is an error. Nulls go last in both directions.
-2. `limit`: keep the first N rows.
-3. `fields`: keep only the listed columns, in the listed order. Sorting first means you
-   can sort by a column you do not send, such as distance to the player.
-4. `round`: round numbers in a column to N decimals (0–12), trimming trailing zeros
+4. `limit`: keep the first N rows.
+5. `fields`: keep only the listed columns, in the listed order. Because filtering and
+   sorting come first, they can use a column you do not send, such as distance to the
+   player.
+6. `round`: round numbers in a column to N decimals (0–12), trimming trailing zeros
    (`3.50` → `3.5`, `-0.04` at 1 place → `0`). Numbers without a fraction or exponent are
    left exactly as written. Nulls are left alone; other values are an error.
 

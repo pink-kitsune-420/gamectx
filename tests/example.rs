@@ -61,3 +61,17 @@ fn cli_search_pages_with_generation() {
     let (ok, _, err) = gamectx(&["search", catalog, "fire", "--generation", "0000000000000000"]);
     assert!(!ok && err.contains("generation changed"));
 }
+
+#[test]
+fn manifest_accepts_every_documented_table_key() {
+    let text = r#"{"sections":[{"name":"t","pack":"table","priority":1,"stable":false,"required":false,
+        "value":[{"id":"a","kind":"tool","count":3,"w":1.25},{"id":"b","kind":"food","count":9,"w":2.5}],
+        "group_by":["kind"],"where":{"count":{">":1}},"relevant_to":"any tools?","sort_by":"-count",
+        "limit":5,"fields":["id","kind","w"],"round":{"w":1}}]}"#;
+    let m = manifest::parse(&gamectx::json::parse(text, 4096).unwrap(), Path::new(".")).unwrap();
+    assert_eq!(
+        m.sections[0].section.value.to_json(),
+        r#"{"group_by":"kind","columns":["id","w"],"groups":{"tool":[["a",1.2]]}}"#
+    );
+    assert_eq!(m.sections[0].verify().unwrap(), Check::ExactAfterView);
+}

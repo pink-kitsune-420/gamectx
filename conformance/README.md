@@ -26,7 +26,7 @@ A case passes when:
 | `op` | Input | `args` | Output |
 |---|---|---|---|
 | `parse` | raw JSON text | | the parsed value |
-| `table` | array of objects | `group_by` (column name or list); view keys `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
+| `table` | array of objects | `group_by` (column name or list); view keys `where`, `relevant_to`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
 | `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |
 | `schema` | array of tools | | packed schema |
 | `outline` | array of tools | | the outline, as a JSON string |

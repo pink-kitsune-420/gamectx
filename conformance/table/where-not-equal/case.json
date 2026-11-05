@@ -1,0 +1,1 @@
+{"op": "table", "args": {"where": {"kind": {"!=": "weapon"}, "count": {"<": 100}}, "fields": ["id"]}}
