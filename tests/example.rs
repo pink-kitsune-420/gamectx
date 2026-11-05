@@ -124,6 +124,36 @@ fn cli_schema_and_session_protocol() {
 }
 
 #[test]
+fn cli_brain_workflows_and_tools() {
+    let fixture = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/brain/teach-accept-undo/input.json");
+    let expected = std::fs::read_to_string(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/conformance/brain/teach-accept-undo/expected.json"
+    ))
+    .unwrap();
+    let (ok, result, _) = gamectx(&["brain", fixture]);
+    assert!(ok);
+    assert_eq!(result, expected);
+    let input = std::fs::read_to_string(fixture).unwrap();
+    let output = query_input(&["brain", "-"], &input);
+    assert!(output.status.success());
+    assert_eq!(String::from_utf8(output.stdout).unwrap(), expected);
+    let (ok, tools, _) = gamectx(&["brain", "--tools"]);
+    assert!(ok);
+    assert_eq!(tools, format!("{}\n", gamectx::brain::tools().to_json()));
+    let output = query_input(&["brain", "-"], r#"{"definition":{},"operations":[]}"#);
+    assert!(!output.status.success());
+    let output = query_input(&["brain", "-"], &" ".repeat(gamectx::brain::MAX_STATE_BYTES + 1));
+    assert!(!output.status.success());
+    let workflow = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/brain/workflow.json");
+    let (ok, result, _) = gamectx(&["brain", workflow]);
+    assert!(ok);
+    let value = gamectx::json::parse(result.trim(), gamectx::brain::MAX_STATE_BYTES).unwrap();
+    let last = value.get("results").unwrap().as_array().unwrap().last().unwrap();
+    assert_eq!(last.get("choice").and_then(gamectx::Value::as_str), Some("withdraw"));
+}
+
+#[test]
 fn manifest_accepts_every_documented_table_key() {
     let text = r#"{"sections":[{"name":"t","pack":"table","priority":1,"stable":false,"required":false,
         "value":[{"id":"a","kind":"tool","count":3,"w":1.25},{"id":"b","kind":"food","count":9,"w":2.5}],

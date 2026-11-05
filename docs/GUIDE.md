@@ -141,3 +141,32 @@ three held-out states on the two smaller models. Your data and models will diffe
 - `gamectx calibrate` learns your provider's real tokens-per-byte ratio from reported usage.
 - The eval script runs your own questions against any OpenAI-compatible API with a hard
   spending cap. Change `build_data` and `build_questions` to match your game.
+
+## 9. Learn small reaction preferences locally
+
+`brain::Brain` is an engine-independent utility network. Choose meaningful normalized
+inputs and reaction names in your host, then bind them to real observations and currently
+legal reactions. It can serve an NPC, player-specific preference, faction, encounter
+director or other owner selected by the game. Use its compact prediction as a `Turn::var`
+when the model needs it; routine local inference needs no model request.
+
+The host supplies labeled examples and separate validation states. Training happens on
+a candidate copy, with work limits, pinned parameters and bounded displacement from the
+authored baseline. Only lower supplied-label validation MSE is retained; rejection is
+atomic. Save learning with `to_value`, restore it with validation, and undo recent updates
+without freeing replayed IDs. Schedule training explicitly rather than training on every tick.
+Missing inputs remain unknown, and ties/unknown eligible scores abstain for a host fallback.
+The normal game executor remains responsible for legal actions and changed-world checks.
+
+*Offline measurement on four synthetic utility tasks, 32 training and 32 validation
+examples each, fresh test seeds 707/808/909: random initialization 545/1,536 correct
+reactions → trained 1,421/1,536. The nonlinear switch task scored 306/384, so the result
+is not uniformly perfect. Changed trading preferences improved from 264/384 to 384/384
+on fresh seeds 1001/1002/1003. Saved trained states were 1,374–1,762 bytes. No API calls.*
+
+These measure agreement with reference labels, not human enjoyment, causal reward learning
+or performance against an LLM. A lower validation loss can still miss important reaction
+boundaries. Keep independent gameplay tests and host metrics, and use formulas/queries
+for exact calculations. Host game logic supplies feature normalization, freshness, label
+meaning, permissions, storage and rollout choices. The network does not create factual
+memory from proposed lessons or from its own predictions.

@@ -73,6 +73,11 @@ What the measurements show:
   query, correction and final-answer turns, average input fell from 4,898.632 to 1,615.874
   tokens (67.0% less). Completed-exchange cost fell 64.1%. These are synthetic states;
   the one-answer accuracy difference is not evidence of general superiority.
+- **Learn small local reaction policies.** The `brain` module improved agreement with
+  reference reactions from 545/1,536 at random initialization to 1,421/1,536 after training
+  across four synthetic tasks and unseen samples. Adapting a trained trading preference
+  improved agreement from 264/384 to 384/384 on fresh samples. These are offline policy
+  tests, separate from the LLM accuracy measurements above.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -119,6 +124,9 @@ packet: 1906 bytes; budget 2000 bytes
   `query::run()` executes the model's SQL. No database or SQL dependency required.
 - **Memory** (`memory`): facts and events with tags, importance and turn, recalled by
   relevance instead of resending history, with a ready-made `remember` tool for the model.
+- **Reaction brains** (`brain`): small, game-defined neural graphs evaluated locally, with
+  guarded supervised training, bounded weight lessons, pins, revision/replay checks,
+  saved learning and undo. The host supplies observations, labels and legal reactions.
 - **Context** (library): register tools, prompts and constants once; add variables and
   tables each turn; build a packet within your budget.
 - **Tool schemas** (`schema`, lossless): for tools signatures cannot express (nested objects,
@@ -173,7 +181,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 162 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 203 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -293,6 +301,61 @@ gamectx query --schema tables.json
 # Each stdin line is a query tool argument object, e.g. {"sql":"SELECT COUNT(*) FROM inventory"}.
 gamectx query --session tables.json --result-bytes 512
 ```
+
+## A local brain for your game's reactions
+
+Names and meanings come from your game. Bind normalized numeric observations (0–1),
+provide example utility scores, and choose which reactions are currently legal. The
+brain ranks them locally; game code validates and executes the chosen action. Missing
+inputs remain unknown, and ties or unknown eligible scores yield `choice:null` for a
+host-defined fallback. Scores are utilities, not confidence probabilities.
+
+```rust
+use gamectx::{brain::Brain, obj};
+
+let sample = |danger: f64, need: f64| obj! {
+    "inputs" => obj! {"danger" => danger, "need" => need},
+    "targets" => obj! {"withdraw" => danger, "assist" => need * (1.0 - danger)}
+};
+let mut brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
+let report = brain.train(&obj! {
+    "id" => "first_training", "expected_revision" => 0,
+    "examples" => vec![sample(0.1,0.2),sample(0.2,0.8),sample(0.8,0.1),sample(0.9,0.7)],
+    "validation" => vec![sample(0.15,0.75),sample(0.75,0.15)], "epochs" => 128, "rate" => 0.1
+})?;
+assert_eq!(report.get("accepted"), Some(&gamectx::Value::Bool(true)));
+let prediction = brain.run(&obj! {"danger" => 0.8, "need" => 0.2}, &["withdraw", "assist"])?;
+assert_eq!(prediction.get("choice").and_then(gamectx::Value::as_str), Some("withdraw"));
+let restored = Brain::restore_json(&brain.to_value().to_json())?;
+assert_eq!(restored.to_value(), brain.to_value());
+```
+
+The labels above use a tiny reference policy for demonstration. Real hosts supply
+designer labels or observations mapped to desired utility scores. Candidate training
+is retained only when mean squared error falls on a separate validation set. Rejected
+updates leave the entire brain unchanged. A validation improvement checks the supplied
+labels; evaluate actual gameplay quality separately.
+
+An AI can propose graphs with `brain::tools()` and `brain::create_call`, then use
+`Brain::apply_call` for `inspect_brain`, `run_brain`, `teach_brain`, `train_brain` and
+`undo_brain`. Tool requests are bounded JSON text that packs as signatures. The host
+chooses each brain's owner, allowed feature bindings and whether to install a proposal;
+model-proposed examples are synthetic labels, not observed facts. Normal runtime inference
+uses native observations and makes no model calls. Keep training on the host's schedule.
+
+```bash
+cargo run --example adaptive-brain
+gamectx brain examples/brain/workflow.json
+gamectx brain --tools
+```
+
+Graphs have at most 16 inputs, 32 nodes and 16 outputs. Training, edits, retained history
+and parameter displacement are bounded. Integer millionths make inference, training and
+saved output portable; see [the brain format](docs/FORMAT.md#reaction-brains) and
+[offline measurements](eval/README.md#local-reaction-brains). Use exact formulas/queries
+for exact rules and these small networks for learned preferences. This is a reusable
+reaction-policy component; text understanding, temporal memory, engine adapters and
+reinforcement-learning reward assignment remain host concerns.
 
 ## Be honest with your numbers
 

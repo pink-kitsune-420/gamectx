@@ -401,6 +401,143 @@ many records contain that word. Rare words count fully; words in nearly every re
 barely count, in any language. Ties go to higher importance, then the later turn. With no
 matching words, the most important, most recent records are returned.
 
+## Reaction brains
+
+`brain::Brain` is a small neural utility policy, independent of engine, genre and action
+execution. Hosts bind normalized observations to named inputs, supply desired utility
+labels for learning, select eligible outputs and own storage/scheduling. Scores are not
+probabilities or facts. Native action validation stays outside the network.
+
+### Definition and inference
+
+```json
+{"version":1,"inputs":["danger","need"],"outputs":["withdraw","assist"],"nodes":[
+ {"id":"withdraw","weights":{"danger":1},"bias":0,"pinned":false,"learning_limit":0.5},
+ {"id":"assist","weights":{"need":1,"danger":-1},"bias":0,"pinned":false,"learning_limit":0.5}]}
+```
+
+All fields shown are required; unknown fields are errors. Names match
+`[a-z][a-z0-9_]{0,31}`. Inputs are distinct; node IDs are distinct from inputs and earlier
+nodes. Every connection names an input or an earlier node: forward references, cycles
+and duplicate connections are refused. Outputs are distinct existing node IDs; an
+output node may also feed a later node. Empty connection maps allow constant nodes.
+
+Limits: 16 inputs, 32 nodes, 16 connections per node and 16 outputs. Weights and biases
+are finite numbers −4..4. `learning_limit` is 0..4, limiting each parameter's absolute
+displacement from its authored baseline. A pin locks that node's parameters, including
+bias; upstream learned values may still change its activation.
+
+All neural math uses integer millionths (`S = 1000000`). Numeric inputs/parameters are
+read as finite IEEE 754 binary64, range-checked, multiplied by S and rounded half away
+from zero. Generated values serialize as plain decimals with at most six fractional
+digits, no trailing zeros/exponents, and zero rather than negative zero. This is
+intentional quantization; the existing lossless JSON/table rules are unchanged.
+
+For each node, accumulate `bias*S + sum(weight*source)` in signed 64-bit integers,
+divide by S with half-away rounding, then clamp to 0..S. Connections with a nonzero
+weight and an unknown source make that node unknown. Zero-weight connections do not
+require observations. Missing/null inputs are unknown; explicit numeric zero is observed
+zero. Unexpected input names, booleans, non-numbers and values outside 0..1 are errors.
+
+`run(inputs, allowed)` returns, in order:
+
+```json
+{"revision":0,"scores":{"withdraw":0.8,"assist":0},"choice":"withdraw","margin":0.8}
+```
+
+Scores follow output-definition order, including ineligible/unknown outputs. Eligibility
+must be a distinct subset of the outputs; an empty set yields no choice. If any eligible
+score is unknown, `choice` and `margin` are null. Otherwise margin is best minus runner-up
+(or best minus zero for one eligible output). `run_with` requires the best score and
+margin to be strictly greater than host-provided thresholds (both 0..1, default zero).
+Ties and all-zero eligible scores abstain. Thresholds are utility rules, not confidence.
+
+`Brain::dense(inputs, outputs, hidden, seed)` creates a reproducible initializer. Hidden
+width 0..16 (zero means no hidden layer); generated IDs are `hidden_0`, etc., with normal
+collision checks. All nodes start with bias 0.5, unpinned, learning limit 4. Connection
+weights are integer ticks in −500000..500000: use unsigned 64-bit xorshift
+`s ^= s << 13; s ^= s >> 7; s ^= s << 17` with wrapping shifts, then `s % 1000001 - 500000`.
+Seed zero maps to one. Draw connections in source order, hidden nodes first, outputs last.
+Initialization encodes no knowledge of a game.
+
+### Lessons, training and persistence
+
+`teach` requests contain exactly `id`, `expected_revision`, `changes`, `validation`.
+Each of 1..16 changes is `{node,source,delta}`; source is an existing connection name or
+`$bias`. Changes cannot repeat a parameter. Delta is nonzero after quantization and
+within −0.1..0.1; pins, the absolute bounds and the baseline displacement bound all apply.
+An invalid request never partially changes a brain.
+
+`train` requests contain exactly `id`, `expected_revision`, `examples`, `validation`,
+`epochs`, `rate`. Samples are `{"inputs":{...},"targets":{...}}`; every input and output
+is required with a numeric 0..1 value. Training and validation each have 1..128 samples;
+their normalized input vectors cannot overlap on the millionth grid. Epochs are 1..128,
+rate is greater than zero and at most one after quantization. No shuffling or randomness
+occurs during learning. Labels come from the caller; synthetic proposals are not evidence.
+
+Training runs on a candidate copy, in supplied sample order for each epoch. Backpropagate
+output error `score-target` through the graph in reverse node order. At hidden nodes,
+the clamp derivative is one only when rounded pre-clamp activation is strictly within
+0..S. Output nodes use a straight-through derivative of one, including saturation, so
+an old saturated preference can be unlearned. Clip each node delta to −S..S after its
+derivative. Propagate `round(delta*weight/S)` to upstream nodes; weight gradients are
+`round(delta*source/S)`, bias gradient is delta. Pins suppress parameter updates but do
+not block propagation through fixed connections. Calculate all gradients before changing
+any parameter for that sample. Update by `parameter - round(rate*gradient/S)`, clamped
+to both −4..4 and the authored baseline ± learning limit.
+
+Preflight work is `(3*epochs*training_count + 2*validation_count) * parameter_count`,
+with one parameter per bias/connection. More than 500000 estimated work units is refused
+before training. Parsing/shape checks are separately bounded; this estimate is not a
+CPU instruction count or wall-clock guarantee. Hosts choose when to run synchronous training.
+
+Both lessons and training compare validation mean squared error over all samples/outputs,
+rounded to millionths. Only a strictly smaller validation loss commits the candidate:
+
+```json
+{"accepted":true,"revision":1,"before_loss":0.167654,"after_loss":0.002275,"steps":33880}
+```
+
+The report's `after_loss` describes the candidate even when rejected. A rejection leaves
+weights, revision, used IDs and history unchanged. Lower validation MSE is not a guarantee
+of improved action accuracy or real-world outcomes. Use trusted labels and additional
+host metrics for deployment decisions.
+
+Accepted updates consume a unique 32-character name ID and increase revision. There are
+at most 128 accepted IDs per authored brain. Every request must match the current
+revision; stale or replayed IDs fail. Undo requires `expected_revision`, restores the
+latest retained parameter snapshot and advances revision without freeing used IDs.
+Eight snapshots persist; older changes remain learned but cannot be undone individually.
+
+`to_value` / `restore` use these ordered fields: `version:1`, `definition` (authored
+baseline), `revision`, `weights`, `used_ids`, `history`. Each matrix has one row per node:
+bias first, then weights in that node's definition order. History entries are `{id,weights}`
+with the pre-update snapshot, oldest first. Restoration validates every matrix shape,
+bound, pin, displacement, unique ID and ordered history membership; revision is between
+accepted-ID count and twice that count, with enough remaining undo capacity for history.
+An unlearned state must equal its baseline. This is consistency checking, not authentication.
+Examples and observations are not saved. `inspect` exposes current definition/revision;
+`definition` returns the original authored graph.
+
+### Tools and command line
+
+`brain::tools()` returns `create_brain`, `inspect_brain`, `run_brain`, `teach_brain`,
+`train_brain`, `undo_brain`. Every tool takes exactly one string field `request`, containing
+strict JSON, so it packs losslessly as a signature. Requests are capped at 65536 UTF-8
+bytes. `create_call` returns a new brain; it never silently replaces an existing instance.
+The host chooses ownership, allowed feature bindings and whether to install a definition.
+`Brain::apply_call` handles the five existing-brain operations. Run requests contain
+`inputs`, `allowed`, `min_score`, `min_margin`; inspect takes `{}`. Train/teach match the
+requests above; undo takes `{expected_revision}`. Pure Rust inference needs no tool/model call.
+`Brain::parse` caps graph JSON text at 32768 bytes; `restore_json` caps state at 262144 bytes.
+
+`gamectx brain WORKFLOW.json` (or `-` for stdin) processes strict JSON up to 262144 bytes:
+exactly one of `definition`, `dense`, saved `state`, plus `operations` (at most 64 entries).
+Dense configuration has exactly `inputs`, `outputs`, `hidden`, `seed` (an unsigned 64-bit
+integer). Each operation is `{op,args}`, where op is `inspect`, `run`, `teach`, `train`,
+`undo`. Output is `{"results":[...],"state":...}`. An operation error fails the workflow;
+no files or external state are changed. `gamectx brain --tools` prints the tool schemas.
+
 ## Receipt
 
 `gamectx pack --receipt` writes this to stderr:

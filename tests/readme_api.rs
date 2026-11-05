@@ -101,3 +101,25 @@ fn schema_only_query_workflow_example() -> gamectx::Result<()> {
     assert!(session.is_finished());
     Ok(())
 }
+
+#[test]
+fn adaptive_brain_readme_example() -> gamectx::Result<()> {
+    use gamectx::brain::Brain;
+    let sample = |danger: f64, need: f64| {
+        obj! {
+            "inputs" => obj! {"danger" => danger, "need" => need},
+            "targets" => obj! {"withdraw" => danger, "assist" => need * (1.0 - danger)}
+        }
+    };
+    let mut brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
+    let report = brain.train(&obj! {
+        "id" => "first_training", "expected_revision" => 0,
+        "examples" => vec![sample(0.1,0.2),sample(0.2,0.8),sample(0.8,0.1),sample(0.9,0.7)],
+        "validation" => vec![sample(0.15,0.75),sample(0.75,0.15)], "epochs" => 128, "rate" => 0.1
+    })?;
+    assert_eq!(report.get("accepted"), Some(&Value::Bool(true)));
+    let prediction = brain.run(&obj! {"danger" => 0.8, "need" => 0.2}, &["withdraw", "assist"])?;
+    assert_eq!(prediction.get("choice").and_then(Value::as_str), Some("withdraw"));
+    assert_eq!(Brain::restore_json(&brain.to_value().to_json())?.to_value(), brain.to_value());
+    Ok(())
+}

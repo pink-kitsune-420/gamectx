@@ -1,0 +1,1 @@
+{"definition":{"version":1,"inputs":["x"],"outputs":["act"],"nodes":[{"id":"act","weights":{},"bias":4,"pinned":false,"learning_limit":4}]},"operations":[{"op":"train","args":{"id":"recover","expected_revision":0,"examples":[{"inputs":{"x":0.2},"targets":{"act":0.2}}],"validation":[{"inputs":{"x":0.8},"targets":{"act":0.2}}],"epochs":128,"rate":0.1}}]}

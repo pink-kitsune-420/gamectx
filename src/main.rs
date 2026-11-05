@@ -33,6 +33,9 @@ USAGE:
   gamectx query --session <tables.json> [--result-bytes N]
       Read JSON argument objects (one per line) from stdin; print one JSON reply per attempt. A query error
       allows one correction. Success or the second failure ends the session.
+  gamectx brain <workflow.json>
+      Run a bounded local reaction-network workflow; prints results and saved state.
+      - reads stdin. gamectx brain --tools prints model tool schemas.
   gamectx calibrate <calibration.json> --scope NAME --bytes N --tokens N [--estimate N]
       Record one provider usage report (input tokens for a request body of N bytes).
 
@@ -60,7 +63,7 @@ struct Args {
     options: Vec<(String, Option<String>)>,
 }
 
-const SWITCHES: [&str; 4] = ["--receipt", "--tool", "--schema", "--session"];
+const SWITCHES: [&str; 5] = ["--receipt", "--tool", "--schema", "--session", "--tools"];
 
 impl Args {
     fn parse(raw: &[String]) -> Result<Args> {
@@ -188,6 +191,28 @@ fn run(raw: &[String]) -> Result<()> {
                 None => gamectx::formula::Formulas::new(),
             };
             println!("{}", formulas.calc(&args.positional[0])?.to_json());
+            Ok(())
+        }
+        "brain" if args.has("--tools") => {
+            args.only(&["--tools"], 0)?;
+            println!("{}", gamectx::brain::tools().to_json());
+            Ok(())
+        }
+        "brain" => {
+            args.only(&[], 1)?;
+            let mut text = String::new();
+            let cap = gamectx::brain::MAX_STATE_BYTES as u64 + 1;
+            if args.positional[0] == "-" {
+                std::io::stdin().take(cap).read_to_string(&mut text).map_err(|e| Error::new(e.to_string()))?;
+            } else {
+                std::fs::File::open(&args.positional[0])
+                    .map_err(|e| Error::new(e.to_string()))?
+                    .take(cap)
+                    .read_to_string(&mut text)
+                    .map_err(|e| Error::new(e.to_string()))?;
+            }
+            let input = gamectx::json::parse(&text, gamectx::brain::MAX_STATE_BYTES)?;
+            println!("{}", gamectx::brain::process(&input)?.to_json());
             Ok(())
         }
         "query" if args.has("--tool") => {

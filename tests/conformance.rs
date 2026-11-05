@@ -46,6 +46,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
+        "brain" => gamectx::brain::process(&input)?,
         "table" => table::pack(
             &view::apply_with(list(), &View::from_json(args)?, &formulas(args)?)?,
             &group_by(args)?.iter().map(String::as_str).collect::<Vec<_>>(),

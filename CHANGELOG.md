@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[format]** New `brain` graph, saved-learning and workflow formats, with 41 conformance
+  cases. All 162 previous cases remain byte-identical. Neural arithmetic and training use
+  integer millionths, including canonical decimal serialization.
+- **[api]** `brain::Brain`: game-defined acyclic reaction networks, named normalized inputs,
+  eligible-output masks and abstention; bounded supervised training and weight lessons on
+  candidate copies, validation-loss gates, pins, learning limits, revisions/replay protection,
+  persistence and eight retained undo snapshots. Model tools and `gamectx brain` workflow CLI.
+- **[docs]** Offline tests across four synthetic policy tasks: random initialization
+  545/1,536 → trained 1,421/1,536 on fresh held-out samples; changed trading preference
+  264/384 → 384/384. Includes weaker nonlinear results and rejected training variants.
+  No LLM accuracy or billed-token saving is inferred from these local tests; API spend $0.
 - **[format]** Adds `query-schema` descriptions (types and complete small string domains)
   and `query-session` result/error envelopes, with 23 conformance cases. All 139 previous
   cases remain byte-identical.

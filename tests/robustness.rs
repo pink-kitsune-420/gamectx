@@ -174,6 +174,49 @@ fn query_text_never_panics_or_hangs() {
 }
 
 #[test]
+fn brain_definitions_learning_and_saved_text_never_panic() {
+    use gamectx::{brain::Brain, obj};
+    let definition = obj! {"version" => 1, "inputs" => vec!["x"], "outputs" => vec!["act"],
+    "nodes" => vec![obj! {"id" => "act", "weights" => obj! {"x" => 0.5}, "bias" => 0.1,
+        "pinned" => false, "learning_limit" => 0.5}]};
+    let baseline = Brain::from_value(&definition).unwrap();
+    let sample = |x: f64| obj! {"inputs" => obj! {"x" => x}, "targets" => obj! {"act" => 1}};
+    let seeds = [
+        definition.to_json(),
+        (obj! {"id" => "lesson", "expected_revision" => 0,
+        "changes" => vec![obj! {"node" => "act", "source" => "$bias", "delta" => 0.1}],
+        "validation" => vec![sample(0.5)]})
+        .to_json(),
+        (obj! {"id" => "fit", "expected_revision" => 0, "examples" => vec![sample(0.2)],
+        "validation" => vec![sample(0.8)], "epochs" => 2, "rate" => 0.1})
+        .to_json(),
+        baseline.to_value().to_json(),
+    ];
+    let mut rng = Rng(0xB12A_1A01_1122_3344);
+    let mut parsed = 0;
+    for i in 0..30_000 {
+        let text = mutate(&mut rng, &seeds[i % seeds.len()]);
+        let Ok(value) = parse(&text, 1 << 16) else { continue };
+        parsed += 1;
+        let mut brain = baseline.clone();
+        let before = brain.to_value();
+        let result = match i % 4 {
+            0 => Brain::from_value(&value).map(|b| b.to_value()),
+            1 => brain.apply_call("teach_brain", &obj! {"request" => text}),
+            2 => brain.apply_call("train_brain", &obj! {"request" => text}),
+            _ => Brain::restore(&value).map(|b| b.to_value()),
+        };
+        if let Ok(result) = result {
+            assert_eq!(parse(&result.to_json(), usize::MAX).unwrap(), result);
+        } else {
+            assert_eq!(brain.to_value(), before, "invalid model text must not partially change learning");
+        }
+        assert_eq!(Brain::restore(&brain.to_value()).unwrap().to_value(), brain.to_value());
+    }
+    assert!(parsed > 1000);
+}
+
+#[test]
 fn deep_nesting_is_refused_not_overflowed() {
     let deep = "[".repeat(100_000) + &"]".repeat(100_000);
     assert!(parse(&deep, usize::MAX).is_err());

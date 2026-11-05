@@ -23,6 +23,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Model-written `query` tool (bounded SELECT, filters, sorting, aggregates) | 29 questions × 2 small models: direct 33/58 → SQL 53/58; numeric filters 0/6 → 6/6; arithmetic 1/16 → 12/16; packed tool 52/58 in a separate run. Full tables still sent. 116 recorded queries and 3,000 generated/mutated queries byte-identical to Python; 36 new conformance cases, 30,000 fuzz mutations. |
 | Query token-only check and eval cap enforcement | Direct vs tool: 1,471 → 1,611 input tokens (Llama), 1,490 → 1,626 (Mistral); all four omitted cached-token accounting. Cost $0.000756. |
 | Schema-only descriptions, explicit weight fields and bounded correction sessions | On 3 held-out states (24/48/96 inventory rows, 10/20/40 NPCs), full tables 160/174 first → 171/174 after retry; schemas 169/174 → 172/174. Final answer scores identical to executed-query scores. Complete-exchange average input 4,898.632 → 1,615.874 (−67.0%); completed-exchange cost $0.107952 → $0.038804 (−64.1%). 23 new cases; 547 measured attempt envelopes byte-identical to Python. |
+| Generic adaptive local reaction brains | Offline reference-policy agreement on four tasks: random 545/1,536 → trained 1,421/1,536 (fresh seeds 707/808/909); changed preference 264/384 → 384/384 (seeds 1001/1002/1003). Graphs, training, pins, validation gates, persistence/undo; 41 new cases, 30,000 text mutations, 292 byte-identical workflows including 2,304 predictions. No API calls. |
 
 ## Measured and rejected
 
@@ -34,13 +35,15 @@ noted; "3 models" adds Llama 3.3 70B.
 | Sorting rows to help filtering | no accuracy change on its own |
 | All-text packet instead of JSON | only ~1% better than signatures inside JSON |
 | JSON query interface alongside SQL | 52/58 vs SQL 53/58 (noise), but more input tokens on both models: 1,601/1,616 vs 1,569/1,586; invented `group_by` filters. Keep SQL as the one shipped query interface. |
+| Linear-only default reaction network | On the nonlinear switch holdout, 192/384 versus 306/384 with four hidden nodes; retain linear networks as an explicit option. |
+| Straight-through gradients at every brain node | Diagnostic seeds 101/202/303: 1,243/1,536 versus 1,430/1,536 with output-only straight-through gradients. Strict clamp gradients scored 1,424/1,536 but failed the saturated-output adaptation test; use output-only recovery. |
 
 ## Next candidates
 
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
 - Clearer top-N aggregate guidance: Mistral still generates subqueries after a correction in some cases.
 - Explicit categorical semantics (e.g. rarity label `unique` versus count = 1), tested on fresh holdout seeds.
-- Generic model-authored adaptive reaction graphs, bounded weight lessons and saved learning, evaluated on held-out scenarios before retaining updates.
+- Reaction-brain feedback from real hosts and unseen policy families; native input adapters, held-out gameplay metrics and scheduling remain integration work.
 - Sending only what changed between turns, for games that keep chat history.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
@@ -53,3 +56,4 @@ noted; "3 models" adds Llama 3.3 70B.
 - Query is a SQL subset: one table, AND/IN, no joins, subqueries or GROUP BY; ORDER BY/LIMIT run before aggregates. Arithmetic uses 64-bit floats.
 - Schema-only requests can confuse semantic labels (`unique` rarity became count = 1). Valid but wrong queries do not retry.
 - Query workflow eval covers 4 states of one synthetic game family, including 3 holdouts; real games and different distributions may differ.
+- Brain tests use synthetic labels and one initializer seed, not live gameplay or model-authored-policy quality. The nonlinear switch task still misses 78/384; lower validation MSE does not guarantee better reaction accuracy, causal outcomes or out-of-distribution behavior.

@@ -1,0 +1,1 @@
+{"results":[{"accepted":true,"revision":1,"before_loss":0.64,"after_loss":0,"steps":386}],"state":{"version":1,"definition":{"version":1,"inputs":["x"],"outputs":["act"],"nodes":[{"id":"act","weights":{},"bias":4,"pinned":false,"learning_limit":4}]},"revision":1,"weights":[[0.200058]],"used_ids":["recover"],"history":[{"id":"recover","weights":[[4]]}]}}

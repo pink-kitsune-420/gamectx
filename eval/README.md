@@ -145,3 +145,59 @@ All 547 measured query-attempt envelopes replay byte-identically against Rust; i
 schemas match on all 12 state/mode combinations. These are multiple states from one
 synthetic family, not evidence for arbitrary games. Keep unrelated distributions and real
 integration data as further holdouts.
+
+## Local reaction brains
+
+`brain_eval.py` is entirely offline: no API, credential lookup or third-party Python
+packages. It prototypes integer-millionth neural inference, guarded training, parameter
+lessons, validation gates and saved learning, and compares Rust byte for byte.
+
+```bash
+cargo build --release --locked
+python3 -I eval/brain_eval.py                # regenerates eval/brain-results.json, free
+python3 -I eval/brain_eval.py --check        # prototype/Rust parity, free
+python3 -I eval/test_brain.py                # shared fixtures and atomicity, free
+cargo run --example adaptive-brain          # runnable host example, free
+```
+
+Labels are synthetic utility functions representing stealth reactions, ally support,
+nonlinear switch matching, and trading. One deterministic 4-hidden-node initializer
+(seed 3), 32 training samples (seed 11), 32 separate validation samples (seed 23), 128
+epochs and learning rate 0.1 are used for each. Diagnostics on seeds 101/202/303 tested
+gradient variants before the final evaluation on fresh seeds 707/808/909 (128 samples
+per seed/task). Reaction correctness means the highest-utility label matches the reference
+argmax; abstention counts as incorrect. These are not LLM-authored-policy accuracy tests.
+
+| Task | Random initialization correct / 384 | Trained correct / 384 | Validation MSE before → after |
+|---|---|---|---|
+| Stealth | 140 | 372 | 0.115617 → 0.001225 |
+| Ally support | 74 | 359 | 0.166728 → 0.002309 |
+| Nonlinear switch | 192 | 306 | 0.090474 → 0.007696 |
+| Trading | 139 | 384 | 0.099110 → 0 |
+| Total | 545/1,536 | 1,421/1,536 | |
+
+Adaptation changes trading's hold utility from 0.15 to 0.35. The existing trained network
+gets fresh training/validation seeds 31/47, then is tested on seeds 1001/1002/1003. It
+scores 264/384 before and 384/384 after adaptation; validation MSE falls from 0.013335
+to 0.000032. These are fresh labels supplied by the host, not discovered causal rewards.
+Trained saved states after the first update are 1,374 / 1,762 / 1,381 / 1,587 bytes.
+[Saved measurements](brain-results.json) include work estimates and Python timings for
+one local run; timing is not a platform guarantee. Total API spend is $0.
+
+Measured alternatives: a linear-only network scored 192/384 on the switch holdout versus
+306/384 with hidden nodes. On diagnostic samples, strict clamp gradients scored
+1,424/1,536 but could not recover a saturated old output. Straight-through gradients at
+all nodes recovered it but scored only 1,243/1,536. Applying straight-through gradients
+only at outputs scored 1,430/1,536 and recovered saturation; this is the shipped rule.
+Hidden nodes still use the clamp derivative and can be inactive; initialization matters.
+
+Free parity checks cover 292 complete workflows, including training, serialization and
+2,304 predictions (four tasks, linear ablation and adaptation), plus 250 generated/mutated
+definition workflows within that count. The 41 new conformance fixtures include errors,
+pins, replay, state restore, undo limits, thresholds, unknown inputs, masks and work caps.
+Rust additionally mutates 30,000 model-written graph/lesson/training/state texts.
+
+Limits: one initializer and small synthetic task families. Validation-loss improvement
+is a supplied-label check, not proof of better action accuracy, trustworthy labels or
+out-of-distribution behavior. The switch task's 78 misses remain visible. No billed-token
+or LLM accuracy improvement is claimed from these local tests.
