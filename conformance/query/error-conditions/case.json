@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT x FROM t WHERE x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1 AND x=1"}, "error": true}

@@ -245,6 +245,81 @@ Saved formulas are `[{"name","params","body","description"}]` in definition orde
 `gamectx calc "<expression>" --formulas FILE` evaluates one expression from the command
 line.
 
+### Queries
+
+Queries are model-written requests executed over the game's own named tables, separate
+from packet packing. The CLI takes `gamectx query TABLES.json "SELECT ..."`, where the
+file is an object of table names to arrays of row objects. Rust takes a slice of
+`(name, rows)` pairs through `query::run`, or parses once with `Query::parse` and runs
+against updated rows with `Query::run`. `gamectx query --tool` / `query::tool()` returns
+a strict function schema that packs as a signature.
+
+Supported grammar, in order:
+
+```text
+SELECT expression [AS name] [, expression [AS name] ...]
+FROM table
+[WHERE column comparison literal [AND column comparison literal ...]]
+[ORDER BY column [ASC | DESC]]
+[LIMIT n]
+[;]
+```
+
+- Names are ASCII letters, digits and `_`, starting with a letter or `_`. Keywords and
+  functions ignore case; table and column names are case-sensitive. Spaces, tabs, CR and
+  LF separate tokens. Quoted identifiers, comments and string escapes are unsupported.
+- Expressions: numeric constants, columns, parentheses, unary `-`, binary `+ - * / %`
+  with normal arithmetic precedence, `ABS(x)`, `ROUND(x)` and `ROUND(x, places)` (0–12).
+  Numeric constants have digits with an optional fractional part; no exponent syntax.
+- Aggregates: `COUNT(*)`, `COUNT(x)`, `SUM(x)`, `AVG(x)`, `MIN(x)`, `MAX(x)`. Their argument
+  may contain arithmetic on columns. Aggregate results can be combined with arithmetic,
+  e.g. `MAX(trust) - MIN(trust)`. Aggregates cannot nest, and columns outside aggregates
+  cannot appear in a query containing an aggregate. Aliases are accepted and ignored;
+  they cannot be used for sorting or filtering.
+- Comparisons: `= != <> < <= > >=` and `IN (literal, ...)`, joined only by `AND`.
+  Literals are numbers, single- or double-quoted strings, or bare words interpreted as
+  strings. `null`, `true` and `false` are bare strings, not special literals. Equality
+  treats numeric `1` and `1.0` as equal; inequalities require numbers, as in `where` views.
+- `ORDER BY` accepts one column and sorts stably, with nulls last in either direction.
+  Mixing numbers and strings, or sorting other JSON types, is an error. `LIMIT` is a
+  whole number from 0 to 4,294,967,295. **Sorting and limiting happen before aggregation**:
+  `SELECT SUM(weight) FROM inventory ORDER BY weight DESC LIMIT 3` sums the three
+  heaviest rows. This differs from standard SQL.
+- No `SELECT *`, `OR`, joins, subqueries, `GROUP BY`, `HAVING`, `UNION`, mutations or
+  multiple statements. Unsupported features return errors with supported alternatives.
+
+Each selected plain column preserves its original JSON value and number text. Arithmetic
+uses IEEE 754 64-bit floats; missing numeric values, non-number cells, division/remainder
+by zero and non-finite results become `null`. `ROUND` rounds halves away from zero.
+Computed whole numbers with magnitude below 10^15 print as integers, others in Rust's
+shortest decimal form; use `ROUND` to control floating-point tails. Aggregates skip null
+numeric results; `COUNT(column)` counts every non-null value, including strings and
+booleans. Empty sums and counts are `0`; empty averages, minima and maxima are `null`.
+
+One selected expression returns an array of values; several return an array of arrays.
+An aggregate query returns one scalar or, with several expressions, one array:
+
+```json
+["ember_cake","salt_pouch"]
+```
+
+```json
+[["ember_cake",6],["salt_pouch",14]]
+```
+
+```json
+[23,2]
+```
+
+Default limits: 500 Unicode characters, 16 selected expressions, 16 conditions, 64 values
+per `IN`, 200 expression nodes, nesting depth 32. Hosts may change these with
+`Query::parse_with` and `query::Limits`. Every row must be an object, and every referenced
+column must exist in every row, even rows that a filter would remove; an empty table
+cannot validate column names. Errors list available tables or columns where possible.
+Execution work scales with the host's table size, bounded expression shape and an
+optional sort; the query cannot request loops, external data, or modification. Hosts
+control table sizes and access, and must budget the result before sending it to a model.
+
 ### `memory` (recall)
 
 Input: saved memory, as written by `Memory::to_value`:

@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT SUM(count) AS top_two FROM items ORDER BY count DESC LIMIT 2"}}

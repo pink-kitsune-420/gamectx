@@ -62,6 +62,12 @@ What the measurements show:
   answered 0 of 16 questions correctly. Writing an expression for gamectx to compute instead
   got 8 of 16, and every remaining miss chose the wrong rows, which `where` and `derive` do
   exactly in code.
+- **Let the model request rows and totals.** On 29 filtering and arithmetic questions per
+  small model, direct answers scored 33/58; model-written SQL executed by gamectx scored
+  53/58. Numeric filters improved from 0/6 to 6/6 and arithmetic from 1/16 to 12/16.
+  Packing the `query` tool with the actions scored 52/58 in a separate run. It costs extra
+  input and a tool round trip; these runs still sent the full data. See the
+  [query measurements](eval/README.md#query-tool).
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -103,6 +109,9 @@ packet: 1906 bytes; budget 2000 bytes
 - **Formulas** (`formula`): a safe expression language (no loops, no recursion, step limits)
   that the game or model defines once and the game evaluates exactly, as `derive` columns
   or through the model's `calc` and `define_formula` tools.
+- **Queries** (`query`): bounded, read-only `SELECT` requests over tables the game exposes.
+  The game filters, sorts, limits and aggregates; `query::tool()` describes the tool and
+  `query::run()` executes the model's SQL. No database or SQL dependency required.
 - **Memory** (`memory`): facts and events with tags, importance and turn, recalled by
   relevance instead of resending history, with a ready-made `remember` tool for the model.
 - **Context** (library): register tools, prompts and constants once; add variables and
@@ -159,7 +168,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 103 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 139 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -220,6 +229,34 @@ packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
 The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
 you need full control; see the [API docs](https://docs.rs/gamectx) once published, or
 `cargo doc --open`.
+
+### Give the model a query tool
+
+Include `gamectx::query::tool()` with your actions, then execute its `sql` argument over
+the tables the game allows it to read. Return the JSON result, or the error so the model
+can correct its request. Table names must match those shown in the packet.
+
+```rust
+use gamectx::{json, query};
+
+let rows = json::parse(r#"[{"id":"moss_cake","count":2,"weight":0.25},
+    {"id":"ember_cake","count":6,"weight":3.75}]"#, 4096)?;
+let tables = [("inventory", rows.as_array().unwrap())];
+let answer = query::run(
+    "SELECT SUM(count * weight) FROM inventory WHERE count >= 6", &tables)?;
+assert_eq!(answer.to_json(), "22.5");
+```
+
+The CLI accepts an object of named tables and prints JSON:
+
+```bash
+gamectx query tables.json "SELECT id FROM inventory WHERE count >= 6 ORDER BY weight DESC LIMIT 3"
+gamectx query --tool
+```
+
+This is a [small SQL subset](docs/FORMAT.md#queries), with `ORDER BY` and `LIMIT` applied
+**before** aggregates. Arithmetic uses 64-bit floats; round when needed. The game controls
+which tables are exposed, and query results still need to fit the next packet's budget.
 
 ## Be honest with your numbers
 

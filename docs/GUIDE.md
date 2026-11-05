@@ -90,6 +90,13 @@ least 15" was right 1 time in 27 without help.
 - **Otherwise:** ask for a brief list of candidate rows before the final JSON. *Measured on
   18 filtering questions: 37/54 → 46/54 correct, numeric filters 1/9 → 6/9, for about 60
   extra output tokens per answer.*
+- **When the model chooses the filter:** give it `query::tool()` and execute the `sql`
+  argument with `query::run()`. *Measured on 29 questions per small model: 33/58 direct,
+  53/58 with SQL; numeric filters 0/6 → 6/6, whole-table questions 2/6 → 6/6, arithmetic
+  1/16 → 12/16. A separate run with the tool packed as a signature scored 52/58.*
+  Both runs still sent the full tables. The tool adds input tokens and needs a round trip
+  to return its result; savings from omitting tables have not been measured. Only expose
+  tables the model may read, send errors back for correction, and budget the result.
 - Sorting rows or adding row counts did not measurably help on its own (37 → 37 and 39
   of 54), so gamectx does not add counts and does not claim `sort_by` improves accuracy.
 

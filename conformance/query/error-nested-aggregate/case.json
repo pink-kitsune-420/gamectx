@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT SUM(MAX(count)) FROM items"}, "error": true}

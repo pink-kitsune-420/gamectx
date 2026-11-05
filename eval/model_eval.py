@@ -15,7 +15,9 @@ build the packets and questions and estimate the cost without calling anything.
 
 import argparse
 import json
+import math
 import os
+from pathlib import Path
 import random
 import subprocess
 import sys
@@ -49,7 +51,7 @@ ACTION_RULE = (
 
 def build_data(seed=7):
     rng = random.Random(seed)
-    tools = json.load(open(os.path.join(ROOT, "examples/ember-keep/tools.json")))
+    tools = json.loads(Path(ROOT, "examples/ember-keep/tools.json").read_text())
     nouns = {
         "tool": ["lantern", "flint", "bell", "shears", "hook", "chisel"],
         "reagent": ["pouch", "flask", "moss", "chip", "dust", "root"],
@@ -142,7 +144,7 @@ def relevant_packets(questions, tools, inventory, roster, workdir, gamectx_bin, 
 
 
 def pack(manifest, path, gamectx_bin):
-    json.dump(manifest, open(path, "w"))
+    Path(path).write_text(json.dumps(manifest))
     return subprocess.run([gamectx_bin, "pack", path], check=True, capture_output=True, text=True).stdout.strip()
 
 
@@ -312,9 +314,14 @@ def get_prices(base_url, key):
 
 
 def chat(base_url, key, model, system, user, venice, max_tokens=MAX_OUTPUT_TOKENS):
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    return chat_messages(base_url, key, model, messages, venice, max_tokens)
+
+
+def chat_messages(base_url, key, model, messages, venice, max_tokens=MAX_OUTPUT_TOKENS):
     body = {
         "model": model,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "messages": messages,
         "temperature": 0,
         "max_completion_tokens": max_tokens,
     }
@@ -350,6 +357,8 @@ def main():
     ap.add_argument("--tokens-only", action="store_true", help="measure billed input tokens per format, 1-token replies")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+    if not math.isfinite(args.cap) or args.cap < 0:
+        ap.error("--cap must be a finite non-negative amount")
 
     run_dir = os.path.join(args.out, time.strftime("%Y%m%d-%H%M%S"))
     packets, (tools, inventory, roster) = build_packets(run_dir, args.gamectx)
@@ -369,25 +378,44 @@ def main():
     calls = len(questions) * len(formats) * len(models)
     print("packets: " + ", ".join(f"{f} {len(packets[f.removesuffix('+reason')].encode())} bytes" for f in formats))
     print(f"{len(questions)} questions x {len(formats)} formats x {len(models)} models = {calls} calls; cap ${args.cap:.2f}")
-    json.dump({"packets": packets, "questions": questions}, open(os.path.join(run_dir, "inputs.json"), "w"), indent=1)
+    Path(run_dir, "inputs.json").write_text(json.dumps({"packets": packets, "questions": questions}, indent=1))
     if args.dry_run:
         print(f"dry run: inputs written to {run_dir}")
         return
 
-    key = open(args.key_file).read().strip()
+    key = Path(args.key_file).read_text().strip()
     if not key:
         sys.exit("key file is empty")
     venice = "venice.ai" in args.base_url
     prices = get_prices(args.base_url, key) if venice else {}
     if args.tokens_only:
+        spent, rows, stopped = 0.0, [], None
         print(f"\n{'model':<34} " + " ".join(f"{f:>16}" for f in formats))
         for model in models:
+            price = prices.get(model, FALLBACK_PRICE)
             counts = []
             for fmt in formats:
-                reply = chat(args.base_url, key, model, SYSTEM + packets[fmt.removesuffix("+reason")], "Reply with {}.", venice, 1)
-                counts.append(reply.get("usage", {}).get("prompt_tokens", 0))
+                system, user = SYSTEM + packets[fmt.removesuffix("+reason")], "Reply with {}."
+                worst = ((len((system + user).encode()) + 256) * price["input"] + price["output"]) / 1e6
+                if spent + worst > args.cap:
+                    stopped = f"stopped: spending cap ${args.cap:.2f}"
+                    break
+                reply = chat(args.base_url, key, model, system, user, venice, 1)
+                usage = reply.get("usage", {})
+                cost = (usage.get("prompt_tokens", 0) * price["input"]
+                        + usage.get("completion_tokens", 0) * price["output"]) / 1e6
+                spent += cost
+                counts.append(usage.get("prompt_tokens", 0))
+                rows.append({"model": model, "format": fmt, "usage": usage, "cost": cost})
+            if not counts:
+                break
             base = counts[0] or 1
             print(f"{model:<34} " + " ".join(f"{c:>9} ({100 * (c - base) / base:+4.0f}%)" for c in counts))
+            if stopped:
+                break
+        Path(run_dir, "tokens.json").write_text(json.dumps(
+            {"spent_usd": spent, "stopped": stopped, "results": rows}, indent=1))
+        print(f"spent ${spent:.6f}" + (f"; {stopped}" if stopped else ""))
         return
     spent, results, stopped = 0.0, [], None
     for model in models:
@@ -425,8 +453,8 @@ def main():
         if stopped:
             break
 
-    json.dump({"models": models, "formats": formats, "spent_usd": spent, "stopped": stopped, "results": results},
-              open(os.path.join(run_dir, "results.json"), "w"), indent=1)
+    Path(run_dir, "results.json").write_text(json.dumps(
+        {"models": models, "formats": formats, "spent_usd": spent, "stopped": stopped, "results": results}, indent=1))
     report(results, models, formats, spent, stopped, run_dir)
 
 

@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT id, weight FROM items WHERE weight > 0.4 ORDER BY weight LIMIT 2"}}

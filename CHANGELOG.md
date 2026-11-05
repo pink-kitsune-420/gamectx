@@ -11,6 +11,20 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
+## Unreleased
+
+- **[format]** New `query` conformance operation: bounded, read-only model-written SELECT
+  over named game tables, with filters, sorting, limits, arithmetic and aggregates.
+  ORDER BY and LIMIT apply before aggregates. Adds 36 cases; all 103 previous cases stay
+  byte-identical. No existing packed format changes.
+- **[api]** `query::{tool, run, Query, Limits}` and `gamectx query TABLES SQL` /
+  `gamectx query --tool`. Measured on the two small models: direct answers 33/58,
+  SQL 53/58; numeric filters 0/6 → 6/6; arithmetic 1/16 → 12/16. A separate run with
+  the tool packed as a signature scored 52/58. The full data was sent in both runs.
+- **[internal]** Query replay and differential checks against the Python prototype;
+  mutation fuzzing, limit checks and non-finite arithmetic coverage. Token-only evals
+  enforce the spending cap and save usage and costs.
+
 ## 0.1.0-alpha.2 — 2026-11-05
 
 Adds features without changing any alpha.1 output: all 51 alpha.1 conformance cases are

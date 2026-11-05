@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT COUNT(*) FROM items GROUP BY kind"}, "error": true}

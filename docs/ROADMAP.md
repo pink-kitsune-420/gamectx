@@ -16,6 +16,13 @@ noted; "3 models" adds Llama 3.3 70B.
 | `memory` recall | −84% tokens vs a 60-event history, 20/20 both |
 | `round` view | about one token per dropped digit per number (−5% for one place here) |
 
+## Implemented (unreleased)
+
+| Item | Result |
+|---|---|
+| Model-written `query` tool (bounded SELECT, filters, sorting, aggregates) | 29 questions × 2 small models: direct 33/58 → SQL 53/58; numeric filters 0/6 → 6/6; arithmetic 1/16 → 12/16; packed tool 52/58 in a separate run. Full tables still sent. 116 recorded queries and 3,000 generated/mutated queries byte-identical to Python; 36 new conformance cases, 30,000 fuzz mutations. |
+| Query token-only check and eval cap enforcement | Direct vs tool: 1,471 → 1,611 input tokens (Llama), 1,490 → 1,626 (Mistral); all four omitted cached-token accounting. Cost $0.000756. |
+
 ## Measured and rejected
 
 | Idea | Why not |
@@ -25,18 +32,21 @@ noted; "3 models" adds Llama 3.3 70B.
 | Row counts in table headers | +2/54 (noise) for +3% tokens |
 | Sorting rows to help filtering | no accuracy change on its own |
 | All-text packet instead of JSON | only ~1% better than signatures inside JSON |
+| JSON query interface alongside SQL | 52/58 vs SQL 53/58 (noise), but more input tokens on both models: 1,601/1,616 vs 1,569/1,586; invented `group_by` filters. Keep SQL as the one shipped query interface. |
 
 ## Next candidates
 
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
-- Combine `calc` with game-side selection (`where`/`derive`) in an eval to confirm the 8/16 misses disappear.
+- Query error correction with one retry, especially invented table names and unsupported subqueries; no measured retry gain yet.
+- Query tools with table schemas instead of full rows; measure accuracy and the complete result-return round trip before claiming token savings.
 - Sending only what changed between turns, for games that keep chat history.
-- Provider prompt-cache measurements where cached tokens are discounted.
+- Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
 - Feedback from the first real game integration once its gaps list arrives.
 
 ## Known gaps
 
 - Word matching is literal plus an optional plural `s`: "lighting" does not match "light".
-- Numeric filtering by the model fails in every format; use `where`.
+- Numeric filtering by reading rows fails in every format; use `where` or have the model request a `query`.
+- Query is a SQL subset: one table, AND/IN, no joins, subqueries or GROUP BY; ORDER BY/LIMIT run before aggregates. Arithmetic uses 64-bit floats.
 - Eval data is one synthetic game state; real games may differ.

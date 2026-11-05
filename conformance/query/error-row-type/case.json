@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT 1 FROM t"}, "error": true}

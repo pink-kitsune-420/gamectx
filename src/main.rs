@@ -24,6 +24,9 @@ USAGE:
   gamectx calc <expression> [--formulas formulas.json]
       Evaluate a formula expression exactly, e.g. a model's calc request; prints JSON.
       --formulas loads saved definitions (a list of name, params, body, description).
+  gamectx query <tables.json> <sql>
+      Run a model's SQL SELECT exactly over the tables (an object of name: array of
+      objects); prints JSON. gamectx query --tool prints the query tool for the model.
   gamectx calibrate <calibration.json> --scope NAME --bytes N --tokens N [--estimate N]
       Record one provider usage report (input tokens for a request body of N bytes).
 
@@ -51,7 +54,7 @@ struct Args {
     options: Vec<(String, Option<String>)>,
 }
 
-const SWITCHES: [&str; 1] = ["--receipt"];
+const SWITCHES: [&str; 2] = ["--receipt", "--tool"];
 
 impl Args {
     fn parse(raw: &[String]) -> Result<Args> {
@@ -179,6 +182,23 @@ fn run(raw: &[String]) -> Result<()> {
                 None => gamectx::formula::Formulas::new(),
             };
             println!("{}", formulas.calc(&args.positional[0])?.to_json());
+            Ok(())
+        }
+        "query" if args.has("--tool") => {
+            args.only(&["--tool"], 0)?;
+            println!("{}", gamectx::query::tool().to_json());
+            Ok(())
+        }
+        "query" => {
+            args.only(&[], 2)?;
+            let tables = read_json_file(Path::new(&args.positional[0]))?;
+            let entries = tables.as_object().ok_or_else(|| Error::new("tables must be an object of name: array"))?;
+            let mut named = Vec::with_capacity(entries.len());
+            for (name, rows) in entries {
+                let rows = rows.as_array().ok_or_else(|| Error::new(format!("table \"{name}\" must be an array")))?;
+                named.push((name.as_str(), rows));
+            }
+            println!("{}", gamectx::query::run(&args.positional[1], &named)?.to_json());
             Ok(())
         }
         "help" | "--help" | "-h" => {

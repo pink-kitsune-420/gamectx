@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT id, count FROM items WHERE count >= 6 ORDER BY count DESC"}}

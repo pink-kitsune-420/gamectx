@@ -52,3 +52,18 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
     assert!(system.starts_with("You are the game logic for Warden Ilse.\n\nGAME DATA:\n{"));
     Ok(())
 }
+
+#[test]
+fn readme_query_example() -> gamectx::Result<()> {
+    use gamectx::{json, query};
+
+    let rows = json::parse(
+        r#"[{"id":"moss_cake","count":2,"weight":0.25},
+    {"id":"ember_cake","count":6,"weight":3.75}]"#,
+        4096,
+    )?;
+    let tables = [("inventory", rows.as_array().unwrap())];
+    let answer = query::run("SELECT SUM(count * weight) FROM inventory WHERE count >= 6", &tables)?;
+    assert_eq!(answer.to_json(), "22.5");
+    Ok(())
+}

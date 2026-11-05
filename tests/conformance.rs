@@ -127,6 +127,15 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
             )
         }
         "fingerprint" => Value::Array(strings(&input).iter().map(|s| Value::str(fingerprint(s))).collect()),
+        "query" => {
+            let tables: Vec<(&str, &[Value])> = input
+                .as_object()
+                .expect("tables object")
+                .iter()
+                .map(|(name, rows)| (name.as_str(), rows.as_array().expect("table rows")))
+                .collect();
+            gamectx::query::run(args.get("sql").and_then(Value::as_str).expect("sql"), &tables)?
+        }
         other => panic!("unknown op {other}"),
     };
     // Lossless operations must also restore their input (grouped tables: in group order).

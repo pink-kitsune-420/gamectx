@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT id, ROUND(weight * count, 1), count % 4, -count / 0, ABS(1 - count) FROM items WHERE kind != 'reagent'"}}

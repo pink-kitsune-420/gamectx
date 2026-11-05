@@ -63,6 +63,22 @@ fn cli_search_pages_with_generation() {
 }
 
 #[test]
+fn cli_query_executes_and_reports_errors() {
+    let tables = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/query/select-filter-sort/input.json");
+    let (ok, out, _) =
+        gamectx(&["query", tables, "SELECT id FROM items WHERE count >= 6 ORDER BY weight DESC LIMIT 3"]);
+    assert!(ok);
+    assert_eq!(out, "[\"ember_cake\",\"salt_pouch\",\"bone_hook\"]\n");
+    let (ok, tool, _) = gamectx(&["query", "--tool"]);
+    assert!(ok);
+    assert_eq!(tool, format!("{}\n", gamectx::query::tool().to_json()));
+    let (ok, _, err) = gamectx(&["query", tables, "DELETE FROM items"]);
+    assert!(!ok && err.contains("SELECT"));
+    let (ok, _, err) = gamectx(&["query", "--tool", tables]);
+    assert!(!ok && err.contains("expected 0 argument"));
+}
+
+#[test]
 fn manifest_accepts_every_documented_table_key() {
     let text = r#"{"sections":[{"name":"t","pack":"table","priority":1,"stable":false,"required":false,
         "value":[{"id":"a","kind":"tool","count":3,"w":1.25},{"id":"b","kind":"food","count":9,"w":2.5}],

@@ -114,6 +114,49 @@ fn formula_text_never_panics_or_hangs() {
 }
 
 #[test]
+fn query_text_never_panics_or_hangs() {
+    use gamectx::query;
+    let tables = parse(
+        r##"{"items":[{"id":"a","kind":"food","n":3,"w":0.50,"x":null},{"id":"b","kind":"tool","n":-2e3,"w":1,"x":true}],
+            "empty":[]}"##,
+        1 << 16,
+    )
+    .unwrap();
+    let named: Vec<(&str, &[Value])> =
+        tables.as_object().unwrap().iter().map(|(k, v)| (k.as_str(), v.as_array().unwrap())).collect();
+    let seeds = [
+        "SELECT id, n * w FROM items WHERE kind IN ('food', tool) AND n >= -1 ORDER BY w DESC LIMIT 1;",
+        "select max(n) - min(w), round(avg(n * 2), 2) as a, count(x) from items where id <> \"b\"",
+        "SELECT SUM(n) FROM empty WHERE n > 0.5 ORDER BY id",
+        "SELECT ABS(-n % 0), -(-(w)) / 3 FROM items ORDER BY id",
+    ];
+    const NOISE: &[u8] = b"()+-*/%<>=!,;'\" .0123456789eE_acdefilmnorstuwxABCDEFILMNORSTW\xc3\xa9";
+    let mut rng = Rng(0x0BAD_5EED_1234_5678);
+    let mut accepted = 0;
+    for i in 0..30_000 {
+        let mut bytes = seeds[i % seeds.len()].as_bytes().to_vec();
+        for _ in 0..=rng.below(4) {
+            let at = rng.below(bytes.len() + 1);
+            match rng.below(3) {
+                0 if at < bytes.len() => {
+                    bytes.remove(at);
+                }
+                1 => bytes.insert(at, NOISE[rng.below(NOISE.len())]),
+                _ if at < bytes.len() => bytes[at] = NOISE[rng.below(NOISE.len())],
+                _ => {}
+            }
+        }
+        if let Ok(result) = query::run(&String::from_utf8_lossy(&bytes), &named) {
+            accepted += 1;
+            assert_eq!(parse(&result.to_json(), usize::MAX).as_ref(), Ok(&result));
+        }
+    }
+    assert!(accepted > 1000, "mutations should still produce many valid queries ({accepted})");
+    let deep = format!("SELECT {}n{} FROM items", "ABS(".repeat(10_000), ")".repeat(10_000));
+    assert!(query::run(&deep, &named).is_err());
+}
+
+#[test]
 fn deep_nesting_is_refused_not_overflowed() {
     let deep = "[".repeat(100_000) + &"]".repeat(100_000);
     assert!(parse(&deep, usize::MAX).is_err());

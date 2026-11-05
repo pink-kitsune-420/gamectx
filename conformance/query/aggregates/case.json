@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT COUNT(*), COUNT(weight), SUM(weight * count), AVG(weight) FROM items WHERE kind IN (food, tool)"}}

@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(ABS(x))))))))))))))))))))))))))))))))) FROM t"}, "error": true}

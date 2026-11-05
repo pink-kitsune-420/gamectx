@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "SELECT SUM(count), COUNT(*), AVG(count), MIN(count), MAX(count) FROM items WHERE count > 99"}}

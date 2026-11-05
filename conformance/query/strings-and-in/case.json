@@ -1,0 +1,1 @@
+{"op": "query", "args": {"sql": "select name from npcs where faction = keepers and role IN ('guard', \"cook\") and name <> 'Tess';"}}

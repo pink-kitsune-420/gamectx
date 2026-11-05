@@ -16,6 +16,8 @@
 //! - [`estimate`]: conservative token estimates calibrated from provider usage reports.
 //! - [`memory`]: long-term records recalled by relevance, importance and recency, with a
 //!   `remember` tool for the model.
+//! - [`query`]: a small SQL `SELECT` the model writes and the game runs exactly, for
+//!   filters and totals models get wrong when they read the data themselves.
 //! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
 //! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
 //!
@@ -44,6 +46,7 @@ pub mod formula;
 pub mod json;
 pub mod manifest;
 pub mod memory;
+pub mod query;
 pub mod schema;
 pub mod signatures;
 pub mod table;

@@ -1,0 +1,14 @@
+{
+ "items": [
+  {"id": "salt_pouch", "kind": "reagent", "rarity": "common", "count": 14, "weight": 0.50},
+  {"id": "moss_cake", "kind": "food", "rarity": "rare", "count": 2, "weight": 0.25},
+  {"id": "ember_cake", "kind": "food", "rarity": "common", "count": 6, "weight": 3.75},
+  {"id": "tide_map", "kind": "scroll", "rarity": "rare", "count": 1, "weight": 1.5},
+  {"id": "bone_hook", "kind": "tool", "rarity": "common", "count": 9, "weight": null}
+ ],
+ "npcs": [
+  {"name": "Orla", "faction": "keepers", "role": "guard", "trust": 0.53},
+  {"name": "Bram", "faction": "ashfolk", "role": "guard", "trust": 0.04},
+  {"name": "Tess", "faction": "keepers", "role": "cook", "trust": 0.71}
+ ]
+}
