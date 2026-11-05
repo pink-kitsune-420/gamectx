@@ -2,7 +2,7 @@
 //! and anything that parses must survive packing and serialize back to itself.
 
 use gamectx::json::{parse, Value};
-use gamectx::{catalog, schema, table};
+use gamectx::{catalog, schema, signatures, table};
 
 const SEEDS: [&str; 5] = [
     r##"[{"id":"a","kind":"x","n":1.50},{"id":"b","kind":"x","n":-2e3}]"##,
@@ -55,6 +55,10 @@ fn exercise(value: &Value) {
         if let Ok(packed) = schema::pack(items) {
             assert!(Value::Array(schema::unpack(&packed).unwrap()).same(value));
             let _ = schema::outline(items);
+        }
+        if let Ok(text) = signatures::pack(items) {
+            let restored = Value::Array(signatures::unpack(&text).unwrap());
+            assert!(restored.same(&Value::Array(items.iter().map(signatures::bare).collect())));
         }
     }
     if let Ok(c) = catalog::Catalog::from_json(value, catalog::Limits::default()) {

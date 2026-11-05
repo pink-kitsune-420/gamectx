@@ -3,6 +3,7 @@
 //!
 //! - [`table`]: uniform objects to a header plus rows, (lossless).
 //! - [`schema`]: tool schemas to rows with shared `$defs` (lossless), or a one-line outline (lossy).
+//! - [`signatures`]: tool schemas as short text lines, 12–14% fewer tokens than packed JSON Schema (lossless).
 //! - [`view`]: sort, keep the top N, keep chosen columns and round numbers before packing.
 //! - [`catalog`]: searchable, paged registries instead of whole-registry dumps.
 //! - [`budget`]: stable-first assembly that drops low-priority sections to fit a budget.
@@ -32,6 +33,7 @@ pub mod estimate;
 pub mod json;
 pub mod manifest;
 pub mod schema;
+pub mod signatures;
 pub mod table;
 pub mod view;
 

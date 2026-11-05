@@ -1,9 +1,9 @@
 {
-  "budget_bytes": 2700,
+  "budget_bytes": 2000,
   "sections": [
     {
       "name": "actions",
-      "pack": "schema",
+      "pack": "signatures",
       "file": "tools.json",
       "priority": 10,
       "stable": true,

@@ -1,0 +1,46 @@
+[
+ {
+  "name": "say",
+  "description": "Say a line.",
+  "strict": true,
+  "parameters": {
+   "type": "object",
+   "properties": {
+    "line": {
+     "type": "string",
+     "maxLength": 120,
+     "description": "Words; plain text."
+    },
+    "loud": {
+     "type": "boolean"
+    },
+    "bias": {
+     "type": "number",
+     "minimum": -0.5
+    },
+    "cap": {
+     "type": "integer",
+     "maximum": 9
+    }
+   },
+   "required": [
+    "line",
+    "loud",
+    "bias",
+    "cap"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "rest",
+  "description": "Rest.",
+  "strict": true,
+  "parameters": {
+   "type": "object",
+   "properties": {},
+   "required": [],
+   "additionalProperties": false
+  }
+ }
+]

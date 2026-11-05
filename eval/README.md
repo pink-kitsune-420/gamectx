@@ -13,7 +13,8 @@ python3 -I eval/model_eval.py --kinds inv_filter,npc_filter --formats gamectx-gr
 ```
 
 Formats: `json` (compact JSON), `gamectx` (tables), `gamectx-grouped` (tables grouped by
-item kind and NPC faction) and `grouped-sorted` (grouped, rows sorted inside groups). Add
+item kind and NPC faction), `gamectx-signatures` (grouped tables, actions as signatures)
+and `grouped-sorted` (grouped, rows sorted inside groups). Add
 `+reason` to any format to ask for a brief list of candidate rows before the answer.
 `--kinds` limits the run to some question types; `--dry-run` lists them all.
 

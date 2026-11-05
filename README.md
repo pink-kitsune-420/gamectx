@@ -19,20 +19,21 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 
 ## Measured on real models
 
-The same 48 questions about one game state (8 actions, 48 inventory items, 20 NPCs) were
+The same 53 questions about one game state (8 actions, 48 inventory items, 20 NPCs) were
 asked with the data as plain compact JSON and packed by gamectx, at temperature 0, on three
 models through an OpenAI-compatible API. Input tokens are what the provider billed.
 
-| Format | Correct (144) | Avg input tokens | vs JSON |
+| Format | Correct (159) | Avg input tokens | vs JSON |
 |---|---|---|---|
-| Plain compact JSON | 120 | 2,795 | |
-| gamectx tables | 119 | 1,862 | **−33%** |
-| gamectx tables grouped by the filtered column | **126** | **1,733** | **−38%** |
+| Plain compact JSON | 133 | 2,797 | |
+| gamectx tables grouped by the filtered column | 140 | 1,735 | **−38%** |
+| + actions as `signatures` | **141** | **1,517** | **−46%** |
 
-Per model, grouped tables scored at least as well as JSON: Llama 3.2 3B 46 vs 43, Mistral
-Small 3.2 24B 39 vs 37, Llama 3.3 70B 41 vs 40 (of 48). Lookups, schema rules and action
-choice were near-perfect in every format; the differences came from filtering questions.
-The [eval script](eval/model_eval.py) reproduces the run for about $0.30.
+Per model, gamectx with signatures scored at least as well as JSON: Llama 3.2 3B 49 vs 48,
+Mistral Small 3.2 24B 45 vs 41, Llama 3.3 70B 47 vs 44 (of 53), and chose the right action
+30 of 30 times. Lookups and schema rules were near-perfect in every format; the differences
+came from filtering questions. The [eval script](eval/model_eval.py) reruns this for about
+$0.31.
 
 What the measurements show:
 
@@ -41,7 +42,12 @@ What the measurements show:
   and cut accuracy from 102 to 74 of 108 on a 36-question set: even the 70B model answered
   `7` instead of looking up what `7` meant. gamectx always writes values in full.
 - **Group by what your game filters on.** Grouping NPCs by faction made "which keepers are
-  guards?" correct 18 of 18 times, against 15 for JSON.
+  guards?" correct 18 of 18 times, against 14 for JSON.
+- **Describe actions as signatures, not JSON Schema.** `power: integer 1..5` instead of
+  `{"type":"integer","minimum":1,"maximum":5}`, with arguments shared between actions
+  described once, used 12–14% fewer tokens than packed JSON Schema at equal or better
+  accuracy. Plain-text tables, by contrast, saved nothing over JSON tables: tokenizers
+  already treat `","` as a single token.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -55,17 +61,17 @@ From the included [Ember Keep example](examples/ember-keep) (8 actions, a 10-ite
 5 recent events, a 28-entry catalog):
 
 ```text
-section              pack     priority stable   original     packed   saved
-actions              schema         10    yes       3182       1727   45.7%
-rules                raw             9    yes        142        142    0.0%
-action_outline       outline         1    yes       3182        314   90.1%
-inventory            table           6     no        831        444   46.6%
-recent_events        table           7     no        318        227   28.6%
-lights_nearby        catalog         3     no       1787        376   79.0%
-mood                 raw             8     no         37         37    0.0%
-all sections (bytes of compact JSON)                9479       3267   65.5%
+section              pack       priority stable   original     packed   saved
+actions              signatures       10    yes       3182       1045   67.2%
+rules                raw               9    yes        142        142    0.0%
+action_outline       outline           1    yes       3182        314   90.1%
+inventory            table             6     no        831        444   46.6%
+recent_events        table             7     no        318        227   28.6%
+lights_nearby        catalog           3     no       1787        376   79.0%
+mood                 raw               8     no         37         37    0.0%
+all sections (bytes of compact JSON)                  9479       2585   72.7%
 
-packet: 2636 bytes; budget 2700 bytes
+packet: 1954 bytes; budget 2000 bytes
   dropped action_outline (314 bytes, priority 1)
   dropped lights_nearby (376 bytes, priority 3)
 ```
@@ -75,11 +81,15 @@ packet: 2636 bytes; budget 2700 bytes
   smaller still and makes filtering on that column easier for models.
 - **Views** (on tables): `sort_by` + `limit` keep only the rows that matter (the 10 nearest
   NPCs), `fields` drops columns the decision does not need, and `round` trims long decimals.
-- **Tool schemas** (`schema`, lossless): function-calling definitions become rows, and
-  parameter rules repeated across tools move into shared `$defs`. The common strict defaults
-  collapse to `null`. This is for actions described *in the prompt* (as in the measurements
-  above, or a planner that writes action scripts). Tools passed through a provider's native
-  `tools` parameter must stay in that provider's own format.
+- **Action signatures** (`signatures`, lossless): tool schemas as short text lines, with
+  arguments shared between actions described once, such as `power: integer 1..5`. The
+  recommended way to describe actions in a prompt.
+- **Tool schemas** (`schema`, lossless): for tools signatures cannot express (nested objects,
+  arrays). Definitions become rows, and parameter rules repeated across tools move into
+  shared `$defs`.
+- Both are for actions described *in the prompt* (as in the measurements above, or a planner
+  that writes action scripts). Tools passed through a provider's native `tools` parameter
+  must stay in that provider's own format.
 - **Outlines** (`outline`, lossy): `cast_spell(spell=spark|salt_ward|mend|hush,target,power:1..5)`,
   a cheap reminder of what actions exist.
 - **Catalogs** (`catalog`): search a registry and send one small page instead of the whole list.
@@ -110,9 +120,9 @@ A manifest lists the sections of one packet:
 
 ```json
 {
-  "budget_bytes": 2700,
+  "budget_bytes": 2000,
   "sections": [
-    {"name": "actions", "pack": "schema", "file": "tools.json", "priority": 10, "stable": true, "required": true},
+    {"name": "actions", "pack": "signatures", "file": "tools.json", "priority": 10, "stable": true, "required": true},
     {"name": "inventory", "pack": "table", "group_by": "kind", "file": "inventory.json", "priority": 6},
     {"name": "nearby_npcs", "pack": "table", "file": "npcs.json", "sort_by": "distance", "limit": 10,
      "fields": ["name", "role", "mood"], "priority": 7},
@@ -161,8 +171,8 @@ plain JSON and documented in [docs/FORMAT.md](docs/FORMAT.md).
 
 ## Be honest with your numbers
 
-- **Bytes saved are not tokens saved.** In the run above, gamectx cut bytes by 46% but
-  tokens by 33%. Measure with your provider's reported usage, which is what `calibrate`
+- **Bytes saved are not tokens saved.** In the run above, gamectx cut bytes by 58% but
+  tokens by 46%. Measure with your provider's reported usage, which is what `calibrate`
   is for.
 - **Results depend on your data and models.** The numbers above are one game state and
   three models. Test the decisions your game actually depends on, with the eval script

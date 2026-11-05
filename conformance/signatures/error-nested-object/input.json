@@ -1,0 +1,23 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "a",
+   "description": "A.",
+   "strict": true,
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "x": {
+      "type": "object",
+      "properties": {}
+     }
+    },
+    "required": [
+     "x"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

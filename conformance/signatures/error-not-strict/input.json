@@ -1,0 +1,14 @@
+[
+ {
+  "name": "a",
+  "description": "A.",
+  "parameters": {
+   "type": "object",
+   "properties": {
+    "x": {
+     "type": "string"
+    }
+   }
+  }
+ }
+]

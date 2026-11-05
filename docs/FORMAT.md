@@ -39,7 +39,7 @@ Each section:
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `name` | string | required | Key in the packet; must be unique. |
-| `pack` | string | `raw` | `raw`, `table`, `schema`, `outline` or `catalog`. |
+| `pack` | string | `raw` | `raw`, `table`, `signatures`, `schema`, `outline` or `catalog`. |
 | `value` / `file` | any / path | one required | Inline data, or a JSON file relative to the manifest. |
 | `priority` | integer | 0 | Higher is more important. Lower priorities are dropped first; ties drop the later-declared section first. |
 | `stable` | bool | false | Rarely changes between requests. Stable sections are placed first, keeping the start of the packet identical so it can be cached. |
@@ -93,9 +93,43 @@ A table section can shape its rows before packing. Steps always run in this orde
 A view drops information on purpose, so `verify` reports such sections as "round-trips
 the rows its view selected": the packed table restores exactly the viewed rows.
 
+### `signatures` (lossless)
+
+The recommended way to describe actions in a prompt: tool schemas as short text lines,
+packed into the packet as one JSON string. Input: the same tool array as `schema`.
+
+```text
+All arguments are required; no other arguments are allowed.
+Shared arguments (same meaning wherever listed):
+  target: string; Entity handle.
+  power: integer 1..5
+cast(spell, target, power): Cast.
+  spell: one of spark|hush
+guard(target, power): Guard.
+wait(seconds): Wait.
+  seconds: integer 1..30
+```
+
+(The expected output of conformance case `signatures/shared`.)
+
+- The first line is always the header shown. Each action is `name(arg, arg): description`,
+  followed by two-space-indented lines for its arguments.
+- An argument whose name and rule are identical in two or more actions, and whose name
+  means nothing else, is described once under the "Shared arguments" line instead.
+- Argument rules: `one of a|b|c` (string enum); `string`, `integer`, `number` or `boolean`;
+  integers and numbers may add ` min..max` (either side may be empty, e.g. `1..` or `..9`);
+  strings may add `, at most N characters`; any rule may end with `; description`.
+- Every tool must be strict (`strict: true`, every property required, no additional
+  properties) with a one-line description. Names use letters, digits, `_` and `-`. Enum
+  values may not contain `|`, `;` or line breaks. Anything else, such as nested objects,
+  arrays, patterns or numeric enums, is refused; use `schema` for those tools.
+- Unpacking restores each tool as a bare function object (`{"name","description","strict",
+  "parameters"}`); a provider's `{"type":"function"}` wrapper is not kept.
+
 ### `schema` (lossless)
 
-Use this for action catalogs sent as context data. Do not send packed schemas in a
+Use this for action catalogs sent as context data when `signatures` cannot express them
+(nested objects, arrays and other JSON Schema features). Do not send packed schemas in a
 provider's native `tools` / function-calling parameter; providers require their own format
 there.
 
@@ -158,9 +192,9 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
 
 ```json
 {"columns":["name","bytes","priority","stable"],
- "included":[["actions",1727,10,true],["rules",142,9,true],["inventory",444,6,false],["recent_events",227,7,false],["mood",37,8,false]],
+ "included":[["actions",1045,10,true],["rules",142,9,true],["inventory",444,6,false],["recent_events",227,7,false],["mood",37,8,false]],
  "dropped":[["action_outline",314,1,true],["lights_nearby",376,3,false]],
- "total_bytes":2636}
+ "total_bytes":1954}
 ```
 
 (The Ember Keep example. `bytes` is each section's packed size; `total_bytes` also counts

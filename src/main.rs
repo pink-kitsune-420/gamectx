@@ -125,7 +125,7 @@ fn run(raw: &[String]) -> Result<()> {
                     Check::ExactAfterView => "ok (round-trips the rows its view selected)",
                     Check::Lossy => "lossy by design, not checked",
                 };
-                println!("{:<20} {:<8} {status}", s.section.name, s.pack.name());
+                println!("{:<20} {:<10} {status}", s.section.name, s.pack.name());
             }
             Ok(())
         }
@@ -217,7 +217,7 @@ fn build(manifest: &Manifest, budgets: &Budgets) -> Result<Packet> {
 
 fn report(manifest: &Manifest, budgets: &Budgets) -> Result<()> {
     println!(
-        "{:<20} {:<8} {:>8} {:>6} {:>10} {:>10} {:>7}",
+        "{:<20} {:<10} {:>8} {:>6} {:>10} {:>10} {:>7}",
         "section", "pack", "priority", "stable", "original", "packed", "saved"
     );
     let (mut original_total, mut packed_total) = (0, 0);
@@ -227,7 +227,7 @@ fn report(manifest: &Manifest, budgets: &Budgets) -> Result<()> {
         original_total += original;
         packed_total += packed;
         println!(
-            "{:<20} {:<8} {:>8} {:>6} {:>10} {:>10} {:>7}",
+            "{:<20} {:<10} {:>8} {:>6} {:>10} {:>10} {:>7}",
             s.section.name,
             s.pack.name(),
             s.section.priority,
@@ -238,7 +238,7 @@ fn report(manifest: &Manifest, budgets: &Budgets) -> Result<()> {
         );
     }
     println!(
-        "{:<45} {:>10} {:>10} {:>7}",
+        "{:<47} {:>10} {:>10} {:>7}",
         "all sections (bytes of compact JSON)",
         original_total,
         packed_total,

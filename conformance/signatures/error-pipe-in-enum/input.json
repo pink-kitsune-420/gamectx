@@ -1,0 +1,25 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "a",
+   "description": "A.",
+   "strict": true,
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "x": {
+      "type": "string",
+      "enum": [
+       "a|b"
+      ]
+     }
+    },
+    "required": [
+     "x"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

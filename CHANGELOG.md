@@ -11,6 +11,18 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
+## Unreleased
+
+- **[format]** New `signatures` pack mode: action schemas as short text lines with shared
+  arguments listed once. Lossless for strict tools with string, number, integer, boolean
+  and string-enum arguments; other tools are refused with a pointer to `schema`. Existing
+  formats are unchanged. Measured: 12–14% fewer input tokens than `schema`, and 46% fewer
+  than compact JSON overall, at equal or better accuracy.
+- **[docs]** README and guide report a 53-question run including signatures.
+- **[docs]** The Ember Keep example describes its actions with `signatures`; its budget is
+  2000 bytes so it still shows two sections being dropped.
+- **[internal]** `gamectx report` and `verify` columns fit the longer pack name.
+
 ## 0.1.0-alpha.1 — 2026-11-05
 
 First public release.

@@ -112,6 +112,11 @@ def build_packets(workdir, gamectx_bin):
     manifest["sections"][2]["sort_by"] = "-count"
     manifest["sections"][3]["sort_by"] = "role"
     packets["grouped-sorted"] = pack(manifest, os.path.join(workdir, "manifest-sorted.json"), gamectx_bin)
+    # Grouped tables plus action signatures instead of packed JSON Schema.
+    manifest["sections"][0]["pack"] = "signatures"
+    manifest["sections"][2].pop("sort_by")
+    manifest["sections"][3].pop("sort_by")
+    packets["gamectx-signatures"] = pack(manifest, os.path.join(workdir, "manifest-signatures.json"), gamectx_bin)
     return packets, (tools, inventory, roster)
 
 
@@ -166,6 +171,7 @@ def build_questions(tools, inventory, roster, seed=11):
     for tool in ["give_item", "speak"]:
         q.append(("schema_params", f"List the argument names of action `{tool}`, as an array.", "set", list(by_name[tool])))
     food = next(i for i in inventory if i["kind"] == "food")
+    reagent = next(i for i in inventory if i["kind"] == "reagent")
     q += [
         ("action", "The player (P1) is badly hurt and asks Ilse to heal them as strongly as she can.", "action",
          {"action": "cast_spell", "args": {"spell": "mend", "target": "P1", "power": 5}}),
@@ -177,6 +183,16 @@ def build_questions(tools, inventory, roster, seed=11):
          {"action": "give_item", "args": {"item": food["id"], "target": "P1"}}),
         ("action", "Ilse wants to wait for a full minute, as long as one action allows.", "action",
          {"action": "wait", "args": {"seconds": 30}}),
+        ("action", "Ilse lights the lantern with handle L2 as brightly as she can.", "action",
+         {"action": "light_lantern", "args": {"lantern": "L2", "power": 5}}),
+        ("action", "Ilse sternly tells the player (P1) to leave the forge.", "action",
+         {"action": "speak", "args": {"target": "P1", "tone": "stern"}}),
+        ("action", f"Ilse uses her {reagent['id'].replace('_', ' ')} on the ash hound (handle H7) at power 2.", "action",
+         {"action": "use_item", "args": {"item": reagent["id"], "target": "H7", "power": 2}}),
+        ("action", "Ilse runs to the gate.", "action",
+         {"action": "move_to", "args": {"spot": "gate", "pace": "run"}}),
+        ("action", "Ilse casts a hush spell on the crow sentinel (handle C3) at the weakest power.", "action",
+         {"action": "cast_spell", "args": {"spell": "hush", "target": "C3", "power": 1}}),
     ]
     return q, by_name
 
@@ -302,8 +318,9 @@ def main():
     ap.add_argument("--cap", type=float, default=1.0, help="stop before spending more than this many USD")
     ap.add_argument("--out", default=os.path.join(ROOT, "eval", "results"))
     ap.add_argument("--gamectx", default=os.path.join(ROOT, "target", "release", "gamectx"))
-    ap.add_argument("--formats", default="json,gamectx,gamectx-grouped")
+    ap.add_argument("--formats", default="json,gamectx,gamectx-grouped,gamectx-signatures")
     ap.add_argument("--kinds", default="", help="only these question kinds, comma-separated")
+    ap.add_argument("--tokens-only", action="store_true", help="measure billed input tokens per format, 1-token replies")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -330,6 +347,16 @@ def main():
         sys.exit("key file is empty")
     venice = "venice.ai" in args.base_url
     prices = get_prices(args.base_url, key) if venice else {}
+    if args.tokens_only:
+        print(f"\n{'model':<34} " + " ".join(f"{f:>16}" for f in formats))
+        for model in models:
+            counts = []
+            for fmt in formats:
+                reply = chat(args.base_url, key, model, SYSTEM + packets[fmt.removesuffix("+reason")], "Reply with {}.", venice, 1)
+                counts.append(reply.get("usage", {}).get("prompt_tokens", 0))
+            base = counts[0] or 1
+            print(f"{model:<34} " + " ".join(f"{c:>9} ({100 * (c - base) / base:+4.0f}%)" for c in counts))
+        return
     spent, results, stopped = 0.0, [], None
     for model in models:
         price = prices.get(model, FALLBACK_PRICE)

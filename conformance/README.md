@@ -15,7 +15,7 @@ Each case is a folder `<op>/<name>/` containing:
 A case passes when:
 
 - **Success cases:** the output, serialized compactly, equals `expected.json` without its
-  final newline, **byte for byte**. For `table` and `schema`, unpacking the output must
+  final newline, **byte for byte**. For `table`, `signatures` and `schema`, unpacking the output must
   also give back the input (ignoring object key order). Tables with a view give back the
   viewed rows; grouped tables give them back in group order.
 - **Error cases** (`"error": true`): the operation is refused. The message is not part of
@@ -27,6 +27,7 @@ A case passes when:
 |---|---|---|---|
 | `parse` | raw JSON text | | the parsed value |
 | `table` | array of objects | `group_by` (column name); view keys `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
+| `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |
 | `schema` | array of tools | | packed schema |
 | `outline` | array of tools | | the outline, as a JSON string |
 | `catalog` | catalog (object or bare array) | `query`, `kind`, `offset`, `count`, `expected_generation`, `limits` (any of `entries`, `tags`, `results`, `query_chars`, `query_words`, `offset`) | one search page |

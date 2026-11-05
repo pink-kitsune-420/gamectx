@@ -1,0 +1,23 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "greet",
+   "description": "Grüße <hi> & \"bye\".",
+   "strict": true,
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "to": {
+      "type": "string",
+      "description": "café 😀"
+     }
+    },
+    "required": [
+     "to"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

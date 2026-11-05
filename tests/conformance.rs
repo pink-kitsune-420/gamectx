@@ -8,7 +8,7 @@ use gamectx::catalog::{Catalog, Limits};
 use gamectx::estimate::{self, Calibration};
 use gamectx::json::{parse, Error, Result, Value};
 use gamectx::view::{self, View};
-use gamectx::{fingerprint, schema, table};
+use gamectx::{fingerprint, schema, signatures, table};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -38,6 +38,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
             table::pack(&view::apply(list(), &View::from_json(args)?)?, args.get("group_by").and_then(Value::as_str))?
         }
         "schema" => schema::pack(list())?,
+        "signatures" => Value::str(signatures::pack(list())?),
         "outline" => Value::str(schema::outline(list())?),
         "catalog" => {
             let d = Limits::default();
@@ -105,11 +106,13 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 None => viewed,
             })
         }
+        "signatures" => Value::Array(list().iter().map(signatures::bare).collect()),
         _ => input.clone(),
     };
     let restored = match op {
         "table" => Some(Value::Array(table::unpack(&out)?)),
         "schema" => Some(Value::Array(schema::unpack(&out)?)),
+        "signatures" => Some(Value::Array(signatures::unpack(out.as_str().unwrap_or_default())?)),
         _ => None,
     };
     if let Some(r) = restored {

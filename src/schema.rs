@@ -17,17 +17,17 @@ const EXTRA_NOTE: &str =
     "extra null = strict:true and parameters {type:object,additionalProperties:false,required:all property keys}";
 
 /// One tool definition with its wrapper removed.
-struct Tool<'a> {
-    name: &'a str,
-    description: Option<&'a str>,
+pub(crate) struct Tool<'a> {
+    pub(crate) name: &'a str,
+    pub(crate) description: Option<&'a str>,
     strict: Option<&'a Value>,
-    properties: &'a [(String, Value)],
+    pub(crate) properties: &'a [(String, Value)],
     /// Parameter keys other than `type` and `properties`, in source order.
     parameter_rest: Vec<(String, Value)>,
 }
 
 /// Accepts OpenAI-style `{"type":"function","function":{...}}` items or bare `{name,...}` items.
-fn read_tools(tools: &[Value]) -> Result<(bool, Vec<Tool<'_>>)> {
+pub(crate) fn read_tools(tools: &[Value]) -> Result<(bool, Vec<Tool<'_>>)> {
     if tools.len() > MAX_TOOLS {
         return Err(Error::new(format!("{} tools; limit is {MAX_TOOLS}", tools.len())));
     }
@@ -89,7 +89,7 @@ fn keys(value: &Value) -> Vec<&str> {
 }
 
 /// True when the tool uses the common strict defaults, so its `extra` cell can be null.
-fn is_strict_default(tool: &Tool) -> bool {
+pub(crate) fn is_strict_default(tool: &Tool) -> bool {
     let required: Vec<Value> = tool.properties.iter().map(|(k, _)| Value::str(k)).collect();
     tool.description.is_some()
         && tool.strict == Some(&Value::Bool(true))

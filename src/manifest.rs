@@ -11,7 +11,7 @@
 //! ```
 //!
 //! Pack modes: `raw` (as is), `table` (lossless; `group_by` regroups rows, and the view keys
-//! `sort_by`, `limit`, `fields` and `round` shape rows first) and `schema` (lossless), `outline` and `catalog`
+//! `sort_by`, `limit`, `fields` and `round` shape rows first) `schema` and `signatures` (lossless; signatures restore tools without a provider wrapper), `outline` and `catalog`
 //! (lossy by design: a summary and a search page). `file` paths are relative to the manifest.
 //! Both budgets are optional; when both are set the packet must fit both.
 
@@ -19,7 +19,7 @@ use crate::budget::Section;
 use crate::catalog::{Catalog, Limits};
 use crate::json::{self, Error, Result, Value};
 use crate::view::{self, View};
-use crate::{schema, table};
+use crate::{schema, signatures, table};
 use std::path::Path;
 
 /// Largest manifest or data file read, in bytes.
@@ -30,6 +30,7 @@ pub enum Pack {
     Raw,
     Table,
     Schema,
+    Signatures,
     Outline,
     Catalog,
 }
@@ -40,13 +41,14 @@ impl Pack {
             Pack::Raw => "raw",
             Pack::Table => "table",
             Pack::Schema => "schema",
+            Pack::Signatures => "signatures",
             Pack::Outline => "outline",
             Pack::Catalog => "catalog",
         }
     }
 
     pub fn lossless(self) -> bool {
-        matches!(self, Pack::Raw | Pack::Table | Pack::Schema)
+        matches!(self, Pack::Raw | Pack::Table | Pack::Schema | Pack::Signatures)
     }
 }
 
@@ -133,6 +135,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
         "raw" => Pack::Raw,
         "table" => Pack::Table,
         "schema" => Pack::Schema,
+        "signatures" => Pack::Signatures,
         "outline" => Pack::Outline,
         "catalog" => Pack::Catalog,
         other => return Err(Error::new(format!("unknown pack mode \"{other}\""))),
@@ -171,6 +174,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
         Pack::Raw => original.clone(),
         Pack::Table => table::pack(&view::apply(list()?, &view)?, group_by.as_deref())?,
         Pack::Schema => schema::pack(list()?)?,
+        Pack::Signatures => Value::str(signatures::pack(list()?)?),
         Pack::Outline => Value::str(schema::outline(list()?)?),
         Pack::Catalog => {
             let catalog = Catalog::from_json(&original, Limits::default())?;
@@ -198,9 +202,13 @@ impl Prepared {
             Pack::Raw => self.section.value.clone(),
             Pack::Table => Value::Array(table::unpack(&self.section.value)?),
             Pack::Schema => Value::Array(schema::unpack(&self.section.value)?),
+            Pack::Signatures => Value::Array(signatures::unpack(self.section.value.as_str().unwrap_or_default())?),
             Pack::Outline | Pack::Catalog => return Ok(Check::Lossy),
         };
         let mut expected = self.original.clone();
+        if let (Pack::Signatures, Value::Array(tools)) = (self.pack, &self.original) {
+            expected = Value::Array(tools.iter().map(signatures::bare).collect());
+        }
         if let Value::Array(items) = &self.original {
             if self.pack == Pack::Table {
                 let viewed = view::apply(items, &self.view)?;
