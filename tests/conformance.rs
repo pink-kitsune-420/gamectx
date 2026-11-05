@@ -59,13 +59,19 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 },
             };
             let catalog = Catalog::from_json(&input, limits)?;
-            let page = catalog.search(
-                args.get("query").and_then(Value::as_str).unwrap_or(""),
-                args.get("kind").and_then(Value::as_str),
-                arg_usize(args, "offset", 0),
-                arg_usize(args, "count", limits.results),
-                args.get("expected_generation").and_then(Value::as_str),
-            )?;
+            let kind = args.get("kind").and_then(Value::as_str);
+            let count = arg_usize(args, "count", limits.results);
+            let expected = args.get("expected_generation").and_then(Value::as_str);
+            let page = match args.get("relevant_to").and_then(Value::as_str) {
+                Some(text) => catalog.relevant(text, kind, count, expected)?,
+                None => catalog.search(
+                    args.get("query").and_then(Value::as_str).unwrap_or(""),
+                    kind,
+                    arg_usize(args, "offset", 0),
+                    count,
+                    expected,
+                )?,
+            };
             page.to_value()
         }
         "budget" => {

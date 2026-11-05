@@ -46,7 +46,8 @@ Each section:
 | `required` | bool | false | Never dropped. Assembly fails if required sections alone exceed the budget. |
 | `group_by` | string or string array | none | `table` only: group rows under this column's values, or nest groups by several columns, outermost first. Grouping columns must hold strings. |
 | `where` | object | none | `table` only, [view](#views): keep rows meeting every condition, e.g. `{"kind": "weapon", "count": {">=": 15}}`. |
-| `relevant_to` | string | none | `table` only, view: keep the rows that best match the words of this text. |
+| `relevant_to` | string | none | `table`: keep the rows that best match the words of this text ([view](#views)). `catalog`: return the entries that best match it, instead of a `query` search. |
+| `relevant_fallback` | string | `all` | `table` with `relevant_to`: `none` sends no rows when nothing matches, instead of every row. |
 | `sort_by` | string | none | `table` only, [view](#views): sort rows by a column; `"-col"` sorts descending. |
 | `limit` | integer | none | `table` only, view: keep the first N rows after sorting. |
 | `fields` | string array | all | `table` only, view: keep only these columns, in this order. |
@@ -104,7 +105,7 @@ A table section can shape its rows before packing. Steps always run in this orde
    ignoring all-digit words and also trying each word of four or more letters without a
    trailing `s`. A word matches a row when it equals one of the row's string cells, or one
    `_`-separated part of one, lowercased. Rows with the most matching words are kept; if no
-   row matches any word, every row is kept.
+   row matches any word, every row is kept, or none with `"relevant_fallback": "none"`.
 3. `sort_by`: stable sort by one column. Numbers compare as numbers, strings by Unicode
    code point; a column that mixes the two is an error. Nulls go last in both directions.
 4. `limit`: keep the first N rows.
@@ -206,6 +207,10 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
 - A query matches entries whose ID or tags contain every word (up to 4). A leading `#` is
   ignored when matching, and a trailing plural `s` is optional.
 - `next` is the offset of the next page, or `null`. Offsets stop at 4096.
+- With `relevant_to` instead of `query`, entries are ranked by how many words of the text
+  match their ID, its `_`-separated parts, or their tags (without `#`; a trailing plural `s`
+  is optional on both sides). The best `count` entries are returned, ties in catalog
+  order, and entries matching nothing never are; `next` is `null`.
 - `generation` is a 64-bit FNV-1a fingerprint of the catalog. Passing it back
   (`--generation`) makes a later page fail instead of mixing old and new data. It
   detects changes; it is not a security hash.

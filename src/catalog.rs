@@ -192,6 +192,47 @@ impl Catalog {
         })
     }
 
+    /// Ranks entries by how many words of `text` (such as a player's message) match their
+    /// ID, its `_`-separated parts, or their tags (without `#`; a trailing plural `s` is
+    /// optional on both sides), and returns the best `count`, ties in catalog order.
+    /// Entries matching nothing are never returned, so an unrelated message gives an
+    /// empty page. Pass the generation from an earlier page to refuse changed data.
+    pub fn relevant(&self, text: &str, kind: Option<&str>, count: usize, expected: Option<&str>) -> Result<Page<'_>> {
+        if count == 0 || count > self.limits.results {
+            return Err(Error::new(format!("count must be 1..={}", self.limits.results)));
+        }
+        if expected.is_some_and(|g| g != self.generation) {
+            return Err(Error::new("catalog generation changed; start the search again"));
+        }
+        let words = crate::view::words(text);
+        let singular = |w: &str| -> Option<String> {
+            (w.chars().count() > 3 && w.ends_with('s')).then(|| w[..w.len() - 1].to_owned())
+        };
+        let mut scored: Vec<(usize, &Entry)> = Vec::new();
+        for e in &self.entries {
+            if kind.is_some_and(|k| k != e.kind) {
+                continue;
+            }
+            let id = e.id.to_lowercase();
+            let mut parts: Vec<String> = id.split('_').map(str::to_owned).collect();
+            parts.push(id.clone());
+            parts.extend(e.tags.iter().map(|t| t.trim_start_matches('#').to_lowercase()));
+            let extra: Vec<String> = parts.iter().filter_map(|p| singular(p)).collect();
+            parts.extend(extra);
+            let score = words.iter().filter(|w| parts.contains(w)).count();
+            if score > 0 {
+                scored.push((score, e));
+            }
+        }
+        scored.sort_by_key(|(score, _)| std::cmp::Reverse(*score)); // stable: ties keep catalog order
+        Ok(Page {
+            generation: &self.generation,
+            complete: self.complete,
+            entries: scored.into_iter().take(count).map(|(_, e)| e).collect(),
+            next: None,
+        })
+    }
+
     fn rows(entries: &[Entry]) -> Value {
         Value::Array(
             entries
@@ -272,6 +313,18 @@ mod tests {
         assert!(c.search("x", None, 0, 3, None).is_err());
         assert!(c.search("a b c d e", None, 0, 1, None).is_err());
         assert!(Catalog::new(vec![entry("item", "a", &[]), entry("item", "a", &[])], true, Limits::default()).is_err());
+    }
+
+    #[test]
+    fn relevant_ranks_by_matching_words() {
+        let c = sample();
+        let ids = |text: &str, kind: Option<&str>| -> Vec<String> {
+            c.relevant(text, kind, 2, None).unwrap().entries.iter().map(|e| e.id.clone()).collect()
+        };
+        assert_eq!(ids("I need a light, maybe one that uses fire", None), ["ember_lantern", "glass_lantern"]);
+        assert_eq!(ids("cast something with fire", Some("spell")), ["spark"]);
+        assert!(ids("nothing here matches", None).is_empty());
+        assert!(c.relevant("x", None, 0, None).is_err());
     }
 
     #[test]

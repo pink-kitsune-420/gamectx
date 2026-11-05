@@ -25,6 +25,16 @@ question. Rows matching more words win, so "any rare weapons?" keeps rows that a
 questions with the question as the text: −26% input tokens, identical accuracy on every
 question type, and the answer stayed in the table every time.*
 
+For chat-driven turns where a table only matters when the message mentions it,
+`"relevant_fallback": "none"` (`.relevant_only(text)` in Rust) sends no rows when nothing
+matches. *Measured on the two smaller models: another 59% fewer input tokens, same accuracy
+except questions about a table as a whole ("who has the highest trust?"), which then see
+nothing: 2/6 → 0/6.* Those questions belong in code anyway: `sort_by` + `limit: 1` answers
+"highest trust" exactly, while models given every row got it right 2 times in 6.
+
+Catalogs take `relevant_to` too: send the entries that best match the player's message
+instead of a keyword search.
+
 Round numbers to the precision decisions need. *Measured: rounding two number columns
 from two decimals to one saved 5% of the whole packet; each dropped digit costs about one
 token per number. Rounding to whole numbers saved 13%, but made a 0–1 trust score useless,

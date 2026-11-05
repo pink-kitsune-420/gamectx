@@ -52,7 +52,9 @@ What the measurements show:
   already treat `","` as a single token.
 - **Send only the rows that matter.** Keeping only table rows that match words of the
   question (`relevant_to`) used 26% fewer input tokens than the full tables, with identical
-  accuracy on every question type (100/106 both, on the two smaller models).
+  accuracy on every question type (100/106 both, on the two smaller models). Sending no
+  rows at all when nothing matches (`relevant_fallback: "none"`) saved another 59%, losing
+  only questions about a table as a whole, which models got wrong most of the time anyway.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from

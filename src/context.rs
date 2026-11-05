@@ -29,6 +29,7 @@
 //! ```
 
 use crate::budget::{assemble, Packet, Section};
+use crate::catalog::Catalog;
 use crate::estimate::{self, Calibration};
 use crate::json::{Error, Result, Value};
 use crate::view::{self, Op, View};
@@ -84,6 +85,15 @@ impl Table {
     /// [`crate::view::relevant_rows`].
     pub fn relevant_to(mut self, text: &str) -> Table {
         self.view.relevant_to = Some(text.to_owned());
+        self
+    }
+
+    /// Like [`Table::relevant_to`], but sends no rows when nothing matches. Saves the whole
+    /// table on unrelated turns, at the cost of questions about the table as a whole
+    /// ("who has the highest trust?"), which then see nothing.
+    pub fn relevant_only(mut self, text: &str) -> Table {
+        self.view.relevant_to = Some(text.to_owned());
+        self.view.relevant_only = true;
         self
     }
 
@@ -267,6 +277,21 @@ impl Turn<'_> {
         let section = table_section(name, items.into(), options, false)?;
         add(&mut self.sections, &self.context.stable, section)?;
         Ok(self)
+    }
+
+    /// Adds the catalog entries that best match `text`, such as the player's message; see
+    /// [`Catalog::relevant`]. An unrelated message adds an empty page.
+    pub fn catalog_relevant(&mut self, name: &str, catalog: &Catalog, text: &str, count: usize) -> Result<&mut Self> {
+        let value =
+            catalog.relevant(text, None, count, None).map_err(|e| Error::new(format!("catalog \"{name}\": {e}")))?;
+        self.var_with(name, value.to_value(), DEFAULT_PRIORITY, false)
+    }
+
+    /// Adds one page of a catalog search (every word must match); see [`Catalog::search`].
+    pub fn catalog_search(&mut self, name: &str, catalog: &Catalog, query: &str, count: usize) -> Result<&mut Self> {
+        let page =
+            catalog.search(query, None, 0, count, None).map_err(|e| Error::new(format!("catalog \"{name}\": {e}")))?;
+        self.var_with(name, page.to_value(), DEFAULT_PRIORITY, false)
     }
 
     /// Assembles the packet within the context's budgets. Stable sections come first; the

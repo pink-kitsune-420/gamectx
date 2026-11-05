@@ -1,0 +1,51 @@
+{
+ "complete": true,
+ "entries": [
+  {
+   "kind": "item",
+   "id": "ember_lantern",
+   "tags": [
+    "#lights",
+    "#fire",
+    "#tools"
+   ]
+  },
+  {
+   "kind": "item",
+   "id": "glass_lantern",
+   "tags": [
+    "#lights"
+   ]
+  },
+  {
+   "kind": "item",
+   "id": "salt_pouch",
+   "tags": [
+    "#wards"
+   ]
+  },
+  {
+   "kind": "spell",
+   "id": "spark",
+   "tags": [
+    "#fire"
+   ]
+  },
+  {
+   "kind": "creature",
+   "id": "ash_hound",
+   "tags": [
+    "#hostile",
+    "#fire"
+   ]
+  },
+  {
+   "kind": "item",
+   "id": "tallow_candle",
+   "tags": [
+    "#lights",
+    "#fire"
+   ]
+  }
+ ]
+}

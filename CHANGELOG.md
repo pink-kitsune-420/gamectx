@@ -29,6 +29,11 @@ know what an upgrade costs:
   `relevant_to` (keep the rows that best match some text, or all rows if none match).
   Measured: `relevant_to` with each question's text used 26% fewer input tokens at
   identical accuracy. In Rust: `Table::filter` and `Table::relevant_to`.
+- **[format]** `relevant_fallback: "none"` (Rust: `Table::relevant_only`) sends no rows when
+  nothing matches. Measured: 59% fewer input tokens than `relevant_to` alone; only
+  whole-table questions are lost.
+- **[format]** Catalog sections take `relevant_to`: entries ranked by matching words of a
+  message. Rust: `Catalog::relevant`, `Turn::catalog_relevant`, `Turn::catalog_search`.
 - **[api]** `Value` converts from strings, numbers, booleans, `Option` and `Vec`, and the
   `obj!` macro builds objects.
 - **[api]** `gamectx pack -` reads the manifest from standard input, for calling from any

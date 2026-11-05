@@ -16,6 +16,8 @@ pub struct View {
     pub filters: Vec<(String, Op, Value)>,
     /// Keep only the rows that best match the words of this text; see [`relevant_rows`].
     pub relevant_to: Option<String>,
+    /// With `relevant_to`: send no rows, instead of every row, when nothing matches.
+    pub relevant_only: bool,
     /// Column to sort by, and whether to sort descending. Stable; nulls always last.
     pub sort_by: Option<(String, bool)>,
     /// Keep at most this many rows (after sorting).
@@ -89,7 +91,7 @@ fn meets(cell: &Value, op: Op, value: &Value) -> bool {
 
 /// Words of `text` used for relevance: lowercase runs of letters, digits and `_`, without
 /// all-digit words, plus each longer word without a trailing plural `s`.
-fn words(text: &str) -> Vec<String> {
+pub(crate) fn words(text: &str) -> Vec<String> {
     let lower = text.to_lowercase();
     let mut out: Vec<String> = Vec::new();
     for word in lower.split(|c: char| !(c.is_alphanumeric() || c == '_')).filter(|w| !w.is_empty()) {
@@ -111,9 +113,22 @@ fn words(text: &str) -> Vec<String> {
 /// (lowercased). Numbers in the text are ignored. If no row matches any word, every row
 /// is kept, so questions the words do not anticipate still see the whole table.
 pub fn relevant_rows(rows: Vec<Value>, text: &str) -> Vec<Value> {
+    let scores = relevance_scores(&rows, text);
+    let best = scores.iter().copied().max().unwrap_or(0);
+    if best == 0 {
+        return rows;
+    }
+    rows.into_iter().zip(scores).filter(|(_, s)| *s == best).map(|(r, _)| r).collect()
+}
+
+fn any_match(rows: &[Value], text: &str) -> bool {
+    relevance_scores(rows, text).into_iter().any(|s| s > 0)
+}
+
+/// How many words of `text` each row matches; see [`relevant_rows`].
+pub fn relevance_scores(rows: &[Value], text: &str) -> Vec<usize> {
     let words = words(text);
-    let scores: Vec<usize> = rows
-        .iter()
+    rows.iter()
         .map(|row| {
             let mut parts: Vec<String> = Vec::new();
             for (_, v) in row.as_object().unwrap_or(&[]) {
@@ -125,12 +140,7 @@ pub fn relevant_rows(rows: Vec<Value>, text: &str) -> Vec<Value> {
             }
             words.iter().filter(|w| parts.contains(w)).count()
         })
-        .collect();
-    let best = scores.iter().copied().max().unwrap_or(0);
-    if best == 0 {
-        return rows;
-    }
-    rows.into_iter().zip(scores).filter(|(_, s)| *s == best).map(|(r, _)| r).collect()
+        .collect()
 }
 
 impl View {
@@ -165,6 +175,16 @@ impl View {
         }
         if let Some(v) = obj.get("relevant_to") {
             view.relevant_to = Some(v.as_str().ok_or_else(|| Error::new("relevant_to must be a string"))?.to_owned());
+        }
+        if let Some(v) = obj.get("relevant_fallback") {
+            view.relevant_only = match v.as_str() {
+                Some("all") => false,
+                Some("none") => true,
+                _ => return Err(Error::new("relevant_fallback must be \"all\" or \"none\"")),
+            };
+            if view.relevant_to.is_none() {
+                return Err(Error::new("relevant_fallback needs relevant_to"));
+            }
         }
         if let Some(v) = obj.get("sort_by") {
             view.sort_by = Some(View::sort_key(v.as_str().ok_or_else(|| Error::new("sort_by must be a string"))?)?);
@@ -224,7 +244,11 @@ pub fn apply(items: &[Value], view: &View) -> Result<Vec<Value>> {
         rows = kept;
     }
     if let Some(text) = &view.relevant_to {
+        let total = rows.len();
         rows = relevant_rows(rows, text);
+        if view.relevant_only && rows.len() == total && !any_match(&rows, text) {
+            rows.clear();
+        }
     }
     if let Some((column, descending)) = &view.sort_by {
         let mut keyed = Vec::with_capacity(rows.len());

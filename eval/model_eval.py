@@ -123,7 +123,7 @@ def build_packets(workdir, gamectx_bin):
     return packets, (tools, inventory, roster)
 
 
-def relevant_packets(questions, tools, inventory, roster, workdir, gamectx_bin):
+def relevant_packets(questions, tools, inventory, roster, workdir, gamectx_bin, fallback="all"):
     """Per-question packets for the gamectx-relevant format: tables keep the rows relevant
     to each question's text (gamectx `relevant_to`), keyed by question text."""
     out = {}
@@ -133,10 +133,11 @@ def relevant_packets(questions, tools, inventory, roster, workdir, gamectx_bin):
             {"name": "actions", "pack": "signatures", "value": tools, "priority": 10, "stable": True, "required": True},
             {"name": "rules", "pack": "raw", "value": rules, "priority": 9, "stable": True, "required": True},
             {"name": "inventory", "pack": "table", "value": inventory, "relevant_to": question,
-             "group_by": ["kind", "rarity"], "priority": 6},
-            {"name": "npcs", "pack": "table", "value": roster, "relevant_to": question, "group_by": "faction", "priority": 5},
+             "relevant_fallback": fallback, "group_by": ["kind", "rarity"], "priority": 6},
+            {"name": "npcs", "pack": "table", "value": roster, "relevant_to": question, "relevant_fallback": fallback,
+             "group_by": "faction", "priority": 5},
         ]}
-        out[question] = pack(manifest, os.path.join(workdir, f"manifest-relevant-{n}.json"), gamectx_bin)
+        out[question] = pack(manifest, os.path.join(workdir, f"manifest-relevant-{fallback}-{n}.json"), gamectx_bin)
     return out
 
 
@@ -183,6 +184,12 @@ def build_questions(tools, inventory, roster, seed=11):
         places.setdefault((npc["role"], npc["location"]), []).append(npc["name"])
     for role, location in rng.sample(sorted(places), min(3, len(places))):
         q.append(("npc_cross", f"List the names of every NPC whose role is {role} and location is {location}, as an array.", "set", places[(role, location)]))
+    # Questions about a table as a whole: no row matches their words.
+    top = max(roster, key=lambda n: n["trust"])
+    heavy = max(inventory, key=lambda i: i["weight"])
+    q.append(("whole_table", "Which NPC has the highest trust? Give the name.", "str", top["name"]))
+    q.append(("whole_table", "What is the id of the heaviest item, by weight?", "str", heavy["id"]))
+    q.append(("whole_table", "How many NPCs are listed in total?", "int", len(roster)))
     by_name = {t["function"]["name"]: t["function"]["parameters"]["properties"] for t in tools}
     for tool, param in [("move_to", "spot"), ("speak", "tone"), ("cast_spell", "spell")]:
         q.append(("schema_enum", f"List every allowed value of the `{param}` argument of action `{tool}`, as an array.", "set", by_name[tool][param]["enum"]))
@@ -351,9 +358,11 @@ def main():
         questions = [q for q in questions if q[0] in args.kinds.split(",")]
     models = [m for m in args.models.split(",") if m]
     formats = [f for f in args.formats.split(",") if f]
-    if "gamectx-relevant" in formats:
-        per_question = relevant_packets(questions, tools, inventory, roster, run_dir, args.gamectx)
-        packets["gamectx-relevant"] = max(per_question.values(), key=len)  # for size reports
+    per_question = {}
+    for fmt, fallback in (("gamectx-relevant", "all"), ("gamectx-relevant-only", "none")):
+        if fmt in formats:
+            per_question[fmt] = relevant_packets(questions, tools, inventory, roster, run_dir, args.gamectx, fallback)
+            packets[fmt] = max(per_question[fmt].values(), key=len)  # for size reports
     unknown = {f.removesuffix("+reason") for f in formats} - set(packets)
     if unknown:
         sys.exit(f"unknown formats: {sorted(unknown)}; choose from {sorted(packets)}")
@@ -387,7 +396,7 @@ def main():
             for fmt in (formats if n % 2 == 0 else formats[::-1]):
                 reason = fmt.endswith("+reason") and answer_type != "action"
                 base = fmt.removesuffix("+reason")
-                system = SYSTEM + (per_question[question] if base == "gamectx-relevant" else packets[base])
+                system = SYSTEM + (per_question[base][question] if base in per_question else packets[base])
                 user = question + (ACTION_RULE if answer_type == "action" else REASON_RULE if reason else ANSWER_RULE)
                 out_tokens = REASON_OUTPUT_TOKENS if reason else MAX_OUTPUT_TOKENS
                 # Worst case: one token per byte in, full output allowance out.

@@ -26,11 +26,11 @@ A case passes when:
 | `op` | Input | `args` | Output |
 |---|---|---|---|
 | `parse` | raw JSON text | | the parsed value |
-| `table` | array of objects | `group_by` (column name or list); view keys `where`, `relevant_to`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
+| `table` | array of objects | `group_by` (column name or list); view keys `where`, `relevant_to`, `relevant_fallback`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
 | `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |
 | `schema` | array of tools | | packed schema |
 | `outline` | array of tools | | the outline, as a JSON string |
-| `catalog` | catalog (object or bare array) | `query`, `kind`, `offset`, `count`, `expected_generation`, `limits` (any of `entries`, `tags`, `results`, `query_chars`, `query_words`, `offset`) | one search page |
+| `catalog` | catalog (object or bare array) | `query` or `relevant_to`, `kind`, `offset`, `count`, `expected_generation`, `limits` (any of `entries`, `tags`, `results`, `query_chars`, `query_words`, `offset`) | one search page |
 | `budget` | array of `{name, priority?, stable?, required?, value}` | `max_bytes` (no limit when absent) | `{"packet": ..., "receipt": ...}` |
 | `estimate` | `{scope: [strings], observations: [[body_bytes, input_tokens, estimate_used], ...], body, framing}` | | `{"calibration": ..., "estimate": n}`. Observations are applied in order, starting uncalibrated; the estimate uses the same scope. |
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |

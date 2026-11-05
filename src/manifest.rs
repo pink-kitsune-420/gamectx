@@ -144,6 +144,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             "group_by",
             "where",
             "relevant_to",
+            "relevant_fallback",
             "sort_by",
             "limit",
             "fields",
@@ -186,9 +187,12 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             _ => Ok(()),
         }
     };
-    only_for(&["group_by", "where", "relevant_to", "sort_by", "limit", "fields", "round"], Pack::Table)?;
+    only_for(&["group_by", "where", "relevant_fallback", "sort_by", "limit", "fields", "round"], Pack::Table)?;
     let view = View::from_json(item)?;
     only_for(&["query", "kind", "offset", "count"], Pack::Catalog)?;
+    if item.get("relevant_to").is_some() && pack != Pack::Table && pack != Pack::Catalog {
+        return Err(Error::new("\"relevant_to\" only applies to packs \"table\" and \"catalog\""));
+    }
     let group_by = item.get("group_by").map(table::group_columns).transpose()?.unwrap_or_default();
     let group_refs: Vec<&str> = group_by.iter().map(String::as_str).collect();
 
@@ -209,9 +213,17 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
                     v.as_usize().ok_or_else(|| Error::new(format!("{key} must be a non-negative integer")))
                 })
             };
-            catalog
-                .search(query, kind, number("offset", 0)?, number("count", Limits::default().results)?, None)?
-                .to_value()
+            let count = number("count", Limits::default().results)?;
+            match item.get("relevant_to") {
+                Some(text) => {
+                    if item.get("query").is_some() || item.get("offset").is_some() {
+                        return Err(Error::new("a catalog section uses either relevant_to, or query and offset"));
+                    }
+                    let text = text.as_str().ok_or_else(|| Error::new("relevant_to must be a string"))?;
+                    catalog.relevant(text, kind, count, None)?.to_value()
+                }
+                None => catalog.search(query, kind, number("offset", 0)?, count, None)?.to_value(),
+            }
         }
     };
     Ok(Prepared { pack, original, view, group_by, section: Section { name, priority, stable, required, value } })
