@@ -201,3 +201,54 @@ Limits: one initializer and small synthetic task families. Validation-loss impro
 is a supplied-label check, not proof of better action accuracy, trustworthy labels or
 out-of-distribution behavior. The switch task's 78 misses remain visible. No billed-token
 or LLM accuracy improvement is claimed from these local tests.
+
+## Brain training-rate selection
+
+`brain_accuracy_eval.py` tests opt-in validation-based rate selection, entirely offline.
+The original `brain_eval.py` experiment and saved measurements stay historical.
+
+```bash
+cargo build --release --locked
+python3 -I eval/brain_accuracy_eval.py           # regenerates selection measurements, free
+python3 -I eval/test_brain_accuracy.py
+python3 -I eval/brain_accuracy_eval.py --check
+gamectx brain examples/brain/selection.json
+```
+
+The four utility tasks use the existing initializer (seed 3, four hidden nodes), training
+seed 11 with 32 examples, and validation seed 23 with 128 examples. The validation-only
+diagnostics compared data amounts, initializers and rates before freezing selection
+rates 0.03/0.1/0.3. Each trial trains for 128 epochs from the same original parameters.
+Choose the most correct validation reactions, then lower MSE, then earlier rate order.
+Require MSE improvement and no decision-count regression relative to the active brain.
+Fresh test seeds 2001/2002/2003 each contribute 128 samples per task; they are not used
+for selection. Both compared methods use the same training/validation/test samples.
+
+| Task | Single rate 0.1 / 384 | Selected rate / 384 | Rate selected | Single / selection work units |
+|---|---|---|---|---|
+| Stealth | 376 | 378 | 0.03 | 275,968 / 833,536 |
+| Ally support | 361 | 366 | 0.03 | 388,864 / 1,174,528 |
+| Nonlinear switch | 315 | 359 | 0.3 | 275,968 / 833,536 |
+| Trading | 384 | 384 | 0.1 | 338,688 / 1,022,976 |
+| Total | 1,436/1,536 | 1,487/1,536 | | |
+
+The paired result is 93.5% → 96.8%, 51 fewer errors on these samples. Training uses about
+3× estimated work, with no change to inference. This does not compare the old 1,421 score
+against a new cohort: that older benchmark used different test seeds and 32 validation
+examples. All scores are reference-policy agreement, not measured human/gameplay quality.
+
+Diagnostics explain rejected shortcuts. More examples alone at a fixed 4,096 training
+sample-visits improved switch validation MSE (0.012898 → 0.009566) while reducing reaction
+correctness (110/128 → 103/128). Rate 0.3 helped switch (119/128) but hurt support
+(116/128 versus 119/128 at 0.1). Initializer seeds also had no universal winner; switch
+validation ranged 74/128 (seed 1) to 114/128 (seed 7), versus 110/128 (seed 3). Selection
+retains an existing brain's authored/learned starting state instead of silently reseeding it.
+
+[Saved results](brain-accuracy-results.json) include all 32 validation-only diagnostic
+conditions and per-rate reports. API spend: $0. Tests cover 17 new conformance fixtures,
+45 byte-identical Python/Rust workflows including 1,536 fresh predictions, and 10,000
+additional model-text mutations. All old format outputs remain unchanged.
+
+Limits: same synthetic task families and one initializer in final evaluation; all-output
+eligibility and zero thresholds. Multiple trials can overfit validation data, and the
+metric gate gives no guarantee on unseen distributions or state-dependent host action masks.

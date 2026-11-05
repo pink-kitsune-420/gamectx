@@ -18,6 +18,7 @@ impl Brain {
         let op = match action {
             "run_brain" => "run",
             "train_brain" => "train",
+            "train_select_brain" => "train_select",
             "teach_brain" => "teach",
             "undo_brain" => "undo",
             "inspect_brain" => "inspect",
@@ -41,6 +42,7 @@ impl Brain {
                 )
             }
             "train" => self.train(args),
+            "train_select" => self.train_select(args),
             "teach" => self.teach(args),
             "undo" => {
                 fields(args, &["expected_revision"])?;
@@ -107,6 +109,7 @@ pub fn tools() -> Value {
         ("create_brain", "Create a proposed local reaction network. Request JSON: {version:1,inputs:[names],outputs:[node names],nodes:[{id,weights:{earlier input or node:weight},bias,pinned,learning_limit}]}. Inputs/scores 0..1, weights/bias -4..4. Ordered acyclic nodes; host chooses ownership and whether to install."),
         ("run_brain", "Evaluate a hypothetical state: {inputs:{name:number or null},allowed:[output names],min_score:0,min_margin:0}. Scores are utilities, not probabilities; unknown eligible scores and ties abstain. The host supplies real observations and action eligibility."),
         ("train_brain", "Propose bounded supervised training: {id,expected_revision,examples:[{inputs:{name:number},targets:{output:number}}],validation:[same shape],epochs,rate}. Complete 0..1 values, distinct training/validation inputs, max 128 each/epochs. Candidate retained only if validation loss falls. Proposed labels are not world facts."),
+        ("train_select_brain", "Compare rates on candidate copies: {id,expected_revision,examples:[{inputs,targets}],validation:[same shape],epochs,rates:[positive numbers],max_steps}. At most 8 distinct rates, 500000 work units per trial, 2000000 aggregate. Select by validation reaction accuracy then MSE; require lower MSE and no accuracy regression. One retained update. Labels are proposals, not world facts."),
         ("teach_brain", "Propose a small lesson: {id,expected_revision,changes:[{node,source,delta}],validation:[{inputs,targets}]}. Source is an existing input/node or $bias; max 16 deltas, each nonzero and within -0.1..0.1. Pins/learning limits apply; validation must improve."),
         ("undo_brain", "Undo the latest retained update: {expected_revision}. Revision advances; used IDs remain consumed. Eight snapshots retained."),
         ("inspect_brain", "Inspect current graph parameters and revision without changing them. Request: {}."),

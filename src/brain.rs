@@ -30,6 +30,9 @@ pub const MAX_EDGES: usize = 16;
 pub const MAX_EXAMPLES: usize = 128;
 pub const MAX_EPOCHS: usize = 128;
 pub const MAX_STEPS: usize = 500_000;
+/// Aggregate cap for opt-in learning-rate selection; each trial still obeys MAX_STEPS.
+pub const MAX_SELECTION_STEPS: usize = 2_000_000;
+pub const MAX_RATES: usize = 8;
 pub const MAX_HISTORY: usize = 8;
 pub const MAX_UPDATES: usize = 128;
 pub const MAX_REQUEST_BYTES: usize = 65_536;

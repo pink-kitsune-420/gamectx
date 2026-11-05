@@ -151,6 +151,13 @@ fn cli_brain_workflows_and_tools() {
     let value = gamectx::json::parse(result.trim(), gamectx::brain::MAX_STATE_BYTES).unwrap();
     let last = value.get("results").unwrap().as_array().unwrap().last().unwrap();
     assert_eq!(last.get("choice").and_then(gamectx::Value::as_str), Some("withdraw"));
+    let selection = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/brain/selection.json");
+    let (ok, result, _) = gamectx(&["brain", selection]);
+    assert!(ok);
+    let result = gamectx::json::parse(result.trim(), gamectx::brain::MAX_STATE_BYTES).unwrap();
+    let reports = result.get("results").unwrap().as_array().unwrap();
+    assert_eq!(reports[0].get("accepted"), Some(&gamectx::Value::Bool(true)));
+    assert_eq!(reports[0].get("trials").unwrap().as_array().unwrap().len(), 3);
 }
 
 #[test]

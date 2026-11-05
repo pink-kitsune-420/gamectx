@@ -13,6 +13,14 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[format]** Adds opt-in `train_select` brain workflows/reports and the
+  `train_select_brain` tool; 17 new conformance cases. All 203 previous cases stay
+  byte-identical, including existing brain training, inference and saved learning.
+- **[api]** `Brain::train_select` compares bounded rates using validation reaction counts
+  and MSE, with an explicit aggregate cap, one retained snapshot, and rejection of MSE
+  improvements that worsen validation choices. Paired fresh synthetic tests: 1,436/1,536
+  single-rate → 1,487/1,536 selected-rate; nonlinear task 315/384 → 359/384, at about 3×
+  estimated training work. Inference cost/format unchanged; no API spend.
 - **[format]** New `brain` graph, saved-learning and workflow formats, with 41 conformance
   cases. All 162 previous cases remain byte-identical. Neural arithmetic and training use
   integer millionths, including canonical decimal serialization.

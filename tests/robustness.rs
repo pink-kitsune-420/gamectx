@@ -217,6 +217,30 @@ fn brain_definitions_learning_and_saved_text_never_panic() {
 }
 
 #[test]
+fn brain_rate_selection_text_never_panics_or_partially_updates() {
+    use gamectx::{brain::Brain, obj};
+    let workflow = parse(include_str!("../conformance/brain-select/select-earlier-tie/input.json"), 8192).unwrap();
+    let brain = Brain::from_value(workflow.get("definition").unwrap()).unwrap();
+    let args = workflow.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap().to_json();
+    let mut rng = Rng(0x51EC_710A_54FE_1234);
+    for _ in 0..10_000 {
+        let text = mutate(&mut rng, &args);
+        let mut candidate = brain.clone();
+        let before = candidate.to_value();
+        match candidate.apply_call("train_select_brain", &obj! {"request" => text}) {
+            Ok(reply) => {
+                assert_eq!(parse(&reply.to_json(), 1 << 16).unwrap(), reply);
+                if reply.get("accepted") == Some(&Value::Bool(false)) {
+                    assert_eq!(candidate.to_value(), before);
+                }
+            }
+            Err(_) => assert_eq!(candidate.to_value(), before),
+        }
+        assert_eq!(Brain::restore(&candidate.to_value()).unwrap().to_value(), candidate.to_value());
+    }
+}
+
+#[test]
 fn deep_nesting_is_refused_not_overflowed() {
     let deep = "[".repeat(100_000) + &"]".repeat(100_000);
     assert!(parse(&deep, usize::MAX).is_err());

@@ -37,7 +37,7 @@ A case passes when:
 | `query` | object of table names to arrays of row objects | `sql` (a SELECT string) | selected values or aggregates; see [Queries](../docs/FORMAT.md#queries) |
 | `query-schema` | object of named tables | | column types and complete small string domains |
 | `query-session` | object of named tables | `calls` (argument objects), `result_bytes` (default 4096) | one feedback envelope per call; requests after a terminal reply are errors |
-| `brain` | exactly one of `definition`, `dense`, `state`, plus `operations:[{op,args}]` | | `{"results":[...],"state":...}`; see [Reaction brains](../docs/FORMAT.md#reaction-brains) |
+| `brain`, `brain-select` | exactly one of `definition`, `dense`, `state`, plus `operations:[{op,args}]` | | `{"results":[...],"state":...}`; see [Reaction brains](../docs/FORMAT.md#reaction-brains); `brain-select` cases exercise opt-in rate selection |
 | `memory` | saved memory | `relevant_to`, `count` (default 8) | the recalled records as a table |
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |
 

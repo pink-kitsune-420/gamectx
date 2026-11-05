@@ -78,6 +78,10 @@ What the measurements show:
   across four synthetic tasks and unseen samples. Adapting a trained trading preference
   improved agreement from 264/384 to 384/384 on fresh samples. These are offline policy
   tests, separate from the LLM accuracy measurements above.
+- **Select training rates using validation reactions.** On a separate paired test with
+  fresh samples, opt-in rate selection scored 1,487/1,536 versus 1,436/1,536 for one rate.
+  The nonlinear task improved from 315/384 to 359/384. This used about three times the
+  estimated training work; inference is unchanged.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -181,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 203 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 220 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -356,6 +360,34 @@ saved output portable; see [the brain format](docs/FORMAT.md#reaction-brains) an
 for exact rules and these small networks for learned preferences. This is a reusable
 reaction-policy component; text understanding, temporal memory, engine adapters and
 reinforcement-learning reward assignment remain host concerns.
+
+### Select for reaction accuracy
+
+`Brain::train_select` compares a bounded list of learning rates on candidate copies.
+It prefers more correct validation reactions, then lower validation MSE. It requires
+both lower MSE and no reaction-accuracy regression relative to the active brain. One
+winner is retained with one revision and undo snapshot; rejected trials leave no history.
+
+With host-supplied `examples` and separate `validation` in the same format as above:
+
+```rust
+let report = brain.train_select(&obj! {
+    "id" => "selected_training", "expected_revision" => brain.revision(),
+    "examples" => examples, "validation" => validation, "epochs" => 128,
+    "rates" => vec![0.03,0.1,0.3], "max_steps" => 2_000_000
+})?;
+```
+
+The explicit aggregate work cap is at most 2,000,000 units; each of at most eight trials
+also obeys the original 500,000-unit cap. The original `train` stays available for
+single-rate MSE training. The model tool is `train_select_brain`; a runnable workflow is:
+
+```bash
+gamectx brain examples/brain/selection.json
+```
+
+This metric assumes all outputs are eligible and zero score/margin thresholds. Check
+host gameplay metrics separately when using state-dependent eligibility or other thresholds.
 
 ## Be honest with your numbers
 

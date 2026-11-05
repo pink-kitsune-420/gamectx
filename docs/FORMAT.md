@@ -519,14 +519,53 @@ An unlearned state must equal its baseline. This is consistency checking, not au
 Examples and observations are not saved. `inspect` exposes current definition/revision;
 `definition` returns the original authored graph.
 
+### Selecting rates for reaction accuracy
+
+`Brain::train_select` is opt-in; `train` keeps its existing behavior and output. Its
+request has exactly `id`, `expected_revision`, `examples`, `validation`, `epochs`, `rates`,
+`max_steps`. Samples, pins, displacement bounds, revisions, IDs and train/validation
+separation follow the existing training rules. `rates` contains 1..8 finite values
+greater than zero and at most one, distinct after millionth quantization. Epochs are 1..128.
+
+All trials start from the same active weights, including existing learning. For each
+candidate, count correct default-threshold validation choices and calculate validation
+MSE. Any uniquely predicted positive output with the highest target utility is correct;
+tied best targets permit any such output. All-zero targets expect abstention. Tied
+predictions abstain, as in inference. This metric assumes all outputs are eligible and
+zero minimum-score/margin thresholds. Hosts using other rules need separate metrics.
+
+A candidate is eligible only if MSE is strictly below the active brain and the correct
+decision count does not fall. Select the highest correct count, then the lowest MSE,
+then the earliest supplied rate on an exact tie. Retain at most one candidate, one
+revision and one undo snapshot; discarded trials consume no history or IDs. If no trial
+qualifies, the entire active state stays unchanged. Selection uses only the supplied
+validation data; the host keeps independent test/gameplay data separate.
+
+For R rates, E epochs, N training samples, V validation samples and P parameters,
+aggregate preflight work is `(3*E*N*R + 2*V*(R+1))*P`. The caller's `max_steps` is required
+and must be 1..2000000; the aggregate estimate cannot exceed it. Each trial must also
+satisfy the original `(3*E*N+2*V)*P <= 500000` bound. All budget checks occur before any
+training. Extra validation passes account for both MSE and decision counts.
+
+The [runnable selection workflow](../examples/brain/selection.json) returns this first result:
+
+```json
+{"accepted":true,"revision":1,"before_loss":0.167654,"after_loss":0.000385,"before_correct":1,"after_correct":2,"validation_count":2,"selected_rate":0.3,"steps":101728,"trials":[{"rate":0.03,"loss":0.038317,"correct":1},{"rate":0.1,"loss":0.002275,"correct":2},{"rate":0.3,"loss":0.000385,"correct":2}]}
+```
+
+On rejection, `selected_rate` is null and after-metrics equal the unchanged active
+brain's metrics. `trials` still describes every proposed final candidate, including
+ineligible ones. Report order follows the example. Inference and saved-state formats
+are unchanged. A reused validation set can overfit; the gate is not a gameplay guarantee.
+
 ### Tools and command line
 
 `brain::tools()` returns `create_brain`, `inspect_brain`, `run_brain`, `teach_brain`,
-`train_brain`, `undo_brain`. Every tool takes exactly one string field `request`, containing
+`train_brain`, `train_select_brain`, `undo_brain`. Every tool takes exactly one string field `request`, containing
 strict JSON, so it packs losslessly as a signature. Requests are capped at 65536 UTF-8
 bytes. `create_call` returns a new brain; it never silently replaces an existing instance.
 The host chooses ownership, allowed feature bindings and whether to install a definition.
-`Brain::apply_call` handles the five existing-brain operations. Run requests contain
+`Brain::apply_call` handles the six existing-brain operations. Run requests contain
 `inputs`, `allowed`, `min_score`, `min_margin`; inspect takes `{}`. Train/teach match the
 requests above; undo takes `{expected_revision}`. Pure Rust inference needs no tool/model call.
 `Brain::parse` caps graph JSON text at 32768 bytes; `restore_json` caps state at 262144 bytes.
@@ -535,7 +574,7 @@ requests above; undo takes `{expected_revision}`. Pure Rust inference needs no t
 exactly one of `definition`, `dense`, saved `state`, plus `operations` (at most 64 entries).
 Dense configuration has exactly `inputs`, `outputs`, `hidden`, `seed` (an unsigned 64-bit
 integer). Each operation is `{op,args}`, where op is `inspect`, `run`, `teach`, `train`,
-`undo`. Output is `{"results":[...],"state":...}`. An operation error fails the workflow;
+`train_select`, `undo`. Output is `{"results":[...],"state":...}`. An operation error fails the workflow;
 no files or external state are changed. `gamectx brain --tools` prints the tool schemas.
 
 ## Receipt

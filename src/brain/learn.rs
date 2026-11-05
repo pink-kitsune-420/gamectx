@@ -130,15 +130,19 @@ impl Brain {
         let after = candidate.loss(validation);
         let accepted = after < before;
         if accepted {
-            self.history.push((id.clone(), std::mem::replace(&mut self.weights, candidate.weights)));
-            if self.history.len() > MAX_HISTORY {
-                self.history.remove(0);
-            }
-            self.used.push(id);
-            self.revision += 1;
+            self.retain(candidate, id);
         }
         crate::obj! {"accepted" => accepted, "revision" => self.revision,
         "before_loss" => number(before), "after_loss" => number(after), "steps" => steps}
+    }
+
+    fn retain(&mut self, candidate: Self, id: String) {
+        self.history.push((id.clone(), std::mem::replace(&mut self.weights, candidate.weights)));
+        if self.history.len() > MAX_HISTORY {
+            self.history.remove(0);
+        }
+        self.used.push(id);
+        self.revision += 1;
     }
 
     /// Proposes up to 16 existing parameter changes, each at most ±0.1. `source:"$bias"`
@@ -208,13 +212,18 @@ impl Brain {
         if steps > MAX_STEPS {
             return Err(err("training work limit"));
         }
+        let candidate = self.trained(&examples, epochs, rate);
+        Ok(self.commit(candidate, id, &validation, steps))
+    }
+
+    fn trained(&self, examples: &Samples, epochs: usize, rate: i64) -> Self {
         let mut candidate = self.clone();
         let mut output = vec![false; self.nodes.len()];
         for index in &self.output_indices {
             output[*index] = true;
         }
         for _ in 0..epochs {
-            for (features, targets) in &examples {
+            for (features, targets) in examples {
                 let features: Vec<Option<i64>> = features.iter().copied().map(Some).collect();
                 let (values, active) = candidate.forward(&features);
                 let mut gradient = vec![0i64; self.nodes.len()];
@@ -248,7 +257,116 @@ impl Brain {
                 }
             }
         }
-        Ok(self.commit(candidate, id, &validation, steps))
+        candidate
+    }
+
+    /// Correct default-threshold decisions over complete utility samples. Tied best
+    /// targets allow any corresponding unique positive prediction; zero targets expect
+    /// abstention. Eligibility/threshold changes used by a host require its own metric.
+    fn decisions(&self, samples: &Samples) -> usize {
+        let mut correct = 0;
+        for (features, targets) in samples {
+            let features: Vec<Option<i64>> = features.iter().copied().map(Some).collect();
+            let (values, _) = self.forward(&features);
+            let mut best = 0;
+            let mut choice = None;
+            let mut tied = false;
+            for (output, index) in self.output_indices.iter().enumerate() {
+                let score = values[self.inputs.len() + index].expect("complete sample");
+                if score > best {
+                    best = score;
+                    choice = Some(output);
+                    tied = false;
+                } else if score == best {
+                    tied = true;
+                }
+            }
+            if tied {
+                choice = None;
+            }
+            let desired = targets.iter().copied().max().expect("outputs are nonempty");
+            correct += usize::from(if desired == 0 {
+                choice.is_none()
+            } else {
+                choice.is_some_and(|index| targets[index] == desired)
+            });
+        }
+        correct
+    }
+
+    /// Compares up to eight positive distinct learning rates on disposable candidate
+    /// copies. Selects by validation decision count, then lower validation MSE, then
+    /// request order. Both MSE improvement and non-regressing decision count are required.
+    /// Commits one revision/snapshot. Selection uses supplied validation data; the host
+    /// keeps its independent test/gameplay evaluation separate.
+    ///
+    /// The request contains `id`, `expected_revision`, `examples`, `validation`, `epochs`,
+    /// `rates`, `max_steps`. The explicit aggregate budget is at most MAX_SELECTION_STEPS;
+    /// each individual trial also obeys MAX_STEPS. Existing train behavior is unchanged.
+    pub fn train_select(&mut self, data: &Value) -> Result<Value> {
+        fields(data, &["id", "expected_revision", "examples", "validation", "epochs", "rates", "max_steps"])?;
+        let id = self.request(data)?;
+        let examples = self.samples(get(data, "examples")?)?;
+        let validation = self.samples(get(data, "validation")?)?;
+        if examples.iter().any(|(features, _)| validation.iter().any(|(other, _)| features == other)) {
+            return Err(err("training and validation inputs overlap"));
+        }
+        let epochs = integer(get(data, "epochs")?, 1, MAX_EPOCHS)?;
+        let raw_rates = list(get(data, "rates")?)?;
+        if raw_rates.is_empty() || raw_rates.len() > MAX_RATES {
+            return Err(err("rate count outside limits"));
+        }
+        let mut rates = Vec::new();
+        for rate in raw_rates {
+            let rate = ticks(rate, 0, S)?;
+            if rate == 0 || rates.contains(&rate) {
+                return Err(err("zero or duplicate normalized rate"));
+            }
+            rates.push(rate);
+        }
+        let cap = integer(get(data, "max_steps")?, 1, MAX_SELECTION_STEPS)?;
+        let parameters = self.weights.iter().map(Vec::len).sum::<usize>();
+        let per_trial = (3 * epochs * examples.len() + 2 * validation.len()) * parameters;
+        let steps = (3 * epochs * examples.len() * rates.len() + 2 * validation.len() * (rates.len() + 1)) * parameters;
+        if per_trial > MAX_STEPS || steps > cap {
+            return Err(err("training selection work limit"));
+        }
+        let before_loss = self.loss(&validation);
+        let before_correct = self.decisions(&validation);
+        let mut selected = None;
+        let mut trials = Vec::new();
+        for rate in rates {
+            let candidate = self.trained(&examples, epochs, rate);
+            let loss = candidate.loss(&validation);
+            let correct = candidate.decisions(&validation);
+            trials.push(crate::obj! {"rate" => number(rate), "loss" => number(loss), "correct" => correct});
+            if loss >= before_loss || correct < before_correct {
+                continue;
+            }
+            let better = match &selected {
+                None => true,
+                Some((_, _, best_correct, best_loss)) => {
+                    correct > *best_correct || (correct == *best_correct && loss < *best_loss)
+                }
+            };
+            if better {
+                selected = Some((rate, candidate, correct, loss));
+            }
+        }
+        let accepted = selected.is_some();
+        let mut selected_rate = Value::Null;
+        let (mut after_loss, mut after_correct) = (before_loss, before_correct);
+        if let Some((rate, candidate, correct, loss)) = selected {
+            self.retain(candidate, id);
+            selected_rate = number(rate);
+            after_loss = loss;
+            after_correct = correct;
+        }
+        Ok(crate::obj! {"accepted" => accepted, "revision" => self.revision,
+        "before_loss" => number(before_loss), "after_loss" => number(after_loss),
+        "before_correct" => before_correct, "after_correct" => after_correct,
+        "validation_count" => validation.len(), "selected_rate" => selected_rate,
+        "steps" => steps, "trials" => Value::Array(trials)})
     }
 
     /// Restores the most recent retained snapshot. Revision advances and consumed IDs

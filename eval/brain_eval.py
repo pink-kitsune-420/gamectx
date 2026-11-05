@@ -226,13 +226,16 @@ class Brain:
         before, after = self.loss(validation), candidate.loss(validation)
         accepted = after < before
         if accepted:
-            self.history.append((ident, copy.deepcopy(self.weights)))
-            self.history = self.history[-MAX["history"]:]
-            self.weights = candidate.weights
-            self.used.append(ident)
-            self.revision += 1
+            self.retain(candidate, ident)
         return {"accepted": accepted, "revision": self.revision,
                 "before_loss": number(before), "after_loss": number(after), "steps": steps}
+
+    def retain(self, candidate, ident):
+        self.history.append((ident, copy.deepcopy(self.weights)))
+        self.history = self.history[-MAX["history"]:]
+        self.weights = candidate.weights
+        self.used.append(ident)
+        self.revision += 1
 
     def teach(self, data):
         fields(data, ("id", "expected_revision", "changes", "validation"))
@@ -278,6 +281,10 @@ class Brain:
         steps = (3 * epochs * len(examples) + 2 * len(validation)) * sum(len(w) for w in self.weights)
         if steps > MAX["steps"]:
             raise BrainError("training work limit")
+        candidate = self.trained(examples, epochs, rate)
+        return self.commit(candidate, data["id"], validation, steps)
+
+    def trained(self, examples, epochs, rate):
         candidate = copy.deepcopy(self)
         for _ in range(epochs):
             for features, targets in examples:
@@ -300,7 +307,7 @@ class Brain:
                     for j, derivative in enumerate(derivatives):
                         low, high = max(-4 * S, self.base[i][j] - limit), min(4 * S, self.base[i][j] + limit)
                         candidate.weights[i][j] = max(low, min(high, candidate.weights[i][j] - mul(rate, derivative)))
-        return self.commit(candidate, data["id"], validation, steps)
+        return candidate
 
     def gradient_active(self, index, active):
         # Output straight-through derivative lets a saturated policy unlearn an old target.

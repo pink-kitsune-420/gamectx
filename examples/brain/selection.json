@@ -1,0 +1,109 @@
+{
+  "dense": {
+    "inputs": [
+      "danger",
+      "need"
+    ],
+    "outputs": [
+      "withdraw",
+      "assist"
+    ],
+    "hidden": 4,
+    "seed": 3
+  },
+  "operations": [
+    {
+      "op": "train_select",
+      "args": {
+        "id": "selected_training",
+        "expected_revision": 0,
+        "examples": [
+          {
+            "inputs": {
+              "danger": 0.1,
+              "need": 0.2
+            },
+            "targets": {
+              "withdraw": 0.1,
+              "assist": 0.18
+            }
+          },
+          {
+            "inputs": {
+              "danger": 0.2,
+              "need": 0.8
+            },
+            "targets": {
+              "withdraw": 0.2,
+              "assist": 0.64
+            }
+          },
+          {
+            "inputs": {
+              "danger": 0.8,
+              "need": 0.1
+            },
+            "targets": {
+              "withdraw": 0.8,
+              "assist": 0.02
+            }
+          },
+          {
+            "inputs": {
+              "danger": 0.9,
+              "need": 0.7
+            },
+            "targets": {
+              "withdraw": 0.9,
+              "assist": 0.07
+            }
+          }
+        ],
+        "validation": [
+          {
+            "inputs": {
+              "danger": 0.15,
+              "need": 0.75
+            },
+            "targets": {
+              "withdraw": 0.15,
+              "assist": 0.6375
+            }
+          },
+          {
+            "inputs": {
+              "danger": 0.75,
+              "need": 0.15
+            },
+            "targets": {
+              "withdraw": 0.75,
+              "assist": 0.0375
+            }
+          }
+        ],
+        "epochs": 128,
+        "rates": [
+          0.03,
+          0.1,
+          0.3
+        ],
+        "max_steps": 2000000
+      }
+    },
+    {
+      "op": "run",
+      "args": {
+        "inputs": {
+          "danger": 0.8,
+          "need": 0.2
+        },
+        "allowed": [
+          "withdraw",
+          "assist"
+        ],
+        "min_score": 0,
+        "min_margin": 0
+      }
+    }
+  ]
+}

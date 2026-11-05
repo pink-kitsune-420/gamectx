@@ -162,3 +162,38 @@ fn accepted_update_limit_survives_undo_and_restore() {
     let mut restored = Brain::restore_json(&brain.to_value().to_json()).unwrap();
     assert!(restored.teach(&lesson(0.001, "extra", restored.revision())).is_err());
 }
+
+#[test]
+fn rate_selection_preserves_correct_decisions_even_when_mse_falls() {
+    let request =
+        parse(include_str!("../conformance/brain-select/reject-decision-regression/input.json"), 8192).unwrap();
+    let mut brain = Brain::from_value(request.get("definition").unwrap()).unwrap();
+    let before = brain.to_value();
+    let args = request.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap();
+    let report = brain.train_select(args).unwrap();
+    assert_eq!(report.get("accepted"), Some(&Value::Bool(false)));
+    assert_eq!(report.get("before_correct").and_then(Value::as_usize), Some(1));
+    assert_eq!(report.get("trials").unwrap().as_array().unwrap()[0].get("correct").and_then(Value::as_usize), Some(0));
+    assert_eq!(brain.to_value(), before);
+}
+
+#[test]
+fn rate_selection_commits_one_snapshot_and_preflights_total_budget() {
+    let request = parse(include_str!("../conformance/brain-select/select-earlier-tie/input.json"), 8192).unwrap();
+    let mut brain = Brain::from_value(request.get("definition").unwrap()).unwrap();
+    let before = brain.to_value();
+    let args = request.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap();
+    let report = brain.apply_call("train_select_brain", &obj! {"request" => args.to_json()}).unwrap();
+    assert_eq!(report.get("selected_rate").unwrap().to_json(), "0.5");
+    assert_eq!(brain.revision(), 1);
+    assert_eq!(brain.to_value().get("history").unwrap().as_array().unwrap().len(), 1);
+    brain.undo(1).unwrap();
+    assert_eq!(brain.to_value().get("weights"), before.get("weights"));
+    assert!(brain.train_select(args).is_err());
+    let request = parse(include_str!("../conformance/brain-select/error-aggregate-budget/input.json"), 8192).unwrap();
+    let mut brain = Brain::from_value(request.get("definition").unwrap()).unwrap();
+    let before = brain.to_value();
+    let args = request.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap();
+    assert!(brain.train_select(args).unwrap_err().to_string().contains("work"));
+    assert_eq!(brain.to_value(), before);
+}

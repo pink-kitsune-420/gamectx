@@ -170,3 +170,16 @@ boundaries. Keep independent gameplay tests and host metrics, and use formulas/q
 for exact calculations. Host game logic supplies feature normalization, freshness, label
 meaning, permissions, storage and rollout choices. The network does not create factual
 memory from proposed lessons or from its own predictions.
+
+When reaction choice matters, use `train_select` to compare a short list of learning
+rates. It selects by correct validation choices, then MSE, and retains one candidate
+only if MSE improves and choices do not regress. Supply an explicit aggregate work
+budget, at most 2,000,000 units; individual trials retain the 500,000-unit bound.
+
+*Fresh paired test seeds 2001/2002/2003: a fixed rate scored 1,436/1,536, selected rates
+1,487/1,536. Nonlinear switch improved 315/384 → 359/384. Both used 32 training samples
+and 128 validation samples per task; rates 0.03/0.1/0.3 were selected only on validation
+data. Selection used about 3× estimated training work; runtime inference is unchanged.*
+This is a different cohort from the original 1,421/1,536 benchmark above. Its utility
+targets and initializer are still synthetic; host eligibility masks and thresholds
+need their own evaluation, and repeatedly tuning against validation data can overfit.

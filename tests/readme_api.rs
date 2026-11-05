@@ -123,3 +123,26 @@ fn adaptive_brain_readme_example() -> gamectx::Result<()> {
     assert_eq!(Brain::restore_json(&brain.to_value().to_json())?.to_value(), brain.to_value());
     Ok(())
 }
+
+#[test]
+fn brain_selection_readme_example() -> gamectx::Result<()> {
+    use gamectx::brain::Brain;
+    let sample = |danger: f64, need: f64| {
+        obj! {
+            "inputs" => obj! {"danger" => danger, "need" => need},
+            "targets" => obj! {"withdraw" => danger, "assist" => need * (1.0 - danger)}
+        }
+    };
+    let mut brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
+    let examples = vec![sample(0.1, 0.2), sample(0.2, 0.8), sample(0.8, 0.1), sample(0.9, 0.7)];
+    let validation = vec![sample(0.15, 0.75), sample(0.75, 0.15)];
+    let report = brain.train_select(&obj! {
+        "id" => "selected_training", "expected_revision" => brain.revision(),
+        "examples" => examples, "validation" => validation, "epochs" => 128,
+        "rates" => vec![0.03,0.1,0.3], "max_steps" => 2_000_000
+    })?;
+    assert_eq!(report.get("accepted"), Some(&Value::Bool(true)));
+    assert_eq!(brain.revision(), 1);
+    assert_eq!(brain.to_value().get("history").unwrap().as_array().unwrap().len(), 1);
+    Ok(())
+}
