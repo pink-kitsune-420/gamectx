@@ -3,15 +3,20 @@
 //! lossless; a view drops information on purpose, so verification compares the packed
 //! table with the viewed rows instead.
 //!
-//! Steps run in a fixed order: `where`, `relevant_to`, `sort_by`, `limit`, `fields`,
-//! `round`. Filtering and sorting before `fields` lets a game use columns it does not send,
+//! Steps run in a fixed order: `derive`, `where`, `relevant_to`, `sort_by`, `limit`,
+//! `fields`, `round`. Filtering and sorting before `fields` lets a game use columns it does not send,
 //! such as distance to the player.
 
+use crate::formula::Formulas;
 use crate::json::{Error, Result, Value};
 use std::cmp::Ordering;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct View {
+    /// New columns computed from each row with a formula expression (column, expression),
+    /// before any other step. A row whose inputs are missing, not numbers, or fail to
+    /// evaluate (such as dividing by zero) gets `null`.
+    pub derive: Vec<(String, String)>,
     /// Keep only rows meeting every condition (column, operator, value).
     pub filters: Vec<(String, Op, Value)>,
     /// Keep only the rows that best match the words of this text; see [`relevant_rows`].
@@ -152,6 +157,13 @@ impl View {
     /// `round` is an object of column name to decimal places, e.g. `{"weight": 1}`.
     pub fn from_json(obj: &Value) -> Result<View> {
         let mut view = View::default();
+        if let Some(v) = obj.get("derive") {
+            let entries = v.as_object().ok_or_else(|| Error::new("derive must be an object of column: expression"))?;
+            for (column, expression) in entries {
+                let expression = expression.as_str().ok_or_else(|| Error::new("derive expressions must be strings"))?;
+                view.derive.push((column.clone(), expression.to_owned()));
+            }
+        }
         if let Some(v) = obj.get("where") {
             let conditions = v.as_object().ok_or_else(|| Error::new("where must be an object of column: condition"))?;
             for (column, condition) in conditions {
@@ -226,7 +238,37 @@ impl View {
 
 /// Applies a view to a list of objects.
 pub fn apply(items: &[Value], view: &View) -> Result<Vec<Value>> {
+    apply_with(items, view, &Formulas::new())
+}
+
+/// Like [`apply`], with formulas that `derive` expressions may call.
+pub fn apply_with(items: &[Value], view: &View, formulas: &Formulas) -> Result<Vec<Value>> {
     let mut rows: Vec<Value> = items.to_vec();
+    for (column, expression) in &view.derive {
+        let names: Vec<String> = rows
+            .first()
+            .and_then(Value::as_object)
+            .map(|o| o.iter().map(|(k, _)| k.clone()).collect())
+            .unwrap_or_default();
+        if names.contains(column) {
+            return Err(Error::new(format!("derive: column \"{column}\" already exists")));
+        }
+        let compiled =
+            formulas.compile(expression, &names).map_err(|e| Error::new(format!("derive \"{column}\": {e}")))?;
+        for row in rows.iter_mut() {
+            let values: Vec<Option<f64>> = names
+                .iter()
+                .map(|n| match row.get(n) {
+                    Some(Value::Number(t)) => t.parse().ok(),
+                    _ => None,
+                })
+                .collect();
+            let result = formulas.run(&compiled, &values).ok().flatten().unwrap_or(Value::Null);
+            if let Value::Object(entries) = row {
+                entries.push((column.clone(), result));
+            }
+        }
+    }
     if !view.filters.is_empty() {
         let mut kept = Vec::with_capacity(rows.len());
         for (n, row) in rows.into_iter().enumerate() {
@@ -448,6 +490,29 @@ mod tests {
             "no match keeps all"
         );
         assert_eq!(ids("the café map"), ["Café_Map"], "Unicode words match");
+    }
+
+    #[test]
+    fn derive_computes_columns_before_filtering() {
+        let mut f = Formulas::new();
+        f.define("danger", &["hp", "dist"], "max(0, 10 - dist) * (1 - hp / 100)", "").unwrap();
+        let source = items(
+            r#"[{"id":"a","hp":50,"dist":4},{"id":"b","hp":10,"dist":1},{"id":"c","hp":null,"dist":2},{"id":"d","hp":20,"dist":"far"}]"#,
+        );
+        let view = View::from_json(
+            &parse(r#"{"derive":{"danger":"danger(hp, dist)","ratio":"hp / (dist - 1)"},"where":{"danger":{">":2}},"sort_by":"-danger"}"#, 1024)
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            json(apply_with(&source, &view, &f).unwrap()),
+            r#"[{"id":"b","hp":10,"dist":1,"danger":8.1,"ratio":null},{"id":"a","hp":50,"dist":4,"danger":3,"ratio":16.666666666666668}]"#,
+            "null and text inputs give null; dividing by zero gives null; filters and sorting see derived columns"
+        );
+        let clash = View { derive: vec![("hp".into(), "1".into())], ..View::default() };
+        assert!(apply_with(&source, &clash, &f).is_err(), "cannot overwrite a column");
+        let bad = View { derive: vec![("x".into(), "hp +".into())], ..View::default() };
+        assert!(apply_with(&source, &bad, &f).is_err(), "bad expressions fail loudly");
     }
 
     #[test]

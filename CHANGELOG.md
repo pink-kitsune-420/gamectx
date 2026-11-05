@@ -39,6 +39,12 @@ know what an upgrade costs:
   `Memory::tool` and `Memory::apply_call` let the model write memories with validation;
   `Turn::memory` adds recalled records. Measured: 84% fewer input tokens than sending a
   60-event history, same accuracy.
+- **[format]** New `formula` module: safe formulas (numbers and booleans, operators, `if`,
+  `min`/`max`/`clamp`/`round`/..., calls to earlier formulas only) with definition-time
+  checks and step limits; `derive` view columns; manifest `formulas`; `Formulas::tools`
+  gives the model `define_formula` and `calc`; `gamectx calc` on the command line.
+  Measured: models answered 0/16 arithmetic questions directly, 8/16 by writing an
+  expression for gamectx to compute; the rest picked wrong rows.
 - **[api]** `Value` converts from strings, numbers, booleans, `Option` and `Vec`, and the
   `obj!` macro builds objects.
 - **[api]** `gamectx pack -` reads the manifest from standard input, for calling from any

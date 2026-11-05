@@ -17,6 +17,7 @@
 
 use crate::budget::Section;
 use crate::catalog::{Catalog, Limits};
+use crate::formula::{Formulas, Limits as FormulaLimits};
 use crate::json::{self, Error, Result, Value};
 use crate::memory::{Limits as MemoryLimits, Memory};
 use crate::view::{self, View};
@@ -64,6 +65,8 @@ pub struct Prepared {
     pub view: View,
     /// For grouped tables, the columns rows were grouped by, outermost first.
     pub group_by: Vec<String>,
+    /// Formulas available to this section's `derive` (used again by `verify`).
+    pub formulas: Formulas,
     pub section: Section,
 }
 
@@ -84,6 +87,8 @@ pub struct Manifest {
     pub budget_bytes: Option<usize>,
     /// Checked with a calibrated estimate when one is supplied, otherwise the byte bound.
     pub budget_tokens: Option<usize>,
+    /// Formulas from the manifest's `formulas` list, available to `derive`.
+    pub formulas: Formulas,
     pub sections: Vec<Prepared>,
 }
 
@@ -109,7 +114,11 @@ pub fn load(path: &Path) -> Result<Manifest> {
 
 /// Parses a manifest value; `base` resolves relative `file` paths.
 pub fn parse(root: &Value, base: &Path) -> Result<Manifest> {
-    allow_keys(root, &["budget_bytes", "budget_tokens", "sections"], "manifest")?;
+    allow_keys(root, &["budget_bytes", "budget_tokens", "formulas", "sections"], "manifest")?;
+    let formulas = match root.get("formulas") {
+        None => Formulas::new(),
+        Some(v) => Formulas::from_value(v, FormulaLimits::default())?,
+    };
     let budget = |key: &str| {
         root.get(key)
             .map(|v| v.as_usize().ok_or_else(|| Error::new(format!("{key} must be a non-negative integer"))))
@@ -120,9 +129,9 @@ pub fn parse(root: &Value, base: &Path) -> Result<Manifest> {
         root.get("sections").and_then(Value::as_array).ok_or_else(|| Error::new("manifest needs a sections array"))?;
     let mut sections = Vec::with_capacity(list.len());
     for (n, item) in list.iter().enumerate() {
-        sections.push(section(item, base).map_err(|e| Error::new(format!("section {n}: {e}")))?);
+        sections.push(section(item, base, &formulas).map_err(|e| Error::new(format!("section {n}: {e}")))?);
     }
-    Ok(Manifest { budget_bytes, budget_tokens, sections })
+    Ok(Manifest { budget_bytes, budget_tokens, formulas, sections })
 }
 
 fn allow_keys(value: &Value, allowed: &[&str], what: &str) -> Result<()> {
@@ -133,7 +142,7 @@ fn allow_keys(value: &Value, allowed: &[&str], what: &str) -> Result<()> {
     }
 }
 
-fn section(item: &Value, base: &Path) -> Result<Prepared> {
+fn section(item: &Value, base: &Path, formulas: &Formulas) -> Result<Prepared> {
     allow_keys(
         item,
         &[
@@ -145,6 +154,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             "value",
             "file",
             "group_by",
+            "derive",
             "where",
             "relevant_to",
             "relevant_fallback",
@@ -191,7 +201,10 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             _ => Ok(()),
         }
     };
-    only_for(&["group_by", "where", "relevant_fallback", "sort_by", "limit", "fields", "round"], Pack::Table)?;
+    only_for(
+        &["group_by", "derive", "where", "relevant_fallback", "sort_by", "limit", "fields", "round"],
+        Pack::Table,
+    )?;
     let view = View::from_json(item)?;
     only_for(&["query", "kind", "offset"], Pack::Catalog)?;
     if item.get("count").is_some() && ![Pack::Catalog, Pack::Memory].contains(&pack) {
@@ -206,7 +219,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
     let list = || original.as_array().ok_or_else(|| Error::new(format!("pack \"{}\" needs an array", pack.name())));
     let value = match pack {
         Pack::Raw => original.clone(),
-        Pack::Table => table::pack(&view::apply(list()?, &view)?, &group_refs)?,
+        Pack::Table => table::pack(&view::apply_with(list()?, &view, formulas)?, &group_refs)?,
         Pack::Schema => schema::pack(list()?)?,
         Pack::Signatures => Value::str(signatures::pack(list()?)?),
         Pack::Memory => {
@@ -241,7 +254,14 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
             }
         }
     };
-    Ok(Prepared { pack, original, view, group_by, section: Section { name, priority, stable, required, value } })
+    Ok(Prepared {
+        pack,
+        original,
+        view,
+        group_by,
+        formulas: formulas.clone(),
+        section: Section { name, priority, stable, required, value },
+    })
 }
 
 impl Prepared {
@@ -261,7 +281,7 @@ impl Prepared {
         }
         if let Value::Array(items) = &self.original {
             if self.pack == Pack::Table {
-                let viewed = view::apply(items, &self.view)?;
+                let viewed = view::apply_with(items, &self.view, &self.formulas)?;
                 let columns: Vec<&str> = self.group_by.iter().map(String::as_str).collect();
                 expected = Value::Array(table::group_order(&viewed, &columns));
             }

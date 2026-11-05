@@ -1,0 +1,11 @@
+{
+ "define": [
+  {
+   "name": "max",
+   "params": [],
+   "body": "1",
+   "description": ""
+  }
+ ],
+ "calc": []
+}

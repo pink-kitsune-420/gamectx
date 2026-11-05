@@ -31,6 +31,7 @@ unpaired surrogates, trailing text and nesting deeper than 64 are errors.
 | Field | Type | Meaning |
 |---|---|---|
 | `budget_bytes` | integer, optional | Maximum bytes of compact JSON for the whole packet. |
+| `formulas` | array, optional | Formula definitions (`{"name","params","body","description"}`) that table `derive` expressions may call. See [Formulas](#formulas). |
 | `budget_tokens` | integer, optional | Maximum estimated input tokens (see [Calibration](#calibration)). If both budgets are set, the packet must fit both. |
 | `sections` | array | The sections, in declared order. |
 
@@ -45,6 +46,7 @@ Each section:
 | `stable` | bool | false | Rarely changes between requests. Stable sections are placed first, keeping the start of the packet identical so it can be cached. |
 | `required` | bool | false | Never dropped. Assembly fails if required sections alone exceed the budget. |
 | `group_by` | string or string array | none | `table` only: group rows under this column's values, or nest groups by several columns, outermost first. Grouping columns must hold strings. |
+| `derive` | object | none | `table` only, view: new columns computed by [formula](#formulas) expressions, e.g. `{"danger": "danger(hp, dist)"}`. |
 | `where` | object | none | `table` only, [view](#views): keep rows meeting every condition, e.g. `{"kind": "weapon", "count": {">=": 15}}`. |
 | `relevant_to` | string | none | `table`: keep the rows that best match the words of this text ([view](#views)). `catalog`: return the entries that best match it, instead of a `query` search. |
 | `count` | integer | 8 | `catalog` and `memory`: how many entries or records to return. |
@@ -98,6 +100,9 @@ the measurements in the README for why.
 
 A table section can shape its rows before packing. Steps always run in this order:
 
+0. `derive`: add each new column, computed by a formula expression whose names are the
+   row's columns. A row whose used inputs are missing or not numbers, or whose evaluation
+   fails (such as dividing by zero), gets `null`. Adding a column that exists is an error.
 1. `where`: keep rows meeting every condition. A plain value means equal (`1` equals `1.0`);
    otherwise one operator object: `{"=": v}`, `{"!=": v}`, `{">": n}`, `{">=": n}`, `{"<": n}`,
    `{"<=": n}` or `{"in": [v, ...]}`. Ordering operators compare numbers only; a cell that
@@ -216,6 +221,29 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
   (`--generation`) makes a later page fail instead of mixing old and new data. It
   detects changes; it is not a security hash.
 - A trailing `"..."` tag means the entry had more tags than were kept.
+
+### Formulas
+
+A safe expression language that a game, or its model through the `define_formula` and
+`calc` tools, uses to describe calculations the game then performs exactly.
+
+- Values are numbers and `true`/`false`. Parameters and row columns are numbers.
+- Operators, loosest first: `or`; `and`; `not`; `< <= > >= == !=` (not chainable);
+  `+ -`; `* / %`; unary `-`. Parentheses group.
+- Built-ins: `min(...)`, `max(...)`, `abs`, `floor`, `ceil`, `sqrt`, `clamp(x, low, high)`,
+  `round(x)` or `round(x, places)` (0–12), and `if(condition, then, else)`, which only
+  evaluates the branch it takes.
+- A formula may call formulas defined before it, never itself, so recursion and loops are
+  impossible. Types, names and argument counts are checked at definition.
+- Limits: 64 formulas, 8 parameters, 300 characters and 200 parts per body, nesting 32,
+  and 10,000 evaluation steps per evaluation.
+- Division or remainder by zero, `sqrt` of a negative number, and non-finite results are
+  errors. Results print as integers when whole, otherwise in shortest form
+  (`0.1 + 0.2` is `0.30000000000000004`; use `round`).
+
+Saved formulas are `[{"name","params","body","description"}]` in definition order.
+`gamectx calc "<expression>" --formulas FILE` evaluates one expression from the command
+line.
 
 ### `memory` (recall)
 

@@ -1,0 +1,22 @@
+[
+ {
+  "id": "hound",
+  "hp": 10,
+  "dist": 1
+ },
+ {
+  "id": "rat",
+  "hp": 90,
+  "dist": 1
+ },
+ {
+  "id": "ghost",
+  "hp": null,
+  "dist": 2
+ },
+ {
+  "id": "bat",
+  "hp": 50,
+  "dist": 4
+ }
+]

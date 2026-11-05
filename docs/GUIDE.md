@@ -79,7 +79,14 @@ Asking a model to filter long lists is unreliable in every format. "Items with c
 least 15" was right 1 time in 27 without help.
 
 - **Best:** compute the answer in game code and send the result. `where` makes the common
-  cases one line: `{"count": {">=": 15}}`, or `.filter("count", ">=", 15)` in Rust.
+  cases one line: `{"count": {">=": 15}}`, or `.filter("count", ">=", 15)` in Rust, and
+  `derive` adds computed columns from [formulas](FORMAT.md#formulas) that filters and sorts
+  can use.
+- **Never let the model do arithmetic itself.** *Measured: asked 8 sum, average and
+  difference questions over the game data, the two smaller models got 0 of 16 right.
+  Replying with an expression that gamectx computed (`calc`) got 8 of 16; every remaining
+  miss picked the wrong rows, which `where` and `derive` fix in code.* Give the model the
+  `calc` and `define_formula` tools (`Formulas::tools`) for arithmetic it decides on itself.
 - **Otherwise:** ask for a brief list of candidate rows before the final JSON. *Measured on
   18 filtering questions: 37/54 → 46/54 correct, numeric filters 1/9 → 6/9, for about 60
   extra output tokens per answer.*

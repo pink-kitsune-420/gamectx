@@ -31,6 +31,7 @@
 use crate::budget::{assemble, Packet, Section};
 use crate::catalog::Catalog;
 use crate::estimate::{self, Calibration};
+use crate::formula::Formulas;
 use crate::json::{Error, Result, Value};
 use crate::memory::Memory;
 use crate::view::{self, Op, View};
@@ -40,6 +41,7 @@ use crate::{schema, signatures, table};
 #[derive(Clone, Debug, Default)]
 pub struct Context {
     stable: Vec<Section>,
+    formulas: Formulas,
     budget_bytes: Option<usize>,
     budget_tokens: Option<usize>,
     calibration: Calibration,
@@ -67,6 +69,14 @@ impl Table {
     /// Group by the columns your game filters on most.
     pub fn group_by(mut self, column: &str) -> Table {
         self.group_by.push(column.to_owned());
+        self
+    }
+
+    /// Add a column computed from each row by a formula expression, e.g.
+    /// `.derive("danger", "danger(hp, dist)")`. Runs before every other step, so `filter`
+    /// and `sort_by` can use it. Rows whose inputs are missing or not numbers get `null`.
+    pub fn derive(mut self, column: &str, expression: &str) -> Table {
+        self.view.derive.push((column.to_owned(), expression.to_owned()));
         self
     }
 
@@ -157,12 +167,13 @@ fn rows(value: Value, what: &str) -> Result<Vec<Value>> {
     }
 }
 
-fn table_section(name: &str, items: Value, options: Table, stable: bool) -> Result<Section> {
+fn table_section(name: &str, items: Value, options: Table, stable: bool, formulas: &Formulas) -> Result<Section> {
     if let Some(e) = options.error {
         return Err(Error::new(format!("table \"{name}\": {e}")));
     }
     let items = rows(items, &format!("table \"{name}\""))?;
-    let viewed = view::apply(&items, &options.view).map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
+    let viewed =
+        view::apply_with(&items, &options.view, formulas).map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
     let value = table::pack(&viewed, &options.group_by.iter().map(String::as_str).collect::<Vec<_>>())
         .map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
     Ok(Section {
@@ -236,9 +247,16 @@ impl Context {
 
     /// Registers a table that rarely changes. Stable.
     pub fn constant_table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Context> {
-        let section = table_section(name, items.into(), options, true)?;
+        let section = table_section(name, items.into(), options, true, &self.formulas)?;
         add(&mut self.stable, &[], section)?;
         Ok(self)
+    }
+
+    /// Formulas that tables can `derive` columns from; see [`crate::formula`]. Define them
+    /// directly, or apply a model's `define_formula` call with
+    /// [`Formulas::apply_define`].
+    pub fn formulas(&mut self) -> &mut Formulas {
+        &mut self.formulas
     }
 
     /// Starts a turn: registered sections plus whatever the turn adds.
@@ -275,7 +293,7 @@ impl Turn<'_> {
 
     /// Adds a table for this turn.
     pub fn table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Self> {
-        let section = table_section(name, items.into(), options, false)?;
+        let section = table_section(name, items.into(), options, false, &self.context.formulas)?;
         add(&mut self.sections, &self.context.stable, section)?;
         Ok(self)
     }
@@ -388,6 +406,21 @@ mod tests {
             turn.build().unwrap().text,
             r#"{"plenty":{"columns":["id"],"rows":[["ash_knife"],["moon_trout"]]},"asked":{"columns":["id"],"rows":[["moon_trout"]]}}"#
         );
+    }
+
+    #[test]
+    fn formulas_derive_columns_for_filters() {
+        let mut game = Context::new();
+        game.formulas().define("danger", &["hp", "dist"], "max(0, 10 - dist) * (1 - hp / 100)", "Threat.").unwrap();
+        let foes = vec![obj! {"id" => "hound", "hp" => 10, "dist" => 2}, obj! {"id" => "rat", "hp" => 90, "dist" => 1}];
+        let mut turn = game.turn();
+        turn.table(
+            "threats",
+            foes,
+            Table::new().derive("danger", "danger(hp, dist)").filter("danger", ">", 2).fields(&["id", "danger"]),
+        )
+        .unwrap();
+        assert_eq!(turn.build().unwrap().text, r#"{"threats":{"columns":["id","danger"],"rows":[["hound",7.2]]}}"#);
     }
 
     #[test]

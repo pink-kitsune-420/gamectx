@@ -1,0 +1,1 @@
+{"op": "table", "args": {"derive": {"per_dist": "hp / (dist - 1)"}, "fields": ["id", "per_dist"]}}

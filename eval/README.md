@@ -24,3 +24,6 @@ identical answers between runs, so treat differences of one or two answers as no
 
 `memory_eval.py` compares sending a 60-event history with sending the 8 events gamectx
 recalls for each question (`--dry-run` checks recall without any API calls).
+
+`calc_eval.py` asks arithmetic questions over the same data, answered directly or as an
+expression that `gamectx calc` evaluates.

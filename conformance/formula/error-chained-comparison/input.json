@@ -1,0 +1,13 @@
+{
+ "define": [
+  {
+   "name": "x",
+   "params": [
+    "a"
+   ],
+   "body": "1 < a < 3",
+   "description": ""
+  }
+ ],
+ "calc": []
+}

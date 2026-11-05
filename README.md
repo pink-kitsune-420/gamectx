@@ -58,6 +58,10 @@ What the measurements show:
 - **Recall memories instead of resending history.** For 10 questions about a 60-event
   history, sending the 8 events gamectx recalled instead of all 60 used 84% fewer input
   tokens with the same accuracy (20/20 both, on the two smaller models).
+- **Let the game do the math.** Asked to add up numbers from the data, the two smaller models
+  answered 0 of 16 questions correctly. Writing an expression for gamectx to compute instead
+  got 8 of 16, and every remaining miss chose the wrong rows, which `where` and `derive` do
+  exactly in code.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -96,6 +100,9 @@ packet: 1906 bytes; budget 2000 bytes
 - **Action signatures** (`signatures`, lossless): tool schemas as short text lines, with
   arguments shared between actions described once, such as `power: integer 1..5`. The
   recommended way to describe actions in a prompt.
+- **Formulas** (`formula`): a safe expression language (no loops, no recursion, step limits)
+  that the game or model defines once and the game evaluates exactly, as `derive` columns
+  or through the model's `calc` and `define_formula` tools.
 - **Memory** (`memory`): facts and events with tags, importance and turn, recalled by
   relevance instead of resending history, with a ready-made `remember` tool for the model.
 - **Context** (library): register tools, prompts and constants once; add variables and

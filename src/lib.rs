@@ -40,6 +40,7 @@ pub mod budget;
 pub mod catalog;
 pub mod context;
 pub mod estimate;
+pub mod formula;
 pub mod json;
 pub mod manifest;
 pub mod memory;

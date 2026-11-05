@@ -6,6 +6,7 @@
 use gamectx::budget::{assemble_bytes, Section};
 use gamectx::catalog::{Catalog, Limits};
 use gamectx::estimate::{self, Calibration};
+use gamectx::formula::Formulas;
 use gamectx::json::{parse, Error, Result, Value};
 use gamectx::view::{self, View};
 use gamectx::{fingerprint, schema, signatures, table};
@@ -26,6 +27,13 @@ fn strings(value: &Value) -> Vec<String> {
     value.as_array().expect("string array").iter().map(|s| s.as_str().expect("string").to_owned()).collect()
 }
 
+fn formulas(args: &Value) -> Result<Formulas> {
+    match args.get("formulas") {
+        None => Ok(Formulas::new()),
+        Some(v) => Formulas::from_value(v, gamectx::formula::Limits::default()),
+    }
+}
+
 fn group_by(args: &Value) -> Result<Vec<String>> {
     args.get("group_by").map(table::group_columns).transpose().map(Option::unwrap_or_default)
 }
@@ -39,7 +47,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
         "table" => table::pack(
-            &view::apply(list(), &View::from_json(args)?)?,
+            &view::apply_with(list(), &View::from_json(args)?, &formulas(args)?)?,
             &group_by(args)?.iter().map(String::as_str).collect::<Vec<_>>(),
         )?,
         "schema" => schema::pack(list())?,
@@ -110,13 +118,21 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
             let text = args.get("relevant_to").and_then(Value::as_str).unwrap_or("");
             gamectx::memory::Memory::table(&memory.recall(text, arg_usize(args, "count", 8)))
         }
+        "formula" => {
+            let defined =
+                Formulas::from_value(input.get("define").expect("define"), gamectx::formula::Limits::default())?;
+            let calcs = input.get("calc").and_then(Value::as_array).expect("calc");
+            Value::Array(
+                calcs.iter().map(|c| defined.calc(c.as_str().expect("calc string")).unwrap_or(Value::Null)).collect(),
+            )
+        }
         "fingerprint" => Value::Array(strings(&input).iter().map(|s| Value::str(fingerprint(s))).collect()),
         other => panic!("unknown op {other}"),
     };
     // Lossless operations must also restore their input (grouped tables: in group order).
     let input = match op {
         "table" => {
-            let viewed = view::apply(list(), &View::from_json(args)?)?;
+            let viewed = view::apply_with(list(), &View::from_json(args)?, &formulas(args)?)?;
             let columns = group_by(args)?;
             Value::Array(table::group_order(&viewed, &columns.iter().map(String::as_str).collect::<Vec<_>>()))
         }

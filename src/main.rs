@@ -21,6 +21,9 @@ USAGE:
       Print one page of catalog search results.
   gamectx outline <tools.json>
       Print lossy one-line tool signatures.
+  gamectx calc <expression> [--formulas formulas.json]
+      Evaluate a formula expression exactly, e.g. a model's calc request; prints JSON.
+      --formulas loads saved definitions (a list of name, params, body, description).
   gamectx calibrate <calibration.json> --scope NAME --bytes N --tokens N [--estimate N]
       Record one provider usage report (input tokens for a request body of N bytes).
 
@@ -164,6 +167,18 @@ fn run(raw: &[String]) -> Result<()> {
             std::fs::write(&path, next.to_value().to_json() + "\n")
                 .map_err(|e| Error::new(format!("{}: {e}", path.display())))?;
             println!("{}", next.to_value().to_json());
+            Ok(())
+        }
+        "calc" => {
+            args.only(&["--formulas"], 1)?;
+            let formulas = match args.get("--formulas") {
+                Some(file) => gamectx::formula::Formulas::from_value(
+                    &read_json_file(Path::new(file))?,
+                    gamectx::formula::Limits::default(),
+                )?,
+                None => gamectx::formula::Formulas::new(),
+            };
+            println!("{}", formulas.calc(&args.positional[0])?.to_json());
             Ok(())
         }
         "help" | "--help" | "-h" => {

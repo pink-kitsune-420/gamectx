@@ -81,6 +81,39 @@ fn mutated_inputs_never_panic() {
 }
 
 #[test]
+fn formula_text_never_panics_or_hangs() {
+    use gamectx::formula::Formulas;
+    let mut f = Formulas::new();
+    f.define("d", &["a", "b"], "max(0, 10 - b) * (1 - a / 100)", "").unwrap();
+    f.define("e", &["x"], "d(x, x) + d(x, 1)", "").unwrap();
+    let seeds = [
+        "d(50, 4) + e(3) * 2",
+        "if(1 < 2 and not false, round(2.5, 1), -1)",
+        "min(1, 2, 3) % 2 == 1",
+        "clamp(sqrt(16), 0, 3) / 0.5",
+    ];
+    const NOISE: &[u8] = b"()+-*/%<>=!,.0123456789eE adeifnotrux_";
+    let mut rng = Rng(0xDEAD_BEEF_CAFE_F00D);
+    for i in 0..30_000 {
+        let mut bytes = seeds[i % seeds.len()].as_bytes().to_vec();
+        for _ in 0..=rng.below(4) {
+            let at = rng.below(bytes.len() + 1);
+            match rng.below(3) {
+                0 if at < bytes.len() => {
+                    bytes.remove(at);
+                }
+                1 => bytes.insert(at, NOISE[rng.below(NOISE.len())]),
+                _ if at < bytes.len() => bytes[at] = NOISE[rng.below(NOISE.len())],
+                _ => {}
+            }
+        }
+        let text = String::from_utf8_lossy(&bytes);
+        let _ = f.calc(&text);
+        let _ = f.clone().define("z", &["a"], &text, "");
+    }
+}
+
+#[test]
 fn deep_nesting_is_refused_not_overflowed() {
     let deep = "[".repeat(100_000) + &"]".repeat(100_000);
     assert!(parse(&deep, usize::MAX).is_err());
