@@ -1,1 +1,1 @@
-"All arguments are required; no other arguments are allowed.\nsay(line, loud, bias, cap): Say a line.\n  line: string, at most 120 characters; Words; plain text.\n  loud: boolean\n  bias: number -0.5..\n  cap: integer ..9\nrest(): Rest."
+"All arguments required; no others allowed.\nsay(line, loud, bias, cap): Say a line.\n  line: string, at most 120 characters; Words; plain text.\n  loud: boolean\n  bias: number -0.5..\n  cap: integer ..9\nrest(): Rest."

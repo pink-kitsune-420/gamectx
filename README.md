@@ -33,7 +33,7 @@ Per model, gamectx with signatures scored at least as well as JSON: Llama 3.2 3B
 Mistral Small 3.2 24B 45 vs 41, Llama 3.3 70B 47 vs 44 (of 53), and chose the right action
 30 of 30 times. Lookups and schema rules were near-perfect in every format; the differences
 came from filtering questions. The [eval script](eval/model_eval.py) reruns this for about
-$0.31.
+$0.31 with all three models, or roughly a quarter of that with its default two smaller ones.
 
 What the measurements show:
 
@@ -42,7 +42,9 @@ What the measurements show:
   and cut accuracy from 102 to 74 of 108 on a 36-question set: even the 70B model answered
   `7` instead of looking up what `7` meant. gamectx always writes values in full.
 - **Group by what your game filters on.** Grouping NPCs by faction made "which keepers are
-  guards?" correct 18 of 18 times, against 14 for JSON.
+  guards?" correct 18 of 18 times, against 14 for JSON. Grouping items by kind *and then*
+  rarity made "every rare weapon" correct 12 of 12 times on the two smaller models, against
+  7 with one level, while using 2–3% fewer tokens.
 - **Describe actions as signatures, not JSON Schema.** `power: integer 1..5` instead of
   `{"type":"integer","minimum":1,"maximum":5}`, with arguments shared between actions
   described once, used 12–14% fewer tokens than packed JSON Schema at equal or better
@@ -62,28 +64,30 @@ From the included [Ember Keep example](examples/ember-keep) (8 actions, a 10-ite
 
 ```text
 section              pack       priority stable   original     packed   saved
-actions              signatures       10    yes       3182       1045   67.2%
+actions              signatures       10    yes       3182        997   68.7%
 rules                raw               9    yes        142        142    0.0%
 action_outline       outline           1    yes       3182        314   90.1%
 inventory            table             6     no        831        444   46.6%
 recent_events        table             7     no        318        227   28.6%
 lights_nearby        catalog           3     no       1787        376   79.0%
 mood                 raw               8     no         37         37    0.0%
-all sections (bytes of compact JSON)                  9479       2585   72.7%
+all sections (bytes of compact JSON)                  9479       2537   73.2%
 
-packet: 1954 bytes; budget 2000 bytes
+packet: 1906 bytes; budget 2000 bytes
   dropped action_outline (314 bytes, priority 1)
   dropped lights_nearby (376 bytes, priority 3)
 ```
 
 - **Tables** (`table`, lossless): a list of objects with the same keys becomes one header
-  plus value rows. With `group_by`, rows are grouped under one column's values, which is
-  smaller still and makes filtering on that column easier for models.
+  plus value rows. With `group_by`, rows are grouped under one or more columns' values
+  (nested), which is smaller still and makes filtering on those columns easier for models.
 - **Views** (on tables): `sort_by` + `limit` keep only the rows that matter (the 10 nearest
   NPCs), `fields` drops columns the decision does not need, and `round` trims long decimals.
 - **Action signatures** (`signatures`, lossless): tool schemas as short text lines, with
   arguments shared between actions described once, such as `power: integer 1..5`. The
   recommended way to describe actions in a prompt.
+- **Context** (library): register tools, prompts and constants once; add variables and
+  tables each turn; build a packet within your budget.
 - **Tool schemas** (`schema`, lossless): for tools signatures cannot express (nested objects,
   arrays). Definitions become rows, and parameter rules repeated across tools move into
   shared `$defs`.
@@ -123,7 +127,7 @@ A manifest lists the sections of one packet:
   "budget_bytes": 2000,
   "sections": [
     {"name": "actions", "pack": "signatures", "file": "tools.json", "priority": 10, "stable": true, "required": true},
-    {"name": "inventory", "pack": "table", "group_by": "kind", "file": "inventory.json", "priority": 6},
+    {"name": "inventory", "pack": "table", "group_by": ["kind", "rarity"], "file": "inventory.json", "priority": 6},
     {"name": "nearby_npcs", "pack": "table", "file": "npcs.json", "sort_by": "distance", "limit": 10,
      "fields": ["name", "role", "mood"], "priority": 7},
     {"name": "lights_nearby", "pack": "catalog", "file": "catalog.json", "query": "#lights", "count": 4, "priority": 3},
@@ -151,23 +155,50 @@ gamectx report manifest.json --budget-tokens 1300 --calibration cal.json --scope
 
 Only a hash of the scope name is stored.
 
-## Library
+## Use it in your code
+
+Register what stays the same once, then set what changes each turn:
 
 ```rust
-use gamectx::budget::{assemble_bytes, Section};
-use gamectx::{json, table};
+use gamectx::{obj, Context, Table};
 
-let inventory = json::parse(r#"[{"id":"salt_pouch","count":12},{"id":"ash_bread","count":4}]"#, 1 << 20)?;
-let packed = table::pack(inventory.as_array().unwrap(), None)?;
-let packet = assemble_bytes(
-    vec![Section { name: "inventory".into(), priority: 5, stable: false, required: true, value: packed }],
-    4096,
-)?;
-// {"inventory":{"columns":["id","count"],"rows":[["salt_pouch",12],["ash_bread",4]]}}
+// At startup. Stable sections are packed once and lead every packet.
+let mut game = Context::new().budget_bytes(6000);
+game.tools("actions", tools)?;     // signatures, or packed JSON Schema if a tool needs it
+game.prompt("rules", "Ilse guards the keep. The game validates every action.")?;
+
+// Every turn.
+let mut turn = game.turn();
+turn.var("mood", "wary")?;
+turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarity"))?;
+turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
+turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
+
+let packet = turn.build()?;        // packet.text, and packet.receipt of what was dropped
+let system = packet.system_prompt("You are the game logic for Warden Ilse.");
 ```
 
-Games in other languages can call the `gamectx` binary, or port the formats: they are
-plain JSON and documented in [docs/FORMAT.md](docs/FORMAT.md).
+`tools` and `inventory` are `gamectx::Value`s, from `gamectx::json::parse` on your JSON or
+built with `obj!` and `vec![...]`. Numbers, strings, booleans, `Option` and `Vec` convert
+automatically.
+
+**Other languages** can pipe a manifest to the command-line tool. Python:
+
+```python
+import json, subprocess
+
+manifest = {"sections": [
+    {"name": "actions", "pack": "signatures", "value": tools, "stable": True, "required": True},
+    {"name": "inventory", "pack": "table", "group_by": ["kind", "rarity"], "value": inventory},
+    {"name": "mood", "value": "wary"},
+]}
+packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
+                        capture_output=True, text=True, check=True).stdout
+```
+
+The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
+you need full control; see the [API docs](https://docs.rs/gamectx) once published, or
+`cargo doc --open`.
 
 ## Be honest with your numbers
 

@@ -59,8 +59,8 @@ pub struct Prepared {
     pub original: Value,
     /// Table sections: the view applied before packing (empty when none).
     pub view: View,
-    /// For grouped tables, the column rows were grouped by.
-    pub group_by: Option<String>,
+    /// For grouped tables, the columns rows were grouped by, outermost first.
+    pub group_by: Vec<String>,
     pub section: Section,
 }
 
@@ -89,7 +89,16 @@ pub fn read_json_file(path: &Path) -> Result<Value> {
     json::parse(&text, MAX_FILE_BYTES).map_err(|e| Error::new(format!("{}: {e}", path.display())))
 }
 
+/// Loads a manifest file. The path `-` reads the manifest from standard input, with
+/// `file` paths relative to the current directory, so any language can pipe JSON in.
 pub fn load(path: &Path) -> Result<Manifest> {
+    if path == Path::new("-") {
+        let mut text = String::new();
+        std::io::Read::read_to_string(&mut std::io::stdin(), &mut text)
+            .map_err(|e| Error::new(format!("standard input: {e}")))?;
+        let root = json::parse(&text, MAX_FILE_BYTES).map_err(|e| Error::new(format!("standard input: {e}")))?;
+        return parse(&root, Path::new("."));
+    }
     let root = read_json_file(path)?;
     let base = path.parent().unwrap_or(Path::new("."));
     parse(&root, base)
@@ -164,15 +173,13 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
     only_for(&["group_by", "sort_by", "limit", "fields", "round"], Pack::Table)?;
     let view = View::from_json(item)?;
     only_for(&["query", "kind", "offset", "count"], Pack::Catalog)?;
-    let group_by = match item.get("group_by") {
-        None => None,
-        Some(v) => Some(v.as_str().ok_or_else(|| Error::new("group_by must be a column name"))?.to_owned()),
-    };
+    let group_by = item.get("group_by").map(table::group_columns).transpose()?.unwrap_or_default();
+    let group_refs: Vec<&str> = group_by.iter().map(String::as_str).collect();
 
     let list = || original.as_array().ok_or_else(|| Error::new(format!("pack \"{}\" needs an array", pack.name())));
     let value = match pack {
         Pack::Raw => original.clone(),
-        Pack::Table => table::pack(&view::apply(list()?, &view)?, group_by.as_deref())?,
+        Pack::Table => table::pack(&view::apply(list()?, &view)?, &group_refs)?,
         Pack::Schema => schema::pack(list()?)?,
         Pack::Signatures => Value::str(signatures::pack(list()?)?),
         Pack::Outline => Value::str(schema::outline(list()?)?),
@@ -212,10 +219,8 @@ impl Prepared {
         if let Value::Array(items) = &self.original {
             if self.pack == Pack::Table {
                 let viewed = view::apply(items, &self.view)?;
-                expected = Value::Array(match &self.group_by {
-                    Some(column) => table::group_order(&viewed, column),
-                    None => viewed,
-                });
+                let columns: Vec<&str> = self.group_by.iter().map(String::as_str).collect();
+                expected = Value::Array(table::group_order(&viewed, &columns));
             }
         }
         if restored.same(&expected) {

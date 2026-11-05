@@ -153,6 +153,78 @@ impl Value {
     }
 }
 
+impl From<&str> for Value {
+    fn from(s: &str) -> Value {
+        Value::String(s.to_owned())
+    }
+}
+
+impl From<String> for Value {
+    fn from(s: String) -> Value {
+        Value::String(s)
+    }
+}
+
+impl From<bool> for Value {
+    fn from(b: bool) -> Value {
+        Value::Bool(b)
+    }
+}
+
+macro_rules! from_integer {
+    ($($t:ty),*) => {$(
+        impl From<$t> for Value {
+            fn from(n: $t) -> Value {
+                Value::Number(n.to_string())
+            }
+        }
+    )*};
+}
+from_integer!(i8, i16, i32, i64, isize, u8, u16, u32, u64, usize);
+
+impl From<f64> for Value {
+    /// Finite numbers use Rust's shortest round-trip form (`0.1`, `1.5`, `3`); NaN and
+    /// infinities, which JSON cannot represent, become `null`.
+    fn from(n: f64) -> Value {
+        if n.is_finite() {
+            Value::Number(format!("{n}"))
+        } else {
+            Value::Null
+        }
+    }
+}
+
+impl From<f32> for Value {
+    fn from(n: f32) -> Value {
+        if n.is_finite() {
+            Value::Number(format!("{n}"))
+        } else {
+            Value::Null
+        }
+    }
+}
+
+impl<T: Into<Value>> From<Option<T>> for Value {
+    fn from(v: Option<T>) -> Value {
+        v.map_or(Value::Null, Into::into)
+    }
+}
+
+impl<T: Into<Value>> From<Vec<T>> for Value {
+    fn from(items: Vec<T>) -> Value {
+        Value::Array(items.into_iter().map(Into::into).collect())
+    }
+}
+
+/// Builds a JSON object: `obj!{"id" => "salt_pouch", "count" => 12, "tags" => vec!["#wards"]}`.
+/// Values may be anything that converts into [`Value`], including other `obj!` objects.
+#[macro_export]
+macro_rules! obj {
+    ($($key:expr => $value:expr),* $(,)?) => {
+        $crate::json::Value::Object(vec![$((::std::string::String::from($key), $crate::json::Value::from($value))),*])
+    };
+}
+
 pub fn write_string(s: &str, out: &mut String) {
     out.push('"');
     for ch in s.chars() {
@@ -422,6 +494,21 @@ mod tests {
     fn decodes_surrogate_pairs() {
         assert_eq!(parse(r#""😀""#, 64).unwrap(), Value::str("\u{1F600}"));
         assert!(parse(r#""\ud83d""#, 64).is_err());
+    }
+
+    #[test]
+    fn conversions_and_obj_macro() {
+        let v = crate::obj! {
+            "id" => "salt_pouch", "count" => 12u32, "weight" => 0.1, "rare" => false,
+            "tags" => vec!["#wards"], "owner" => None::<&str>, "bad" => f64::NAN,
+            "nested" => crate::obj!{"x" => -3},
+        };
+        assert_eq!(
+            v.to_json(),
+            r##"{"id":"salt_pouch","count":12,"weight":0.1,"rare":false,"tags":["#wards"],"owner":null,"bad":null,"nested":{"x":-3}}"##
+        );
+        assert_eq!(parse(&v.to_json(), 1024).unwrap(), v, "conversions produce valid JSON numbers");
+        assert_eq!(Value::from(1e21).to_json(), "1000000000000000000000");
     }
 
     #[test]

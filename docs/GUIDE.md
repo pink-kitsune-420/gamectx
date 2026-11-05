@@ -18,12 +18,21 @@ results instead of a whole registry.
 `sort_by` runs before `fields`, so you can sort by a column you do not send. *Standard
 practice; the savings scale with how much you leave out.*
 
+Round numbers to the precision decisions need. *Measured: rounding two number columns
+from two decimals to one saved 5% of the whole packet; each dropped digit costs about one
+token per number. Rounding to whole numbers saved 13%, but made a 0–1 trust score useless,
+so choose per column.*
+
 ## 2. Use tables, grouped by what the game filters on
 
 Header-plus-rows tables cut input tokens by about a third against compact JSON at the same
 accuracy. Grouping by the column most questions filter on (`group_by`) saved more and
 answered better. *Measured: −33% tokens for tables, −38% grouped; grouped 140/159 correct
 vs 133/159 for JSON; filters on the grouped column 18/18 vs 14/18.*
+
+If questions filter on two columns, group by both: `group_by: ["kind", "rarity"]` nests
+rarity groups inside kind groups. *Measured on the two smaller models: "every rare weapon"
+questions 7/12 → 12/12, rarity lookups 7/8 → 8/8, 2–3% fewer tokens.*
 
 Writing tables as plain comma-separated text instead of JSON arrays saved nothing:
 tokenizers already treat `","` as one token. *Measured: 0 to +1% tokens.*
@@ -32,7 +41,7 @@ tokenizers already treat `","` as one token. *Measured: 0 to +1% tokens.*
 
 Action schemas are often the largest part of a packet. `signatures` writes them as short
 lines (`power: integer 1..5; Effort level`) and describes arguments shared between actions
-once. Use `schema` only for tools that need nested objects or arrays. *Measured: 12–14%
+once. Its two header lines are deliberately short; longer explanations measured no better. Use `schema` only for tools that need nested objects or arrays. *Measured: 12–14%
 fewer tokens than packed JSON Schema on all three models; 141/159 correct overall vs 140
 for grouped tables with JSON Schema; actions 30/30.*
 

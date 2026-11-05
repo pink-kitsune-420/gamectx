@@ -1,0 +1,329 @@
+//! The easy way to use gamectx from code: register what stays the same once, then set
+//! what changes each turn.
+//!
+//! ```
+//! use gamectx::{obj, Context, Table};
+//!
+//! let tools = gamectx::json::parse(r#"[{"type":"function","function":{"name":"wait",
+//!     "description":"Do nothing for a while.","strict":true,"parameters":{"type":"object",
+//!     "properties":{"seconds":{"type":"integer","minimum":1,"maximum":30}},
+//!     "required":["seconds"],"additionalProperties":false}}}]"#, 1 << 20)?;
+//!
+//! // Once, at startup: stable sections are packed now and reused every turn.
+//! let mut game = Context::new().budget_bytes(4000);
+//! game.tools("actions", tools)?;
+//! game.prompt("rules", "Ilse guards the keep. The game validates every action.")?;
+//!
+//! // Every turn:
+//! let mut turn = game.turn();
+//! turn.var("mood", "wary")?;
+//! turn.table("inventory", vec![
+//!     obj! {"id" => "salt_pouch", "kind" => "reagent", "count" => 12},
+//!     obj! {"id" => "ember_lantern", "kind" => "tool", "count" => 1},
+//! ], Table::new().group_by("kind").priority(6))?;
+//! let packet = turn.build()?;
+//!
+//! assert!(packet.text.starts_with(r#"{"actions":"All arguments required"#));
+//! let system_prompt = packet.system_prompt("You are the game logic for Warden Ilse.");
+//! # Ok::<(), gamectx::Error>(())
+//! ```
+
+use crate::budget::{assemble, Packet, Section};
+use crate::estimate::{self, Calibration};
+use crate::json::{Error, Result, Value};
+use crate::view::{self, View};
+use crate::{schema, signatures, table};
+
+/// Registered sections and budgets shared by every turn.
+#[derive(Clone, Debug, Default)]
+pub struct Context {
+    stable: Vec<Section>,
+    budget_bytes: Option<usize>,
+    budget_tokens: Option<usize>,
+    calibration: Calibration,
+    scope: u64,
+}
+
+/// Options for a table section. Every setting is optional.
+#[derive(Clone, Debug, Default)]
+pub struct Table {
+    group_by: Vec<String>,
+    view: View,
+    priority: Option<i64>,
+    required: bool,
+}
+
+impl Table {
+    pub fn new() -> Table {
+        Table::default()
+    }
+
+    /// Group rows under this column's values (it must hold strings). Call again to nest
+    /// groups: `.group_by("kind").group_by("rarity")` puts rarity groups inside kind groups.
+    /// Group by the columns your game filters on most.
+    pub fn group_by(mut self, column: &str) -> Table {
+        self.group_by.push(column.to_owned());
+        self
+    }
+
+    /// Sort rows by a column; prefix `-` for descending, e.g. `"-count"`.
+    pub fn sort_by(mut self, column: &str) -> Table {
+        let (column, descending) = match column.strip_prefix('-') {
+            Some(rest) => (rest, true),
+            None => (column, false),
+        };
+        self.view.sort_by = Some((column.to_owned(), descending));
+        self
+    }
+
+    /// Keep at most this many rows, after sorting.
+    pub fn limit(mut self, rows: usize) -> Table {
+        self.view.limit = Some(rows);
+        self
+    }
+
+    /// Send only these columns, in this order.
+    pub fn fields(mut self, columns: &[&str]) -> Table {
+        self.view.fields = Some(columns.iter().map(|c| c.to_string()).collect());
+        self
+    }
+
+    /// Round numbers in a column to this many decimal places (0–12).
+    pub fn round(mut self, column: &str, places: u32) -> Table {
+        self.view.round.push((column.to_owned(), places));
+        self
+    }
+
+    /// Higher survives a tight budget longer. Defaults to 5.
+    pub fn priority(mut self, priority: i64) -> Table {
+        self.priority = Some(priority);
+        self
+    }
+
+    /// Never drop this table; building fails instead if the budget cannot fit it.
+    pub fn required(mut self) -> Table {
+        self.required = true;
+        self
+    }
+}
+
+/// Default priority for sections that do not set one.
+pub const DEFAULT_PRIORITY: i64 = 5;
+
+fn add(list: &mut Vec<Section>, others: &[Section], section: Section) -> Result<()> {
+    if list.iter().chain(others).any(|s| s.name == section.name) {
+        return Err(Error::new(format!("section \"{}\" is already set", section.name)));
+    }
+    list.push(section);
+    Ok(())
+}
+
+fn rows(value: Value, what: &str) -> Result<Vec<Value>> {
+    match value {
+        Value::Array(items) => Ok(items),
+        _ => Err(Error::new(format!("{what} must be an array"))),
+    }
+}
+
+fn table_section(name: &str, items: Value, options: Table, stable: bool) -> Result<Section> {
+    let items = rows(items, &format!("table \"{name}\""))?;
+    let viewed = view::apply(&items, &options.view).map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
+    let value = table::pack(&viewed, &options.group_by.iter().map(String::as_str).collect::<Vec<_>>())
+        .map_err(|e| Error::new(format!("table \"{name}\": {e}")))?;
+    Ok(Section {
+        name: name.to_owned(),
+        priority: options.priority.unwrap_or(DEFAULT_PRIORITY),
+        stable,
+        required: options.required,
+        value,
+    })
+}
+
+impl Context {
+    pub fn new() -> Context {
+        Context::default()
+    }
+
+    /// Limit every packet to this many bytes of compact JSON.
+    pub fn budget_bytes(mut self, bytes: usize) -> Context {
+        self.budget_bytes = Some(bytes);
+        self
+    }
+
+    /// Limit every packet to this many input tokens. Without [`Context::calibration`],
+    /// every byte counts as a token, which is safe but strict.
+    pub fn budget_tokens(mut self, tokens: usize) -> Context {
+        self.budget_tokens = Some(tokens);
+        self
+    }
+
+    /// Estimate tokens with a calibration learned for this provider and model; see
+    /// [`crate::estimate`]. `scope` must match the names used when calibrating.
+    pub fn calibration(mut self, calibration: Calibration, scope: &[&str]) -> Context {
+        self.calibration = calibration;
+        self.scope = estimate::scope(scope);
+        self
+    }
+
+    /// Registers the actions the model may choose from. Written as compact signatures when
+    /// every tool allows it, otherwise as packed JSON Schema. Stable and required.
+    pub fn tools(&mut self, name: &str, tools: impl Into<Value>) -> Result<&mut Context> {
+        let tools = rows(tools.into(), &format!("tools \"{name}\""))?;
+        let value = match signatures::pack(&tools) {
+            Ok(text) => Value::String(text),
+            Err(_) => schema::pack(&tools).map_err(|e| Error::new(format!("tools \"{name}\": {e}")))?,
+        };
+        let section = Section { name: name.to_owned(), priority: i64::MAX, stable: true, required: true, value };
+        add(&mut self.stable, &[], section)?;
+        Ok(self)
+    }
+
+    /// Registers fixed instructions or rules. Stable and required.
+    pub fn prompt(&mut self, name: &str, text: &str) -> Result<&mut Context> {
+        let section = Section {
+            name: name.to_owned(),
+            priority: i64::MAX,
+            stable: true,
+            required: true,
+            value: Value::str(text),
+        };
+        add(&mut self.stable, &[], section)?;
+        Ok(self)
+    }
+
+    /// Registers a value that rarely changes, such as world facts. Stable; dropped only
+    /// under budget pressure, after lower priorities.
+    pub fn constant(&mut self, name: &str, value: impl Into<Value>, priority: i64) -> Result<&mut Context> {
+        let section = Section { name: name.to_owned(), priority, stable: true, required: false, value: value.into() };
+        add(&mut self.stable, &[], section)?;
+        Ok(self)
+    }
+
+    /// Registers a table that rarely changes. Stable.
+    pub fn constant_table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Context> {
+        let section = table_section(name, items.into(), options, true)?;
+        add(&mut self.stable, &[], section)?;
+        Ok(self)
+    }
+
+    /// Starts a turn: registered sections plus whatever the turn adds.
+    pub fn turn(&self) -> Turn<'_> {
+        Turn { context: self, sections: Vec::new() }
+    }
+}
+
+/// One request's worth of context. Build it, send `packet.text`, then drop it.
+#[derive(Debug)]
+pub struct Turn<'a> {
+    context: &'a Context,
+    sections: Vec<Section>,
+}
+
+impl Turn<'_> {
+    /// Sets a value for this turn at the default priority.
+    pub fn var(&mut self, name: &str, value: impl Into<Value>) -> Result<&mut Self> {
+        self.var_with(name, value, DEFAULT_PRIORITY, false)
+    }
+
+    /// Sets a value for this turn with an explicit priority, optionally required.
+    pub fn var_with(
+        &mut self,
+        name: &str,
+        value: impl Into<Value>,
+        priority: i64,
+        required: bool,
+    ) -> Result<&mut Self> {
+        let section = Section { name: name.to_owned(), priority, stable: false, required, value: value.into() };
+        add(&mut self.sections, &self.context.stable, section)?;
+        Ok(self)
+    }
+
+    /// Adds a table for this turn.
+    pub fn table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Self> {
+        let section = table_section(name, items.into(), options, false)?;
+        add(&mut self.sections, &self.context.stable, section)?;
+        Ok(self)
+    }
+
+    /// Assembles the packet within the context's budgets. Stable sections come first; the
+    /// lowest-priority optional sections are dropped if needed, and listed in the receipt.
+    pub fn build(&self) -> Result<Packet> {
+        let c = self.context;
+        let sections = c.stable.iter().chain(&self.sections).cloned().collect();
+        assemble(sections, &|text: &str| {
+            c.budget_bytes.is_none_or(|b| text.len() <= b)
+                && c.budget_tokens.is_none_or(|t| c.calibration.estimate(c.scope, text.as_bytes(), 0) <= t)
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::obj;
+
+    fn tools() -> Value {
+        crate::json::parse(
+            r#"[{"name":"wait","description":"Wait.","strict":true,"parameters":{"type":"object","properties":{"s":{"type":"integer"}},"required":["s"],"additionalProperties":false}}]"#,
+            4096,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn registered_sections_lead_every_turn() {
+        let mut game = Context::new();
+        game.tools("actions", tools()).unwrap().prompt("rules", "Be brief.").unwrap();
+        let mut turn = game.turn();
+        turn.var("hp", 7).unwrap();
+        let text = turn.build().unwrap().text;
+        assert_eq!(
+            text,
+            r#"{"actions":"All arguments required; no others allowed.\nwait(s): Wait.\n  s: integer","rules":"Be brief.","hp":7}"#
+        );
+        let mut next = game.turn();
+        next.var("hp", 3).unwrap();
+        assert!(next.build().unwrap().text.ends_with(r#""hp":3}"#), "turns are independent");
+    }
+
+    #[test]
+    fn tools_fall_back_to_schema_when_signatures_cannot_express_them() {
+        let nested = crate::json::parse(
+            r#"[{"name":"plan","description":"Plan.","parameters":{"type":"object","properties":{"steps":{"type":"array"}}}}]"#,
+            4096,
+        )
+        .unwrap();
+        let mut game = Context::new();
+        game.tools("actions", nested).unwrap();
+        assert!(game.turn().build().unwrap().text.contains(r#""wrapper":"bare""#));
+    }
+
+    #[test]
+    fn tables_views_and_budget_drops() {
+        let mut game = Context::new().budget_bytes(120);
+        game.prompt("rules", "Be brief.").unwrap();
+        let npcs = vec![
+            obj! {"name" => "Velmi", "faction" => "keepers", "dist" => 12.5, "trust" => 0.533},
+            obj! {"name" => "Midor", "faction" => "ashfolk", "dist" => 3, "trust" => 0.21},
+        ];
+        let mut turn = game.turn();
+        turn.table("near", npcs, Table::new().sort_by("dist").limit(1).fields(&["name", "trust"]).round("trust", 1))
+            .unwrap()
+            .var_with("lore", "x".repeat(200), 1, false)
+            .unwrap();
+        let packet = turn.build().unwrap();
+        assert_eq!(packet.text, r#"{"rules":"Be brief.","near":{"columns":["name","trust"],"rows":[["Midor",0.2]]}}"#);
+        assert_eq!(packet.receipt.dropped[0].name, "lore");
+    }
+
+    #[test]
+    fn rejects_duplicate_names_and_bad_tables() {
+        let mut game = Context::new();
+        game.prompt("rules", "a").unwrap();
+        assert!(game.prompt("rules", "b").is_err());
+        let mut turn = game.turn();
+        assert!(turn.var("rules", 1).is_err(), "turn names cannot shadow registered ones");
+        assert!(turn.table("t", "not rows", Table::new()).is_err());
+        assert!(turn.table("t", vec![obj! {"a" => 1}], Table::new().group_by("a")).is_err());
+    }
+}

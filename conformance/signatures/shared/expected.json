@@ -1,1 +1,1 @@
-"All arguments are required; no other arguments are allowed.\nShared arguments (same meaning wherever listed):\n  target: string; Entity handle.\n  power: integer 1..5\ncast(spell, target, power): Cast.\n  spell: one of spark|hush\nguard(target, power): Guard.\nwait(seconds): Wait.\n  seconds: integer 1..30"
+"All arguments required; no others allowed.\nShared arguments:\n  target: string; Entity handle.\n  power: integer 1..5\ncast(spell, target, power): Cast.\n  spell: one of spark|hush\nguard(target, power): Guard.\nwait(seconds): Wait.\n  seconds: integer 1..30"

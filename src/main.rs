@@ -11,6 +11,7 @@ const HELP: &str = "gamectx: compile game data and tool schemas into small, budg
 USAGE:
   gamectx pack <manifest.json> [BUDGETS] [--receipt]
       Print the packet as compact JSON. --receipt prints what was kept/dropped to stderr.
+      Use - as the manifest to read it from standard input.
   gamectx report <manifest.json> [BUDGETS]
       Show each section's size before and after packing, and what the budget kept.
   gamectx verify <manifest.json>

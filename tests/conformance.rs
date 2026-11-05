@@ -26,6 +26,10 @@ fn strings(value: &Value) -> Vec<String> {
     value.as_array().expect("string array").iter().map(|s| s.as_str().expect("string").to_owned()).collect()
 }
 
+fn group_by(args: &Value) -> Result<Vec<String>> {
+    args.get("group_by").map(table::group_columns).transpose().map(Option::unwrap_or_default)
+}
+
 /// Runs one operation. `Err` is an expected rejection; malformed case files panic.
 fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     if op == "parse" {
@@ -34,9 +38,10 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
-        "table" => {
-            table::pack(&view::apply(list(), &View::from_json(args)?)?, args.get("group_by").and_then(Value::as_str))?
-        }
+        "table" => table::pack(
+            &view::apply(list(), &View::from_json(args)?)?,
+            &group_by(args)?.iter().map(String::as_str).collect::<Vec<_>>(),
+        )?,
         "schema" => schema::pack(list())?,
         "signatures" => Value::str(signatures::pack(list())?),
         "outline" => Value::str(schema::outline(list())?),
@@ -101,10 +106,8 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = match op {
         "table" => {
             let viewed = view::apply(list(), &View::from_json(args)?)?;
-            Value::Array(match args.get("group_by").and_then(Value::as_str) {
-                Some(column) => table::group_order(&viewed, column),
-                None => viewed,
-            })
+            let columns = group_by(args)?;
+            Value::Array(table::group_order(&viewed, &columns.iter().map(String::as_str).collect::<Vec<_>>()))
         }
         "signatures" => Value::Array(list().iter().map(signatures::bare).collect()),
         _ => input.clone(),

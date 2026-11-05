@@ -24,7 +24,7 @@ import urllib.error
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_MODELS = "llama-3.2-3b,mistral-small-3-2-24b-instruct,llama-3.3-70b"
+DEFAULT_MODELS = "llama-3.2-3b,mistral-small-3-2-24b-instruct"
 MAX_OUTPUT_TOKENS = 200
 REASON_OUTPUT_TOKENS = 700
 # Used for the spending guard when the provider does not publish a price.
@@ -117,6 +117,9 @@ def build_packets(workdir, gamectx_bin):
     manifest["sections"][2].pop("sort_by")
     manifest["sections"][3].pop("sort_by")
     packets["gamectx-signatures"] = pack(manifest, os.path.join(workdir, "manifest-signatures.json"), gamectx_bin)
+    # Inventory grouped by kind, then rarity: the two columns its filter questions use.
+    manifest["sections"][2]["group_by"] = ["kind", "rarity"]
+    packets["gamectx-nested"] = pack(manifest, os.path.join(workdir, "manifest-nested.json"), gamectx_bin)
     return packets, (tools, inventory, roster)
 
 
@@ -318,7 +321,7 @@ def main():
     ap.add_argument("--cap", type=float, default=1.0, help="stop before spending more than this many USD")
     ap.add_argument("--out", default=os.path.join(ROOT, "eval", "results"))
     ap.add_argument("--gamectx", default=os.path.join(ROOT, "target", "release", "gamectx"))
-    ap.add_argument("--formats", default="json,gamectx,gamectx-grouped,gamectx-signatures")
+    ap.add_argument("--formats", default="json,gamectx-grouped,gamectx-signatures,gamectx-nested")
     ap.add_argument("--kinds", default="", help="only these question kinds, comma-separated")
     ap.add_argument("--tokens-only", action="store_true", help="measure billed input tokens per format, 1-token replies")
     ap.add_argument("--dry-run", action="store_true")

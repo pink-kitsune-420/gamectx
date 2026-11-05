@@ -45,12 +45,12 @@ fn mutate(rng: &mut Rng, seed: &str) -> String {
 fn exercise(value: &Value) {
     assert_eq!(parse(&value.to_json(), usize::MAX).as_ref(), Ok(value), "serialization must round-trip");
     if let Some(items) = value.as_array() {
-        if let Ok(packed) = table::pack(items, None) {
+        if let Ok(packed) = table::pack(items, &[]) {
             assert!(Value::Array(table::unpack(&packed).unwrap()).same(value));
         }
-        if let Ok(packed) = table::pack(items, Some("kind")) {
+        if let Ok(packed) = table::pack(items, &["kind"]) {
             let restored = Value::Array(table::unpack(&packed).unwrap());
-            assert!(restored.same(&Value::Array(table::group_order(items, "kind"))));
+            assert!(restored.same(&Value::Array(table::group_order(items, &["kind"]))));
         }
         if let Ok(packed) = schema::pack(items) {
             assert!(Value::Array(schema::unpack(&packed).unwrap()).same(value));

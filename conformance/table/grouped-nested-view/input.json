@@ -1,0 +1,32 @@
+[
+ {
+  "id": "ash_knife",
+  "kind": "weapon",
+  "rarity": "unique",
+  "count": 3
+ },
+ {
+  "id": "salt_sling",
+  "kind": "weapon",
+  "rarity": "common",
+  "count": 9
+ },
+ {
+  "id": "moss_cake",
+  "kind": "food",
+  "rarity": "rare",
+  "count": 2
+ },
+ {
+  "id": "rust_sling",
+  "kind": "weapon",
+  "rarity": "common",
+  "count": 4
+ },
+ {
+  "id": "moon_trout",
+  "kind": "food",
+  "rarity": "common",
+  "count": 8
+ }
+]

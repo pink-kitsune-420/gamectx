@@ -87,6 +87,14 @@ fn line(s: &Section) -> Line {
     Line { name: s.name.clone(), bytes: s.value.json_len(), priority: s.priority, stable: s.stable }
 }
 
+impl Packet {
+    /// The packet as the end of a system prompt: `intro`, a blank line, `GAME DATA:` and
+    /// the packet. Keep `intro` identical every turn so the whole prefix stays cacheable.
+    pub fn system_prompt(&self, intro: &str) -> String {
+        format!("{intro}\n\nGAME DATA:\n{}", self.text)
+    }
+}
+
 impl Receipt {
     pub fn to_value(&self) -> Value {
         let lines = |ls: &[Line]| {

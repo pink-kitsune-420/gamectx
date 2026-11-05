@@ -44,7 +44,7 @@ Each section:
 | `priority` | integer | 0 | Higher is more important. Lower priorities are dropped first; ties drop the later-declared section first. |
 | `stable` | bool | false | Rarely changes between requests. Stable sections are placed first, keeping the start of the packet identical so it can be cached. |
 | `required` | bool | false | Never dropped. Assembly fails if required sections alone exceed the budget. |
-| `group_by` | string | none | `table` only: group rows under this column's values. The column must hold strings. |
+| `group_by` | string or string array | none | `table` only: group rows under this column's values, or nest groups by several columns, outermost first. Grouping columns must hold strings. |
 | `sort_by` | string | none | `table` only, [view](#views): sort rows by a column; `"-col"` sorts descending. |
 | `limit` | integer | none | `table` only, view: keep the first N rows after sorting. |
 | `fields` | string array | all | `table` only, view: keep only these columns, in this order. |
@@ -73,8 +73,21 @@ in the order their value first appears; rows keep their order within a group.
  "groups":{"reagent":[["salt_pouch",12],["mend_moss",7]],"tool":[["ember_lantern",1]]}}
 ```
 
+With several columns, groups nest, outermost first; a list of one column is written as a
+plain string:
+
+```json
+{"group_by":["kind","rarity"],
+ "columns":["id","count"],
+ "groups":{"weapon":{"unique":[["ash_knife",3]],"common":[["salt_sling",9],["rust_sling",4]]},
+           "food":{"rare":[["moss_cake",2]],"common":[["moon_trout",8]]}}}
+```
+
+(The expected output of conformance case `table/grouped-nested`.) An empty table packs to
+empty `columns` and `groups`.
+
 Unpacking a grouped table restores every row and value, with rows in group order and the
-group column first in each object. Values are never replaced with lookup indexes; see
+group columns first in each object. Values are never replaced with lookup indexes; see
 the measurements in the README for why.
 
 ### Views
@@ -99,8 +112,8 @@ The recommended way to describe actions in a prompt: tool schemas as short text 
 packed into the packet as one JSON string. Input: the same tool array as `schema`.
 
 ```text
-All arguments are required; no other arguments are allowed.
-Shared arguments (same meaning wherever listed):
+All arguments required; no others allowed.
+Shared arguments:
   target: string; Entity handle.
   power: integer 1..5
 cast(spell, target, power): Cast.
@@ -192,9 +205,9 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
 
 ```json
 {"columns":["name","bytes","priority","stable"],
- "included":[["actions",1045,10,true],["rules",142,9,true],["inventory",444,6,false],["recent_events",227,7,false],["mood",37,8,false]],
+ "included":[["actions",997,10,true],["rules",142,9,true],["inventory",444,6,false],["recent_events",227,7,false],["mood",37,8,false]],
  "dropped":[["action_outline",314,1,true],["lights_nearby",376,3,false]],
- "total_bytes":1954}
+ "total_bytes":1906}
 ```
 
 (The Ember Keep example. `bytes` is each section's packed size; `total_bytes` also counts

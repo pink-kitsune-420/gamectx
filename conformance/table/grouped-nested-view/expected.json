@@ -1,0 +1,1 @@
+{"group_by":["kind","rarity"],"columns":["id"],"groups":{"weapon":{"common":[["salt_sling"],["rust_sling"]],"unique":[["ash_knife"]]},"food":{"common":[["moon_trout"]],"rare":[["moss_cake"]]}}}

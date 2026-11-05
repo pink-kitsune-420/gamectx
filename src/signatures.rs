@@ -1,8 +1,8 @@
 //! Action signatures: tool schemas written as short text lines instead of JSON Schema.
 //!
 //! ```text
-//! All arguments are required; no other arguments are allowed.
-//! Shared arguments (same meaning wherever listed):
+//! All arguments required; no others allowed.
+//! Shared arguments:
 //!   target: string; Entity handle.
 //!   power: integer 1..5
 //! cast(spell, target, power): Cast a spell.
@@ -22,8 +22,8 @@
 use crate::json::{self, Error, Result, Value};
 use crate::schema::{is_strict_default, read_tools};
 
-pub const HEADER: &str = "All arguments are required; no other arguments are allowed.";
-pub const SHARED: &str = "Shared arguments (same meaning wherever listed):";
+pub const HEADER: &str = "All arguments required; no others allowed.";
+pub const SHARED: &str = "Shared arguments:";
 
 fn name_ok(s: &str) -> bool {
     !s.is_empty() && s.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'_' || b == b'-')
@@ -329,8 +329,8 @@ mod tests {
         let text = pack(&source).unwrap();
         assert_eq!(
             text,
-            "All arguments are required; no other arguments are allowed.\n\
-             Shared arguments (same meaning wherever listed):\n  \
+            "All arguments required; no others allowed.\n\
+             Shared arguments:\n  \
              target: string; Entity handle.\n  \
              power: integer 1..5\n\
              cast(spell, target, power): Cast a spell.\n  \

@@ -19,6 +19,16 @@ know what an upgrade costs:
   formats are unchanged. Measured: 12–14% fewer input tokens than `schema`, and 46% fewer
   than compact JSON overall, at equal or better accuracy.
 - **[docs]** README and guide report a 53-question run including signatures.
+- **[format]** `group_by` accepts a list of columns to nest groups (`["kind", "rarity"]`).
+  A single column still produces the same output as before. Measured: nested grouping took
+  two-column filter questions from 7/12 to 12/12 on the smaller models.
+- **[api]** `Context` and `Turn`: register tools, prompts and constants once, add variables
+  and tables per turn, and build a budgeted packet; `Packet::system_prompt` adds an intro.
+  `Table` options cover grouping, views, priority and required.
+- **[api]** `Value` converts from strings, numbers, booleans, `Option` and `Vec`, and the
+  `obj!` macro builds objects.
+- **[api]** `gamectx pack -` reads the manifest from standard input, for calling from any
+  language.
 - **[docs]** The Ember Keep example describes its actions with `signatures`; its budget is
   2000 bytes so it still shows two sections being dropped.
 - **[internal]** `gamectx report` and `verify` columns fit the longer pack name.

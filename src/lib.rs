@@ -1,14 +1,21 @@
 //! gamectx compiles game data and tool schemas into small, budgeted context packets for
 //! AI-driven games.
 //!
-//! - [`table`]: uniform objects to a header plus rows, (lossless).
+//! Start with [`Context`]: register tools and prompts once, then add variables and tables
+//! each turn. The modules below are the building blocks it uses.
+//!
+//! - [`context`]: the easy API ([`Context`], [`Turn`], [`Table`]).
+//! - [`table`]: uniform objects to a header plus rows, optionally grouped by one or more
+//!   columns (lossless).
 //! - [`schema`]: tool schemas to rows with shared `$defs` (lossless), or a one-line outline (lossy).
-//! - [`signatures`]: tool schemas as short text lines, 12–14% fewer tokens than packed JSON Schema (lossless).
+//! - [`signatures`]: tool schemas as short text lines, 12–14% fewer tokens than packed JSON
+//!   Schema (lossless).
 //! - [`view`]: sort, keep the top N, keep chosen columns and round numbers before packing.
 //! - [`catalog`]: searchable, paged registries instead of whole-registry dumps.
 //! - [`budget`]: stable-first assembly that drops low-priority sections to fit a budget.
 //! - [`estimate`]: conservative token estimates calibrated from provider usage reports.
 //! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
+//! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
 //!
 //! The model only ever proposes. Packed context describes what exists; the game must
 //! still validate every action the model asks for.
@@ -18,7 +25,7 @@
 //! use gamectx::{json, table};
 //!
 //! let inventory = json::parse(r#"[{"id":"salt_pouch","count":12},{"id":"ash_bread","count":4}]"#, 1 << 20)?;
-//! let packed = table::pack(inventory.as_array().unwrap(), None)?;
+//! let packed = table::pack(inventory.as_array().unwrap(), &[])?;
 //! let packet = assemble_bytes(
 //!     vec![Section { name: "inventory".into(), priority: 5, stable: false, required: true, value: packed }],
 //!     4096,
@@ -29,6 +36,7 @@
 
 pub mod budget;
 pub mod catalog;
+pub mod context;
 pub mod estimate;
 pub mod json;
 pub mod manifest;
@@ -37,6 +45,7 @@ pub mod signatures;
 pub mod table;
 pub mod view;
 
+pub use context::{Context, Table, Turn};
 pub use json::{Error, Result, Value};
 
 /// 64-bit FNV-1a. Used to notice changed data, never for security.
