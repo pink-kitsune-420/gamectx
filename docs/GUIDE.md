@@ -40,6 +40,11 @@ from two decimals to one saved 5% of the whole packet; each dropped digit costs 
 token per number. Rounding to whole numbers saved 13%, but made a 0–1 trust score useless,
 so choose per column.*
 
+Long histories are the same problem over time. Keep events in a `Memory` and send the few
+it recalls for this turn instead of the whole log; let the model add to it with the
+`remember` tool. *Measured: 10 questions about a 60-event history, 8 recalled events vs
+all 60: 84% fewer input tokens, 20/20 correct both ways on the two smaller models.*
+
 ## 2. Use tables, grouped by what the game filters on
 
 Header-plus-rows tables cut input tokens by about a third against compact JSON at the same

@@ -21,3 +21,6 @@ and `grouped-sorted` (grouped, rows sorted inside groups). Add
 The key is read from a file so it never appears in shell history or arguments. Results
 go to `eval/results/` (ignored by git). Temperature is 0, but providers do not guarantee
 identical answers between runs, so treat differences of one or two answers as noise.
+
+`memory_eval.py` compares sending a 60-event history with sending the 8 events gamectx
+recalls for each question (`--dry-run` checks recall without any API calls).

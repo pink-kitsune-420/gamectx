@@ -33,6 +33,7 @@ A case passes when:
 | `catalog` | catalog (object or bare array) | `query` or `relevant_to`, `kind`, `offset`, `count`, `expected_generation`, `limits` (any of `entries`, `tags`, `results`, `query_chars`, `query_words`, `offset`) | one search page |
 | `budget` | array of `{name, priority?, stable?, required?, value}` | `max_bytes` (no limit when absent) | `{"packet": ..., "receipt": ...}` |
 | `estimate` | `{scope: [strings], observations: [[body_bytes, input_tokens, estimate_used], ...], body, framing}` | | `{"calibration": ..., "estimate": n}`. Observations are applied in order, starting uncalibrated; the estimate uses the same scope. |
+| `memory` | saved memory | `relevant_to`, `count` (default 8) | the recalled records as a table |
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |
 
 ## Changing behavior

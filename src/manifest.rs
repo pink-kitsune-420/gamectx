@@ -18,6 +18,7 @@
 use crate::budget::Section;
 use crate::catalog::{Catalog, Limits};
 use crate::json::{self, Error, Result, Value};
+use crate::memory::{Limits as MemoryLimits, Memory};
 use crate::view::{self, View};
 use crate::{schema, signatures, table};
 use std::path::Path;
@@ -31,6 +32,7 @@ pub enum Pack {
     Table,
     Schema,
     Signatures,
+    Memory,
     Outline,
     Catalog,
 }
@@ -42,6 +44,7 @@ impl Pack {
             Pack::Table => "table",
             Pack::Schema => "schema",
             Pack::Signatures => "signatures",
+            Pack::Memory => "memory",
             Pack::Outline => "outline",
             Pack::Catalog => "catalog",
         }
@@ -162,6 +165,7 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
         "table" => Pack::Table,
         "schema" => Pack::Schema,
         "signatures" => Pack::Signatures,
+        "memory" => Pack::Memory,
         "outline" => Pack::Outline,
         "catalog" => Pack::Catalog,
         other => return Err(Error::new(format!("unknown pack mode \"{other}\""))),
@@ -189,9 +193,12 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
     };
     only_for(&["group_by", "where", "relevant_fallback", "sort_by", "limit", "fields", "round"], Pack::Table)?;
     let view = View::from_json(item)?;
-    only_for(&["query", "kind", "offset", "count"], Pack::Catalog)?;
-    if item.get("relevant_to").is_some() && pack != Pack::Table && pack != Pack::Catalog {
-        return Err(Error::new("\"relevant_to\" only applies to packs \"table\" and \"catalog\""));
+    only_for(&["query", "kind", "offset"], Pack::Catalog)?;
+    if item.get("count").is_some() && ![Pack::Catalog, Pack::Memory].contains(&pack) {
+        return Err(Error::new("\"count\" only applies to packs \"catalog\" and \"memory\""));
+    }
+    if item.get("relevant_to").is_some() && ![Pack::Table, Pack::Catalog, Pack::Memory].contains(&pack) {
+        return Err(Error::new("\"relevant_to\" only applies to packs \"table\", \"catalog\" and \"memory\""));
     }
     let group_by = item.get("group_by").map(table::group_columns).transpose()?.unwrap_or_default();
     let group_refs: Vec<&str> = group_by.iter().map(String::as_str).collect();
@@ -202,6 +209,14 @@ fn section(item: &Value, base: &Path) -> Result<Prepared> {
         Pack::Table => table::pack(&view::apply(list()?, &view)?, &group_refs)?,
         Pack::Schema => schema::pack(list()?)?,
         Pack::Signatures => Value::str(signatures::pack(list()?)?),
+        Pack::Memory => {
+            let memory = Memory::from_value(&original, MemoryLimits::default())?;
+            let text = item.get("relevant_to").and_then(Value::as_str).unwrap_or("");
+            let count = item
+                .get("count")
+                .map_or(Ok(8), |v| v.as_usize().ok_or_else(|| Error::new("count must be a non-negative integer")))?;
+            Memory::table(&memory.recall(text, count))
+        }
         Pack::Outline => Value::str(schema::outline(list()?)?),
         Pack::Catalog => {
             let catalog = Catalog::from_json(&original, Limits::default())?;
@@ -238,7 +253,7 @@ impl Prepared {
             Pack::Table => Value::Array(table::unpack(&self.section.value)?),
             Pack::Schema => Value::Array(schema::unpack(&self.section.value)?),
             Pack::Signatures => Value::Array(signatures::unpack(self.section.value.as_str().unwrap_or_default())?),
-            Pack::Outline | Pack::Catalog => return Ok(Check::Lossy),
+            Pack::Outline | Pack::Catalog | Pack::Memory => return Ok(Check::Lossy),
         };
         let mut expected = self.original.clone();
         if let (Pack::Signatures, Value::Array(tools)) = (self.pack, &self.original) {

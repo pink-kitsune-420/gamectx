@@ -55,6 +55,9 @@ What the measurements show:
   accuracy on every question type (100/106 both, on the two smaller models). Sending no
   rows at all when nothing matches (`relevant_fallback: "none"`) saved another 59%, losing
   only questions about a table as a whole, which models got wrong most of the time anyway.
+- **Recall memories instead of resending history.** For 10 questions about a 60-event
+  history, sending the 8 events gamectx recalled instead of all 60 used 84% fewer input
+  tokens with the same accuracy (20/20 both, on the two smaller models).
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -93,6 +96,8 @@ packet: 1906 bytes; budget 2000 bytes
 - **Action signatures** (`signatures`, lossless): tool schemas as short text lines, with
   arguments shared between actions described once, such as `power: integer 1..5`. The
   recommended way to describe actions in a prompt.
+- **Memory** (`memory`): facts and events with tags, importance and turn, recalled by
+  relevance instead of resending history, with a ready-made `remember` tool for the model.
 - **Context** (library): register tools, prompts and constants once; add variables and
   tables each turn; build a packet within your budget.
 - **Tool schemas** (`schema`, lossless): for tools signatures cannot express (nested objects,
@@ -181,6 +186,7 @@ turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarit
 turn.table("plenty", stock, Table::new().filter("count", ">=", 15).fields(&["id", "count"]))?;
 turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
 turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
+turn.memory("memories", &memory, player_said, 8)?;   // gamectx::memory::Memory
 
 let packet = turn.build()?;        // packet.text, and packet.receipt of what was dropped
 let system = packet.system_prompt("You are the game logic for Warden Ilse.");

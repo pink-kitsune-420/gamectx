@@ -39,7 +39,7 @@ Each section:
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `name` | string | required | Key in the packet; must be unique. |
-| `pack` | string | `raw` | `raw`, `table`, `signatures`, `schema`, `outline` or `catalog`. |
+| `pack` | string | `raw` | `raw`, `table`, `signatures`, `schema`, `outline`, `catalog` or `memory`. |
 | `value` / `file` | any / path | one required | Inline data, or a JSON file relative to the manifest. |
 | `priority` | integer | 0 | Higher is more important. Lower priorities are dropped first; ties drop the later-declared section first. |
 | `stable` | bool | false | Rarely changes between requests. Stable sections are placed first, keeping the start of the packet identical so it can be cached. |
@@ -47,6 +47,7 @@ Each section:
 | `group_by` | string or string array | none | `table` only: group rows under this column's values, or nest groups by several columns, outermost first. Grouping columns must hold strings. |
 | `where` | object | none | `table` only, [view](#views): keep rows meeting every condition, e.g. `{"kind": "weapon", "count": {">=": 15}}`. |
 | `relevant_to` | string | none | `table`: keep the rows that best match the words of this text ([view](#views)). `catalog`: return the entries that best match it, instead of a `query` search. |
+| `count` | integer | 8 | `catalog` and `memory`: how many entries or records to return. |
 | `relevant_fallback` | string | `all` | `table` with `relevant_to`: `none` sends no rows when nothing matches, instead of every row. |
 | `sort_by` | string | none | `table` only, [view](#views): sort rows by a column; `"-col"` sorts descending. |
 | `limit` | integer | none | `table` only, view: keep the first N rows after sorting. |
@@ -215,6 +216,31 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
   (`--generation`) makes a later page fail instead of mixing old and new data. It
   detects changes; it is not a security hash.
 - A trailing `"..."` tag means the entry had more tags than were kept.
+
+### `memory` (recall)
+
+Input: saved memory, as written by `Memory::to_value`:
+
+```json
+{"next_id":3,"records":[
+  {"id":1,"turn":4,"importance":6,"text":"The player gave Ilse a salt pouch.","tags":["player","gift"]},
+  {"id":2,"turn":9,"importance":8,"text":"An ash hound was seen near the well.","tags":["danger"]}]}
+```
+
+Records have a unique `id` below `next_id`, the game's `turn`, an `importance` from 1 to
+10, one line of `text` (up to 280 characters) and up to 8 single-word lowercase `tags`.
+The section returns the `count` records most relevant to `relevant_to`, as a table ordered
+by turn:
+
+```json
+{"columns":["id","turn","text","tags"],"rows":[[2,9,"An ash hound was seen near the well.",["danger"]]]}
+```
+
+Relevance: each word of the text (the same word rules as table views) found in a record's
+text or tags (a trailing plural `s` optional on both sides) adds `1/n`, where `n` is how
+many records contain that word. Rare words count fully; words in nearly every record
+barely count, in any language. Ties go to higher importance, then the later turn. With no
+matching words, the most important, most recent records are returned.
 
 ## Receipt
 

@@ -1,0 +1,52 @@
+{
+ "next_id": 6,
+ "records": [
+  {
+   "id": 1,
+   "turn": 1,
+   "importance": 6,
+   "text": "The player gave Ilse a salt pouch.",
+   "tags": [
+    "player",
+    "gift"
+   ]
+  },
+  {
+   "id": 2,
+   "turn": 2,
+   "importance": 2,
+   "text": "Rain all morning.",
+   "tags": [
+    "weather"
+   ]
+  },
+  {
+   "id": 3,
+   "turn": 9,
+   "importance": 8,
+   "text": "An ash hound was seen near the well.",
+   "tags": [
+    "danger"
+   ]
+  },
+  {
+   "id": 4,
+   "turn": 12,
+   "importance": 5,
+   "text": "The player broke a lantern in the hall.",
+   "tags": [
+    "player"
+   ]
+  },
+  {
+   "id": 5,
+   "turn": 14,
+   "importance": 5,
+   "text": "Café owner Mimi wants rare spices.",
+   "tags": [
+    "mimi",
+    "trade"
+   ]
+  }
+ ]
+}

@@ -34,6 +34,11 @@ know what an upgrade costs:
   whole-table questions are lost.
 - **[format]** Catalog sections take `relevant_to`: entries ranked by matching words of a
   message. Rust: `Catalog::relevant`, `Turn::catalog_relevant`, `Turn::catalog_search`.
+- **[format]** New `memory` module and `memory` pack mode: records with turn, importance,
+  text and tags; recall ranks by rare-word matches, then importance, then recency;
+  `Memory::tool` and `Memory::apply_call` let the model write memories with validation;
+  `Turn::memory` adds recalled records. Measured: 84% fewer input tokens than sending a
+  60-event history, same accuracy.
 - **[api]** `Value` converts from strings, numbers, booleans, `Option` and `Vec`, and the
   `obj!` macro builds objects.
 - **[api]** `gamectx pack -` reads the manifest from standard input, for calling from any

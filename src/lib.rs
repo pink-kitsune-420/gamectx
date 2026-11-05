@@ -14,6 +14,8 @@
 //! - [`catalog`]: searchable, paged registries instead of whole-registry dumps.
 //! - [`budget`]: stable-first assembly that drops low-priority sections to fit a budget.
 //! - [`estimate`]: conservative token estimates calibrated from provider usage reports.
+//! - [`memory`]: long-term records recalled by relevance, importance and recency, with a
+//!   `remember` tool for the model.
 //! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
 //! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
 //!
@@ -40,6 +42,7 @@ pub mod context;
 pub mod estimate;
 pub mod json;
 pub mod manifest;
+pub mod memory;
 pub mod schema;
 pub mod signatures;
 pub mod table;

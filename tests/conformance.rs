@@ -105,6 +105,11 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 ("estimate", Value::int(calibration.estimate(scope, body.as_bytes(), framing) as i64)),
             ])
         }
+        "memory" => {
+            let memory = gamectx::memory::Memory::from_value(&input, gamectx::memory::Limits::default())?;
+            let text = args.get("relevant_to").and_then(Value::as_str).unwrap_or("");
+            gamectx::memory::Memory::table(&memory.recall(text, arg_usize(args, "count", 8)))
+        }
         "fingerprint" => Value::Array(strings(&input).iter().map(|s| Value::str(fingerprint(s))).collect()),
         other => panic!("unknown op {other}"),
     };

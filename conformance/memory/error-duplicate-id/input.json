@@ -1,0 +1,19 @@
+{
+ "next_id": 3,
+ "records": [
+  {
+   "id": 1,
+   "turn": 1,
+   "importance": 1,
+   "text": "x",
+   "tags": []
+  },
+  {
+   "id": 1,
+   "turn": 2,
+   "importance": 1,
+   "text": "y",
+   "tags": []
+  }
+ ]
+}

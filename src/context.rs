@@ -32,6 +32,7 @@ use crate::budget::{assemble, Packet, Section};
 use crate::catalog::Catalog;
 use crate::estimate::{self, Calibration};
 use crate::json::{Error, Result, Value};
+use crate::memory::Memory;
 use crate::view::{self, Op, View};
 use crate::{schema, signatures, table};
 
@@ -277,6 +278,12 @@ impl Turn<'_> {
         let section = table_section(name, items.into(), options, false)?;
         add(&mut self.sections, &self.context.stable, section)?;
         Ok(self)
+    }
+
+    /// Adds the `count` memories most relevant to `text`; see [`Memory::recall`].
+    pub fn memory(&mut self, name: &str, memory: &Memory, text: &str, count: usize) -> Result<&mut Self> {
+        let recalled = memory.recall(text, count);
+        self.var_with(name, Memory::table(&recalled), DEFAULT_PRIORITY, false)
     }
 
     /// Adds the catalog entries that best match `text`, such as the player's message; see

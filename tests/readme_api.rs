@@ -30,11 +30,15 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
     turn.table("plenty", stock, Table::new().filter("count", ">=", 5).fields(&["id", "count"]))?;
     turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
     turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
+    let mut memory = gamectx::memory::Memory::new();
+    memory.remember(3, "The player asked about rare weapons yesterday.", &["player"], 5)?;
+    turn.memory("memories", &memory, player_said, 8)?;
 
     let packet = turn.build()?;
     let system = packet.system_prompt("You are the game logic for Warden Ilse.");
 
     assert!(packet.receipt.dropped.is_empty());
+    assert!(packet.text.contains(r#""memories":{"columns":["id","turn","text","tags"],"rows":[[1,3,"The player asked about rare weapons yesterday.",["player"]]]}"#));
     assert!(packet.text.starts_with(r#"{"actions":"All arguments required; no others allowed.\nShared arguments:"#));
     assert!(packet
         .text
