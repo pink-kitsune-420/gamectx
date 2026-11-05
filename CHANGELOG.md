@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[format]** Adds `query-schema` descriptions (types and complete small string domains)
+  and `query-session` result/error envelopes, with 23 conformance cases. All 139 previous
+  cases remain byte-identical.
+- **[api]** `query::describe` and `query::Session`: validate tool arguments, cap result
+  bytes and allow at most one correction after an execution error; success ends the
+  session too. CLI: `query --schema` and streaming JSON-lines `query --session`.
+- **[docs]** Explicit `unit_weight`/derived `stack_weight` host example and an eval that
+  includes correction and final-answer turns, with separate development and holdout states.
+  On 3 holdout states × 29 questions × 2 small models: full tables 171/174, schema-only
+  172/174 after correction; average complete-exchange input 4,898.632 → 1,615.874
+  (−67.0%), completed-exchange cost −64.1%. Development state is reported separately.
 - **[format]** New `query` conformance operation: bounded, read-only model-written SELECT
   over named game tables, with filters, sorting, limits, arithmetic and aggregates.
   ORDER BY and LIMIT apply before aggregates. Adds 36 cases; all 103 previous cases stay

@@ -73,5 +73,75 @@ Cost accounting uses undiscounted input rates as a conservative estimate.
 Rust reproduces all 116 recorded SQL/tool queries' acceptance and result bytes against
 the final prototype (including rejections), plus 3,000 generated/mutated queries
 (1,527 accepted). These free checks establish implementation parity, not new model
-accuracy. Results remain limited to one synthetic state, with one response per question;
-no retry improvement or schema-only accuracy is claimed.
+accuracy. That historical experiment uses one synthetic state and one response per
+question; it establishes no retry improvement or schema-only accuracy.
+
+## Query workflow and holdout states
+
+`query_workflow_eval.py` is a new experiment; it leaves the historical questions/data
+unchanged. `legacy` uses the old weight fields/questions. `full` and `schema` use precise
+unit-weight questions and host-derived `stack_weight = count * unit_weight`. The comparison
+between legacy and explicit conditions changes both the fields and question wording;
+it does not isolate a causal effect of renaming a column.
+
+Each request gets one correction after an execution error. A valid query ends execution,
+including when its meaning is wrong. The result then returns to the model for a final
+JSON answer. All request, retry and answer-turn usage is counted. A result budget limits
+responses to 4096 UTF-8 bytes. Descriptions send types and complete small string domains,
+never numeric samples or partial enums. Full/schema prompts include the same actions
+and field notes. Tied maxima accept any tied answer.
+
+```bash
+cargo build --release --locked
+python3 -I eval/query_workflow_eval.py --dry-run --seeds 7,101,202,303 --cap 0
+python3 -I eval/query_workflow_eval.py --tokens-only --cap 0.006
+python3 -I eval/query_workflow_eval.py --cap 0.12
+# Holdout prompts/scoring are fixed before these states' accuracy calls:
+python3 -I eval/query_workflow_eval.py --tokens-only --seeds 101,202,303 --modes full,schema --cap 0.008
+python3 -I eval/query_workflow_eval.py --seeds 101,202,303 --modes full,schema --cap 0.24
+# Free checks (no key read):
+python3 -I eval/test_query_workflow.py
+python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
+python3 -I eval/query_workflow_eval.py --replay eval/results/workflow-RUN/results.json --cap 0
+```
+
+Measured on 2026-11-05, temperature 0, the same two default small models. Development
+seed 7: legacy 53/58 first → 55/58 after correction, explicit full 55/58 → 57/58,
+explicit schema 56/58 → 57/58. The final-answer turn preserved these scores.
+
+Holdout seeds 101, 202 and 303 were not used to tune the prompts. Their inventories
+contain 24, 48 and 96 rows, and NPC tables 10, 20 and 40 rows. State 303 combines two
+independent generated populations with disambiguated IDs. Each has 29 questions per model.
+
+| Holdout mode | First correct | After correction / final answer | Avg total input per question | Avg total output |
+|---|---|---|---|---|
+| Explicit full tables | 160/174 | 171/174 | 4,898.632 | 58.874 |
+| Explicit schema-only | 169/174 | 172/174 | 1,615.874 | 56.523 |
+
+Llama scored 87/87 after correction in both modes. Mistral scored 84/87 full and 85/87
+schema-only. Full used 14 corrections, recovering 11 answers; schemas used 4, recovering
+3. The schema-only errors were one rarity `unique` → count = 1 interpretation and one
+top-N subquery that remained unsupported after correction. The three full-table errors
+were persistent top-N subqueries. No correct executed result was corrupted by the final
+answer turn. The one-answer difference is not a claim of general accuracy superiority.
+
+Complete-exchange input was 67.0% lower with schemas; completed-exchange costs were
+$0.107952 full versus $0.038804 schema-only (64.1% less). These count the actual billed
+usage across both or three turns, not just the initial context. An incomplete full-table
+request at a spending cap cost another $0.00033028125; it is included in total spend and
+excluded from completed-exchange token averages. That run was resumed for the four
+unfinished questions with identical tables/prompts and a new cap; completed questions
+were not repeated. `--resume PATH` supports this workflow; its cap applies to new spend
+and `cumulative_spent_usd` includes the previous run. Use the completed resume file in
+reports instead of double-counting its parent.
+
+The development accuracy run cost $0.071431. Token-only checks cost $0.001100 for development
+and $0.002232 for holdouts. Holdout accuracy runs including the capped/resumed request cost
+$0.147087. Total new spend: $0.221850. [Saved measurements](query-workflow-results.json)
+include per-state results, remaining failures, usage and conservative undiscounted costs.
+`summarize_query_workflow.py` rebuilds the summary from saved runs without API calls.
+
+All 547 measured query-attempt envelopes replay byte-identically against Rust; inferred
+schemas match on all 12 state/mode combinations. These are multiple states from one
+synthetic family, not evidence for arbitrary games. Keep unrelated distributions and real
+integration data as further holdouts.

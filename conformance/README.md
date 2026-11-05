@@ -35,6 +35,8 @@ A case passes when:
 | `estimate` | `{scope: [strings], observations: [[body_bytes, input_tokens, estimate_used], ...], body, framing}` | | `{"calibration": ..., "estimate": n}`. Observations are applied in order, starting uncalibrated; the estimate uses the same scope. |
 | `formula` | `{define: [formulas], calc: [expressions]}` | | each expression's result, or `null` where evaluation fails |
 | `query` | object of table names to arrays of row objects | `sql` (a SELECT string) | selected values or aggregates; see [Queries](../docs/FORMAT.md#queries) |
+| `query-schema` | object of named tables | | column types and complete small string domains |
+| `query-session` | object of named tables | `calls` (argument objects), `result_bytes` (default 4096) | one feedback envelope per call; requests after a terminal reply are errors |
 | `memory` | saved memory | `relevant_to`, `count` (default 8) | the recalled records as a table |
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |
 

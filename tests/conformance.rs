@@ -136,6 +136,25 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 .collect();
             gamectx::query::run(args.get("sql").and_then(Value::as_str).expect("sql"), &tables)?
         }
+        "query-schema" | "query-session" => {
+            let tables: Vec<(&str, &[Value])> = input
+                .as_object()
+                .ok_or_else(|| Error::new("tables must be an object"))?
+                .iter()
+                .map(|(name, rows)| {
+                    rows.as_array()
+                        .map(|rows| (name.as_str(), rows))
+                        .ok_or_else(|| Error::new("table must be an array"))
+                })
+                .collect::<Result<_>>()?;
+            if op == "query-schema" {
+                gamectx::query::describe(&tables)?
+            } else {
+                let mut session = gamectx::query::Session::new().result_bytes(arg_usize(args, "result_bytes", 4096));
+                let calls = args.get("calls").and_then(Value::as_array).expect("calls array");
+                Value::Array(calls.iter().map(|call| session.apply_call(call, &tables)).collect::<Result<_>>()?)
+            }
+        }
         other => panic!("unknown op {other}"),
     };
     // Lossless operations must also restore their input (grouped tables: in group order).

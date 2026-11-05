@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": "SELECT id FROM food"}, {"sql": "SELECT id FROM t WHERE kind = food"}]}}

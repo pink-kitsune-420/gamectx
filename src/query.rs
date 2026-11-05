@@ -46,6 +46,9 @@
 use crate::json::{Error, Result, Value};
 use crate::view::{self, Op, View};
 
+mod schema;
+pub use schema::describe;
+
 /// Limits on a query's text and shape.
 #[derive(Clone, Copy, Debug)]
 pub struct Limits {
@@ -686,6 +689,125 @@ pub fn tool() -> Value {
         "required" => vec!["sql"], "additionalProperties" => false}}}
 }
 
+/// Guidance returned after the first invalid query; measured with the schema-only eval.
+pub const RETRY_HINT: &str = "Use only the tables and columns below. No subqueries; one SELECT only. \
+For the largest row use ORDER BY column DESC LIMIT 1. \
+ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums.";
+
+/// One query and at most one correction. A successful execution ends the session too:
+/// semantic mistakes in valid SQL must not trigger an automatic retry.
+///
+/// Start a new session for each independent question. Keep the same table snapshot for
+/// both attempts. Returned values are protocol envelopes: `{"result": ...}` or
+/// `{"error": ..., "retry": bool}`. The first error includes table schemas and a hint;
+/// no further requests are accepted after success or the second failure. The host runs
+/// its own model/API loop and sends these envelopes back as untrusted tool data.
+///
+/// ```
+/// use gamectx::{obj, query};
+/// let rows = vec![obj! {"unit_weight" => 0.25, "count" => 2}];
+/// let tables = [("inventory", rows.as_slice())];
+/// let mut session = query::Session::new().result_bytes(512);
+/// let feedback = session.apply_call(&obj! {"sql" => "SELECT COUNT(*) FROM food"}, &tables)?;
+/// assert_eq!(feedback.get("retry").and_then(gamectx::Value::as_bool), Some(true));
+/// let result = session.apply_call(&obj! {"sql" => "SELECT SUM(unit_weight * count) FROM inventory"}, &tables)?;
+/// assert_eq!(result.to_json(), r#"{"result":0.5}"#);
+/// assert!(session.is_finished());
+/// # Ok::<(), gamectx::Error>(())
+/// ```
+#[derive(Clone, Debug)]
+pub struct Session {
+    attempts: usize,
+    finished: bool,
+    result_bytes: usize,
+}
+
+impl Default for Session {
+    fn default() -> Self {
+        Self { attempts: 0, finished: false, result_bytes: 4096 }
+    }
+}
+
+impl Session {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Limit the compact result's UTF-8 bytes (default 4096), excluding its envelope.
+    /// Oversize results receive the same one-correction allowance. Execution still scales
+    /// with the host's table size; this is an output limit, not a table/work limit.
+    pub fn result_bytes(mut self, bytes: usize) -> Self {
+        self.result_bytes = bytes;
+        self
+    }
+
+    pub fn is_finished(&self) -> bool {
+        self.finished
+    }
+
+    /// Validates the query tool's argument object (exactly one string field, `sql`).
+    /// Malformed arguments consume an attempt and receive the same correction feedback.
+    pub fn apply_call(&mut self, args: &Value, tables: &[(&str, &[Value])]) -> Result<Value> {
+        let sql = args
+            .as_object()
+            .filter(|entries| entries.len() == 1)
+            .and_then(|_| args.get("sql"))
+            .and_then(Value::as_str)
+            .unwrap_or("");
+        self.submit(sql, tables)
+    }
+
+    /// Executes a model's SQL, returning a result or bounded correction feedback.
+    /// Host table-description errors close the session and return `Err`. Query failures
+    /// are envelopes; `Err` also refuses any submission after the session has finished.
+    pub fn submit(&mut self, sql: &str, tables: &[(&str, &[Value])]) -> Result<Value> {
+        if self.finished {
+            return Err(Error::new("query session is finished"));
+        }
+        self.attempts += 1;
+        let result = run(sql, tables).and_then(|value| {
+            if value.to_json().len() > self.result_bytes {
+                Err(Error::new(format!(
+                    "query result exceeds {} bytes; select fewer columns or add LIMIT",
+                    self.result_bytes
+                )))
+            } else {
+                Ok(value)
+            }
+        });
+        match result {
+            Ok(value) => {
+                self.finished = true;
+                Ok(crate::obj! {"result" => value})
+            }
+            Err(error) => {
+                let text = error.to_string();
+                let message = if text.starts_with("no table ") {
+                    "Unknown table. Use a table name listed below."
+                } else if text.starts_with("no column ") {
+                    "Unknown column. Use columns from the selected table."
+                } else if text.starts_with("query result exceeds ") {
+                    &text
+                } else {
+                    "Query must use the supported SELECT subset."
+                };
+                let retry = self.attempts < 2;
+                self.finished = !retry;
+                let mut reply =
+                    vec![("error".to_owned(), Value::str(message)), ("retry".to_owned(), Value::Bool(retry))];
+                if retry {
+                    let schema = describe(tables).inspect_err(|_| {
+                        self.finished = true;
+                    })?;
+                    reply.push(("tables".to_owned(), schema));
+                    reply.push(("hint".to_owned(), Value::str(RETRY_HINT)));
+                }
+                Ok(Value::Object(reply))
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -798,5 +920,49 @@ mod tests {
     fn tool_packs_as_a_signature() {
         let text = crate::signatures::pack(&[tool()]).unwrap();
         assert!(text.contains("\nquery(sql): Ask the game"), "{text}");
+    }
+
+    #[test]
+    fn sessions_stop_after_success_or_second_failure() {
+        let items = items();
+        let tables = [("items", items.as_array().unwrap())];
+        let mut session = Session::new();
+        let first = session.submit("SELECT id FROM food", &tables).unwrap();
+        assert_eq!(first.get("retry"), Some(&Value::Bool(true)));
+        assert!(first.get("tables").unwrap().get("items").is_some());
+        let corrected = session.submit("SELECT COUNT(*) FROM items", &tables).unwrap();
+        assert_eq!(corrected.to_json(), r#"{"result":3}"#);
+        assert!(session.is_finished());
+        assert!(session.submit("SELECT 1 FROM items", &tables).is_err());
+        let mut session = Session::new();
+        for retry in [true, false] {
+            let reply = session.apply_call(&crate::obj! {"sql" => 3}, &tables).unwrap();
+            assert_eq!(reply.get("retry"), Some(&Value::Bool(retry)));
+        }
+        assert!(session.is_finished());
+        let mut session = Session::new();
+        assert_eq!(session.submit("SELECT SUM(count) FROM items", &tables).unwrap().to_json(), r#"{"result":36}"#);
+        assert!(session.is_finished(), "valid SQL ends the session regardless of intended meaning");
+    }
+
+    #[test]
+    fn session_budgets_result_bytes_and_validates_arguments() {
+        let items = items();
+        let tables = [("items", items.as_array().unwrap())];
+        let mut session = Session::new().result_bytes(5);
+        let first = session.submit("SELECT id FROM items", &tables).unwrap();
+        assert_eq!(first.get("retry"), Some(&Value::Bool(true)));
+        assert!(first.get("error").unwrap().as_str().unwrap().contains("LIMIT"));
+        assert_eq!(session.submit("SELECT id FROM items LIMIT 1", &tables).unwrap().to_json(), r#"{"result":["a"]}"#);
+        let mut session = Session::new();
+        let call = crate::obj! {"sql" => "SELECT COUNT(*) FROM items", "extra" => true};
+        assert_eq!(session.apply_call(&call, &tables).unwrap().get("retry"), Some(&Value::Bool(true)));
+        assert_eq!(
+            session.apply_call(&crate::obj! {"sql" => "SELECT 1 FROM items LIMIT 1"}, &tables).unwrap().to_json(),
+            r#"{"result":[1]}"#
+        );
+        let mut session = Session::new();
+        assert!(session.submit("bad", &[("bad name", &[])]).is_err());
+        assert!(session.is_finished(), "bad host schemas must close the session");
     }
 }

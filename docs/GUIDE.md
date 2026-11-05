@@ -94,11 +94,25 @@ least 15" was right 1 time in 27 without help.
   argument with `query::run()`. *Measured on 29 questions per small model: 33/58 direct,
   53/58 with SQL; numeric filters 0/6 → 6/6, whole-table questions 2/6 → 6/6, arithmetic
   1/16 → 12/16. A separate run with the tool packed as a signature scored 52/58.*
-  Both runs still sent the full tables. The tool adds input tokens and needs a round trip
-  to return its result; savings from omitting tables have not been measured. Only expose
-  tables the model may read, send errors back for correction, and budget the result.
+  Those historical runs still sent the full tables. Only expose tables the model may
+  read, send errors back for correction, and budget the result.
 - Sorting rows or adding row counts did not measurably help on its own (37 → 37 and 39
   of 54), so gamectx does not add counts and does not claim `sort_by` improves accuracy.
+
+For a query workflow, send `query::describe(&tables)` in a per-turn variable instead of
+the rows. It includes column types and complete small categorical domains. Define meanings
+explicitly, such as `unit_weight` and host-derived `stack_weight = count * unit_weight`.
+Use `query::Session` for one correction after an invalid request; valid SQL with the wrong
+meaning ends the session, so retrying cannot repair ambiguous field semantics.
+
+*Measured with frozen prompts on three held-out states (24/48/96 inventory rows and
+10/20/40 NPCs), 29 questions per state and small model: full tables 160/174 first attempt,
+171/174 after correction; schemas 169/174 first, 172/174 after correction. Returning the
+result to the model preserved those scores. Across the complete exchanges, average input
+fell from 4,898.632 to 1,615.874 tokens (67.0% less); completed-exchange cost fell from
+$0.107952 to $0.038804 (64.1% less).* The old one-state/full-data numbers above remain
+historical. These newer tests still share one synthetic game family. Mistral sometimes
+persists with unsupported top-N subqueries or interprets rarity `unique` as count = 1.
 
 ## 6. Keep stable sections identical every turn
 
@@ -121,8 +135,8 @@ native tool calling, pass the tools in its own format; gamectx can still pack ev
 
 ## 8. Measure your own game
 
-These numbers come from one game state and three models. Your data and models will
-differ.
+The original packing benchmarks use one state and three models; query workflows add
+three held-out states on the two smaller models. Your data and models will differ.
 
 - `gamectx calibrate` learns your provider's real tokens-per-byte ratio from reported usage.
 - The eval script runs your own questions against any OpenAI-compatible API with a hard

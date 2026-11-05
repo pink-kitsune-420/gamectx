@@ -4,12 +4,13 @@
 use gamectx::json::{parse, Value};
 use gamectx::{catalog, schema, signatures, table};
 
-const SEEDS: [&str; 5] = [
+const SEEDS: [&str; 6] = [
     r##"[{"id":"a","kind":"x","n":1.50},{"id":"b","kind":"x","n":-2e3}]"##,
     r##"{"entries":[{"kind":"item","id":"lamp","tags":["#lights"]}],"complete":true}"##,
     r##"[{"name":"wait","description":"d","strict":true,"parameters":{"type":"object","properties":{"s":{"type":"integer","minimum":1,"maximum":5}},"required":["s"],"additionalProperties":false}}]"##,
     r##"{"s":"😀 é\n","a":[[[]]],"t":true,"f":false,"z":null}"##,
     "[\"caf\u{e9}\",\"\u{1F600}\"]",
+    r#"{"sql":"SELECT COUNT(*) FROM items","extra":null}"#,
 ];
 const NOISE: &[u8] = b"{}[]\":,\\-+.eE0123456789tfnul \t\nabc#\x01\xc3\xa9";
 
@@ -44,7 +45,14 @@ fn mutate(rng: &mut Rng, seed: &str) -> String {
 
 fn exercise(value: &Value) {
     assert_eq!(parse(&value.to_json(), usize::MAX).as_ref(), Ok(value), "serialization must round-trip");
+    let mut session = gamectx::query::Session::new();
+    session.apply_call(value, &[("items", &[])]).unwrap();
+    if !session.is_finished() {
+        session.apply_call(value, &[("items", &[])]).unwrap();
+    }
+    assert!(session.apply_call(value, &[("items", &[])]).is_err());
     if let Some(items) = value.as_array() {
+        let _ = gamectx::query::describe(&[("items", items)]);
         if let Ok(packed) = table::pack(items, &[]) {
             assert!(Value::Array(table::unpack(&packed).unwrap()).same(value));
         }
@@ -146,7 +154,16 @@ fn query_text_never_panics_or_hangs() {
                 _ => {}
             }
         }
-        if let Ok(result) = query::run(&String::from_utf8_lossy(&bytes), &named) {
+        let text = String::from_utf8_lossy(&bytes);
+        let mut session = query::Session::new().result_bytes(128);
+        let feedback = session.submit(&text, &named).unwrap();
+        assert_eq!(parse(&feedback.to_json(), usize::MAX).unwrap(), feedback);
+        if !session.is_finished() {
+            session.submit(&text, &named).unwrap();
+        }
+        assert!(session.is_finished());
+        assert!(session.submit("SELECT 1 FROM items", &named).is_err());
+        if let Ok(result) = query::run(&text, &named) {
             accepted += 1;
             assert_eq!(parse(&result.to_json(), usize::MAX).as_ref(), Ok(&result));
         }

@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": "SELECT id FROM t WHERE x = (SELECT MAX(x) FROM t)"}, {"sql": "SELECT id FROM t ORDER BY x DESC LIMIT 1"}]}}

@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": "SELECT COUNT(*) FROM t"}, {"sql": "SELECT COUNT(*) FROM t"}]}, "error": true}

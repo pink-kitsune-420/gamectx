@@ -2,8 +2,10 @@
 
 use gamectx::budget::assemble_bytes;
 use gamectx::manifest::{self, Check};
+use std::io::Write;
 use std::path::Path;
 use std::process::Command;
+use std::process::Stdio;
 
 const MANIFEST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/ember-keep/manifest.json");
 
@@ -76,6 +78,49 @@ fn cli_query_executes_and_reports_errors() {
     assert!(!ok && err.contains("SELECT"));
     let (ok, _, err) = gamectx(&["query", "--tool", tables]);
     assert!(!ok && err.contains("expected 0 argument"));
+}
+
+fn query_input(args: &[&str], text: &str) -> std::process::Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_gamectx"))
+        .args(args)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+    child.stdin.take().unwrap().write_all(text.as_bytes()).unwrap();
+    child.wait_with_output().unwrap()
+}
+
+#[test]
+fn cli_schema_and_session_protocol() {
+    let tables = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/query-schema/basic/input.json");
+    let input = std::fs::read_to_string(tables).unwrap();
+    let output = query_input(&["query", "--schema", "-"], &input);
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/conformance/query-schema/basic/expected.json"))
+            .unwrap()
+    );
+    let output = query_input(
+        &["query", "--session", tables],
+        "{\"sql\":\"SELECT id FROM food\"}\n{\"sql\":\"SELECT COUNT(*)\\nFROM t\"}\n",
+    );
+    assert!(output.status.success());
+    let text = String::from_utf8(output.stdout).unwrap();
+    let replies: Vec<_> = text.lines().map(|line| gamectx::json::parse(line, 8192).unwrap()).collect();
+    assert_eq!(replies.len(), 2);
+    assert_eq!(replies[0].get("retry").and_then(gamectx::Value::as_bool), Some(true));
+    assert_eq!(replies[1].to_json(), r#"{"result":2}"#);
+    let output = query_input(&["query", "--session", tables], "not json\n{\"sql\":3}\n");
+    assert!(output.status.success(), "query failures are protocol replies");
+    assert!(String::from_utf8(output.stdout).unwrap().ends_with("\"retry\":false}\n"));
+    let output = query_input(&["query", "--session", tables], "{\"sql\":\"bad\"}\n");
+    assert!(!output.status.success(), "EOF while a correction is pending is incomplete");
+    let output = query_input(&["query", "--session", tables], &("x".repeat(8193) + "\n"));
+    assert!(!output.status.success());
+    assert!(String::from_utf8(output.stderr).unwrap().contains("8192 bytes"));
 }
 
 #[test]

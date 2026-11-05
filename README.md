@@ -68,6 +68,11 @@ What the measurements show:
   Packing the `query` tool with the actions scored 52/58 in a separate run. It costs extra
   input and a tool round trip; these runs still sent the full data. See the
   [query measurements](eval/README.md#query-tool).
+- **Keep query data local.** On three held-out states and the two small models, schema-only
+  requests with one correction scored 172/174 versus 171/174 with full tables. Including
+  query, correction and final-answer turns, average input fell from 4,898.632 to 1,615.874
+  tokens (67.0% less). Completed-exchange cost fell 64.1%. These are synthetic states;
+  the one-answer accuracy difference is not evidence of general superiority.
 - **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
   count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
   model to list candidate rows before its final answer raised filtering accuracy from
@@ -168,7 +173,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 139 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 162 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -258,14 +263,45 @@ This is a [small SQL subset](docs/FORMAT.md#queries), with `ORDER BY` and `LIMIT
 **before** aggregates. Arithmetic uses 64-bit floats; round when needed. The game controls
 which tables are exposed, and query results still need to fit the next packet's budget.
 
+### Keep rows in the game and allow one correction
+
+`query::describe(&tables)` returns column types and complete small string domains, with
+no rows or numeric samples. Send it as a per-turn `query_tables` variable alongside
+`query::tool()`. Define field meanings explicitly: `unit_weight` is per item;
+`stack_weight` is `count * unit_weight`, computed by the host using `derive`.
+
+```rust
+use gamectx::{obj, query};
+
+let mut session = query::Session::new().result_bytes(512);
+let feedback = session.apply_call(&obj! {"sql" => "SELECT SUM(stack_weight) FROM food"}, &tables)?;
+assert_eq!(feedback.get("retry").and_then(gamectx::Value::as_bool), Some(true));
+// Send feedback to the model. It gets table descriptions and one correction allowance.
+let result = session.apply_call(
+    &obj! {"sql" => "SELECT SUM(stack_weight) FROM inventory WHERE kind = food"}, &tables)?;
+assert_eq!(result.to_json(), r#"{"result":23}"#);
+assert!(session.is_finished());
+```
+
+Here `tables` contains the host-derived `stack_weight` column. Use one session per
+question over the same snapshot. Success ends it too: a valid query with the wrong
+meaning does not trigger a retry. See the [runnable host example](examples/query-workflow.rs):
+
+```bash
+cargo run --example query-workflow
+gamectx query --schema tables.json
+# Each stdin line is a query tool argument object, e.g. {"sql":"SELECT COUNT(*) FROM inventory"}.
+gamectx query --session tables.json --result-bytes 512
+```
+
 ## Be honest with your numbers
 
 - **Bytes saved are not tokens saved.** In the run above, gamectx cut bytes by 58% but
   tokens by 46%. Measure with your provider's reported usage, which is what `calibrate`
   is for.
-- **Results depend on your data and models.** The numbers above are one game state and
-  three models. Test the decisions your game actually depends on, with the eval script
-  or your own.
+- **Results depend on your data and models.** The original packing benchmarks use one
+  state and three models; query workflows cover four states and the two smaller models.
+  Test the decisions your game actually depends on, with the eval script or your own.
 - **Exact counts need the provider's tokenizer.** gamectx estimates conservatively instead
   of pretending to know.
 - **The model only proposes.** Packed context describes what exists. Your game still has to

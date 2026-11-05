@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": 3}, {"sql": "SELECT COUNT(*) FROM t"}]}}

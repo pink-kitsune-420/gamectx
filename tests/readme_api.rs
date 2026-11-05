@@ -67,3 +67,37 @@ fn readme_query_example() -> gamectx::Result<()> {
     assert_eq!(answer.to_json(), "22.5");
     Ok(())
 }
+
+#[test]
+fn schema_only_query_workflow_example() -> gamectx::Result<()> {
+    use gamectx::{query, view};
+    let stock = vec![
+        obj! {"id" => "moss_cake", "kind" => "food", "count" => 2, "unit_weight" => 0.25},
+        obj! {"id" => "ember_cake", "kind" => "food", "count" => 6, "unit_weight" => 3.75},
+    ];
+    let stock = view::apply(
+        &stock,
+        &view::View {
+            derive: vec![("stack_weight".to_owned(), "count * unit_weight".to_owned())],
+            ..Default::default()
+        },
+    )?;
+    let tables = [("inventory", stock.as_slice())];
+    let mut game = Context::new().budget_bytes(4096);
+    game.tools("actions", vec![query::tool()])?;
+    game.prompt("field_notes", "unit_weight is per item; stack_weight is count * unit_weight.")?;
+    let mut turn = game.turn();
+    turn.var("query_tables", query::describe(&tables)?)?;
+    let packet = turn.build()?;
+    assert!(packet.text.contains(r#"["stack_weight","number"]"#));
+    assert!(!packet.text.contains("\"rows\""));
+
+    let mut session = query::Session::new().result_bytes(512);
+    let feedback = session.apply_call(&obj! {"sql" => "SELECT SUM(stack_weight) FROM food"}, &tables)?;
+    assert_eq!(feedback.get("retry"), Some(&Value::Bool(true)));
+    let result =
+        session.apply_call(&obj! {"sql" => "SELECT SUM(stack_weight) FROM inventory WHERE kind = food"}, &tables)?;
+    assert_eq!(result.to_json(), r#"{"result":23}"#);
+    assert!(session.is_finished());
+    Ok(())
+}

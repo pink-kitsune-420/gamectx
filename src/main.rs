@@ -3,6 +3,7 @@ use gamectx::catalog::{Catalog, Limits};
 use gamectx::estimate::{self, Calibration};
 use gamectx::manifest::{self, read_json_file, Check, Manifest};
 use gamectx::{schema, Error, Result};
+use std::io::{BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
@@ -27,6 +28,11 @@ USAGE:
   gamectx query <tables.json> <sql>
       Run a model's SQL SELECT exactly over the tables (an object of name: array of
       objects); prints JSON. gamectx query --tool prints the query tool for the model.
+  gamectx query --schema <tables.json>
+      Print column types and complete small string domains, without rows. - reads stdin.
+  gamectx query --session <tables.json> [--result-bytes N]
+      Read JSON argument objects (one per line) from stdin; print one JSON reply per attempt. A query error
+      allows one correction. Success or the second failure ends the session.
   gamectx calibrate <calibration.json> --scope NAME --bytes N --tokens N [--estimate N]
       Record one provider usage report (input tokens for a request body of N bytes).
 
@@ -54,7 +60,7 @@ struct Args {
     options: Vec<(String, Option<String>)>,
 }
 
-const SWITCHES: [&str; 2] = ["--receipt", "--tool"];
+const SWITCHES: [&str; 4] = ["--receipt", "--tool", "--schema", "--session"];
 
 impl Args {
     fn parse(raw: &[String]) -> Result<Args> {
@@ -189,16 +195,52 @@ fn run(raw: &[String]) -> Result<()> {
             println!("{}", gamectx::query::tool().to_json());
             Ok(())
         }
+        "query" if args.has("--schema") => {
+            args.only(&["--schema"], 1)?;
+            let tables = if args.positional[0] == "-" {
+                let mut text = String::new();
+                std::io::stdin()
+                    .take(manifest::MAX_FILE_BYTES as u64 + 1)
+                    .read_to_string(&mut text)
+                    .map_err(|e| Error::new(e.to_string()))?;
+                gamectx::json::parse(&text, manifest::MAX_FILE_BYTES)?
+            } else {
+                read_json_file(Path::new(&args.positional[0]))?
+            };
+            println!("{}", gamectx::query::describe(&named_tables(&tables)?)?.to_json());
+            Ok(())
+        }
+        "query" if args.has("--session") => {
+            args.only(&["--session", "--result-bytes"], 1)?;
+            if args.positional[0] == "-" {
+                return Err(Error::new("query sessions need a table file; stdin is used for query calls"));
+            }
+            let tables = read_json_file(Path::new(&args.positional[0]))?;
+            let tables = named_tables(&tables)?;
+            let mut session =
+                gamectx::query::Session::new().result_bytes(args.number("--result-bytes")?.unwrap_or(4096));
+            let mut input = std::io::stdin().lock();
+            let mut output = std::io::stdout().lock();
+            while !session.is_finished() {
+                let mut line = String::new();
+                let bytes = (&mut input).take(8193).read_line(&mut line).map_err(|e| Error::new(e.to_string()))?;
+                if bytes == 0 {
+                    return Err(Error::new("query session ended before a terminal reply"));
+                }
+                if bytes > 8192 {
+                    return Err(Error::new("query input line exceeds 8192 bytes"));
+                }
+                let call = gamectx::json::parse(&line, 8192).unwrap_or(gamectx::Value::Null);
+                let reply = session.apply_call(&call, &tables)?;
+                writeln!(output, "{}", reply.to_json()).map_err(|e| Error::new(e.to_string()))?;
+                output.flush().map_err(|e| Error::new(e.to_string()))?;
+            }
+            Ok(())
+        }
         "query" => {
             args.only(&[], 2)?;
             let tables = read_json_file(Path::new(&args.positional[0]))?;
-            let entries = tables.as_object().ok_or_else(|| Error::new("tables must be an object of name: array"))?;
-            let mut named = Vec::with_capacity(entries.len());
-            for (name, rows) in entries {
-                let rows = rows.as_array().ok_or_else(|| Error::new(format!("table \"{name}\" must be an array")))?;
-                named.push((name.as_str(), rows));
-            }
-            println!("{}", gamectx::query::run(&args.positional[1], &named)?.to_json());
+            println!("{}", gamectx::query::run(&args.positional[1], &named_tables(&tables)?)?.to_json());
             Ok(())
         }
         "help" | "--help" | "-h" => {
@@ -207,6 +249,19 @@ fn run(raw: &[String]) -> Result<()> {
         }
         other => Err(Error::new(format!("unknown command \"{other}\"; see gamectx help"))),
     }
+}
+
+fn named_tables(value: &gamectx::Value) -> Result<Vec<(&str, &[gamectx::Value])>> {
+    value
+        .as_object()
+        .ok_or_else(|| Error::new("tables must be an object of name: array"))?
+        .iter()
+        .map(|(name, rows)| {
+            rows.as_array()
+                .map(|rows| (name.as_str(), rows))
+                .ok_or_else(|| Error::new(format!("table \"{name}\" must be an array")))
+        })
+        .collect()
 }
 
 fn load_calibration(path: &Path) -> Result<Calibration> {

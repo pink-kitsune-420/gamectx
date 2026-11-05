@@ -20,6 +20,8 @@ jobs:
       - run: RUSTDOCFLAGS="-D warnings" cargo +stable doc --no-deps --locked
       - run: cargo +stable build --release --locked
       - run: python3 -I eval/test_query_eval.py
+      - run: python3 -I eval/test_query_workflow.py
+      - run: python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
       - run: python3 -I eval/query_eval.py --differential 3000 --cap 0
 
   msrv:

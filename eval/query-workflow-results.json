@@ -1,0 +1,1639 @@
+{
+  "date": "2026-11-05",
+  "development_seed": 7,
+  "holdout_seeds": [
+    101,
+    202,
+    303
+  ],
+  "scope": "One synthetic game family, different seeds and table sizes; frozen prompts and scoring on holdout.",
+  "development": {
+    "runs": [
+      {
+        "run": "workflow-20261105-163031-392815",
+        "cap_usd": 0.12,
+        "spent_usd": 0.07143086874999993,
+        "cumulative_spent_usd": 0.07143086874999993,
+        "resumed_from": null
+      }
+    ],
+    "total_spend_usd": 0.07143086874999993,
+    "incomplete_exchange_spend_usd": 0,
+    "by_mode": {
+      "legacy": {
+        "questions": 58,
+        "first_correct": 53,
+        "after_retry_correct": 55,
+        "final_correct": 55,
+        "retries": 3,
+        "recovered": 2,
+        "terminal_query_errors": 1,
+        "semantic_errors": 2,
+        "answer_copy_errors": 0,
+        "calls": 118,
+        "avg_total_input_tokens": 3415.310344827586,
+        "avg_total_output_tokens": 54.62068965517241,
+        "completed_exchange_spend_usd": 0.02551316875
+      },
+      "full": {
+        "questions": 58,
+        "first_correct": 55,
+        "after_retry_correct": 57,
+        "final_correct": 57,
+        "retries": 3,
+        "recovered": 2,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 118,
+        "avg_total_input_tokens": 4478.431034482759,
+        "avg_total_output_tokens": 54.89655172413793,
+        "completed_exchange_spend_usd": 0.033046775
+      },
+      "schema": {
+        "questions": 58,
+        "first_correct": 56,
+        "after_retry_correct": 57,
+        "final_correct": 57,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 117,
+        "avg_total_input_tokens": 1617.3620689655172,
+        "avg_total_output_tokens": 53.58620689655172,
+        "completed_exchange_spend_usd": 0.012870925
+      }
+    },
+    "by_state": [
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 4468.724137931034,
+        "avg_total_output_tokens": 60.06896551724138,
+        "completed_exchange_spend_usd": 0.02048415
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "legacy",
+        "questions": 29,
+        "first_correct": 27,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 3399.8275862068967,
+        "avg_total_output_tokens": 59.55172413793103,
+        "completed_exchange_spend_usd": 0.015825449999999998
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 1648.9310344827586,
+        "avg_total_output_tokens": 60.06896551724138,
+        "completed_exchange_spend_usd": 0.00821805
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 27,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 2,
+        "recovered": 1,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 4488.137931034483,
+        "avg_total_output_tokens": 49.724137931034484,
+        "completed_exchange_spend_usd": 0.012562625000000001
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "legacy",
+        "questions": 29,
+        "first_correct": 26,
+        "after_retry_correct": 27,
+        "final_correct": 27,
+        "retries": 2,
+        "recovered": 1,
+        "terminal_query_errors": 1,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 3430.793103448276,
+        "avg_total_output_tokens": 49.689655172413794,
+        "completed_exchange_spend_usd": 0.00968771875
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 0,
+        "recovered": 0,
+        "terminal_query_errors": 0,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 58,
+        "avg_total_input_tokens": 1585.7931034482758,
+        "avg_total_output_tokens": 47.10344827586207,
+        "completed_exchange_spend_usd": 0.004652875
+      }
+    ],
+    "failures": [
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "legacy",
+        "kind": "calc",
+        "question": "What is the total weight of all food items?",
+        "expected": 11.25,
+        "answer": 85.02000000000001,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(weight * count) FROM inventory WHERE kind = 'food'",
+            "feedback": {
+              "result": 85.02000000000001
+            },
+            "reply": "```json\n{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(weight * count) FROM inventory WHERE kind = 'food'\"}}\n```"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "legacy",
+        "kind": "calc",
+        "question": "What is the combined weight of the three heaviest items?",
+        "expected": 17.15,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(weight) FROM inventory WHERE id IN (SELECT id FROM inventory ORDER BY weight DESC LIMIT 3)",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "food",
+                      "scroll",
+                      "reagent",
+                      "tool",
+                      "weapon",
+                      "key"
+                    ],
+                    "rarity": [
+                      "rare",
+                      "uncommon",
+                      "common",
+                      "unique"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "ashfolk",
+                      "tidewardens",
+                      "wanderers",
+                      "keepers"
+                    ],
+                    "role": [
+                      "guard",
+                      "smith",
+                      "healer",
+                      "cook",
+                      "scout"
+                    ],
+                    "location": [
+                      "gate",
+                      "yard",
+                      "forge",
+                      "hall",
+                      "chapel",
+                      "well",
+                      "cellar",
+                      "tower"
+                    ],
+                    "mood": [
+                      "calm",
+                      "stern",
+                      "wary",
+                      "warm"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(weight) FROM inventory WHERE id IN (SELECT id FROM inventory ORDER BY weight DESC LIMIT 3)\"}}"
+          },
+          {
+            "sql": "SELECT SUM(weight) FROM (SELECT weight FROM inventory ORDER BY weight DESC LIMIT 3) AS heavy_items",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(weight) FROM (SELECT weight FROM inventory ORDER BY weight DESC LIMIT 3) AS heavy_items\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "legacy",
+        "kind": "calc",
+        "question": "What is the total weight of all rare items?",
+        "expected": 37.06,
+        "answer": 335.59,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(weight * count) FROM inventory WHERE rarity = 'rare'",
+            "feedback": {
+              "result": 335.59
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(weight * count) FROM inventory WHERE rarity = 'rare'\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "full",
+        "kind": "calc",
+        "question": "What is the sum of unit_weight for the three rows with largest unit_weight?",
+        "expected": 17.15,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "unit_weight",
+                      "number"
+                    ],
+                    [
+                      "stack_weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "food",
+                      "scroll",
+                      "reagent",
+                      "tool",
+                      "weapon",
+                      "key"
+                    ],
+                    "rarity": [
+                      "rare",
+                      "uncommon",
+                      "common",
+                      "unique"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "ashfolk",
+                      "tidewardens",
+                      "wanderers",
+                      "keepers"
+                    ],
+                    "role": [
+                      "guard",
+                      "smith",
+                      "healer",
+                      "cook",
+                      "scout"
+                    ],
+                    "location": [
+                      "gate",
+                      "yard",
+                      "forge",
+                      "hall",
+                      "chapel",
+                      "well",
+                      "cellar",
+                      "tower"
+                    ],
+                    "mood": [
+                      "calm",
+                      "stern",
+                      "wary",
+                      "warm"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)\"}}"
+          },
+          {
+            "sql": "SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "schema",
+        "kind": "inv_filter",
+        "question": "List the ids of every unique item of kind weapon, as an array.",
+        "expected": [
+          "ash_knife",
+          "smoke_staff"
+        ],
+        "answer": [],
+        "attempts": [
+          {
+            "sql": "SELECT id FROM inventory WHERE kind = 'weapon' AND count = 1;",
+            "feedback": {
+              "result": []
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT id FROM inventory WHERE kind = 'weapon' AND count = 1;\"}}"
+          }
+        ]
+      }
+    ]
+  },
+  "holdout": {
+    "runs": [
+      {
+        "run": "workflow-20261105-163855-431601",
+        "cap_usd": 0.12,
+        "spent_usd": 0.06611384999999999,
+        "cumulative_spent_usd": 0.06611384999999999,
+        "resumed_from": null
+      },
+      {
+        "run": "workflow-20261105-163855-999462",
+        "cap_usd": 0.06,
+        "spent_usd": 0.024793200000000012,
+        "cumulative_spent_usd": 0.024793200000000012,
+        "resumed_from": null
+      },
+      {
+        "run": "workflow-20261105-163855-897042",
+        "cap_usd": 0.02,
+        "spent_usd": 0.014011187499999998,
+        "cumulative_spent_usd": 0.014011187499999998,
+        "resumed_from": null
+      },
+      {
+        "run": "workflow-20261105-164310-096019",
+        "cap_usd": 0.015,
+        "spent_usd": 0.0027019687500000004,
+        "cumulative_spent_usd": 0.042168312500000006,
+        "resumed_from": "workflow-20261105-163855-085656"
+      }
+    ],
+    "total_spend_usd": 0.14708655,
+    "incomplete_exchange_spend_usd": 0.0003302812500000085,
+    "by_mode": {
+      "full": {
+        "questions": 174,
+        "first_correct": 160,
+        "after_retry_correct": 171,
+        "final_correct": 171,
+        "retries": 14,
+        "recovered": 11,
+        "terminal_query_errors": 3,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 359,
+        "avg_total_input_tokens": 4898.632183908046,
+        "avg_total_output_tokens": 58.87356321839081,
+        "completed_exchange_spend_usd": 0.10795188124999999
+      },
+      "schema": {
+        "questions": 174,
+        "first_correct": 169,
+        "after_retry_correct": 172,
+        "final_correct": 172,
+        "retries": 4,
+        "recovered": 3,
+        "terminal_query_errors": 1,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 351,
+        "avg_total_input_tokens": 1615.8735632183907,
+        "avg_total_output_tokens": 56.52298850574713,
+        "completed_exchange_spend_usd": 0.0388043875
+      }
+    },
+    "by_state": [
+      {
+        "model": "llama-3.2-3b",
+        "seed": 101,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 2910.5862068965516,
+        "avg_total_output_tokens": 55.89655172413793,
+        "completed_exchange_spend_usd": 0.013633649999999999
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 101,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 1632.9310344827586,
+        "avg_total_output_tokens": 55.89655172413793,
+        "completed_exchange_spend_usd": 0.008075849999999999
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 202,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 4308.931034482759,
+        "avg_total_output_tokens": 61.06896551724138,
+        "completed_exchange_spend_usd": 0.01980645
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 202,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 1645.7931034482758,
+        "avg_total_output_tokens": 61.06896551724138,
+        "completed_exchange_spend_usd": 0.0082218
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 303,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 7218.517241379311,
+        "avg_total_output_tokens": 73.17241379310344,
+        "completed_exchange_spend_usd": 0.03267375
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 303,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 1,
+        "recovered": 1,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 1660.3103448275863,
+        "avg_total_output_tokens": 73.17241379310344,
+        "completed_exchange_spend_usd": 0.00849555
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 27,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 2,
+        "recovered": 1,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 59,
+        "avg_total_input_tokens": 2900.551724137931,
+        "avg_total_output_tokens": 47.37931034482759,
+        "completed_exchange_spend_usd": 0.008229375
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 0,
+        "recovered": 0,
+        "terminal_query_errors": 0,
+        "semantic_errors": 1,
+        "answer_copy_errors": 0,
+        "calls": 58,
+        "avg_total_input_tokens": 1568.1724137931035,
+        "avg_total_output_tokens": 43.06896551724138,
+        "completed_exchange_spend_usd": 0.00457571875
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 202,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 24,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 5,
+        "recovered": 4,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 62,
+        "avg_total_input_tokens": 4597.172413793103,
+        "avg_total_output_tokens": 54.689655172413794,
+        "completed_exchange_spend_usd": 0.0128950625
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 202,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 29,
+        "after_retry_correct": 29,
+        "final_correct": 29,
+        "retries": 0,
+        "recovered": 0,
+        "terminal_query_errors": 0,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 58,
+        "avg_total_input_tokens": 1582.7931034482758,
+        "avg_total_output_tokens": 48.13793103448276,
+        "completed_exchange_spend_usd": 0.00465221875
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "full",
+        "questions": 29,
+        "first_correct": 25,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 4,
+        "recovered": 3,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 61,
+        "avg_total_input_tokens": 7456.0344827586205,
+        "avg_total_output_tokens": 61.03448275862069,
+        "completed_exchange_spend_usd": 0.02071359375
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "schema",
+        "questions": 29,
+        "first_correct": 28,
+        "after_retry_correct": 28,
+        "final_correct": 28,
+        "retries": 1,
+        "recovered": 0,
+        "terminal_query_errors": 1,
+        "semantic_errors": 0,
+        "answer_copy_errors": 0,
+        "calls": 58,
+        "avg_total_input_tokens": 1605.2413793103449,
+        "avg_total_output_tokens": 57.793103448275865,
+        "completed_exchange_spend_usd": 0.00478325
+      }
+    ],
+    "failures": [
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "schema",
+        "kind": "inv_filter",
+        "question": "List the ids of every unique item of kind reagent, as an array.",
+        "expected": [
+          "moon_chip",
+          "hearth_root"
+        ],
+        "answer": [],
+        "attempts": [
+          {
+            "sql": "SELECT id FROM inventory WHERE kind = 'reagent' AND count = 1;",
+            "feedback": {
+              "result": []
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT id FROM inventory WHERE kind = 'reagent' AND count = 1;\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "schema",
+        "kind": "calc",
+        "question": "What is the sum of unit_weight for the three rows with largest unit_weight?",
+        "expected": 17.86,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "unit_weight",
+                      "number"
+                    ],
+                    [
+                      "stack_weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "tool",
+                      "scroll",
+                      "key",
+                      "food",
+                      "weapon",
+                      "reagent"
+                    ],
+                    "rarity": [
+                      "common",
+                      "uncommon",
+                      "unique",
+                      "rare"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "ashfolk",
+                      "keepers",
+                      "wanderers",
+                      "tidewardens"
+                    ],
+                    "role": [
+                      "healer",
+                      "smith",
+                      "cook",
+                      "scout",
+                      "guard"
+                    ],
+                    "location": [
+                      "hall",
+                      "cellar",
+                      "chapel",
+                      "well",
+                      "tower",
+                      "yard",
+                      "forge",
+                      "gate"
+                    ],
+                    "mood": [
+                      "calm",
+                      "wary",
+                      "stern",
+                      "warm"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)\"}}"
+          },
+          {
+            "sql": "SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "full",
+        "kind": "calc",
+        "question": "What is the sum of unit_weight for the three rows with largest unit_weight?",
+        "expected": 14.559999999999999,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT MAX(unit_weight) FROM inventory UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory) UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory)))",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "unit_weight",
+                      "number"
+                    ],
+                    [
+                      "stack_weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "scroll",
+                      "reagent",
+                      "key",
+                      "food",
+                      "weapon",
+                      "tool"
+                    ],
+                    "rarity": [
+                      "common",
+                      "unique",
+                      "uncommon",
+                      "rare"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "tidewardens",
+                      "ashfolk",
+                      "keepers",
+                      "wanderers"
+                    ],
+                    "role": [
+                      "scout",
+                      "guard",
+                      "healer",
+                      "smith"
+                    ],
+                    "location": [
+                      "tower",
+                      "cellar",
+                      "gate",
+                      "forge",
+                      "chapel",
+                      "hall"
+                    ],
+                    "mood": [
+                      "calm",
+                      "warm",
+                      "wary",
+                      "stern"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT MAX(unit_weight) FROM inventory UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory) UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory)))\"}}"
+          },
+          {
+            "sql": "SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 202,
+        "mode": "full",
+        "kind": "calc",
+        "question": "What is the sum of unit_weight for the three rows with largest unit_weight?",
+        "expected": 17.33,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT MAX(unit_weight) FROM inventory UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory) UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory)))",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "unit_weight",
+                      "number"
+                    ],
+                    [
+                      "stack_weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "key",
+                      "tool",
+                      "food",
+                      "weapon",
+                      "reagent",
+                      "scroll"
+                    ],
+                    "rarity": [
+                      "common",
+                      "uncommon",
+                      "rare",
+                      "unique"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "tidewardens",
+                      "keepers",
+                      "ashfolk",
+                      "wanderers"
+                    ],
+                    "role": [
+                      "healer",
+                      "cook",
+                      "scout",
+                      "smith",
+                      "guard"
+                    ],
+                    "location": [
+                      "tower",
+                      "well",
+                      "yard",
+                      "hall",
+                      "cellar",
+                      "gate",
+                      "chapel"
+                    ],
+                    "mood": [
+                      "warm",
+                      "stern",
+                      "wary",
+                      "calm"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT MAX(unit_weight) FROM inventory UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory) UNION SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory WHERE unit_weight < (SELECT MAX(unit_weight) FROM inventory)))\"}}"
+          },
+          {
+            "sql": "SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)\"}}"
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "full",
+        "kind": "calc",
+        "question": "What is the sum of unit_weight for the three rows with largest unit_weight?",
+        "expected": 17.86,
+        "answer": null,
+        "attempts": [
+          {
+            "sql": "SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": true,
+              "tables": {
+                "inventory": {
+                  "columns": [
+                    [
+                      "id",
+                      "string"
+                    ],
+                    [
+                      "kind",
+                      "string"
+                    ],
+                    [
+                      "rarity",
+                      "string"
+                    ],
+                    [
+                      "count",
+                      "number"
+                    ],
+                    [
+                      "unit_weight",
+                      "number"
+                    ],
+                    [
+                      "stack_weight",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "kind": [
+                      "tool",
+                      "scroll",
+                      "key",
+                      "food",
+                      "weapon",
+                      "reagent"
+                    ],
+                    "rarity": [
+                      "common",
+                      "uncommon",
+                      "unique",
+                      "rare"
+                    ]
+                  }
+                },
+                "npcs": {
+                  "columns": [
+                    [
+                      "name",
+                      "string"
+                    ],
+                    [
+                      "faction",
+                      "string"
+                    ],
+                    [
+                      "role",
+                      "string"
+                    ],
+                    [
+                      "location",
+                      "string"
+                    ],
+                    [
+                      "mood",
+                      "string"
+                    ],
+                    [
+                      "trust",
+                      "number"
+                    ]
+                  ],
+                  "values": {
+                    "faction": [
+                      "ashfolk",
+                      "keepers",
+                      "wanderers",
+                      "tidewardens"
+                    ],
+                    "role": [
+                      "healer",
+                      "smith",
+                      "cook",
+                      "scout",
+                      "guard"
+                    ],
+                    "location": [
+                      "hall",
+                      "cellar",
+                      "chapel",
+                      "well",
+                      "tower",
+                      "yard",
+                      "forge",
+                      "gate"
+                    ],
+                    "mood": [
+                      "calm",
+                      "wary",
+                      "stern",
+                      "warm"
+                    ]
+                  }
+                }
+              },
+              "hint": "Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM inventory WHERE unit_weight IN (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3)\"}}"
+          },
+          {
+            "sql": "SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three",
+            "feedback": {
+              "error": "Query must use the supported SELECT subset.",
+              "retry": false
+            },
+            "reply": "{\"action\": \"query\", \"args\": {\"sql\": \"SELECT SUM(unit_weight) FROM (SELECT unit_weight FROM inventory ORDER BY unit_weight DESC LIMIT 3) AS top_three\"}}"
+          }
+        ]
+      }
+    ]
+  },
+  "token_checks": {
+    "spent_usd": 0.0033321375,
+    "rows": [
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "legacy",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 1611,
+              "completion_tokens": 1,
+              "total_tokens": 1612,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00024224999999999998
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 2135,
+              "completion_tokens": 1,
+              "total_tokens": 2136,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00032085
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 7,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 749,
+              "completion_tokens": 1,
+              "total_tokens": 750,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00011295
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "legacy",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 1626,
+              "completion_tokens": 1,
+              "total_tokens": 1627
+            },
+            "cost_usd": 0.0001526875
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 2145,
+              "completion_tokens": 1,
+              "total_tokens": 2146
+            },
+            "cost_usd": 0.00020134375
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 7,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 747,
+              "completion_tokens": 1,
+              "total_tokens": 748
+            },
+            "cost_usd": 7.028125e-05
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 101,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 1371,
+              "completion_tokens": 1,
+              "total_tokens": 1372,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00020625
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 101,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 743,
+              "completion_tokens": 1,
+              "total_tokens": 744,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00011205
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 202,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 2056,
+              "completion_tokens": 1,
+              "total_tokens": 2057,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.000309
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 202,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 747,
+              "completion_tokens": 1,
+              "total_tokens": 748,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00011264999999999999
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 303,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 3481,
+              "completion_tokens": 1,
+              "total_tokens": 3482,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00052275
+          }
+        ]
+      },
+      {
+        "model": "llama-3.2-3b",
+        "seed": 303,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 749,
+              "completion_tokens": 1,
+              "total_tokens": 750,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "cost_usd": 0.00011295
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 1366,
+              "completion_tokens": 1,
+              "total_tokens": 1367
+            },
+            "cost_usd": 0.0001283125
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 101,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 740,
+              "completion_tokens": 1,
+              "total_tokens": 741
+            },
+            "cost_usd": 6.9625e-05
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 202,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 2059,
+              "completion_tokens": 1,
+              "total_tokens": 2060
+            },
+            "cost_usd": 0.00019328125
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 202,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 745,
+              "completion_tokens": 1,
+              "total_tokens": 746
+            },
+            "cost_usd": 7.009375e-05
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "full",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 3459,
+              "completion_tokens": 1,
+              "total_tokens": 3460
+            },
+            "cost_usd": 0.00032453125
+          }
+        ]
+      },
+      {
+        "model": "mistral-small-3-2-24b-instruct",
+        "seed": 303,
+        "mode": "schema",
+        "calls": [
+          {
+            "usage": {
+              "prompt_tokens": 747,
+              "completion_tokens": 1,
+              "total_tokens": 748
+            },
+            "cost_usd": 7.028125e-05
+          }
+        ]
+      }
+    ]
+  },
+  "total_spend_usd": 0.22184955624999994
+}

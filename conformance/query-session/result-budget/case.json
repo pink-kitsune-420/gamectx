@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"result_bytes": 5, "calls": [{"sql": "SELECT id FROM t"}, {"sql": "SELECT id FROM t LIMIT 1"}]}}

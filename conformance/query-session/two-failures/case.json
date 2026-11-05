@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": "bad"}, {"sql": "bad"}]}}

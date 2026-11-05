@@ -320,6 +320,62 @@ Execution work scales with the host's table size, bounded expression shape and a
 optional sort; the query cannot request loops, external data, or modification. Hosts
 control table sizes and access, and must budget the result before sending it to a model.
 
+#### Table descriptions and correction sessions
+
+`query::describe(tables)` / `gamectx query --schema TABLES.json` describes the same named
+arrays accepted by queries. `--schema -` reads JSON from stdin. The description is:
+
+```json
+{"t":{"columns":[["id","string"],["kind","string"],["x","null|number"]],"values":{"id":["a","b"],"kind":["food","tool"]}}}
+```
+
+Table order and column order follow the input and the first row. Mixed types are joined
+with `|` in the fixed order `null`, `boolean`, `number`, `string`, `array`, `object`.
+All rows must be objects with the same columns; different key orders are accepted.
+An empty table has `{"columns":[]}`. There is no row count or numeric sample.
+
+`values` includes only columns holding strings in every row whose *complete* domain
+has at most 8 distinct values, each at most 64 Unicode characters. Domains retain first
+appearance order. A larger domain, a longer string, or a non-string cell omits the whole
+column's domain; no partial enumeration is presented. `values` is omitted when empty.
+This can include IDs in small tables. Descriptions allow at most 16 distinct table names
+and 64 columns per table; names must be unique ASCII SQL identifiers of at most 64
+characters. Hosts can provide their own descriptions when inferred empty schemas or these
+limits do not suit their data. Field meanings come from host prompts, not type inference.
+
+`query::Session` allows one query and one correction after an execution error. A successful
+query ends the session immediately, including when its meaning is wrong for the question.
+`apply_call` accepts exactly `{"sql": string}`; malformed arguments consume an attempt.
+`submit` accepts SQL text directly. Both return these protocol envelopes:
+
+```json
+{"result":23}
+```
+
+```json
+{"error":"Unknown table. Use a table name listed below.","retry":true,"tables":{"inventory":{"columns":[["stack_weight","number"]]}},"hint":"Use only the tables and columns below. No subqueries; one SELECT only. For the largest row use ORDER BY column DESC LIMIT 1. ORDER BY and LIMIT apply before SUM/AVG/MIN/MAX, including top-N sums."}
+```
+
+The first error includes the entire description and `query::RETRY_HINT`. Error text is
+normalized: unknown table, unknown column, result budget exceeded, or invalid/unsupported
+SELECT. The second failure returns only `error` and `retry:false`. Submissions after a
+terminal reply return `Err`; errors describing invalid host tables also close the session.
+The host owns the model/API loop and returns feedback as tool data, with the same data
+snapshot for both attempts. Creating a new session for every attempted correction would
+defeat the bound. A session makes no network calls.
+
+The compact result is capped at 4096 UTF-8 bytes by default, excluding its envelope;
+`.result_bytes(n)` changes that limit. Oversize results allow the same single correction,
+with advice to select fewer columns or add LIMIT. The output cap does not bound table
+execution work or feedback size: hosts control table sizes and budget whole messages.
+
+`gamectx query --session TABLES.json [--result-bytes N]` reads JSON argument objects from
+stdin, one per line, and immediately flushes one JSON reply per attempt. It reads at most
+8192 bytes per line, accepts escaped newlines in SQL, and stops after success or the second
+failure. Malformed JSON consumes an attempt. Terminal query errors are normal protocol
+replies (exit success); premature EOF, oversize input lines, invalid host data and I/O errors
+fail the command. A table file is required because stdin carries the requests.
+
 ### `memory` (recall)
 
 Input: saved memory, as written by `Memory::to_value`:

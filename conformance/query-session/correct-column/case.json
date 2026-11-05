@@ -1,0 +1,1 @@
+{"op": "query-session", "args": {"calls": [{"sql": "SELECT missing FROM t"}, {"sql": "SELECT x FROM t"}]}}
