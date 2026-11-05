@@ -15,7 +15,7 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 > `0.1.0-alpha` releases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
 
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
-[conformance cases](conformance/README.md) · [model eval](eval/README.md)
+[conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
 ## Measured on real models
 
@@ -130,7 +130,7 @@ packet: 1906 bytes; budget 2000 bytes
 ## Quick start
 
 ```bash
-cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.1
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.2
 # or, from a clone:
 cargo build --release
 ./target/release/gamectx report examples/ember-keep/manifest.json
@@ -159,7 +159,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 51 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 103 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.

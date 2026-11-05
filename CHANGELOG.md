@@ -11,7 +11,10 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
-## Unreleased
+## 0.1.0-alpha.2 — 2026-11-05
+
+Adds features without changing any alpha.1 output: all 51 alpha.1 conformance cases are
+unchanged, and 52 new cases cover the additions.
 
 - **[format]** New `signatures` pack mode: action schemas as short text lines with shared
   arguments listed once. Lossless for strict tools with string, number, integer, boolean
