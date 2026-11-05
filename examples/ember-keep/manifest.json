@@ -1,0 +1,58 @@
+{
+  "budget_bytes": 2700,
+  "sections": [
+    {
+      "name": "actions",
+      "pack": "schema",
+      "file": "tools.json",
+      "priority": 10,
+      "stable": true,
+      "required": true
+    },
+    {
+      "name": "rules",
+      "pack": "raw",
+      "priority": 9,
+      "stable": true,
+      "required": true,
+      "value": "You voice Warden Ilse in Ember Keep. Choose one action per turn. The game validates every action; invalid choices are refused, not repaired."
+    },
+    {
+      "name": "action_outline",
+      "pack": "outline",
+      "file": "tools.json",
+      "priority": 1,
+      "stable": true
+    },
+    {
+      "name": "inventory",
+      "pack": "table",
+      "file": "inventory.json",
+      "priority": 6,
+      "group_by": "kind"
+    },
+    {
+      "name": "recent_events",
+      "pack": "table",
+      "file": "events.json",
+      "priority": 7
+    },
+    {
+      "name": "lights_nearby",
+      "pack": "catalog",
+      "file": "catalog.json",
+      "query": "#lights",
+      "count": 4,
+      "priority": 3
+    },
+    {
+      "name": "mood",
+      "pack": "raw",
+      "value": {
+        "warden": "wary",
+        "player_trust": 0.35
+      },
+      "priority": 8
+    }
+  ]
+}

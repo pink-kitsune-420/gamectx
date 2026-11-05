@@ -1,0 +1,25 @@
+{
+ "scope": [
+  "provider",
+  "model"
+ ],
+ "observations": [
+  [
+   1000,
+   250,
+   1000
+  ],
+  [
+   1000,
+   200,
+   1000
+  ],
+  [
+   2000,
+   300,
+   2000
+  ]
+ ],
+ "body": "hello wörld",
+ "framing": 3
+}

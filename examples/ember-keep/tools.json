@@ -1,0 +1,251 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "move_to",
+      "description": "Walk to a named spot in the keep.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "spot": {
+            "type": "string",
+            "enum": [
+              "gate",
+              "hall",
+              "forge",
+              "well",
+              "tower",
+              "cellar"
+            ]
+          },
+          "pace": {
+            "type": "string",
+            "enum": [
+              "sneak",
+              "walk",
+              "run"
+            ]
+          }
+        },
+        "required": [
+          "spot",
+          "pace"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "speak",
+      "description": "Say one short line to a target.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Entity handle from the scene snapshot."
+          },
+          "line": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "calm",
+              "wary",
+              "stern",
+              "warm"
+            ]
+          }
+        },
+        "required": [
+          "target",
+          "line",
+          "tone"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "cast_spell",
+      "description": "Cast a known spell at a target.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "spell": {
+            "type": "string",
+            "enum": [
+              "spark",
+              "salt_ward",
+              "mend",
+              "hush"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "description": "Entity handle from the scene snapshot."
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Effort level; higher costs more stamina."
+          }
+        },
+        "required": [
+          "spell",
+          "target",
+          "power"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "use_item",
+      "description": "Use a carried item on a target.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "description": "Item id from inventory."
+          },
+          "target": {
+            "type": "string",
+            "description": "Entity handle from the scene snapshot."
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Effort level; higher costs more stamina."
+          }
+        },
+        "required": [
+          "item",
+          "target",
+          "power"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "give_item",
+      "description": "Hand a carried item to a target.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string",
+            "description": "Item id from inventory."
+          },
+          "target": {
+            "type": "string",
+            "description": "Entity handle from the scene snapshot."
+          }
+        },
+        "required": [
+          "item",
+          "target"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "guard",
+      "description": "Hold position and watch a target.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Entity handle from the scene snapshot."
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Duration in seconds."
+          }
+        },
+        "required": [
+          "target",
+          "seconds"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "wait",
+      "description": "Do nothing for a while.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "seconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Duration in seconds."
+          }
+        },
+        "required": [
+          "seconds"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "light_lantern",
+      "description": "Light or dim a lantern.",
+      "strict": true,
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "lantern": {
+            "type": "string",
+            "description": "Lantern handle from the scene snapshot."
+          },
+          "power": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Effort level; higher costs more stamina."
+          }
+        },
+        "required": [
+          "lantern",
+          "power"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+]

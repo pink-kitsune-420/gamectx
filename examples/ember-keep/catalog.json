@@ -1,0 +1,227 @@
+{
+  "complete": true,
+  "entries": [
+    {
+      "kind": "item",
+      "id": "ember_lantern",
+      "tags": [
+        "#lights",
+        "#fire",
+        "#tools"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "glass_lantern",
+      "tags": [
+        "#lights",
+        "#tools"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "salt_pouch",
+      "tags": [
+        "#reagents",
+        "#wards"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "ash_bread",
+      "tags": [
+        "#food"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "smoked_trout",
+      "tags": [
+        "#food",
+        "#fish"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "tidewater_flask",
+      "tags": [
+        "#reagents",
+        "#water"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "iron_key_cellar",
+      "tags": [
+        "#keys"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "mend_moss",
+      "tags": [
+        "#reagents",
+        "#healing",
+        "#plants"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "spark_flint",
+      "tags": [
+        "#fire",
+        "#tools"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "quiet_bell",
+      "tags": [
+        "#tools",
+        "#sound"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "wardstone_chip",
+      "tags": [
+        "#reagents",
+        "#wards",
+        "#stone"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "wardstone_block",
+      "tags": [
+        "#wards",
+        "#stone",
+        "#building"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "oak_beam",
+      "tags": [
+        "#building",
+        "#wood"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "ash_plank",
+      "tags": [
+        "#building",
+        "#wood"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "tallow_candle",
+      "tags": [
+        "#lights",
+        "#fire"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "rope_coil",
+      "tags": [
+        "#tools"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "bone_whistle",
+      "tags": [
+        "#tools",
+        "#sound"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "moonpetal",
+      "tags": [
+        "#plants",
+        "#reagents"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "rust_shears",
+      "tags": [
+        "#tools"
+      ]
+    },
+    {
+      "kind": "item",
+      "id": "hearth_coal",
+      "tags": [
+        "#fire",
+        "#fuel"
+      ]
+    },
+    {
+      "kind": "spell",
+      "id": "spark",
+      "tags": [
+        "#fire",
+        "#attack"
+      ]
+    },
+    {
+      "kind": "spell",
+      "id": "salt_ward",
+      "tags": [
+        "#wards",
+        "#defense"
+      ]
+    },
+    {
+      "kind": "spell",
+      "id": "mend",
+      "tags": [
+        "#healing"
+      ]
+    },
+    {
+      "kind": "spell",
+      "id": "hush",
+      "tags": [
+        "#sound",
+        "#stealth"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "crow_sentinel",
+      "tags": [
+        "#watchers",
+        "#flying"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "cellar_rat",
+      "tags": [
+        "#vermin"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "ash_hound",
+      "tags": [
+        "#hostile",
+        "#fire"
+      ]
+    },
+    {
+      "kind": "creature",
+      "id": "lantern_moth",
+      "tags": [
+        "#lights",
+        "#flying"
+      ]
+    }
+  ]
+}

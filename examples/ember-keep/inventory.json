@@ -1,0 +1,72 @@
+[
+  {
+    "id": "ember_lantern",
+    "kind": "tool",
+    "rarity": "common",
+    "count": 1,
+    "durability": 0.85
+  },
+  {
+    "id": "salt_pouch",
+    "kind": "reagent",
+    "rarity": "common",
+    "count": 12,
+    "durability": null
+  },
+  {
+    "id": "ash_bread",
+    "kind": "food",
+    "rarity": "common",
+    "count": 4,
+    "durability": null
+  },
+  {
+    "id": "tidewater_flask",
+    "kind": "reagent",
+    "rarity": "uncommon",
+    "count": 2,
+    "durability": null
+  },
+  {
+    "id": "iron_key_cellar",
+    "kind": "key",
+    "rarity": "unique",
+    "count": 1,
+    "durability": null
+  },
+  {
+    "id": "mend_moss",
+    "kind": "reagent",
+    "rarity": "common",
+    "count": 7,
+    "durability": null
+  },
+  {
+    "id": "spark_flint",
+    "kind": "tool",
+    "rarity": "common",
+    "count": 1,
+    "durability": 0.4
+  },
+  {
+    "id": "quiet_bell",
+    "kind": "tool",
+    "rarity": "rare",
+    "count": 1,
+    "durability": 1.0
+  },
+  {
+    "id": "smoked_trout",
+    "kind": "food",
+    "rarity": "common",
+    "count": 3,
+    "durability": null
+  },
+  {
+    "id": "wardstone_chip",
+    "kind": "reagent",
+    "rarity": "uncommon",
+    "count": 5,
+    "durability": null
+  }
+]

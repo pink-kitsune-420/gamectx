@@ -1,0 +1,32 @@
+[
+ {
+  "name": "tools",
+  "priority": 10,
+  "stable": true,
+  "required": true,
+  "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ },
+ {
+  "name": "live",
+  "priority": 5,
+  "value": {
+   "hp": 3
+  }
+ },
+ {
+  "name": "lore",
+  "priority": 1,
+  "stable": true,
+  "value": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+ },
+ {
+  "name": "chatter",
+  "priority": 1,
+  "value": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+ },
+ {
+  "name": "events",
+  "priority": 5,
+  "value": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
+ }
+]

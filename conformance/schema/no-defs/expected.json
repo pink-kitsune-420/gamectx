@@ -1,0 +1,1 @@
+{"wrapper":"function","columns":["name","description","properties","extra"],"extra_null":"extra null = strict:true and parameters {type:object,additionalProperties:false,required:all property keys}","rows":[["a","A.",{"x":{"type":"string"}},null],["b","B.",{"y":{"type":"integer"}},null]]}

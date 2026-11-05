@@ -1,0 +1,18 @@
+[package]
+name = "gamectx"
+version = "0.1.0-alpha.1"
+edition = "2021"
+rust-version = "1.82"
+license = "MIT"
+authors = ["pink-kitsune-420"]
+repository = "https://github.com/pink-kitsune-420/gamectx"
+documentation = "https://docs.rs/gamectx"
+description = "Compile game data and tool schemas into small, budgeted context packets for AI-driven games."
+readme = "README.md"
+exclude = ["eval/"]
+keywords = ["llm", "game-ai", "context", "json", "tokens"]
+categories = ["game-development", "compression", "command-line-utilities"]
+
+# Zero third-party dependencies by design: the only code in this crate is its own
+# and Rust's standard library, which keeps licensing simple for anyone embedding it.
+[dependencies]

@@ -1,0 +1,55 @@
+[
+ {
+  "name": "look",
+  "parameters": {
+   "type": "object",
+   "properties": {
+    "at": {
+     "type": "string"
+    }
+   }
+  }
+ },
+ {
+  "name": "step",
+  "description": "Step.",
+  "strict": false,
+  "parameters": {
+   "type": "object",
+   "properties": {
+    "dir": {
+     "type": "string",
+     "enum": [
+      "n",
+      "s"
+     ]
+    }
+   },
+   "required": [
+    "dir"
+   ],
+   "additionalProperties": false
+  }
+ },
+ {
+  "name": "wait",
+  "description": "Wait.",
+  "strict": true,
+  "parameters": {
+   "type": "object",
+   "properties": {
+    "s": {
+     "type": "integer"
+    },
+    "t": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "t",
+    "s"
+   ],
+   "additionalProperties": false
+  }
+ }
+]

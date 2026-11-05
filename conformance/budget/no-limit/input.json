@@ -1,0 +1,11 @@
+[
+ {
+  "name": "b",
+  "value": 1
+ },
+ {
+  "name": "a",
+  "stable": true,
+  "value": 2
+ }
+]

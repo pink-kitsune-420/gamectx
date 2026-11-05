@@ -1,0 +1,1 @@
+{"packet":{"a":2,"b":1},"receipt":{"columns":["name","bytes","priority","stable"],"included":[["a",1,0,true],["b",1,0,false]],"dropped":[],"total_bytes":13}}

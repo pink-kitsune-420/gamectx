@@ -1,0 +1,27 @@
+[
+ {
+  "id": "ember_lantern",
+  "kind": "tool",
+  "count": 1
+ },
+ {
+  "id": "salt_pouch",
+  "kind": "reagent",
+  "count": 12
+ },
+ {
+  "id": "spark_flint",
+  "kind": "tool",
+  "count": 1.5
+ },
+ {
+  "id": "mend_moss",
+  "kind": "reagent",
+  "count": 7
+ },
+ {
+  "id": "ash_bread",
+  "kind": "food",
+  "count": 4
+ }
+]

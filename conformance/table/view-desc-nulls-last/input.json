@@ -1,0 +1,32 @@
+[
+ {
+  "name": "Velmi",
+  "role": "guard",
+  "dist": 12.25,
+  "trust": 0.533
+ },
+ {
+  "name": "Midor",
+  "role": "smith",
+  "dist": 3,
+  "trust": 0.21
+ },
+ {
+  "name": "Kalo",
+  "role": "guard",
+  "dist": null,
+  "trust": 0.9
+ },
+ {
+  "name": "Lodor",
+  "role": "healer",
+  "dist": 7.5,
+  "trust": -0.04
+ },
+ {
+  "name": "Beknu",
+  "role": "guard",
+  "dist": 3,
+  "trust": 0.666
+ }
+]

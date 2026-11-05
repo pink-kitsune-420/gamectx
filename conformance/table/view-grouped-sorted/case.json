@@ -1,0 +1,1 @@
+{"op": "table", "args": {"sort_by": "-trust", "fields": ["name", "role", "trust"], "group_by": "role", "round": {"trust": 2}}}

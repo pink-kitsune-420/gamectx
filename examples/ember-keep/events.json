@@ -1,0 +1,32 @@
+[
+  {
+    "t": -42,
+    "actor": "player",
+    "event": "entered",
+    "where": "hall"
+  },
+  {
+    "t": -35,
+    "actor": "player",
+    "event": "picked_up",
+    "where": "hall"
+  },
+  {
+    "t": -20,
+    "actor": "crow_sentinel",
+    "event": "called_out",
+    "where": "tower"
+  },
+  {
+    "t": -11,
+    "actor": "player",
+    "event": "lit_lantern",
+    "where": "hall"
+  },
+  {
+    "t": -3,
+    "actor": "player",
+    "event": "entered",
+    "where": "forge"
+  }
+]

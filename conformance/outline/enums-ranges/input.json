@@ -1,0 +1,67 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "cast",
+   "description": "Cast.",
+   "strict": true,
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "spell": {
+      "type": "string",
+      "enum": [
+       "spark",
+       "hush"
+      ]
+     },
+     "target": {
+      "type": "string",
+      "description": "Entity handle."
+     },
+     "power": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+     }
+    },
+    "required": [
+     "spell",
+     "target",
+     "power"
+    ],
+    "additionalProperties": false
+   }
+  }
+ },
+ {
+  "type": "function",
+  "function": {
+   "name": "roll",
+   "description": "Roll.",
+   "strict": true,
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "bias": {
+      "type": "number",
+      "minimum": -0.5,
+      "maximum": 0.5
+     },
+     "mode": {
+      "enum": [
+       1,
+       2,
+       "x"
+      ]
+     }
+    },
+    "required": [
+     "bias",
+     "mode"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

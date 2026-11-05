@@ -1,0 +1,1 @@
+{"group_by":"role","columns":["name","trust"],"groups":{"guard":[["Kalo",0.9],["Beknu",0.67],["Velmi",0.53]],"smith":[["Midor",0.21]],"healer":[["Lodor",-0.04]]}}

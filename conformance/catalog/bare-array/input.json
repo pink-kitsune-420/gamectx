@@ -1,0 +1,18 @@
+[
+ {
+  "kind": "item",
+  "id": "ember_lantern",
+  "tags": [
+   "#lights",
+   "#fire",
+   "#tools"
+  ]
+ },
+ {
+  "kind": "item",
+  "id": "glass_lantern",
+  "tags": [
+   "#lights"
+  ]
+ }
+]

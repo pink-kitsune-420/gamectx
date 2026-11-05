@@ -1,0 +1,1 @@
+{"group_by":"kind","columns":["id","count"],"groups":{"tool":[["ember_lantern",1],["spark_flint",1.5]],"reagent":[["salt_pouch",12],["mend_moss",7]],"food":[["ash_bread",4]]}}

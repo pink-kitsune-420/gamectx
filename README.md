@@ -1,0 +1,198 @@
+# gamectx
+
+Compile game data and tool schemas into small, budgeted context packets for AI-driven games.
+
+A game that asks a language model to choose NPC actions sends the same things every turn:
+action schemas, rules, inventories, recent events, and lookups into item or creature lists.
+Sent as plain JSON, most of that is repeated keys and repeated schema fragments. `gamectx`
+packs it without losing anything, trims rows and columns only when you ask, puts the parts
+that never change first so providers can cache them, and drops the least important parts
+when a turn would go over budget, with a receipt that says what was dropped.
+
+It is a Rust library and a command-line tool with **zero third-party dependencies**.
+
+> **Alpha.** The API, command-line options and packed formats may change between
+> `0.1.0-alpha` releases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
+
+**Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
+[conformance cases](conformance/README.md) · [model eval](eval/README.md)
+
+## Measured on real models
+
+The same 48 questions about one game state (8 actions, 48 inventory items, 20 NPCs) were
+asked with the data as plain compact JSON and packed by gamectx, at temperature 0, on three
+models through an OpenAI-compatible API. Input tokens are what the provider billed.
+
+| Format | Correct (144) | Avg input tokens | vs JSON |
+|---|---|---|---|
+| Plain compact JSON | 120 | 2,795 | |
+| gamectx tables | 119 | 1,862 | **−33%** |
+| gamectx tables grouped by the filtered column | **126** | **1,733** | **−38%** |
+
+Per model, grouped tables scored at least as well as JSON: Llama 3.2 3B 46 vs 43, Mistral
+Small 3.2 24B 39 vs 37, Llama 3.3 70B 41 vs 40 (of 48). Lookups, schema rules and action
+choice were near-perfect in every format; the differences came from filtering questions.
+The [eval script](eval/model_eval.py) reproduces the run for about $0.30.
+
+What the measurements show:
+
+- **Keep values as values.** A common compression trick, replacing repeated strings with
+  indexes into a lookup list, saved no tokens (words like `common` are already one token)
+  and cut accuracy from 102 to 74 of 108 on a 36-question set: even the 70B model answered
+  `7` instead of looking up what `7` meant. gamectx always writes values in full.
+- **Group by what your game filters on.** Grouping NPCs by faction made "which keepers are
+  guards?" correct 18 of 18 times, against 15 for JSON.
+- **Do numeric filters in code, or ask for brief reasoning.** Questions like "items with
+  count at least 15" were answered correctly 1 time in 27 across all formats. Asking the
+  model to list candidate rows before its final answer raised filtering accuracy from
+  37/54 to 46/54 for about 60 extra output tokens.
+
+[docs/GUIDE.md](docs/GUIDE.md) turns these results into practical rules.
+
+## What it does
+
+From the included [Ember Keep example](examples/ember-keep) (8 actions, a 10-item inventory,
+5 recent events, a 28-entry catalog):
+
+```text
+section              pack     priority stable   original     packed   saved
+actions              schema         10    yes       3182       1727   45.7%
+rules                raw             9    yes        142        142    0.0%
+action_outline       outline         1    yes       3182        314   90.1%
+inventory            table           6     no        831        444   46.6%
+recent_events        table           7     no        318        227   28.6%
+lights_nearby        catalog         3     no       1787        376   79.0%
+mood                 raw             8     no         37         37    0.0%
+all sections (bytes of compact JSON)                9479       3267   65.5%
+
+packet: 2636 bytes; budget 2700 bytes
+  dropped action_outline (314 bytes, priority 1)
+  dropped lights_nearby (376 bytes, priority 3)
+```
+
+- **Tables** (`table`, lossless): a list of objects with the same keys becomes one header
+  plus value rows. With `group_by`, rows are grouped under one column's values, which is
+  smaller still and makes filtering on that column easier for models.
+- **Views** (on tables): `sort_by` + `limit` keep only the rows that matter (the 10 nearest
+  NPCs), `fields` drops columns the decision does not need, and `round` trims long decimals.
+- **Tool schemas** (`schema`, lossless): function-calling definitions become rows, and
+  parameter rules repeated across tools move into shared `$defs`. The common strict defaults
+  collapse to `null`. This is for actions described *in the prompt* (as in the measurements
+  above, or a planner that writes action scripts). Tools passed through a provider's native
+  `tools` parameter must stay in that provider's own format.
+- **Outlines** (`outline`, lossy): `cast_spell(spell=spark|salt_ward|mend|hush,target,power:1..5)`,
+  a cheap reminder of what actions exist.
+- **Catalogs** (`catalog`): search a registry and send one small page instead of the whole list.
+  Each catalog has a `generation` fingerprint, so a follow-up page request is refused if
+  the data changed in between.
+- **Budgets**: stable sections first, then per-turn sections. Over budget, the lowest-priority
+  optional section is dropped, and required sections fail loudly instead of being cut.
+- **Token estimates**: never optimistic. Uncalibrated, one byte counts as one token. Feed it
+  the input-token counts your provider reports and it learns a per-model ratio, used with a
+  2x safety margin.
+- **Verification**: `gamectx verify` unpacks every lossless section and checks it matches
+  the original exactly, or for a table with a view, the rows the view selected. Numbers
+  keep their original text (`1.50` stays `1.50`) unless a `round` view changes them.
+
+## Quick start
+
+```bash
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.1
+# or, from a clone:
+cargo build --release
+./target/release/gamectx report examples/ember-keep/manifest.json
+./target/release/gamectx pack examples/ember-keep/manifest.json --receipt
+./target/release/gamectx verify examples/ember-keep/manifest.json
+./target/release/gamectx search examples/ember-keep/catalog.json "lanterns" --count 3
+```
+
+A manifest lists the sections of one packet:
+
+```json
+{
+  "budget_bytes": 2700,
+  "sections": [
+    {"name": "actions", "pack": "schema", "file": "tools.json", "priority": 10, "stable": true, "required": true},
+    {"name": "inventory", "pack": "table", "group_by": "kind", "file": "inventory.json", "priority": 6},
+    {"name": "nearby_npcs", "pack": "table", "file": "npcs.json", "sort_by": "distance", "limit": 10,
+     "fields": ["name", "role", "mood"], "priority": 7},
+    {"name": "lights_nearby", "pack": "catalog", "file": "catalog.json", "query": "#lights", "count": 4, "priority": 3},
+    {"name": "mood", "pack": "raw", "value": {"warden": "wary"}, "priority": 8}
+  ]
+}
+```
+
+See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
+
+### Porting
+
+The formats are defined by 51 shared [conformance cases](conformance/README.md), each an input
+plus its exact expected output. A port in Java, JavaScript or anything else is
+conformant when it passes all of them, so every project using gamectx can check itself
+against the same files.
+
+### Token calibration
+
+```bash
+# After a request whose body was 2640 bytes, the provider reported 700 input tokens:
+gamectx calibrate cal.json --scope "my-provider/my-model" --bytes 2640 --tokens 700
+gamectx report manifest.json --budget-tokens 1300 --calibration cal.json --scope "my-provider/my-model"
+```
+
+Only a hash of the scope name is stored.
+
+## Library
+
+```rust
+use gamectx::budget::{assemble_bytes, Section};
+use gamectx::{json, table};
+
+let inventory = json::parse(r#"[{"id":"salt_pouch","count":12},{"id":"ash_bread","count":4}]"#, 1 << 20)?;
+let packed = table::pack(inventory.as_array().unwrap(), None)?;
+let packet = assemble_bytes(
+    vec![Section { name: "inventory".into(), priority: 5, stable: false, required: true, value: packed }],
+    4096,
+)?;
+// {"inventory":{"columns":["id","count"],"rows":[["salt_pouch",12],["ash_bread",4]]}}
+```
+
+Games in other languages can call the `gamectx` binary, or port the formats: they are
+plain JSON and documented in [docs/FORMAT.md](docs/FORMAT.md).
+
+## Be honest with your numbers
+
+- **Bytes saved are not tokens saved.** In the run above, gamectx cut bytes by 46% but
+  tokens by 33%. Measure with your provider's reported usage, which is what `calibrate`
+  is for.
+- **Results depend on your data and models.** The numbers above are one game state and
+  three models. Test the decisions your game actually depends on, with the eval script
+  or your own.
+- **Exact counts need the provider's tokenizer.** gamectx estimates conservatively instead
+  of pretending to know.
+- **The model only proposes.** Packed context describes what exists. Your game still has to
+  validate every action the model asks for.
+
+## Related work
+
+The header-plus-rows idea is common. [TOON](https://github.com/toon-format/toon) is a full
+compact notation for LLM input, and several tools pack prompts by priority or compress tool
+schemas for coding agents. gamectx focuses on what game loops need: lossless round-trips,
+validation-first action schemas, paged registries with change detection, cache-friendly
+ordering, and calibrated budgets, in one dependency-free tool.
+
+## Contributing
+
+Bug reports, questions and measurements from your own game are welcome as GitHub issues.
+For code changes:
+
+- **No new dependencies.** gamectx uses only Rust's standard library, so anyone can embed it
+  without license or supply-chain review.
+- **The conformance cases define the formats.** `cargo test` runs all of them. A change to
+  any `conformance/**/expected.json` is a format change and needs a CHANGELOG entry
+  labelled **[format]**.
+- **Claims need numbers.** If a change is meant to save tokens or improve accuracy, include
+  results from the eval script or your own measurements.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
