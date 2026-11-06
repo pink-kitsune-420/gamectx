@@ -867,3 +867,80 @@ fn informational_tool_text_and_integer_transfer_proposals_fail_atomically() {
         }
     }
 }
+
+#[test]
+fn conversation_tool_model_text_is_bounded_and_failed_calls_preserve_private_state() {
+    let reference = parse(include_str!("../conformance/interactions/clarify_ambiguous/input.json"), 262144)
+        .unwrap()
+        .get("args")
+        .unwrap()
+        .get("operations")
+        .unwrap()
+        .as_array()
+        .unwrap()[0]
+        .get("args")
+        .unwrap()
+        .clone();
+    let offers = parse(include_str!("../conformance/interactions/offer_confirm/input.json"), 262144)
+        .unwrap()
+        .get("args")
+        .unwrap()
+        .get("operations")
+        .unwrap()
+        .as_array()
+        .unwrap()[0]
+        .get("args")
+        .unwrap()
+        .clone();
+    let evidence =
+        vec![gamectx::obj! {"id"=>"line:1","speaker"=>"player:a","text"=>"I will bring oil. I prefer quiet."}].into();
+    let seeds = [
+        ("events_recent", r#"{"since":0,"subject":null,"limit":8}"#),
+        (
+            "promise_remember",
+            r#"{"promisor":"player:a","beneficiary":"npc:merchant","task":"bring oil","source":"line:1"}"#,
+        ),
+        ("promise_lookup", r#"{"participant":"player:a","limit":8}"#),
+        ("relationship_note", r#"{"other":"player:a","note":"Prefers quiet.","source":"line:1"}"#),
+        ("relationship_lookup", r#"{"other":"player:a","limit":8}"#),
+        ("dialogue_resolve", r#"{"kind":"item"}"#),
+        ("interaction_offers", r#"{"limit":8}"#),
+        ("interaction_offer", r#"{"id":"offer:1"}"#),
+    ];
+    let mut rng = Rng(0x1237_9870_65aa_42bb);
+    for i in 0..20_000 {
+        let mut t = gamectx::dialogue::InteractionTools::new(
+            "scene:shop",
+            "npc:merchant",
+            &vec!["npc:merchant", "player:a", "player:b"].into(),
+        )
+        .unwrap();
+        t.set_references(&reference).unwrap();
+        t.set_offers(&offers).unwrap();
+        let before = t.to_value();
+        let (name, seed) = seeds[i % seeds.len()];
+        let input = mutate(&mut rng, seed);
+        match t.call(name, &input, &evidence, 7, 2048, |_| true) {
+            Err(_) => assert_eq!(before, t.to_value()),
+            Ok(value) => {
+                assert!(value.json_len() <= 2048);
+                assert_eq!(parse(&value.to_json(), 2048).unwrap(), value);
+                if matches!(name, "promise_remember" | "relationship_note") {
+                    assert_eq!(value.get("status"), Some(&Value::str("reported")));
+                }
+            }
+        }
+    }
+    for i in 0..10_000 {
+        let seed = if i % 2 == 0 {
+            include_str!("../conformance/interactions/offer_other_player/input.json")
+        } else {
+            include_str!("../conformance/interactions/promise_lifecycle/input.json")
+        };
+        if let Ok(v) = parse(&mutate(&mut rng, seed), 1_048_576) {
+            if let Ok(result) = gamectx::local::process(&v) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).unwrap(), result);
+            }
+        }
+    }
+}

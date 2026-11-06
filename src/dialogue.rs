@@ -1,5 +1,7 @@
 //! Scene-scoped whole exchanges and protected scene hydration. Conversation text remains
 //! data; old history is never silently promoted into authoritative facts or summaries.
+mod interactions;
+pub use interactions::{interaction_workflow, InteractionTools};
 mod references;
 pub use references::resolve_references;
 mod answers;

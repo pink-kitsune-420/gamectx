@@ -6,6 +6,8 @@
 //!
 //! - [`request`], [`dialogue`], [`decision`], [`deployment`], [`turn`]: full-request budgets, protected scenes, bounded choices and local deployment telemetry.
 //! - [`selection`], [`tune`]: dependency-complete host evidence and split recorded-configuration comparisons.
+//! - [`info`], [`inventory`]: optional reported information tools and current ownership/count lookup.
+//!   [`dialogue::InteractionTools`] adds scoped events, promises, relationships, references and offers.
 //! - [`kit`]: shared data registration, named recipes, validated callbacks, inspection and host bridges.
 //! - [`context`]: the easy API ([`Context`], [`Turn`], [`Table`]).
 //! - [`table`]: uniform objects to a header plus rows, optionally grouped by one or more

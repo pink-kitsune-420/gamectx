@@ -261,3 +261,10 @@ mod info_tools_example;
 fn documented_information_tools_example() -> gamectx::Result<()> {
     info_tools_example::main()
 }
+
+#[path = "../examples/conversation_tools.rs"]
+mod conversation_tools_example;
+#[test]
+fn documented_conversation_tools_example() -> gamectx::Result<()> {
+    conversation_tools_example::main()
+}

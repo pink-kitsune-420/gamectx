@@ -1551,3 +1551,17 @@ most 32 entries. No outer state is changed if initial validation fails.
 Lore version 2 is additive: `value` replaces `text`, with at most 4096 serialized bytes
 per value. Selection packets preserve that field. Mixed-version fields are rejected.
 All version-1 lore output remains byte-identical. See [LORE.md](LORE.md).
+
+
+## Conversation tool workflow (unreleased)
+
+Additive local kind `interactions` accepts `{scope,actor,participants,operations}` with
+at most 128 operations. An operation is exactly `{op,args}`: host operations `event`,
+`progress`, `references`, `offers`, `respond`, `clear`, or model-dispatch operation `call`.
+Call args are `{name,text,sources,revision,max_bytes,allowed}`; `allowed` is a host list
+of at most 32 exact decisions. `respond` args are `{recipient,revision,confirm,terms,allowed}`.
+`clear` args are `{}`. Other host records and all model arguments follow
+[INTERACTIONS.md](INTERACTIONS.md). Results are `{state,results}`; per-operation results
+use `{ok:true,result}` or `{ok:false}`. State is private host inspection, not a model packet.
+Invalid initial configuration rejects the workflow. Model-call failures are atomic;
+recipient confirmation follows the existing one-attempt consumption contract.

@@ -56,6 +56,11 @@ supported. Claims never change inventory. See [the runnable example](examples/in
 Structured lore and `--dialogue natural` are available experimentally; local tests still
 show factual hallucinations, so source selection remains the default.
 
+Optional [conversation tools](docs/INTERACTIONS.md) add witnessed events, promises,
+relationship notes, clarification and recipient-bound offers. Explicit participant IDs
+support multiplayer hosts; the dungeon remains a single-player example. Enable tools
+selectively and keep execution in the game. [Runnable example](examples/conversation_tools.rs).
+
 The reusable [lore and answer APIs](docs/LORE.md) keep the Rust core dependency-free.
 [Local tests](docs/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local

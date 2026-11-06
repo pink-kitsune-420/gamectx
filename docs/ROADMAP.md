@@ -167,6 +167,12 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## New local work (unreleased)
 
+- Optional conversation tools: 87 independent Python/Rust workflows, 47 new conformance
+  cases, 30000 mutations. Explicit participant scopes, visible events, reported promises/
+  relationships, host progress, bound original-utterance references and recipient consent.
+  Two recent records from 80 authorized events: 8589→231 bytes; eight schemas 3127 bytes.
+  Context selection, not lossless compression/model accuracy; all checks $0 API.
+
 - Optional informational notes and inventory lookup: 39 Python/Rust byte comparisons and
   additive conformance cases, 30000 mutations. Reported claims retain original sources;
   multiple owners, tags, unique IDs and atomic host transfers remain engine-controlled.
@@ -179,10 +185,9 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Next candidates
 
-- Implement optional conversation tools in order: witnessed recent events, promises,
-  evidence-backed relationship memory, clarification, then host-validated offers. Reuse
-  existing evidence/reference/confirmation APIs. Accept explicit participant IDs and
-  visibility scopes for multiplayer hosts; the dungeon remains a single-player example.
+- Evaluate conversation tool selection/claim extraction on fresh local-model dialogues
+  and multiplayer transcripts. Current new tools have deterministic format/privacy checks,
+  not live selection accuracy or complete-turn latency/RAM results.
 - Model-callable notes/ownership tools need live tool-use and integration evaluation;
   current checks establish format/safety and byte cost, not model understanding.
 - Natural phrasing remains experimental: both broad and narrowed prompts hallucinate

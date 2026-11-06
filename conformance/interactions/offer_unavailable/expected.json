@@ -1,0 +1,1 @@
+{"state":{"scope":"scene:shop","actor":"npc:merchant","participants":["npc:merchant","player:a","player:b"],"events":[],"notes":[],"progress":[],"used":[],"pending":null},"results":[{"ok":true,"result":{"offers":1}},{"ok":true,"result":{"records":[]}},{"ok":false}]}

@@ -191,3 +191,11 @@ registered recipes. Hosts bind audience scope, source evidence and visible owner
 callbacks; model arguments cannot widen access. Reported notes are separate from authoritative
 snapshots and `FactRegistry`. Structured lore version 2 and experimental natural phrasing
 are additive; source selection remains the dungeon default after failed grounding diagnostics.
+
+
+[Conversation tool adapters](INTERACTIONS.md) reuse the information notebook, reference
+resolver and pending confirmation contracts. Bind actor, participants, evidence and current
+revision in the host handler. Select individual schemas through `InteractionTools::tools`;
+no automatic model/guidance default changes. Several players can participate in one shared
+scope, or use separate private scopes. Host events and accepted offers still require engine
+transactions and visibility policy; the library provides no networking or authentication.

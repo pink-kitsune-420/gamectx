@@ -599,3 +599,13 @@ trade's revision and host permissions before committing. Several player IDs can 
 no single-player constant is required. See [contracts and limits](INFO.md) and the
 [executable example](../examples/info_tools.rs). Include every enabled schema and tool result
 in the full-request budget; these tools do not automatically improve model accuracy.
+
+
+## Let characters respond to consequences
+
+Use `dialogue::InteractionTools` to publish witnessed changes, retain reported promises
+and preferences, resolve ambiguous references, and propose exact host-enumerated offers.
+Publish progress only after game validation. Bind private scopes and specific offer
+recipients so one player's conversation cannot approve another player's transaction.
+The [tested multiplayer-capable API example](../examples/conversation_tools.rs) shows the
+flow without networking or model calls. [Contracts and context costs](INTERACTIONS.md).

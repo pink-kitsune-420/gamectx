@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds individually selectable conversation tools for witnessed events, reported
+  promises and relationship notes, original-utterance reference resolution and exact
+  recipient-bound offers. Supports explicit participant IDs/private scopes; the dungeon
+  remains single-player. Progress, consent and execution stay host-controlled.
+- **[format]** Adds local `interactions` workflow, 47 conformance cases and 87 independent
+  Python/Rust comparisons; all 700 previous cases unchanged. Adds 30000 mutation attempts
+  and a tested API example. Existing format contracts are preserved.
+- **[docs]** In a 120-event fixture, 80 authorized records occupy 8589 bytes; two selected
+  records 231. Eight optional schemas total 3127 bytes. Byte-size evidence only; no live
+  tool-selection accuracy/latency/RAM claim, no automatic defaults and $0 API spend.
+
 - **[api]** Adds optional model-callable informational notes and read-only inventory
   lookup, source-bound reported claims, multiple owner IDs, unique instances, tag/count
   rows and atomic host-validated integer transfers. Notes never promote themselves to

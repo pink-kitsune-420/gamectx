@@ -1,0 +1,19 @@
+{
+  "events": 120,
+  "authorized": 80,
+  "selected": 2,
+  "all_authorized_bytes": 8589,
+  "selected_bytes": 231,
+  "all_schema_bytes": 3127,
+  "schema_bytes": {
+    "events_recent": 422,
+    "promise_remember": 518,
+    "promise_lookup": 377,
+    "relationship_note": 487,
+    "relationship_lookup": 345,
+    "dialogue_resolve": 344,
+    "interaction_offers": 289,
+    "interaction_offer": 336
+  },
+  "api_spend_usd": 0
+}

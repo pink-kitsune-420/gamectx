@@ -4,7 +4,7 @@ use crate::{checked as c, obj, request::bounded, Result, Value};
 fn text<'a>(v: &'a Value, key: &str) -> Result<&'a str> {
     c::text(c::get(v, key)?)
 }
-fn sources(v: &Value) -> Result<&[Value]> {
+pub(crate) fn sources(v: &Value) -> Result<&[Value]> {
     bounded(v, 65536)?;
     let rows = c::list(v)?;
     if rows.len() > 16 {
@@ -96,6 +96,9 @@ impl Notes {
             tool("info_remember","Record a reported claim using a supplied source ID. This changes no game facts, ownership or inventory.",obj!{"subject"=>string.clone(),"attribute"=>string.clone(),"value"=>obj!{},"source"=>string},vec!["subject","attribute","value","source"]),
             tool("info_forget","Forget one notebook claim by ID. This changes no game facts.",obj!{"id"=>obj!{"type"=>"integer","minimum"=>1,"maximum"=>u32::MAX}},vec!["id"])
         ].into()
+    }
+    pub(crate) fn records(&self) -> &[Value] {
+        &self.notes
     }
     pub fn to_value(&self) -> Value {
         obj! {"scope"=>self.scope.clone(),"notes"=>self.notes.clone()}

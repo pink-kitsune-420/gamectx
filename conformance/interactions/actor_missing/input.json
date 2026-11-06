@@ -1,0 +1,12 @@
+{
+  "kind": "interactions",
+  "args": {
+    "scope": "scene:shop",
+    "actor": "foreign",
+    "participants": [
+      "npc:merchant",
+      "player:a"
+    ],
+    "operations": []
+  }
+}

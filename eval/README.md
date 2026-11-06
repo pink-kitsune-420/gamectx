@@ -1094,3 +1094,19 @@ frozen broad prototype; default version 2 uses narrower facts. Both retained tri
 20/20 structurally valid replies but factual failures. Do not equate shape acceptance with
 accuracy, and do not infer latency/RAM improvements from these overlapping diagnostics.
 [Raw-result interpretation](../docs/LORE_EVAL.md).
+
+
+## Optional conversation tools
+
+```bash
+cargo build --locked --bin gamectx --example conversation_tools
+python3 -I eval/interaction_cases.py --cap 0
+python3 -I eval/interaction_measure.py --cap 0 --check eval/interaction-results.json
+cargo run --locked --example conversation_tools
+```
+
+87 Python/Rust workflows, 47 new conformance fixtures (700 prior unchanged), 30000 mutation
+attempts. The 120-event byte fixture selects two records from 80 authorized events:
+8589→231 bytes. Eight schema bytes total 3127; enable only useful tools for each turn.
+All checks are offline, $0 API, and do not establish live-model accuracy or latency.
+[Privacy, multiplayer and consent contracts](../docs/INTERACTIONS.md).

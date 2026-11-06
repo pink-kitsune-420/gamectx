@@ -1,0 +1,12 @@
+{
+  "kind": "interactions",
+  "args": {
+    "scope": "",
+    "actor": "npc:merchant",
+    "participants": [
+      "npc:merchant",
+      "player:a"
+    ],
+    "operations": []
+  }
+}

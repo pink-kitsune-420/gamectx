@@ -1,0 +1,211 @@
+{
+  "kind": "interactions",
+  "args": {
+    "scope": "scene:shop",
+    "actor": "npc:merchant",
+    "participants": [
+      "npc:merchant",
+      "player:a",
+      "player:b"
+    ],
+    "operations": [
+      {
+        "op": "event",
+        "args": {
+          "id": "trade:1",
+          "turn": 5,
+          "subject": "item:oil",
+          "kind": "ownership",
+          "value": {
+            "from": "npc:merchant",
+            "to": "player:a",
+            "count": 1
+          },
+          "audience": [
+            "npc:merchant",
+            "player:a"
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "promise_remember",
+          "text": "{\"promisor\":\"player:a\",\"beneficiary\":\"npc:merchant\",\"task\":\"bring hinge oil\",\"source\":\"line:1\"}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "relationship_note",
+          "text": "{\"other\":\"player:a\",\"note\":\"Prefers quiet conversation.\",\"source\":\"line:1\"}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "offers",
+        "args": [
+          {
+            "recipient": "player:a",
+            "offer": {
+              "id": "offer:1",
+              "scope": "scene:shop",
+              "revision": 7,
+              "decision": {
+                "action": "trade",
+                "target": "item:oil"
+              },
+              "terms": {
+                "item": "item:oil",
+                "coins": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "interaction_offer",
+          "text": "{\"id\":\"offer:1\"}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "clear",
+        "args": {}
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "events_recent",
+          "text": "{\"since\":0,\"subject\":null,\"limit\":8}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "promise_lookup",
+          "text": "{\"participant\":\"player:a\",\"limit\":8}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "relationship_lookup",
+          "text": "{\"other\":\"player:a\",\"limit\":8}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "promise_remember",
+          "text": "{\"promisor\":\"player:a\",\"beneficiary\":\"npc:merchant\",\"task\":\"bring hinge oil\",\"source\":\"line:1\"}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

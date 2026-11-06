@@ -1,0 +1,75 @@
+{
+  "kind": "interactions",
+  "args": {
+    "scope": "scene:shop",
+    "actor": "npc:merchant",
+    "participants": [
+      "npc:merchant",
+      "player:a",
+      "player:b"
+    ],
+    "operations": [
+      {
+        "op": "references",
+        "args": {
+          "entities": [
+            {
+              "id": "key:bronze",
+              "label": "bronze key",
+              "kind": "item",
+              "aliases": [
+                "key",
+                "bronze key"
+              ]
+            },
+            {
+              "id": "key:iron",
+              "label": "iron key",
+              "kind": "item",
+              "aliases": [
+                "key",
+                "iron key"
+              ]
+            }
+          ],
+          "input": "give it",
+          "kind": null,
+          "scope": "scene:shop",
+          "revision": 7,
+          "max_age": 4,
+          "focus": {
+            "id": "key:iron",
+            "scope": "scene:shop",
+            "revision": 6
+          },
+          "selection": null,
+          "pronouns": [
+            "it"
+          ]
+        }
+      },
+      {
+        "op": "call",
+        "args": {
+          "name": "dialogue_resolve",
+          "text": "{\"kind\":\"item\"}",
+          "sources": [
+            {
+              "id": "line:1",
+              "speaker": "player:a",
+              "text": "I promise to bring you hinge oil. I prefer quiet conversation."
+            }
+          ],
+          "revision": 7,
+          "max_bytes": 2048,
+          "allowed": [
+            {
+              "action": "trade",
+              "target": "item:oil"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"state":{"scope":"scene:shop","actor":"npc:merchant","participants":["npc:merchant","player:a","player:b"],"events":[],"notes":[],"progress":[],"used":[],"pending":null},"results":[{"ok":true,"result":{"ready":true}},{"ok":true,"result":{"reason":"ambiguous","candidates":[{"id":"key:bronze","label":"bronze key"},{"id":"key:iron","label":"iron key"}]}}]}
