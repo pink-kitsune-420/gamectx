@@ -23,6 +23,8 @@ jobs:
       - run: python3 -I eval/test_query_workflow.py
       - run: python3 -I eval/test_brain.py
       - run: python3 -I eval/test_brain_accuracy.py
+      - run: python3 -I eval/test_brain_cache.py
+      - run: python3 -I eval/brain_cache_eval.py --check
       - run: python3 -I eval/brain_accuracy_eval.py --check
       - run: python3 -I eval/brain_eval.py --check
       - run: python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0

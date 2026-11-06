@@ -558,6 +558,29 @@ brain's metrics. `trials` still describes every proposed final candidate, includ
 ineligible ones. Report order follows the example. Inference and saved-state formats
 are unchanged. A reused validation set can overfit; the gate is not a gameplay guarantee.
 
+### Optional prediction cache
+
+`CachedBrain::new(brain, capacity)` owns one already parsed `Brain`, with a FIFO cache
+of 0–256 predictions. Zero disables caching. A key contains every input in declared
+order, normalized to the existing integer millionths (missing/null remain unknown),
+the eligible-output bit mask, normalized score/margin thresholds and current revision.
+Input object order and eligible-output order do not change a key. There is no additional
+quantization or approximation. All input/eligibility/threshold validation runs before
+lookup; a hit returns an owned prediction identical to normal inference.
+
+`brain()` borrows read-only; `brain_mut()` clears entries before lending mutable access.
+This invalidates training, lessons, undo and replacement even when the replacement has
+the same revision. Rejected changes also clear conservatively. `into_brain()` returns
+the owned brain. Each wrapper has independent learning and entries. `clear()` removes
+entries while preserving lifetime counters. `stats()` exposes `hits`, `misses`, `entries`
+and `capacity`; invalid requests count as neither hits nor misses, counters saturate,
+and hits do not refresh FIFO age. Cache entries never appear in saved learning.
+
+The cache has no clock or world access. Hosts supply current observations and eligible
+reactions on every call and validate actions before execution. It caches utility
+predictions, not permission to act. Retaining a compiled brain avoids reparsing at each
+tick; cloning a preloaded template gives independent owners the same initial learning.
+
 ### Tools and command line
 
 `brain::tools()` returns `create_brain`, `inspect_brain`, `run_brain`, `teach_brain`,
@@ -576,6 +599,11 @@ Dense configuration has exactly `inputs`, `outputs`, `hidden`, `seed` (an unsign
 integer). Each operation is `{op,args}`, where op is `inspect`, `run`, `teach`, `train`,
 `train_select`, `undo`. Output is `{"results":[...],"state":...}`. An operation error fails the workflow;
 no files or external state are changed. `gamectx brain --tools` prints the tool schemas.
+
+`gamectx brain WORKFLOW.json --cache N` uses `brain::process_cached` for one workflow,
+with the same capacity bounds and byte-identical results/state. Run operations use the
+cache, inspection preserves it and mutating operations clear it. The ordinary command
+and `brain::process` remain uncached. Separate CLI invocations do not share entries.
 
 ## Receipt
 

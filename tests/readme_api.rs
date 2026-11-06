@@ -146,3 +146,21 @@ fn brain_selection_readme_example() -> gamectx::Result<()> {
     assert_eq!(brain.to_value().get("history").unwrap().as_array().unwrap().len(), 1);
     Ok(())
 }
+
+#[test]
+fn preloaded_cache_readme_example() -> gamectx::Result<()> {
+    use gamectx::brain::{Brain, CachedBrain};
+    let saved = include_str!("../examples/brain/preloaded.json");
+    let template = Brain::restore_json(saved)?;
+    let mut actor = CachedBrain::new(template.clone(), 32)?;
+    let other = CachedBrain::new(template, 32)?;
+    let input = obj! {"danger" => 0.8,"need" => 0.5};
+    let result = actor.run(&input, &["withdraw", "assist"])?;
+    assert_eq!(actor.run(&input, &["withdraw", "assist"])?, result);
+    assert_eq!(actor.stats().hits, 1);
+    actor.brain_mut().undo(1)?;
+    assert_eq!(actor.stats().entries, 0);
+    assert_ne!(actor.run(&input, &["withdraw", "assist"])?, result);
+    assert_eq!(other.brain().revision(), 1);
+    Ok(())
+}

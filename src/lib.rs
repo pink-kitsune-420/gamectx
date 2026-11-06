@@ -20,7 +20,7 @@
 //!   filters and totals models get wrong when they read the data themselves.
 //!   Table descriptions keep rows in the game; correction sessions allow one retry.
 //! - [`brain`]: small game-defined reaction networks with deterministic local inference,
-//!   guarded training, bounded weight lessons, persistence and undo.
+//!   guarded training, bounded weight lessons, persistence, undo and optional prediction caching.
 //! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
 //! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
 //!

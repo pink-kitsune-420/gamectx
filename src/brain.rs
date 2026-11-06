@@ -18,9 +18,11 @@
 
 use crate::json::{Error, Result, Value};
 
+mod cache;
 mod learn;
 mod tools;
-pub use tools::{create_call, process, tools};
+pub use cache::{CacheStats, CachedBrain, MAX_CACHE_ENTRIES};
+pub use tools::{create_call, process, process_cached, tools};
 
 const S: i64 = 1_000_000;
 pub const MAX_INPUTS: usize = 16;

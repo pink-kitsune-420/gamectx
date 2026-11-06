@@ -38,6 +38,7 @@ A case passes when:
 | `query-schema` | object of named tables | | column types and complete small string domains |
 | `query-session` | object of named tables | `calls` (argument objects), `result_bytes` (default 4096) | one feedback envelope per call; requests after a terminal reply are errors |
 | `brain`, `brain-select` | exactly one of `definition`, `dense`, `state`, plus `operations:[{op,args}]` | | `{"results":[...],"state":...}`; see [Reaction brains](../docs/FORMAT.md#reaction-brains); `brain-select` cases exercise opt-in rate selection |
+| `brain-cache` | same workflow as `brain` | `capacity` (default 32, range 0–256) | identical results/state through an ephemeral FIFO prediction cache; includes mutation, disabled-cache and error cases |
 | `memory` | saved memory | `relevant_to`, `count` (default 8) | the recalled records as a table |
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |
 

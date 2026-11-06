@@ -158,6 +158,10 @@ fn cli_brain_workflows_and_tools() {
     let reports = result.get("results").unwrap().as_array().unwrap();
     assert_eq!(reports[0].get("accepted"), Some(&gamectx::Value::Bool(true)));
     assert_eq!(reports[0].get("trials").unwrap().as_array().unwrap().len(), 3);
+    let cached =
+        Command::new(env!("CARGO_BIN_EXE_gamectx")).args(["brain", selection, "--cache", "32"]).output().unwrap();
+    assert!(cached.status.success());
+    assert_eq!(String::from_utf8(cached.stdout).unwrap(), format!("{}\n", result.to_json()));
 }
 
 #[test]

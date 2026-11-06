@@ -13,6 +13,15 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds `brain::CachedBrain`, `CacheStats`, `process_cached` and CLI
+  `brain WORKFLOW --cache N`. Bounded FIFO prediction caching is opt-in, clears on
+  mutable access and never enters saved learning. Preload once and clone compiled
+  templates for independent owners. Local release measurements: 1.7–2.0× faster for
+  repeated states, 1.8–1.85× slower with no hits; template cloning 15.9–17.2× faster
+  than restoring saved JSON for each actor. No API calls.
+- **[format]** Adds six `brain-cache` conformance cases exercising the existing workflow
+  through the optional cache, including errors. All 220 previous cases are unchanged;
+  cached results and saved learning use the existing format.
 - **[format]** Adds opt-in `train_select` brain workflows/reports and the
   `train_select_brain` tool; 17 new conformance cases. All 203 previous cases stay
   byte-identical, including existing brain training, inference and saved learning.

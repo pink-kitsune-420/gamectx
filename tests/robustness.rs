@@ -241,6 +241,36 @@ fn brain_rate_selection_text_never_panics_or_partially_updates() {
 }
 
 #[test]
+fn cached_brain_workflow_text_matches_uncached_execution() {
+    use gamectx::brain;
+    let seeds = [
+        include_str!("../conformance/brain-cache/repeated-normalized/input.json"),
+        include_str!("../conformance/brain-cache/masks-thresholds-unknown/input.json"),
+        include_str!("../conformance/brain-cache/learning-and-undo/input.json"),
+    ];
+    let mut rng = Rng(0xCAC4_ED01_54FE_1234);
+    let mut accepted = 0;
+    for i in 0..10_000 {
+        let text = if i % 4 == 0 {
+            // Include targeted numeric edits so valid cache keys vary too; random
+            // punctuation edits mostly invalidate the larger workflow envelope.
+            seeds[0].replace("0.8", ["0", "null", "0.3", "1", "-1", "true"][rng.below(6)])
+        } else {
+            mutate(&mut rng, seeds[i % seeds.len()])
+        };
+        let Ok(value) = parse(&text, 1 << 16) else { continue };
+        let plain = brain::process(&value).map(|value| value.to_json()).map_err(|error| error.to_string());
+        let cached =
+            brain::process_cached(&value, i % 5).map(|value| value.to_json()).map_err(|error| error.to_string());
+        if plain.is_ok() {
+            accepted += 1;
+        }
+        assert_eq!(cached, plain, "cache must preserve valid results and reject the same model text");
+    }
+    assert!(accepted > 100, "exercise valid mutated workflows as well as errors: {accepted}");
+}
+
+#[test]
 fn deep_nesting_is_refused_not_overflowed() {
     let deep = "[".repeat(100_000) + &"]".repeat(100_000);
     assert!(parse(&deep, usize::MAX).is_err());

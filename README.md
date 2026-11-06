@@ -185,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 220 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 226 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -388,6 +388,51 @@ gamectx brain examples/brain/selection.json
 
 This metric assumes all outputs are eligible and zero score/margin thresholds. Check
 host gameplay metrics separately when using state-dependent eligibility or other thresholds.
+
+### Preload brains and cache repeated states
+
+Load and validate saved learning once at startup. Retain the compiled `Brain`, or clone
+a template for actors that should learn independently. `CachedBrain` adds an optional
+bounded prediction cache:
+
+```rust
+use gamectx::brain::{Brain, CachedBrain};
+use gamectx::obj;
+
+let saved = include_str!("examples/brain/preloaded.json");
+let template = Brain::restore_json(saved)?;
+let mut actor = CachedBrain::new(template.clone(), 32)?;
+let other = CachedBrain::new(template, 32)?;
+let input = obj! {"danger" => 0.8,"need" => 0.5};
+let result = actor.run(&input, &["withdraw", "assist"])?;
+assert_eq!(actor.run(&input, &["withdraw", "assist"])?, result);
+assert_eq!(actor.stats().hits, 1);
+actor.brain_mut().undo(1)?;
+assert_eq!(actor.stats().entries, 0);
+assert_ne!(actor.run(&input, &["withdraw", "assist"])?, result);
+assert_eq!(other.brain().revision(), 1);
+```
+
+Capacity is 0–256 entries; zero disables caching. Keys include normalized inputs,
+eligible reactions, thresholds and revision. Mutable access clears entries before
+training, undo or replacement, including replacement at the same revision. Saved
+learning excludes cached predictions. The host still supplies fresh observations and
+checks actions against the current world.
+
+In the [offline release benchmark](eval/README.md#brain-preloading-and-prediction-caching),
+20,000 predictions over repeated states took 15.939–19.223 ms cached versus
+29.161–36.524 ms uncached across two network sizes and two reuse patterns
+(1.7–2.0× faster). With no hits, caching was 1.8–1.85× slower. Check `stats()` for your
+workload; caching is opt-in. Cloning a compiled template was 15.9–17.2× faster than
+restoring the same saved JSON per actor in this local measurement.
+
+```bash
+cargo run --example preloaded-brains
+gamectx brain examples/brain/workflow.json --cache 32
+```
+
+The CLI cache lives for one workflow; output and saved state remain byte-identical.
+API spend for these measurements: $0.
 
 ## Be honest with your numbers
 

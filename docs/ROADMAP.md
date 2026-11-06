@@ -25,6 +25,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Schema-only descriptions, explicit weight fields and bounded correction sessions | On 3 held-out states (24/48/96 inventory rows, 10/20/40 NPCs), full tables 160/174 first → 171/174 after retry; schemas 169/174 → 172/174. Final answer scores identical to executed-query scores. Complete-exchange average input 4,898.632 → 1,615.874 (−67.0%); completed-exchange cost $0.107952 → $0.038804 (−64.1%). 23 new cases; 547 measured attempt envelopes byte-identical to Python. |
 | Generic adaptive local reaction brains | Offline reference-policy agreement on four tasks: random 545/1,536 → trained 1,421/1,536 (fresh seeds 707/808/909); changed preference 264/384 → 384/384 (seeds 1001/1002/1003). Graphs, training, pins, validation gates, persistence/undo; 41 new cases, 30,000 text mutations, 292 byte-identical workflows including 2,304 predictions. No API calls. |
 | Opt-in validation-reaction rate selection | Fresh paired seeds 2001/2002/2003: single rate 1,436/1,536 → selected 1,487/1,536; nonlinear task 315/384 → 359/384. Rates chosen only on validation data; about 3× estimated training work, identical inference. 17 new cases, 45 byte-identical selection workflows/1,536 predictions; 10,000 additional text mutations. No API calls. |
+| Preloaded templates and opt-in bounded prediction caching | Local release medians, five trials: 20,000 repeated-state predictions 15.939–19.223 ms cached vs 29.161–36.524 ms uncached (1.7–2.0×); cloning 1,000 templates 1.412/8.952 ms vs JSON restore 24.238/142.615 ms (small/large). Independent owners, 0–256 FIFO entries, mutation invalidation; six new cases, 64 byte-identical cached workflows and 10,000 workflow mutations. No API calls. |
 
 ## Measured and rejected
 
@@ -40,6 +41,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Straight-through gradients at every brain node | Diagnostic seeds 101/202/303: 1,243/1,536 versus 1,430/1,536 with output-only straight-through gradients. Strict clamp gradients scored 1,424/1,536 but failed the saturated-output adaptation test; use output-only recovery. |
 | More examples alone as a universal brain-accuracy fix | At equal 4,096 training sample-visits, switch validation MSE improved 0.012898 → 0.009566 but correct reactions fell 110/128 → 103/128 (32 → 128 training examples). More data can help other tasks; decision quality needs its own check. |
 | One universal initializer/rate | Switch validation scores ranged 74/128 (initializer 1) to 114/128 (7), versus 110/128 (3). Rate 0.3 helped switch (119/128) but hurt support (116/128 vs 119/128 at 0.1); use bounded validation selection without resetting an existing brain's learned state. |
+| Always-on brain prediction caching | Cycling 256 distinct states through 32 slots: 0 hits/20,000 calls; small network 29.011 ms uncached → 53.640 ms cached, large 37.100 → 67.276 ms (1.8–1.85× slower). Keep caching opt-in with counters; no approximate input bucketing added. |
 
 ## Next candidates
 
@@ -47,6 +49,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - Clearer top-N aggregate guidance: Mistral still generates subqueries after a correction in some cases.
 - Explicit categorical semantics (e.g. rarity label `unique` versus count = 1), tested on fresh holdout seeds.
 - Reaction-brain feedback from real hosts and unseen policy families; native input adapters, held-out gameplay metrics and scheduling remain integration work.
+- Reusable inference scratch buffers or typed predictions for changing-state workloads; benchmark before adding API surface.
 - Sending only what changed between turns, for games that keep chat history.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.

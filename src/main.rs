@@ -33,9 +33,10 @@ USAGE:
   gamectx query --session <tables.json> [--result-bytes N]
       Read JSON argument objects (one per line) from stdin; print one JSON reply per attempt. A query error
       allows one correction. Success or the second failure ends the session.
-  gamectx brain <workflow.json>
+  gamectx brain <workflow.json> [--cache N]
       Run a bounded local reaction-network workflow; prints results and saved state.
-      - reads stdin. gamectx brain --tools prints model tool schemas.
+      - reads stdin. --cache uses a bounded per-workflow prediction cache (0..256 entries).
+      gamectx brain --tools prints model tool schemas.
   gamectx calibrate <calibration.json> --scope NAME --bytes N --tokens N [--estimate N]
       Record one provider usage report (input tokens for a request body of N bytes).
 
@@ -199,7 +200,7 @@ fn run(raw: &[String]) -> Result<()> {
             Ok(())
         }
         "brain" => {
-            args.only(&[], 1)?;
+            args.only(&["--cache"], 1)?;
             let mut text = String::new();
             let cap = gamectx::brain::MAX_STATE_BYTES as u64 + 1;
             if args.positional[0] == "-" {
@@ -212,7 +213,11 @@ fn run(raw: &[String]) -> Result<()> {
                     .map_err(|e| Error::new(e.to_string()))?;
             }
             let input = gamectx::json::parse(&text, gamectx::brain::MAX_STATE_BYTES)?;
-            println!("{}", gamectx::brain::process(&input)?.to_json());
+            let output = match args.number("--cache")? {
+                Some(capacity) => gamectx::brain::process_cached(&input, capacity)?,
+                None => gamectx::brain::process(&input)?,
+            };
+            println!("{}", output.to_json());
             Ok(())
         }
         "query" if args.has("--tool") => {

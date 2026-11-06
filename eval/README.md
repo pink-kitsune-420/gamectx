@@ -252,3 +252,62 @@ additional model-text mutations. All old format outputs remain unchanged.
 Limits: same synthetic task families and one initializer in final evaluation; all-output
 eligibility and zero thresholds. Multiple trials can overfit validation data, and the
 metric gate gives no guarantee on unseen distributions or state-dependent host action masks.
+
+## Brain preloading and prediction caching
+
+`brain_cache_eval.py` prototypes a bounded per-owner FIFO cache entirely offline. It
+normalizes inputs using the existing fixed-point rules and includes eligibility,
+thresholds and revision. `brain_cache_bench.rs` measures the implemented release API,
+with byte-equality assertions against uncached predictions outside the timed loops.
+
+```bash
+python3 -I eval/brain_cache_eval.py
+python3 -I eval/test_brain_cache.py
+cargo build --release --locked
+python3 -I eval/brain_cache_eval.py --check
+rustc --edition=2021 -O eval/brain_cache_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/brain-cache-bench
+./target/brain-cache-bench > eval/brain-cache-results.json
+cargo run --example preloaded-brains
+```
+
+The [saved local measurements](brain-cache-results.json) report medians of five trials,
+20,000 predictions per trial, capacity 32. Trial order alternates cached/uncached. Inputs
+are prepared before timing. Small networks have four inputs, four hidden nodes and two
+outputs (30 parameters); large networks have four inputs, 16 hidden nodes and four
+outputs (148 parameters). Both use deterministic dense initialization. `repeated` uses
+one state, `working_set` cycles 16 states, and `churn` cycles 256 states through 32 slots.
+Timings include validation and owned JSON prediction values; they exclude serialization.
+
+| Network | Pattern | Uncached median ns | Cached median ns | Hits / misses |
+|---|---|---:|---:|---:|
+| Small | repeated | 31,316,135 | 15,938,668 | 19,999 / 1 |
+| Small | working_set | 29,160,784 | 16,990,950 | 19,984 / 16 |
+| Small | churn | 29,010,868 | 53,640,316 | 0 / 20,000 |
+| Large | repeated | 36,523,550 | 19,222,841 | 19,999 / 1 |
+| Large | working_set | 34,732,697 | 19,185,174 | 19,984 / 16 |
+| Large | churn | 37,100,149 | 67,275,724 | 0 / 20,000 |
+
+Repeated workloads were 1.7–2.0× faster. The zero-hit workloads were 1.8–1.85× slower,
+so caching is optional rather than a new default. No extra input rounding is introduced;
+cache hits preserve normal inference exactly. These graphs are small and owned results
+still allocate on hits; workload, allocator and hardware affect the result.
+
+The same benchmark compares 1,000 owners, again medians of five trials. The template is
+compiled before timing, and saved JSON is serialized before restoration timing. Dense
+creation starts fresh learning; it is not equivalent to restoring an adapted brain.
+
+| Network | Clone compiled template ns | Restore saved JSON ns | Fresh dense creation ns |
+|---|---:|---:|---:|
+| Small | 1,412,118 | 24,237,576 | 12,885,626 |
+| Large | 8,952,343 | 142,615,037 | 84,578,382 |
+
+Cloning was 15.9–17.2× faster than restoring JSON per owner. The benchmark uses freshly
+initialized saved states; long learning histories can change costs. Parse/validate a
+saved brain once at startup, then retain or clone it. Each clone learns independently.
+
+Six new shared cases exercise normalized keys, eligibility, thresholds, unknowns,
+mutation/undo, capacity zero and errors. The checker covers 64 Python/Rust workflows
+(including all existing brain/selection cases) with byte-identical results and saved
+learning. Rust tests check bounded FIFO occupancy, owned results, invalidation even for
+same-revision replacement and 10,000 mutated workflow texts against uncached execution.
+API spend: $0; no credentials or model calls are used.

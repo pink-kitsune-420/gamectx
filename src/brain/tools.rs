@@ -59,8 +59,8 @@ impl Brain {
 
 /// Bounded, stateless JSON workflow for CLIs and ports. Input contains exactly one of
 /// `definition`, `dense` or saved `state`, plus up to 64 `operations` (`op`, `args`).
-/// Returns operation results and saved state. No files or external state are changed.
-pub fn process(input: &Value) -> Result<Value> {
+/// Validates the shared source/operation envelope before either execution mode.
+fn workflow(input: &Value) -> Result<(Brain, &[Value])> {
     let sources: Vec<&str> =
         ["definition", "dense", "state"].into_iter().filter(|key| input.get(key).is_some()).collect();
     if sources.len() != 1 {
@@ -68,7 +68,7 @@ pub fn process(input: &Value) -> Result<Value> {
     }
     fields(input, &[sources[0], "operations"])?;
     let raw = get(input, sources[0])?;
-    let mut brain = match sources[0] {
+    let brain = match sources[0] {
         "definition" => Brain::from_value(raw)?,
         "state" => Brain::restore(raw)?,
         _ => {
@@ -93,12 +93,50 @@ pub fn process(input: &Value) -> Result<Value> {
     if operations.len() > 64 {
         return Err(err("operation count outside limits"));
     }
+    Ok((brain, operations))
+}
+
+/// Runs a bounded brain workflow, returning results and saved learning without caching.
+pub fn process(input: &Value) -> Result<Value> {
+    let (mut brain, operations) = workflow(input)?;
     let mut results = Vec::new();
     for operation in operations {
         fields(operation, &["op", "args"])?;
         results.push(brain.operation(text(get(operation, "op")?)?, get(operation, "args")?)?);
     }
     Ok(crate::obj! {"results" => Value::Array(results), "state" => brain.to_value()})
+}
+
+/// Identical workflow results/saved state with an ephemeral cache for run operations.
+/// Read-only inspection retains entries; any mutating operation clears them first.
+pub fn process_cached(input: &Value, capacity: usize) -> Result<Value> {
+    let (brain, operations) = workflow(input)?;
+    let mut cached = CachedBrain::new(brain, capacity)?;
+    let mut results = Vec::new();
+    for operation in operations {
+        fields(operation, &["op", "args"])?;
+        let op = text(get(operation, "op")?)?;
+        let args = get(operation, "args")?;
+        let reply = if op == "run" {
+            fields(args, &["inputs", "allowed", "min_score", "min_margin"])?;
+            let allowed = names(get(args, "allowed")?, MAX_OUTPUTS, true)?;
+            let low = ticks(get(args, "min_score")?, 0, S)?;
+            let gap = ticks(get(args, "min_margin")?, 0, S)?;
+            cached.run_with(
+                get(args, "inputs")?,
+                &allowed.iter().map(String::as_str).collect::<Vec<_>>(),
+                low as f64 / S as f64,
+                gap as f64 / S as f64,
+            )?
+        } else if op == "inspect" {
+            fields(args, &[])?;
+            cached.brain().inspect()
+        } else {
+            cached.brain_mut().operation(op, args)?
+        };
+        results.push(reply);
+    }
+    Ok(crate::obj! {"results" => Value::Array(results), "state" => cached.brain().to_value()})
 }
 
 /// Tools describe conditional policies and proposed labels, never factual observations.

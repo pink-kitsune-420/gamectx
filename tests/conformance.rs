@@ -47,6 +47,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
         "brain" | "brain-select" => gamectx::brain::process(&input)?,
+        "brain-cache" => gamectx::brain::process_cached(&input, arg_usize(args, "capacity", 32))?,
         "table" => table::pack(
             &view::apply_with(list(), &View::from_json(args)?, &formulas(args)?)?,
             &group_by(args)?.iter().map(String::as_str).collect::<Vec<_>>(),

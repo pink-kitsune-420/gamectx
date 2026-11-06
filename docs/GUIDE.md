@@ -183,3 +183,24 @@ data. Selection used about 3× estimated training work; runtime inference is unc
 This is a different cohort from the original 1,421/1,536 benchmark above. Its utility
 targets and initializer are still synthetic; host eligibility masks and thresholds
 need their own evaluation, and repeatedly tuning against validation data can overfit.
+
+For startup and tick-loop costs, load saved learning once using `restore_json` and keep
+the compiled `Brain`. Clone a preloaded template for independent actors instead of
+restoring the same JSON repeatedly. Each clone retains its own learned parameters,
+revision, history and consumed IDs. The [preload example](../examples/preloaded-brains.rs)
+demonstrates two owners and undo without changing the other owner.
+
+Use `CachedBrain` when normalized observations repeat. Capacity is 0–256 FIFO entries;
+start with a small capacity and inspect `stats()` for actual reuse. Keys include all
+normalized observations, eligible reactions and thresholds. Use `brain_mut()` for
+training/undo/replacement; it clears predictions before any mutation. Persist
+`brain().to_value()` as usual; predictions are ephemeral. The host must refresh input
+observations and action eligibility even on cache hits.
+
+*Offline release microbenchmark, medians of five trials: 20,000 predictions took
+15.939–19.223 ms cached versus 29.161–36.524 ms uncached across two network sizes and
+two reuse patterns (1.7–2.0× faster). Cycling 256 states through 32 slots produced zero
+hits and was 1.8–1.85× slower. Cloning 1,000 compiled templates took 1.412/8.952 ms
+versus 24.238/142.615 ms restoring saved JSON for small/large networks. These are local
+timings, not guarantees; [measurement details](../eval/README.md#brain-preloading-and-prediction-caching).
+No API calls.*
