@@ -4,6 +4,8 @@
 //! are removed before selection. Hosts still decide which rows an actor may see and must
 //! check current permissions/world state in every action callback. See `docs/KIT.md`.
 mod bridge;
+mod session;
+pub use session::Session;
 mod builders;
 pub mod evaluation;
 mod tools;

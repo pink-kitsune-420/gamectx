@@ -6,7 +6,7 @@ import play_ai as ui
 
 def check(path):
     r=ui.strict(path.read_text());assert r['complete'] and r['api_spend_usd']==0
-    ref=importlib.import_module('dungeon_natural_reference'+('_v1' if r['natural_version']==1 else ''))
+    ref=importlib.import_module('dungeon_natural_reference'+('_v1' if r['natural_version']==1 else '_v2' if r['natural_version']==2 else ''))
     assert len(r['cases'])==20;cursor=0;structural=0
     for (mode,world) in r['worlds'].items():
         for case in CASES:

@@ -97,6 +97,57 @@ pub unsafe extern "C" fn gamectx_project_free(project: *mut Project) {
         drop(unsafe { Box::from_raw(project) });
     }
 }
+/// Creates a persistent session without changing the immutable project ABI.
+/// # Safety
+/// `bytes` must be non-null and readable for `len` bytes for this call.
+#[no_mangle]
+pub unsafe extern "C" fn gamectx_session_new(bytes: *const u8, len: usize) -> *mut gamectx::kit::Session {
+    guard(
+        || {
+            let Some(text) = (unsafe { input(bytes, len, MAX_PROJECT_BYTES) }) else { return ptr::null_mut() };
+            match gamectx::kit::Session::parse(text) {
+                Ok(s) => Box::into_raw(Box::new(s)),
+                Err(e) => {
+                    error(&e.to_string());
+                    ptr::null_mut()
+                }
+            }
+        },
+        ptr::null_mut(),
+    )
+}
+/// Runs a request against a session. Character changes are serialized internally.
+/// # Safety
+/// The session must stay live throughout the call and the buffer must be readable.
+#[no_mangle]
+pub unsafe extern "C" fn gamectx_session_request(
+    session: *const gamectx::kit::Session,
+    bytes: *const u8,
+    len: usize,
+) -> *mut c_char {
+    guard(
+        || {
+            if session.is_null() {
+                error("null session handle");
+                return ptr::null_mut();
+            }
+            let Some(text) = (unsafe { input(bytes, len, MAX_REQUEST_BYTES) }) else { return ptr::null_mut() };
+            let result = unsafe { &*session }.request(text).to_json();
+            CString::new(result).expect("escaped JSON").into_raw()
+        },
+        ptr::null_mut(),
+    )
+}
+/// Releases a session; null is accepted.
+/// # Safety
+/// The handle must originate here, be freed once, and have no requests in flight.
+#[no_mangle]
+pub unsafe extern "C" fn gamectx_session_free(session: *mut gamectx::kit::Session) {
+    if !session.is_null() {
+        drop(unsafe { Box::from_raw(session) });
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -3,8 +3,8 @@ import { spawn } from 'node:child_process';
 import { Buffer } from 'node:buffer';
 
 export class GamectxClient {
-  constructor(project, binary = 'gamectx') {
-    this.child = spawn(binary, ['serve', project], { stdio: ['pipe', 'pipe', 'inherit'] });
+  constructor(project = null, binary = 'gamectx') {
+    this.child = spawn(binary, project === null ? ['characters'] : ['serve', project], { stdio: ['pipe', 'pipe', 'inherit'] });
     this.next = 0;
     this.pending = null;
     this.buffer = Buffer.alloc(0);
@@ -66,4 +66,39 @@ export class GamectxClient {
     this.child.stdin.end();
     this.child.kill();
   }
+}
+
+// Host-owned actor/audience binding; only call() arguments originate in the model.
+export class Character {
+  constructor(client, id) { this.client = client; this.id = id; }
+  static async create(client, id, scope, actor, participants) {
+    const character = new Character(client, id);
+    await character.request('create', { scope, actor, participants });
+    return character;
+  }
+  request(operation, args = {}) {
+    return this.client.request('character_' + operation, { ...args, id: this.id });
+  }
+  bind(view) { return this.request('bind', { view }); }
+  enable(tools) { return this.request('enable', { tools }); }
+  call(name, args, revision, maxBytes = 2048, allowed = []) {
+    const text = JSON.stringify(args, (key, value) => {
+      if (typeof value === 'number' && !Number.isFinite(value)) throw new Error('nonfinite JSON number');
+      return value;
+    });
+    return this.request('call', { name, text, revision, max_bytes: maxBytes, allowed });
+  }
+  prepare(planId, identity, budget, turn) {
+    return this.request('prepare', { plan_id: planId, identity, budget, turn });
+  }
+  observe(observation) { return this.request('observe', { observation }); }
+  event(event) { return this.request('event', { event }); }
+  progress(progress) { return this.request('progress', { progress }); }
+  references(context) { return this.request('references', { context }); }
+  offers(offers) { return this.request('offers', { offers }); }
+  respond(recipient, revision, confirm, terms, allowed = []) {
+    return this.request('respond', { recipient, revision, confirm, terms, allowed });
+  }
+  clear() { return this.request('clear'); }
+  close() { return this.request('drop'); }
 }

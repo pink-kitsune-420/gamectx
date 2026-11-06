@@ -16,6 +16,13 @@ public sealed class GamectxClient : IDisposable
     static extern void gamectx_string_free(IntPtr value);
     [DllImport("gamectx_native", CallingConvention = CallingConvention.Cdecl)]
     static extern void gamectx_project_free(IntPtr project);
+    [DllImport("gamectx_native", CallingConvention = CallingConvention.Cdecl)]
+    static extern IntPtr gamectx_session_new(byte[] data, UIntPtr len);
+    [DllImport("gamectx_native", CallingConvention = CallingConvention.Cdecl)]
+    static extern IntPtr gamectx_session_request(IntPtr session, byte[] data, UIntPtr len);
+    [DllImport("gamectx_native", CallingConvention = CallingConvention.Cdecl)]
+    static extern void gamectx_session_free(IntPtr session);
+    bool stateful;
     readonly object gate = new object();
     IntPtr handle;
     static string Take(IntPtr value)
@@ -31,10 +38,12 @@ public sealed class GamectxClient : IDisposable
         }
         finally { gamectx_string_free(value); }
     }
+    public GamectxClient() : this("{\"version\":1,\"datasets\":[],\"tools\":[],\"recipes\":[]}") {}
     public GamectxClient(string projectJson)
     {
         byte[] data = Encoding.UTF8.GetBytes(projectJson);
-        handle = gamectx_project_new(data, (UIntPtr)data.Length);
+        try { handle = gamectx_session_new(data, (UIntPtr)data.Length); stateful = true; }
+        catch (EntryPointNotFoundException) { handle = gamectx_project_new(data, (UIntPtr)data.Length); }
         if (handle == IntPtr.Zero) throw new ArgumentException(Take(gamectx_last_error()));
     }
     // The host's JSON library builds {version:1,id,op,args} and decodes the reply.
@@ -45,7 +54,7 @@ public sealed class GamectxClient : IDisposable
         {
             if (handle == IntPtr.Zero) throw new ObjectDisposedException(nameof(GamectxClient));
             byte[] data = Encoding.UTF8.GetBytes(requestJson);
-            IntPtr result = gamectx_project_request(handle, data, (UIntPtr)data.Length);
+            IntPtr result = stateful ? gamectx_session_request(handle, data, (UIntPtr)data.Length) : gamectx_project_request(handle, data, (UIntPtr)data.Length);
             if (result == IntPtr.Zero) throw new ArgumentException(Take(gamectx_last_error()));
             return Take(result);
         }
@@ -54,7 +63,7 @@ public sealed class GamectxClient : IDisposable
     {
         lock (gate)
         {
-            if (handle != IntPtr.Zero) gamectx_project_free(handle);
+            if (handle != IntPtr.Zero) { if (stateful) gamectx_session_free(handle); else gamectx_project_free(handle); }
             handle = IntPtr.Zero;
         }
         GC.SuppressFinalize(this);

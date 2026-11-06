@@ -19,7 +19,8 @@ jobs:
       - run: cargo +stable test --locked
       - run: RUSTDOCFLAGS="-D warnings" cargo +stable doc --no-deps --locked
       - run: cargo +stable build --release --locked
-      - run: cargo +stable build --bin gamectx --example dungeon --example info_tools --example conversation_tools --locked
+      - run: cargo +stable build --bin gamectx --example dungeon --example info_tools --example conversation_tools --example character_tools --locked
+      - run: cargo +stable test --example character_tools --locked
       - run: python3 -I eval/test_dungeon_agent.py
       - run: python3 -I eval/workflow_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_social_cases.py --cap 0 --check
@@ -29,6 +30,12 @@ jobs:
       - run: python3 -I eval/lore_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_knowledge_cases.py --cap 0
       - run: python3 -I eval/test_dungeon_knowledge.py
+      - run: python3 -I eval/conversation_patch_cases.py --cap 0
+      - run: python3 -I eval/conversation_time_cases.py --cap 0
+      - run: python3 -I eval/check_conversation_patch.py --cap 0
+      - run: python3 -I eval/location_cases.py --cap 0
+      - run: python3 -I eval/world_cases.py --cap 0
+      - run: python3 -I eval/character_cases.py --cap 0
       - run: python3 -I eval/info_inventory_cases.py --cap 0
       - run: python3 -I eval/interaction_cases.py --cap 0
       - run: python3 -I eval/interaction_measure.py --cap 0 --check eval/interaction-results.json
@@ -115,11 +122,14 @@ jobs:
       - run: python3 -I eval/local_bindings_check.py
       - run: python3 -I eval/information_bindings_check.py --cap 0 --fixtures target/information-csharp
       - run: node eval/information_bindings_check.mjs --cap 0 target/information-csharp
+      - run: python3 -I eval/character_session_cases.py --cap 0 --fixtures target/character-csharp
+      - run: node eval/character_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/local-csharp/requests.txt target/local-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/information-csharp/requests.txt target/information-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/character-csharp/requests.txt target/character-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

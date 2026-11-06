@@ -1,3 +1,5 @@
+#[path = "../examples/dungeon/conversation_policy.rs"]
+mod conversation_policy;
 #[path = "../examples/dungeon/game.rs"]
 mod game;
 #[path = "../examples/dungeon/host.rs"]
@@ -8,6 +10,8 @@ mod intent;
 mod knowledge;
 #[path = "../examples/dungeon/natural.rs"]
 mod natural;
+#[path = "../examples/dungeon/place.rs"]
+mod place;
 #[path = "../examples/dungeon/social.rs"]
 mod social;
 #[path = "../examples/dungeon/trade.rs"]

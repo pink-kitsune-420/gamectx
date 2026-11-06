@@ -609,3 +609,17 @@ Publish progress only after game validation. Bind private scopes and specific of
 recipients so one player's conversation cannot approve another player's transaction.
 The [tested multiplayer-capable API example](../examples/conversation_tools.rs) shows the
 flow without networking or model calls. [Contracts and context costs](INTERACTIONS.md).
+
+## Character perception and capacity
+
+Use the optional [character facade](CHARACTERS.md) for an actor-bound `look_around`,
+location/world snapshots, existing notes/inventory tools and task-specific context.
+Bind redacted views each turn; exact game time is not automatically NPC knowledge.
+Clock/watch readings, approximate schedules/sun observations and attributed reports
+have different provenance and precision. Keep output and safety reservations while
+counting the complete provider-rendered prompt. Increasing capacity can retain more
+relevant data, while explicit attention limits keep a small model on one task.
+
+The [new measurements](CONVERSATION_PATCH_EVAL.md) distinguish local routing and byte
+parity from unsuccessful live speech diagnostics. General free-form speech is still
+experimental; it is not a verified paraphrase of authoritative facts.

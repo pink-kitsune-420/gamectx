@@ -133,6 +133,85 @@
       "requires": [
         "vault_open"
       ]
+    },
+    {
+      "id": "merchant_identity",
+      "subject": "npc:merchant",
+      "topic": "identity",
+      "value": {
+        "name": "Vela",
+        "role": "workshop merchant"
+      },
+      "tags": [
+        "name",
+        "called",
+        "identity",
+        "introduce",
+        "Vela"
+      ],
+      "known_by": [
+        "npc:merchant"
+      ],
+      "requires": []
+    },
+    {
+      "id": "keeper_identity",
+      "subject": "npc:keeper",
+      "topic": "identity",
+      "value": {
+        "name": "Orin",
+        "role": "cistern keeper"
+      },
+      "tags": [
+        "name",
+        "called",
+        "identity",
+        "introduce",
+        "Orin"
+      ],
+      "known_by": [
+        "npc:keeper"
+      ],
+      "requires": []
+    },
+    {
+      "id": "world_setting",
+      "subject": "world:lantern_vault",
+      "topic": "setting",
+      "value": {
+        "name": "Lantern Vault",
+        "setting": "underground workshop and cistern around an old bronze vault",
+        "gate_requires": [
+          "bronze key",
+          "hinge oil"
+        ],
+        "summary": "The Lantern Vault is an underground workshop and cistern around an old bronze vault. A bronze key and hinge oil open its gate."
+      },
+      "tags": [
+        "world",
+        "setting",
+        "place"
+      ],
+      "known_by": [
+        "npc:merchant",
+        "npc:keeper"
+      ],
+      "requires": []
+    },
+    {
+      "id": "keeper_timekeeping",
+      "subject": "npc:keeper",
+      "topic": "timekeeping",
+      "tags": [
+        "timekeeping"
+      ],
+      "known_by": [
+        "npc:keeper"
+      ],
+      "requires": [],
+      "value": {
+        "mode": "schedule"
+      }
     }
   ]
 }

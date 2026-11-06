@@ -425,13 +425,26 @@ impl Host {
                 let current = get(get(&fresh, "definition")?, "cards")?.as_array().expect("cards");
                 let context =
                     obj! {"scope"=>format!("{}:{}",pending.speaker,self.game.room),"revision"=>self.game.revision};
-                let result = pending.answers.resolve(text(a, "text")?, &context, |source| {
+                let mut result = pending.answers.resolve(text(a, "text")?, &context, |source| {
                     original.iter().any(|c| {
                         c.get("kind") == source.get("kind")
                             && c.get("source") == source.get("id")
                             && current.iter().any(|now| now.same(c))
                     })
                 })?;
+                let picked = gamectx::json::parse(text(a, "text")?, 4096)?;
+                if let Some(card) = original.iter().find(|c| {
+                    c.get("id") == picked.get("answer") && c.get("kind").and_then(Value::as_str) == Some("quote")
+                }) {
+                    if let Value::Object(fields) = &mut result {
+                        let mut spoken = gamectx::dialogue::render_quote(text(card, "text")?)?;
+                        if card.get("topic").and_then(Value::as_str) == Some("time") {
+                            spoken.push_str(" I can't check whether that is still current.");
+                        }
+                        *fields.iter_mut().find(|(k, _)| k == "text").expect("text") =
+                            ("text".into(), Value::str(spoken));
+                    }
+                }
                 let reply = obj! {"speech"=>get(&result,"text")?.clone(),"tone"=>"neutral","fact_ids"=>Vec::<Value>::new(),"memory_ids"=>Vec::<Value>::new()};
                 self.social.finish_answer(&self.game, &pending.ticket, &reply.to_json())?;
                 let speaker = pending.speaker.clone();
@@ -535,7 +548,7 @@ impl Host {
                         &self.world,
                         speaker,
                         &format!("{} background", text(a, "input")?),
-                        vec![super::knowledge::actor(speaker)],
+                        vec![super::knowledge::actor(speaker), format!("room:{}", self.game.room)],
                         2,
                         1024,
                     )?;
@@ -585,6 +598,26 @@ impl Host {
                 Ok(result)
             }
 
+            "world" => {
+                fields(a, &["keys", "max_bytes"])?;
+                super::place::world(&self.game)?.call(
+                    &(obj! {"keys"=>get(a,"keys")?.clone()}).to_json(),
+                    self.game.revision,
+                    uint(get(a, "max_bytes")?, 32768)? as usize,
+                    |_| true,
+                )
+            }
+            "location" => {
+                fields(a, &["detail", "max_bytes"])?;
+                let places = super::place::locations(&self.game)?;
+                places.call(
+                    &(obj! {"detail"=>get(a,"detail")?.clone()}).to_json(),
+                    &format!("room:{}", self.game.room),
+                    self.game.revision,
+                    uint(get(a, "max_bytes")?, 32768)? as usize,
+                    |_| true,
+                )
+            }
             "state" => {
                 fields(a, &[])?;
                 Ok(self.game.public())

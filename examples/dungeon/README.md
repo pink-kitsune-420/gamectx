@@ -320,3 +320,22 @@ one-use factual offer or dialogue fallback; send only its `offer.request` to the
 current scope/revision/source before returning `{speaker,speech,sources,status}`.
 `lore_speech_prepare` accepts the existing speech-prepare args and adds authorized authored
 lore to free-form dialogue. Existing host operation outputs remain unchanged.
+
+## Dialogue fixes under development for v0.3.1a
+
+The player prompt is `you>`. Unambiguous identity/stock/scene/topic questions and literal
+letter counts resolve locally; explicit available commands in conversation use real
+engine receipts. Attributed name recall says “You told me your name is …”. General
+speech remains experimental; additional free-form phrasing passes did not establish
+factual safety in the retained diagnostics.
+
+The example clock starts at day 1, 08:00 and advances ten minutes per accepted action;
+conversation does not advance it. Internal time is not automatically NPC knowledge.
+The merchant has no clock; the keeper estimates a schedule phase. Authored `timekeeping`
+lore can explicitly grant `clock`, `watch`, `schedule` or `none` access (structured v2:
+`value:{"mode":"schedule"}`). Reported time remains an attributed, possibly stale quote.
+The `world` host operation reads game time; do not expose it wholesale to characters.
+`location` returns the current redacted scene. Neither underground NPC observes outdoor
+weather or the sun. See [character perception](../../docs/CHARACTERS.md) for reusable
+`look_around`, visibility, clocks and reports in other games, and
+[measurements](../../docs/CONVERSATION_PATCH_EVAL.md) for test scope and failed pilots.

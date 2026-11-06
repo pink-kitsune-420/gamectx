@@ -1,0 +1,224 @@
+{
+  "kind": "character-plan",
+  "args": {
+    "scope": "shop:player:a",
+    "actor": "npc:merchant",
+    "participants": [
+      "npc:merchant",
+      "player:a"
+    ],
+    "view": {
+      "revision": 7,
+      "world": {
+        "version": 1,
+        "id": "world:test",
+        "revision": 7,
+        "states": [
+          {
+            "key": "time",
+            "value": {
+              "tick": 7,
+              "label": "third bell",
+              "calendar": {
+                "watch": 3
+              }
+            }
+          },
+          {
+            "key": "weather",
+            "value": null
+          }
+        ]
+      },
+      "world_keys": [
+        "time"
+      ],
+      "locations": {
+        "version": 1,
+        "revision": 7,
+        "places": [
+          {
+            "id": "room:shop",
+            "label": "shop",
+            "summary": "A workshop.",
+            "description": "A sheltered workbench.",
+            "details": {
+              "weather": null,
+              "indoors": true
+            }
+          }
+        ]
+      },
+      "current": "room:shop",
+      "inventory": null,
+      "owners": [],
+      "sources": [
+        {
+          "id": "line:1",
+          "speaker": "player:a",
+          "text": "My name is Fen."
+        }
+      ]
+    },
+    "turn": {
+      "task": "observe",
+      "input": "What changed here?",
+      "facts": {
+        "scope": "shop:player:a",
+        "must_keep": "The character is indoors."
+      },
+      "tools": [
+        {
+          "name": "world_status",
+          "task": "observe",
+          "priority": 50,
+          "required": true
+        },
+        {
+          "name": "location_lookup",
+          "task": "observe",
+          "priority": 40,
+          "required": false
+        },
+        {
+          "name": "info_lookup",
+          "task": "observe",
+          "priority": 10,
+          "required": false
+        },
+        {
+          "name": "look_around",
+          "task": "other_task",
+          "priority": 100,
+          "required": false
+        }
+      ],
+      "memories": [
+        {
+          "value": {
+            "id": 0,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 30,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 1,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 29,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 2,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 28,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 3,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 27,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 4,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 26,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 5,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 25,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 6,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 24,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 7,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 23,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 8,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 22,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 9,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 21,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 10,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 20,
+          "required": false
+        },
+        {
+          "value": {
+            "id": 11,
+            "quote": "A relevant original player statement. A relevant original player statement. A relevant original player statement. A relevant original player statement. "
+          },
+          "priority": 19,
+          "required": false
+        }
+      ],
+      "dialogue": [
+        {
+          "user": "A previous question 0",
+          "assistant": "An unverified previous response 0"
+        },
+        {
+          "user": "A previous question 1",
+          "assistant": "An unverified previous response 1"
+        },
+        {
+          "user": "A previous question 2",
+          "assistant": "An unverified previous response 2"
+        },
+        {
+          "user": "A previous question 3",
+          "assistant": "An unverified previous response 3"
+        }
+      ],
+      "attention": {
+        "tools": 8,
+        "memories": 32,
+        "exchanges": 8
+      }
+    },
+    "budget": {
+      "context": 2048,
+      "output": 128,
+      "safety": 256
+    }
+  }
+}

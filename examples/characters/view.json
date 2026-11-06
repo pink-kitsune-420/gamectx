@@ -1,0 +1,33 @@
+{
+  "revision": 7,
+  "world": {
+    "version": 1,
+    "id": "world:example",
+    "revision": 7,
+    "states": [
+      {"key": "time", "value": {"tick": 42, "label": "08:20"}},
+      {"key": "weather", "value": null}
+    ]
+  },
+  "world_keys": [],
+  "locations": {
+    "version": 1,
+    "revision": 7,
+    "places": [{
+      "id": "room:workshop",
+      "label": "workshop",
+      "summary": "An underground workshop.",
+      "description": "A lantern hangs above the counter.",
+      "details": {
+        "visible_items": ["item:oil"],
+        "occupants": ["player:a"],
+        "exits": ["room:gallery"],
+        "observations": {"sky_visible": false, "weather": null, "time": null}
+      }
+    }]
+  },
+  "current": "room:workshop",
+  "inventory": null,
+  "owners": [],
+  "sources": []
+}

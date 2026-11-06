@@ -4,11 +4,11 @@ version = 3
 
 [[package]]
 name = "gamectx"
-version = "0.3.0-a"
+version = "0.3.1-a"
 
 [[package]]
 name = "gamectx-native"
-version = "0.3.0-a"
+version = "0.3.1-a"
 dependencies = [
  "gamectx",
 ]

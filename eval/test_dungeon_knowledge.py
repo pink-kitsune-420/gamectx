@@ -26,7 +26,7 @@ class KnowledgeChecks(unittest.TestCase):
         with self.assertRaises(ui.HostError):self.finish(offered,'owner_salve')
     def test_player_quote_is_exact_even_beyond_old_speech_length(self):
         original='My home is '+('x'*229);self.assertEqual(len(original),240);self.remember(original)
-        r=self.finish(self.offer('Where is my home?'),'quote_1');self.assertEqual(r['speech'],'You told me: "'+original+'"')
+        r=self.finish(self.offer('Where is my home?'),'quote_1');self.assertEqual(r['speech'],'I remember you saying: "'+original+'"')
     def test_forget_revokes_prepared_quote(self):
         self.remember('My name is Fen.');p=self.offer('What is my name?')
         self.h.call('speech_forget',{'speaker':'merchant'})

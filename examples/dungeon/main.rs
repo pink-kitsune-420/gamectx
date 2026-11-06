@@ -1,9 +1,11 @@
 //! Lantern Vault: a deterministic playable game and JSON integration testbed.
+mod conversation_policy;
 mod game;
 mod host;
 mod intent;
 mod knowledge;
 mod natural;
+mod place;
 mod social;
 mod trade;
 use game::{fields, get, text, uint, GOAL};

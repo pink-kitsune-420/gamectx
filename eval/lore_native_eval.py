@@ -55,7 +55,7 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--cohort',choices=['regression','fresh','extra','repair','stock'],default='regression');p.add_argument('--tokens-only',action='store_true');p.add_argument('--tokens',type=pathlib.Path);p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
     if a.cap!=0 or a.output.exists():p.error('require --cap 0 and fresh output path')
     cases={'regression':CASES,'fresh':FRESH,'extra':EXTRA,'repair':[EXTRA[3]],'stock':STOCK}[a.cohort];world=ui.strict((ROOT/'examples/dungeon/world.json').read_text())
-    m=ui.LocalModel(a.model,2048,96,a.output);r=m.records;r.update(workflow_version=7,native=True,cohort=a.cohort,tokens_only=a.tokens_only,world=world,cases=[])
+    m=ui.LocalModel(a.model,2048,96,a.output);r=m.records;r.update(workflow_version=8,native=True,cohort=a.cohort,tokens_only=a.tokens_only,world=world,cases=[])
     if not a.tokens_only:
         prior=ui.strict(a.tokens.read_text());assert prior['complete'] and prior['tokens_only'] and prior['cohort']==a.cohort and prior['identity']==m.identity and prior['world']==world
     for case in cases:

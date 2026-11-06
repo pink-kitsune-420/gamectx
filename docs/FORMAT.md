@@ -1565,3 +1565,38 @@ of at most 32 exact decisions. `respond` args are `{recipient,revision,confirm,t
 use `{ok:true,result}` or `{ok:false}`. State is private host inspection, not a model packet.
 Invalid initial configuration rejects the workflow. Model-call failures are atomic;
 recipient confirmation follows the existing one-attempt consumption contract.
+
+## Actor-visible location and world lookup (unreleased v0.3.1a)
+
+These additive formats preserve existing outputs. Location definition fields are
+`version:1,revision,places`; each place has `id,label,summary,description,details`.
+IDs/labels are scoped strings of up to 64 characters. Summary/description are null or
+nonempty text up to 512/2048 characters, without controls. At most 128 places; `details`
+is an object of at most 32 fields/16,384 bytes. Definitions are at most 1,048,576 bytes.
+
+Model arguments are exactly `{detail:"brief"|"normal"|"full"}`. Current place,
+visibility, revision and byte cap are host inputs. Result field order is
+`revision,location`; location fields are `id,label,summary`, then `description` unless
+brief, then `details` only for full. Denied/missing location is null. Requested detail
+must fit whole; no automatic truncation. The `look_around` facade uses this same format.
+
+World definition fields are `version:1,id,revision,states`; each state has `key,value`.
+At most 64 unique scoped keys; each arbitrary JSON value is at most 4,096 bytes; the
+whole definition is at most 524,288 bytes. Model arguments are exactly `{keys:[...]}`,
+with one to eight unique scoped keys. Result field order is `id,revision,states`; state
+keys follow requested order. Denied/missing keys are absent; authorized unknown is null.
+World IDs, revisions and visible keys are host-bound. No calendar is assumed.
+
+Both raw APIs accept output caps 64..32,768 bytes and reject stale revisions. Character
+calls narrow their result cap to 64..8,192 bytes. Definitions and calls use the existing
+strict JSON parser. Details/values must be filtered by the host for each actor/audience.
+
+New local workflow kinds are `location` (`definition,text,current,revision,max_bytes,available`),
+`world` (`definition,text,revision,max_bytes,available`), `quote-phrase` (`quote`) and
+`character-plan` (`scope,actor,participants,view,turn,budget`). The last is an offline
+identity-renderer/one-byte-counter fixture, not a provider tokenizer. Its result order
+is `request,selected_tools,input_bytes,omitted`. Fifty new fixtures specify exact bytes.
+Quote phrasing is a new opt-in renderer; old answer-resolution output stays unchanged.
+
+The new version-1 character host operations and view/plan shapes are documented in
+[CHARACTERS.md](CHARACTERS.md). Persistent bridge envelopes retain their prior shape.

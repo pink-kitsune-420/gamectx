@@ -17,6 +17,17 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Actor perception and adaptive context (unreleased v0.3.1a)
+
+[Character tools](docs/CHARACTERS.md) provide optional `look_around`, location descriptions,
+world-state lookup and a single scoped dispatcher for notes, inventory and conversation
+helpers. The game supplies visibility and knowledge: NPCs do not automatically know the
+global clock or outdoor weather. Scene snapshots and tool permissions are revision-bound.
+Task-focused context can grow with measured capacity while small-model attention stays
+explicitly limited. Rust, Python, Node and C# bridges support persistent character sessions.
+The [new checks](docs/CONVERSATION_PATCH_EVAL.md) report byte parity and retain failed
+speech experiments separately from deterministic routing improvements.
+
 ## Playable dungeon testbed (v0.3.0a)
 
 Run `cargo run --example dungeon -- --seed 7` for an original six-room text game.

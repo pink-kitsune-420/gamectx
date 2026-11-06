@@ -43,23 +43,26 @@ impl Project {
     /// Version-1 bridge request. Invalid requests return an error envelope; no callbacks
     /// are reachable from the bridge. The caller owns external action dispatch.
     pub fn request(&self, input: &str) -> Value {
-        let mut id = Value::Null;
-        let result = (|| {
-            let v = json::parse(input, MAX_REQUEST_BYTES)?;
-            c::fields(&v, &["version", "id", "op", "args"])?;
-            c::uint(c::get(&v, "version")?, 1, 1)?;
-            let key = text(&v, "id")?;
-            if key.is_empty() || key.chars().count() > 64 {
-                return Err(bad());
-            }
-            id = Value::str(key);
-            self.execute(text(&v, "op")?, c::get(&v, "args")?)
-        })();
-        match result {
-            Ok(result) => obj! {"version" => 1, "id" => id, "ok" => true, "result" => result},
-            Err(e) => {
-                obj! {"version" => 1, "id" => id, "ok" => false, "error" => obj! {"code" => "invalid_request", "message" => e.to_string()}}
-            }
+        request(input, |op, args| self.execute(op, args))
+    }
+}
+pub(super) fn request(input: &str, mut execute: impl FnMut(&str, &Value) -> Result<Value>) -> Value {
+    let mut id = Value::Null;
+    let result = (|| {
+        let v = json::parse(input, MAX_REQUEST_BYTES)?;
+        c::fields(&v, &["version", "id", "op", "args"])?;
+        c::uint(c::get(&v, "version")?, 1, 1)?;
+        let key = text(&v, "id")?;
+        if key.is_empty() || key.chars().count() > 64 {
+            return Err(bad());
+        }
+        id = Value::str(key);
+        execute(text(&v, "op")?, c::get(&v, "args")?)
+    })();
+    match result {
+        Ok(result) => obj! {"version" => 1, "id" => id, "ok" => true, "result" => result},
+        Err(e) => {
+            obj! {"version" => 1, "id" => id, "ok" => false, "error" => obj! {"code" => "invalid_request", "message" => e.to_string()}}
         }
     }
 }
@@ -67,6 +70,7 @@ impl Project {
 /// This permits recovery on the following request without buffering the entire stream.
 /// A line above twice the request cap terminates serving to bound recovery work.
 pub fn serve(project: &Project, reader: &mut impl BufRead, writer: &mut impl Write) -> Result<()> {
+    let session = super::Session::new(project.clone());
     loop {
         let mut line = Vec::new();
         let mut oversized = false;
@@ -97,11 +101,11 @@ pub fn serve(project: &Project, reader: &mut impl BufRead, writer: &mut impl Wri
             return Ok(());
         }
         let output = if oversized {
-            project.request("")
+            session.request("")
         } else {
             match std::str::from_utf8(&line) {
-                Ok(text) => project.request(text.trim_end_matches(['\n', '\r'])),
-                Err(_) => project.request(""),
+                Ok(text) => session.request(text.trim_end_matches(['\n', '\r'])),
+                Err(_) => session.request(""),
             }
         };
         writeln!(writer, "{}", output.to_json()).and_then(|_| writer.flush()).map_err(|e| Error::new(e.to_string()))?;

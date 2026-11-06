@@ -5,7 +5,7 @@ import lore_reference as ref
 import dungeon_reference as game
 from lore_native_eval import CASES,FRESH,EXTRA,STOCK
 import play_ai as ui
-BUILDERS={v:importlib.import_module('dungeon_knowledge_reference'+('' if v==7 else '_v'+str(v))).build for v in range(1,8)}
+BUILDERS={v:importlib.import_module('dungeon_knowledge_reference'+('' if v==8 else '_v'+str(v))).build for v in range(1,9)}
 
 def check(path):
     r=ui.strict(path.read_text());assert r['complete'] and r['api_spend_usd']==0

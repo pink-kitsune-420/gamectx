@@ -199,3 +199,17 @@ revision in the host handler. Select individual schemas through `InteractionTool
 no automatic model/guidance default changes. Several players can participate in one shared
 scope, or use separate private scopes. Host events and accepted offers still require engine
 transactions and visibility policy; the library provides no networking or authentication.
+
+## Optional persistent character sessions (unreleased v0.3.1a)
+
+`kit::Session` composes an immutable `Project` with at most 64 persistent character
+scopes. `gamectx characters` starts it without project-registration boilerplate;
+`serve` also retains these scopes between requests. Existing project operations keep
+their envelopes and outputs. New native `gamectx_session_new/request/free` symbols
+leave the old immutable project ABI intact. Python/Node provide `Character` helpers;
+C# retains its host-JSON-library-neutral `Request` entry point.
+
+See [CHARACTERS.md](CHARACTERS.md) for binding views, individually enabling tools,
+full-request count acknowledgements and scope lifecycle. These are host operations,
+not a bundle of automatically exposed model tools. Durable persistence, perception,
+current permissions, consent and engine action execution remain host responsibilities.

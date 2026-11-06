@@ -1,0 +1,34 @@
+{
+  "kind": "location",
+  "args": {
+    "definition": {
+      "version": 1,
+      "revision": 7,
+      "places": [
+        {
+          "id": "room:workshop",
+          "label": "workshop",
+          "summary": "An underground workshop.",
+          "description": "A lamp lights a workbench.",
+          "details": []
+        },
+        {
+          "id": "room:private",
+          "label": "private room",
+          "summary": "A private room.",
+          "description": "A sealed study.",
+          "details": {
+            "secret": "private"
+          }
+        }
+      ]
+    },
+    "text": "{\"detail\":\"full\"}",
+    "current": "room:workshop",
+    "revision": 7,
+    "max_bytes": 2048,
+    "available": [
+      "room:workshop"
+    ]
+  }
+}

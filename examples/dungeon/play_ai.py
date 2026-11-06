@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import pathlib
+import re
 import subprocess
 import sys
 import time
@@ -165,17 +166,37 @@ def display(reply):print(reply['speaker'].capitalize()+': '+reply['speech'])
 def converse(host,model,speaker,utterance):
     local=host.call('trade',{'speaker':speaker,'input':utterance})
     if local['handled']:return {'speaker':speaker,'speech':local['reply']}
-    if getattr(model,'dialogue',None)=='natural':return speak(host,model,speaker,utterance,natural=True)
+    words=re.findall(r'[^\W_]+',utterance.lower(),re.UNICODE)
+    if words and words[0] in ['take','inspect','go','look','wait','unlock','attack','heal']:
+        state=host.call('state',{});pair=exact(state,utterance)
+        if pair is None:
+            # Only explicit imperative commands enter this path. Named aliases narrow
+            # targets, and the engine still checks the current legal action/revision.
+            candidates=[]
+            for candidate in state['choices']:
+                if candidate['action']!=words[0]:continue
+                target=candidate['target']
+                if target is None:continue
+                aliases=[target.split(':')[-1]]+[i[k] for i in state['items'] if i['id']==target for k in ['label','kind']]
+                def matches(alias):
+                    n=re.findall(r'[^\W_]+',alias.lower(),re.UNICODE)
+                    return bool(n) and any(words[i:i+len(n)]==n for i in range(1,len(words)-len(n)+1))
+                if any(matches(a) for a in aliases):candidates.append(candidate)
+            if len(candidates)==1:pair=candidates[0]
+        if pair is None:return {'speaker':'game','speech':'Which available action and item did you mean? Nothing has changed.'}
+        result=host.call('act',{'revision':state['revision'],'decision':pair})
+        return {'speaker':'game','speech':result.get('message','That action is not available right now.')}
     if not getattr(model,'knowledge',True):return speak(host,model,speaker,utterance)
     args={'speaker':speaker,'input':utterance,'context':model.context,'size':getattr(model,'size','3')}
     if getattr(model,'choices_limit',None) is not None:args['choices_limit']=model.choices_limit
     offered=host.call('knowledge_prepare',args)
-    if not offered['handled']:return speak(host,model,speaker,utterance,lore=True)
-    offer=offered['offer'];request=offer['request'];empty=not offer['definition']['cards']
+    if not offered['handled']:return speak(host,model,speaker,utterance,lore=getattr(model,'dialogue',None)!='natural',natural=getattr(model,'dialogue',None)=='natural')
+    offer=offered['offer'];request=offer['request'];empty=not offer['definition']['cards'];local_answer=offer.get('local_answer')
+    if getattr(model,'dialogue',None)=='natural' and not empty and not local_answer:return speak(host,model,speaker,utterance,natural=True)
     for attempt in range(2):
-        raw=encode({'answer':'unknown'}) if empty else ''
+        raw=encode({'answer':local_answer or 'unknown'}) if empty or local_answer else ''
         try:
-            if not empty:raw=model.generate(request,offer['reserved_output'])
+            if not empty and not local_answer:raw=model.generate(request,offer['reserved_output'])
             return host.call('knowledge_finish',{'ticket':offered['ticket'],'text':raw})
         except ValueError:request=corrected(request,raw)
     return host.call('knowledge_finish',{'ticket':offered['ticket'],'text':encode({'answer':'unknown'})})
@@ -184,7 +205,7 @@ def conversation(host,model,speaker):
     host.call('speech_state',{'speaker':speaker})
     print(speaker.capitalize()+': Speak freely. /back returns to exploring; /memory shows remembered quotes; /forget clears this conversation. Purchases use a local offer; say yes or no to confirm or cancel.')
     while True:
-        utterance=input(speaker+'> ').strip()
+        utterance=input('you> ').strip()
         if utterance in ['/back','/leave']:host.call('trade_cancel',{});return
         if not utterance:continue
         try:

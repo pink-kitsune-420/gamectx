@@ -5,6 +5,11 @@
 extern "C" {
 #endif
 typedef struct GamectxProject GamectxProject;
+typedef struct GamectxSession GamectxSession;
+/* Optional persistent character sessions; legacy immutable project handles are unchanged. */
+GamectxSession *gamectx_session_new(const unsigned char *bytes, size_t len);
+char *gamectx_session_request(const GamectxSession *, const unsigned char *bytes, size_t len);
+void gamectx_session_free(GamectxSession *);
 /* UTF-8 buffers need not end in NUL. Null return: call gamectx_last_error(). */
 GamectxProject *gamectx_project_new(const unsigned char *bytes, size_t len);
 /* Handle stays alive throughout all requests. Immutable requests may run concurrently. */

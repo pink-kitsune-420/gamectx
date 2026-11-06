@@ -22,10 +22,12 @@ def scenario(case):
     return g
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--tokens-only',action='store_true');p.add_argument('--tokens',type=pathlib.Path);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--version',type=int,choices=[1,2],default=2);p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--tokens-only',action='store_true');p.add_argument('--tokens',type=pathlib.Path);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--version',type=int,choices=[1,2,3],default=3);p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');a=p.parse_args()
     if a.cap!=0 or a.output.exists():p.error('require --cap 0 and fresh output')
     if a.version==1:
         from dungeon_natural_reference_v1 import request as render
+    elif a.version==2:
+        from dungeon_natural_reference_v2 import request as render
     else:render=request
     worlds={mode:ui.strict((ROOT/'examples/dungeon'/file).read_text()) for mode,file in [('text','world-v1.json'),('structured','world-structured.json')]}
     m=ui.LocalModel(a.model,2048,96,a.output);r=m.records;r.update(natural_version=a.version,tokens_only=a.tokens_only,worlds=worlds,cases=[])

@@ -60,6 +60,7 @@
 pub mod brain;
 pub mod budget;
 pub mod catalog;
+pub mod character;
 mod checked;
 pub mod context;
 pub mod decision;
@@ -73,6 +74,7 @@ pub mod inventory;
 pub mod json;
 pub mod kit;
 pub mod local;
+pub mod location;
 pub mod lore;
 pub mod manifest;
 pub mod memory;
@@ -94,6 +96,7 @@ pub mod temporal;
 pub mod tune;
 pub mod turn;
 pub mod view;
+pub mod world;
 
 pub use context::{Context, Table, Turn};
 pub use json::{Error, Result, Value};

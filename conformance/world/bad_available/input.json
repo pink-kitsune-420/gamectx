@@ -1,0 +1,36 @@
+{
+  "kind": "world",
+  "args": {
+    "definition": {
+      "version": 1,
+      "id": "world:test",
+      "revision": 7,
+      "states": [
+        {
+          "key": "time",
+          "value": {
+            "tick": 42,
+            "label": "third bell",
+            "calendar": {
+              "watch": 3
+            }
+          }
+        },
+        {
+          "key": "weather",
+          "value": null
+        },
+        {
+          "key": "secret",
+          "value": "hidden storm schedule"
+        }
+      ]
+    },
+    "text": "{\"keys\":[\"time\",\"weather\"]}",
+    "revision": 7,
+    "max_bytes": 1024,
+    "available": [
+      false
+    ]
+  }
+}

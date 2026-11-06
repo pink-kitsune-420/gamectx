@@ -6,6 +6,31 @@ The earlier `v0.2.0a` release uses Cargo package `0.2.0-a`.
 One line per item. Numbers are from `eval/` on Llama 3.2 3B and Mistral Small 3.2 24B unless
 noted; "3 models" adds Llama 3.3 70B.
 
+## Implemented locally for v0.3.1a
+
+- Validation: root/native formatting, strict Clippy, tests, rustdoc, Rust 1.82,
+  package verification, 74 offline CI commands and 15 binding CI commands pass.
+  All 747 prior cases unchanged; total 797 core cases. C# fixtures: 30 new plus
+  126 information, 59 kit and 48 local replies. Reference sweep clean; API spend $0.
+
+- Actor-visible location/world snapshots, `look_around` and scoped character facade:
+  58 + 63 + 49 independent Python/Rust workflows; 50 additive core fixtures, 20,000
+  text mutations. Persistent Python CLI/native, Node and C# share 30 actor fixtures.
+- Explicit task attention caps and full-request rendering/count handshake: synthetic
+  focused 1,025 bytes (one tool/two memories/one exchange), expanded 3,733 bytes
+  (three/12/four); spare context alone does not raise attention limits. Fake byte
+  counter, no model-token or accuracy claim. Arbitrary provider/model IDs supported.
+- Dialogue regression routing: exact intended sets 0/78→78/78 across six seeds and 13
+  reused reported phrases; actual key receipt, local letter counts and attributed name
+  phrasing tested. Time access requires an authored clock/watch entitlement, approximate
+  schedule or attributed report; no-source NPCs stay uncertain. Fourteen time workflows.
+- Rejected as safe speech replacements: broad guarded prompts invented weather/history;
+  compact v2 (643→225 reported input tokens) truncated both replies mid-sentence;
+  one-sentence v3 (241 tokens) still implied observed clear blue weather. Three variants,
+  18 local calls including token-only/preflight, $0 API. Records retained and audited;
+  source-selected sky response remains default. No semantic guarantee from a prefix.
+  [Measurements and limits](CONVERSATION_PATCH_EVAL.md).
+
 ## Shipped (0.1.0-alpha.2)
 
 | Item | Result |
@@ -246,6 +271,15 @@ noted; "3 models" adds Llama 3.3 70B.
 - Feedback from the first real game integration once its gaps list arrives.
 - Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
 - Test host-defined semantic constraints for all-row versus eligible-row totals; explicit wording still fails some route questions. Keep both hosted cohorts frozen.
+
+## Candidate: host-owned character routines
+
+- Optional routine files seeding dynamic timelines for planned work/travel/rest and
+  perception opportunities, with windows, priorities, needs and interruption/resumption;
+  distinguish planned activity from host-confirmed witnessed observations. Reuse existing
+  event scopes and source IDs. Consider last-seen sun/time reports with growing uncertainty,
+  interruptions, windows and weather occlusion; send only current/next activity and relevant
+  observations. Not implemented; the new snapshot tools accept host-produced estimates.
 
 ## Known gaps
 

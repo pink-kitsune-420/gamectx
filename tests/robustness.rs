@@ -944,3 +944,45 @@ fn conversation_tool_model_text_is_bounded_and_failed_calls_preserve_private_sta
         }
     }
 }
+
+#[test]
+fn perception_and_character_model_calls_are_bounded() {
+    use gamectx::{
+        character::{CharacterTools, CharacterView, TurnPlan},
+        location::Locations,
+        world::WorldState,
+    };
+    let definition = parse(include_str!("../conformance/location/full/input.json"), 1 << 20).unwrap();
+    let locations = Locations::from_value(definition.get("args").unwrap().get("definition").unwrap()).unwrap();
+    let current = definition.get("args").unwrap().get("current").unwrap().as_str().unwrap();
+    let revision = locations.revision();
+    let world_input =
+        parse(include_str!("../conformance/world/clock_and_unknown_weather/input.json"), 1 << 20).unwrap();
+    let world = WorldState::from_value(world_input.get("args").unwrap().get("definition").unwrap()).unwrap();
+    let mut character = CharacterTools::new("audience:a", "npc:a", &vec!["npc:a", "player:a"].into()).unwrap();
+    character.bind(CharacterView::new(revision).with_location(locations.clone(), current).unwrap()).unwrap();
+    character.enable(&["look_around"]).unwrap();
+    let seeds = [r#"{"detail":"full"}"#, r#"{"keys":["time","weather"]}"#, r#"{"detail":"brief","current":"hidden"}"#];
+    let mut rng = Rng(0x9aac_8899_bcdd_1122);
+    for i in 0..20_000 {
+        let text = mutate(&mut rng, seeds[i % seeds.len()]);
+        for v in [
+            locations.call(&text, current, revision, 4096, |_| true),
+            world.call(&text, world.revision(), 4096, |_| false),
+            character.call("look_around", &text, revision, 4096, |_| false),
+        ]
+        .into_iter()
+        .flatten()
+        {
+            assert!(v.json_len() <= 4096);
+            assert_eq!(parse(&v.to_json(), 4096).unwrap(), v);
+        }
+        let _ = gamectx::dialogue::render_quote(&text);
+        if let Ok(v) = parse(&text, 4096) {
+            let _ = Locations::from_value(&v);
+            let _ = WorldState::from_value(&v);
+            let _ = CharacterView::from_value(&v);
+            let _ = TurnPlan::from_value(&v);
+        }
+    }
+}

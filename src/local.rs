@@ -17,6 +17,13 @@ pub fn process(v: &Value) -> Result<Value> {
         "interactions" => crate::dialogue::interaction_workflow(a),
         "info" => crate::info::workflow(a),
         "inventory" => crate::inventory::workflow(a),
+        "character-plan" => crate::character::plan_fixture(a),
+        "world" => crate::world::process(a),
+        "location" => crate::location::process(a),
+        "quote-phrase" => {
+            c::fields(a, &["quote"])?;
+            Ok(Value::str(crate::dialogue::render_quote(c::text(c::get(a, "quote")?)?)?))
+        }
         "lore" => {
             c::fields(a, &["world", "select"])?;
             crate::lore::Lore::from_value(c::get(a, "world")?)?.select(c::get(a, "select")?)

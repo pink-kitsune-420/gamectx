@@ -11,7 +11,25 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
-## Unreleased
+## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
+
+- **[api]** Adds actor-bound read-only location/world lookup, `look_around`, scoped
+  character dispatch and task-focused full-request selection. Attention and context
+  budgets are independent; provider/model IDs have no parameter-size ceiling.
+- **[format]** Adds 50 conformance fixtures for location, world, attributed quote
+  rendering and synthetic character plans; all 747 prior fixtures remain unchanged.
+  Adds persistent `character_*` host operations using existing version-1 envelopes.
+- **[api]** Adds persistent native sessions without changing the immutable project C
+  ABI; Python/Node character helpers and no-project CLI startup are available.
+- **[api]** Fixes example identity, stock/topic routing, current scene and attributed
+  name recall; executes explicit legal player commands using actual engine receipts.
+  Counts literal letters locally. Player input uses `you>`. NPC time access is explicit:
+  no clock, instrument reading, approximate schedule or attributed possibly stale report.
+- **[docs]** Records 78/78 exact candidate routes across six seeded states (previous
+  strict route metric 0/78), 14 time workflows and 170 new independent byte comparisons.
+  These are local checks, not model accuracy. Retains three unsuccessful speech pilots:
+  643/225/241 input tokens per question; smaller prompts still truncate or invent facts.
+  All new API spend $0. See docs/CONVERSATION_PATCH_EVAL.md.
 
 ## v0.3.0a — 2026-11-06
 

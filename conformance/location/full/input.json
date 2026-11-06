@@ -1,0 +1,42 @@
+{
+  "kind": "location",
+  "args": {
+    "definition": {
+      "version": 1,
+      "revision": 7,
+      "places": [
+        {
+          "id": "room:workshop",
+          "label": "workshop",
+          "summary": "An underground workshop.",
+          "description": "A lamp lights a workbench.",
+          "details": {
+            "outdoor_weather": null,
+            "visible_items": [
+              "oil:17"
+            ],
+            "occupants": [
+              "npc:merchant"
+            ]
+          }
+        },
+        {
+          "id": "room:private",
+          "label": "private room",
+          "summary": "A private room.",
+          "description": "A sealed study.",
+          "details": {
+            "secret": "private"
+          }
+        }
+      ]
+    },
+    "text": "{\"detail\":\"full\"}",
+    "current": "room:workshop",
+    "revision": 7,
+    "max_bytes": 2048,
+    "available": [
+      "room:workshop"
+    ]
+  }
+}

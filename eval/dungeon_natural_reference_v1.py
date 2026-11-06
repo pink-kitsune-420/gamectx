@@ -1,7 +1,7 @@
 """Structured game facts for naturally generated dialogue; no canned reply selection."""
 import pathlib,sys
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
-from dungeon_knowledge_reference import build,stock_question
+from dungeon_knowledge_reference_v7 import build,stock_question
 from lore_reference import Lore
 from dungeon_reference import encode
 from dungeon_slots_reference import tokens

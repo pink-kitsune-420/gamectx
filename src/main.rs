@@ -16,6 +16,8 @@ USAGE:
       Check project registration and print configuration diagnostics as JSON.
   gamectx inspect <project.json> <snapshot.json> <recipe>
       Build a packet and print its separate host-only selection/budget inspection.
+  gamectx characters
+      Start a persistent character-tool bridge without project-registration boilerplate.
   gamectx serve <project.json>
       Persistent version-1 JSON-lines bridge; bounded requests on stdin, replies on stdout.
   gamectx evaluate <project.json> <suite.json>
@@ -182,6 +184,11 @@ fn run(raw: &[String]) -> Result<()> {
             let snapshot = project.snapshot(&read_json_file(Path::new(&args.positional[1]))?)?;
             println!("{}", project.build(&args.positional[2], &snapshot)?.to_value().to_json());
             Ok(())
+        }
+        "characters" => {
+            args.only(&[], 0)?;
+            let project = gamectx::kit::Registration::new().build()?;
+            gamectx::kit::serve(&project, &mut std::io::stdin().lock(), &mut std::io::stdout().lock())
         }
         "serve" => {
             args.only(&[], 1)?;
