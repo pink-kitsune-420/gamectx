@@ -68,6 +68,9 @@ impl Trade {
         let items = game.visible_items();
         let pairs = items.iter().map(|i| pair("buy", i.get("id").and_then(Value::as_str))).collect::<Vec<_>>();
         let resolution = super::intent::resolve(&pairs, &items, input, None, None)?;
+        if super::knowledge::stock_question(input) && resolution.candidates.is_empty() {
+            return Ok(obj! {"handled"=>false});
+        }
         if resolution.candidates.len() != 1 {
             return Ok(reply("Which item would you like to buy? Name one visible item."));
         }

@@ -587,3 +587,15 @@ This limits invented prose in factual answers; a model can still choose the wron
 source. Keep question interpretation, source validity and world changes as separate scores.
 See the [tested API example](../examples/lore.rs), [contracts](LORE.md) and
 [retained model results](LORE_EVAL.md).
+
+
+## Give conversation optional information tools
+
+Register `info::Notes::tools()` with your runner and dispatch bounded argument text to
+`Notes::call`. Bind one audience scope and original evidence outside model arguments.
+For ownership, distinguish a reported claim from a fresh `Inventory::lookup_call` result.
+Use separate scopes for private conversations, expose only visible owners, and check a
+trade's revision and host permissions before committing. Several player IDs can be owners;
+no single-player constant is required. See [contracts and limits](INFO.md) and the
+[executable example](../examples/info_tools.rs). Include every enabled schema and tool result
+in the full-request budget; these tools do not automatically improve model accuracy.

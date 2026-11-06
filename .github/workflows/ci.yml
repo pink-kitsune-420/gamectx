@@ -19,7 +19,7 @@ jobs:
       - run: cargo +stable test --locked
       - run: RUSTDOCFLAGS="-D warnings" cargo +stable doc --no-deps --locked
       - run: cargo +stable build --release --locked
-      - run: cargo +stable build --example dungeon --locked
+      - run: cargo +stable build --bin gamectx --example dungeon --example info_tools --locked
       - run: python3 -I eval/test_dungeon_agent.py
       - run: python3 -I eval/workflow_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_social_cases.py --cap 0 --check
@@ -29,6 +29,10 @@ jobs:
       - run: python3 -I eval/lore_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_knowledge_cases.py --cap 0
       - run: python3 -I eval/test_dungeon_knowledge.py
+      - run: python3 -I eval/info_inventory_cases.py --cap 0
+      - run: python3 -I eval/dungeon_natural_cases.py --cap 0
+      - run: python3 -I eval/check_natural_model.py --cap 0 eval/natural-tokens.json eval/natural-results.json eval/natural-v2-tokens.json eval/natural-v2-results.json
+      - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-stock-tokens.json eval/lore-stock-results.json
       - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
       - run: python3 -I eval/test_dungeon_ai.py
       - run: python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json

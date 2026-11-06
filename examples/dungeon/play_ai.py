@@ -95,14 +95,14 @@ def corrected(request,text):
     return {**request,'messages':[*request['messages'],{'role':'assistant','content':text[:4096]},
         {'role':'user','content':'The host rejected that response. Preserve the original request and current facts. Return only the required JSON with supplied IDs; no actions in speech.'}]}
 
-def speak(host,model,speaker,utterance,lore=False):
-    offered=host.call('lore_speech_prepare' if lore else 'speech_prepare',{'speaker':speaker,'input':utterance,'context':model.context,'guidance':getattr(model,'guidance','standard'),'size':getattr(model,'size','3')});request=offered['request'];last=None
+def speak(host,model,speaker,utterance,lore=False,natural=False):
+    offered=host.call('natural_speech_prepare' if natural else 'lore_speech_prepare' if lore else 'speech_prepare',{'speaker':speaker,'input':utterance,'context':model.context,'guidance':getattr(model,'guidance','standard'),'size':getattr(model,'size','3')});request=offered['request'];last=None
     for _ in range(2):
         text=''
         try:
             text=model.generate(request,offered['budget']['reserved_output'])
             submitted=text
-            if getattr(model,'guidance','standard')=='focused':
+            if natural or getattr(model,'guidance','standard')=='focused':
                 parsed=strict(text)
                 if not isinstance(parsed,dict) or set(parsed)!=set(['speech']):raise HostError('expected speech only')
                 submitted=encode({'speech':parsed['speech'],'tone':'neutral','fact_ids':[],'memory_ids':[]})
@@ -165,6 +165,7 @@ def display(reply):print(reply['speaker'].capitalize()+': '+reply['speech'])
 def converse(host,model,speaker,utterance):
     local=host.call('trade',{'speaker':speaker,'input':utterance})
     if local['handled']:return {'speaker':speaker,'speech':local['reply']}
+    if getattr(model,'dialogue',None)=='natural':return speak(host,model,speaker,utterance,natural=True)
     if not getattr(model,'knowledge',True):return speak(host,model,speaker,utterance)
     args={'speaker':speaker,'input':utterance,'context':model.context,'size':getattr(model,'size','3')}
     if getattr(model,'choices_limit',None) is not None:args['choices_limit']=model.choices_limit
@@ -246,14 +247,14 @@ def play(host,model):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--cap',type=float,required=True)
     p.add_argument('--binary',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[2]/'target/debug/examples/dungeon')
-    p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
+    p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','natural','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
     p.add_argument('--size',choices=['1','1.5','3','8','30','70'],default='3');p.add_argument('--guidance',choices=['standard','grounded','focused'],default='focused');p.add_argument('--context',type=int);p.add_argument('--choices-limit',type=int);p.add_argument('--max-calls',type=int,default=128);p.add_argument('--log',type=pathlib.Path)
     a=p.parse_args()
     if a.cap!=0 or not 0<=a.seed<=65535 or (a.context is not None and not 512<=a.context<=32768) or not 1<=a.max_calls<=256 or (a.choices_limit is not None and not 1<=a.choices_limit<=32):p.error('require --cap 0 and bounded seed/context/calls')
     if a.log is not None and a.log.exists():p.error('use a fresh log path')
     host=None
     try:
-        model=LocalModel(a.model,a.context or 2048,a.max_calls,a.log,a.guidance,a.size);model.knowledge=a.dialogue=='sources';host=Host(a.binary,a.seed,a.world)
+        model=LocalModel(a.model,a.context or 2048,a.max_calls,a.log,a.guidance,a.size);model.dialogue=a.dialogue;model.knowledge=a.dialogue!='legacy';host=Host(a.binary,a.seed,a.world)
         identity={'model_digest':model.identity['digest'],'quantization':model.identity['quantization'],
             'template_hash':model.identity['template_sha256'],'tokenizer':'gguf:'+model.identity['digest'],'runner':model.identity['runner']}
         workflow=host.call('workflow',{'size':a.size,'task':'dialogue','identity':identity})

@@ -6,6 +6,8 @@ mod host;
 mod intent;
 #[path = "../examples/dungeon/knowledge.rs"]
 mod knowledge;
+#[path = "../examples/dungeon/natural.rs"]
+mod natural;
 #[path = "../examples/dungeon/social.rs"]
 mod social;
 #[path = "../examples/dungeon/trade.rs"]
@@ -221,4 +223,42 @@ fn forgetting_dialogue_erases_quotes_and_preserves_purchased_inventory() {
     let owned = host.request(&trade("I'd like to buy oil.")).unwrap();
     assert_eq!(owned.get("reply"), Some(&Value::str("That item is not for sale by this merchant.")));
     assert_eq!(host.game.public(), before);
+}
+
+#[test]
+fn stock_paraphrases_do_not_offer_purchases_or_select_seal_lore() {
+    let mut h = host::Host::new(7).unwrap();
+    act(&mut h, "go", "room:gallery");
+    act(&mut h, "go", "room:workshop");
+    for input in ["hello, what do you have for sale?", "What can I buy?", "Please tell me what you sell."] {
+        assert_eq!(
+            h.request(&obj! {"op"=>"trade","args"=>obj!{"speaker"=>"merchant","input"=>input}}).unwrap().get("handled"),
+            Some(&Value::Bool(false))
+        );
+        let r=h.request(&obj!{"op"=>"knowledge_prepare","args"=>obj!{"speaker"=>"merchant","input"=>input,"context"=>2048,"size"=>"3"}}).unwrap();
+        let cards = r.get("offer").unwrap().get("definition").unwrap().get("cards").unwrap().as_array().unwrap();
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].get("id"), Some(&Value::str("stock")));
+        assert!(!cards[0].to_json().contains("seal"));
+    }
+    act(&mut h, "buy", "item:oil");
+    let r=h.request(&obj!{"op"=>"knowledge_prepare","args"=>obj!{"speaker"=>"merchant","input"=>"What do you have for sale?","context"=>2048,"size"=>"3"}}).unwrap();
+    assert!(!r.get("offer").unwrap().get("definition").unwrap().to_json().contains("hinge oil"));
+}
+#[test]
+fn experimental_natural_dialogue_uses_structured_authorized_facts_and_atomic_budget_checks() {
+    let world = gamectx::lore::Lore::parse(include_str!("../examples/dungeon/world-structured.json")).unwrap();
+    let mut h = host::Host::with_world(7, world).unwrap();
+    act(&mut h, "go", "room:gallery");
+    act(&mut h, "go", "room:workshop");
+    let before = h.game.public();
+    let args = |context| obj! {"speaker"=>"merchant","input"=>"What does the tonic do?","context"=>context,"guidance"=>"focused","size"=>"3"};
+    assert!(h.request(&obj! {"op"=>"natural_speech_prepare","args"=>args(512)}).is_err());
+    let r = h.request(&obj! {"op"=>"natural_speech_prepare","args"=>args(2048)}).unwrap();
+    assert_eq!(r.get("ticket"), Some(&Value::str("chat_1")));
+    let request = r.get("request").unwrap().to_json();
+    assert!(request.contains("implemented_uses") && request.contains("purpose"));
+    assert!(!request.contains("keeper_background") && !request.contains("vault_inscription"));
+    h.request(&obj!{"op"=>"speech_finish","args"=>obj!{"ticket"=>"chat_1","text"=>r#"{"speech":"I do not know its purpose.","tone":"neutral","fact_ids":[],"memory_ids":[]}"#}}).unwrap();
+    assert_eq!(h.game.public(), before);
 }

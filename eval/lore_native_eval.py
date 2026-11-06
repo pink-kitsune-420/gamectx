@@ -37,11 +37,25 @@ EXTRA=[
 ('unspoken_story',202,'merchant','Do you remember a story I never told you?',[{'id':1,'turn':1,'text':'My name is Fen.'}],False,['unknown']),
 ('unobserved_sky',303,'keeper','What color is the sky above us right now?',[],False,['unknown'])]
 
+STOCK=[
+('greet_sale',7,'merchant','hello, what do you have for sale?',[],False,['stock']),
+('selling',101,'merchant','What are you selling?',[],False,['stock']),
+('wares',202,'merchant','Show me your wares.',[],False,['stock']),
+('polite_sale',303,'merchant','Tell me what you have for sale.',[],False,['stock']),
+('have',0,'merchant','What do you have?',[],False,['stock']),
+('buy_options',7,'merchant','What can I buy?',[],False,['stock']),
+('supplies',101,'merchant','What supplies do you sell?',[],False,['stock']),
+('merchandise',202,'merchant','What merchandise is available?',[],False,['stock']),
+('after_purchase',7,'merchant','hello, what do you have for sale?',[],True,['stock']),
+('salve_sale',7,'merchant','Do you sell salve?',[],False,['sale_salve']),
+('keeper_shop',303,'keeper','What do you have for sale?',[],False,['stock']),
+('seal_sale',7,'merchant','Is the keeper seal for sale?',[],False,['seal_custody'])]
+
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--cohort',choices=['regression','fresh','extra','repair'],default='regression');p.add_argument('--tokens-only',action='store_true');p.add_argument('--tokens',type=pathlib.Path);p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--cohort',choices=['regression','fresh','extra','repair','stock'],default='regression');p.add_argument('--tokens-only',action='store_true');p.add_argument('--tokens',type=pathlib.Path);p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--output',type=pathlib.Path,required=True);a=p.parse_args()
     if a.cap!=0 or a.output.exists():p.error('require --cap 0 and fresh output path')
-    cases={'regression':CASES,'fresh':FRESH,'extra':EXTRA,'repair':[EXTRA[3]]}[a.cohort];world=ui.strict((ROOT/'examples/dungeon/world.json').read_text())
-    m=ui.LocalModel(a.model,2048,96,a.output);r=m.records;r.update(workflow_version=5,native=True,cohort=a.cohort,tokens_only=a.tokens_only,world=world,cases=[])
+    cases={'regression':CASES,'fresh':FRESH,'extra':EXTRA,'repair':[EXTRA[3]],'stock':STOCK}[a.cohort];world=ui.strict((ROOT/'examples/dungeon/world.json').read_text())
+    m=ui.LocalModel(a.model,2048,96,a.output);r=m.records;r.update(workflow_version=7,native=True,cohort=a.cohort,tokens_only=a.tokens_only,world=world,cases=[])
     if not a.tokens_only:
         prior=ui.strict(a.tokens.read_text());assert prior['complete'] and prior['tokens_only'] and prior['cohort']==a.cohort and prior['identity']==m.identity and prior['world']==world
     for case in cases:

@@ -66,6 +66,8 @@ pub mod dialogue;
 pub mod estimate;
 pub mod facts;
 pub mod formula;
+pub mod info;
+pub mod inventory;
 pub mod json;
 pub mod kit;
 pub mod local;

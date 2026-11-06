@@ -13,6 +13,20 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds optional model-callable informational notes and read-only inventory
+  lookup, source-bound reported claims, multiple owner IDs, unique instances, tag/count
+  rows and atomic host-validated integer transfers. Notes never promote themselves to
+  authoritative state. Adds a runnable information-tool example.
+- **[format]** Adds local `info`/`inventory` workflows and lore version 2 structured values;
+  39 new conformance cases, all 661 previous cases unchanged. Independent parity,
+  30000 new mutation attempts, documented bounds and exact example byte costs.
+- **[api]** Fixes dungeon stock paraphrases and purchase-listing routing. Adds experimental
+  `--dialogue natural` with typed relevant facts and budgeted speech, preserving defaults.
+- **[docs]** Stock pilot 10/12; 96 offline stock workflows and 72 natural request comparisons.
+  Two natural diagnostics accept 20/20 speech shapes each but retain factual failures;
+  narrowed structured requests total 20829→9962 bytes. Natural mode stays opt-in. All
+  token, generation and offline runs $0 API; no larger model loaded.
+
 - **[api]** Adds bounded authored-lore loading/selection and source-bound factual answer
   cards, actor/grant filtering, required-fit errors, live-over-lore field precedence,
   exact attributed player quotes and live source/revision validation. Rust stays

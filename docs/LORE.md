@@ -172,3 +172,33 @@ failed budgets and external file loading. Mutation tests add 30000 attempts.
 [Local model report](LORE_EVAL.md) retains successful and failed pilots, twenty new
 questions, their tuned rerun, eight further questions and the final local repair. Every
 new token/accuracy/audit run spends $0 API; no larger model was loaded.
+
+## Structured values and experimental natural phrasing
+
+Lore version 2 replaces each entry's `text` with a `value` containing any JSON value, up
+to 4096 compact bytes. Identity, audience, grants and selection rules stay the same. The
+packet preserves `{id,subject,topic,value}` and relevance indexes the serialized value.
+Version 1 and its packet bytes remain unchanged. Null represents an explicitly missing
+attribute; structured data alone does not make a model respect that absence.
+
+The dungeon provides [structured example lore](../examples/dungeon/world-structured.json)
+and an opt-in natural speech path:
+
+```bash
+cargo run --example dungeon -- --ai --dialogue natural --world examples/dungeon/world-structured.json
+```
+
+This passes relevant typed facts and the exact current request to the model, which generates
+its own bounded speech. It keeps original player quotations and recent whole exchanges,
+uses full-request estimated checks plus the runner's native token preflight, and executes
+no world action. A failed request budget does not consume a conversation ticket. Source
+selection remains the default; `legacy` remains available. Selecting version-2 values in
+strict source mode renders their compact JSON as text, so use version 1 for authored strict
+prose. The default world file stays version 1 for compatibility.
+
+The natural diagnostics retain 40 generated replies across two prototypes: all 40 satisfy
+the speech shape, but both invent player homes, tonic effects or permissions. The second
+prototype reduces aggregate structured-world request bytes **20829→9962** over the same ten
+questions while changing both prompt wording and fact selection. This is a byte-size result,
+not an isolated format comparison or a demonstrated accuracy improvement. It remains an
+experimental option, with no semantic guarantee or automatic default promotion.

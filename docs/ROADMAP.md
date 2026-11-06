@@ -141,6 +141,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Treating auxiliary “does” as an item-use field | Misroutes “Who does the oil belong to?” and can hide the correct owner card. Prioritize explicit subject/topic cues; retain the failed v2 artifact. |
 | Treating remembered name as evidence for an unrelated disclosure | First fresh batch offers a name quote for alleged sailing history and scores 17/20. Restrict candidate player quotes to relevant content and explicit temporal availability. |
 | Presenting a tuned rerun as fresh model generalization | The 20/20 rerun follows three observed failures. Keep it as regression evidence; the next eight questions score 7/8 and retain their missed disclosure question. |
+| Structured facts alone as a grounding guarantee | Both 20-reply natural diagnostics accept every JSON shape but invent homes, effects, ownership or permissions. Narrower facts reduce bytes, not proven factual errors. Keep natural mode experimental. |
 | More instructions as the default cure for character understanding | Standard intent 2/4, extra grounded instructions 1/4; generation input 7468→8240 and output 525→610 across nine speeches/four intents. Retain opt-in control. Focused prompts still hallucinate tonic effects and seal permission; validation cannot prove prose entailment. |
 | Unmatched choice order as a format-only accuracy comparison | Initial 12-scene codec pilot scored 11/12 for both, but presented different candidate orders. Retain frozen runner/results, exclude that comparison, rerun with matched order (8/12 versus 11/12). No prompt tuning; needs fresh/live replication. |
 | Model-loop timing presented as complete-turn latency | An initial local pilot began timing after hydration. Retain nine completed pilot turns, exclude its timing comparisons, and rerun with native hydration/filtering inside the clock. |
@@ -164,7 +165,28 @@ noted; "3 models" adds Llama 3.3 70B.
 | Intermediate fitting-packet repair using another ordered vector | Improved fitting throughput but added an allocation and slowed the tiny fixture. Shipped two stable-first borrowing passes, preserving original pressure-path declaration order without another vector. |
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
+## New local work (unreleased)
+
+- Optional informational notes and inventory lookup: 39 Python/Rust byte comparisons and
+  additive conformance cases, 30000 mutations. Reported claims retain original sources;
+  multiple owners, tags, unique IDs and atomic host transfers remain engine-controlled.
+  Four example schemas 1457 bytes; lookup schema/result 309/108 bytes, reported note 163.
+- Stock routing: eight paraphrases 1/8→8/8 offline; 96 native regression workflows over
+  six seeds. Installed Qwen stock pilot 10/12 (two unnecessary abstentions), $0 API.
+- Structured lore v2 and opt-in natural speech: 72 native request comparisons, old lore
+  bytes unchanged. Two 20-reply diagnostics have 20/20 valid shapes each but hallucinate;
+  narrowed structured request bytes 20829→9962/ten questions, no accuracy-win claim.
+
 ## Next candidates
+
+- Implement optional conversation tools in order: witnessed recent events, promises,
+  evidence-backed relationship memory, clarification, then host-validated offers. Reuse
+  existing evidence/reference/confirmation APIs. Accept explicit participant IDs and
+  visibility scopes for multiplayer hosts; the dungeon remains a single-player example.
+- Model-callable notes/ownership tools need live tool-use and integration evaluation;
+  current checks establish format/safety and byte cost, not model understanding.
+- Natural phrasing remains experimental: both broad and narrowed prompts hallucinate
+  absent homes, effects or permissions. Do not promote it based on valid JSON or fewer bytes.
 
 - Extend semantic question routing on independent scene/language families and multi-part
   questions; the example English policy can still abstain unnecessarily or choose a

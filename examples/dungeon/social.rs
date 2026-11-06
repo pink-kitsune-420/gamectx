@@ -96,6 +96,21 @@ impl Social {
         facts.push(("authored_lore".into(), lore));
         self.inner.prepare(&obj! {"scope"=>scope,"speaker"=>speaker,"revision"=>game.revision,"input"=>input,"facts"=>Value::Object(facts),"recall"=>recall,"history"=>history})
     }
+    pub fn prepare_facts(
+        &mut self,
+        game: &Game,
+        speaker: &str,
+        input: &str,
+        recall: usize,
+        history: usize,
+        facts: Value,
+    ) -> Result<Value> {
+        if input.trim().chars().count() > 240 || recall > 6 || history > 3 {
+            return Err(invalid());
+        }
+        let scope = Self::scope(game, speaker)?;
+        self.inner.prepare(&obj!{"scope"=>scope,"speaker"=>speaker,"revision"=>game.revision,"input"=>input,"facts"=>facts,"recall"=>recall,"history"=>history})
+    }
     pub fn finish_answer(&mut self, game: &Game, id: &str, input: &str) -> Result<Value> {
         self.finish_bounded(game, id, input, 512)
     }

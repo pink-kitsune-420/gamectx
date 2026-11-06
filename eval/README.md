@@ -1069,3 +1069,28 @@ scenario setup and extra audit state fetch are excluded. Per-turn missing memory
 `lore_memory.py --cap 0 --results <artifact> --output <fresh-file>` takes a separate warm
 post-run memory sample, not a peak or per-turn measurement. No script pulls weights,
 changes services, contacts a hosted endpoint or reads credentials. CI only audits saved data.
+
+
+## Optional informational tools and natural dialogue
+
+Offline, no server or key:
+
+```bash
+cargo build --locked --bin gamectx --example dungeon --example info_tools
+python3 -I eval/info_inventory_cases.py --cap 0
+python3 -I eval/dungeon_natural_cases.py --cap 0
+python3 -I eval/check_natural_model.py --cap 0 eval/natural-tokens.json eval/natural-results.json eval/natural-v2-tokens.json eval/natural-v2-results.json
+python3 -I eval/check_lore_model.py --cap 0 eval/lore-stock-tokens.json eval/lore-stock-results.json
+cargo run --locked --example info_tools
+```
+
+39 format workflows, 96 stock regressions and 72 native natural requests match independent
+Python prototypes. All 661 earlier conformance fixtures stay unchanged. [Information
+contracts](../docs/INFO.md) quote schema/result byte sizes from the executable example.
+
+`dungeon_natural_eval.py` requires an already-installed local model, `--cap 0`, a fresh
+output path, and a token-only artifact before generation. `--version 1` reconstructs the
+frozen broad prototype; default version 2 uses narrower facts. Both retained trials have
+20/20 structurally valid replies but factual failures. Do not equate shape acceptance with
+accuracy, and do not infer latency/RAM improvements from these overlapping diagnostics.
+[Raw-result interpretation](../docs/LORE_EVAL.md).

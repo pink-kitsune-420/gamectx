@@ -254,3 +254,10 @@ mod lore_example;
 fn documented_lore_example() -> gamectx::Result<()> {
     lore_example::main()
 }
+
+#[path = "../examples/info_tools.rs"]
+mod info_tools_example;
+#[test]
+fn documented_information_tools_example() -> gamectx::Result<()> {
+    info_tools_example::main()
+}

@@ -1,0 +1,47 @@
+{
+  "kind": "inventory",
+  "args": {
+    "snapshot": {
+      "version": 1,
+      "revision": 0,
+      "items": [
+        {
+          "id": "item:oil",
+          "label": "hinge oil",
+          "tags": [
+            "supply",
+            "repair"
+          ]
+        },
+        {
+          "id": "item:salve",
+          "label": "salve",
+          "tags": [
+            "heal"
+          ]
+        },
+        {
+          "id": "item:oil",
+          "label": "hinge oil",
+          "tags": [
+            "supply",
+            "repair"
+          ]
+        }
+      ],
+      "holdings": [
+        {
+          "owner": "merchant",
+          "item": "item:oil",
+          "quantity": 4
+        },
+        {
+          "owner": "player",
+          "item": "item:salve",
+          "quantity": 1
+        }
+      ]
+    },
+    "calls": []
+  }
+}

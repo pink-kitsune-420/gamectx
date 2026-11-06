@@ -1,0 +1,34 @@
+{
+  "kind": "info",
+  "args": {
+    "scope": "talk",
+    "calls": [
+      {
+        "name": "info_remember",
+        "text": "{\"subject\":\"item:oil\",\"attribute\":\"owner\",\"value\":\"Fen\",\"source\":\"line:1\"}",
+        "sources": [
+          {
+            "id": "line:1",
+            "speaker": "player",
+            "text": "The oil belongs to Fen."
+          }
+        ]
+      },
+      {
+        "name": "info_forget",
+        "text": "{\"id\":1}",
+        "sources": []
+      },
+      {
+        "name": "info_lookup",
+        "text": "{\"subject\":\"item:oil\",\"attribute\":\"owner\"}",
+        "sources": []
+      },
+      {
+        "name": "info_forget",
+        "text": "{\"id\":1}",
+        "sources": []
+      }
+    ]
+  }
+}

@@ -14,6 +14,8 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "info" => crate::info::workflow(a),
+        "inventory" => crate::inventory::workflow(a),
         "lore" => {
             c::fields(a, &["world", "select"])?;
             crate::lore::Lore::from_value(c::get(a, "world")?)?.select(c::get(a, "select")?)

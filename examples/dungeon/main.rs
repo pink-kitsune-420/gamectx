@@ -3,6 +3,7 @@ mod game;
 mod host;
 mod intent;
 mod knowledge;
+mod natural;
 mod social;
 mod trade;
 use game::{fields, get, text, uint, GOAL};
@@ -141,7 +142,7 @@ fn run() -> Result<()> {
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default) or legacy\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
             }
             "--play" => mode = "play",

@@ -1,0 +1,2620 @@
+{
+  "version": 1,
+  "identity": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+    "quantization": "Q4_K_M",
+    "template_sha256": "e94a8ecb9327ded799604a2e478659bc759230fe316c50d686358f932f52776c",
+    "runner": "0.40.3"
+  },
+  "guidance": "focused",
+  "size": "3",
+  "api_spend_usd": 0,
+  "calls": [
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:08.018530221Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 882022675,
+        "load_duration": 1757391,
+        "prompt_eval_count": 111,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 878112000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 882700
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:08.789308614Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 764862593,
+        "load_duration": 5031743,
+        "prompt_eval_count": 111,
+        "prompt_eval_cached_count": 110,
+        "prompt_eval_duration": 117877000,
+        "eval_count": 6,
+        "eval_duration": 639019000
+      },
+      "elapsed_micros": 765747
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat are you selling?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:09.191639058Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 377021083,
+        "load_duration": 1769323,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 89,
+        "prompt_eval_duration": 372281000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 377718
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat are you selling?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:09.939394402Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 744836189,
+        "load_duration": 2286266,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 107,
+        "prompt_eval_duration": 110407000,
+        "eval_count": 6,
+        "eval_duration": 629183000
+      },
+      "elapsed_micros": 745552
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nShow me your wares."
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:10.514881851Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 560630556,
+        "load_duration": 2394076,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 79,
+        "prompt_eval_duration": 547078000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 561376
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nShow me your wares."
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:11.270440112Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 753215065,
+        "load_duration": 2145715,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 107,
+        "prompt_eval_duration": 122663000,
+        "eval_count": 6,
+        "eval_duration": 625896000
+      },
+      "elapsed_micros": 753878
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nTell me what you have for sale."
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:11.88414253Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 595542197,
+        "load_duration": 2025677,
+        "prompt_eval_count": 110,
+        "prompt_eval_cached_count": 79,
+        "prompt_eval_duration": 590113000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 596248
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nTell me what you have for sale."
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:12.657012033Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 767558859,
+        "load_duration": 2411360,
+        "prompt_eval_count": 110,
+        "prompt_eval_cached_count": 109,
+        "prompt_eval_duration": 112232000,
+        "eval_count": 6,
+        "eval_duration": 650413000
+      },
+      "elapsed_micros": 768533
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nWhat do you have?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:13.207329106Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 532398457,
+        "load_duration": 1954269,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 79,
+        "prompt_eval_duration": 526861000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 533062
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nWhat do you have?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:13.959822914Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 746455576,
+        "load_duration": 3614146,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 106,
+        "prompt_eval_duration": 115349000,
+        "eval_count": 6,
+        "eval_duration": 625168000
+      },
+      "elapsed_micros": 747394
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat can I buy?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:14.517263412Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 540783654,
+        "load_duration": 1734855,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 79,
+        "prompt_eval_duration": 536236999,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 541417
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat can I buy?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:15.268287954Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 744208110,
+        "load_duration": 2508343,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 106,
+        "prompt_eval_duration": 110992000,
+        "eval_count": 6,
+        "eval_duration": 628115000
+      },
+      "elapsed_micros": 745014
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat supplies do you sell?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:15.661888751Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 376646360,
+        "load_duration": 1808873,
+        "prompt_eval_count": 109,
+        "prompt_eval_cached_count": 89,
+        "prompt_eval_duration": 371385000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 377344
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat supplies do you sell?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:16.417834554Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 751968139,
+        "load_duration": 2144644,
+        "prompt_eval_count": 109,
+        "prompt_eval_cached_count": 108,
+        "prompt_eval_duration": 111562000,
+        "eval_count": 6,
+        "eval_duration": 635310000
+      },
+      "elapsed_micros": 752656
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat merchandise is available?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:16.979311789Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 541059101,
+        "load_duration": 1822281,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 79,
+        "prompt_eval_duration": 536385000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 541725
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat merchandise is available?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:17.712610916Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 724485863,
+        "load_duration": 3205123,
+        "prompt_eval_count": 107,
+        "prompt_eval_cached_count": 106,
+        "prompt_eval_duration": 111742000,
+        "eval_count": 6,
+        "eval_duration": 606982000
+      },
+      "elapsed_micros": 725201
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:18.299855172Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 568653139,
+        "load_duration": 2414251,
+        "prompt_eval_count": 105,
+        "prompt_eval_cached_count": 76,
+        "prompt_eval_duration": 562770000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 569758
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:19.064257039Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"stock\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 755207634,
+        "load_duration": 3214748,
+        "prompt_eval_count": 105,
+        "prompt_eval_cached_count": 104,
+        "prompt_eval_duration": 117421000,
+        "eval_count": 6,
+        "eval_duration": 632259000
+      },
+      "elapsed_micros": 756151
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"sale_salve\",\"subject\":\"item:salve\",\"topic\":\"sale\",\"kind\":\"state\",\"text\":\"The salve is not part of my stock. It belongs to you.\"}]\n\nCurrent request:\nDo you sell salve?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "sale_salve",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:19.93793424Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 856097059,
+        "load_duration": 2226738,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 851223000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 856777
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"sale_salve\",\"subject\":\"item:salve\",\"topic\":\"sale\",\"kind\":\"state\",\"text\":\"The salve is not part of my stock. It belongs to you.\"}]\n\nCurrent request:\nDo you sell salve?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "sale_salve",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:20.930920491Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"sale_salve\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 986929952,
+        "load_duration": 2562580,
+        "prompt_eval_count": 108,
+        "prompt_eval_cached_count": 107,
+        "prompt_eval_duration": 113450000,
+        "eval_count": 8,
+        "eval_duration": 867225000
+      },
+      "elapsed_micros": 987988
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:keeper\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I don't have any items for sale.\"}]\n\nCurrent request:\nWhat do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:21.883272902Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 926683049,
+        "load_duration": 2131052,
+        "prompt_eval_count": 100,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 920013000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 927541
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:keeper\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I don't have any items for sale.\"}]\n\nCurrent request:\nWhat do you have for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "stock",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:22.66331802Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"unknown\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 773136236,
+        "load_duration": 2315351,
+        "prompt_eval_count": 100,
+        "prompt_eval_cached_count": 99,
+        "prompt_eval_duration": 138958000,
+        "eval_count": 6,
+        "eval_duration": 629114000
+      },
+      "elapsed_micros": 773971
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nIs the keeper seal for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "seal_custody",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:23.826403796Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 1142680301,
+        "load_duration": 3495948,
+        "prompt_eval_count": 112,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 1136147000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 1143473
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nIs the keeper seal for sale?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "seal_custody",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:45:24.640907476Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"unknown\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 805862283,
+        "load_duration": 2432708,
+        "prompt_eval_count": 112,
+        "prompt_eval_cached_count": 111,
+        "prompt_eval_duration": 130095000,
+        "eval_count": 6,
+        "eval_duration": 670495000
+      },
+      "elapsed_micros": 806819
+    }
+  ],
+  "workflow_version": 6,
+  "native": true,
+  "cohort": "stock",
+  "tokens_only": false,
+  "world": {
+    "version": 1,
+    "entries": [
+      {
+        "id": "merchant_background",
+        "subject": "npc:merchant",
+        "topic": "background",
+        "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.",
+        "tags": [
+          "story",
+          "yourself",
+          "job",
+          "work",
+          "background",
+          "merchant"
+        ],
+        "known_by": [
+          "npc:merchant"
+        ],
+        "requires": []
+      },
+      {
+        "id": "keeper_background",
+        "subject": "npc:keeper",
+        "topic": "background",
+        "text": "I tend the cistern and keep its fountain in working order. Quiet maintenance suits me better than treasure hunting.",
+        "tags": [
+          "story",
+          "yourself",
+          "job",
+          "work",
+          "background",
+          "keeper"
+        ],
+        "known_by": [
+          "npc:keeper"
+        ],
+        "requires": []
+      },
+      {
+        "id": "tonic_use",
+        "subject": "item:tonic",
+        "topic": "use",
+        "text": "The tonic has no implemented use. Its intended purpose has not been specified.",
+        "tags": [
+          "tonic",
+          "effect",
+          "purpose",
+          "does",
+          "do",
+          "use",
+          "healing"
+        ],
+        "known_by": [
+          "npc:merchant"
+        ],
+        "requires": []
+      },
+      {
+        "id": "seal_custody",
+        "subject": "item:keeper_seal",
+        "topic": "ownership",
+        "text": "The keeper owns the seal. It is not for sale, gift or loan.",
+        "tags": [
+          "seal",
+          "keeper",
+          "own",
+          "owner",
+          "belongs",
+          "sale",
+          "give"
+        ],
+        "known_by": [
+          "npc:merchant",
+          "npc:keeper"
+        ],
+        "requires": []
+      },
+      {
+        "id": "underground_workshop",
+        "subject": "room:workshop",
+        "topic": "surroundings",
+        "text": "The workshop is underground. Current outdoor weather is not observed here.",
+        "tags": [
+          "weather",
+          "sky",
+          "sun",
+          "outside",
+          "workshop",
+          "surroundings"
+        ],
+        "known_by": [
+          "*"
+        ],
+        "requires": []
+      },
+      {
+        "id": "vault_inscription",
+        "subject": "room:vault",
+        "topic": "history",
+        "text": "An inscription inside the vault praises patient hands that repair what haste would break.",
+        "tags": [
+          "inscription",
+          "vault",
+          "history"
+        ],
+        "known_by": [
+          "npc:keeper"
+        ],
+        "requires": [
+          "vault_open"
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "greet_sale",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1661114,
+      "retries": 0,
+      "calls_start": 0,
+      "calls_end": 2,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "selling",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat are you selling?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1134645,
+      "retries": 0,
+      "calls_start": 2,
+      "calls_end": 4,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "wares",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nShow me your wares."
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1325831,
+      "retries": 0,
+      "calls_start": 4,
+      "calls_end": 6,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "polite_sale",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (3 coins), chalk (1 coins), tonic (8 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nTell me what you have for sale."
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (3 coins), chalk (1 coins), tonic (8 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1378746,
+      "retries": 0,
+      "calls_start": 6,
+      "calls_end": 8,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "have",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (2 coins), chalk (1 coins), tonic (8 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (8 coins).\"}]\n\nCurrent request:\nWhat do you have?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (2 coins), chalk (1 coins), tonic (8 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1295367,
+      "retries": 0,
+      "calls_start": 8,
+      "calls_end": 10,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "buy_options",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat can I buy?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (3 coins), chalk (1 coins), tonic (9 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1302455,
+      "retries": 0,
+      "calls_start": 10,
+      "calls_end": 12,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "supplies",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).\"}]\n\nCurrent request:\nWhat supplies do you sell?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (3 coins), chalk (1 coins), tonic (10 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1142532,
+      "retries": 0,
+      "calls_start": 12,
+      "calls_end": 14,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "merchandise",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nWhat merchandise is available?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell hinge oil (2 coins), chalk (1 coins), tonic (9 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1285935,
+      "retries": 0,
+      "calls_start": 14,
+      "calls_end": 16,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "after_purchase",
+      "expected": [
+        "stock"
+      ],
+      "actual": "stock",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 3,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:merchant",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I sell chalk (1 coins), tonic (9 coins)."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:merchant\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I sell chalk (1 coins), tonic (9 coins).\"}]\n\nCurrent request:\nhello, what do you have for sale?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I sell chalk (1 coins), tonic (9 coins).",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "stock"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1345354,
+      "retries": 0,
+      "calls_start": 16,
+      "calls_end": 18,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "salve_sale",
+      "expected": [
+        "sale_salve"
+      ],
+      "actual": "sale_salve",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "sale_salve",
+                "subject": "item:salve",
+                "topic": "sale",
+                "kind": "state",
+                "source": "item:salve",
+                "text": "The salve is not part of my stock. It belongs to you."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"sale_salve\",\"subject\":\"item:salve\",\"topic\":\"sale\",\"kind\":\"state\",\"text\":\"The salve is not part of my stock. It belongs to you.\"}]\n\nCurrent request:\nDo you sell salve?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "sale_salve",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "The salve is not part of my stock. It belongs to you.",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "item:salve"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1862036,
+      "retries": 0,
+      "calls_start": 18,
+      "calls_end": 20,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "keeper_shop",
+      "expected": [
+        "stock"
+      ],
+      "actual": "unknown",
+      "local_unknown": false,
+      "correct": false,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "keeper:cistern",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "stock",
+                "subject": "npc:keeper",
+                "topic": "stock",
+                "kind": "state",
+                "source": "stock",
+                "text": "I don't have any items for sale."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"stock\",\"subject\":\"npc:keeper\",\"topic\":\"stock\",\"kind\":\"state\",\"text\":\"I don't have any items for sale.\"}]\n\nCurrent request:\nWhat do you have for sale?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "stock",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "keeper",
+        "speech": "I don't have information about that.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1720453,
+      "retries": 0,
+      "calls_start": 20,
+      "calls_end": 22,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "seal_sale",
+      "expected": [
+        "seal_custody"
+      ],
+      "actual": "unknown",
+      "local_unknown": false,
+      "correct": false,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "seal_custody",
+                "subject": "item:keeper_seal",
+                "topic": "ownership",
+                "kind": "lore",
+                "source": "seal_custody",
+                "text": "The keeper owns the seal. It is not for sale, gift or loan."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nIs the keeper seal for sale?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "seal_custody",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [
+              {
+                "id": "seal_custody",
+                "subject": "item:keeper_seal",
+                "topic": "ownership",
+                "text": "The keeper owns the seal. It is not for sale, gift or loan."
+              }
+            ],
+            "receipt": {
+              "bytes": 141,
+              "selected": [
+                "seal_custody"
+              ],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I don't have information about that.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1974261,
+      "retries": 0,
+      "calls_start": 22,
+      "calls_end": 24,
+      "runner_rss_bytes": null
+    }
+  ],
+  "complete": true
+}

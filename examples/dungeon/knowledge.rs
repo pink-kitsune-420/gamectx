@@ -10,6 +10,32 @@ fn has(w: &[String], xs: &[&str]) -> bool {
 fn contains(w: &[String], xs: &[&str]) -> bool {
     w.windows(xs.len()).any(|s| s.iter().zip(xs).all(|(a, b)| a == b))
 }
+pub fn stock_question(input: &str) -> bool {
+    let w = words(input);
+    let historical = contains(&w, &["did", "i"])
+        || contains(&w, &["did", "you"])
+        || has(&w, &["remember", "recall", "told", "said", "yesterday", "previously", "tomorrow"]);
+    let negative =
+        [vec!["not", "for", "sale"], vec!["isn", "t", "for", "sale"], vec!["not", "sell"], vec!["don", "t", "sell"]]
+            .iter()
+            .any(|p| contains(&w, p));
+    !historical
+        && !negative
+        && (has(&w, &["sell", "selling", "stock", "supplies", "wares", "merchandise"])
+            || [
+                vec!["for", "sale"],
+                vec!["your", "inventory"],
+                vec!["what", "do", "you", "have"],
+                vec!["what", "have", "you", "got"],
+                vec!["what", "can", "i", "buy"],
+                vec!["what", "could", "i", "buy"],
+                vec!["what", "is", "available"],
+                vec!["items", "available"],
+            ]
+            .iter()
+            .any(|p| contains(&w, p)))
+}
+
 fn card(
     id: impl Into<String>,
     subject: impl Into<String>,
@@ -45,10 +71,13 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
     let home = has(&w, &["home", "birthplace", "born"])
         || contains(&w, &["grow", "up"])
         || has(&w, &["where"]) && has(&w, &["live", "lived", "living"]);
-    let recall = contains(&w, &["did", "i"])
+    let listing = stock_question(input);
+    let recall = (contains(&w, &["did", "i"])
         || has(&w, &["remember", "recall", "tell", "told", "say", "said"])
-        || has(&w, &["my", "i"]) && has(&w, &["name"]);
-    let factual = input.contains('?')
+        || has(&w, &["my", "i"]) && has(&w, &["name"]))
+        && !listing;
+    let factual = listing
+        || input.contains('?')
         || has(&w, &["what", "where", "who", "whose", "how", "why", "remember"])
         || contains(&w, &["tell", "me"])
         || has(&w, &["explain"])
@@ -212,6 +241,19 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
                         uint(get(i, "price")?, u32::MAX)?
                     ),
                 ));
+                if listing {
+                    let selling = speaker == "merchant" && text(i, "owner")? == "merchant";
+                    let sale = if selling {
+                        format!(
+                            "The {} is for sale for {} coins.",
+                            text(i, "label")?,
+                            uint(get(i, "price")?, u32::MAX)?
+                        )
+                    } else {
+                        format!("The {} is not part of my stock. It belongs to {}.", text(i, "label")?, owner)
+                    };
+                    cards.push(card(format!("sale_{suffix}"), id, "sale", "state", id, sale));
+                }
                 if id == "item:salve" {
                     cards.push(card(
                         "gift_salve",
@@ -245,10 +287,10 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
             item_question = true;
         } else if has(&w, &["weather", "sky", "sun", "outside"]) {
             unknown = "I can't observe the current outdoor weather or sky from here.";
-        } else if has(&w, &["sell", "stock", "supplies"]) {
+        } else if listing {
             let stock = items
                 .iter()
-                .filter(|i| i.get("owner").and_then(Value::as_str) == Some(speaker))
+                .filter(|i| speaker == "merchant" && i.get("owner").and_then(Value::as_str) == Some("merchant"))
                 .map(|i| {
                     format!(
                         "{} ({} coins)",
@@ -257,16 +299,18 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
                     )
                 })
                 .collect::<Vec<_>>();
-            if !stock.is_empty() {
-                cards.push(card(
-                    "stock",
-                    actor.clone(),
-                    "stock",
-                    "state",
-                    "stock",
-                    format!("I sell {}.", stock.join(", ")),
-                ));
-            }
+            cards.push(card(
+                "stock",
+                actor.clone(),
+                "stock",
+                "state",
+                "stock",
+                if stock.is_empty() {
+                    "I don't have any items for sale.".into()
+                } else {
+                    format!("I sell {}.", stock.join(", "))
+                },
+            ));
         } else if has(&w, &["story", "background", "job", "work", "yourself"]) {
             subjects = vec![if has(&w, &["merchant"]) {
                 "npc:merchant".into()
@@ -288,15 +332,11 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
             general = true;
         }
     }
-    let selection = select(
-        game,
-        lore,
-        speaker,
-        input,
-        if subjects.is_empty() && !general { vec!["none".into()] } else { subjects },
-        4,
-        2048,
-    )?;
+    let selection = if subjects.is_empty() && !general {
+        obj! {"packet"=>Vec::<Value>::new(),"receipt"=>obj! {"bytes"=>2,"selected"=>Vec::<Value>::new(),"omitted"=>Vec::<Value>::new()}}
+    } else {
+        select(game, lore, speaker, input, subjects, 4, 2048)?
+    };
     for e in selection.get("packet").and_then(Value::as_array).expect("lore packet") {
         cards.push(card(
             text(e, "id")?,
@@ -304,10 +344,19 @@ pub fn build(game: &Game, lore: &Lore, speaker: &str, input: &str, memories: &[V
             text(e, "topic")?,
             "lore",
             text(e, "id")?,
-            text(e, "text")?,
+            e.get("text")
+                .and_then(Value::as_str)
+                .map(str::to_owned)
+                .unwrap_or_else(|| e.get("value").expect("validated lore payload").to_json()),
         ));
     }
-    let topics = if item_question && has(&w, &["own", "owner", "belongs", "belong", "whose"]) {
+    let topics = if item_question && listing {
+        Some(if cards.iter().any(|c| c.get("topic").and_then(Value::as_str) == Some("sale")) {
+            vec!["sale"]
+        } else {
+            vec!["ownership", "permission"]
+        })
+    } else if item_question && has(&w, &["own", "owner", "belongs", "belong", "whose"]) {
         Some(vec!["ownership"])
     } else if item_question && has(&w, &["give", "free"]) {
         Some(vec!["permission", "ownership"])

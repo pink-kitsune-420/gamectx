@@ -1,0 +1,35 @@
+{
+  "kind": "info",
+  "args": {
+    "scope": "merchant:player",
+    "calls": [
+      {
+        "name": "info_remember",
+        "text": "{\"subject\":\"item:oil\",\"attribute\":\"owner\",\"value\":\"Fen\",\"source\":\"line:1\"}",
+        "sources": [
+          {
+            "id": "line:1",
+            "speaker": "player",
+            "text": "The oil belongs to Fen."
+          }
+        ]
+      },
+      {
+        "name": "info_remember",
+        "text": "{\"subject\":\"item:oil\",\"attribute\":\"owner\",\"value\":\"keeper\",\"source\":\"line:2\"}",
+        "sources": [
+          {
+            "id": "line:2",
+            "speaker": "keeper",
+            "text": "The oil is mine."
+          }
+        ]
+      },
+      {
+        "name": "info_lookup",
+        "text": "{\"subject\":\"item:oil\",\"attribute\":\"owner\"}",
+        "sources": []
+      }
+    ]
+  }
+}

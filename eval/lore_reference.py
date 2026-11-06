@@ -13,12 +13,15 @@ def strings(v,maximum):
 def body(v,maximum):need(isinstance(v,str) and 0<len(v)<=maximum and not any(ord(c)<32 or 127<=ord(c)<=159 for c in v))
 class Lore:
     def __init__(self,v):
-        fields(v,['version','entries']);need(type(v['version']) is int and v['version']==1 and len(encode(v).encode())<=262144)
+        fields(v,['version','entries']);need(type(v['version']) is int and v['version'] in [1,2] and len(encode(v).encode())<=262144)
         need(isinstance(v['entries'],list) and len(v['entries'])<=512);ids=[]
         for e in v['entries']:
-            fields(e,['id','subject','topic','text','tags','known_by','requires'])
+            payload='text' if v['version']==1 else 'value'
+            fields(e,['id','subject','topic',payload,'tags','known_by','requires'])
             for k in ['id','subject','topic']:scope(e[k])
-            need(e['id'] not in ids);ids.append(e['id']);body(e['text'],1024)
+            need(e['id'] not in ids);ids.append(e['id'])
+            if v['version']==1:body(e['text'],1024)
+            else:need(len(encode(e['value']).encode())<=4096)
             strings(e['tags'],16);strings(e['known_by'],16);strings(e['requires'],16)
             need(e['known_by'] and ('*' not in e['known_by'] or e['known_by']==['*']))
         self.value=copy.deepcopy(v)
@@ -28,10 +31,10 @@ class Lore:
         visible=[e for e in self.value['entries'] if ('*' in e['known_by'] or a['actor'] in e['known_by']) and all(g in a['grants'] for g in e['requires']) and (not a['subjects'] or e['subject'] in a['subjects'])]
         need(all(any(e['id']==id for e in visible) for id in a['required']))
         selected=[e for e in visible if e['id'] in a['required']];wanted=set(tokens(a['query']))
-        def packed(rows):return [{k:e[k] for k in ['id','subject','topic','text']} for e in rows]
+        def packed(rows):return [{k:e[k] for k in ['id','subject','topic',('text' if self.value['version']==1 else 'value')]} for e in rows]
         def fits(rows):return len(rows)<=a['limit'] and len(encode(packed(rows)).encode())<=a['max_bytes']
         need(fits(selected))
-        scored=[(len(wanted.intersection(tokens(' '.join([e['id'],e['subject'],e['topic'],e['text'],*e['tags']])))),i,e) for i,e in enumerate(visible) if e['id'] not in a['required']]
+        scored=[(len(wanted.intersection(tokens(' '.join([e['id'],e['subject'],e['topic'],(e['text'] if self.value['version']==1 else encode(e['value'])),*e['tags']])))),i,e) for i,e in enumerate(visible) if e['id'] not in a['required']]
         for score,i,e in sorted(scored,key=lambda x:(-x[0],x[1])):
             if score and fits(selected+[e]):selected.append(e)
         packet=packed(selected);chosen=[e['id'] for e in selected]

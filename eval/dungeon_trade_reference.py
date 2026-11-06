@@ -5,6 +5,7 @@ import sys
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
 from dungeon_reference import need,pair
 from dungeon_slots_reference import tokens,resolve
+from dungeon_knowledge_reference import stock_question
 class Trade:
     def __init__(self):self.pending=None;self.sequence=0
     def cancel(self):self.pending=None;return {'cancelled':True}
@@ -29,6 +30,7 @@ class Trade:
         if negative or not request:return {'handled':False}
         items=g.public()['items'];pairs=[pair('buy',i['id']) for i in items]
         r=resolve(pairs,items,text)
+        if stock_question(text) and not r['candidates']:return {'handled':False}
         if len(r['candidates'])!=1:return {'handled':True,'reply':'Which item would you like to buy? Name one visible item.'}
         id=r['candidates'][0]['id'];item=next(i for i in items if i['id']==id)
         if item['owner']!='merchant':return {'handled':True,'reply':'That item is not for sale by this merchant.'}

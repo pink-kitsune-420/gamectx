@@ -63,7 +63,7 @@ class KnowledgeChecks(unittest.TestCase):
             finally:h.close()
     def test_custom_world_is_loaded_once(self):
         with tempfile.TemporaryDirectory() as folder:
-            path=pathlib.Path(folder)/'world.json';world=ui.strict((ROOT/'examples/dungeon/world.json').read_text());world['entries'][0]['text']='I repair travelers\' lamps.';path.write_text(ui.encode(world))
+            path=pathlib.Path(folder)/'world.json';world=ui.strict((ROOT/'examples/dungeon/world-v1.json').read_text());world['entries'][0]['text']='I repair travelers\' lamps.';path.write_text(ui.encode(world))
             h=ui.Host(ROOT/'target/debug/examples/dungeon',7,path)
             try:
                 go(h,'gallery');go(h,'workshop');world['entries'][0]['text']='A changed background.';path.write_text(ui.encode(world))

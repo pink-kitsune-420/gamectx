@@ -1,7 +1,7 @@
 //! Load authored lore once; authorize/select before rendering source-bound answers.
 use gamectx::{dialogue::Answers, lore::Lore, obj, Result, Value};
 pub fn main() -> Result<()> {
-    let world = Lore::parse(include_str!("dungeon/world.json"))?;
+    let world = Lore::parse(include_str!("dungeon/world-v1.json"))?;
     let selected = world
         .select(&obj! {"actor"=>"npc:merchant","grants"=>Vec::<Value>::new(),"query"=>"tonic purpose",
         "subjects"=>vec!["item:tonic"],"required"=>vec!["tonic_use"],"limit"=>4,"max_bytes"=>1024})?;

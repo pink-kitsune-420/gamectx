@@ -5,10 +5,17 @@ from lore_reference import Lore,Answers
 from dungeon_slots_reference import tokens,contains
 from dungeon_reference import encode
 
+def stock_question(input):
+    w=tokens(input)
+    historical=contains(w,['did','i']) or contains(w,['did','you']) or any(x in w for x in ['remember','recall','told','said','yesterday','previously','tomorrow'])
+    negative=any(contains(w,p) for p in [['not','for','sale'],['isn','t','for','sale'],['not','sell'],['don','t','sell']])
+    return not historical and not negative and (any(x in w for x in ['sell','selling','stock','supplies','wares','merchandise']) or any(contains(w,p) for p in [['for','sale'],['your','inventory'],['what','do','you','have'],['what','have','you','got'],['what','can','i','buy'],['what','could','i','buy'],['what','is','available'],['items','available']]))
+
 def build(g,world,speaker,input,memories=()):
     words=tokens(input);actor='npc:'+speaker if speaker!='narrator' else 'narrator';home=any(w in words for w in ['home','birthplace','born']) or contains(words,['grow','up']) or ('where' in words and any(w in words for w in ['live','lived','living']))
-    recall=contains(words,['did','i']) or any(w in words for w in ['remember','recall','tell','told','say','said']) or ('name' in words and any(w in words for w in ['my','i']))
-    factual='?' in input or any(w in words for w in ['what','where','who','whose','how','why','remember']) or contains(words,['tell','me']) or 'explain' in words or ('describe' in words and 'my' in words)
+    listing=stock_question(input)
+    recall=(contains(words,['did','i']) or any(w in words for w in ['remember','recall','tell','told','say','said']) or ('name' in words and any(w in words for w in ['my','i']))) and not listing
+    factual=listing or '?' in input or any(w in words for w in ['what','where','who','whose','how','why','remember']) or contains(words,['tell','me']) or 'explain' in words or ('describe' in words and 'my' in words)
     lore=Lore(world);grants=['vault_open'] if g.gate_open else []
     if not factual:return {'handled':False,'lore':lore.select({'actor':actor,'grants':grants,'query':input+' background','subjects':[actor],'required':[],'limit':2,'max_bytes':1024})}
     cards=[];subjects=[];general=False;item_question=False;unknown="I don't have information about that."
@@ -41,24 +48,30 @@ def build(g,world,speaker,input,memories=()):
                 owner='you' if i['owner']=='player' else 'the '+i['owner'] if i['owner']!='world' else 'nobody'
                 card('owner_'+suffix,id,'ownership','state',id,'The '+i['label']+' belongs to '+owner+'.')
                 card('price_'+suffix,id,'price','state',id,'The listed price of '+i['label']+' is '+str(i['price'])+' coins.')
+                if listing:
+                    selling=speaker=='merchant' and i['owner']=='merchant'
+                    text='The '+i['label']+' is for sale for '+str(i['price'])+' coins.' if selling else 'The '+i['label']+' is not part of my stock. It belongs to '+owner+'.'
+                    card('sale_'+suffix,id,'sale','state',id,text)
                 if id=='item:salve':card('gift_salve',id,'permission','state',id,'The salve already belongs to you. It is not merchant stock to give away.')
                 if id=='item:salve':card('use_salve',id,'use','state',id,'You already own the salve. One use consumes it and heals up to 3 health, capped at 6.')
                 elif id=='item:oil':card('use_oil',id,'use','state',id,'Hinge oil is consumed with a bronze key to unlock the vault gate.')
         elif 'seal' in words:subjects=['item:keeper_seal'];item_question=True
         elif any(w in words for w in ['weather','sky','sun','outside']):
             unknown="I can't observe the current outdoor weather or sky from here."
-        elif any(w in words for w in ['sell','stock','supplies']):
-            items=[i for i in items if i['owner']==speaker]
-            if items:card('stock',actor,'stock','state','stock','I sell '+', '.join(i['label']+' ('+str(i['price'])+' coins)' for i in items)+'.')
+        elif listing:
+            items=[i for i in items if speaker=='merchant' and i['owner']=='merchant']
+            text='I sell '+', '.join(i['label']+' ('+str(i['price'])+' coins)' for i in items)+'.' if items else "I don't have any items for sale."
+            card('stock',actor,'stock','state','stock',text)
         elif any(w in words for w in ['story','background','job','work','yourself']):subjects=['npc:merchant' if 'merchant' in words else 'npc:keeper' if 'keeper' in words else actor]
         elif 'coins' in words:
             card('balance','player','balance','state','wallet','You have '+str(g.coins)+' coins.')
         else:general=True
-    selection=lore.select({'actor':actor,'grants':grants,'query':input,'subjects':subjects if subjects or general else ['none'],'required':[],'limit':4,'max_bytes':2048})
-    for e in selection['packet']:card(e['id'],e['subject'],e['topic'],'lore',e['id'],e['text'])
+    selection=lore.select({'actor':actor,'grants':grants,'query':input,'subjects':subjects,'required':[],'limit':4,'max_bytes':2048}) if subjects or general else {'packet':[],'receipt':{'bytes':2,'selected':[],'omitted':[]}}
+    for e in selection['packet']:card(e['id'],e['subject'],e['topic'],'lore',e['id'],e['text'] if 'text' in e else encode(e['value']))
     # Exclude irrelevant answer topics; ownership and implemented-use facts remain
     # in the host state rather than being replaced by text from lore.
-    if item_question and any(w in words for w in ['own','owner','belongs','belong','whose']):cards=[c for c in cards if c['topic']=='ownership']
+    if item_question and listing:cards=[c for c in cards if c['topic'] in (['sale'] if any(c['topic']=='sale' for c in cards) else ['ownership','permission'])]
+    elif item_question and any(w in words for w in ['own','owner','belongs','belong','whose']):cards=[c for c in cards if c['topic']=='ownership']
     elif item_question and any(w in words for w in ['give','free']):cards=[c for c in cards if c['topic'] in ['permission','ownership']]
     elif item_question and any(w in words for w in ['price','cost']):cards=[c for c in cards if c['topic']=='price']
     elif item_question and any(w in words for w in ['use','effect','purpose','do','does','heal']):cards=[c for c in cards if c['topic']=='use']

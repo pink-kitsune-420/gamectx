@@ -49,6 +49,13 @@ a character. Factual questions select a host-supplied source or an explicit unkn
 player quotes stay distinct from lore and current inventory. Open-ended dialogue remains
 generated. `--dialogue legacy` selects the earlier control.
 
+Optional [information tools](docs/INFO.md) let a model remember and look up reported
+ownership, locations and other claims with original evidence. A read-only inventory tool
+returns game-confirmed owners/counts; unique instances and validated host transfers are
+supported. Claims never change inventory. See [the runnable example](examples/info_tools.rs).
+Structured lore and `--dialogue natural` are available experimentally; local tests still
+show factual hallucinations, so source selection remains the default.
+
 The reusable [lore and answer APIs](docs/LORE.md) keep the Rust core dependency-free.
 [Local tests](docs/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local

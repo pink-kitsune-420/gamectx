@@ -103,3 +103,37 @@ python3 -I eval/check_lore_model.py --cap 0 eval/results/lore-tokens.json eval/r
 Use fresh paths. Cohorts are regression, fresh, extra and repair; previously tuned questions
 must remain identified as such. All run loops cap chat-call reservations (96 native, 64
 prototype), including preflights and failed dispatches. Hosted credentials are never read.
+
+## Stock routing and natural speech diagnostics
+
+The user greeting “hello, what do you have for sale?” previously selected seal lore.
+The example now recognizes stock paraphrases before quote recall and purchase offers,
+and explicitly closes the lore scope for stock-only answers. Eight regression stock
+paraphrases select stock 8/8 offline (previous policy 1/8). Independent native/Python
+checks cover 96 before/after-purchase workflows across six seeds; 72 additional native
+natural requests match the prototype across those seeds and both lore versions.
+
+The stock cohort on the installed local Qwen2.5 3.09B Q4_K_M scores **10/12** expected
+answer IDs: all eight listing paraphrases, the post-purchase listing and player-owned
+salve case pass. Keeper-stock and seal-sale abstain unnecessarily. Token run: 12 calls;
+accuracy run: 24 calls, no retries; each spends **$0 API**, with `--cap 0`.
+Raw records: `eval/lore-stock-{tokens,results}.json`.
+
+Two natural-speech prototypes each test ten questions against text and structured lore:
+20 token-only calls followed by 40 accuracy-stage calls (preflight + generation), each
+run **$0 API** with `--cap 0`. The installed model, CPU=4, GPU=0, context=2048,
+temperature=0 and seed=42 are retained in each artifact. Both prototypes yield 20/20
+structurally valid replies, but semantic scores are deliberately null: JSON acceptance
+is not factual accuracy. Manual inspection finds invented homes, tonic healing, unavailable
+salve sales and seal loans. No retries or semantic correction layer was evaluated.
+
+`natural-*.json` preserves the broad first prototype; `natural-v2-*.json` preserves the
+narrowed second prototype. Aggregate structured-world request bytes are 20829 and 9962
+respectively. Changes include instructions and selection together; this is not a controlled
+format-only comparison. Text lore also fails factual grounding. Keep natural mode opt-in.
+The trials shared a local runner during part of execution, exclude native host hydration,
+and have no peak-RAM samples; their timings establish no latency or memory improvement.
+
+Offline audits reconstruct every request and validate responses/call accounting without
+Ollama. `eval/check_natural_model.py` covers both prototype versions; the existing lore
+audit retains all old pilots and now includes the stock cohort.

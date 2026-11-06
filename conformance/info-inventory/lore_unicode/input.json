@@ -1,0 +1,156 @@
+{
+  "kind": "lore",
+  "args": {
+    "world": {
+      "version": 2,
+      "entries": [
+        {
+          "id": "merchant_background",
+          "subject": "npc:merchant",
+          "topic": "background",
+          "value": {
+            "role": "workshop merchant",
+            "work": "maintain the workshop; trade repair supplies with travelers",
+            "interests": [
+              "travelers' repair stories"
+            ]
+          },
+          "tags": [
+            "story",
+            "yourself",
+            "job",
+            "work",
+            "background",
+            "merchant"
+          ],
+          "known_by": [
+            "npc:merchant"
+          ],
+          "requires": []
+        },
+        {
+          "id": "keeper_background",
+          "subject": "npc:keeper",
+          "topic": "background",
+          "value": {
+            "role": "cistern keeper",
+            "work": "tend the cistern; maintain its fountain",
+            "preference": "quiet maintenance over treasure hunting"
+          },
+          "tags": [
+            "story",
+            "yourself",
+            "job",
+            "work",
+            "background",
+            "keeper"
+          ],
+          "known_by": [
+            "npc:keeper"
+          ],
+          "requires": []
+        },
+        {
+          "id": "tonic_use",
+          "subject": "item:tonic",
+          "topic": "use",
+          "value": {
+            "owner": "旅人",
+            "count": 2
+          },
+          "tags": [
+            "tonic",
+            "effect",
+            "purpose",
+            "does",
+            "do",
+            "use",
+            "healing"
+          ],
+          "known_by": [
+            "npc:merchant"
+          ],
+          "requires": []
+        },
+        {
+          "id": "seal_custody",
+          "subject": "item:keeper_seal",
+          "topic": "ownership",
+          "value": {
+            "owner": "npc:keeper",
+            "sale": false,
+            "gift": false,
+            "loan": false
+          },
+          "tags": [
+            "seal",
+            "keeper",
+            "own",
+            "owner",
+            "belongs",
+            "sale",
+            "give"
+          ],
+          "known_by": [
+            "npc:merchant",
+            "npc:keeper"
+          ],
+          "requires": []
+        },
+        {
+          "id": "underground_workshop",
+          "subject": "room:workshop",
+          "topic": "surroundings",
+          "value": {
+            "location": "underground",
+            "outdoor_weather_observed": false
+          },
+          "tags": [
+            "weather",
+            "sky",
+            "sun",
+            "outside",
+            "workshop",
+            "surroundings"
+          ],
+          "known_by": [
+            "*"
+          ],
+          "requires": []
+        },
+        {
+          "id": "vault_inscription",
+          "subject": "room:vault",
+          "topic": "history",
+          "value": {
+            "inscription_theme": "patient repair rather than haste"
+          },
+          "tags": [
+            "inscription",
+            "vault",
+            "history"
+          ],
+          "known_by": [
+            "npc:keeper"
+          ],
+          "requires": [
+            "vault_open"
+          ]
+        }
+      ]
+    },
+    "select": {
+      "actor": "npc:merchant",
+      "grants": [],
+      "query": "tonic purpose",
+      "subjects": [
+        "item:tonic"
+      ],
+      "required": [
+        "tonic_use"
+      ],
+      "limit": 4,
+      "max_bytes": 2048
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "inventory",
+  "args": {
+    "snapshot": {
+      "version": 1,
+      "revision": 0,
+      "items": [
+        {
+          "id": "item:oil",
+          "label": "hinge oil",
+          "tags": [
+            "supply",
+            "repair"
+          ]
+        },
+        {
+          "id": "item:salve",
+          "label": "salve",
+          "tags": [
+            "heal"
+          ]
+        }
+      ],
+      "holdings": [
+        {
+          "owner": "merchant",
+          "item": "item:oil",
+          "quantity": 4
+        },
+        {
+          "owner": "player",
+          "item": "item:salve",
+          "quantity": 1
+        }
+      ]
+    },
+    "calls": [
+      {
+        "op": "transfer",
+        "revision": 0,
+        "moves": [
+          {
+            "item": "item:oil",
+            "from": "merchant",
+            "to": "player",
+            "quantity": 2
+          }
+        ],
+        "allow": [
+          {
+            "item": "item:oil",
+            "from": "merchant",
+            "to": "player",
+            "quantity": 2
+          }
+        ]
+      },
+      {
+        "op": "transfer",
+        "revision": 0,
+        "moves": [
+          {
+            "item": "item:oil",
+            "from": "merchant",
+            "to": "player",
+            "quantity": 2
+          }
+        ],
+        "allow": [
+          {
+            "item": "item:oil",
+            "from": "merchant",
+            "to": "player",
+            "quantity": 2
+          }
+        ]
+      },
+      {
+        "op": "rows",
+        "owners": [
+          "player"
+        ],
+        "tags": []
+      }
+    ]
+  }
+}

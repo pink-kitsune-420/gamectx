@@ -184,3 +184,10 @@ host-supplied actor/grant checks. Its model packet can be supplied as a recipe s
 or protected scene fact; section values still require host authorization. `dialogue::Answers`
 provides bounded source-ID selection and host-rendered facts/quotes with current source
 validation. Existing registrations/recipes remain unchanged. [Guide](LORE.md).
+
+
+Optional [information/inventory tools](INFO.md) expose bounded model calls without changing
+registered recipes. Hosts bind audience scope, source evidence and visible owner IDs in
+callbacks; model arguments cannot widen access. Reported notes are separate from authoritative
+snapshots and `FactRegistry`. Structured lore version 2 and experimental natural phrasing
+are additive; source selection remains the dungeon default after failed grounding diagnostics.

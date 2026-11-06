@@ -504,6 +504,26 @@ impl Host {
                     },
                 )
             }
+            "natural_speech_prepare" => {
+                let (_, size) = Self::settings(a, &["speaker", "input", "context"])?;
+                let speaker = text(a, "speaker")?;
+                let input = text(a, "input")?;
+                let state = self.social.state(&self.game, speaker)?;
+                let facts = super::natural::facts(
+                    &self.game,
+                    &self.world,
+                    speaker,
+                    input,
+                    get(&state, "memories")?.as_array().expect("memories"),
+                )?;
+                let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
+                let mut draft = self.social.clone();
+                let ticket = draft.prepare_facts(&self.game, speaker, input, hints.recall, hints.exchanges, facts)?;
+                let rendered = super::natural::render(&ticket, uint(get(a, "context")?, 32768)?, size)?;
+                self.social = draft;
+                self.knowledge = None;
+                Ok(rendered)
+            }
             "speech_prepare" | "lore_speech_prepare" => {
                 let (profile, size) = Self::settings(a, &["speaker", "input", "context"])?;
                 let speaker = text(a, "speaker")?;

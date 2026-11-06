@@ -45,31 +45,39 @@ impl Lore {
     pub fn from_value(v: &Value) -> Result<Self> {
         bounded(v, 262144)?;
         c::fields(v, &["version", "entries"])?;
-        c::uint(c::get(v, "version")?, 1, 1)?;
+        let version = c::uint(c::get(v, "version")?, 1, 2)?;
         let rows = c::list(c::get(v, "entries")?)?;
         if rows.len() > 512 {
             return Err(c::bad());
         }
         let mut index = Vec::new();
         for (i, e) in rows.iter().enumerate() {
-            c::fields(e, &["id", "subject", "topic", "text", "tags", "known_by", "requires"])?;
+            let payload = if version == 1 { "text" } else { "value" };
+            c::fields(e, &["id", "subject", "topic", payload, "tags", "known_by", "requires"])?;
             for k in ["id", "subject", "topic"] {
                 c::scope(text(e, k)?)?;
             }
             if rows[..i].iter().any(|v| v.get("id") == e.get("id")) {
                 return Err(c::bad());
             }
-            let body = text(e, "text")?;
-            if body.is_empty() || body.chars().count() > 1024 || body.chars().any(char::is_control) {
-                return Err(c::bad());
-            }
+            let body = if version == 1 {
+                let body = text(e, "text")?;
+                if body.is_empty() || body.chars().count() > 1024 || body.chars().any(char::is_control) {
+                    return Err(c::bad());
+                }
+                body.to_owned()
+            } else {
+                let value = c::get(e, "value")?;
+                bounded(value, 4096)?;
+                value.to_json()
+            };
             let tags = strings(c::get(e, "tags")?, 16)?;
             let audience = strings(c::get(e, "known_by")?, 16)?;
             strings(c::get(e, "requires")?, 16)?;
             if audience.is_empty() || audience.iter().any(|s| s == "*") && audience.len() != 1 {
                 return Err(c::bad());
             }
-            let mut combined = [text(e, "id")?, text(e, "subject")?, text(e, "topic")?, body].join(" ");
+            let mut combined = [text(e, "id")?, text(e, "subject")?, text(e, "topic")?, &body].join(" ");
             for t in tags {
                 combined.push(' ');
                 combined.push_str(&t);
@@ -116,8 +124,22 @@ impl Lore {
         if required.iter().any(|id| !visible.iter().any(|(_, e)| e.get("id").and_then(Value::as_str) == Some(id))) {
             return Err(c::bad());
         }
+        let payload = if self.value.get("version") == Some(&Value::from(1u32)) { "text" } else { "value" };
         let packed = |indices: &[usize]| {
-            Value::Array(indices.iter().map(|&i| {let e=&entries[i];obj! {"id"=>e.get("id").expect("id").clone(),"subject"=>e.get("subject").expect("subject").clone(),"topic"=>e.get("topic").expect("topic").clone(),"text"=>e.get("text").expect("text").clone()}}).collect())
+            Value::Array(
+                indices
+                    .iter()
+                    .map(|&i| {
+                        let e = &entries[i];
+                        let mut fields = ["id", "subject", "topic"]
+                            .iter()
+                            .map(|k| ((*k).into(), e.get(k).expect("validated").clone()))
+                            .collect::<Vec<_>>();
+                        fields.push((payload.into(), e.get(payload).expect("validated payload").clone()));
+                        Value::Object(fields)
+                    })
+                    .collect(),
+            )
         };
         let mut selected = visible
             .iter()

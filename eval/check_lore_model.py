@@ -3,14 +3,14 @@ import argparse,importlib,pathlib,sys
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
 import lore_reference as ref
 import dungeon_reference as game
-from lore_native_eval import CASES,FRESH,EXTRA
+from lore_native_eval import CASES,FRESH,EXTRA,STOCK
 import play_ai as ui
-BUILDERS={v:importlib.import_module('dungeon_knowledge_reference'+('' if v==5 else '_v'+str(v))).build for v in range(1,6)}
+BUILDERS={v:importlib.import_module('dungeon_knowledge_reference'+('' if v==7 else '_v'+str(v))).build for v in range(1,8)}
 
 def check(path):
     r=ui.strict(path.read_text());assert r['complete'] and r['api_spend_usd']==0
     version=r.get('workflow_version',1);native=r.get('native',False);calls=r['calls'];cursor=correct=local=0
-    if native:cases={'regression':CASES,'fresh':FRESH,'extra':EXTRA,'repair':[EXTRA[3]]}[r['cohort']]
+    if native:cases={'regression':CASES,'fresh':FRESH,'extra':EXTRA,'repair':[EXTRA[3]],'stock':STOCK}[r['cohort']]
     else:
         cases=(importlib.import_module('lore_model_pilot_v1') if version==1 else importlib.import_module('lore_model_pilot_v2')).CASES
     assert len(r['cases'])==len(cases)

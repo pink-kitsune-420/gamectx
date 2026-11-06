@@ -1535,3 +1535,19 @@ The example dungeon adds optional `--world FILE` and `--dialogue sources|legacy`
 host operations `knowledge_prepare`, `knowledge_finish`, `lore_speech_prepare`. Old
 speech/observation/replay formats stay unchanged. Only the new host-rendered factual
 path permits up to 512 reply characters; legacy generated speech remains capped at 240.
+
+
+## Informational tools and structured lore (unreleased)
+
+Additive local kinds `info` and `inventory` implement the exact contracts in [INFO.md](INFO.md).
+`info` args are `{scope,calls:[{name,text,sources}]}` (at most 128 calls), returning
+`{scope,notes,results:[{ok:true,result}|{ok:false}]}`. `inventory` args are
+`{snapshot,calls}` (at most 64), returning `{snapshot,results}` with the same isolated
+call-result envelope. Calls use `op:rows` with `owners,tags`; `op:lookup` with `text,owners`;
+`op:transfer` with `revision,moves,allow`; or `op:propose` with `owner,text,allow`.
+The CLI's exact `allow` list is host policy, never a model-provided capability. It is at
+most 32 entries. No outer state is changed if initial validation fails.
+
+Lore version 2 is additive: `value` replaces `text`, with at most 4096 serialized bytes
+per value. Selection packets preserve that field. Mixed-version fields are rejected.
+All version-1 lore output remains byte-identical. See [LORE.md](LORE.md).

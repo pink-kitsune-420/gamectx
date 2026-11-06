@@ -6,7 +6,7 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 def cases():
     out=[]
     def add(n,k,a,error=False):out.append((n,{'kind':k,'args':copy.deepcopy(a)},error))
-    world=json.loads((ROOT/'examples/dungeon/world.json').read_text())
+    world=json.loads((ROOT/'examples/dungeon/world-v1.json').read_text())
     select={'actor':'npc:merchant','grants':[],'query':'tonic purpose','subjects':['item:tonic'],'required':[],'limit':4,'max_bytes':1024}
     a={'world':world,'select':select};add('select','lore',a)
     for name,changes in [('private',{'subjects':['npc:keeper'],'query':'keeper background'}),('gated',{'actor':'npc:keeper','subjects':['room:vault'],'query':'inscription'}),('granted',{'actor':'npc:keeper','subjects':['room:vault'],'query':'inscription','grants':['vault_open']}),('no_match',{'query':'xyzzymissingterm','subjects':[]}),('required',{'required':['tonic_use'],'query':''})]:

@@ -817,3 +817,53 @@ fn lore_and_source_answer_text_remain_bounded_and_cannot_supply_new_prose() {
         }
     }
 }
+
+#[test]
+fn informational_tool_text_and_integer_transfer_proposals_fail_atomically() {
+    let snapshot = parse(include_str!("../conformance/info-inventory/propose/input.json"), 262144)
+        .unwrap()
+        .get("args")
+        .unwrap()
+        .get("snapshot")
+        .unwrap()
+        .clone();
+    let evidence = gamectx::obj! {"id"=>"line:1","speaker"=>"player","text"=>"The oil is mine."};
+    let mut rng = Rng(0x99aa_3150_2190_8877);
+    for _ in 0..10_000 {
+        let mut inv = gamectx::inventory::Inventory::from_value(&snapshot).unwrap();
+        let before = inv.to_value();
+        let input = mutate(&mut rng, r#"{"revision":0,"item":"item:oil","to":"player","quantity":2}"#);
+        if inv.propose("merchant", &input, |_| true).is_err() {
+            assert_eq!(before, inv.to_value());
+        } else {
+            let total: usize = inv
+                .to_value()
+                .get("holdings")
+                .unwrap()
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|h| h.get("item").and_then(Value::as_str) == Some("item:oil"))
+                .map(|h| h.get("quantity").unwrap().as_usize().unwrap())
+                .sum();
+            assert_eq!(total, 4);
+        }
+        let mut notes = gamectx::info::Notes::new("shop").unwrap();
+        let before = notes.to_value();
+        let input =
+            mutate(&mut rng, r#"{"subject":"item:oil","attribute":"owner","value":"player","source":"line:1"}"#);
+        match notes.call("info_remember", &input, &vec![evidence.clone()].into()) {
+            Err(_) => assert_eq!(before, notes.to_value()),
+            Ok(v) => {
+                assert_eq!(v.get("status"), Some(&Value::str("reported")));
+                assert_eq!(v.get("source"), Some(&evidence));
+            }
+        }
+        let input = mutate(&mut rng, include_str!("../conformance/info-inventory/lore_values/input.json"));
+        if let Ok(value) = parse(&input, 262144) {
+            if let Ok(output) = gamectx::local::process(&value) {
+                assert_eq!(parse(&output.to_json(), 262144).unwrap(), output);
+            }
+        }
+    }
+}
