@@ -317,3 +317,30 @@ checked on restore. Define clock progression in the engine, especially during pa
 or disconnected-player time. The library does not own archival files, consent policy,
 active-player timers or permissions. [The tested evidence example](../examples/evidence-memory.rs)
 runs with `cargo run --example evidence-memory`.
+
+Use `facts::FactRegistry` for explicit engine/user assertions that should survive event
+recall: configuration rules, preferences and validated state. Register a scope, key and
+typed JSON value, retaining its returned `FactRef`. Pin rules that require deliberate
+changes. User-owned assertions can only be changed with user authority; a pin must first
+be explicitly removed. Supply the current revision when replacing any existing key.
+The authority enum records a host decision; it does not authenticate a caller.
+
+Attach source references to host-validated derived facts. A changed, missing, private or
+expired source makes descendants unavailable until the host recomputes them. Unpinning
+also advances the source revision. Ordinary forgetting leaves invalid descendant payloads
+in saved state; privacy erasure physically removes matching data and its descendants.
+Capacity is explicit and full registration fails instead of evicting a rule silently.
+
+Use `check` on model-proposed typed claims, then treat `supported`, `conflicting` and
+`unknown` according to the game policy. Missing/private/expired/stale facts are unknown,
+not false. Decimal comparisons are exact, object order is ignored and array order/types
+matter. A matching registered assertion still depends on the quality of its source;
+free-form statements require host interpretation and evidence checking.
+
+`Turn::facts` adds a filtered, byte-budgeted table with a dropped count. The offline
+128-fact fixture retains eight in 927 bytes under a 1,024-byte cap and reports 120 dropped;
+direct lookup can still retrieve those current facts. This is a packet-size/integrity
+check, not a model-accuracy result. [The tested example](../examples/registered-facts.rs)
+runs with `cargo run --example registered-facts`. Use `Journal` for observations and
+`EvidenceMemory` for tentative reasoning; neither automatically promotes ideas into
+registered facts. The host owns archive I/O, validation and any model-facing tool routing.

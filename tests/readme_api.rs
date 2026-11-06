@@ -191,3 +191,10 @@ fn documented_integration_and_evidence_examples() -> gamectx::Result<()> {
     integration_tools::main()?;
     evidence_memory::main()
 }
+
+#[path = "../examples/registered-facts.rs"]
+mod registered_facts;
+#[test]
+fn documented_registered_facts_example() -> gamectx::Result<()> {
+    registered_facts::main()
+}

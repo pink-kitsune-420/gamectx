@@ -1,0 +1,1 @@
+{"capacity":8,"operations":[{"op":"register","request":{"scope":"world","key":"a","value":1,"now":10,"authority":"host","pinned":false,"expires":null,"privacy":[],"dependencies":[],"expected":null}},{"op":"check","scope":"world","key":"a","value":1,"now":9,"denied":[]}]}

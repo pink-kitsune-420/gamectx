@@ -62,7 +62,17 @@ snapshots, privacy changes, event-token replay and missing dependencies. These a
 native API adapters, not additional default model tools. See the corresponding
 [format sections](../docs/FORMAT.md#versioned-feature-bindings).
 
-The Rust reference runner is `tests/conformance.rs`. After a deliberate behavior change:
+The Rust reference runner is `tests/conformance.rs`.
+
+`facts` workflows contain `capacity` and `operations`: register, check, packet, unpin,
+forget and forget_privacy. The native adapter is
+[`tests/support/facts.rs`](../tests/support/facts.rs), with Python expectations in
+[`facts_eval.py`](../eval/facts_eval.py). These exercise native registration and read-only
+claim checks, not a model registration capability. Cases cover typed numeric agreement,
+stale/cyclic/expired dependencies, pins, user precedence, scoped lookup, privacy erasure,
+byte budgets and clock bounds. See [registered facts](../docs/FORMAT.md#registered-facts).
+
+After a deliberate behavior change:
 
 ```bash
 GAMECTX_BLESS=1 cargo test --test conformance

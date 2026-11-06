@@ -185,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 307 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 326 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -588,6 +588,36 @@ The fitting-packet regression was also addressed: a paired release benchmark mea
 1,000 fitting builds at 9,171,479 → 5,905,360 ns and mixed builds at
 8,822,089 → 5,708,635 ns. Pressure-path allocations increased 153 → 172/build while
 runtime improved; full timing/allocation/peak-memory results are in [the eval guide](eval/README.md#bindings-semantics-and-evidence).
+
+### Register facts explicitly
+
+`facts::FactRegistry` stores typed assertions under a scope and key: world rules, user
+preferences, engine state or host-validated conclusions. User assertions take precedence
+over host updates; pinned facts require explicit unpinning. Replacements require the
+current revision, preventing an old reply from silently overwriting newer information.
+
+Derived facts can cite exact source revisions. Updating, forgetting, expiring or hiding
+a source makes its descendants unavailable. Privacy labels propagate to descendants;
+privacy erasure physically removes their payloads too. Registration remains an explicit
+host/user operation; model ideas belong in evidence memory until the host validates them.
+
+`check` compares a typed claim with the current visible assertion and returns `supported`,
+`conflicting` or `unknown`. Decimal comparison preserves large integer IDs and recognizes
+equivalent numeric spellings without float rounding. This checks agreement with registered
+assertions; it does not independently establish their truth or understand arbitrary prose.
+
+Use `Turn::facts` to add a budgeted table to context, and direct `get`/`check` calls for
+facts omitted from the packet. The offline fixture registered and checked 128/128 facts;
+a 1,024-byte packet cap retained eight in 927 bytes, reporting 120 dropped. These are
+mechanical checks, not a measured increase in model accuracy. API spend: $0.
+
+```bash
+cargo run --example registered-facts
+```
+
+The [tested example](examples/registered-facts.rs) covers registration, pins, claim checks,
+dependency invalidation, persistence and packet assembly. [Format and limits](docs/FORMAT.md#registered-facts)
+and [offline reproduction](eval/README.md#registered-facts) describe the contract.
 
 ## Be honest with your numbers
 

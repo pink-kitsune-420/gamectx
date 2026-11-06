@@ -13,6 +13,15 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds `facts::FactRegistry`, host/user authority, explicit pins, exact typed
+  claim checks, versioned dependencies, privacy erasure and `Turn::facts`. Native
+  registration stays separate from model proposals. Source changes invalidate derived
+  facts transitively; decimal equality preserves large integers without float rounding.
+- **[format]** Adds versioned fact-registry state, references, claim reports and bounded
+  fact packets. Adds 19 `facts` conformance cases; all earlier 307 remain byte-identical.
+- **[docs]** Offline fact fixture: 128/128 registered assertions checked; 1,024-byte cap
+  retains eight in 927 bytes with 120 dropped. 119 Python/Rust differential workflows
+  and 20,000 added text mutations; no new API spend or model-accuracy claim.
 - **[api]** Adds versioned `FeatureSchema`, `Features`, `BoundBrain`, opt-in
   `StableBrain`/`Selection` and deterministic `Brain::diagnose` reasons. Bound restores
   require full expected semantics. Stable choices retain raw prediction diagnostics.

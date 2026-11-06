@@ -33,6 +33,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Versioned bindings, diagnostic replay and optional reaction stability | Full expected schema checks names/order/units/ranges/policies. Replays capture normalized observations/labels/latencies/state changes. Fresh seeds 5001/5002/5003: 355→15 switches, zero missed urgent switches/ineligible choices, total utility regret 2,281,674 millionths/720 frames. |
 | Host query meanings | Three fresh 24-row states, 30 questions/model: schema 36/60 → meanings 45/60 (3B 12→18; 24B 24→27). Token-only input 205/190 → 365/352. Token check $0.0001380125 + accuracy $0.0051951 = $0.0053331125. Three descriptions and 120 recorded queries byte-identical. |
 | Scoped journal, native evidence and cited hypotheses | Provenance/expiry/supersession; sealed supplied-evidence views, stale/foreign/dependency/privacy checks and subject/clock-bound restore. Six valid/nine invalid evidence workflows; repeated hypotheses keep observations 2, confidence 0.6 and expiry 30. Total 46 new integration cases, 152 differential workflows, 60,000 added text mutations. |
+| Explicit typed fact registry | Host/user assertions, user precedence/pins, exact decimal claim checks, revision dependencies with transitive invalidation, inherited privacy/physical erasure and budgeted context tables. Offline 128/128 assertion checks; 1,024-byte cap retains 8 in 927 bytes, 120 dropped. 19 new cases, 119 byte-identical workflows, 20,000 text mutations. $0 API; no model-accuracy claim. |
 
 ## Measured and rejected
 

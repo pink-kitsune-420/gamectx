@@ -26,6 +26,9 @@ jobs:
       - run: python3 -I eval/test_brain_cache.py
       - run: python3 -I eval/test_runtime.py
       - run: python3 -I eval/test_integration.py
+      - run: python3 -I eval/test_facts.py
+      - run: rustc --edition=2021 -O eval/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
+      - run: python3 -I eval/facts_eval.py --check
       - run: rustc --edition=2021 -O eval/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
       - run: python3 -I eval/integration_eval.py --check
       - run: rustc --edition=2021 -O eval/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench

@@ -16,6 +16,7 @@
 //! - [`estimate`]: conservative token estimates calibrated from provider usage reports.
 //! - [`memory`]: long-term records, scoped facts and cited hypotheses with expiry/privacy, with a
 //!   legacy `remember` tool for the model.
+//! - [`facts`]: explicit host/user assertions, pins, versioned dependencies and exact typed claim checks.
 //! - [`query`]: a small SQL `SELECT` the model writes and the game runs exactly, for
 //!   filters and totals models get wrong when they read the data themselves.
 //!   Table descriptions keep rows in the game; correction sessions allow one retry.
@@ -49,6 +50,7 @@ pub mod budget;
 pub mod catalog;
 pub mod context;
 pub mod estimate;
+pub mod facts;
 pub mod formula;
 pub mod json;
 pub mod manifest;

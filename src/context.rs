@@ -296,6 +296,20 @@ impl Turn<'_> {
         Ok(self)
     }
 
+    /// Adds current visible registered facts as a bounded table. Registry expiry,
+    /// dependency validity and privacy are checked before the turn's packet budget.
+    pub fn facts(
+        &mut self,
+        name: &str,
+        registry: &crate::facts::FactRegistry,
+        now: u64,
+        count: usize,
+        bytes: usize,
+        denied: &[String],
+    ) -> Result<&mut Self> {
+        self.var(name, registry.packet(now, count, bytes, denied)?)
+    }
+
     /// Adds a table for this turn.
     pub fn table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Self> {
         let section = table_section(name, items.into(), options, false, &self.context.formulas)?;

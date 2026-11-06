@@ -435,3 +435,38 @@ fn cited_hypothesis_and_saved_evidence_text_never_mutates_observations() {
         }
     }
 }
+
+#[test]
+fn registered_fact_claims_and_saved_states_are_bounded_and_atomic() {
+    use gamectx::facts::{FactOptions, FactRegistry};
+    let mut facts = FactRegistry::new(8).unwrap();
+    let source = facts.register("world", "available", true, FactOptions::default()).unwrap();
+    facts.register("plan", "ready", true, FactOptions { dependencies: vec![source], ..Default::default() }).unwrap();
+    let saved = facts.to_value();
+    let state = saved.to_json();
+    let seed = r#"{"available":true,"count":9007199254740993,"ratio":1.00e0}"#;
+    let mut rng = Rng(0xFAC7_0123_A55E_1789);
+    for i in 0..20_000 {
+        let text = mutate(&mut rng, if i % 2 == 0 { seed } else { &state });
+        if i % 2 == 0 {
+            if let Ok(value) = parse(&text, 1 << 16) {
+                let _ = facts.check("plan", "ready", &value, 0, &[]);
+                assert_eq!(facts.to_value(), saved);
+                let mut candidate = facts.clone();
+                if candidate.register("world", "candidate", value, FactOptions::default()).is_err() {
+                    assert_eq!(candidate.to_value(), saved);
+                } else {
+                    let next = candidate.to_value();
+                    assert_eq!(FactRegistry::restore(&next).unwrap().to_value(), next);
+                }
+            }
+        } else if let Ok(restored) = FactRegistry::restore_json(&text) {
+            let saved = restored.to_value();
+            assert_eq!(FactRegistry::restore(&saved).unwrap().to_value(), saved);
+            if let Ok(packet) = restored.packet(u32::MAX as u64, 8, 1024, &[]) {
+                assert!(packet.json_len() <= 1024);
+                assert_eq!(parse(&packet.to_json(), 16384).unwrap(), packet);
+            }
+        }
+    }
+}

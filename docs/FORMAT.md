@@ -912,3 +912,68 @@ coverage and inherited privacy, and caps text at 1,048,576 bytes. This validates
 consistency, not cryptographic origin. Persisted state is host-only and may contain
 private facts; use filtered snapshots for model context. Privacy labels, authentic
 observations, consent, clock progression and durable storage remain host responsibilities.
+
+## Registered facts
+
+`facts::FactRegistry` is an explicit host/user assertion store, separate from observations
+and model hypotheses. Capacity is 1..256; full registration errors without eviction.
+Identity is `(scope,key)`, each 1..64 non-control Unicode characters, at most 256 UTF-8
+bytes. JSON values are typed, at most 4,096 serialized bytes, depth eight (root depth zero),
+256 nodes and 64 elements/members per container. Object keys are unique and at most
+256 bytes; strings at most 4,096 bytes. Number text is valid JSON, at most 128 bytes,
+with explicit exponent magnitude at most 1,000,000. Values retain their number spelling.
+
+`register(scope,key,value,FactOptions)` requires trusted host routing. Options are `now`,
+`authority` (`host` default or `user`), `pinned`, optional `expires`, `privacy`,
+`dependencies` and optional `expected_revision`. A new identity requires no expected
+revision. Replacement requires the exact current revision; a pinned fact errors until
+explicit `unpin`, and a host-authority update cannot replace a user-authority assertion.
+The authority enum records caller-supplied provenance, not authenticated identity.
+
+Successful registration returns `{scope,key,revision}`. Every registration, unpin,
+ordinary deletion or nonempty privacy erasure advances a store-wide generation, bounded
+at 2,147,483,647; exhaustion errors. Even unpinning an already unpinned fact advances its
+revision. Mutation errors leave state untouched. Registration time is nondecreasing,
+0..4,294,967,295; reads must not precede the last registration time. Reads do not advance
+the clock. Expiry is absent or strictly after registration and at most 4,294,967,295;
+an assertion is unavailable at `now >= expires`.
+
+Dependencies are at most eight exact `FactRef`s, no duplicate scope/key or self reference.
+Each must match a current, active fact. Replacing a fact using its own descendant is
+rejected atomically. Reads recursively recheck source revisions, expiry and privacy;
+changes invalidate descendants transitively without reviving old values or computing
+new ones. Ordinary `forget` requires current revision, an unpinned fact and compatible
+authority; dependent payloads remain stored but unavailable. Refresh them explicitly.
+
+Native privacy input has at most eight distinct `[a-z][a-z0-9_]{0,31}` labels. Derived
+facts inherit all dependency labels (sorted, deduplicated, at most 32). Read-denied labels
+have the same grammar and a limit of 32; hidden, expired and invalid facts return no
+value. `forget_privacy` is an explicit host erasure operation that physically removes
+all matching payloads, including pinned facts and descendants with inherited labels.
+This operation intentionally does not require ordinary unpinning/authority handling.
+
+`check(scope,key,value,now,denied)` validates the proposed value and returns
+`{status,reference}`: `supported` or `conflicting` with the current reference, or
+`unknown` with null reference when absent or unavailable. Numeric equality normalizes
+decimal coefficients/exponents without expanding large exponents or using floating point:
+`1.00e0` equals `10e-1`, `-0.0` equals zero, and 9,007,199,254,740,993 remains distinct
+from 9,007,199,254,740,992. Object order is ignored; array order and JSON types matter.
+This establishes structural agreement with registered assertions, not independent truth,
+logical entailment or natural-language equivalence. Model proposals cannot call a
+registration tool by default; the library adds no such tool.
+
+`packet(now,count,max_bytes,denied)` and `Turn::facts` emit
+`{generation,columns,rows,dropped}`, with columns
+`[scope,key,value,authority,pinned,revision,expires]`. Visible active facts sort pinned
+first, then user authority, then scope/key ascending. Count is 0..256; bytes 1..16384.
+Trim the tail until the entire compact object fits; if the empty header cannot fit,
+error. Dropped counts only visible active facts excluded by count/bytes, never private,
+expired or invalid facts. Packing does not remove stored facts or renew expiry.
+
+Saved state has exactly `version:1,capacity,generation,clock,facts`; each fact has exactly
+`scope,key,revision,value,authority,pinned,expires,privacy,dependencies`. Restore validates
+unique identities/revisions, counters, typed value limits, older dependency revisions,
+no self/duplicate dependency and inherited privacy for matching current sources. Missing
+or stale sources remain representable as invalidated facts. Text loading is capped at
+4,194,304 bytes. Structural validation does not authenticate persisted data. Full state
+contains private and invalidated payloads: keep it host-only and filter model packets.

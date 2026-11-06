@@ -1,0 +1,1 @@
+{"capacity":8,"operations":[{"op":"register","request":{"scope":"world","key":"season","value":"winter","now":1,"authority":"host","pinned":false,"expires":3,"privacy":[],"dependencies":[],"expected":null}},{"op":"check","scope":"world","key":"season","value":"winter","now":3,"denied":[]},{"op":"packet","now":3,"count":32,"bytes":4000,"denied":[]}]}

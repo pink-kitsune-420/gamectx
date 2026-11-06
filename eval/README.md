@@ -593,3 +593,36 @@ Mutation tests add 40,000 binding/metadata/journal/replay texts plus 20,000 cite
 and saved-evidence texts. Errors must not partially alter observations, state or traces.
 All earlier 261 conformance fixtures stay unchanged. This phase's total API spend is
 $0.0053331125; other integrity and performance checks are offline.
+
+## Registered facts
+
+`facts_eval.py` prototypes explicit native/user assertions, pins, optimistic revisions,
+dependency invalidation, privacy inheritance/erasure, exact typed claim comparison and
+bounded context tables. It makes no API calls and needs no credentials. Decimal-number
+lexemes are retained; comparisons avoid float rounding, including large integer IDs.
+
+```bash
+python3 -I eval/test_facts.py
+python3 -I eval/facts_eval.py
+cargo build --release --locked
+rustc --edition=2021 -O eval/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
+python3 -I eval/facts_eval.py --check
+cargo run --example registered-facts
+```
+
+[Recorded offline result](facts-results.json): 128 registered assertions and 128 exact
+supported checks; a 1,024-byte cap keeps eight rows in 927 bytes and reports 120 dropped.
+The remaining active assertions stay available by direct lookup. This deterministic
+fixture exercises size and integrity, not token savings or natural-language/gameplay
+accuracy. There is no measured model-accuracy improvement from this feature.
+
+Rust/Python parity covers 119 workflows: all 19 new conformance cases (nine positive,
+ten errors) and 100 seeded generated structured values (seed 8107). Expected outputs
+were reviewed for claim status, revision changes, dependency invalidation, ordering,
+erasure and original numeric spellings. Native tests add transitive chains, stale
+updates, cyclic replacements, user ownership, expiry, forged counters, hostile values
+and `Turn::facts` integration. An additional 20,000 deterministic mutations exercise
+model-written typed claims/values and saved registry text, checking bounded parsing,
+no read mutation, atomic rejected registrations and successful restore round-trips.
+All previous 307 conformance fixtures remain unchanged. This addition costs $0 API;
+the preceding model-meaning token/accuracy checks together cost $0.0053331125.

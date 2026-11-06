@@ -1,0 +1,10 @@
+{
+  "api_spend_usd": 0,
+  "registered": 128,
+  "exact_checks": 128,
+  "packet_cap": 1024,
+  "packet_bytes": 927,
+  "retained": 8,
+  "dropped": 120,
+  "limitations": "Exact local assertions and structural checks, not natural-language or gameplay accuracy."
+}
