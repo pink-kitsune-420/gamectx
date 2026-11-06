@@ -1,4 +1,4 @@
-# Model-size workload guide (unreleased)
+# Model-size workload guide (v0.2.0a)
 
 Use this as a guide to **what work to give the model**, with editable starting profiles.
 Parameter count alone does not establish capability. Fine-tuning, quantization, template,

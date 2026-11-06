@@ -12,12 +12,12 @@ when a turn would go over budget, with a receipt that says what was dropped.
 It is a Rust library and a command-line tool with **zero third-party dependencies**.
 
 > **Alpha.** The API, command-line options and packed formats may change between
-> `0.1.0-alpha` releases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
+> `0.x` prereleases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
 
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
-## Integrating a game (unreleased)
+## Integrating a game (v0.2.0a)
 
 The optional [integration kit](docs/KIT.md) registers data meanings, units, visibility,
 tools and named context recipes once. Build each turn from a validated snapshot, inspect
@@ -35,7 +35,7 @@ mutations. Reusing registration instead of rebuilding each turn measured 146,130
 78,931,400 ns per 1,000 synthetic turns (seven paired release trials). These changes make
 integration and validation easier; new model accuracy has not been measured. API spend $0.
 
-## Local 1B–3B workflows (unreleased)
+## Local 1B–3B workflows (v0.2.0a)
 
 [Local-model APIs](docs/LOCAL.md) add full-request budgets with a host tokenizer callback,
 protected scene facts and whole dialogue exchanges, legal-pair decisions with one retry,
@@ -208,9 +208,10 @@ packet: 1906 bytes; budget 2000 bytes
 ## Quick start
 
 ```bash
+# v0.2.0a is the GitHub release; Cargo package version is 0.2.0-a.
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.2.0a --locked
+# Previously published crates.io version:
 cargo install gamectx --version '=0.1.0-alpha.4' --locked
-# or, from the matching Git tag:
-cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.4
 # or, from a clone:
 cargo build --release
 ./target/release/gamectx report examples/ember-keep/manifest.json
@@ -256,11 +257,11 @@ Only a hash of the scope name is stored.
 
 ## Use it in your code
 
-Pin the alpha version in `Cargo.toml`:
+Pin the release tag in `Cargo.toml` (package version `0.2.0-a`):
 
 ```toml
 [dependencies]
-gamectx = "=0.1.0-alpha.4"
+gamectx = { git = "https://github.com/pink-kitsune-420/gamectx", tag = "v0.2.0a" }
 ```
 
 Register what stays the same once, then set what changes each turn:
@@ -305,8 +306,7 @@ packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
 ```
 
 The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
-you need full control; see the [API docs](https://docs.rs/gamectx/0.1.0-alpha.4/gamectx/), or
-`cargo doc --open`.
+you need full control; run `cargo doc --open` from the v0.2.0a checkout for its API docs.
 
 ### Give the model a query tool
 
@@ -369,7 +369,7 @@ gamectx query --session tables.json --result-bytes 512
 
 ### Inspect and bound a query locally
 
-The following additions are unreleased.
+The following additions are included in v0.2.0a.
 
 `Query::parse` can be reused on later snapshots. Query execution now borrows input rows,
 streams aggregates and copies only selected output cells. Five synthetic paired release

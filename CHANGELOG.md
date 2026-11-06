@@ -11,7 +11,9 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
-## Unreleased
+## v0.2.0a — 2026-11-06
+
+Cargo package version: `0.2.0-a`.
 
 - **[api]** Adds full-request `RequestBudget` with renderer/tokenizer callbacks and explicit
   output/safety reservations, plus `Turn::build_request`; exact/estimated counts remain

@@ -1,5 +1,7 @@
 # Roadmap
 
+GitHub release `v0.2.0a` uses Cargo package version `0.2.0-a`.
+
 One line per item. Numbers are from `eval/` on Llama 3.2 3B and Mistral Small 3.2 24B unless
 noted; "3 models" adds Llama 3.3 70B.
 
@@ -45,7 +47,7 @@ noted; "3 models" adds Llama 3.3 70B.
 |---|---|
 | Fresh alpha.3 hosted-model check | Six states across cargo/teams/routes, 48 questions/model, two small models. Full JSON 27/96, packed 27/96, schema + query 91/96. Completed-exchange average input 1,786.792→1,252.125→916.490; first query 83/96, after correction/final 91/96. 105 Rust/Python feedback envelopes match. Total usage-priced spend $0.05529491875 including token check and interrupted-run cost. [Full report](MODEL_TEST_2026_11_06.md). |
 
-## Implemented since alpha.4 (unreleased)
+## Shipped (v0.2.0a): query optimization
 
 | Item | Result |
 |---|---|
@@ -54,7 +56,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Namespace and dotted-ID relevance | Ten lexical regressions 2/10→10/10; four additional catalog parity cases and one exact-ID/numeric-spelling query case. All 366 prior conformance outputs unchanged; 35 new cases in this batch. No API spend or semantic/model-accuracy claim. |
 | Optional explicit-selection system guidance | Fresh paired six-state cohort: 3B 46/48→48/48, 24B 47/48→46/48; overall 93/96→94/96, input 907.865→1,107.802 (+22.0%). Exact text available per host configuration; default standard. Four new profile cases; 209 fresh feedback envelopes agree. Token/accuracy total $0.0293735125, caps $0.01/$0.08. [Report](QUERY_OPTIMIZATION_2026_11_06.md). |
 
-## Integration kit implemented (unreleased)
+## Shipped (v0.2.0a): integration kit
 
 | Item | Result |
 |---|---|
@@ -65,7 +67,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Persistent and native host bridges | Versioned bounded JSON-lines, separate C ABI, thin Python/Node/TypeScript/C# adapters. 265 Python/native checks, 8 Node checks, 59 C# fixture replies plus two smoke checks on Linux; engine/mobile/Web deployment untested. |
 | Developer-owned evaluation kit | Complete recorded cohorts, independent expected results, separate answer/query scores, invalid calls, bytes/tokens/latency with missing data kept null. Three scripted states: correct run 3/3, injected-error run 2/3, one invalid query/call detected. No hosted-model run; entire batch $0 API. [Guide and evidence](KIT.md). |
 
-## Local deployment support implemented (unreleased)
+## Shipped (v0.2.0a): local deployment support
 
 | Item | Result |
 |---|---|

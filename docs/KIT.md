@@ -1,4 +1,4 @@
-# Integration kit (unreleased)
+# Integration kit (v0.2.0a)
 
 `gamectx::kit` connects registration, selection, packing, queries and validated tools.
 It is optional: existing `Context`/`Turn` and low-level formats keep their behavior.

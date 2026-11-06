@@ -449,7 +449,7 @@ correction/final turns; do not repeatedly append it. Six fresh synthetic states 
 model size alone does not choose a profile. See the tested query-plans example and
 [paired report](QUERY_OPTIMIZATION_2026_11_06.md).
 
-## Shared registration and integration tools (unreleased)
+## Shared registration and integration tools (v0.2.0a)
 
 Use the optional [integration kit](KIT.md) when the same data definitions need to drive
 packing, query meanings, validation and brain feature units. Start with the tested
@@ -470,7 +470,7 @@ states the correct candidate scores 3/3; an intentionally flawed one scores 2/3 
 invalid query and one invalid call. These are evaluator checks, not hosted-model results.
 The implementation has 144 byte-identical Python/Rust workflows and $0 new API spend.
 
-## Local models and complete requests (unreleased)
+## Local models and complete requests (v0.2.0a)
 
 Use [LOCAL](LOCAL.md) and the tested [local turn example](../examples/local-turn.rs).
 `RequestBudget` accounts for the full rendered request through the host's actual tokenizer,

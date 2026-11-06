@@ -871,7 +871,7 @@ scores host-collected runs over independent expected snapshots; guidance is meta
 missing usage stays null, and incomplete/duplicate cohorts fail. No new model-accuracy
 claim. New API spend $0. See [KIT](../docs/KIT.md) for formats and limits.
 
-## Local 1B–3B deployment contracts (unreleased)
+## Local 1B–3B deployment contracts (v0.2.0a)
 
 `local_reference.py` and `local_cases.py` prototype full-request reservations, protected
 scene/dialogue hydration, exact legal-pair decisions, explicit deployment profiles and

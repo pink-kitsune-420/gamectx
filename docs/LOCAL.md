@@ -1,4 +1,4 @@
-# Bounded local-model turns (unreleased)
+# Bounded local-model turns (v0.2.0a)
 
 These opt-in APIs compose with the integration kit and existing `Context`/`Turn` APIs.
 They preserve legacy packet/query/tool/session formats and use only Rust's standard
