@@ -1,4 +1,4 @@
-# Reusable conversations and confirmed actions (unreleased)
+# Reusable conversations and confirmed actions (v0.3.0a)
 
 The dungeon now uses shared Rust APIs for conversation retention, reply validation and
 entity references. Its purchase loop also uses a shared confirmation object. These are

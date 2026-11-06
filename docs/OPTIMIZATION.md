@@ -1,4 +1,4 @@
-# Optional optimization workflows (unreleased)
+# Optional optimization workflows (v0.3.0a)
 
 These additions preserve v0.2.0a's existing formats and defaults. They use only Rust's
 standard library and support Rust 1.82. The executable [example](../examples/optimized-turn.rs)
@@ -182,7 +182,7 @@ LLM paths; they do not measure real game call reduction. The recorded-cohort sco
 the same tuning winner after an injected held-out failure (held-out 1/2 correct), exposing
 rather than optimizing away the failure. Raw evidence: [offline checks](../eval/optimization-measurements.json).
 
-All additions are opt-in and unreleased. No API credentials are read, no paid calls are
+All additions are opt-in and included in v0.3.0a. No API credentials are read, no paid calls are
 made, and no larger models are loaded. All evaluation calls require `--cap 0`.
 
 A separate matched-order local accuracy probe used 12 generated scenes, four request

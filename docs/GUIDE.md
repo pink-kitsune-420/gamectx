@@ -489,7 +489,7 @@ local requests, complete turns, retries and sampled memory. Token-only checks pr
 accuracy. Compare held-out scenes/templates and actual hardware before changing defaults;
 see [the measured report](LOCAL_MODEL_2026_11_06.md) for scope and limitations.
 
-## Further optional optimizations (unreleased)
+## Further optional optimizations (v0.3.0a)
 
 Use the [tested optimization example](../examples/optimized-turn.rs) and
 [workflow guide](OPTIMIZATION.md) after establishing the existing local-model pipeline.
@@ -521,7 +521,7 @@ gap, rather than declaring success from schema validity. Test new seeds and ques
 phrasing before changing guidance or recipes. The game and all offline checks need no model.
 
 
-## One model job at a time (unreleased)
+## One model job at a time (v0.3.0a)
 
 Use a size-and-task profile as an editable starting point, then measure the exact model,
 quantization and template. Interpret the immediate player request independently of the

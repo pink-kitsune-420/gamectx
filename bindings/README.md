@@ -1,4 +1,4 @@
-# Language adapters (v0.2.0a)
+# Language adapters (v0.3.0a)
 
 These are thin adapters over the same Rust implementation, not independent ports.
 No wrapper changes the Rust core's zero-dependency policy.

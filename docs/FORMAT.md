@@ -1430,7 +1430,7 @@ total. Empty or partly unknown usage totals remain null. Memory is max for RSS/s
 min for available RAM; any unknown trial makes that metric null. No historical evaluator
 format was extended to accept these fields.
 
-## Optional optimization workflows (unreleased)
+## Optional optimization workflows (v0.3.0a)
 
 The existing `local` CLI and kit bridge retain their envelope and old kinds. New kinds
 are additive; all v0.2.0a conformance expectations remain unchanged. Input is still
@@ -1459,7 +1459,7 @@ preserves JSON object order and number spelling; a count for another candidate c
 be used. Ready receipts still trust the host counter. Missing tuning metrics remain null
 and exclude selection. Held-out results do not select configurations.
 
-## Dungeon example protocol (unreleased)
+## Dungeon example protocol (v0.3.0a)
 
 The standalone `dungeon` Cargo example defines a bounded version-1 JSON-lines host and
 `{seed,commands}` replay format. This is an example protocol, separate from the unchanged
@@ -1469,7 +1469,7 @@ contains separate example conformance fixtures for the pure replay rules. They d
 add a library operation or require library ports to implement the game.
 
 
-## Task workflow templates and direct rendering (unreleased)
+## Task workflow templates and direct rendering (v0.3.0a)
 
 Two additive `local` kinds preserve existing kinds and expected outputs:
 
@@ -1498,7 +1498,7 @@ scoped memory, clarification revision checks and bounds are specified in its
 [guide](../examples/dungeon/README.md). These host operations are not automatic model tools.
 
 
-## Shared conversation, reference and confirmation contracts (unreleased)
+## Shared conversation, reference and confirmation contracts (v0.3.0a)
 
 Local kinds `conversation`, `references` and `confirmation` expose the additive
 native APIs `dialogue::{Conversation,ConversationLimits,resolve_references}` and
@@ -1522,7 +1522,7 @@ reproduces host rules and feeds supplied speech through validation, without trea
 structural acceptance as semantic accuracy. [Report](DUNGEON_FEEDBACK.md).
 
 
-## Authored lore and source-bound answers (unreleased)
+## Authored lore and source-bound answers (v0.3.0a)
 
 Additive local kinds `lore` (`{world,select}`) and `answers` (`{definition,calls}`) expose
 `lore::Lore` and `dialogue::Answers`. [LORE](LORE.md) specifies exact fields, byte/count
@@ -1537,7 +1537,7 @@ speech/observation/replay formats stay unchanged. Only the new host-rendered fac
 path permits up to 512 reply characters; legacy generated speech remains capped at 240.
 
 
-## Informational tools and structured lore (unreleased)
+## Informational tools and structured lore (v0.3.0a)
 
 Additive local kinds `info` and `inventory` implement the exact contracts in [INFO.md](INFO.md).
 `info` args are `{scope,calls:[{name,text,sources}]}` (at most 128 calls), returning
@@ -1553,7 +1553,7 @@ per value. Selection packets preserve that field. Mixed-version fields are rejec
 All version-1 lore output remains byte-identical. See [LORE.md](LORE.md).
 
 
-## Conversation tool workflow (unreleased)
+## Conversation tool workflow (v0.3.0a)
 
 Additive local kind `interactions` accepts `{scope,actor,participants,operations}` with
 at most 128 operations. An operation is exactly `{op,args}`: host operations `event`,

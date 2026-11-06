@@ -177,7 +177,7 @@ or model latency. Raw evidence: [workflow checks](../eval/kit-results.json),
 [timing trials](../eval/kit-performance.json). New API spend: **$0**.
 
 
-## Authored lore and factual answers (unreleased)
+## Authored lore and factual answers (v0.3.0a)
 
 `lore::Lore` loads a bounded world-info definition once and selects records only after
 host-supplied actor/grant checks. Its model packet can be supplied as a recipe section

@@ -13,6 +13,16 @@ know what an upgrade costs:
 
 ## Unreleased
 
+## v0.3.0a — 2026-11-06
+
+Cargo package version: `0.3.0-a`.
+
+This release adds reusable dialogue/information tools, participant-scoped ownership and
+interactions, authored lore and size-and-task workflows. The original 496 conformance
+cases remain unchanged; 251 additional cases bring the suite to 747. Rust stays at
+1.82 with zero third-party dependencies. Natural speech remains experimental; new
+conversation-tool selection has deterministic tests but no live-model accuracy result.
+
 - **[internal]** Adds cross-language release regression coverage for all 126 new
   information/inventory/conversation workflows: Python CLI/native 252, Node 126, C#
   native 126, totaling 504 checks. CI retains the new fixtures; Rust formats unchanged.

@@ -17,7 +17,7 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
-## Playable dungeon testbed (unreleased)
+## Playable dungeon testbed (v0.3.0a)
 
 Run `cargo run --example dungeon -- --seed 7` for an original six-room text game.
 [Lantern Vault](examples/dungeon/README.md) has deterministic rules, seeded variations,
@@ -41,7 +41,7 @@ use the existing query and metadata APIs; hosts retain inventory ownership.
 sequences: transaction handling and name recall work, while free-form speech can still
 invent player history or item purposes. The offline audit separates those outcomes.
 
-## Authored world information (unreleased)
+## Authored world information (v0.3.0a)
 
 Use `cargo run --example dungeon -- --ai --world examples/dungeon/world.json` to load
 editable character backgrounds and world facts. Only relevant, authorized records reach
@@ -66,7 +66,7 @@ The reusable [lore and answer APIs](docs/LORE.md) keep the Rust core dependency-
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local
 regression repair; these are small diagnostics, not universal accuracy. Every run $0 API.
 
-## Further local optimizations (unreleased)
+## Further local optimizations (v0.3.0a)
 
 [Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,
 typed prepared query tools, dependency-complete evidence selection, host-assisted rendered
@@ -268,10 +268,10 @@ packet: 1906 bytes; budget 2000 bytes
 ## Quick start
 
 ```bash
-# v0.2.0a is the GitHub release; Cargo package version is 0.2.0-a.
-cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.2.0a --locked
-# Previously published crates.io version:
-cargo install gamectx --version '=0.1.0-alpha.4' --locked
+# v0.3.0a is the GitHub tag; Cargo package version is 0.3.0-a.
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.3.0a --locked
+# From crates.io:
+cargo install gamectx --version '=0.3.0-a' --locked
 # or, from a clone:
 cargo build --release
 ./target/release/gamectx report examples/ember-keep/manifest.json
@@ -300,7 +300,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 496 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 747 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -317,11 +317,11 @@ Only a hash of the scope name is stored.
 
 ## Use it in your code
 
-Pin the release tag in `Cargo.toml` (package version `0.2.0-a`):
+Pin the release tag in `Cargo.toml` (package version `0.3.0-a`):
 
 ```toml
 [dependencies]
-gamectx = { git = "https://github.com/pink-kitsune-420/gamectx", tag = "v0.2.0a" }
+gamectx = { git = "https://github.com/pink-kitsune-420/gamectx", tag = "v0.3.0a" }
 ```
 
 Register what stays the same once, then set what changes each turn:
@@ -366,7 +366,7 @@ packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
 ```
 
 The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
-you need full control; run `cargo doc --open` from the v0.2.0a checkout for its API docs.
+you need full control; run `cargo doc --open` from the v0.3.0a checkout for its API docs.
 
 ### Give the model a query tool
 

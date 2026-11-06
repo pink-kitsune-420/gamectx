@@ -1,9 +1,9 @@
-# Size-and-task workflows (unreleased)
+# Size-and-task workflows (v0.3.0a)
 
 Give a small model one immediate job: interpret a request, speak as one character,
 narrate an approved scene, or write one bounded query. Resolve visibility, arithmetic,
 ownership, prices and world changes locally. These additions preserve all older packet,
-profile and chat-renderer formats. They are in the current checkout after v0.2.0a.
+profile and chat-renderer formats. They are included in v0.3.0a.
 
 ## Editable profiles
 

@@ -2,7 +2,8 @@
 
 These cases define gamectx's behavior independently of the Rust code. A port in another
 language, or a project that reimplements part of gamectx, runs the same cases with its
-own small runner and is conformant when they all pass.
+own small runner and is conformant when they all pass. The v0.3.0a suite contains 747
+cases; all 496 cases from v0.2.0a retain their original inputs and expected outputs.
 
 Each case is a folder `<op>/<name>/` containing:
 

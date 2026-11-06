@@ -4,4 +4,4 @@ version = 3
 
 [[package]]
 name = "gamectx"
-version = "0.2.0-a"
+version = "0.3.0-a"

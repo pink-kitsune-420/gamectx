@@ -1,4 +1,4 @@
-# Authored lore and source-bound answers (unreleased)
+# Authored lore and source-bound answers (v0.3.0a)
 
 `lore::Lore` validates and prepares an authored world-info file once. `dialogue::Answers`
 lets a model select a supplied source ID while the host supplies every word of the factual

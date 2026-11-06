@@ -74,7 +74,7 @@ See [LOCAL](LOCAL.md) for the executable APIs and [the local report](LOCAL_MODEL
 for what was actually measured. No larger or 1.5B model is downloaded or tested by these
 configuration templates.
 
-## Task-specific templates (unreleased)
+## Task-specific templates (v0.3.0a)
 
 The new additive `ModelSize::workflow_profile` splits interpretation, dialogue,
 narration and query settings within every size class. See [WORKFLOWS](WORKFLOWS.md)

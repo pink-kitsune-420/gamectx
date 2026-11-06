@@ -1,8 +1,8 @@
 # Lantern Vault — playable gamectx testbed
 
 An original six-room text dungeon, implemented with Rust's standard library and gamectx.
-It needs no model, network, assets or dependencies to play. This is an **unreleased example**
-for the current checkout, not part of the existing v0.2.0a tag.
+It needs no model, network, assets or dependencies to play. The example is included in v0.3.0a;
+it is not present in the earlier v0.2.0a tag.
 
 ```sh
 cargo run --example dungeon -- --seed 7
@@ -150,7 +150,7 @@ JSON is not a win. This is one small diagnostic, not a model comparison. Backgro
 checks overlapped the run, so its timings are not a controlled latency benchmark. Token
 and gameplay runs each spend $0 API. CI audits saved traces without generating anything.
 
-## Human player with local AI characters (unreleased)
+## Human player with local AI characters (v0.3.0a)
 
 Keep the basic player above for deterministic rule testing. To play as the human while
 NPCs generate their own replies, build the example and start the new AI mode:

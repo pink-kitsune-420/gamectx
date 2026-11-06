@@ -1,6 +1,7 @@
 # Roadmap
 
-GitHub release `v0.2.0a` uses Cargo package version `0.2.0-a`.
+Release naming: GitHub `v0.3.0a`, Cargo package `0.3.0-a`.
+The earlier `v0.2.0a` release uses Cargo package `0.2.0-a`.
 
 One line per item. Numbers are from `eval/` on Llama 3.2 3B and Mistral Small 3.2 24B unless
 noted; "3 models" adds Llama 3.3 70B.
@@ -77,7 +78,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Actual local Qwen 3B evaluation | Four physical cores / 7,996,997,632 bytes RAM, Q4_K_M, 2K starting context. 30 scenes × three modes: raw/scene/schema final pipeline 26/30, 30/30, 30/30; accepted model correctness 23/30, 27/30, 30/30. Median turn µs 19,226,226 / 8,651,346 / 5,451,699; p95 35,123,472 / 19,212,467 / 14,292,873. Preflights/retries/local hydration included; natural cache reuse and memory pressure limit extrapolation. |
 | Local guidance/tool/narration pilot and telemetry | Six scenes: concise/example/native-tools decision 6/6, 6/6, 5/6; no proved guidance gain over baseline. Backend-aware sampled runner RSS up to 2,705,707,008 bytes; main-cohort missing RSS remains null. Independent raw-data/decision/budget/report audits, all local API spend $0. [Report](LOCAL_MODEL_2026_11_06.md). |
 
-## Implemented after v0.2.0a (unreleased)
+## Added in v0.3.0a: local optimizations
 
 | Item | Result |
 |---|---|
@@ -90,7 +91,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Split configuration comparison | Complete independent cases/identity-checked profiles; tuning-only quality/cost Pareto frontier and exported profile/recipe, separate holdout report. Injected held-out failure stays visible at 1/2 and does not change tuning winner. |
 | Verification | 179 byte-identical Python/Rust workflows (152 accepted/27 rejected), 69 added conformance cases, 30,000 new mutations. All 496 prior cases unchanged; zero third-party dependencies, Rust 1.82. All new API spend $0. [Guide/evidence](OPTIMIZATION.md). |
 
-## Playable integration testbed (unreleased)
+## Playable integration testbed (v0.3.0a)
 
 | Item | Result |
 |---|---|
@@ -98,7 +99,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Replays and packet checkpoints | Six scripted seeds win; 240 mode observations. Raw/scene/named request JSON totals 275,304/261,304/206,347 bytes across 80 matching checkpoints. Raw archive drops at 55 checkpoints; byte/history differences are not isolated tokenizer savings. |
 | Optional local agent | Token-first loopback-only bounded player with complete-turn traces and independent rule/native audits. First Qwen named-mode smoke repeats legal look actions without advancing the quest; validity is not success. API spend $0 per local run. [Guide](../examples/dungeon/README.md). |
 
-## Human-play characters and task workflows (unreleased)
+## Human-play characters and task workflows (v0.3.0a)
 
 | Item | Result |
 |---|---|
@@ -108,7 +109,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Entity reference guard | Longer overlapping phrases, canonical action type, fresh scoped action focus and targeted revision-bound human clarification. 360 independent workflows across six seeds; 30,000 social/entity mutations; seven fake-generation front-end tests. Example English heuristics, not a universal entity parser. |
 | Local pilot | Three nine-speech/four-intent cohorts, no retries, 26 calls each. Slot pilot 7/8; phrase-aware revision 8/8, four local deferrals plus 4/4 model choices. Revised cases are regression evidence, not fresh holdout. All token/accuracy runs $0 API; no other sizes tested. [Guide and raw artifact checks](WORKFLOWS.md). |
 
-## Shared dialogue-to-action support (unreleased)
+## Shared dialogue-to-action support (v0.3.0a)
 
 | Item | Result |
 |---|---|
@@ -116,14 +117,14 @@ noted; "3 models" adds Llama 3.3 70B.
 | Reusable references and confirmation | Host-supplied entity types/aliases/pronouns with bounded overlap matching; generic pending action verifies scope/revision/terms/current permissions and never dispatches. 78 independent Python/Rust workflows, 38 new core cases, all 595 prior cases unchanged, 30,000 added mutations. |
 | Merchant loop repair | Local exact purchase receipts and yes/no offers; insufficient funds explain the shortfall without generation. 66 workflows / 144 trade requests over six seeds and 11 front-end tests; successful real launcher trade smoke, zero generation. All new API spend $0. [Shared guide](CONVERSATION.md). |
 
-## User-reported dialogue regressions (unreleased)
+## User-reported dialogue regressions (v0.3.0a)
 
 | Item | Result |
 |---|---|
 | Preserved observations | 11 sequences / 26 turns; deployment identity, seed, usage and original world trace unknown. Correct original-name recall coexists with invented player disclosures/home, weather and tonic purpose. Manual claim annotations, no aggregate model score. |
 | Host/storage reproduction | Seed-7 native/Python audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets, two reproduced purchases. Player quotes retain original input only; forgetting preserves inventory. All 633 core cases unchanged; no prompt/runtime changes, zero new model calls, $0 API. [Report](DUNGEON_FEEDBACK.md). |
 
-## Authored lore and factual answers (unreleased)
+## Authored lore and factual answers (v0.3.0a)
 
 | Item | Result |
 |---|---|
@@ -165,7 +166,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Intermediate fitting-packet repair using another ordered vector | Improved fitting throughput but added an allocation and slowed the tiny fixture. Shipped two stable-first borrowing passes, preserving original pressure-path declaration order without another vector. |
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
-## New local work (unreleased)
+## Added in v0.3.0a: information and conversation tools
 
 - Release-readiness transport coverage: 126 new information/inventory/conversation
   workflows × four transports = 504 checks (Python CLI/native, Node, C# native), $0 API.

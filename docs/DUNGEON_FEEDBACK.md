@@ -1,4 +1,4 @@
-# Reported dialogue regressions (unreleased)
+# Reported dialogue regressions (v0.3.0a)
 
 The user supplied 11 interaction sequences / 26 turns from a human playthrough. The raw
 questions and replies are retained in [`eval/dungeon-feedback.json`](../eval/dungeon-feedback.json),

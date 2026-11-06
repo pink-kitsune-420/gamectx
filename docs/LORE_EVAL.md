@@ -1,4 +1,4 @@
-# Lore and factual-answer local evaluation (unreleased)
+# Lore and factual-answer local evaluation (v0.3.0a)
 
 Same installed Qwen 3.09B Q4_K_M / pinned Ollama 0.40.3 deployment as the earlier report:
 CPU only, four threads, context 2048, temperature 0, seed 42. Token-only probes precede
