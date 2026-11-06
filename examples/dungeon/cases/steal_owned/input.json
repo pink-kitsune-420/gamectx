@@ -1,0 +1,26 @@
+{
+  "seed": 0,
+  "commands": [
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:cistern"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "take",
+        "target": "item:keeper_seal"
+      }
+    }
+  ]
+}

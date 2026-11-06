@@ -14,6 +14,10 @@ const SEEDS: [&str; 6] = [
 ];
 const NOISE: &[u8] = b"{}[]\":,\\-+.eE0123456789tfnul \t\nabc#\x01\xc3\xa9";
 
+#[allow(dead_code)] // Interactive host methods are covered by the dungeon integration test.
+#[path = "../examples/dungeon/game.rs"]
+mod dungeon;
+
 struct Rng(u64);
 impl Rng {
     fn next(&mut self) -> u64 {
@@ -87,6 +91,24 @@ fn mutated_inputs_never_panic() {
         }
     }
     assert!(parsed > 1000, "mutations should still produce many valid documents ({parsed})");
+}
+
+#[test]
+fn dungeon_replays_are_bounded_and_never_panic() {
+    let seeds = [
+        include_str!("../examples/dungeon/cases/win_7/input.json"),
+        include_str!("../examples/dungeon/cases/stale/input.json"),
+        include_str!("../examples/dungeon/cases/invalid_shape/input.json"),
+    ];
+    let mut rng = Rng(0x5197_8234_bccc_1101);
+    for i in 0..10_000 {
+        let input = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(v) = parse(&input, 262144) {
+            if let Ok(result) = dungeon::replay(&v) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
+            }
+        }
+    }
 }
 
 #[test]

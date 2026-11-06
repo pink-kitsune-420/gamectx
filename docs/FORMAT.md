@@ -1458,3 +1458,12 @@ model-facing versus host-only results and failure behavior are specified in
 preserves JSON object order and number spelling; a count for another candidate cannot
 be used. Ready receipts still trust the host counter. Missing tuning metrics remain null
 and exclude selection. Held-out results do not select configurations.
+
+## Dungeon example protocol (unreleased)
+
+The standalone `dungeon` Cargo example defines a bounded version-1 JSON-lines host and
+`{seed,commands}` replay format. This is an example protocol, separate from the unchanged
+library/kit/local formats. Its action/visibility/revision rules and request limits are
+specified in the [testbed guide](../examples/dungeon/README.md). `examples/dungeon/cases`
+contains separate example conformance fixtures for the pure replay rules. They do not
+add a library operation or require library ports to implement the game.

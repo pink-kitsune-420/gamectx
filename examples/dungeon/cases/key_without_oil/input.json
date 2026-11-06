@@ -1,0 +1,40 @@
+{
+  "seed": 7,
+  "commands": [
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:workshop"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "take",
+        "target": "item:bronze_key"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "unlock",
+        "target": "door:vault"
+      }
+    }
+  ]
+}

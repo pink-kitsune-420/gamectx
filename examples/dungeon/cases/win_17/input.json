@@ -1,0 +1,96 @@
+{
+  "seed": 17,
+  "commands": [
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:workshop"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "buy",
+        "target": "item:oil"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "take",
+        "target": "item:bronze_key"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "inspect",
+        "target": "door:vault"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "unlock",
+        "target": "door:vault"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:vault"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "attack",
+        "target": "npc:sentinel"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "attack",
+        "target": "npc:sentinel"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "attack",
+        "target": "npc:sentinel"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "take",
+        "target": "item:glass_star"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:exit"
+      }
+    }
+  ]
+}

@@ -509,3 +509,13 @@ format just from parameter count. Compare your own snapshots and phrasing with t
 configuration scorer, select on tuning cases and report held-out failures honestly. That
 scorer checks complete recorded cohorts and costs; it does not run models or discover the
 right recipe. The detailed report separates synthetic byte, routing and model evidence.
+
+## Test a complete game loop
+
+[Lantern Vault](../examples/dungeon/README.md) is a playable six-room dungeon using the
+current integration kit, typed queries, scene packets and readable decisions. Start with
+human play and the deterministic replay checker, then use the optional local-only agent.
+Measure completion and state changes separately from valid actions; the first local Qwen
+smoke repeats legal look commands without progressing. Treat that as an observed planning
+gap, rather than declaring success from schema validity. Test new seeds and question
+phrasing before changing guidance or recipes. The game and all offline checks need no model.

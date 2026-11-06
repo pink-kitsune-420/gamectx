@@ -17,6 +17,15 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Playable dungeon testbed (unreleased)
+
+Run `cargo run --example dungeon -- --seed 7` for an original six-room text game.
+[Lantern Vault](examples/dungeon/README.md) has deterministic rules, seeded variations,
+replay files and a persistent JSON interface for local agents. It exercises scene packets,
+typed affordability queries, bounded decisions and current-state validation. Six scripted
+routes escape; optional model runs report actual wins separately from legal actions.
+No model or network is needed to play. New API spend $0.
+
 ## Further local optimizations (unreleased)
 
 [Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,

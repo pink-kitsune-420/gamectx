@@ -1,0 +1,26 @@
+{
+  "seed": 7,
+  "commands": [
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:workshop"
+      }
+    },
+    {
+      "revision": null,
+      "decision": {
+        "action": "buy",
+        "target": "item:tonic"
+      }
+    }
+  ]
+}

@@ -928,3 +928,23 @@ Offline CI replays results; it makes no model calls. All new API spend is $0.
 
 See [the workflow guide](../docs/OPTIMIZATION.md) for assumptions, limits and commands.
 The new accuracy probe is not a full-turn latency/RAM study or proof of live game gains.
+
+## Playable dungeon testbed
+
+`dungeon_reference.py` independently implements the original example's deterministic
+rules. `dungeon_cases.py --cap 0 --check --audit eval/dungeon-results.json` verifies 103
+Python/Rust replays, six scripted wins and 240 packet observations. Build with
+`cargo build --example dungeon --locked` first. Twenty-three separate example conformance fixtures add no changes
+to the 565 core cases. Tests add 10,000 malformed replay mutations.
+
+`dungeon_agent.py` optionally runs an already installed local GGUF model through loopback
+Ollama, requiring `--cap 0` and successful matching initial token probes before gameplay.
+It caps calls/turns, validates proposals locally and records actual trajectories. A native
+one-token preflight precedes generation/correction; timing includes these phases and host
+work. Missing model RAM is not invented. `check_dungeon_agent.py --cap 0 FILE...` audits
+saved model text/actions against both independent Python rules and the native host.
+
+The first named-mode Qwen/seed-7 smoke exposes repeated legal `look_entry` actions with no
+quest progress. Preserve it as a failure, not a successful legal-output score. Both local
+runs spend $0 API; CI only replays saved data. The [guide](../examples/dungeon/README.md)
+separates byte/checkpoint figures from token/model claims and includes playable commands.

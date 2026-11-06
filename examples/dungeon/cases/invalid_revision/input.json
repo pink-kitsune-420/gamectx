@@ -1,0 +1,12 @@
+{
+  "seed": 7,
+  "commands": [
+    {
+      "revision": -1,
+      "decision": {
+        "action": "wait",
+        "target": null
+      }
+    }
+  ]
+}

@@ -13,6 +13,18 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds the playable `dungeon` example: six rooms, seeded key/prices/health,
+  deterministic shop/combat, atomic revision-checked actions, persistent JSON host,
+  scene/codec packets, saved replays and optional local-only model-player tooling.
+- **[internal]** Adds 23 separate example replay conformance fixtures; all 565 core cases unchanged.
+  Independent Python/Rust: 103 workflows (101 accepted/two rejected), 10,000 added
+  mutations. Six scripted seeds escape; these are rule tests, not model accuracy.
+- **[docs]** Records 240 checkpoint observations: 80 each raw/scene/named, request
+  JSON bytes 275,304 / 261,304 / 206,347. Raw drops optional archives at 55 checkpoints;
+  these are byte measurements with different history, not isolated token savings.
+  First local Qwen smoke exposes legal-action repetition without quest progress.
+  Both local token/gameplay runs cost $0 API; [testbed guide](examples/dungeon/README.md).
+
 - **[api]** Adds opt-in host intent boundaries and correction context, typed prepared
   query tools with AST-bound arguments and recipe-bound execution, dependency-complete
   evidence selection, a host full-render counting handshake, local rule/procedure/brain

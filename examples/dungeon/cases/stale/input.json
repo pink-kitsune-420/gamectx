@@ -1,0 +1,19 @@
+{
+  "seed": 7,
+  "commands": [
+    {
+      "revision": null,
+      "decision": {
+        "action": "go",
+        "target": "room:gallery"
+      }
+    },
+    {
+      "revision": 0,
+      "decision": {
+        "action": "go",
+        "target": "room:workshop"
+      }
+    }
+  ]
+}

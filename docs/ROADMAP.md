@@ -90,6 +90,14 @@ noted; "3 models" adds Llama 3.3 70B.
 | Split configuration comparison | Complete independent cases/identity-checked profiles; tuning-only quality/cost Pareto frontier and exported profile/recipe, separate holdout report. Injected held-out failure stays visible at 1/2 and does not change tuning winner. |
 | Verification | 179 byte-identical Python/Rust workflows (152 accepted/27 rejected), 69 added conformance cases, 30,000 new mutations. All 496 prior cases unchanged; zero third-party dependencies, Rust 1.82. All new API spend $0. [Guide/evidence](OPTIMIZATION.md). |
 
+## Playable integration testbed (unreleased)
+
+| Item | Result |
+|---|---|
+| Original dungeon example | Six-room human/JSON-lines host, seeded key/purse/prices/health, local shop/combat, revision-checked actions and model-visible snapshots. 103 Python/Rust rule workflows agree; 23 separate example fixtures, all 565 core cases unchanged; 10,000 mutations. |
+| Replays and packet checkpoints | Six scripted seeds win; 240 mode observations. Raw/scene/named request JSON totals 275,304/261,304/206,347 bytes across 80 matching checkpoints. Raw archive drops at 55 checkpoints; byte/history differences are not isolated tokenizer savings. |
+| Optional local agent | Token-first loopback-only bounded player with complete-turn traces and independent rule/native audits. First Qwen named-mode smoke repeats legal look actions without advancing the quest; validity is not success. API spend $0 per local run. [Guide](../examples/dungeon/README.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
@@ -117,6 +125,8 @@ noted; "3 models" adds Llama 3.3 70B.
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
+
+- Use the dungeon to measure planning/state-change failures separately from legal output. Test explicit subgoals or validated procedures on new seeds; preserve the original failed smoke rather than silently constraining away repeated look actions.
 
 - Validate the new readable codec, typed tools and no-call router in live integrations; measure incorrect bypasses and full-turn savings on new scenes.
 - Compare configuration candidates with complete real memory/latency data; current new tuning checks are scripted, not automatic hardware tuning.
