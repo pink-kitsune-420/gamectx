@@ -26,6 +26,7 @@ A case passes when:
 | `op` | Input | `args` | Output |
 |---|---|---|---|
 | `kit` | `{project,op,args}` | | version-1 registration/build/query/tool-validation/feature/evaluation workflow; see [integration kit](../docs/FORMAT.md#integration-kit). Errors reject the workflow; bridge error text is diagnostic. |
+| `local` | `{kind,args}` | | local deployment and optional optimization workflows; see [contracts](../docs/FORMAT.md#local-model-workflow-contracts) and [optimization additions](../docs/OPTIMIZATION.md). |
 | `parse` | raw JSON text | | the parsed value |
 | `table` | array of objects | `group_by` (column name or list); `formulas` (definitions for `derive`); view keys `derive`, `where`, `relevant_to`, `relevant_fallback`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
 | `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |
@@ -46,6 +47,12 @@ A case passes when:
 | `fingerprint` | array of strings | | array of 16-hex-digit FNV-1a fingerprints |
 
 ## Changing behavior
+
+The `optimization/` family adds 69 cases using `op:local`. Independent outputs come
+from `eval/optimization_reference.py`; `optimization_cases.py --check` compares 179
+accepted/rejected workflows against Rust. They cover host intent, prepared predicate
+binding, evidence dependencies, external counts, local routing, readable decisions
+and split configuration comparison. All 496 v0.2.0a cases remain unchanged.
 
 `runtime` cases select a native API workflow with `input.kind`: `infer` (millionth
 input arrays/mask/thresholds), `budget` (sections/cap), `schedule` (registrations/events),

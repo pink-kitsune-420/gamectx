@@ -5,6 +5,7 @@
 //! each turn. The modules below are the building blocks it uses.
 //!
 //! - [`request`], [`dialogue`], [`decision`], [`deployment`], [`turn`]: full-request budgets, protected scenes, bounded choices and local deployment telemetry.
+//! - [`selection`], [`tune`]: dependency-complete host evidence and split recorded-configuration comparisons.
 //! - [`kit`]: shared data registration, named recipes, validated callbacks, inspection and host bridges.
 //! - [`context`]: the easy API ([`Context`], [`Turn`], [`Table`]).
 //! - [`table`]: uniform objects to a header plus rows, optionally grouped by one or more
@@ -79,11 +80,13 @@ pub mod request;
 pub mod requests;
 pub mod schedule;
 pub mod schema;
+pub mod selection;
 pub mod signatures;
 pub mod spending;
 pub mod sync;
 pub mod table;
 pub mod temporal;
+pub mod tune;
 pub mod turn;
 pub mod view;
 

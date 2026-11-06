@@ -14,6 +14,93 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "tune" => crate::tune::compare(a),
+        "choice-codec" => {
+            c::fields(a, &["choices", "names", "calls"])?;
+            let choices = crate::decision::Choices::from_value(c::get(a, "choices")?)?;
+            let codec = crate::decision::ChoiceCodec::new(&choices, c::get(a, "names")?)?;
+            let calls = c::list(c::get(a, "calls")?)?;
+            if calls.len() > 3 {
+                return Err(c::bad());
+            }
+            let mut session = codec.session();
+            let mut results = Vec::new();
+            for call in calls {
+                c::fields(call, &["text", "revision", "available"])?;
+                let available = c::list(c::get(call, "available")?)?;
+                if available.len() > 32 {
+                    return Err(c::bad());
+                }
+                results.push(session.apply(
+                    c::text(c::get(call, "text")?)?,
+                    c::uint(c::get(call, "revision")?, 0, u32::MAX as u64)? as u32,
+                    |p| available.iter().any(|q| p.same(q)),
+                )?);
+            }
+            Ok(
+                obj! {"offer"=>codec.offer(),"schema"=>codec.schema(),"results"=>results,"finished"=>session.is_finished()},
+            )
+        }
+        "route" => {
+            c::fields(a, &["choices", "revision", "candidates", "available"])?;
+            let choices = crate::decision::Choices::from_value(c::get(a, "choices")?)?;
+            let available = c::list(c::get(a, "available")?)?;
+            if available.len() > 32 {
+                return Err(c::bad());
+            }
+            crate::decision::route(
+                &choices,
+                c::uint(c::get(a, "revision")?, 0, u32::MAX as u64)? as u32,
+                c::get(a, "candidates")?,
+                |p| available.iter().any(|q| p.same(q)),
+            )
+        }
+        "compose" => {
+            c::fields(a, &["definition", "observations"])?;
+            let mut session = crate::request::Composition::from_value(c::get(a, "definition")?)?;
+            let observations = c::list(c::get(a, "observations")?)?;
+            if observations.len() > 129 {
+                return Err(c::bad());
+            }
+            for observation in observations {
+                session.observe(observation)?;
+            }
+            Ok(session.state())
+        }
+        "evidence" => {
+            c::fields(a, &["records", "max_bytes"])?;
+            crate::selection::Evidence::from_value(c::get(a, "records")?)?.select(usize_arg(a, "max_bytes", 262144)?)
+        }
+        "query-template" => {
+            c::fields(a, &["template", "arguments", "rows"])?;
+            let template = crate::query::Template::from_value(c::get(a, "template")?)?;
+            let result = template.run(c::get(a, "arguments")?, c::list(c::get(a, "rows")?)?)?;
+            Ok(obj! {"tool"=>template.tool(),"result"=>result})
+        }
+        "intent" => {
+            c::fields(a, &["choices", "intent", "calls"])?;
+            let choices = crate::decision::Choices::from_value(c::get(a, "choices")?)?;
+            let mut session = choices.with_intent(c::get(a, "intent")?)?;
+            let schema = session.schema();
+            let calls = c::list(c::get(a, "calls")?)?;
+            if calls.len() > 3 {
+                return Err(c::bad());
+            }
+            let mut results = Vec::new();
+            for call in calls {
+                c::fields(call, &["text", "revision", "available"])?;
+                let available = c::list(c::get(call, "available")?)?;
+                if available.len() > 32 {
+                    return Err(c::bad());
+                }
+                results.push(session.apply(
+                    c::text(c::get(call, "text")?)?,
+                    c::uint(c::get(call, "revision")?, 0, u32::MAX as u64)? as u32,
+                    |p| available.iter().any(|q| p.same(q)),
+                )?);
+            }
+            Ok(obj! {"schema"=>schema,"results"=>results,"finished"=>session.is_finished()})
+        }
         "budget" => {
             c::fields(a, &["budget", "count"])?;
             Ok(RequestBudget::from_value(c::get(a, "budget")?)?

@@ -1,0 +1,1 @@
+{"route":"rule","reason":"host_match","decision":{"action":"inspect","target":"grove:gate"},"trace":[{"id":"known_request","source":"rule","status":"eligible"},{"id":"known_procedure","source":"procedure","status":"eligible"}]}

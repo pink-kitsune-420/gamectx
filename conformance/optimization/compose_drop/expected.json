@@ -1,0 +1,1 @@
+{"status":"count","sequence":1,"candidate":{"id":"request_1","identity":{"model_digest":"fixture-model","quantization":"Q4_K_M","template_hash":"fixture-template","tokenizer":"fixture-tokenizer","runner":"fixture-runner"},"packet":{"facts":{"gate_locked":true}}},"budget":null,"omitted":["lore"]}

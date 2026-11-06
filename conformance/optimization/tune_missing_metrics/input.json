@@ -1,0 +1,628 @@
+{
+  "kind": "tune",
+  "args": {
+    "identity": {
+      "model_digest": "fixture-model",
+      "quantization": "Q4_K_M",
+      "template_hash": "fixture-template",
+      "tokenizer": "fixture-tokenizer",
+      "runner": "fixture-runner"
+    },
+    "cases": [
+      {
+        "id": "t0",
+        "split": "tune",
+        "expected": {
+          "action": "inspect"
+        }
+      },
+      {
+        "id": "t1",
+        "split": "tune",
+        "expected": {
+          "action": "inspect"
+        }
+      },
+      {
+        "id": "t2",
+        "split": "holdout",
+        "expected": {
+          "action": "inspect"
+        }
+      },
+      {
+        "id": "t3",
+        "split": "holdout",
+        "expected": {
+          "action": "inspect"
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "profile": {
+          "version": 1,
+          "name": "baseline",
+          "identity": {
+            "model_digest": "fixture-model",
+            "quantization": "Q4_K_M",
+            "template_hash": "fixture-template",
+            "tokenizer": "fixture-tokenizer",
+            "runner": "fixture-runner"
+          },
+          "budget": {
+            "context": 2048,
+            "output": 256,
+            "safety": 264
+          },
+          "threads": 4,
+          "transport": "schema",
+          "guidance": "concise",
+          "temperature_milli": 0
+        },
+        "recipe": "scene",
+        "trials": [
+          {
+            "id": "t0",
+            "condition": "baseline",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1000,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 200,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t1",
+            "condition": "baseline",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1100,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 200,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t2",
+            "condition": "baseline",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1200,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 200,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t3",
+            "condition": "baseline",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1300,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 200,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          }
+        ]
+      },
+      {
+        "profile": {
+          "version": 1,
+          "name": "compact",
+          "identity": {
+            "model_digest": "fixture-model",
+            "quantization": "Q4_K_M",
+            "template_hash": "fixture-template",
+            "tokenizer": "fixture-tokenizer",
+            "runner": "fixture-runner"
+          },
+          "budget": {
+            "context": 2048,
+            "output": 256,
+            "safety": 264
+          },
+          "threads": 4,
+          "transport": "schema",
+          "guidance": "concise",
+          "temperature_milli": 0
+        },
+        "recipe": "scene",
+        "trials": [
+          {
+            "id": "t0",
+            "condition": "compact",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1000,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 100,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": null,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t1",
+            "condition": "compact",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1100,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 100,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t2",
+            "condition": "compact",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1200,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 100,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t3",
+            "condition": "compact",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "inspect"
+            },
+            "elapsed_micros": 1300,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 100,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          }
+        ]
+      },
+      {
+        "profile": {
+          "version": 1,
+          "name": "cheap_wrong",
+          "identity": {
+            "model_digest": "fixture-model",
+            "quantization": "Q4_K_M",
+            "template_hash": "fixture-template",
+            "tokenizer": "fixture-tokenizer",
+            "runner": "fixture-runner"
+          },
+          "budget": {
+            "context": 2048,
+            "output": 256,
+            "safety": 264
+          },
+          "threads": 4,
+          "transport": "schema",
+          "guidance": "concise",
+          "temperature_milli": 0
+        },
+        "recipe": "scene",
+        "trials": [
+          {
+            "id": "t0",
+            "condition": "cheap_wrong",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "wait"
+            },
+            "elapsed_micros": 1000,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 50,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t1",
+            "condition": "cheap_wrong",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "wait"
+            },
+            "elapsed_micros": 1100,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 50,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t2",
+            "condition": "cheap_wrong",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "wait"
+            },
+            "elapsed_micros": 1200,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 50,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          },
+          {
+            "id": "t3",
+            "condition": "cheap_wrong",
+            "expected": {
+              "action": "inspect"
+            },
+            "actual": {
+              "action": "wait"
+            },
+            "elapsed_micros": 1300,
+            "ttft_micros": 200,
+            "attempts": [
+              {
+                "phase": "decision",
+                "input_tokens": 50,
+                "output_tokens": 10,
+                "cached_tokens": null,
+                "prompt_micros": 200,
+                "decode_micros": 500,
+                "load_micros": 0,
+                "valid": true,
+                "truncated": false
+              }
+            ],
+            "fallback": false,
+            "required": [
+              "owner",
+              "gate"
+            ],
+            "supplied": [
+              "owner",
+              "gate"
+            ],
+            "memory": {
+              "runner_rss_bytes": 2000000,
+              "game_rss_bytes": 100000,
+              "available_bytes": 5000000,
+              "swap_in_bytes": 0,
+              "swap_out_bytes": 0
+            },
+            "dialogue_score": null
+          }
+        ]
+      }
+    ],
+    "limits": {
+      "min_correct_per_mille": 1000,
+      "max_p95_micros": 10000,
+      "max_rss_bytes": 4000000
+    }
+  }
+}

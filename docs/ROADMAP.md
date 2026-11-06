@@ -77,10 +77,24 @@ noted; "3 models" adds Llama 3.3 70B.
 | Actual local Qwen 3B evaluation | Four physical cores / 7,996,997,632 bytes RAM, Q4_K_M, 2K starting context. 30 scenes × three modes: raw/scene/schema final pipeline 26/30, 30/30, 30/30; accepted model correctness 23/30, 27/30, 30/30. Median turn µs 19,226,226 / 8,651,346 / 5,451,699; p95 35,123,472 / 19,212,467 / 14,292,873. Preflights/retries/local hydration included; natural cache reuse and memory pressure limit extrapolation. |
 | Local guidance/tool/narration pilot and telemetry | Six scenes: concise/example/native-tools decision 6/6, 6/6, 5/6; no proved guidance gain over baseline. Backend-aware sampled runner RSS up to 2,705,707,008 bytes; main-cohort missing RSS remains null. Independent raw-data/decision/budget/report audits, all local API spend $0. [Report](LOCAL_MODEL_2026_11_06.md). |
 
+## Implemented after v0.2.0a (unreleased)
+
+| Item | Result |
+|---|---|
+| Host intent preservation | Optional narrowed choices, current request/facts in retry feedback and intent-appropriate fallback/abstention. Scripted legal-open trace accepted by legacy session; guard requests correction then accepts inspect. No model-understanding claim. |
+| Typed prepared query tools | Fixed host SQL and typed predicate values bound as AST data; recipe views/visibility still enforced, including empty tables. Example response 56→15 bytes, schema 206 bytes; not a full-request token claim. |
+| Dependency-complete evidence | Bounded DAG closures, required-fit failures, deterministic optional selection. Fixture 419→49 packet bytes retains item/owner/price. Densely shared 128-record graph completes without exponential traversal. |
+| External full-render counting | Host-assisted candidate/sequence/identity handshake, recount after every optional drop, no drop of required sections; exactness stays a host assertion. JSON order and number spellings preserved in acknowledgements. |
+| Local-match router | Composes host rules/procedures/brains with legality, revision and live availability; ambiguity/conflict falls through. Eight scripted cases: three local drafts/five LLM paths, not measured real-game call reduction. |
+| Readable decision codec | Six local Qwen token probes: 2/4/8 choices 158→118, 224→174, 344→274. Matched-order 12 scenes: pairs 8/12, named 11/12; input 3,865→3,285, output 178→111. Small synthetic tasks, opt-in. |
+| Split configuration comparison | Complete independent cases/identity-checked profiles; tuning-only quality/cost Pareto frontier and exported profile/recipe, separate holdout report. Injected held-out failure stays visible at 1/2 and does not change tuning winner. |
+| Verification | 179 byte-identical Python/Rust workflows (152 accepted/27 rejected), 69 added conformance cases, 30,000 new mutations. All 496 prior cases unchanged; zero third-party dependencies, Rust 1.82. All new API spend $0. [Guide/evidence](OPTIMIZATION.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
 |---|---|
+| Unmatched choice order as a format-only accuracy comparison | Initial 12-scene codec pilot scored 11/12 for both, but presented different candidate orders. Retain frozen runner/results, exclude that comparison, rerun with matched order (8/12 versus 11/12). No prompt tuning; needs fresh/live replication. |
 | Model-loop timing presented as complete-turn latency | An initial local pilot began timing after hydration. Retain nine completed pilot turns, exclude its timing comparisons, and rerun with native hydration/filtering inside the clock. |
 | Universal default native tools or extra guidance on the local 3B | Six-scene narration pilot: native tools 5/6 with a truncation/retry/fallback, concise/example 6/6 with extra tokens; baseline schema already 6/6. Keep explicit; no size-based winner. |
 | Universal default explicit-selection guidance | Only one extra final success (93/96→94/96), first queries 86/96→84/96, 24B regresses 47/48→46/48, input +22.0%. Keep opt-in per model/workload; no size-based automatic choice. |
@@ -104,9 +118,12 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Next candidates
 
+- Validate the new readable codec, typed tools and no-call router in live integrations; measure incorrect bypasses and full-turn savings on new scenes.
+- Compare configuration candidates with complete real memory/latency data; current new tuning checks are scripted, not automatic hardware tuning.
+
 - Live local scene/dialogue workloads and held-out question templates; the current Qwen result is small synthetic decision tasks. Compare 2K/4K context and 2/4/6/8 threads under controlled RAM/thermal load before changing defaults.
 - Measure 1B/1.5B and larger size-class workloads independently; their profiles are advisory and unmeasured. No larger models were loaded by this change.
-- Test correction feedback that retains the latest intent explicitly: raw local corrections sometimes repaired pair legality while changing an inspection request into opening.
+- Test host intent boundaries/correction text on live requests and held-out semantic families; the new guard enforces a supplied subset but cannot infer intent.
 
 - Exercise the integration kit and native adapters in real hosts; capture lifecycle, unit/visibility and engine deployment gaps. The current bridge reuses registration, not model context or per-request row JSON.
 - Compare independently recorded recipe/guidance candidates on live questions with the evaluation kit; current kit checks are offline scripted correctness, not model accuracy.

@@ -226,3 +226,10 @@ mod local_turn;
 fn documented_local_turn_example() -> gamectx::Result<()> {
     local_turn::main()
 }
+
+#[path = "../examples/optimized-turn.rs"]
+mod optimized_turn;
+#[test]
+fn documented_optimization_example() -> gamectx::Result<()> {
+    optimized_turn::main()
+}

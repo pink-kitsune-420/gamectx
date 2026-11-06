@@ -50,8 +50,10 @@ mod guidance;
 mod plan;
 pub use guidance::Guidance;
 mod schema;
+mod template;
 pub use plan::Shape;
 pub use schema::{describe, describe_with};
+pub use template::Template;
 
 /// Limits on a query's text and shape.
 #[derive(Clone, Copy, Debug)]

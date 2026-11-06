@@ -1,0 +1,41 @@
+{
+  "kind": "query-template",
+  "args": {
+    "template": {
+      "name": "count_kind",
+      "description": "Count visible items of one kind.",
+      "sql": "SELECT COUNT(*) FROM stock",
+      "parameters": [
+        {
+          "name": "kind",
+          "column": "kind",
+          "op": "=",
+          "kind": "string"
+        },
+        {
+          "name": "kind",
+          "column": "kind",
+          "op": "=",
+          "kind": "string"
+        }
+      ],
+      "max_rows": 4096,
+      "result_bytes": 512
+    },
+    "arguments": {
+      "kind": "food"
+    },
+    "rows": [
+      {
+        "id": "a",
+        "kind": "food",
+        "count": 4
+      },
+      {
+        "id": "b",
+        "kind": "tool",
+        "count": 2
+      }
+    ]
+  }
+}

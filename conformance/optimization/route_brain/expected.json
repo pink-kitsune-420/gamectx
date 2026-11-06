@@ -1,0 +1,1 @@
+{"route":"brain","reason":"host_match","decision":{"action":"inspect","target":"grove:gate"},"trace":[{"id":"known_request","source":"brain","status":"eligible"}]}

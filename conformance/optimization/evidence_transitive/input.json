@@ -1,0 +1,41 @@
+{
+  "kind": "evidence",
+  "args": {
+    "records": [
+      {
+        "id": "item",
+        "value": "grove:coin",
+        "depends": [
+          "owner",
+          "price"
+        ],
+        "priority": 10,
+        "required": true
+      },
+      {
+        "id": "owner",
+        "value": "player",
+        "depends": [
+          "price"
+        ],
+        "priority": 0,
+        "required": false
+      },
+      {
+        "id": "price",
+        "value": 12,
+        "depends": [],
+        "priority": 0,
+        "required": false
+      },
+      {
+        "id": "lore",
+        "value": "old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale ",
+        "depends": [],
+        "priority": 1,
+        "required": false
+      }
+    ],
+    "max_bytes": 100
+  }
+}

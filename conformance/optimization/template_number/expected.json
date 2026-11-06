@@ -1,0 +1,1 @@
+{"tool":{"name":"count_kind","description":"Count visible items of one kind.","parameters":{"type":"object","properties":{"kind":{"type":"number"}},"required":["kind"],"additionalProperties":false}},"result":1}

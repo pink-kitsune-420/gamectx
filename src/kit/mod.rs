@@ -411,10 +411,37 @@ impl Project {
     /// Executes only against this recipe's filtered/projected/limited model-visible rows.
     /// Dropping a packed row section for budget does not revoke its registered query schema.
     pub fn query(&self, recipe: &str, snapshot: &Snapshot, sql: &str) -> Result<Value> {
+        self.query_bound(recipe, snapshot, || query::Query::parse(sql), 4096, 65_536)
+    }
+    /// Runs bound host SQL on the same recipe boundary as ordinary queries. Register
+    /// the template's tool schema and authorize its callback separately in the host.
+    pub fn query_template(
+        &self,
+        recipe: &str,
+        snapshot: &Snapshot,
+        template: &query::Template,
+        arguments: &Value,
+    ) -> Result<Value> {
+        self.query_bound(
+            recipe,
+            snapshot,
+            || template.bind(arguments),
+            template.max_rows().min(4096),
+            template.result_bytes(),
+        )
+    }
+    fn query_bound(
+        &self,
+        recipe: &str,
+        snapshot: &Snapshot,
+        parse: impl FnOnce() -> Result<query::Query>,
+        max_rows: usize,
+        result_bytes: usize,
+    ) -> Result<Value> {
         let selections = self.selections(snapshot, self.recipe(recipe)?)?;
         let tables =
             selections.iter().map(|s| Ok((text(s.spec, "name")?, s.rows.as_slice()))).collect::<Result<Vec<_>>>()?;
-        let parsed = query::Query::parse(sql)?;
+        let parsed = parse()?;
         let selection =
             selections.iter().find(|s| text(s.spec, "name").ok() == Some(parsed.table())).ok_or_else(bad)?;
         let columns = field_names(self.dataset(parsed.table())?, selection.spec)?;
@@ -424,7 +451,7 @@ impl Project {
             }
         }
         let rows = tables.iter().find(|(n, _)| *n == parsed.table()).map(|(_, r)| *r).ok_or_else(bad)?;
-        parsed.run_bounded(rows, 4096, 65_536)
+        parsed.run_bounded(rows, max_rows, result_bytes)
     }
     /// Derives numeric brain bindings with units from the same registration. Host supplies
     /// ordered ranges/policies; private fields cannot become exposed model features here.

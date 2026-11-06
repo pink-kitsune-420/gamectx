@@ -1429,3 +1429,32 @@ median and coverage, summed usage/timings, memory extrema and dialogue-score cov
 total. Empty or partly unknown usage totals remain null. Memory is max for RSS/swap and
 min for available RAM; any unknown trial makes that metric null. No historical evaluator
 format was extended to accept these fields.
+
+## Optional optimization workflows (unreleased)
+
+The existing `local` CLI and kit bridge retain their envelope and old kinds. New kinds
+are additive; all v0.2.0a conformance expectations remain unchanged. Input is still
+`{kind,args}`, with the existing 1,572,864-byte work bound.
+
+| kind | Exact args | Result |
+|---|---|---|
+| intent | `{choices,intent:{request:{id,text},facts,allowed},calls}` | narrowed schema, guarded decision results, finished; retry adds correction data |
+| query-template | `{template,arguments,rows}` | `{tool,result}` from typed AST-bound predicates |
+| evidence | `{records,max_bytes}` | `{packet,kept,omitted,bytes}` with complete dependency closures |
+| compose | `{definition,observations}` | `{status,sequence,candidate,budget,omitted}` host-count handshake |
+| route | `{choices,revision,candidates,available}` | `{route,reason,decision,trace}`; no world execution |
+| choice-codec | `{choices,names,calls}` | `{offer,schema,results,finished}`; input uses `{choice:name}` |
+| tune | `{identity,cases,candidates,limits}` | split reports, Pareto frontier and optional exported tuning winner |
+
+`choices` and `calls` keep their existing decision definitions. `intent.allowed` is a
+host-defined subset, not an inferred language interpretation. `query-template` is a host
+adapter over registered queries, not an additional model query language. `available` is
+host-supplied current availability. All operations are pure except session state in the
+native Rust APIs; no adapter operation invokes game callbacks.
+
+Full required fields, bounds, validation/selection order, byte versus token semantics,
+model-facing versus host-only results and failure behavior are specified in
+[OPTIMIZATION](OPTIMIZATION.md). In particular, composition acknowledgement equality
+preserves JSON object order and number spelling; a count for another candidate cannot
+be used. Ready receipts still trust the host counter. Missing tuning metrics remain null
+and exclude selection. Held-out results do not select configurations.

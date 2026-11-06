@@ -4,6 +4,9 @@ use crate::budget::{self, Packet, PreparedSection, Section};
 use crate::{checked as c, obj, Error, Result, Value};
 use std::cell::RefCell;
 
+mod composition;
+pub use composition::Composition;
+
 pub const MAX_REQUEST_BYTES: usize = 1_572_864;
 pub const MAX_TOKENS: usize = 1_048_576;
 /// Whether a host measured the full rendered prompt or estimated it. Exactness is a

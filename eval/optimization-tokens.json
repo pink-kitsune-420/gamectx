@@ -1,0 +1,979 @@
+{
+  "version": 1,
+  "kind": "one-token local prompt probes; not accuracy or complete-turn latency",
+  "api_spend_usd": 0,
+  "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+  "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+  "quantization": "Q4_K_M",
+  "template_sha256": "e94a8ecb9327ded799604a2e478659bc759230fe316c50d686358f932f52776c",
+  "runner": "0.40.3",
+  "observations": [
+    {
+      "count": 2,
+      "mode": "pairs",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            }
+          ]
+        }
+      },
+      "example_output": "{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            }
+          ]
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:02.513652304Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 8759083089,
+          "load_duration": 6614708035,
+          "prompt_eval_count": 158,
+          "prompt_eval_cached_count": 0,
+          "prompt_eval_duration": 2139212000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:02.513433572Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:02.513652304Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 8759083089,
+            "load_duration": 6614708035,
+            "prompt_eval_count": 158,
+            "prompt_eval_cached_count": 0,
+            "prompt_eval_duration": 2139212000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 8760188,
+        "ttft_micros": 8760040
+      },
+      "input_tokens": 158
+    },
+    {
+      "count": 2,
+      "mode": "named",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "example_output": "{\"choice\":\"inspect_north_gate\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:03.780080846Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 1264346889,
+          "load_duration": 2071966,
+          "prompt_eval_count": 118,
+          "prompt_eval_cached_count": 29,
+          "prompt_eval_duration": 1258224000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:03.779892336Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:03.780080846Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 1264346889,
+            "load_duration": 2071966,
+            "prompt_eval_count": 118,
+            "prompt_eval_cached_count": 29,
+            "prompt_eval_duration": 1258224000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 1265020,
+        "ttft_micros": 1264878
+      },
+      "input_tokens": 118
+    },
+    {
+      "count": 4,
+      "mode": "pairs",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\",\"grove:gate.east\",\"grove:gate.west\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south",
+                "grove:gate.east",
+                "grove:gate.west"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.east"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.west"
+            }
+          ]
+        }
+      },
+      "example_output": "{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\",\"grove:gate.east\",\"grove:gate.west\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south",
+                "grove:gate.east",
+                "grove:gate.west"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.east"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.west"
+            }
+          ]
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:06.223606836Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 2441812899,
+          "load_duration": 2583259,
+          "prompt_eval_count": 224,
+          "prompt_eval_cached_count": 54,
+          "prompt_eval_duration": 2434077000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:06.223375509Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:06.223606836Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 2441812899,
+            "load_duration": 2583259,
+            "prompt_eval_count": 224,
+            "prompt_eval_cached_count": 54,
+            "prompt_eval_duration": 2434077000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 2442466,
+        "ttft_micros": 2442332
+      },
+      "input_tokens": 224
+    },
+    {
+      "count": 4,
+      "mode": "named",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}},{\"name\":\"inspect_east_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.east\"}},{\"name\":\"inspect_west_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\",\"inspect_east_gate\",\"inspect_west_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate",
+                "inspect_east_gate",
+                "inspect_west_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "example_output": "{\"choice\":\"inspect_north_gate\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}},{\"name\":\"inspect_east_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.east\"}},{\"name\":\"inspect_west_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\",\"inspect_east_gate\",\"inspect_west_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate",
+                "inspect_east_gate",
+                "inspect_west_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:07.773157122Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 1547963711,
+          "load_duration": 1993175,
+          "prompt_eval_count": 174,
+          "prompt_eval_cached_count": 73,
+          "prompt_eval_duration": 1538440000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:07.772910475Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:07.773157122Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 1547963711,
+            "load_duration": 1993175,
+            "prompt_eval_count": 174,
+            "prompt_eval_cached_count": 73,
+            "prompt_eval_duration": 1538440000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 1548531,
+        "ttft_micros": 1548405
+      },
+      "input_tokens": 174
+    },
+    {
+      "count": 8,
+      "mode": "pairs",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"},{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"},{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"},{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"},{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\",\"grove:gate.east\",\"grove:gate.west\",\"grove:gate.upper\",\"grove:gate.lower\",\"grove:gate.inner\",\"grove:gate.outer\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"},{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"},{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"},{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"},{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south",
+                "grove:gate.east",
+                "grove:gate.west",
+                "grove:gate.upper",
+                "grove:gate.lower",
+                "grove:gate.inner",
+                "grove:gate.outer"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.east"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.west"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.upper"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.lower"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.inner"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.outer"
+            }
+          ]
+        }
+      },
+      "example_output": "{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"},{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"},{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"},{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"},{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"action\":{\"type\":\"string\",\"maxLength\":32,\"enum\":[\"inspect\"]},\"target\":{\"type\":[\"string\",\"null\"],\"maxLength\":64,\"enum\":[\"grove:gate.north\",\"grove:gate.south\",\"grove:gate.east\",\"grove:gate.west\",\"grove:gate.upper\",\"grove:gate.lower\",\"grove:gate.inner\",\"grove:gate.outer\"]}},\"required\":[\"action\",\"target\"],\"additionalProperties\":false,\"enum\":[{\"action\":\"inspect\",\"target\":\"grove:gate.north\"},{\"action\":\"inspect\",\"target\":\"grove:gate.south\"},{\"action\":\"inspect\",\"target\":\"grove:gate.east\"},{\"action\":\"inspect\",\"target\":\"grove:gate.west\"},{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"},{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"},{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"},{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}]}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "maxLength": 32,
+              "enum": [
+                "inspect"
+              ]
+            },
+            "target": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64,
+              "enum": [
+                "grove:gate.north",
+                "grove:gate.south",
+                "grove:gate.east",
+                "grove:gate.west",
+                "grove:gate.upper",
+                "grove:gate.lower",
+                "grove:gate.inner",
+                "grove:gate.outer"
+              ]
+            }
+          },
+          "required": [
+            "action",
+            "target"
+          ],
+          "additionalProperties": false,
+          "enum": [
+            {
+              "action": "inspect",
+              "target": "grove:gate.north"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.south"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.east"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.west"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.upper"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.lower"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.inner"
+            },
+            {
+              "action": "inspect",
+              "target": "grove:gate.outer"
+            }
+          ]
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:11.793833285Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4018422245,
+          "load_duration": 2521601,
+          "prompt_eval_count": 344,
+          "prompt_eval_cached_count": 80,
+          "prompt_eval_duration": 4008114000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:11.793578316Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:11.793833285Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4018422245,
+            "load_duration": 2521601,
+            "prompt_eval_count": 344,
+            "prompt_eval_cached_count": 80,
+            "prompt_eval_duration": 4008114000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4019140,
+        "ttft_micros": 4019013
+      },
+      "input_tokens": 344
+    },
+    {
+      "count": 8,
+      "mode": "named",
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}},{\"name\":\"inspect_east_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.east\"}},{\"name\":\"inspect_west_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}},{\"name\":\"inspect_upper_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"}},{\"name\":\"inspect_lower_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"}},{\"name\":\"inspect_inner_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"}},{\"name\":\"inspect_outer_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\",\"inspect_east_gate\",\"inspect_west_gate\",\"inspect_upper_gate\",\"inspect_lower_gate\",\"inspect_inner_gate\",\"inspect_outer_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate",
+                "inspect_east_gate",
+                "inspect_west_gate",
+                "inspect_upper_gate",
+                "inspect_lower_gate",
+                "inspect_inner_gate",
+                "inspect_outer_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "example_output": "{\"choice\":\"inspect_north_gate\"}",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Select the requested choice. Return only the structured decision."
+          },
+          {
+            "role": "user",
+            "content": "{\"request\":\"Inspect the north gate.\",\"choices\":[{\"name\":\"inspect_north_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.north\"}},{\"name\":\"inspect_south_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.south\"}},{\"name\":\"inspect_east_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.east\"}},{\"name\":\"inspect_west_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.west\"}},{\"name\":\"inspect_upper_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.upper\"}},{\"name\":\"inspect_lower_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.lower\"}},{\"name\":\"inspect_inner_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.inner\"}},{\"name\":\"inspect_outer_gate\",\"pair\":{\"action\":\"inspect\",\"target\":\"grove:gate.outer\"}}],\"response_schema\":{\"type\":\"object\",\"properties\":{\"choice\":{\"type\":\"string\",\"enum\":[\"inspect_north_gate\",\"inspect_south_gate\",\"inspect_east_gate\",\"inspect_west_gate\",\"inspect_upper_gate\",\"inspect_lower_gate\",\"inspect_inner_gate\",\"inspect_outer_gate\"]}},\"required\":[\"choice\"],\"additionalProperties\":false}}"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "choice": {
+              "type": "string",
+              "enum": [
+                "inspect_north_gate",
+                "inspect_south_gate",
+                "inspect_east_gate",
+                "inspect_west_gate",
+                "inspect_upper_gate",
+                "inspect_lower_gate",
+                "inspect_inner_gate",
+                "inspect_outer_gate"
+              ]
+            }
+          },
+          "required": [
+            "choice"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-06T13:36:14.224657305Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 2428531288,
+          "load_duration": 1918931,
+          "prompt_eval_count": 274,
+          "prompt_eval_cached_count": 119,
+          "prompt_eval_duration": 2419578000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:14.224421951Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-06T13:36:14.224657305Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 2428531288,
+            "load_duration": 1918931,
+            "prompt_eval_count": 274,
+            "prompt_eval_cached_count": 119,
+            "prompt_eval_duration": 2419578000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 2429203,
+        "ttft_micros": 2429099
+      },
+      "input_tokens": 274
+    }
+  ],
+  "complete": true
+}

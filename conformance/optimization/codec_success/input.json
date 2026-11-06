@@ -1,0 +1,70 @@
+{
+  "kind": "choice-codec",
+  "args": {
+    "choices": {
+      "version": 1,
+      "revision": 7,
+      "choices": [
+        {
+          "action": "inspect",
+          "target": "grove:gate"
+        },
+        {
+          "action": "open",
+          "target": "grove:gate"
+        },
+        {
+          "action": "wait",
+          "target": null
+        }
+      ],
+      "fallback": {
+        "action": "wait",
+        "target": null
+      }
+    },
+    "names": [
+      {
+        "name": "inspect_gate",
+        "pair": {
+          "action": "inspect",
+          "target": "grove:gate"
+        }
+      },
+      {
+        "name": "open_gate",
+        "pair": {
+          "action": "open",
+          "target": "grove:gate"
+        }
+      },
+      {
+        "name": "wait_here",
+        "pair": {
+          "action": "wait",
+          "target": null
+        }
+      }
+    ],
+    "calls": [
+      {
+        "text": "{\"choice\":\"inspect_gate\"}",
+        "revision": 7,
+        "available": [
+          {
+            "action": "inspect",
+            "target": "grove:gate"
+          },
+          {
+            "action": "open",
+            "target": "grove:gate"
+          },
+          {
+            "action": "wait",
+            "target": null
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "kind": "route",
+  "args": {
+    "choices": {
+      "version": 1,
+      "revision": 7,
+      "choices": [
+        {
+          "action": "inspect",
+          "target": "grove:gate"
+        },
+        {
+          "action": "open",
+          "target": "grove:gate"
+        },
+        {
+          "action": "wait",
+          "target": null
+        }
+      ],
+      "fallback": {
+        "action": "wait",
+        "target": null
+      }
+    },
+    "revision": 7,
+    "candidates": [
+      {
+        "id": "known_request",
+        "source": "rule",
+        "match": "ambiguous",
+        "decision": {
+          "action": "inspect",
+          "target": "grove:gate"
+        }
+      }
+    ],
+    "available": [
+      {
+        "action": "inspect",
+        "target": "grove:gate"
+      },
+      {
+        "action": "open",
+        "target": "grove:gate"
+      },
+      {
+        "action": "wait",
+        "target": null
+      }
+    ]
+  }
+}

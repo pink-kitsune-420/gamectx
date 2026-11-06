@@ -1,0 +1,84 @@
+{
+  "kind": "intent",
+  "args": {
+    "choices": {
+      "version": 1,
+      "revision": 7,
+      "choices": [
+        {
+          "action": "inspect",
+          "target": "grove:gate"
+        },
+        {
+          "action": "open",
+          "target": "grove:gate"
+        },
+        {
+          "action": "wait",
+          "target": null
+        }
+      ],
+      "fallback": {
+        "action": "wait",
+        "target": null
+      }
+    },
+    "intent": {
+      "request": {
+        "id": "r7",
+        "text": "Inspect the gate; do not open it."
+      },
+      "facts": {
+        "locked": true
+      },
+      "allowed": [
+        {
+          "action": "inspect",
+          "target": "foreign"
+        },
+        {
+          "action": "wait",
+          "target": null
+        }
+      ]
+    },
+    "calls": [
+      {
+        "text": "{\"action\":\"open\",\"target\":\"grove:gate\"}",
+        "revision": 7,
+        "available": [
+          {
+            "action": "inspect",
+            "target": "grove:gate"
+          },
+          {
+            "action": "open",
+            "target": "grove:gate"
+          },
+          {
+            "action": "wait",
+            "target": null
+          }
+        ]
+      },
+      {
+        "text": "{\"action\":\"inspect\",\"target\":\"grove:gate\"}",
+        "revision": 7,
+        "available": [
+          {
+            "action": "inspect",
+            "target": "grove:gate"
+          },
+          {
+            "action": "open",
+            "target": "grove:gate"
+          },
+          {
+            "action": "wait",
+            "target": null
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -17,6 +17,17 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Further local optimizations (unreleased)
+
+[Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,
+typed prepared query tools, dependency-complete evidence selection, host-assisted rendered
+token counting, local-match routing, readable-choice responses and offline configuration
+comparison. Existing formats and defaults remain unchanged. Six local Qwen token probes
+for 2/4/8 choices measured 158→118, 224→174 and 344→274 prompt tokens with the readable
+codec, including choice/schema grounding. This is opt-in; smaller prompts alone do not
+prove better decisions. The [tested example](examples/optimized-turn.rs) shows intent
+guarding and query arguments without SQL substitution. New API spend $0.
+
 ## Integrating a game (v0.2.0a)
 
 The optional [integration kit](docs/KIT.md) registers data meanings, units, visibility,

@@ -11,6 +11,20 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
+## Unreleased
+
+- **[api]** Adds opt-in host intent boundaries and correction context, typed prepared
+  query tools with AST-bound arguments and recipe-bound execution, dependency-complete
+  evidence selection, a host full-render counting handshake, local rule/procedure/brain
+  routing, readable decision names and split recorded-configuration comparison.
+- **[format]** Adds seven local workflow kinds, 69 new conformance cases (including
+  errors), all 496 prior cases unchanged. Independent Python/Rust: 179 workflows,
+  152 accepted and 27 rejected; 30,000 new text mutations. Legacy defaults unchanged.
+- **[docs]** Local Qwen one-token counts for 2/4/8 choices: 158→118, 224→174, 344→274.
+  Matched-order 12-scene codec probe: 8/12→11/12 correct, input 3,865→3,285 and output
+  178→111. Small synthetic cohort; codec stays opt-in. Offline packet 419→49 bytes
+  retains declared dependencies. New API spend $0; [details](docs/OPTIMIZATION.md).
+
 ## v0.2.0a — 2026-11-06
 
 Cargo package version: `0.2.0-a`.

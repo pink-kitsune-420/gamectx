@@ -1,0 +1,37 @@
+{
+  "kind": "compose",
+  "args": {
+    "definition": {
+      "id": "request_1",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "sections": [
+        {
+          "id": "facts",
+          "value": {
+            "gate_locked": true
+          },
+          "priority": 10,
+          "required": true
+        },
+        {
+          "id": "lore",
+          "value": "old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale old tale ",
+          "priority": 0,
+          "required": false
+        }
+      ],
+      "budget": {
+        "context": 2048,
+        "output": 96,
+        "safety": 256
+      }
+    },
+    "observations": []
+  }
+}

@@ -2,6 +2,13 @@
 //! action. Current world permissions and atomic dispatch remain host responsibilities.
 use crate::{checked as c, obj, request::bounded, Error, Result, Value};
 
+mod intent;
+pub use intent::IntentSession;
+mod routing;
+pub use routing::route;
+mod codec;
+pub use codec::{ChoiceCodec, ChoiceSession};
+
 #[derive(Clone, Debug)]
 pub struct Choices {
     revision: u32,

@@ -488,3 +488,24 @@ tokens is a starting trial, not a model capacity limit. `ollama_eval.py` measure
 local requests, complete turns, retries and sampled memory. Token-only checks precede
 accuracy. Compare held-out scenes/templates and actual hardware before changing defaults;
 see [the measured report](LOCAL_MODEL_2026_11_06.md) for scope and limitations.
+
+## Further optional optimizations (unreleased)
+
+Use the [tested optimization example](../examples/optimized-turn.rs) and
+[workflow guide](OPTIMIZATION.md) after establishing the existing local-model pipeline.
+Start with a host-declared intent boundary if a legal correction could change the task.
+For common questions, register a typed query template and bind arguments as data instead
+of asking a small model to write SQL. Keep arbitrary SQL available for other questions.
+
+Select complete dependency closures for evidence, then count the complete model request.
+Non-Rust hosts can use the new composition handshake with their own renderer/tokenizer;
+this does not turn the existing JSON scene byte estimator into an exact tokenizer.
+Reuse rules, eligible procedures and brains through the optional local-match router, with
+ambiguity going to a model/clarification path and execution still controlled by the host.
+
+Readable-choice responses reduced prompt counts in six local probes and scored 11/12
+versus 8/12 in a small matched-order Qwen cohort; they remain opt-in. Do not choose that
+format just from parameter count. Compare your own snapshots and phrasing with the
+configuration scorer, select on tuning cases and report held-out failures honestly. That
+scorer checks complete recorded cohorts and costs; it does not run models or discover the
+right recipe. The detailed report separates synthetic byte, routing and model evidence.

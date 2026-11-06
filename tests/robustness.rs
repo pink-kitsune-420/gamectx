@@ -646,3 +646,36 @@ fn local_decision_dialogue_profile_and_telemetry_text_is_bounded() {
         }
     }
 }
+
+#[test]
+fn optimization_contracts_and_model_text_are_bounded() {
+    let seeds = [
+        include_str!("../conformance/optimization/intent_repair/input.json"),
+        include_str!("../conformance/optimization/template_injection/input.json"),
+        include_str!("../conformance/optimization/evidence_group/input.json"),
+        include_str!("../conformance/optimization/compose_recount/input.json"),
+        include_str!("../conformance/optimization/route_conflict/input.json"),
+        include_str!("../conformance/optimization/codec_success/input.json"),
+        include_str!("../conformance/optimization/tune_select/input.json"),
+    ];
+    let mut rng = Rng(0x741d_4126_d987_aa93);
+    for i in 0..20_000 {
+        let input = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(value) = parse(&input, 1_572_864) {
+            if let Ok(result) = gamectx::local::process(&value) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
+            }
+        }
+    }
+    let v = parse(seeds[5], 1 << 16).unwrap();
+    let a = v.get("args").unwrap();
+    let choices = gamectx::decision::Choices::from_value(a.get("choices").unwrap()).unwrap();
+    let codec = gamectx::decision::ChoiceCodec::new(&choices, a.get("names").unwrap()).unwrap();
+    for _ in 0..10_000 {
+        let text = mutate(&mut rng, r#"{"choice":"inspect_gate"}"#);
+        if let Ok(pair) = codec.decode(&text) {
+            choices.validate(&pair).unwrap();
+        }
+        let _ = codec.session().apply(&text, 7, |_| false);
+    }
+}

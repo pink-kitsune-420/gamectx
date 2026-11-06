@@ -1,0 +1,34 @@
+{
+  "kind": "query-template",
+  "args": {
+    "template": {
+      "name": "count_kind",
+      "description": "Count visible items of one kind.",
+      "sql": "SELECT COUNT(*) FROM stock",
+      "parameters": [
+        {
+          "name": "kind",
+          "column": "active",
+          "op": "=",
+          "kind": "boolean"
+        }
+      ],
+      "max_rows": 4096,
+      "result_bytes": 512
+    },
+    "arguments": {
+      "kind": true
+    },
+    "rows": [
+      {
+        "active": true
+      },
+      {
+        "active": 1
+      },
+      {
+        "active": false
+      }
+    ]
+  }
+}
