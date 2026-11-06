@@ -339,6 +339,39 @@ gamectx query --schema tables.json
 gamectx query --session tables.json --result-bytes 512
 ```
 
+### Inspect and bound a query locally
+
+The following additions are unreleased.
+
+`Query::parse` can be reused on later snapshots. Query execution now borrows input rows,
+streams aggregates and copies only selected output cells. Five synthetic paired release
+fixtures measured 4.6–32.5× faster execution, with the same results and error messages;
+this measures local execution, not model latency. [Measurements](eval/README.md#query-execution-and-identifier-matching).
+
+`Query::plan()` explains table, aggregate use, columns, filters, order and limit.
+`Query::run_bounded(rows, max_rows, result_bytes)` refuses oversized inputs/results.
+`query::Shape` optionally enforces a host-declared table, filter-column multiset, limit
+and aggregate flag. It does not verify natural-language intent, filter values, selected
+fields or permissions. Use it for structured host requests with known requirements.
+The [runnable example](examples/query-plans.rs) is tested:
+
+```bash
+cargo run --example query-plans
+gamectx query --explain "SELECT SUM(mass) FROM cargo ORDER BY mass DESC LIMIT 3"
+```
+
+Optional `query::Guidance::ExplicitSelection` supplies a supplemental system paragraph;
+`Standard` (empty supplement) remains the default. On six fresh synthetic states the
+3B model improved 46/48→48/48, while 24B fell 47/48→46/48; complete-exchange input rose
+22.0%. Choose per model/workload rather than assuming all weaker models improve.
+See the [paired report](docs/QUERY_OPTIMIZATION_2026_11_06.md) and tested example above.
+CLI: `gamectx query --guidance explicit-selection` prints the paragraph as a JSON string.
+
+Table and catalog `relevant_to` recognize namespace and dotted ID components, including
+`grove:salt_scroll`, `quest.gate.open` and Unicode identifiers. Ten lexical regressions
+improved from 2/10 to 10/10; original values and number spellings are preserved.
+This is a lexical search improvement, not a model-accuracy measurement.
+
 ## A local brain for your game's reactions
 
 Names and meanings come from your game. Bind normalized numeric observations (0–1),

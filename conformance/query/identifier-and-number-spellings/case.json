@@ -1,0 +1,1 @@
+{"op":"query","args":{"sql":"SELECT id, text, serial FROM cargo WHERE id IN ('grove:café_map','quest.gate.open')"}}

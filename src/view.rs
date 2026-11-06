@@ -77,7 +77,7 @@ fn equal(a: &Value, b: &Value) -> bool {
 
 /// Whether a cell meets a condition. Ordering operators need numbers on both sides; a
 /// non-number cell (such as `null`) simply does not match.
-fn meets(cell: &Value, op: Op, value: &Value) -> bool {
+pub(crate) fn meets(cell: &Value, op: Op, value: &Value) -> bool {
     match op {
         Op::Eq => equal(cell, value),
         Op::Ne => !equal(cell, value),
@@ -113,8 +113,26 @@ pub(crate) fn words(text: &str) -> Vec<String> {
     out
 }
 
+/// Lowercased text plus identifier segments and their underscore-separated parts.
+/// Keeping segments makes `salt_scroll` match inside `grove:salt_scroll` too.
+pub(crate) fn identifier_parts(text: &str) -> Vec<String> {
+    let lower = text.to_lowercase();
+    let mut parts = Vec::new();
+    for segment in lower.split([':', '.', '/', '-']) {
+        if segment != lower && !segment.is_empty() {
+            parts.push(segment.to_owned());
+        }
+        if segment.contains('_') {
+            parts.extend(segment.split('_').filter(|p| !p.is_empty()).map(str::to_owned));
+        }
+    }
+    parts.push(lower);
+    parts
+}
+
 /// Keeps the rows whose text cells match the most words of `text`. A word matches a row
-/// when it equals one of the row's text cells, or one `_`-separated part of a cell
+/// when it equals one of the row's text cells, an identifier segment separated by
+/// `:`, `.`, `/` or `-`, or one `_`-separated part of such a segment
 /// (lowercased). Numbers in the text are ignored. If no row matches any word, every row
 /// is kept, so questions the words do not anticipate still see the whole table.
 pub fn relevant_rows(rows: Vec<Value>, text: &str) -> Vec<Value> {
@@ -138,9 +156,7 @@ pub fn relevance_scores(rows: &[Value], text: &str) -> Vec<usize> {
             let mut parts: Vec<String> = Vec::new();
             for (_, v) in row.as_object().unwrap_or(&[]) {
                 if let Value::String(s) = v {
-                    let cell = s.to_lowercase();
-                    parts.extend(cell.split('_').map(str::to_owned));
-                    parts.push(cell);
+                    parts.extend(identifier_parts(s));
                 }
             }
             words.iter().filter(|w| parts.contains(w)).count()

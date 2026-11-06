@@ -193,7 +193,7 @@ impl Catalog {
     }
 
     /// Ranks entries by how many words of `text` (such as a player's message) match their
-    /// ID, its `_`-separated parts, or their tags (without `#`; a trailing plural `s` is
+    /// ID, its identifier components (`: . / - _`), or their tags (without `#`; a trailing plural `s` is
     /// optional on both sides), and returns the best `count`, ties in catalog order.
     /// Entries matching nothing are never returned, so an unrelated message gives an
     /// empty page. Pass the generation from an earlier page to refuse changed data.
@@ -213,10 +213,8 @@ impl Catalog {
             if kind.is_some_and(|k| k != e.kind) {
                 continue;
             }
-            let id = e.id.to_lowercase();
-            let mut parts: Vec<String> = id.split('_').map(str::to_owned).collect();
-            parts.push(id.clone());
-            parts.extend(e.tags.iter().map(|t| t.trim_start_matches('#').to_lowercase()));
+            let mut parts = crate::view::identifier_parts(&e.id);
+            parts.extend(e.tags.iter().flat_map(|t| crate::view::identifier_parts(t.trim_start_matches('#'))));
             let extra: Vec<String> = parts.iter().filter_map(|p| singular(p)).collect();
             parts.extend(extra);
             let score = words.iter().filter(|w| parts.contains(w)).count();

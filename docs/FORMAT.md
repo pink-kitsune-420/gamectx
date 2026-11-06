@@ -110,7 +110,9 @@ A table section can shape its rows before packing. Steps always run in this orde
 2. `relevant_to`: split the text into words (runs of letters, digits and `_`, lowercased),
    ignoring all-digit words and also trying each word of four or more letters without a
    trailing `s`. A word matches a row when it equals one of the row's string cells, or one
-   `_`-separated part of one, lowercased. Rows with the most matching words are kept; if no
+   identifier segment split at `:`, `.`, `/` or `-`, or an `_`-separated part of
+   such a segment, lowercased. Full cells and full segments are retained too. Rows with
+   the most matching words are kept; if no
    row matches any word, every row is kept, or none with `"relevant_fallback": "none"`.
 3. `sort_by`: stable sort by one column. Numbers compare as numbers, strings by Unicode
    code point; a column that mixes the two is an error. Nulls go last in both directions.
@@ -214,7 +216,8 @@ Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --
   ignored when matching, and a trailing plural `s` is optional.
 - `next` is the offset of the next page, or `null`. Offsets stop at 4096.
 - With `relevant_to` instead of `query`, entries are ranked by how many words of the text
-  match their ID, its `_`-separated parts, or their tags (without `#`; a trailing plural `s`
+  match their ID, its identifier components split at `: . / - _`, or their tags
+  (also split into those components, without `#`; a trailing plural `s`
   is optional on both sides). The best `count` entries are returned, ties in catalog
   order, and entries matching nothing never are; `next` is `null`.
 - `generation` is a 64-bit FNV-1a fingerprint of the catalog. Passing it back
@@ -400,6 +403,56 @@ text or tags (a trailing plural `s` optional on both sides) adds `1/n`, where `n
 many records contain that word. Rare words count fully; words in nearly every record
 barely count, in any language. Ties go to higher importance, then the later turn. With no
 matching words, the most important, most recent records are returned.
+
+## Optional query guidance
+
+`query::Guidance` defaults to `Standard`, whose `text()` is empty. The opt-in
+`ExplicitSelection` profile returns the exact supplemental system paragraph in
+`query-guidance/explicit-selection/expected.json`. Append it once to the system prompt
+beside table descriptions; keep it for correction/final-answer turns. `Guidance::parse`
+accepts exactly `standard` and `explicit-selection`; other names are errors. CLI
+`query --guidance PROFILE` prints its text as a JSON string. No model-name/size detection
+or query rewriting is performed; default tools, descriptions and sessions are unchanged.
+
+The conformance `query-guidance` operation takes a JSON profile string and returns the
+supplement as a JSON string. Unknown names and non-string input fail. The profile trades
+more input for a mixed per-model result; see the [paired report](QUERY_OPTIMIZATION_2026_11_06.md).
+
+## Query plans and host contracts
+
+`query::Query::plan()` and `gamectx query --explain SQL` return this structure without
+reading a table (example is `query-plan/top-n-plan`):
+
+```json
+{"table":"cargo","aggregate":true,"columns":["mass"],"filters":[],"order_by":{"column":"mass","descending":true},"limit":3}
+```
+
+`columns` lists distinct names in first-use order: SELECT expression traversal, WHERE
+conditions, then ORDER BY. `aggregate` means any selected expression uses an aggregate.
+`filters` keeps query order, each `{column,op,value}` with `op` one of `= != < <= > >= in`;
+`<>` becomes `!=`. IN values are arrays. Numeric filter literal spellings are retained.
+`order_by` and `limit` are null when absent. Aliases are accepted but not represented.
+
+An optional `query::Shape::from_value` reads exactly
+`{table,filter_columns,limit,aggregate}`. Names are ASCII SQL identifiers of 1–64 bytes;
+`filter_columns` contains at most 16 names. Duplicate names are permitted to express
+multiple conditions on one column. `limit` is null or a canonical unsigned integer
+0..4294967295; `aggregate` is boolean. Unknown/missing fields and wrong types fail.
+`to_value()` sorts filter names, preserving duplicates, in the displayed field order.
+`Query::require_shape` requires the exact table, aggregate flag, limit and multiset of
+filter columns; WHERE order can differ. It does not check values/operators, selected
+expressions, sort order or authorization. Hosts supply these contracts independently
+when they know the required structure; they are not inferred from natural language.
+
+`run_bounded(rows,max_rows,result_bytes)` rejects an oversized table before execution,
+and an oversized compact UTF-8 JSON result after computation. It never truncates.
+These bounds do not limit cell sizes, transient allocations or elapsed time. Ordinary
+`run`, default tools and session envelopes retain their existing behavior.
+
+The conformance `query-plan` operation takes `{sql,shape?,op?}`; default `op:"plan"`
+returns the plan. With `op:"run"`, `rows`, `max_rows` and `result_bytes` are required,
+and output is `{plan,result}`. This operation is a test adapter for the native APIs,
+not a second model query language or new tool schema.
 
 ## Reaction brains
 

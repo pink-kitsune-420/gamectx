@@ -17,6 +17,8 @@ use std::path::{Path, PathBuf};
 mod facts;
 #[path = "support/integration.rs"]
 mod integration;
+#[path = "support/query_plan.rs"]
+mod query_plan;
 #[path = "support/runtime.rs"]
 mod runtime;
 #[path = "support/upgrades.rs"]
@@ -56,6 +58,13 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
         "facts" => facts::process(&input)?,
+        "query-plan" => query_plan::process(&input)?,
+        "query-guidance" => Value::str(
+            gamectx::query::Guidance::parse(
+                input.as_str().ok_or_else(|| Error::new("guidance profile must be a string"))?,
+            )?
+            .text(),
+        ),
         "upgrades" => upgrades::process(&input)?,
         "integration" => integration::process(&input)?,
         "runtime" => runtime::process(&input)?,

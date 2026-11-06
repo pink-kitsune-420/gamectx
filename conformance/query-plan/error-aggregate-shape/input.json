@@ -1,0 +1,1 @@
+{"sql":"SELECT COUNT(*) FROM cargo WHERE units >= 5 AND mass < 3","shape":{"table":"cargo","filter_columns":["units","mass"],"limit":null,"aggregate":false}}

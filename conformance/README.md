@@ -35,6 +35,8 @@ A case passes when:
 | `estimate` | `{scope: [strings], observations: [[body_bytes, input_tokens, estimate_used], ...], body, framing}` | | `{"calibration": ..., "estimate": n}`. Observations are applied in order, starting uncalibrated; the estimate uses the same scope. |
 | `formula` | `{define: [formulas], calc: [expressions]}` | | each expression's result, or `null` where evaluation fails |
 | `query` | object of table names to arrays of row objects | `sql` (a SELECT string) | selected values or aggregates; see [Queries](../docs/FORMAT.md#queries) |
+| `query-guidance` | JSON profile string (`standard` or `explicit-selection`) | | supplemental system text as a JSON string; unknown names/wrong types are errors |
+| `query-plan` | `{sql, shape?, op?: "plan" or "run", rows?, max_rows?, result_bytes?}` | | query structure; optional strict host shape; bounded execution returns `{plan,result}`. See [query plans](../docs/FORMAT.md#query-plans-and-host-contracts). |
 | `query-schema` | object of named tables | | column types and complete small string domains |
 | `query-session` | object of named tables | `calls` (argument objects), `result_bytes` (default 4096) | one feedback envelope per call; requests after a terminal reply are errors |
 | `brain`, `brain-select` | exactly one of `definition`, `dense`, `state`, plus `operations:[{op,args}]` | | `{"results":[...],"state":...}`; see [Reaction brains](../docs/FORMAT.md#reaction-brains); `brain-select` cases exercise opt-in rate selection |

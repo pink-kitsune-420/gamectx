@@ -13,7 +13,24 @@ know what an upgrade costs:
 
 ## Unreleased
 
-No changes yet.
+- **[format]** Table and catalog `relevant_to` recognize namespace/dotted/path identifier
+  components (`: . / - _`); full cells and underscore segments still match. Lexical
+  regressions 2/10 → 10/10; four catalog cases. No existing expected output changed.
+- **[format]** Adds query-plan inspection and optional explicit host-shape/bounded-run
+  conformance workflows, plus exact Unicode-ID/large-number query selection: 35 new
+  cases total, all 366 previous cases byte-identical.
+- **[api]** Adds `Query::{plan,require_shape,run_bounded}`, `query::Shape`, and CLI
+  `query --explain SQL`. Shape checks are structural host requirements, not intent or
+  authorization checks; default tools and sessions retain their formats.
+- **[api]** Adds opt-in `query::Guidance::{Standard,ExplicitSelection}` and CLI
+  `query --guidance PROFILE`. Exact measured supplemental system text; default empty.
+  Paired six-state check: 3B 46/48→48/48, 24B 47/48→46/48; input +22.0%.
+  Four profile conformance cases; unknown profiles fail. Token check $0.0012702 plus
+  accuracy $0.0281033125 = $0.0293735125, within caps $0.01/$0.08.
+- **[internal]** Query execution borrows rows, streams aggregate values and avoids
+  temporary scalar-result vectors. Five synthetic paired release fixtures: 4.6–32.5×
+  faster parsed execution. 2,024 baseline result/error comparisons, 3,000 generated
+  Rust/Python queries and 516 plan/bounds/shape checks agree; 20,000 added mutations.
 
 ## 0.1.0-alpha.4 — 2026-11-06
 

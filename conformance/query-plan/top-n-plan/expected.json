@@ -1,0 +1,1 @@
+{"table":"cargo","aggregate":true,"columns":["mass"],"filters":[],"order_by":{"column":"mass","descending":true},"limit":3}

@@ -1,0 +1,1 @@
+{"sql":"SELECT id FROM cargo WHERE units >= 5 AND mass < 3 AND access = open","shape":{"table":"cargo","filter_columns":["units","mass"],"limit":null,"aggregate":false}}

@@ -1,0 +1,1 @@
+{"table":"cargo","aggregate":false,"columns":["id","mass"],"filters":[{"column":"mass","op":">","value":1},{"column":"mass","op":"<","value":3}],"order_by":null,"limit":null}

@@ -1,0 +1,143 @@
+{
+  "token_spend_usd": 0.0012701999999999995,
+  "accuracy_spend_usd": 0.028103312499999956,
+  "total_spend_usd": 0.029373512499999956,
+  "arms": {
+    "baseline": {
+      "exchanges": 96,
+      "first_correct": 86,
+      "executed_correct": 93,
+      "final_correct": 93,
+      "average_input": 907.8645833333334,
+      "average_output": 52.09375,
+      "spend_usd": 0.0129111625
+    },
+    "guided": {
+      "exchanges": 96,
+      "first_correct": 84,
+      "executed_correct": 94,
+      "final_correct": 94,
+      "average_input": 1107.8020833333333,
+      "average_output": 52.822916666666664,
+      "spend_usd": 0.01519215
+    }
+  },
+  "per_model": {
+    "llama-3.2-3b": {
+      "baseline": {
+        "exchanges": 48,
+        "first_correct": 40,
+        "executed_correct": 46,
+        "final_correct": 46,
+        "average_input": 956.7708333333334,
+        "average_output": 53.979166666666664,
+        "spend_usd": 0.008443349999999999
+      },
+      "guided": {
+        "exchanges": 48,
+        "first_correct": 42,
+        "executed_correct": 48,
+        "final_correct": 48,
+        "average_input": 1136.9375,
+        "average_output": 52.645833333333336,
+        "spend_usd": 0.00970215
+      }
+    },
+    "mistral-small-3-2-24b-instruct": {
+      "baseline": {
+        "exchanges": 48,
+        "first_correct": 46,
+        "executed_correct": 47,
+        "final_correct": 47,
+        "average_input": 858.9583333333334,
+        "average_output": 50.208333333333336,
+        "spend_usd": 0.0044678124999999996
+      },
+      "guided": {
+        "exchanges": 48,
+        "first_correct": 42,
+        "executed_correct": 46,
+        "final_correct": 46,
+        "average_input": 1078.6666666666667,
+        "average_output": 53.0,
+        "spend_usd": 0.00549
+      }
+    }
+  },
+  "per_family": {
+    "cargo": {
+      "baseline": {
+        "exchanges": 32,
+        "first_correct": 27,
+        "executed_correct": 30,
+        "final_correct": 30,
+        "average_input": 879.90625,
+        "average_output": 59.71875,
+        "spend_usd": 0.00425356875
+      },
+      "guided": {
+        "exchanges": 32,
+        "first_correct": 28,
+        "executed_correct": 32,
+        "final_correct": 32,
+        "average_input": 1079.75,
+        "average_output": 59.53125,
+        "spend_usd": 0.00502295
+      }
+    },
+    "teams": {
+      "baseline": {
+        "exchanges": 32,
+        "first_correct": 30,
+        "executed_correct": 32,
+        "final_correct": 32,
+        "average_input": 878.9375,
+        "average_output": 48.34375,
+        "spend_usd": 0.004155556249999999
+      },
+      "guided": {
+        "exchanges": 32,
+        "first_correct": 30,
+        "executed_correct": 32,
+        "final_correct": 32,
+        "average_input": 1046.5,
+        "average_output": 46.5,
+        "spend_usd": 0.00477433125
+      }
+    },
+    "paths": {
+      "baseline": {
+        "exchanges": 32,
+        "first_correct": 29,
+        "executed_correct": 31,
+        "final_correct": 31,
+        "average_input": 964.75,
+        "average_output": 48.21875,
+        "spend_usd": 0.0045020375
+      },
+      "guided": {
+        "exchanges": 32,
+        "first_correct": 26,
+        "executed_correct": 30,
+        "final_correct": 30,
+        "average_input": 1197.15625,
+        "average_output": 52.4375,
+        "spend_usd": 0.005394868749999999
+      }
+    }
+  },
+  "paired_changes": {
+    "improved": 2,
+    "regressed": 1
+  },
+  "token_inputs": {
+    "llama-3.2-3b": {
+      "baseline": 390.0,
+      "guided": 475.0
+    },
+    "mistral-small-3-2-24b-instruct": {
+      "baseline": 388.0,
+      "guided": 468.0
+    }
+  }
+}

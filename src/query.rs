@@ -46,7 +46,11 @@
 use crate::json::{Error, Result, Value};
 use crate::view::{self, Op, View};
 
+mod guidance;
+mod plan;
+pub use guidance::Guidance;
 mod schema;
+pub use plan::Shape;
 pub use schema::{describe, describe_with};
 
 /// Limits on a query's text and shape.
@@ -571,33 +575,77 @@ impl Query {
                 )));
             }
         }
-        let rows = view::apply(rows, &self.view)?;
-        let pick = |values: Vec<Value>| {
-            if values.len() == 1 {
-                values.into_iter().next().unwrap()
-            } else {
-                Value::Array(values)
-            }
-        };
+        let rows = select_rows(rows, &self.view)?;
         if self.items.iter().any(Expr::has_agg) {
-            return Ok(pick(self.items.iter().map(|e| number(eval(e, None, &rows))).collect()));
+            return Ok(pick(&self.items, |e| number(eval(e, None, &rows))));
         }
         let out = rows
             .iter()
             .map(|row| {
-                pick(
-                    self.items
-                        .iter()
-                        .map(|e| match e {
-                            Expr::Col(c) => row.get(c).cloned().unwrap_or(Value::Null),
-                            _ => number(eval(e, Some(row), &[])),
-                        })
-                        .collect(),
-                )
+                pick(&self.items, |e| match e {
+                    Expr::Col(c) => row.get(c).cloned().unwrap_or(Value::Null),
+                    _ => number(eval(e, Some(row), &[])),
+                })
             })
             .collect();
         Ok(Value::Array(out))
     }
+}
+
+fn pick(items: &[Expr], mut value: impl FnMut(&Expr) -> Value) -> Value {
+    if items.len() == 1 {
+        value(&items[0])
+    } else {
+        Value::Array(items.iter().map(value).collect())
+    }
+}
+
+// Validation in Query::run happens before selection, including for LIMIT 0.
+// Borrow full rows; only selected output cells are copied.
+fn select_rows<'a>(rows: &'a [Value], view: &View) -> Result<Vec<&'a Value>> {
+    let selected = rows
+        .iter()
+        .filter(|row| view.filters.iter().all(|(c, op, v)| view::meets(row.get(c).expect("validated column"), *op, v)));
+    let limit = view.limit.unwrap_or(usize::MAX);
+    let Some((column, descending)) = &view.sort_by else {
+        return Ok(selected.take(limit).collect());
+    };
+    enum Key<'a> {
+        Number(f64),
+        Text(&'a str),
+        Null,
+    }
+    let mut keyed = Vec::new();
+
+    for (n, row) in selected.enumerate() {
+        let key = match row.get(column).expect("validated column") {
+            Value::Null => Key::Null,
+            Value::Number(s) => Key::Number(s.parse().map_err(|_| Error::new(format!("row {n}: unreadable number")))?),
+            Value::String(s) => Key::Text(s),
+            _ => return Err(Error::new(format!("row {n}: sort_by column \"{column}\" must hold numbers or strings"))),
+        };
+        keyed.push((key, row));
+    }
+    if keyed.iter().any(|(k, _)| matches!(k, Key::Number(_))) && keyed.iter().any(|(k, _)| matches!(k, Key::Text(_))) {
+        return Err(Error::new(format!("sort_by column \"{column}\" mixes numbers and strings")));
+    }
+    keyed.sort_by(|(a, _), (b, _)| {
+        use std::cmp::Ordering;
+        let order = match (a, b) {
+            (Key::Null, Key::Null) => return Ordering::Equal,
+            (Key::Null, _) => return Ordering::Greater,
+            (_, Key::Null) => return Ordering::Less,
+            (Key::Number(a), Key::Number(b)) => a.total_cmp(b),
+            (Key::Text(a), Key::Text(b)) => a.cmp(b),
+            _ => unreachable!("validated key types"),
+        };
+        if *descending {
+            order.reverse()
+        } else {
+            order
+        }
+    });
+    Ok(keyed.into_iter().take(limit).map(|(_, row)| row).collect())
 }
 
 fn cell(row: &Value, column: &str) -> Option<f64> {
@@ -608,7 +656,7 @@ fn cell(row: &Value, column: &str) -> Option<f64> {
 }
 
 /// Evaluates per row (`row` set) or over all `rows` (aggregates). `None` is null.
-fn eval(e: &Expr, row: Option<&Value>, rows: &[Value]) -> Option<f64> {
+fn eval(e: &Expr, row: Option<&Value>, rows: &[&Value]) -> Option<f64> {
     let value = match e {
         Expr::Num(n) => Some(*n),
         Expr::Col(c) => row.and_then(|r| cell(r, c)),
@@ -635,14 +683,23 @@ fn eval(e: &Expr, row: Option<&Value>, rows: &[Value]) -> Option<f64> {
             _ => rows.iter().filter(|r| eval(inner, Some(r), &[]).is_some()).count(),
         } as f64),
         Expr::Agg(agg, Some(inner)) => {
-            let values: Vec<f64> = rows.iter().filter_map(|r| eval(inner, Some(r), &[])).collect();
-            let sum = || values.iter().fold(0.0, |total, v| total + v);
+            let mut count = 0;
+            let mut total = 0.0;
+            let mut best = None;
+            for value in rows.iter().filter_map(|r| eval(inner, Some(r), &[])) {
+                count += 1;
+                total += value;
+                best = Some(match best {
+                    Some(previous) if !matches!(agg, Agg::Min) && value <= previous => previous,
+                    Some(previous) if matches!(agg, Agg::Min) && value >= previous => previous,
+                    _ => value,
+                });
+            }
             match agg {
-                Agg::Sum => Some(sum()),
-                _ if values.is_empty() => None,
-                Agg::Avg => Some(sum() / values.len() as f64),
-                Agg::Min => Some(values[1..].iter().fold(values[0], |best, &v| if v < best { v } else { best })),
-                _ => Some(values[1..].iter().fold(values[0], |best, &v| if v > best { v } else { best })),
+                Agg::Sum => Some(total),
+                _ if count == 0 => None,
+                Agg::Avg => Some(total / count as f64),
+                _ => best,
             }
         }
     };

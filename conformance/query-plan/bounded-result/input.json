@@ -1,0 +1,1 @@
+{"op":"run","sql":"SELECT SUM(mass) FROM cargo","rows":[{"mass":3},{"mass":2}],"max_rows":2,"result_bytes":1}

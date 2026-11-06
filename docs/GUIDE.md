@@ -33,7 +33,12 @@ nothing: 2/6 → 0/6.* Those questions belong in code anyway: `sort_by` + `limit
 "highest trust" exactly, while models given every row got it right 2 times in 6.
 
 Catalogs take `relevant_to` too: send the entries that best match the player's message
-instead of a keyword search.
+instead of a keyword search. Table and catalog relevance split ID segments at `: . / -`
+and then `_`, while preserving full cells/segments. Thus `scroll` and `salt_scroll` find
+`grove:salt_scroll`; `gate` finds `quest.gate.open`. Unicode lowercasing is retained;
+substring fragments do not match. Offline lexical regressions improved 2/10 → 10/10,
+with four additional catalog parity cases. No embedding, fuzzy search or semantic
+accuracy claim is implied. Existing no-match fallback and ranking rules still apply.
 
 Round numbers to the precision decisions need. *Measured: rounding two number columns
 from two decimals to one saved 5% of the whole packet; each dropped digit costs about one
@@ -413,3 +418,33 @@ fallback remains possible. The library handles accounting, while your host owns 
 HTTP limits/concurrency, durable saves and operator controls. All seven additions and
 their checks used $0 API; [the eval guide](../eval/README.md#optional-runtime-upgrades)
 records methods and limits.
+
+## Inspect query structure and reuse parsed requests
+
+Parse a repeated host query once with `Query::parse`, then call `run` on each current
+snapshot. The query stores no row snapshot or cached answer, so updates remain visible.
+Execution borrows row data; it still validates every referenced column in every row,
+including rows beyond LIMIT. Sorting validates all filtered rows before truncating.
+Aggregates retain their original left-to-right floating-point arithmetic and null rules.
+Five local fixtures measured 4.6–32.5× faster parsed execution, not model response time.
+
+Use `Query::plan` to review a model request before executing it. For structured requests
+where the host knows the required shape, `query::Shape` can reject an extra LIMIT or
+filter column. Exact shape is too restrictive as a general natural-language validator:
+an offline oracle-shape diagnostic rejected 27/96 recorded requests, including 22 correct
+equivalents. A shape also does not check operators, values, selected columns, sort order
+or permissions. Expose only authorized tables/columns and keep host action checks.
+
+`run_bounded` checks input row count and output bytes without truncation. Its output check
+happens after computation; cap host cell sizes separately if transient memory matters.
+See the tested [query plan example](../examples/query-plans.rs) and
+[format contract](FORMAT.md#query-plans-and-host-contracts).
+
+Choose supplemental query guidance per model/workload with
+`query::Guidance::parse(configured_profile)?.text()`, and append the returned text once
+to the system prompt. `standard` is empty; `explicit-selection` emphasizes all matching
+rows, requested filters only, and the native top-N aggregate syntax. Keep it across
+correction/final turns; do not repeatedly append it. Six fresh synthetic states measured
+3B 46/48→48/48, 24B 47/48→46/48 and 22.0% higher complete-exchange input. It is opt-in;
+model size alone does not choose a profile. See the tested query-plans example and
+[paired report](QUERY_OPTIMIZATION_2026_11_06.md).

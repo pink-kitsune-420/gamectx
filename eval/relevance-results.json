@@ -1,0 +1,8 @@
+{
+  "catalog_parity_cases": 4,
+  "api_spend_usd": 0,
+  "cases": 10,
+  "legacy_correct": 2,
+  "boundary_correct": 10,
+  "scope": "Synthetic lexical regression only; no model-accuracy or semantic-relevance claim."
+}

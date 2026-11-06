@@ -205,3 +205,10 @@ mod runtime_upgrades;
 fn documented_runtime_upgrades_example() -> gamectx::Result<()> {
     runtime_upgrades::main()
 }
+
+#[path = "../examples/query-plans.rs"]
+mod query_plans;
+#[test]
+fn documented_query_plan_example() -> gamectx::Result<()> {
+    query_plans::main()
+}

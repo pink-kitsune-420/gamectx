@@ -1,0 +1,3358 @@
+{
+  "date": "2026-11-06T10:24:35.911965+00:00",
+  "source_commit": "86a7e32d3090ca6b3704f6d1c21c4ca77d4f77f2",
+  "eval_sha256": "f2fa1bfbef73bd07c16ca609bcc16f13786a1c55c3024d792983859863cece7a",
+  "guidance": "Return all matching rows for a list: do not add LIMIT unless the question requests a top-N or one row. Use only filters requested by the question; field meanings do not add filters. For a top-N total use SELECT SUM(column) FROM table ORDER BY column DESC LIMIT N, substituting listed names. Never put SELECT inside SELECT or IN. Do not add eligibility filters to an all-row total.",
+  "tokens_only": true,
+  "cap_usd": 0.01,
+  "completed": true,
+  "stopped": null,
+  "states": [
+    {
+      "family": "cargo",
+      "seed": 12101,
+      "size": 24,
+      "tables": {
+        "cargo": [
+          {
+            "id": "cargo_12101_0",
+            "category": "food",
+            "quality": "common",
+            "units": 8,
+            "unit_mass": 3.7,
+            "stack_mass": 29.6
+          },
+          {
+            "id": "cargo_12101_1",
+            "category": "ore",
+            "quality": "rare",
+            "units": 12,
+            "unit_mass": 9.8,
+            "stack_mass": 117.60000000000001
+          },
+          {
+            "id": "cargo_12101_2",
+            "category": "ore",
+            "quality": "unique",
+            "units": 1,
+            "unit_mass": 6.25,
+            "stack_mass": 6.25
+          },
+          {
+            "id": "cargo_12101_3",
+            "category": "food",
+            "quality": "common",
+            "units": 12,
+            "unit_mass": 6.75,
+            "stack_mass": 81
+          },
+          {
+            "id": "cargo_12101_4",
+            "category": "tool",
+            "quality": "rare",
+            "units": 1,
+            "unit_mass": 5.2,
+            "stack_mass": 5.2
+          },
+          {
+            "id": "cargo_12101_5",
+            "category": "tool",
+            "quality": "unique",
+            "units": 1,
+            "unit_mass": 6.75,
+            "stack_mass": 6.75
+          },
+          {
+            "id": "cargo_12101_6",
+            "category": "food",
+            "quality": "common",
+            "units": 2,
+            "unit_mass": 2.95,
+            "stack_mass": 5.9
+          },
+          {
+            "id": "cargo_12101_7",
+            "category": "tool",
+            "quality": "rare",
+            "units": 8,
+            "unit_mass": 0.95,
+            "stack_mass": 7.6
+          },
+          {
+            "id": "cargo_12101_8",
+            "category": "ore",
+            "quality": "unique",
+            "units": 3,
+            "unit_mass": 7.1,
+            "stack_mass": 21.299999999999997
+          },
+          {
+            "id": "cargo_12101_9",
+            "category": "tool",
+            "quality": "common",
+            "units": 3,
+            "unit_mass": 1.45,
+            "stack_mass": 4.35
+          },
+          {
+            "id": "cargo_12101_10",
+            "category": "tool",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 6.6,
+            "stack_mass": 13.2
+          },
+          {
+            "id": "cargo_12101_11",
+            "category": "food",
+            "quality": "unique",
+            "units": 8,
+            "unit_mass": 0.9,
+            "stack_mass": 7.2
+          },
+          {
+            "id": "cargo_12101_12",
+            "category": "food",
+            "quality": "common",
+            "units": 8,
+            "unit_mass": 5.25,
+            "stack_mass": 42
+          },
+          {
+            "id": "cargo_12101_13",
+            "category": "tool",
+            "quality": "rare",
+            "units": 8,
+            "unit_mass": 6.35,
+            "stack_mass": 50.8
+          },
+          {
+            "id": "cargo_12101_14",
+            "category": "food",
+            "quality": "unique",
+            "units": 12,
+            "unit_mass": 3.65,
+            "stack_mass": 43.8
+          },
+          {
+            "id": "cargo_12101_15",
+            "category": "food",
+            "quality": "common",
+            "units": 2,
+            "unit_mass": 3.65,
+            "stack_mass": 7.3
+          },
+          {
+            "id": "cargo_12101_16",
+            "category": "tool",
+            "quality": "rare",
+            "units": 3,
+            "unit_mass": 1.05,
+            "stack_mass": 3.1500000000000004
+          },
+          {
+            "id": "cargo_12101_17",
+            "category": "tool",
+            "quality": "unique",
+            "units": 3,
+            "unit_mass": 7.75,
+            "stack_mass": 23.25
+          },
+          {
+            "id": "cargo_12101_18",
+            "category": "ore",
+            "quality": "common",
+            "units": 2,
+            "unit_mass": 5.75,
+            "stack_mass": 11.5
+          },
+          {
+            "id": "cargo_12101_19",
+            "category": "food",
+            "quality": "rare",
+            "units": 3,
+            "unit_mass": 8.55,
+            "stack_mass": 25.650000000000002
+          },
+          {
+            "id": "cargo_12101_20",
+            "category": "tool",
+            "quality": "unique",
+            "units": 1,
+            "unit_mass": 5.5,
+            "stack_mass": 5.5
+          },
+          {
+            "id": "cargo_12101_21",
+            "category": "food",
+            "quality": "common",
+            "units": 1,
+            "unit_mass": 7.65,
+            "stack_mass": 7.65
+          },
+          {
+            "id": "cargo_12101_22",
+            "category": "food",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 3.35,
+            "stack_mass": 6.7
+          },
+          {
+            "id": "cargo_12101_23",
+            "category": "food",
+            "quality": "unique",
+            "units": 1,
+            "unit_mass": 1.85,
+            "stack_mass": 1.85
+          }
+        ]
+      },
+      "metadata": {
+        "cargo": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "category": {
+              "description": "Native item category.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "quality": {
+              "description": "Rarity category, independent of quantity.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {
+                "unique": "The literal unique category; it does not mean units = 1."
+              }
+            },
+            "units": {
+              "description": "Units in this row; one row is one stack.",
+              "unit": "items",
+              "kind": "quantity",
+              "values": {}
+            },
+            "unit_mass": {
+              "description": "Mass of one unit, independent of stack quantity.",
+              "unit": "kg/item",
+              "kind": "continuous",
+              "values": {}
+            },
+            "stack_mass": {
+              "description": "Mass of this complete stack, units * unit_mass.",
+              "unit": "kg/stack",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "filter",
+          "question": "List IDs of rare tools.",
+          "oracle": "SELECT id FROM cargo WHERE quality = 'rare' AND category = 'tool'",
+          "expected": [
+            "cargo_12101_4",
+            "cargo_12101_7",
+            "cargo_12101_10",
+            "cargo_12101_13",
+            "cargo_12101_16"
+          ]
+        },
+        {
+          "kind": "numeric_filter",
+          "question": "List IDs with at least five units and unit mass below 3 kg.",
+          "oracle": "SELECT id FROM cargo WHERE units >= 5 AND unit_mass < 3",
+          "expected": [
+            "cargo_12101_7",
+            "cargo_12101_11"
+          ]
+        },
+        {
+          "kind": "count",
+          "question": "How many rows have quality unique?",
+          "oracle": "SELECT COUNT(*) FROM cargo WHERE quality = 'unique'",
+          "expected": 8
+        },
+        {
+          "kind": "total",
+          "question": "What is the total carried mass of all stacks?",
+          "oracle": "SELECT SUM(stack_mass) FROM cargo",
+          "expected": 535.1000000000001
+        },
+        {
+          "kind": "total",
+          "question": "How many food units are carried in total?",
+          "oracle": "SELECT SUM(units) FROM cargo WHERE category = 'food'",
+          "expected": 59
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of unit_mass for the three rows with largest unit_mass?",
+          "oracle": "SELECT SUM(unit_mass) FROM cargo ORDER BY unit_mass DESC LIMIT 3",
+          "expected": 26.1
+        },
+        {
+          "kind": "total",
+          "question": "What is the combined mass of complete rare stacks?",
+          "oracle": "SELECT SUM(stack_mass) FROM cargo WHERE quality = 'rare'",
+          "expected": 229.89999999999998
+        },
+        {
+          "kind": "count",
+          "question": "How many food or ore stacks have more than two units?",
+          "oracle": "SELECT COUNT(*) FROM cargo WHERE category IN ('food','ore') AND units > 2",
+          "expected": 8
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"cargo\":{\"columns\":[[\"id\",\"string\"],[\"category\",\"string\"],[\"quality\",\"string\"],[\"units\",\"number\"],[\"unit_mass\",\"number\"],[\"stack_mass\",\"number\"]],\"values\":{\"category\":[\"food\",\"ore\",\"tool\"],\"quality\":[\"common\",\"rare\",\"unique\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"category\":{\"description\":\"Native item category.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"quality\":{\"description\":\"Rarity category, independent of quantity.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{\"unique\":\"The literal unique category; it does not mean units = 1.\"}},\"units\":{\"description\":\"Units in this row; one row is one stack.\",\"unit\":\"items\",\"kind\":\"quantity\",\"values\":{}},\"unit_mass\":{\"description\":\"Mass of one unit, independent of stack quantity.\",\"unit\":\"kg/item\",\"kind\":\"continuous\",\"values\":{}},\"stack_mass\":{\"description\":\"Mass of this complete stack, units * unit_mass.\",\"unit\":\"kg/stack\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    },
+    {
+      "family": "cargo",
+      "seed": 12102,
+      "size": 48,
+      "tables": {
+        "cargo": [
+          {
+            "id": "cargo_12102_0",
+            "category": "ore",
+            "quality": "common",
+            "units": 8,
+            "unit_mass": 9.25,
+            "stack_mass": 74
+          },
+          {
+            "id": "cargo_12102_1",
+            "category": "tool",
+            "quality": "rare",
+            "units": 1,
+            "unit_mass": 8.4,
+            "stack_mass": 8.4
+          },
+          {
+            "id": "cargo_12102_2",
+            "category": "ore",
+            "quality": "unique",
+            "units": 5,
+            "unit_mass": 7.7,
+            "stack_mass": 38.5
+          },
+          {
+            "id": "cargo_12102_3",
+            "category": "ore",
+            "quality": "common",
+            "units": 5,
+            "unit_mass": 3.1,
+            "stack_mass": 15.5
+          },
+          {
+            "id": "cargo_12102_4",
+            "category": "tool",
+            "quality": "rare",
+            "units": 5,
+            "unit_mass": 3.75,
+            "stack_mass": 18.75
+          },
+          {
+            "id": "cargo_12102_5",
+            "category": "ore",
+            "quality": "unique",
+            "units": 2,
+            "unit_mass": 3.3,
+            "stack_mass": 6.6
+          },
+          {
+            "id": "cargo_12102_6",
+            "category": "ore",
+            "quality": "common",
+            "units": 8,
+            "unit_mass": 5.75,
+            "stack_mass": 46
+          },
+          {
+            "id": "cargo_12102_7",
+            "category": "ore",
+            "quality": "rare",
+            "units": 5,
+            "unit_mass": 9.1,
+            "stack_mass": 45.5
+          },
+          {
+            "id": "cargo_12102_8",
+            "category": "tool",
+            "quality": "unique",
+            "units": 2,
+            "unit_mass": 2.25,
+            "stack_mass": 4.5
+          },
+          {
+            "id": "cargo_12102_9",
+            "category": "ore",
+            "quality": "common",
+            "units": 3,
+            "unit_mass": 9.75,
+            "stack_mass": 29.25
+          },
+          {
+            "id": "cargo_12102_10",
+            "category": "ore",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 3.5,
+            "stack_mass": 7
+          },
+          {
+            "id": "cargo_12102_11",
+            "category": "tool",
+            "quality": "unique",
+            "units": 5,
+            "unit_mass": 2.4,
+            "stack_mass": 12
+          },
+          {
+            "id": "cargo_12102_12",
+            "category": "tool",
+            "quality": "common",
+            "units": 2,
+            "unit_mass": 8.85,
+            "stack_mass": 17.7
+          },
+          {
+            "id": "cargo_12102_13",
+            "category": "food",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 6.0,
+            "stack_mass": 12
+          },
+          {
+            "id": "cargo_12102_14",
+            "category": "ore",
+            "quality": "unique",
+            "units": 1,
+            "unit_mass": 3.05,
+            "stack_mass": 3.05
+          },
+          {
+            "id": "cargo_12102_15",
+            "category": "ore",
+            "quality": "common",
+            "units": 3,
+            "unit_mass": 7.15,
+            "stack_mass": 21.450000000000003
+          },
+          {
+            "id": "cargo_12102_16",
+            "category": "tool",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 5.15,
+            "stack_mass": 10.3
+          },
+          {
+            "id": "cargo_12102_17",
+            "category": "food",
+            "quality": "unique",
+            "units": 2,
+            "unit_mass": 4.55,
+            "stack_mass": 9.1
+          },
+          {
+            "id": "cargo_12102_18",
+            "category": "tool",
+            "quality": "common",
+            "units": 12,
+            "unit_mass": 1.6,
+            "stack_mass": 19.200000000000003
+          },
+          {
+            "id": "cargo_12102_19",
+            "category": "tool",
+            "quality": "rare",
+            "units": 12,
+            "unit_mass": 2.35,
+            "stack_mass": 28.200000000000003
+          },
+          {
+            "id": "cargo_12102_20",
+            "category": "food",
+            "quality": "unique",
+            "units": 8,
+            "unit_mass": 8.85,
+            "stack_mass": 70.8
+          },
+          {
+            "id": "cargo_12102_21",
+            "category": "food",
+            "quality": "common",
+            "units": 1,
+            "unit_mass": 7.75,
+            "stack_mass": 7.75
+          },
+          {
+            "id": "cargo_12102_22",
+            "category": "food",
+            "quality": "rare",
+            "units": 1,
+            "unit_mass": 8.9,
+            "stack_mass": 8.9
+          },
+          {
+            "id": "cargo_12102_23",
+            "category": "ore",
+            "quality": "unique",
+            "units": 3,
+            "unit_mass": 3.8,
+            "stack_mass": 11.399999999999999
+          },
+          {
+            "id": "cargo_12102_24",
+            "category": "food",
+            "quality": "common",
+            "units": 3,
+            "unit_mass": 5.4,
+            "stack_mass": 16.200000000000003
+          },
+          {
+            "id": "cargo_12102_25",
+            "category": "food",
+            "quality": "rare",
+            "units": 8,
+            "unit_mass": 9.85,
+            "stack_mass": 78.8
+          },
+          {
+            "id": "cargo_12102_26",
+            "category": "tool",
+            "quality": "unique",
+            "units": 8,
+            "unit_mass": 9.05,
+            "stack_mass": 72.4
+          },
+          {
+            "id": "cargo_12102_27",
+            "category": "food",
+            "quality": "common",
+            "units": 1,
+            "unit_mass": 3.95,
+            "stack_mass": 3.95
+          },
+          {
+            "id": "cargo_12102_28",
+            "category": "food",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 8.8,
+            "stack_mass": 17.6
+          },
+          {
+            "id": "cargo_12102_29",
+            "category": "ore",
+            "quality": "unique",
+            "units": 5,
+            "unit_mass": 0.2,
+            "stack_mass": 1
+          },
+          {
+            "id": "cargo_12102_30",
+            "category": "food",
+            "quality": "common",
+            "units": 8,
+            "unit_mass": 2.6,
+            "stack_mass": 20.8
+          },
+          {
+            "id": "cargo_12102_31",
+            "category": "ore",
+            "quality": "rare",
+            "units": 8,
+            "unit_mass": 8.25,
+            "stack_mass": 66
+          },
+          {
+            "id": "cargo_12102_32",
+            "category": "ore",
+            "quality": "unique",
+            "units": 2,
+            "unit_mass": 7.85,
+            "stack_mass": 15.7
+          },
+          {
+            "id": "cargo_12102_33",
+            "category": "food",
+            "quality": "common",
+            "units": 1,
+            "unit_mass": 5.85,
+            "stack_mass": 5.85
+          },
+          {
+            "id": "cargo_12102_34",
+            "category": "ore",
+            "quality": "rare",
+            "units": 3,
+            "unit_mass": 0.35,
+            "stack_mass": 1.0499999999999998
+          },
+          {
+            "id": "cargo_12102_35",
+            "category": "tool",
+            "quality": "unique",
+            "units": 12,
+            "unit_mass": 8.55,
+            "stack_mass": 102.60000000000001
+          },
+          {
+            "id": "cargo_12102_36",
+            "category": "tool",
+            "quality": "common",
+            "units": 5,
+            "unit_mass": 4.8,
+            "stack_mass": 24
+          },
+          {
+            "id": "cargo_12102_37",
+            "category": "food",
+            "quality": "rare",
+            "units": 12,
+            "unit_mass": 2.2,
+            "stack_mass": 26.400000000000002
+          },
+          {
+            "id": "cargo_12102_38",
+            "category": "tool",
+            "quality": "unique",
+            "units": 12,
+            "unit_mass": 8.1,
+            "stack_mass": 97.19999999999999
+          },
+          {
+            "id": "cargo_12102_39",
+            "category": "food",
+            "quality": "common",
+            "units": 3,
+            "unit_mass": 7.45,
+            "stack_mass": 22.35
+          },
+          {
+            "id": "cargo_12102_40",
+            "category": "tool",
+            "quality": "rare",
+            "units": 5,
+            "unit_mass": 2.3,
+            "stack_mass": 11.5
+          },
+          {
+            "id": "cargo_12102_41",
+            "category": "ore",
+            "quality": "unique",
+            "units": 3,
+            "unit_mass": 1.6,
+            "stack_mass": 4.800000000000001
+          },
+          {
+            "id": "cargo_12102_42",
+            "category": "food",
+            "quality": "common",
+            "units": 5,
+            "unit_mass": 2.0,
+            "stack_mass": 10
+          },
+          {
+            "id": "cargo_12102_43",
+            "category": "tool",
+            "quality": "rare",
+            "units": 1,
+            "unit_mass": 6.1,
+            "stack_mass": 6.1
+          },
+          {
+            "id": "cargo_12102_44",
+            "category": "ore",
+            "quality": "unique",
+            "units": 3,
+            "unit_mass": 4.45,
+            "stack_mass": 13.350000000000001
+          },
+          {
+            "id": "cargo_12102_45",
+            "category": "food",
+            "quality": "common",
+            "units": 12,
+            "unit_mass": 5.9,
+            "stack_mass": 70.80000000000001
+          },
+          {
+            "id": "cargo_12102_46",
+            "category": "tool",
+            "quality": "rare",
+            "units": 2,
+            "unit_mass": 5.55,
+            "stack_mass": 11.1
+          },
+          {
+            "id": "cargo_12102_47",
+            "category": "food",
+            "quality": "unique",
+            "units": 2,
+            "unit_mass": 9.65,
+            "stack_mass": 19.3
+          }
+        ]
+      },
+      "metadata": {
+        "cargo": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "category": {
+              "description": "Native item category.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "quality": {
+              "description": "Rarity category, independent of quantity.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {
+                "unique": "The literal unique category; it does not mean units = 1."
+              }
+            },
+            "units": {
+              "description": "Units in this row; one row is one stack.",
+              "unit": "items",
+              "kind": "quantity",
+              "values": {}
+            },
+            "unit_mass": {
+              "description": "Mass of one unit, independent of stack quantity.",
+              "unit": "kg/item",
+              "kind": "continuous",
+              "values": {}
+            },
+            "stack_mass": {
+              "description": "Mass of this complete stack, units * unit_mass.",
+              "unit": "kg/stack",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "filter",
+          "question": "List IDs of rare tools.",
+          "oracle": "SELECT id FROM cargo WHERE quality = 'rare' AND category = 'tool'",
+          "expected": [
+            "cargo_12102_1",
+            "cargo_12102_4",
+            "cargo_12102_16",
+            "cargo_12102_19",
+            "cargo_12102_40",
+            "cargo_12102_43",
+            "cargo_12102_46"
+          ]
+        },
+        {
+          "kind": "numeric_filter",
+          "question": "List IDs with at least five units and unit mass below 3 kg.",
+          "oracle": "SELECT id FROM cargo WHERE units >= 5 AND unit_mass < 3",
+          "expected": [
+            "cargo_12102_11",
+            "cargo_12102_18",
+            "cargo_12102_19",
+            "cargo_12102_29",
+            "cargo_12102_30",
+            "cargo_12102_37",
+            "cargo_12102_40",
+            "cargo_12102_42"
+          ]
+        },
+        {
+          "kind": "count",
+          "question": "How many rows have quality unique?",
+          "oracle": "SELECT COUNT(*) FROM cargo WHERE quality = 'unique'",
+          "expected": 16
+        },
+        {
+          "kind": "total",
+          "question": "What is the total carried mass of all stacks?",
+          "oracle": "SELECT SUM(stack_mass) FROM cargo",
+          "expected": 1244.6999999999996
+        },
+        {
+          "kind": "total",
+          "question": "How many food units are carried in total?",
+          "oracle": "SELECT SUM(units) FROM cargo WHERE category = 'food'",
+          "expected": 71
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of unit_mass for the three rows with largest unit_mass?",
+          "oracle": "SELECT SUM(unit_mass) FROM cargo ORDER BY unit_mass DESC LIMIT 3",
+          "expected": 29.25
+        },
+        {
+          "kind": "total",
+          "question": "What is the combined mass of complete rare stacks?",
+          "oracle": "SELECT SUM(stack_mass) FROM cargo WHERE quality = 'rare'",
+          "expected": 357.6000000000001
+        },
+        {
+          "kind": "count",
+          "question": "How many food or ore stacks have more than two units?",
+          "oracle": "SELECT COUNT(*) FROM cargo WHERE category IN ('food','ore') AND units > 2",
+          "expected": 21
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"cargo\":{\"columns\":[[\"id\",\"string\"],[\"category\",\"string\"],[\"quality\",\"string\"],[\"units\",\"number\"],[\"unit_mass\",\"number\"],[\"stack_mass\",\"number\"]],\"values\":{\"category\":[\"ore\",\"tool\",\"food\"],\"quality\":[\"common\",\"rare\",\"unique\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"category\":{\"description\":\"Native item category.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"quality\":{\"description\":\"Rarity category, independent of quantity.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{\"unique\":\"The literal unique category; it does not mean units = 1.\"}},\"units\":{\"description\":\"Units in this row; one row is one stack.\",\"unit\":\"items\",\"kind\":\"quantity\",\"values\":{}},\"unit_mass\":{\"description\":\"Mass of one unit, independent of stack quantity.\",\"unit\":\"kg/item\",\"kind\":\"continuous\",\"values\":{}},\"stack_mass\":{\"description\":\"Mass of this complete stack, units * unit_mass.\",\"unit\":\"kg/stack\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    },
+    {
+      "family": "teams",
+      "seed": 12201,
+      "size": 16,
+      "tables": {
+        "teams": [
+          {
+            "id": "team_12201_0",
+            "role": "medic",
+            "standing": "ally",
+            "members": 8,
+            "unit_supply": 9.5,
+            "group_supply": 76,
+            "readiness": 0.75
+          },
+          {
+            "id": "team_12201_1",
+            "role": "scout",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 11.5,
+            "group_supply": 11.5,
+            "readiness": 0.0
+          },
+          {
+            "id": "team_12201_2",
+            "role": "guard",
+            "standing": "ally",
+            "members": 2,
+            "unit_supply": 14.0,
+            "group_supply": 28,
+            "readiness": 0.5
+          },
+          {
+            "id": "team_12201_3",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 5,
+            "unit_supply": 3.5,
+            "group_supply": 17.5,
+            "readiness": 0.0
+          },
+          {
+            "id": "team_12201_4",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 5,
+            "unit_supply": 12.5,
+            "group_supply": 62.5,
+            "readiness": 0.15
+          },
+          {
+            "id": "team_12201_5",
+            "role": "guard",
+            "standing": "neutral",
+            "members": 2,
+            "unit_supply": 0.5,
+            "group_supply": 1,
+            "readiness": 0.7
+          },
+          {
+            "id": "team_12201_6",
+            "role": "medic",
+            "standing": "hostile",
+            "members": 7,
+            "unit_supply": 8.0,
+            "group_supply": 56,
+            "readiness": 0.5
+          },
+          {
+            "id": "team_12201_7",
+            "role": "scout",
+            "standing": "hostile",
+            "members": 2,
+            "unit_supply": 9.5,
+            "group_supply": 19,
+            "readiness": 0.6
+          },
+          {
+            "id": "team_12201_8",
+            "role": "guard",
+            "standing": "hostile",
+            "members": 2,
+            "unit_supply": 4.5,
+            "group_supply": 9,
+            "readiness": 0.6
+          },
+          {
+            "id": "team_12201_9",
+            "role": "medic",
+            "standing": "ally",
+            "members": 3,
+            "unit_supply": 7.0,
+            "group_supply": 21,
+            "readiness": 0.55
+          },
+          {
+            "id": "team_12201_10",
+            "role": "scout",
+            "standing": "ally",
+            "members": 5,
+            "unit_supply": 19.5,
+            "group_supply": 97.5,
+            "readiness": 0.35
+          },
+          {
+            "id": "team_12201_11",
+            "role": "guard",
+            "standing": "ally",
+            "members": 6,
+            "unit_supply": 19.5,
+            "group_supply": 117,
+            "readiness": 0.1
+          },
+          {
+            "id": "team_12201_12",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 6,
+            "unit_supply": 11.0,
+            "group_supply": 66,
+            "readiness": 0.55
+          },
+          {
+            "id": "team_12201_13",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 1,
+            "unit_supply": 9.5,
+            "group_supply": 9.5,
+            "readiness": 1.0
+          },
+          {
+            "id": "team_12201_14",
+            "role": "guard",
+            "standing": "neutral",
+            "members": 1,
+            "unit_supply": 5.0,
+            "group_supply": 5,
+            "readiness": 0.05
+          },
+          {
+            "id": "team_12201_15",
+            "role": "medic",
+            "standing": "hostile",
+            "members": 6,
+            "unit_supply": 16.5,
+            "group_supply": 99,
+            "readiness": 0.45
+          }
+        ]
+      },
+      "metadata": {
+        "teams": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "role": {
+              "description": "Role of the team.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "standing": {
+              "description": "Current diplomatic relation.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "members": {
+              "description": "Number of members in the team.",
+              "unit": "people",
+              "kind": "quantity",
+              "values": {}
+            },
+            "unit_supply": {
+              "description": "Supply carried by one member, not the whole team.",
+              "unit": "supply/person",
+              "kind": "continuous",
+              "values": {}
+            },
+            "group_supply": {
+              "description": "Whole-team supply, members * unit_supply.",
+              "unit": "supply/team",
+              "kind": "continuous",
+              "values": {}
+            },
+            "readiness": {
+              "description": "Native readiness score from zero to one.",
+              "unit": "fraction",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "filter",
+          "question": "List IDs of allied guards with readiness above 0.5.",
+          "oracle": "SELECT id FROM teams WHERE standing = 'ally' AND role = 'guard' AND readiness > 0.5",
+          "expected": []
+        },
+        {
+          "kind": "numeric_filter",
+          "question": "List hostile team IDs with at least four members.",
+          "oracle": "SELECT id FROM teams WHERE standing = 'hostile' AND members >= 4",
+          "expected": [
+            "team_12201_6",
+            "team_12201_15"
+          ]
+        },
+        {
+          "kind": "total",
+          "question": "How many allied members are there in total?",
+          "oracle": "SELECT SUM(members) FROM teams WHERE standing = 'ally'",
+          "expected": 25
+        },
+        {
+          "kind": "total",
+          "question": "What is the whole-team supply total for teams with readiness at least 0.6?",
+          "oracle": "SELECT SUM(group_supply) FROM teams WHERE readiness >= 0.6",
+          "expected": 114.5
+        },
+        {
+          "kind": "average",
+          "question": "What is the average readiness of medic teams?",
+          "oracle": "SELECT AVG(readiness) FROM teams WHERE role = 'medic'",
+          "expected": 0.46666666666666673
+        },
+        {
+          "kind": "extreme",
+          "question": "What is the smallest per-member supply value?",
+          "oracle": "SELECT MIN(unit_supply) FROM teams",
+          "expected": 0.5
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of group_supply for the three teams with largest group_supply?",
+          "oracle": "SELECT SUM(group_supply) FROM teams ORDER BY group_supply DESC LIMIT 3",
+          "expected": 313.5
+        },
+        {
+          "kind": "count",
+          "question": "How many scout teams are neutral?",
+          "oracle": "SELECT COUNT(*) FROM teams WHERE role = 'scout' AND standing = 'neutral'",
+          "expected": 2
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"teams\":{\"columns\":[[\"id\",\"string\"],[\"role\",\"string\"],[\"standing\",\"string\"],[\"members\",\"number\"],[\"unit_supply\",\"number\"],[\"group_supply\",\"number\"],[\"readiness\",\"number\"]],\"values\":{\"role\":[\"medic\",\"scout\",\"guard\"],\"standing\":[\"ally\",\"neutral\",\"hostile\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"role\":{\"description\":\"Role of the team.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"standing\":{\"description\":\"Current diplomatic relation.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"members\":{\"description\":\"Number of members in the team.\",\"unit\":\"people\",\"kind\":\"quantity\",\"values\":{}},\"unit_supply\":{\"description\":\"Supply carried by one member, not the whole team.\",\"unit\":\"supply/person\",\"kind\":\"continuous\",\"values\":{}},\"group_supply\":{\"description\":\"Whole-team supply, members * unit_supply.\",\"unit\":\"supply/team\",\"kind\":\"continuous\",\"values\":{}},\"readiness\":{\"description\":\"Native readiness score from zero to one.\",\"unit\":\"fraction\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    },
+    {
+      "family": "teams",
+      "seed": 12202,
+      "size": 32,
+      "tables": {
+        "teams": [
+          {
+            "id": "team_12202_0",
+            "role": "medic",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 12.5,
+            "group_supply": 12.5,
+            "readiness": 0.6
+          },
+          {
+            "id": "team_12202_1",
+            "role": "scout",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 4.0,
+            "group_supply": 4,
+            "readiness": 0.0
+          },
+          {
+            "id": "team_12202_2",
+            "role": "guard",
+            "standing": "ally",
+            "members": 2,
+            "unit_supply": 17.5,
+            "group_supply": 35,
+            "readiness": 0.55
+          },
+          {
+            "id": "team_12202_3",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 3,
+            "unit_supply": 6.0,
+            "group_supply": 18,
+            "readiness": 0.45
+          },
+          {
+            "id": "team_12202_4",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 1,
+            "unit_supply": 19.5,
+            "group_supply": 19.5,
+            "readiness": 0.65
+          },
+          {
+            "id": "team_12202_5",
+            "role": "guard",
+            "standing": "neutral",
+            "members": 3,
+            "unit_supply": 3.5,
+            "group_supply": 10.5,
+            "readiness": 0.7
+          },
+          {
+            "id": "team_12202_6",
+            "role": "medic",
+            "standing": "hostile",
+            "members": 8,
+            "unit_supply": 19.5,
+            "group_supply": 156,
+            "readiness": 0.7
+          },
+          {
+            "id": "team_12202_7",
+            "role": "scout",
+            "standing": "hostile",
+            "members": 2,
+            "unit_supply": 12.0,
+            "group_supply": 24,
+            "readiness": 0.25
+          },
+          {
+            "id": "team_12202_8",
+            "role": "guard",
+            "standing": "hostile",
+            "members": 7,
+            "unit_supply": 7.5,
+            "group_supply": 52.5,
+            "readiness": 0.3
+          },
+          {
+            "id": "team_12202_9",
+            "role": "medic",
+            "standing": "ally",
+            "members": 7,
+            "unit_supply": 0.5,
+            "group_supply": 3.5,
+            "readiness": 0.2
+          },
+          {
+            "id": "team_12202_10",
+            "role": "scout",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 19.5,
+            "group_supply": 19.5,
+            "readiness": 0.1
+          },
+          {
+            "id": "team_12202_11",
+            "role": "guard",
+            "standing": "ally",
+            "members": 5,
+            "unit_supply": 1.0,
+            "group_supply": 5,
+            "readiness": 0.25
+          },
+          {
+            "id": "team_12202_12",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 4,
+            "unit_supply": 4.5,
+            "group_supply": 18,
+            "readiness": 0.6
+          },
+          {
+            "id": "team_12202_13",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 1,
+            "unit_supply": 19.5,
+            "group_supply": 19.5,
+            "readiness": 0.2
+          },
+          {
+            "id": "team_12202_14",
+            "role": "guard",
+            "standing": "neutral",
+            "members": 3,
+            "unit_supply": 5.5,
+            "group_supply": 16.5,
+            "readiness": 0.15
+          },
+          {
+            "id": "team_12202_15",
+            "role": "medic",
+            "standing": "hostile",
+            "members": 2,
+            "unit_supply": 1.5,
+            "group_supply": 3,
+            "readiness": 0.5
+          },
+          {
+            "id": "team_12202_16",
+            "role": "scout",
+            "standing": "hostile",
+            "members": 6,
+            "unit_supply": 18.5,
+            "group_supply": 111,
+            "readiness": 0.05
+          },
+          {
+            "id": "team_12202_17",
+            "role": "guard",
+            "standing": "hostile",
+            "members": 1,
+            "unit_supply": 1.5,
+            "group_supply": 1.5,
+            "readiness": 0.35
+          },
+          {
+            "id": "team_12202_18",
+            "role": "medic",
+            "standing": "ally",
+            "members": 6,
+            "unit_supply": 8.0,
+            "group_supply": 48,
+            "readiness": 0.65
+          },
+          {
+            "id": "team_12202_19",
+            "role": "scout",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 2.5,
+            "group_supply": 2.5,
+            "readiness": 0.15
+          },
+          {
+            "id": "team_12202_20",
+            "role": "guard",
+            "standing": "ally",
+            "members": 1,
+            "unit_supply": 12.5,
+            "group_supply": 12.5,
+            "readiness": 0.45
+          },
+          {
+            "id": "team_12202_21",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 2,
+            "unit_supply": 11.5,
+            "group_supply": 23,
+            "readiness": 0.8
+          },
+          {
+            "id": "team_12202_22",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 2,
+            "unit_supply": 5.0,
+            "group_supply": 10,
+            "readiness": 0.0
+          },
+          {
+            "id": "team_12202_23",
+            "role": "guard",
+            "standing": "neutral",
+            "members": 7,
+            "unit_supply": 10.5,
+            "group_supply": 73.5,
+            "readiness": 0.05
+          },
+          {
+            "id": "team_12202_24",
+            "role": "medic",
+            "standing": "hostile",
+            "members": 5,
+            "unit_supply": 8.5,
+            "group_supply": 42.5,
+            "readiness": 0.95
+          },
+          {
+            "id": "team_12202_25",
+            "role": "scout",
+            "standing": "hostile",
+            "members": 5,
+            "unit_supply": 14.0,
+            "group_supply": 70,
+            "readiness": 0.2
+          },
+          {
+            "id": "team_12202_26",
+            "role": "guard",
+            "standing": "hostile",
+            "members": 7,
+            "unit_supply": 18.0,
+            "group_supply": 126,
+            "readiness": 0.45
+          },
+          {
+            "id": "team_12202_27",
+            "role": "medic",
+            "standing": "ally",
+            "members": 5,
+            "unit_supply": 5.5,
+            "group_supply": 27.5,
+            "readiness": 0.7
+          },
+          {
+            "id": "team_12202_28",
+            "role": "scout",
+            "standing": "ally",
+            "members": 2,
+            "unit_supply": 2.0,
+            "group_supply": 4,
+            "readiness": 0.65
+          },
+          {
+            "id": "team_12202_29",
+            "role": "guard",
+            "standing": "ally",
+            "members": 5,
+            "unit_supply": 20.0,
+            "group_supply": 100,
+            "readiness": 0.3
+          },
+          {
+            "id": "team_12202_30",
+            "role": "medic",
+            "standing": "neutral",
+            "members": 8,
+            "unit_supply": 18.0,
+            "group_supply": 144,
+            "readiness": 0.55
+          },
+          {
+            "id": "team_12202_31",
+            "role": "scout",
+            "standing": "neutral",
+            "members": 1,
+            "unit_supply": 14.5,
+            "group_supply": 14.5,
+            "readiness": 0.0
+          }
+        ]
+      },
+      "metadata": {
+        "teams": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "role": {
+              "description": "Role of the team.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "standing": {
+              "description": "Current diplomatic relation.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "members": {
+              "description": "Number of members in the team.",
+              "unit": "people",
+              "kind": "quantity",
+              "values": {}
+            },
+            "unit_supply": {
+              "description": "Supply carried by one member, not the whole team.",
+              "unit": "supply/person",
+              "kind": "continuous",
+              "values": {}
+            },
+            "group_supply": {
+              "description": "Whole-team supply, members * unit_supply.",
+              "unit": "supply/team",
+              "kind": "continuous",
+              "values": {}
+            },
+            "readiness": {
+              "description": "Native readiness score from zero to one.",
+              "unit": "fraction",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "filter",
+          "question": "List IDs of allied guards with readiness above 0.5.",
+          "oracle": "SELECT id FROM teams WHERE standing = 'ally' AND role = 'guard' AND readiness > 0.5",
+          "expected": [
+            "team_12202_2"
+          ]
+        },
+        {
+          "kind": "numeric_filter",
+          "question": "List hostile team IDs with at least four members.",
+          "oracle": "SELECT id FROM teams WHERE standing = 'hostile' AND members >= 4",
+          "expected": [
+            "team_12202_6",
+            "team_12202_8",
+            "team_12202_16",
+            "team_12202_24",
+            "team_12202_25",
+            "team_12202_26"
+          ]
+        },
+        {
+          "kind": "total",
+          "question": "How many allied members are there in total?",
+          "oracle": "SELECT SUM(members) FROM teams WHERE standing = 'ally'",
+          "expected": 37
+        },
+        {
+          "kind": "total",
+          "question": "What is the whole-team supply total for teams with readiness at least 0.6?",
+          "oracle": "SELECT SUM(group_supply) FROM teams WHERE readiness >= 0.6",
+          "expected": 361.5
+        },
+        {
+          "kind": "average",
+          "question": "What is the average readiness of medic teams?",
+          "oracle": "SELECT AVG(readiness) FROM teams WHERE role = 'medic'",
+          "expected": 0.6090909090909091
+        },
+        {
+          "kind": "extreme",
+          "question": "What is the smallest per-member supply value?",
+          "oracle": "SELECT MIN(unit_supply) FROM teams",
+          "expected": 0.5
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of group_supply for the three teams with largest group_supply?",
+          "oracle": "SELECT SUM(group_supply) FROM teams ORDER BY group_supply DESC LIMIT 3",
+          "expected": 426
+        },
+        {
+          "kind": "count",
+          "question": "How many scout teams are neutral?",
+          "oracle": "SELECT COUNT(*) FROM teams WHERE role = 'scout' AND standing = 'neutral'",
+          "expected": 4
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"teams\":{\"columns\":[[\"id\",\"string\"],[\"role\",\"string\"],[\"standing\",\"string\"],[\"members\",\"number\"],[\"unit_supply\",\"number\"],[\"group_supply\",\"number\"],[\"readiness\",\"number\"]],\"values\":{\"role\":[\"medic\",\"scout\",\"guard\"],\"standing\":[\"ally\",\"neutral\",\"hostile\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"role\":{\"description\":\"Role of the team.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"standing\":{\"description\":\"Current diplomatic relation.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"members\":{\"description\":\"Number of members in the team.\",\"unit\":\"people\",\"kind\":\"quantity\",\"values\":{}},\"unit_supply\":{\"description\":\"Supply carried by one member, not the whole team.\",\"unit\":\"supply/person\",\"kind\":\"continuous\",\"values\":{}},\"group_supply\":{\"description\":\"Whole-team supply, members * unit_supply.\",\"unit\":\"supply/team\",\"kind\":\"continuous\",\"values\":{}},\"readiness\":{\"description\":\"Native readiness score from zero to one.\",\"unit\":\"fraction\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    },
+    {
+      "family": "paths",
+      "seed": 12301,
+      "size": 20,
+      "tables": {
+        "paths": [
+          {
+            "id": "path_12301_0",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 33,
+            "toll_per_member": 2.0,
+            "party_size": 6,
+            "party_toll": 12,
+            "risk": 0.65
+          },
+          {
+            "id": "path_12301_1",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 118,
+            "toll_per_member": 3.0,
+            "party_size": 8,
+            "party_toll": 24,
+            "risk": 0.5
+          },
+          {
+            "id": "path_12301_2",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 47,
+            "toll_per_member": 4.5,
+            "party_size": 5,
+            "party_toll": 22.5,
+            "risk": 0.45
+          },
+          {
+            "id": "path_12301_3",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 19,
+            "toll_per_member": 2.0,
+            "party_size": 2,
+            "party_toll": 4,
+            "risk": 0.2
+          },
+          {
+            "id": "path_12301_4",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 19,
+            "toll_per_member": 2.0,
+            "party_size": 2,
+            "party_toll": 4,
+            "risk": 0.3
+          },
+          {
+            "id": "path_12301_5",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 34,
+            "toll_per_member": 4.5,
+            "party_size": 6,
+            "party_toll": 27,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12301_6",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 63,
+            "toll_per_member": 0.5,
+            "party_size": 7,
+            "party_toll": 3.5,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12301_7",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 50,
+            "toll_per_member": 0.0,
+            "party_size": 8,
+            "party_toll": 0,
+            "risk": 0.75
+          },
+          {
+            "id": "path_12301_8",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 55,
+            "toll_per_member": 2.0,
+            "party_size": 6,
+            "party_toll": 12,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12301_9",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 14,
+            "toll_per_member": 2.0,
+            "party_size": 8,
+            "party_toll": 16,
+            "risk": 0.9
+          },
+          {
+            "id": "path_12301_10",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 73,
+            "toll_per_member": 1.0,
+            "party_size": 2,
+            "party_toll": 2,
+            "risk": 0.6
+          },
+          {
+            "id": "path_12301_11",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 90,
+            "toll_per_member": 1.0,
+            "party_size": 5,
+            "party_toll": 5,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12301_12",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 37,
+            "toll_per_member": 1.5,
+            "party_size": 6,
+            "party_toll": 9,
+            "risk": 0.4
+          },
+          {
+            "id": "path_12301_13",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 105,
+            "toll_per_member": 3.0,
+            "party_size": 4,
+            "party_toll": 12,
+            "risk": 0.65
+          },
+          {
+            "id": "path_12301_14",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 10,
+            "toll_per_member": 0.5,
+            "party_size": 7,
+            "party_toll": 3.5,
+            "risk": 0.25
+          },
+          {
+            "id": "path_12301_15",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 1,
+            "toll_per_member": 3.0,
+            "party_size": 7,
+            "party_toll": 21,
+            "risk": 0.3
+          },
+          {
+            "id": "path_12301_16",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 2,
+            "toll_per_member": 0.0,
+            "party_size": 7,
+            "party_toll": 0,
+            "risk": 0.3
+          },
+          {
+            "id": "path_12301_17",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 12,
+            "toll_per_member": 0.0,
+            "party_size": 8,
+            "party_toll": 0,
+            "risk": 0.95
+          },
+          {
+            "id": "path_12301_18",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 1,
+            "toll_per_member": 2.0,
+            "party_size": 7,
+            "party_toll": 14,
+            "risk": 1.0
+          },
+          {
+            "id": "path_12301_19",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 102,
+            "toll_per_member": 2.5,
+            "party_size": 2,
+            "party_toll": 5,
+            "risk": 0.9
+          }
+        ]
+      },
+      "metadata": {
+        "paths": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "zone": {
+              "description": "Native region label.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "access": {
+              "description": "Current access state; only open paths are traversable.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "minutes": {
+              "description": "Travel duration for this route.",
+              "unit": "minutes",
+              "kind": "continuous",
+              "values": {}
+            },
+            "toll_per_member": {
+              "description": "Toll charged to one member.",
+              "unit": "coins/person",
+              "kind": "continuous",
+              "values": {}
+            },
+            "party_size": {
+              "description": "Members in the party for this route.",
+              "unit": "people",
+              "kind": "quantity",
+              "values": {}
+            },
+            "party_toll": {
+              "description": "Total toll for the entire party, party_size * toll_per_member.",
+              "unit": "coins/party",
+              "kind": "continuous",
+              "values": {}
+            },
+            "risk": {
+              "description": "Native route risk score from zero to one.",
+              "unit": "fraction",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "numeric_filter",
+          "question": "List open path IDs with risk at most 0.3.",
+          "oracle": "SELECT id FROM paths WHERE access = 'open' AND risk <= 0.3",
+          "expected": []
+        },
+        {
+          "kind": "filter",
+          "question": "List open path IDs with zero toll per member.",
+          "oracle": "SELECT id FROM paths WHERE access = 'open' AND toll_per_member = 0",
+          "expected": []
+        },
+        {
+          "kind": "total",
+          "question": "What is the total whole-party toll across open routes?",
+          "oracle": "SELECT SUM(party_toll) FROM paths WHERE access = 'open'",
+          "expected": 100.5
+        },
+        {
+          "kind": "extreme",
+          "question": "What is the largest travel duration among open routes?",
+          "oracle": "SELECT MAX(minutes) FROM paths WHERE access = 'open'",
+          "expected": 118
+        },
+        {
+          "kind": "average",
+          "question": "What is the average travel duration for ridge routes?",
+          "oracle": "SELECT AVG(minutes) FROM paths WHERE zone = 'ridge'",
+          "expected": 24.0
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of party_toll for the three routes with largest party_toll?",
+          "oracle": "SELECT SUM(party_toll) FROM paths ORDER BY party_toll DESC LIMIT 3",
+          "expected": 73.5
+        },
+        {
+          "kind": "count",
+          "question": "How many locked paths have risk at least 0.5?",
+          "oracle": "SELECT COUNT(*) FROM paths WHERE access = 'locked' AND risk >= 0.5",
+          "expected": 2
+        },
+        {
+          "kind": "total",
+          "question": "What is the sum of party_size across open ridge or ruins routes?",
+          "oracle": "SELECT SUM(party_size) FROM paths WHERE access = 'open' AND zone IN ('ridge','ruins')",
+          "expected": 31
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"paths\":{\"columns\":[[\"id\",\"string\"],[\"zone\",\"string\"],[\"access\",\"string\"],[\"minutes\",\"number\"],[\"toll_per_member\",\"number\"],[\"party_size\",\"number\"],[\"party_toll\",\"number\"],[\"risk\",\"number\"]],\"values\":{\"zone\":[\"ridge\",\"marsh\",\"ruins\"],\"access\":[\"open\",\"locked\",\"sealed\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"zone\":{\"description\":\"Native region label.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"access\":{\"description\":\"Current access state; only open paths are traversable.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"minutes\":{\"description\":\"Travel duration for this route.\",\"unit\":\"minutes\",\"kind\":\"continuous\",\"values\":{}},\"toll_per_member\":{\"description\":\"Toll charged to one member.\",\"unit\":\"coins/person\",\"kind\":\"continuous\",\"values\":{}},\"party_size\":{\"description\":\"Members in the party for this route.\",\"unit\":\"people\",\"kind\":\"quantity\",\"values\":{}},\"party_toll\":{\"description\":\"Total toll for the entire party, party_size * toll_per_member.\",\"unit\":\"coins/party\",\"kind\":\"continuous\",\"values\":{}},\"risk\":{\"description\":\"Native route risk score from zero to one.\",\"unit\":\"fraction\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    },
+    {
+      "family": "paths",
+      "seed": 12302,
+      "size": 40,
+      "tables": {
+        "paths": [
+          {
+            "id": "path_12302_0",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 13,
+            "toll_per_member": 1.5,
+            "party_size": 2,
+            "party_toll": 3,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12302_1",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 10,
+            "toll_per_member": 5.0,
+            "party_size": 8,
+            "party_toll": 40,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12302_2",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 94,
+            "toll_per_member": 0.5,
+            "party_size": 5,
+            "party_toll": 2.5,
+            "risk": 0.3
+          },
+          {
+            "id": "path_12302_3",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 99,
+            "toll_per_member": 3.5,
+            "party_size": 7,
+            "party_toll": 24.5,
+            "risk": 0.3
+          },
+          {
+            "id": "path_12302_4",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 17,
+            "toll_per_member": 2.0,
+            "party_size": 6,
+            "party_toll": 12,
+            "risk": 0.4
+          },
+          {
+            "id": "path_12302_5",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 86,
+            "toll_per_member": 0.5,
+            "party_size": 4,
+            "party_toll": 2,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12302_6",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 83,
+            "toll_per_member": 4.0,
+            "party_size": 3,
+            "party_toll": 12,
+            "risk": 0.05
+          },
+          {
+            "id": "path_12302_7",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 104,
+            "toll_per_member": 3.5,
+            "party_size": 1,
+            "party_toll": 3.5,
+            "risk": 0.8
+          },
+          {
+            "id": "path_12302_8",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 11,
+            "toll_per_member": 2.5,
+            "party_size": 4,
+            "party_toll": 10,
+            "risk": 0.75
+          },
+          {
+            "id": "path_12302_9",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 17,
+            "toll_per_member": 0.0,
+            "party_size": 3,
+            "party_toll": 0,
+            "risk": 0.05
+          },
+          {
+            "id": "path_12302_10",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 92,
+            "toll_per_member": 3.5,
+            "party_size": 7,
+            "party_toll": 24.5,
+            "risk": 0.6
+          },
+          {
+            "id": "path_12302_11",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 4,
+            "toll_per_member": 1.5,
+            "party_size": 2,
+            "party_toll": 3,
+            "risk": 0.2
+          },
+          {
+            "id": "path_12302_12",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 74,
+            "toll_per_member": 2.0,
+            "party_size": 8,
+            "party_toll": 16,
+            "risk": 0.25
+          },
+          {
+            "id": "path_12302_13",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 32,
+            "toll_per_member": 1.5,
+            "party_size": 4,
+            "party_toll": 6,
+            "risk": 1.0
+          },
+          {
+            "id": "path_12302_14",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 9,
+            "toll_per_member": 4.5,
+            "party_size": 5,
+            "party_toll": 22.5,
+            "risk": 0.5
+          },
+          {
+            "id": "path_12302_15",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 117,
+            "toll_per_member": 3.0,
+            "party_size": 6,
+            "party_toll": 18,
+            "risk": 0.1
+          },
+          {
+            "id": "path_12302_16",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 91,
+            "toll_per_member": 3.0,
+            "party_size": 8,
+            "party_toll": 24,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12302_17",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 113,
+            "toll_per_member": 0.0,
+            "party_size": 1,
+            "party_toll": 0,
+            "risk": 0.65
+          },
+          {
+            "id": "path_12302_18",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 103,
+            "toll_per_member": 0.0,
+            "party_size": 3,
+            "party_toll": 0,
+            "risk": 0.85
+          },
+          {
+            "id": "path_12302_19",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 64,
+            "toll_per_member": 3.0,
+            "party_size": 6,
+            "party_toll": 18,
+            "risk": 0.6
+          },
+          {
+            "id": "path_12302_20",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 62,
+            "toll_per_member": 2.5,
+            "party_size": 8,
+            "party_toll": 20,
+            "risk": 0.6
+          },
+          {
+            "id": "path_12302_21",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 60,
+            "toll_per_member": 2.5,
+            "party_size": 5,
+            "party_toll": 12.5,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12302_22",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 87,
+            "toll_per_member": 1.0,
+            "party_size": 3,
+            "party_toll": 3,
+            "risk": 0.95
+          },
+          {
+            "id": "path_12302_23",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 12,
+            "toll_per_member": 4.5,
+            "party_size": 8,
+            "party_toll": 36,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12302_24",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 89,
+            "toll_per_member": 3.5,
+            "party_size": 8,
+            "party_toll": 28,
+            "risk": 0.55
+          },
+          {
+            "id": "path_12302_25",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 73,
+            "toll_per_member": 1.0,
+            "party_size": 1,
+            "party_toll": 1,
+            "risk": 0.15
+          },
+          {
+            "id": "path_12302_26",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 31,
+            "toll_per_member": 0.0,
+            "party_size": 5,
+            "party_toll": 0,
+            "risk": 0.65
+          },
+          {
+            "id": "path_12302_27",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 101,
+            "toll_per_member": 4.0,
+            "party_size": 2,
+            "party_toll": 8,
+            "risk": 0.7
+          },
+          {
+            "id": "path_12302_28",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 93,
+            "toll_per_member": 3.0,
+            "party_size": 7,
+            "party_toll": 21,
+            "risk": 0.2
+          },
+          {
+            "id": "path_12302_29",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 51,
+            "toll_per_member": 2.5,
+            "party_size": 4,
+            "party_toll": 10,
+            "risk": 0.45
+          },
+          {
+            "id": "path_12302_30",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 26,
+            "toll_per_member": 2.0,
+            "party_size": 6,
+            "party_toll": 12,
+            "risk": 0.8
+          },
+          {
+            "id": "path_12302_31",
+            "zone": "marsh",
+            "access": "locked",
+            "minutes": 68,
+            "toll_per_member": 1.5,
+            "party_size": 2,
+            "party_toll": 3,
+            "risk": 0.8
+          },
+          {
+            "id": "path_12302_32",
+            "zone": "ruins",
+            "access": "locked",
+            "minutes": 92,
+            "toll_per_member": 0.0,
+            "party_size": 3,
+            "party_toll": 0,
+            "risk": 0.75
+          },
+          {
+            "id": "path_12302_33",
+            "zone": "ridge",
+            "access": "sealed",
+            "minutes": 27,
+            "toll_per_member": 3.0,
+            "party_size": 7,
+            "party_toll": 21,
+            "risk": 0.35
+          },
+          {
+            "id": "path_12302_34",
+            "zone": "marsh",
+            "access": "sealed",
+            "minutes": 17,
+            "toll_per_member": 0.5,
+            "party_size": 1,
+            "party_toll": 0.5,
+            "risk": 0.1
+          },
+          {
+            "id": "path_12302_35",
+            "zone": "ruins",
+            "access": "sealed",
+            "minutes": 100,
+            "toll_per_member": 4.0,
+            "party_size": 5,
+            "party_toll": 20,
+            "risk": 0.9
+          },
+          {
+            "id": "path_12302_36",
+            "zone": "ridge",
+            "access": "open",
+            "minutes": 106,
+            "toll_per_member": 0.0,
+            "party_size": 2,
+            "party_toll": 0,
+            "risk": 0.15
+          },
+          {
+            "id": "path_12302_37",
+            "zone": "marsh",
+            "access": "open",
+            "minutes": 32,
+            "toll_per_member": 2.0,
+            "party_size": 6,
+            "party_toll": 12,
+            "risk": 1.0
+          },
+          {
+            "id": "path_12302_38",
+            "zone": "ruins",
+            "access": "open",
+            "minutes": 19,
+            "toll_per_member": 2.5,
+            "party_size": 4,
+            "party_toll": 10,
+            "risk": 0.15
+          },
+          {
+            "id": "path_12302_39",
+            "zone": "ridge",
+            "access": "locked",
+            "minutes": 75,
+            "toll_per_member": 2.5,
+            "party_size": 4,
+            "party_toll": 10,
+            "risk": 0.4
+          }
+        ]
+      },
+      "metadata": {
+        "paths": {
+          "description": "Native game rows; all columns describe the same row.",
+          "columns": {
+            "zone": {
+              "description": "Native region label.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "access": {
+              "description": "Current access state; only open paths are traversable.",
+              "unit": null,
+              "kind": "categorical",
+              "values": {}
+            },
+            "minutes": {
+              "description": "Travel duration for this route.",
+              "unit": "minutes",
+              "kind": "continuous",
+              "values": {}
+            },
+            "toll_per_member": {
+              "description": "Toll charged to one member.",
+              "unit": "coins/person",
+              "kind": "continuous",
+              "values": {}
+            },
+            "party_size": {
+              "description": "Members in the party for this route.",
+              "unit": "people",
+              "kind": "quantity",
+              "values": {}
+            },
+            "party_toll": {
+              "description": "Total toll for the entire party, party_size * toll_per_member.",
+              "unit": "coins/party",
+              "kind": "continuous",
+              "values": {}
+            },
+            "risk": {
+              "description": "Native route risk score from zero to one.",
+              "unit": "fraction",
+              "kind": "continuous",
+              "values": {}
+            }
+          }
+        }
+      },
+      "questions": [
+        {
+          "kind": "numeric_filter",
+          "question": "List open path IDs with risk at most 0.3.",
+          "oracle": "SELECT id FROM paths WHERE access = 'open' AND risk <= 0.3",
+          "expected": [
+            "path_12302_2",
+            "path_12302_9",
+            "path_12302_11",
+            "path_12302_28",
+            "path_12302_36",
+            "path_12302_38"
+          ]
+        },
+        {
+          "kind": "filter",
+          "question": "List open path IDs with zero toll per member.",
+          "oracle": "SELECT id FROM paths WHERE access = 'open' AND toll_per_member = 0",
+          "expected": [
+            "path_12302_9",
+            "path_12302_18",
+            "path_12302_36"
+          ]
+        },
+        {
+          "kind": "total",
+          "question": "What is the total whole-party toll across open routes?",
+          "oracle": "SELECT SUM(party_toll) FROM paths WHERE access = 'open'",
+          "expected": 172.0
+        },
+        {
+          "kind": "extreme",
+          "question": "What is the largest travel duration among open routes?",
+          "oracle": "SELECT MAX(minutes) FROM paths WHERE access = 'open'",
+          "expected": 106
+        },
+        {
+          "kind": "average",
+          "question": "What is the average travel duration for ridge routes?",
+          "oracle": "SELECT AVG(minutes) FROM paths WHERE zone = 'ridge'",
+          "expected": 70.71428571428571
+        },
+        {
+          "kind": "top_n",
+          "question": "What is the sum of party_toll for the three routes with largest party_toll?",
+          "oracle": "SELECT SUM(party_toll) FROM paths ORDER BY party_toll DESC LIMIT 3",
+          "expected": 104
+        },
+        {
+          "kind": "count",
+          "question": "How many locked paths have risk at least 0.5?",
+          "oracle": "SELECT COUNT(*) FROM paths WHERE access = 'locked' AND risk >= 0.5",
+          "expected": 7
+        },
+        {
+          "kind": "total",
+          "question": "What is the sum of party_size across open ridge or ruins routes?",
+          "oracle": "SELECT SUM(party_size) FROM paths WHERE access = 'open' AND zone IN ('ridge','ruins')",
+          "expected": 35
+        }
+      ],
+      "prompt": "Answer structured questions about a game state using only the supplied data and field meanings. Return exactly one JSON object, no prose. Numeric answers must be numbers; ID answers must be JSON lists. Packed table rows align with their columns.\nQuery tables: {\"paths\":{\"columns\":[[\"id\",\"string\"],[\"zone\",\"string\"],[\"access\",\"string\"],[\"minutes\",\"number\"],[\"toll_per_member\",\"number\"],[\"party_size\",\"number\"],[\"party_toll\",\"number\"],[\"risk\",\"number\"]],\"values\":{\"zone\":[\"ridge\",\"marsh\",\"ruins\"],\"access\":[\"open\",\"locked\",\"sealed\"]},\"meaning\":{\"description\":\"Native game rows; all columns describe the same row.\",\"columns\":{\"zone\":{\"description\":\"Native region label.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"access\":{\"description\":\"Current access state; only open paths are traversable.\",\"unit\":null,\"kind\":\"categorical\",\"values\":{}},\"minutes\":{\"description\":\"Travel duration for this route.\",\"unit\":\"minutes\",\"kind\":\"continuous\",\"values\":{}},\"toll_per_member\":{\"description\":\"Toll charged to one member.\",\"unit\":\"coins/person\",\"kind\":\"continuous\",\"values\":{}},\"party_size\":{\"description\":\"Members in the party for this route.\",\"unit\":\"people\",\"kind\":\"quantity\",\"values\":{}},\"party_toll\":{\"description\":\"Total toll for the entire party, party_size * toll_per_member.\",\"unit\":\"coins/party\",\"kind\":\"continuous\",\"values\":{}},\"risk\":{\"description\":\"Native route risk score from zero to one.\",\"unit\":\"fraction\",\"kind\":\"continuous\",\"values\":{}}}}}}"
+    }
+  ],
+  "rows": [
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12101,
+      "family": "cargo",
+      "arm": "baseline",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12101_4",
+        "cargo_12101_7",
+        "cargo_12101_10",
+        "cargo_12101_13",
+        "cargo_12101_16"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 362,
+            "completion_tokens": 1,
+            "total_tokens": 363,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 5.49e-05,
+          "reserved_usd": 0.0002949,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12101,
+      "family": "cargo",
+      "arm": "guided",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12101_4",
+        "cargo_12101_7",
+        "cargo_12101_10",
+        "cargo_12101_13",
+        "cargo_12101_16"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 447,
+            "completion_tokens": 1,
+            "total_tokens": 448,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 6.764999999999999e-05,
+          "reserved_usd": 0.00035205,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12102,
+      "family": "cargo",
+      "arm": "baseline",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12102_1",
+        "cargo_12102_4",
+        "cargo_12102_16",
+        "cargo_12102_19",
+        "cargo_12102_40",
+        "cargo_12102_43",
+        "cargo_12102_46"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 362,
+            "completion_tokens": 1,
+            "total_tokens": 363,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 5.49e-05,
+          "reserved_usd": 0.0002949,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12102,
+      "family": "cargo",
+      "arm": "guided",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12102_1",
+        "cargo_12102_4",
+        "cargo_12102_16",
+        "cargo_12102_19",
+        "cargo_12102_40",
+        "cargo_12102_43",
+        "cargo_12102_46"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 447,
+            "completion_tokens": 1,
+            "total_tokens": 448,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 6.764999999999999e-05,
+          "reserved_usd": 0.00035205,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12201,
+      "family": "teams",
+      "arm": "baseline",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 382,
+            "completion_tokens": 1,
+            "total_tokens": 383,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 5.79e-05,
+          "reserved_usd": 0.00030869999999999997,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12201,
+      "family": "teams",
+      "arm": "guided",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 467,
+            "completion_tokens": 1,
+            "total_tokens": 468,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 7.065e-05,
+          "reserved_usd": 0.00036585000000000003,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12202,
+      "family": "teams",
+      "arm": "baseline",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [
+        "team_12202_2"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 382,
+            "completion_tokens": 1,
+            "total_tokens": 383,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 5.79e-05,
+          "reserved_usd": 0.00030869999999999997,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12202,
+      "family": "teams",
+      "arm": "guided",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [
+        "team_12202_2"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 467,
+            "completion_tokens": 1,
+            "total_tokens": 468,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 7.065e-05,
+          "reserved_usd": 0.00036585000000000003,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12301,
+      "family": "paths",
+      "arm": "baseline",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 426,
+            "completion_tokens": 1,
+            "total_tokens": 427,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 6.45e-05,
+          "reserved_usd": 0.0003306,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12301,
+      "family": "paths",
+      "arm": "guided",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 511,
+            "completion_tokens": 1,
+            "total_tokens": 512,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 7.724999999999998e-05,
+          "reserved_usd": 0.00038775,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12302,
+      "family": "paths",
+      "arm": "baseline",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [
+        "path_12302_2",
+        "path_12302_9",
+        "path_12302_11",
+        "path_12302_28",
+        "path_12302_36",
+        "path_12302_38"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 426,
+            "completion_tokens": 1,
+            "total_tokens": 427,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 6.45e-05,
+          "reserved_usd": 0.0003306,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 12302,
+      "family": "paths",
+      "arm": "guided",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [
+        "path_12302_2",
+        "path_12302_9",
+        "path_12302_11",
+        "path_12302_28",
+        "path_12302_36",
+        "path_12302_38"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 511,
+            "completion_tokens": 1,
+            "total_tokens": 512,
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          },
+          "cost_usd": 7.724999999999998e-05,
+          "reserved_usd": 0.00038775,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12101,
+      "family": "cargo",
+      "arm": "baseline",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12101_4",
+        "cargo_12101_7",
+        "cargo_12101_10",
+        "cargo_12101_13",
+        "cargo_12101_16"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 359,
+            "completion_tokens": 1,
+            "total_tokens": 360
+          },
+          "cost_usd": 3.390625e-05,
+          "reserved_usd": 0.0001841875,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12101,
+      "family": "cargo",
+      "arm": "guided",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12101_4",
+        "cargo_12101_7",
+        "cargo_12101_10",
+        "cargo_12101_13",
+        "cargo_12101_16"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 439,
+            "completion_tokens": 1,
+            "total_tokens": 440
+          },
+          "cost_usd": 4.140625e-05,
+          "reserved_usd": 0.00021990625,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12102,
+      "family": "cargo",
+      "arm": "baseline",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12102_1",
+        "cargo_12102_4",
+        "cargo_12102_16",
+        "cargo_12102_19",
+        "cargo_12102_40",
+        "cargo_12102_43",
+        "cargo_12102_46"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 359,
+            "completion_tokens": 1,
+            "total_tokens": 360
+          },
+          "cost_usd": 3.390625e-05,
+          "reserved_usd": 0.0001841875,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12102,
+      "family": "cargo",
+      "arm": "guided",
+      "question": "List IDs of rare tools.",
+      "expected": [
+        "cargo_12102_1",
+        "cargo_12102_4",
+        "cargo_12102_16",
+        "cargo_12102_19",
+        "cargo_12102_40",
+        "cargo_12102_43",
+        "cargo_12102_46"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 439,
+            "completion_tokens": 1,
+            "total_tokens": 440
+          },
+          "cost_usd": 4.140625e-05,
+          "reserved_usd": 0.00021990625,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12201,
+      "family": "teams",
+      "arm": "baseline",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 384,
+            "completion_tokens": 1,
+            "total_tokens": 385
+          },
+          "cost_usd": 3.625e-05,
+          "reserved_usd": 0.0001928125,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12201,
+      "family": "teams",
+      "arm": "guided",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 464,
+            "completion_tokens": 1,
+            "total_tokens": 465
+          },
+          "cost_usd": 4.375e-05,
+          "reserved_usd": 0.00022853125,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12202,
+      "family": "teams",
+      "arm": "baseline",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [
+        "team_12202_2"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 384,
+            "completion_tokens": 1,
+            "total_tokens": 385
+          },
+          "cost_usd": 3.625e-05,
+          "reserved_usd": 0.0001928125,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12202,
+      "family": "teams",
+      "arm": "guided",
+      "question": "List IDs of allied guards with readiness above 0.5.",
+      "expected": [
+        "team_12202_2"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 464,
+            "completion_tokens": 1,
+            "total_tokens": 465
+          },
+          "cost_usd": 4.375e-05,
+          "reserved_usd": 0.00022853125,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12301,
+      "family": "paths",
+      "arm": "baseline",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 421,
+            "completion_tokens": 1,
+            "total_tokens": 422
+          },
+          "cost_usd": 3.971875e-05,
+          "reserved_usd": 0.0002065,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12301,
+      "family": "paths",
+      "arm": "guided",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 501,
+            "completion_tokens": 1,
+            "total_tokens": 502
+          },
+          "cost_usd": 4.721875e-05,
+          "reserved_usd": 0.00024221875,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12302,
+      "family": "paths",
+      "arm": "baseline",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [
+        "path_12302_2",
+        "path_12302_9",
+        "path_12302_11",
+        "path_12302_28",
+        "path_12302_36",
+        "path_12302_38"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 421,
+            "completion_tokens": 1,
+            "total_tokens": 422
+          },
+          "cost_usd": 3.971875e-05,
+          "reserved_usd": 0.0002065,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 12302,
+      "family": "paths",
+      "arm": "guided",
+      "question": "List open path IDs with risk at most 0.3.",
+      "expected": [
+        "path_12302_2",
+        "path_12302_9",
+        "path_12302_11",
+        "path_12302_28",
+        "path_12302_36",
+        "path_12302_38"
+      ],
+      "first_correct": false,
+      "executed_correct": false,
+      "correct": false,
+      "answer": null,
+      "attempts": [],
+      "calls": [
+        {
+          "usage": {
+            "prompt_tokens": 501,
+            "completion_tokens": 1,
+            "total_tokens": 502
+          },
+          "cost_usd": 4.721875e-05,
+          "reserved_usd": 0.00024221875,
+          "usage_known": true,
+          "reply": "```"
+        }
+      ]
+    }
+  ],
+  "prices": {
+    "llama-3.2-3b": {
+      "input": 0.15,
+      "output": 0.6
+    },
+    "mistral-small-3-2-24b-instruct": {
+      "input": 0.09375,
+      "output": 0.25
+    }
+  },
+  "spend_usd": 0.0012701999999999995,
+  "calls": [
+    {
+      "usage": {
+        "prompt_tokens": 362,
+        "completion_tokens": 1,
+        "total_tokens": 363,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 5.49e-05,
+      "reserved_usd": 0.0002949,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 447,
+        "completion_tokens": 1,
+        "total_tokens": 448,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.764999999999999e-05,
+      "reserved_usd": 0.00035205,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 362,
+        "completion_tokens": 1,
+        "total_tokens": 363,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 5.49e-05,
+      "reserved_usd": 0.0002949,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 447,
+        "completion_tokens": 1,
+        "total_tokens": 448,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.764999999999999e-05,
+      "reserved_usd": 0.00035205,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 382,
+        "completion_tokens": 1,
+        "total_tokens": 383,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 5.79e-05,
+      "reserved_usd": 0.00030869999999999997,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 467,
+        "completion_tokens": 1,
+        "total_tokens": 468,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05,
+      "reserved_usd": 0.00036585000000000003,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 382,
+        "completion_tokens": 1,
+        "total_tokens": 383,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 5.79e-05,
+      "reserved_usd": 0.00030869999999999997,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 467,
+        "completion_tokens": 1,
+        "total_tokens": 468,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05,
+      "reserved_usd": 0.00036585000000000003,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 426,
+        "completion_tokens": 1,
+        "total_tokens": 427,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.45e-05,
+      "reserved_usd": 0.0003306,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 1,
+        "total_tokens": 512,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.724999999999998e-05,
+      "reserved_usd": 0.00038775,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 426,
+        "completion_tokens": 1,
+        "total_tokens": 427,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.45e-05,
+      "reserved_usd": 0.0003306,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 511,
+        "completion_tokens": 1,
+        "total_tokens": 512,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.724999999999998e-05,
+      "reserved_usd": 0.00038775,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 359,
+        "completion_tokens": 1,
+        "total_tokens": 360
+      },
+      "cost_usd": 3.390625e-05,
+      "reserved_usd": 0.0001841875,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 439,
+        "completion_tokens": 1,
+        "total_tokens": 440
+      },
+      "cost_usd": 4.140625e-05,
+      "reserved_usd": 0.00021990625,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 359,
+        "completion_tokens": 1,
+        "total_tokens": 360
+      },
+      "cost_usd": 3.390625e-05,
+      "reserved_usd": 0.0001841875,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 439,
+        "completion_tokens": 1,
+        "total_tokens": 440
+      },
+      "cost_usd": 4.140625e-05,
+      "reserved_usd": 0.00021990625,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 384,
+        "completion_tokens": 1,
+        "total_tokens": 385
+      },
+      "cost_usd": 3.625e-05,
+      "reserved_usd": 0.0001928125,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 464,
+        "completion_tokens": 1,
+        "total_tokens": 465
+      },
+      "cost_usd": 4.375e-05,
+      "reserved_usd": 0.00022853125,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 384,
+        "completion_tokens": 1,
+        "total_tokens": 385
+      },
+      "cost_usd": 3.625e-05,
+      "reserved_usd": 0.0001928125,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 464,
+        "completion_tokens": 1,
+        "total_tokens": 465
+      },
+      "cost_usd": 4.375e-05,
+      "reserved_usd": 0.00022853125,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 421,
+        "completion_tokens": 1,
+        "total_tokens": 422
+      },
+      "cost_usd": 3.971875e-05,
+      "reserved_usd": 0.0002065,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 501,
+        "completion_tokens": 1,
+        "total_tokens": 502
+      },
+      "cost_usd": 4.721875e-05,
+      "reserved_usd": 0.00024221875,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 421,
+        "completion_tokens": 1,
+        "total_tokens": 422
+      },
+      "cost_usd": 3.971875e-05,
+      "reserved_usd": 0.0002065,
+      "usage_known": true,
+      "reply": "```"
+    },
+    {
+      "usage": {
+        "prompt_tokens": 501,
+        "completion_tokens": 1,
+        "total_tokens": 502
+      },
+      "cost_usd": 4.721875e-05,
+      "reserved_usd": 0.00024221875,
+      "usage_known": true,
+      "reply": "```"
+    }
+  ]
+}

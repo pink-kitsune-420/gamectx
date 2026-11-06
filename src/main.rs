@@ -25,6 +25,10 @@ USAGE:
   gamectx calc <expression> [--formulas formulas.json]
       Evaluate a formula expression exactly, e.g. a model's calc request; prints JSON.
       --formulas loads saved definitions (a list of name, params, body, description).
+  gamectx query --guidance <standard|explicit-selection>
+      Print optional supplemental system guidance as a JSON string.
+  gamectx query --explain <sql>
+      Print the parsed query plan without reading or executing a table.
   gamectx query <tables.json> <sql>
       Run a model's SQL SELECT exactly over the tables (an object of name: array of
       objects); prints JSON. gamectx query --tool prints the query tool for the model.
@@ -66,7 +70,7 @@ struct Args {
     options: Vec<(String, Option<String>)>,
 }
 
-const SWITCHES: [&str; 5] = ["--receipt", "--tool", "--schema", "--session", "--tools"];
+const SWITCHES: [&str; 6] = ["--explain", "--receipt", "--tool", "--schema", "--session", "--tools"];
 
 impl Args {
     fn parse(raw: &[String]) -> Result<Args> {
@@ -238,6 +242,17 @@ fn run(raw: &[String]) -> Result<()> {
                 None => gamectx::brain::process(&input)?,
             };
             println!("{}", output.to_json());
+            Ok(())
+        }
+        "query" if args.has("--guidance") => {
+            args.only(&["--guidance"], 0)?;
+            let profile = gamectx::query::Guidance::parse(args.get("--guidance").unwrap_or(""))?;
+            println!("{}", gamectx::Value::str(profile.text()).to_json());
+            Ok(())
+        }
+        "query" if args.has("--explain") => {
+            args.only(&["--explain"], 1)?;
+            println!("{}", gamectx::query::Query::parse(&args.positional[0])?.plan().to_json());
             Ok(())
         }
         "query" if args.has("--tool") => {

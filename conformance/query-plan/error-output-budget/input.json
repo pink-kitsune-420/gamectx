@@ -1,0 +1,1 @@
+{"op":"run","sql":"SELECT id FROM cargo","rows":[{"id":"long_identifier"}],"max_rows":1,"result_bytes":2}

@@ -1,0 +1,1 @@
+{"op":"run","sql":"SELECT COUNT(*) FROM cargo","rows":[],"max_rows":0,"result_bytes":1}

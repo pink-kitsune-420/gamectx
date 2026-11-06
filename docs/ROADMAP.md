@@ -45,10 +45,22 @@ noted; "3 models" adds Llama 3.3 70B.
 |---|---|
 | Fresh alpha.3 hosted-model check | Six states across cargo/teams/routes, 48 questions/model, two small models. Full JSON 27/96, packed 27/96, schema + query 91/96. Completed-exchange average input 1,786.792→1,252.125→916.490; first query 83/96, after correction/final 91/96. 105 Rust/Python feedback envelopes match. Total usage-priced spend $0.05529491875 including token check and interrupted-run cost. [Full report](MODEL_TEST_2026_11_06.md). |
 
+## Implemented since alpha.4 (unreleased)
+
+| Item | Result |
+|---|---|
+| Borrowed query execution and streaming aggregates | Seven paired release trials/five synthetic fixtures: 4.6–32.5× faster parsed execution. Wide 1,024-row total: 1,000 calls 1,277,473,628→53,773,386 ns; allocations/query 9,229→11, peak transient bytes 1,355,791→8,211. 2,024 alpha.4 result/error comparisons and 3,000 generated Python comparisons agree. |
+| Query plans, explicit host shapes and row/result bounds | 16 new conformance cases; 516 byte-identical Python comparisons; 20,000 extra mutations. Shapes check structure only, not intent/values/permissions. Existing query/tool/session output unchanged. |
+| Namespace and dotted-ID relevance | Ten lexical regressions 2/10→10/10; four additional catalog parity cases and one exact-ID/numeric-spelling query case. All 366 prior conformance outputs unchanged; 35 new cases in this batch. No API spend or semantic/model-accuracy claim. |
+| Optional explicit-selection system guidance | Fresh paired six-state cohort: 3B 46/48→48/48, 24B 47/48→46/48; overall 93/96→94/96, input 907.865→1,107.802 (+22.0%). Exact text available per host configuration; default standard. Four new profile cases; 209 fresh feedback envelopes agree. Token/accuracy total $0.0293735125, caps $0.01/$0.08. [Report](QUERY_OPTIMIZATION_2026_11_06.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
 |---|---|
+| Universal default explicit-selection guidance | Only one extra final success (93/96→94/96), first queries 86/96→84/96, 24B regresses 47/48→46/48, input +22.0%. Keep opt-in per model/workload; no size-based automatic choice. |
+| Automatic exact oracle-shape validation for natural-language queries | Rejects 27/96 recorded queries, including 22 correct equivalents; keep strict shape checks only for independent host-declared structure. |
+| Flattening top-N IN subqueries automatically | Tie counterexample `[10,9,9,9]`: top-three sum 28 versus IN-membership sum 37. Reject rewriting that silently changes meaning. |
 | Symbol/lookup indexes | no token saving; accuracy 102 → 74 of 108 |
 | Plain-text (CSV-like) tables | 0 to +1% tokens: `","` is already one token |
 | Row counts in table headers | +2/54 (noise) for +3% tokens |
@@ -68,7 +80,7 @@ noted; "3 models" adds Llama 3.3 70B.
 ## Next candidates
 
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
-- Clearer top-N aggregate guidance: Mistral still generates subqueries after a correction in some cases.
+- Validate query guidance on independent question templates and live hosts; the opt-in profile has mixed per-model results on fresh row seeds.
 - Validate host meanings on other schema families and live questions; targeted meanings still miss 15/60 executed queries.
 - Reaction-brain feedback from real hosts and unseen policy families; versioned numeric bindings exist, while engine sensors, host metrics and scheduler notifications/costs remain integration work.
 - Measure acknowledged synchronization and periodic snapshot policies on live multi-turn model decisions.
@@ -76,11 +88,11 @@ noted; "3 models" adds Llama 3.3 70B.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
 - Feedback from the first real game integration once its gaps list arrives.
 - Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
-- Test targeted guidance for unrequested LIMIT/filter additions and top-N subqueries; the new model check misses five completed query exchanges. Keep this cohort frozen and use fresh cases for any prompt change.
+- Test host-defined semantic constraints for all-row versus eligible-row totals; explicit wording still fails some route questions. Keep both hosted cohorts frozen.
 
 ## Known gaps
 
-- Legacy word matching is literal plus an optional plural `s`; optional `RecallIndex` adds simple English suffix normalization/host aliases, not semantic embeddings or a multilingual stemmer.
+- Table/catalog word matching recognizes namespace/dotted/path components and optional plural `s`, while memory recall/index tokenization retains its prior contract. Optional `RecallIndex` adds simple English suffix normalization/host aliases, not semantic embeddings or a multilingual stemmer.
 - Numeric filtering by reading rows fails in every format; use `where` or have the model request a `query`.
 - Query is a SQL subset: one table, AND/IN, no joins, subqueries or GROUP BY; ORDER BY/LIMIT run before aggregates. Arithmetic uses 64-bit floats.
 - Schema-only requests can confuse semantic labels (`unique` rarity became count = 1). Valid but wrong queries do not retry.

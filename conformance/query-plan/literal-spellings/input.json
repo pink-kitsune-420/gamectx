@@ -1,0 +1,1 @@
+{"sql":"SELECT id AS label FROM cargo WHERE mass >= -1.234567890123 AND kind IN (food,'tool')"}

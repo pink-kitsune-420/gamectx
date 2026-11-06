@@ -1,0 +1,1 @@
+"Return all matching rows for a list: do not add LIMIT unless the question requests a top-N or one row. Use only filters requested by the question; field meanings do not add filters. For a top-N total use SELECT SUM(column) FROM table ORDER BY column DESC LIMIT N, substituting listed names. Never put SELECT inside SELECT or IN. Do not add eligibility filters to an all-row total."

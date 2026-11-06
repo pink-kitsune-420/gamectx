@@ -19,6 +19,13 @@ jobs:
       - run: cargo +stable test --locked
       - run: RUSTDOCFLAGS="-D warnings" cargo +stable doc --no-deps --locked
       - run: cargo +stable build --release --locked
+      - run: python3 -I eval/query_upgrade_eval.py --check eval/query-guidance-results.json --cap 0
+      - run: python3 -I eval/summarize_query_upgrade.py --check
+      - run: python3 -I eval/test_query_upgrade.py
+      - run: rustc --edition=2021 -O eval/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
+      - run: rustc --edition=2021 -O eval/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
+      - run: python3 -I eval/query_optimization_check.py
+      - run: python3 -I eval/relevance_eval.py
       - run: python3 -I eval/test_query_eval.py
       - run: python3 -I eval/test_query_workflow.py
       - run: python3 -I eval/test_brain.py

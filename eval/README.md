@@ -752,3 +752,96 @@ cumulative spend, not a fresh allowance. Nonterminal Rust session EOF is accepte
 when the CLI returned exactly one expected retriable feedback envelope; the next step
 reconstructs both calls and checks complete native/Python parity. Final-answer generation
 is never skipped when a query succeeds.
+
+## Query execution and identifier matching
+
+Offline prototypes: `query_optimization_check.py` (streaming arithmetic),
+`query_upgrade_eval.py` (plans/contracts/bounds), and `relevance_eval.py` (identifier
+components). The alpha.4 executor is frozen in `query_before.rs`; only its schema module
+path is adjusted for standalone compilation. Query parser text, default tool/session
+formats, arithmetic order, selected values and validation precedence are preserved.
+
+Seven paired alternating release trials, parsed-query reuse, allocator counters disabled
+for timing. Each allocation/peak sample runs separately and drops all transient values
+inside its tracking window. Tiny rows have an 8-byte payload; other rows have a 1,024-byte
+payload, plus ID/mass/units. Measurements are local synthetic execution, not model latency,
+frame deadlines or guaranteed speedups on different row layouts.
+
+| Fixture | Rows | Calls/trial | Before ns | After ns | Allocations/query before→after | Peak transient bytes before→after |
+|---|---:|---:|---:|---:|---:|---:|
+| tiny | 1 | 10000 | 7,210,976 | 1,579,555 | 14→3 | 360→64 |
+| wide-total | 1024 | 1000 | 1,277,473,628 | 53,773,386 | 9,229→11 | 1,355,791→8,211 |
+| filtered-list | 1024 | 1000 | 1,336,165,565 | 41,170,030 | 9,236→12 | 1,380,335→429 |
+| top-n-total | 1024 | 1000 | 1,714,696,196 | 133,320,872 | 9,223→12 | 1,429,487→65,536 |
+| text-sort | 1024 | 1000 | 1,359,804,249 | 87,516,281 | 10,251→15 | 1,443,737→65,536 |
+
+Observed parsed-execution ratios are 4.6–32.5×. Parsing cost is excluded for both variants;
+`Query::parse` already supported reuse before this change. The executor now borrows row
+references/sort keys and streams aggregate inputs. Only selected cells are cloned.
+
+Checks: 4,000 Python streaming aggregate comparisons; 2,024 native alpha.4/current
+result and exact error-string comparisons, including signed zero, nulls, late invalid
+rows, mixed sort types, overflow/cancellation and LIMIT 0; 3,000 generated/mutated
+Rust/Python queries (1,527 accepted); 516 plan/shape/bounds comparisons; all 105 old
+recorded feedback envelopes unchanged. Thirty-five new conformance cases bring the total
+to 401; all 366 previous outputs remain byte-identical. Added 20,000 deterministic
+mutations for contracts/plans/identifier text. API spend for these checks: $0.
+
+Ten identifier lexical regressions improved 2/10 → 10/10, with four additional catalog
+parity cases. Namespace/dotted/path boundaries `: . / -` and underscore components are
+recognized without substring matching. Original IDs, Unicode strings and large-number
+spellings are retained. This is lexical correctness, not semantic or model accuracy;
+memory recall/index tokenization keeps its existing contract.
+
+Two measured rejections are retained in `query-upgrade-offline.json`: exact oracle shape
+would reject 27/96 old queries, including 22 correct equivalents, so structural contracts
+require independent host requirements. Flattening IN/top-N subqueries is unsafe with
+ties: `[10,9,9,9]` gives top-three sum 28 but IN-membership sum 37. Neither is an automatic
+query repair.
+
+```bash
+cargo build --release --locked
+rustc --edition=2021 -O eval/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
+rustc --edition=2021 -O eval/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
+python3 -I eval/test_query_upgrade.py
+python3 -I eval/query_optimization_check.py
+python3 -I eval/relevance_eval.py
+python3 -I eval/query_eval.py --differential 3000 --cap 0
+python3 -I eval/query_upgrade_eval.py --cap 0
+rustc --edition=2021 -O eval/query_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-bench
+target/query-bench
+```
+
+The measurement artifact is `query-performance.json`. Re-running timings prints new
+local measurements; it need not rewrite this recorded run.
+
+## Optional query guidance: fresh paired test
+
+The tested supplemental paragraph is available through `query::Guidance::ExplicitSelection`
+and CLI `query --guidance explicit-selection`; `Standard` adds no text. Native profile
+text matches the frozen Python paragraph exactly. Four profile conformance cases include
+unknown-name/non-string errors. No automatic choice based on model size is added.
+
+Fresh six-state cohort (same three schema families/question templates, new row seeds),
+48 questions/model/profile: 3B standard 46/48→explicit 48/48; 24B 47/48→46/48.
+Aggregate first queries 86/96→84/96, after correction/final 93/96→94/96. Two paired
+improvements and one regression. Complete-exchange input 907.865→1,107.802 (+22.0%).
+Keep standard as the default; the optional profile is a workload/model tradeoff, not a
+universal accuracy upgrade. All 209 fresh native/Python feedback envelopes match.
+
+Token-only check cost $0.0012702 (cap $0.01); accuracy $0.0281033125 (cap $0.08);
+total $0.0293735125. Full replies/usage/pricing are in `query-guidance-tokens.json` and
+`query-guidance-results.json`; audited derived statistics in `query-guidance-summary.json`.
+See the [full report](../docs/QUERY_OPTIMIZATION_2026_11_06.md) for methodology and limitations.
+
+```bash
+python3 -I eval/query_upgrade_eval.py --check eval/query-guidance-results.json --cap 0
+python3 -I eval/summarize_query_upgrade.py --check
+```
+
+Future paid runs require new output paths and explicit caps, token-only first:
+
+```bash
+python3 -I eval/query_upgrade_eval.py --models --tokens-only --cap 0.01 --output eval/results/query-guidance-tokens-new.json
+python3 -I eval/query_upgrade_eval.py --models --cap 0.08 --output eval/results/query-guidance-results-new.json
+```

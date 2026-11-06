@@ -1,0 +1,1 @@
+{"table":"cargo","aggregate":false,"columns":["id","mass","kind"],"filters":[{"column":"mass","op":">=","value":-1.234567890123},{"column":"kind","op":"in","value":["food","tool"]}],"order_by":null,"limit":null}

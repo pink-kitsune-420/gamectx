@@ -1,0 +1,1 @@
+{"sql":"SELECT SUM(mass) FROM (SELECT mass FROM cargo ORDER BY mass DESC LIMIT 3)"}

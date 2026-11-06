@@ -566,3 +566,33 @@ fn saved_runtime_and_authored_configuration_mutations_round_trip() {
         }
     }
 }
+
+#[test]
+fn query_contracts_plans_and_identifier_text_survive_mutation() {
+    use gamectx::{
+        obj,
+        query::{Query, Shape},
+        view,
+    };
+    let seeds = [
+        r#"{"table":"cargo","filter_columns":["mass","mass"],"limit":null,"aggregate":false}"#,
+        r#"{"table":"cargo","filter_columns":[],"limit":3,"aggregate":true}"#,
+        r#"{"table":"門.café","filter_columns":[],"limit":4294967296,"aggregate":true}"#,
+    ];
+    let rows = vec![obj! {"id"=>"grove:café_map","mass"=>3}, obj! {"id"=>"quest.gate.open","mass"=>2}];
+    let query = Query::parse("SELECT SUM(mass) FROM cargo ORDER BY mass DESC LIMIT 3").unwrap();
+    let mut rng = Rng(0x1234_8910_5555_2222);
+    for i in 0..20_000 {
+        let text = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(value) = parse(&text, 8192) {
+            if let Ok(shape) = Shape::from_value(&value) {
+                assert_eq!(Shape::from_value(&shape.to_value()).unwrap().to_value(), shape.to_value());
+                let _ = query.require_shape(&shape);
+            }
+        }
+        let _ = gamectx::query::Guidance::parse(&text);
+        let scores = view::relevance_scores(&rows, &text);
+        assert!(scores.iter().all(|s| *s <= text.chars().count() * 2));
+        assert_eq!(parse(&query.plan().to_json(), 8192).unwrap(), query.plan());
+    }
+}
