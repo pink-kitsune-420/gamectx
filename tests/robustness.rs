@@ -784,3 +784,36 @@ fn shared_conversation_reference_and_confirmation_model_text_is_bounded() {
         }
     }
 }
+
+#[test]
+fn lore_and_source_answer_text_remain_bounded_and_cannot_supply_new_prose() {
+    let seeds = [
+        include_str!("../conformance/lore/select/input.json"),
+        include_str!("../conformance/lore/answer/input.json"),
+        include_str!("../conformance/lore/quote/input.json"),
+    ];
+    let mut rng = Rng(0x8811_749a_3010_ccdd);
+    for i in 0..20_000 {
+        let text = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(value) = parse(&text, 262144) {
+            if let Ok(result) = gamectx::local::process(&value) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
+            }
+        }
+    }
+    let input = parse(seeds[1], 65536).unwrap();
+    let args = input.get("args").unwrap();
+    let answers = gamectx::dialogue::Answers::from_value(args.get("definition").unwrap()).unwrap();
+    let context = gamectx::obj! {"scope"=>"player:trader","revision"=>7};
+    for _ in 0..10_000 {
+        let text = mutate(&mut rng, r#"{"answer":"price"}"#);
+        if let Ok(result) = answers.resolve(&text, &context, |_| true) {
+            assert!([
+                "The oil costs 3 coins.",
+                "You haven't supplied that information.",
+                "You told me: \"My home is Reed Hollow.\""
+            ]
+            .contains(&result.get("text").unwrap().as_str().unwrap()));
+        }
+    }
+}

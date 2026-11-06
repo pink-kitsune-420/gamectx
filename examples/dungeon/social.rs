@@ -1,4 +1,4 @@
-//! Scoped character conversations. Speech never executes an action or asserts a world fact.
+//! Scoped character conversations. Speech never executes an action or registers an authoritative world fact.
 use super::game::{fields, get, text, uint, Game, GOAL};
 use gamectx::{
     dialogue::{self, Scene},
@@ -18,6 +18,7 @@ impl Default for Social {
         Self {
             inner: gamectx::dialogue::Conversation::with_limits(gamectx::dialogue::ConversationLimits {
                 tickets: 256,
+                text_chars: 512,
                 ..Default::default()
             })
             .expect("valid example limits"),
@@ -71,13 +72,42 @@ impl Social {
         if recall > 6 || history > 3 {
             return Err(invalid());
         }
+        if input.trim().chars().count() > 240 {
+            return Err(invalid());
+        }
         let scope = Self::scope(game, speaker)?;
         self.inner.prepare(&obj! {"scope"=>scope,"speaker"=>speaker,"revision"=>game.revision,"input"=>input,
         "facts"=>Self::facts(game,speaker),"recall"=>recall,"history"=>history})
     }
+    pub fn prepare_lore(
+        &mut self,
+        game: &Game,
+        speaker: &str,
+        input: &str,
+        recall: usize,
+        history: usize,
+        lore: Value,
+    ) -> Result<Value> {
+        if input.trim().chars().count() > 240 || recall > 6 || history > 3 {
+            return Err(invalid());
+        }
+        let scope = Self::scope(game, speaker)?;
+        let Value::Object(mut facts) = Self::facts(game, speaker) else { unreachable!() };
+        facts.push(("authored_lore".into(), lore));
+        self.inner.prepare(&obj! {"scope"=>scope,"speaker"=>speaker,"revision"=>game.revision,"input"=>input,"facts"=>Value::Object(facts),"recall"=>recall,"history"=>history})
+    }
+    pub fn finish_answer(&mut self, game: &Game, id: &str, input: &str) -> Result<Value> {
+        self.finish_bounded(game, id, input, 512)
+    }
     pub fn finish(&mut self, game: &Game, id: &str, input: &str) -> Result<Value> {
+        self.finish_bounded(game, id, input, 240)
+    }
+    fn finish_bounded(&mut self, game: &Game, id: &str, input: &str, limit: usize) -> Result<Value> {
         // Preserve the example's narrower reply bound and live speaker access gate.
-        gamectx::json::parse(input, 4096)?;
+        let reply = gamectx::json::parse(input, 4096)?;
+        if text(&reply, "speech")?.trim().chars().count() > limit {
+            return Err(invalid());
+        }
         let scope = self.inner.pending_scope().ok_or_else(invalid)?.to_owned();
         let speaker = if scope.starts_with("narrator:") { "narrator" } else { scope.as_str() };
         if Self::scope(game, speaker)? != scope {

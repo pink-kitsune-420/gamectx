@@ -2,6 +2,8 @@
 //! data; old history is never silently promoted into authoritative facts or summaries.
 mod references;
 pub use references::resolve_references;
+mod answers;
+pub use answers::Answers;
 mod conversation;
 use crate::budget::Section;
 use crate::request::{bounded, BudgetedRequest, Count, RequestBudget, MAX_REQUEST_BYTES};

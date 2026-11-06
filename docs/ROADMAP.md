@@ -123,10 +123,24 @@ noted; "3 models" adds Llama 3.3 70B.
 | Preserved observations | 11 sequences / 26 turns; deployment identity, seed, usage and original world trace unknown. Correct original-name recall coexists with invented player disclosures/home, weather and tonic purpose. Manual claim annotations, no aggregate model score. |
 | Host/storage reproduction | Seed-7 native/Python audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets, two reproduced purchases. Player quotes retain original input only; forgetting preserves inventory. All 633 core cases unchanged; no prompt/runtime changes, zero new model calls, $0 API. [Report](DUNGEON_FEEDBACK.md). |
 
+## Authored lore and factual answers (unreleased)
+
+| Item | Result |
+|---|---|
+| Prepared lore loader | Versioned 262144-byte/512-entry file, stable IDs, tags, actor audiences and host knowledge grants; bounded relevant selection with required-fit errors. Example compact world 1669→145 selected packet bytes; not lossless or a token claim. |
+| Source-bound answers | Model selects a source or unknown; host renders exact lore/state text or attributed player quotes, rechecks scope/revision/source and never executes actions. Live fields supersede matching lore fields. 108 independent workflows, 28 new cases, all 633 prior cases unchanged; 30000 added mutations. |
+| Dungeon integration | Editable world file, new source/legacy dialogue switch, scoped factual tickets and authored background in open-ended dialogue. Sixty native request workflows across five seeds and eleven front-end checks. Legacy artifacts still audit identically. |
+| New local question tests | Native v3 11/12; 20 fresh questions 17/20, after routing fixes 20/20 regression; eight more questions 7/8. Final “Did I…” disclosure guard handles the miss locally, 1/1. All pilots/failures retained; no new independent generalization claim after repair. |
+| Runtime evidence | Rerun median/p95 turn 563910/2265634 µs includes ten local unknown paths; unequal call mix prevents format-only speed claims. Separate post-run runner/host RSS 2180976640/4694016 bytes, not peak RAM. Every new token/accuracy/audit run $0 API. [Contracts](LORE.md), [full report](LORE_EVAL.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
 |---|---|
+| Unrestricted source cards as sufficient question understanding | Initial local selector 9/12 strict targets; unrelated price selected for salve permission and unnecessary abstentions. Topic narrowing helps but does not establish entailment. |
+| Treating auxiliary “does” as an item-use field | Misroutes “Who does the oil belong to?” and can hide the correct owner card. Prioritize explicit subject/topic cues; retain the failed v2 artifact. |
+| Treating remembered name as evidence for an unrelated disclosure | First fresh batch offers a name quote for alleged sailing history and scores 17/20. Restrict candidate player quotes to relevant content and explicit temporal availability. |
+| Presenting a tuned rerun as fresh model generalization | The 20/20 rerun follows three observed failures. Keep it as regression evidence; the next eight questions score 7/8 and retain their missed disclosure question. |
 | More instructions as the default cure for character understanding | Standard intent 2/4, extra grounded instructions 1/4; generation input 7468→8240 and output 525→610 across nine speeches/four intents. Retain opt-in control. Focused prompts still hallucinate tonic effects and seal permission; validation cannot prove prose entailment. |
 | Unmatched choice order as a format-only accuracy comparison | Initial 12-scene codec pilot scored 11/12 for both, but presented different candidate orders. Retain frozen runner/results, exclude that comparison, rerun with matched order (8/12 versus 11/12). No prompt tuning; needs fresh/live replication. |
 | Model-loop timing presented as complete-turn latency | An initial local pilot began timing after hydration. Retain nine completed pilot turns, exclude its timing comparisons, and rerun with native hydration/filtering inside the clock. |
@@ -151,6 +165,13 @@ noted; "3 models" adds Llama 3.3 70B.
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
+
+- Extend semantic question routing on independent scene/language families and multi-part
+  questions; the example English policy can still abstain unnecessarily or choose a
+  related valid source. Keep authored/state/player/assistant roles explicit.
+- Test whether more natural source-grounded dialogue can preserve character quality;
+  free-form prose is still unverified. Measure controlled full-turn latency and peak
+  game/runner/system RAM; the new sample is post-run only.
 
 - Evaluate an opt-in factual-answer workflow using current host facts, exact original
   player quotes and explicit unknown attributes; keep creative character flavor separate.

@@ -48,6 +48,10 @@ A case passes when:
 
 ## Changing behavior
 
+The `lore/` family adds 28 local cases for bounded world loading/selection and source-bound
+answers. `eval/lore_cases.py --cap 0 --check` compares 108 independent workflows;
+all 633 prior cases stay unchanged. [Exact contracts](../docs/LORE.md).
+
 The `conversation/` family adds 38 `op:local` fixtures for shared conversation retention,
 reply validation, entity references and explicit confirmation. Independent Python
 prototypes compare 78 workflows with `eval/conversation_cases.py --cap 0 --check`;

@@ -69,6 +69,7 @@ pub mod formula;
 pub mod json;
 pub mod kit;
 pub mod local;
+pub mod lore;
 pub mod manifest;
 pub mod memory;
 pub mod outcome;

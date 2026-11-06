@@ -12,6 +12,13 @@ use gamectx::{
     Error, Result, Value,
 };
 
+struct PendingKnowledge {
+    offer: Value,
+    answers: dialogue::Answers,
+    ticket: String,
+    speaker: String,
+    input: String,
+}
 struct ObservationPolicy<'a> {
     interpret: bool,
     profile: &'a str,
@@ -27,9 +34,14 @@ pub struct Host {
     social: Social,
     trade: super::trade::Trade,
     focus: Option<(String, String, u32)>,
+    world: gamectx::lore::Lore,
+    knowledge: Option<PendingKnowledge>,
 }
 impl Host {
     pub fn new(seed: u32) -> Result<Self> {
+        Self::with_world(seed, gamectx::lore::Lore::parse(include_str!("world.json"))?)
+    }
+    pub fn with_world(seed: u32, world: gamectx::lore::Lore) -> Result<Self> {
         let affordable = Template::from_value(
             &obj! {"name"=>"affordable","description"=>"Visible merchant items within the supplied purse.",
             "sql"=>"SELECT id FROM items WHERE owner = 'merchant'",
@@ -73,6 +85,8 @@ impl Host {
             social: Social::default(),
             trade: super::trade::Trade::default(),
             focus: None,
+            world,
+            knowledge: None,
         })
     }
     fn codec(&self) -> Result<ChoiceCodec> {
@@ -327,6 +341,106 @@ impl Host {
         fields(v, &["op", "args"])?;
         let a = get(v, "args")?;
         match text(v, "op")? {
+            "knowledge_prepare" => {
+                let mut keys = vec!["speaker", "input", "context", "size"];
+                if a.get("choices_limit").is_some() {
+                    keys.push("choices_limit");
+                }
+                fields(a, &keys)?;
+                let speaker = text(a, "speaker")?;
+                let input = text(a, "input")?;
+                if input.trim().is_empty() || input.chars().count() > 240 || input.chars().any(char::is_control) {
+                    return Err(Error::new("invalid knowledge input"));
+                }
+                let state = self.social.state(&self.game, speaker)?;
+                let built = super::knowledge::build(
+                    &self.game,
+                    &self.world,
+                    speaker,
+                    input,
+                    get(&state, "memories")?.as_array().expect("memories"),
+                )?;
+                if built.get("handled") == Some(&Value::Bool(false)) {
+                    return Ok(built);
+                }
+                let size = gamectx::deployment::ModelSize::parse(text(a, "size")?)?;
+                let definition = get(&built, "definition")?;
+                let count = get(definition, "cards")?.as_array().expect("cards").len();
+                let choice_limit = if let Some(value) = a.get("choices_limit") {
+                    uint(value, 32)? as usize
+                } else {
+                    match size {
+                        gamectx::deployment::ModelSize::B1 => 4,
+                        gamectx::deployment::ModelSize::B1_5 => 6,
+                        gamectx::deployment::ModelSize::B3 => 8,
+                        gamectx::deployment::ModelSize::B8 => 16,
+                        _ => 32,
+                    }
+                };
+                if choice_limit == 0 || count > choice_limit {
+                    return Err(Error::new("answer choices exceed configured size hint; narrow the question"));
+                }
+                for card in get(definition, "cards")?.as_array().expect("cards") {
+                    let extra = if text(card, "kind")? == "quote" { 15 } else { 0 };
+                    if text(card, "text")?.chars().count() + extra > 512 {
+                        return Err(Error::new("source answer exceeds example speech bound"));
+                    }
+                }
+                let request = get(&built, "request")?;
+                let context = uint(get(a, "context")?, 32768)?;
+                if !(512..=32768).contains(&context) {
+                    return Err(Error::new("invalid context"));
+                }
+                RequestBudget::new(context as usize, 32, 256)?.check(request, |r| {
+                    Ok(Count { input: r.json_len().div_ceil(3) + 64, method: CountMethod::Estimate })
+                })?;
+                let mut draft = self.social.clone();
+                let ticket = draft.prepare_limited(&self.game, speaker, input, 0, 0)?;
+                let id = text(&ticket, "id")?.to_owned();
+                self.knowledge = Some(PendingKnowledge {
+                    offer: built.clone(),
+                    answers: dialogue::Answers::from_value(definition)?,
+                    ticket: id.clone(),
+                    speaker: speaker.into(),
+                    input: input.into(),
+                });
+                self.social = draft;
+                Ok(obj! {"handled"=>true,"ticket"=>id,"offer"=>built})
+            }
+            "knowledge_finish" => {
+                fields(a, &["ticket", "text"])?;
+                let pending = self.knowledge.as_ref().ok_or_else(|| Error::new("no pending knowledge answer"))?;
+                if pending.ticket != text(a, "ticket")? {
+                    return Err(Error::new("wrong knowledge ticket"));
+                }
+                let state = self.social.state(&self.game, &pending.speaker)?;
+                let fresh = super::knowledge::build(
+                    &self.game,
+                    &self.world,
+                    &pending.speaker,
+                    &pending.input,
+                    get(&state, "memories")?.as_array().expect("memories"),
+                )?;
+                let original = get(get(&pending.offer, "definition")?, "cards")?.as_array().expect("cards");
+                let current = get(get(&fresh, "definition")?, "cards")?.as_array().expect("cards");
+                let context =
+                    obj! {"scope"=>format!("{}:{}",pending.speaker,self.game.room),"revision"=>self.game.revision};
+                let result = pending.answers.resolve(text(a, "text")?, &context, |source| {
+                    original.iter().any(|c| {
+                        c.get("kind") == source.get("kind")
+                            && c.get("source") == source.get("id")
+                            && current.iter().any(|now| now.same(c))
+                    })
+                })?;
+                let reply = obj! {"speech"=>get(&result,"text")?.clone(),"tone"=>"neutral","fact_ids"=>Vec::<Value>::new(),"memory_ids"=>Vec::<Value>::new()};
+                self.social.finish_answer(&self.game, &pending.ticket, &reply.to_json())?;
+                let speaker = pending.speaker.clone();
+                self.knowledge = None;
+                self.focus = None;
+                Ok(
+                    obj! {"speaker"=>speaker,"speech"=>get(&result,"text")?.clone(),"sources"=>get(&result,"sources")?.clone(),"status"=>get(&result,"status")?.clone()},
+                )
+            }
             "trade" => {
                 fields(a, &["speaker", "input"])?;
                 let speaker = text(a, "speaker")?;
@@ -390,11 +504,30 @@ impl Host {
                     },
                 )
             }
-            "speech_prepare" => {
+            "speech_prepare" | "lore_speech_prepare" => {
                 let (profile, size) = Self::settings(a, &["speaker", "input", "context"])?;
                 let speaker = text(a, "speaker")?;
                 let mut draft = self.social.clone();
-                let ticket = if profile == "focused" {
+                let ticket = if text(v, "op")? == "lore_speech_prepare" {
+                    let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
+                    let selected = super::knowledge::select(
+                        &self.game,
+                        &self.world,
+                        speaker,
+                        &format!("{} background", text(a, "input")?),
+                        vec![super::knowledge::actor(speaker)],
+                        2,
+                        1024,
+                    )?;
+                    draft.prepare_lore(
+                        &self.game,
+                        speaker,
+                        text(a, "input")?,
+                        hints.recall,
+                        hints.exchanges,
+                        get(&selected, "packet")?.clone(),
+                    )?
+                } else if profile == "focused" {
                     let task = if speaker == "narrator" {
                         gamectx::deployment::Workload::Narration
                     } else {
@@ -412,6 +545,7 @@ impl Host {
                     _ => social::render(&ticket, context),
                 }?;
                 self.social = draft;
+                self.knowledge = None;
                 Ok(reply)
             }
             "speech_finish" => {
@@ -426,7 +560,9 @@ impl Host {
             }
             "speech_forget" => {
                 fields(a, &["speaker"])?;
-                self.social.forget(&self.game, text(a, "speaker")?)
+                let result = self.social.forget(&self.game, text(a, "speaker")?)?;
+                self.knowledge = None;
+                Ok(result)
             }
 
             "state" => {

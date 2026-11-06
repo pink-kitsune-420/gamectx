@@ -1520,3 +1520,18 @@ core conformance formats. It preserves unpinned reported input/reply text and se
 manual annotations; missing deployment/world/usage data remain null. Its offline audit
 reproduces host rules and feeds supplied speech through validation, without treating
 structural acceptance as semantic accuracy. [Report](DUNGEON_FEEDBACK.md).
+
+
+## Authored lore and source-bound answers (unreleased)
+
+Additive local kinds `lore` (`{world,select}`) and `answers` (`{definition,calls}`) expose
+`lore::Lore` and `dialogue::Answers`. [LORE](LORE.md) specifies exact fields, byte/count
+bounds, audience/grant checks, required-fit semantics, source precedence and response
+validation. Twenty-eight new conformance cases leave all 633 previous cases unchanged.
+Authored lore is not live state; quote answers preserve player words with attribution.
+The adapters select/render data and never dispatch actions or register model text as facts.
+
+The example dungeon adds optional `--world FILE` and `--dialogue sources|legacy` and
+host operations `knowledge_prepare`, `knowledge_finish`, `lore_speech_prepare`. Old
+speech/observation/replay formats stay unchanged. Only the new host-rendered factual
+path permits up to 512 reply characters; legacy generated speech remains capped at 240.

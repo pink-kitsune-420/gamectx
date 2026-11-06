@@ -569,3 +569,21 @@ attributes; source availability alone does not validate its explanation. `/forge
 clears conversation material and pending replies, while host-owned inventory persists.
 The [reported regression audit](DUNGEON_FEEDBACK.md) preserves examples and verifies
 these storage/state boundaries without claiming the prose hallucinations are fixed.
+
+
+### Author world knowledge and bind factual answers to sources
+
+Load a versioned lore file once, filter by the actual character and host knowledge grants,
+then select relevant records for this question. Keep private records out of model packets
+and receipts, preserve required records or fail, and count the final rendered request.
+Current ownership/prices/capabilities come from the host. Matching live fields suppress
+stale authored fields; an unavailable attribute needs an explicit unknown answer.
+
+For small models, offer a short set of named factual answers and an unknown option.
+Validate the returned ID and current source permission; render source text locally.
+Player quote answers should retain their exact words and attribution. Open-ended character
+flavor can use authored background without promoting generated dialogue into facts.
+This limits invented prose in factual answers; a model can still choose the wrong valid
+source. Keep question interpretation, source validity and world changes as separate scores.
+See the [tested API example](../examples/lore.rs), [contracts](LORE.md) and
+[retained model results](LORE_EVAL.md).

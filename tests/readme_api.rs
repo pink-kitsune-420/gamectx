@@ -247,3 +247,10 @@ mod conversation_example;
 fn documented_shared_conversation_example() -> gamectx::Result<()> {
     conversation_example::main()
 }
+
+#[path = "../examples/lore.rs"]
+mod lore_example;
+#[test]
+fn documented_lore_example() -> gamectx::Result<()> {
+    lore_example::main()
+}

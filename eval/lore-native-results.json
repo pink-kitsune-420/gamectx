@@ -1,0 +1,1979 @@
+{
+  "version": 1,
+  "identity": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+    "quantization": "Q4_K_M",
+    "template_sha256": "e94a8ecb9327ded799604a2e478659bc759230fe316c50d686358f932f52776c",
+    "runner": "0.40.3"
+  },
+  "guidance": "focused",
+  "size": "3",
+  "api_spend_usd": 0,
+  "calls": [
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"tonic_use\",\"subject\":\"item:tonic\",\"topic\":\"use\",\"kind\":\"lore\",\"text\":\"The tonic has no implemented use. Its intended purpose has not been specified.\"}]\n\nCurrent request:\nWhat does the tonic actually do?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "tonic_use",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:50.93563097Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 800806883,
+        "load_duration": 3153291,
+        "prompt_eval_count": 109,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 795161000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 801610
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"tonic_use\",\"subject\":\"item:tonic\",\"topic\":\"use\",\"kind\":\"lore\",\"text\":\"The tonic has no implemented use. Its intended purpose has not been specified.\"}]\n\nCurrent request:\nWhat does the tonic actually do?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "tonic_use",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:51.677051564Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"unknown\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 738365214,
+        "load_duration": 2403216,
+        "prompt_eval_count": 109,
+        "prompt_eval_cached_count": 108,
+        "prompt_eval_duration": 111517000,
+        "eval_count": 6,
+        "eval_duration": 621834000
+      },
+      "elapsed_micros": 739180
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"owner_salve\",\"subject\":\"item:salve\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The salve belongs to you.\"},{\"id\":\"gift_salve\",\"subject\":\"item:salve\",\"topic\":\"permission\",\"kind\":\"state\",\"text\":\"The salve already belongs to you. It is not merchant stock to give away.\"}]\n\nCurrent request:\nCan you give me a free salve?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "owner_salve",
+                "gift_salve",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:51.821359174Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 131515180,
+        "load_duration": 3554107,
+        "prompt_eval_count": 144,
+        "prompt_eval_cached_count": 143,
+        "prompt_eval_duration": 122288000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 132100
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"owner_salve\",\"subject\":\"item:salve\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The salve belongs to you.\"},{\"id\":\"gift_salve\",\"subject\":\"item:salve\",\"topic\":\"permission\",\"kind\":\"state\",\"text\":\"The salve already belongs to you. It is not merchant stock to give away.\"}]\n\nCurrent request:\nCan you give me a free salve?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "owner_salve",
+                "gift_salve",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:52.793224356Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"gift_salve\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 968704090,
+        "load_duration": 1932963,
+        "prompt_eval_count": 144,
+        "prompt_eval_cached_count": 143,
+        "prompt_eval_duration": 120125000,
+        "eval_count": 8,
+        "eval_duration": 843992000
+      },
+      "elapsed_micros": 969479
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nDo you own the keeper seal?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "seal_custody",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:53.707543294Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 892695563,
+        "load_duration": 4743418,
+        "prompt_eval_count": 112,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 883389000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 893419
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nDo you own the keeper seal?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "seal_custody",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:54.787098588Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"seal_custody\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 1076623988,
+        "load_duration": 2405949,
+        "prompt_eval_count": 112,
+        "prompt_eval_cached_count": 111,
+        "prompt_eval_duration": 115562000,
+        "eval_count": 9,
+        "eval_duration": 956192000
+      },
+      "elapsed_micros": 1077382
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nThank you! What is your story?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "merchant_background",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:55.132042221Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 328598322,
+        "load_duration": 1918710,
+        "prompt_eval_count": 115,
+        "prompt_eval_cached_count": 102,
+        "prompt_eval_duration": 321979000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 329390
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nThank you! What is your story?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "merchant_background",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:56.003198683Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"merchant_background\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 864724046,
+        "load_duration": 1947603,
+        "prompt_eval_count": 115,
+        "prompt_eval_cached_count": 114,
+        "prompt_eval_duration": 110694000,
+        "eval_count": 7,
+        "eval_duration": 748305000
+      },
+      "elapsed_micros": 865709
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nWhat job keeps you here?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "merchant_background",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:56.360883794Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 325017788,
+        "load_duration": 3010256,
+        "prompt_eval_count": 113,
+        "prompt_eval_cached_count": 102,
+        "prompt_eval_duration": 319283000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 325687
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nWhat job keeps you here?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "merchant_background",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:57.209604665Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"merchant_background\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 844112132,
+        "load_duration": 2457063,
+        "prompt_eval_count": 113,
+        "prompt_eval_cached_count": 112,
+        "prompt_eval_duration": 115126000,
+        "eval_count": 7,
+        "eval_duration": 724103000
+      },
+      "elapsed_micros": 845088
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"owner_oil\",\"subject\":\"item:oil\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The hinge oil belongs to you.\"}]\n\nCurrent request:\nWho does the hinge oil belong to?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "owner_oil",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:58.006762551Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 778383606,
+        "load_duration": 3883929,
+        "prompt_eval_count": 101,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 770917000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 780313
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"owner_oil\",\"subject\":\"item:oil\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The hinge oil belongs to you.\"}]\n\nCurrent request:\nWho does the hinge oil belong to?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "owner_oil",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:58.977059555Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"owner_oil\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 964801402,
+        "load_duration": 2302259,
+        "prompt_eval_count": 101,
+        "prompt_eval_cached_count": 100,
+        "prompt_eval_duration": 117894000,
+        "eval_count": 8,
+        "eval_duration": 841875000
+      },
+      "elapsed_micros": 965645
+    },
+    {
+      "phase": "preflight",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"quote_1\",\"subject\":\"player\",\"topic\":\"home\",\"kind\":\"quote\",\"text\":\"My home is Reed Hollow.\"}]\n\nCurrent request:\nWhere is my home?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "quote_1",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 1,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:06:59.717639477Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 702507621,
+        "load_duration": 3037373,
+        "prompt_eval_count": 95,
+        "prompt_eval_cached_count": 56,
+        "prompt_eval_duration": 697173000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      },
+      "elapsed_micros": 703127
+    },
+    {
+      "phase": "generation",
+      "payload": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+          },
+          {
+            "role": "user",
+            "content": "Answers:\n[{\"id\":\"quote_1\",\"subject\":\"player\",\"topic\":\"home\",\"kind\":\"quote\",\"text\":\"My home is Reed Hollow.\"}]\n\nCurrent request:\nWhere is my home?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string",
+              "enum": [
+                "quote_1",
+                "unknown"
+              ]
+            }
+          },
+          "required": [
+            "answer"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_predict": 32,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 42
+        }
+      },
+      "status": "complete",
+      "response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-06T18:07:00.696383785Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"answer\":\"quote_1\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 969465590,
+        "load_duration": 2298484,
+        "prompt_eval_count": 95,
+        "prompt_eval_cached_count": 94,
+        "prompt_eval_duration": 117918000,
+        "eval_count": 8,
+        "eval_duration": 846505000
+      },
+      "elapsed_micros": 971236
+    }
+  ],
+  "workflow_version": 3,
+  "native": true,
+  "cohort": "regression",
+  "tokens_only": false,
+  "world": {
+    "version": 1,
+    "entries": [
+      {
+        "id": "merchant_background",
+        "subject": "npc:merchant",
+        "topic": "background",
+        "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.",
+        "tags": [
+          "story",
+          "yourself",
+          "job",
+          "work",
+          "background",
+          "merchant"
+        ],
+        "known_by": [
+          "npc:merchant"
+        ],
+        "requires": []
+      },
+      {
+        "id": "keeper_background",
+        "subject": "npc:keeper",
+        "topic": "background",
+        "text": "I tend the cistern and keep its fountain in working order. Quiet maintenance suits me better than treasure hunting.",
+        "tags": [
+          "story",
+          "yourself",
+          "job",
+          "work",
+          "background",
+          "keeper"
+        ],
+        "known_by": [
+          "npc:keeper"
+        ],
+        "requires": []
+      },
+      {
+        "id": "tonic_use",
+        "subject": "item:tonic",
+        "topic": "use",
+        "text": "The tonic has no implemented use. Its intended purpose has not been specified.",
+        "tags": [
+          "tonic",
+          "effect",
+          "purpose",
+          "does",
+          "do",
+          "use",
+          "healing"
+        ],
+        "known_by": [
+          "npc:merchant"
+        ],
+        "requires": []
+      },
+      {
+        "id": "seal_custody",
+        "subject": "item:keeper_seal",
+        "topic": "ownership",
+        "text": "The keeper owns the seal. It is not for sale, gift or loan.",
+        "tags": [
+          "seal",
+          "keeper",
+          "own",
+          "owner",
+          "belongs",
+          "sale",
+          "give"
+        ],
+        "known_by": [
+          "npc:merchant",
+          "npc:keeper"
+        ],
+        "requires": []
+      },
+      {
+        "id": "underground_workshop",
+        "subject": "room:workshop",
+        "topic": "surroundings",
+        "text": "The workshop is underground. Current outdoor weather is not observed here.",
+        "tags": [
+          "weather",
+          "sky",
+          "sun",
+          "outside",
+          "workshop",
+          "surroundings"
+        ],
+        "known_by": [
+          "*"
+        ],
+        "requires": []
+      },
+      {
+        "id": "vault_inscription",
+        "subject": "room:vault",
+        "topic": "history",
+        "text": "An inscription inside the vault praises patient hands that repair what haste would break.",
+        "tags": [
+          "inscription",
+          "vault",
+          "history"
+        ],
+        "known_by": [
+          "npc:keeper"
+        ],
+        "requires": [
+          "vault_open"
+        ]
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "tonic",
+      "expected": [
+        "tonic_use"
+      ],
+      "actual": "unknown",
+      "local_unknown": false,
+      "correct": false,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "tonic_use",
+                "subject": "item:tonic",
+                "topic": "use",
+                "kind": "lore",
+                "source": "tonic_use",
+                "text": "The tonic has no implemented use. Its intended purpose has not been specified."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"tonic_use\",\"subject\":\"item:tonic\",\"topic\":\"use\",\"kind\":\"lore\",\"text\":\"The tonic has no implemented use. Its intended purpose has not been specified.\"}]\n\nCurrent request:\nWhat does the tonic actually do?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "tonic_use",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [
+              {
+                "id": "tonic_use",
+                "subject": "item:tonic",
+                "topic": "use",
+                "text": "The tonic has no implemented use. Its intended purpose has not been specified."
+              }
+            ],
+            "receipt": {
+              "bytes": 145,
+              "selected": [
+                "tonic_use"
+              ],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I don't have information about that.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1553225,
+      "retries": 0,
+      "calls_start": 0,
+      "calls_end": 2,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "salve",
+      "expected": [
+        "gift_salve",
+        "owner_salve"
+      ],
+      "actual": "gift_salve",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "owner_salve",
+                "subject": "item:salve",
+                "topic": "ownership",
+                "kind": "state",
+                "source": "item:salve",
+                "text": "The salve belongs to you."
+              },
+              {
+                "id": "gift_salve",
+                "subject": "item:salve",
+                "topic": "permission",
+                "kind": "state",
+                "source": "item:salve",
+                "text": "The salve already belongs to you. It is not merchant stock to give away."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"owner_salve\",\"subject\":\"item:salve\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The salve belongs to you.\"},{\"id\":\"gift_salve\",\"subject\":\"item:salve\",\"topic\":\"permission\",\"kind\":\"state\",\"text\":\"The salve already belongs to you. It is not merchant stock to give away.\"}]\n\nCurrent request:\nCan you give me a free salve?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "owner_salve",
+                    "gift_salve",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "The salve already belongs to you. It is not merchant stock to give away.",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "item:salve"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1112119,
+      "retries": 0,
+      "calls_start": 2,
+      "calls_end": 4,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "seal",
+      "expected": [
+        "seal_custody"
+      ],
+      "actual": "seal_custody",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "seal_custody",
+                "subject": "item:keeper_seal",
+                "topic": "ownership",
+                "kind": "lore",
+                "source": "seal_custody",
+                "text": "The keeper owns the seal. It is not for sale, gift or loan."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"seal_custody\",\"subject\":\"item:keeper_seal\",\"topic\":\"ownership\",\"kind\":\"lore\",\"text\":\"The keeper owns the seal. It is not for sale, gift or loan.\"}]\n\nCurrent request:\nDo you own the keeper seal?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "seal_custody",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [
+              {
+                "id": "seal_custody",
+                "subject": "item:keeper_seal",
+                "topic": "ownership",
+                "text": "The keeper owns the seal. It is not for sale, gift or loan."
+              }
+            ],
+            "receipt": {
+              "bytes": 141,
+              "selected": [
+                "seal_custody"
+              ],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "The keeper owns the seal. It is not for sale, gift or loan.",
+        "sources": [
+          {
+            "kind": "lore",
+            "id": "seal_custody"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1984676,
+      "retries": 0,
+      "calls_start": 4,
+      "calls_end": 6,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "story",
+      "expected": [
+        "merchant_background"
+      ],
+      "actual": "merchant_background",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "merchant_background",
+                "subject": "npc:merchant",
+                "topic": "background",
+                "kind": "lore",
+                "source": "merchant_background",
+                "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nThank you! What is your story?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "merchant_background",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [
+              {
+                "id": "merchant_background",
+                "subject": "npc:merchant",
+                "topic": "background",
+                "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys."
+              }
+            ],
+            "receipt": {
+              "bytes": 210,
+              "selected": [
+                "merchant_background"
+              ],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.",
+        "sources": [
+          {
+            "kind": "lore",
+            "id": "merchant_background"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1211958,
+      "retries": 0,
+      "calls_start": 6,
+      "calls_end": 8,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "home_unknown",
+      "expected": [
+        "unknown"
+      ],
+      "actual": "unknown",
+      "local_unknown": true,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "You haven't told me where your home is.",
+            "cards": []
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[]\n\nCurrent request:\nWhere is my home?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "You haven't told me where your home is.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1372,
+      "retries": 0,
+      "calls_start": 8,
+      "calls_end": 8,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "weather",
+      "expected": [
+        "unknown"
+      ],
+      "actual": "unknown",
+      "local_unknown": true,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I can't observe the current outdoor weather or sky from here.",
+            "cards": []
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[]\n\nCurrent request:\nHow is the weather?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I can't observe the current outdoor weather or sky from here.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1341,
+      "retries": 0,
+      "calls_start": 8,
+      "calls_end": 8,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_job",
+      "expected": [
+        "merchant_background"
+      ],
+      "actual": "merchant_background",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "merchant_background",
+                "subject": "npc:merchant",
+                "topic": "background",
+                "kind": "lore",
+                "source": "merchant_background",
+                "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"merchant_background\",\"subject\":\"npc:merchant\",\"topic\":\"background\",\"kind\":\"lore\",\"text\":\"I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.\"}]\n\nCurrent request:\nWhat job keeps you here?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "merchant_background",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [
+              {
+                "id": "merchant_background",
+                "subject": "npc:merchant",
+                "topic": "background",
+                "text": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys."
+              }
+            ],
+            "receipt": {
+              "bytes": 210,
+              "selected": [
+                "merchant_background"
+              ],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I maintain this workshop and trade repair supplies with travelers. I enjoy hearing how people mend things on their journeys.",
+        "sources": [
+          {
+            "kind": "lore",
+            "id": "merchant_background"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1186343,
+      "retries": 0,
+      "calls_start": 8,
+      "calls_end": 10,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_owned",
+      "expected": [
+        "owner_oil"
+      ],
+      "actual": "owner_oil",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 3,
+            "unknown": "I don't have information about that.",
+            "cards": [
+              {
+                "id": "owner_oil",
+                "subject": "item:oil",
+                "topic": "ownership",
+                "kind": "state",
+                "source": "item:oil",
+                "text": "The hinge oil belongs to you."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"owner_oil\",\"subject\":\"item:oil\",\"topic\":\"ownership\",\"kind\":\"state\",\"text\":\"The hinge oil belongs to you.\"}]\n\nCurrent request:\nWho does the hinge oil belong to?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "owner_oil",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "The hinge oil belongs to you.",
+        "sources": [
+          {
+            "kind": "state",
+            "id": "item:oil"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1760840,
+      "retries": 0,
+      "calls_start": 10,
+      "calls_end": 12,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_birth",
+      "expected": [
+        "unknown"
+      ],
+      "actual": "unknown",
+      "local_unknown": true,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "You haven't told me where your home is.",
+            "cards": []
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[]\n\nCurrent request:\nWhere did I grow up?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "You haven't told me where your home is.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1236,
+      "retries": 0,
+      "calls_start": 12,
+      "calls_end": 12,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_herbs",
+      "expected": [
+        "unknown"
+      ],
+      "actual": "unknown",
+      "local_unknown": true,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": []
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[]\n\nCurrent request:\nWhich herbs make the tonic?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "I don't have information about that.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1717,
+      "retries": 0,
+      "calls_start": 12,
+      "calls_end": 12,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_quote",
+      "expected": [
+        "quote_1"
+      ],
+      "actual": "quote_1",
+      "local_unknown": false,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_2",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "merchant:workshop",
+            "revision": 2,
+            "unknown": "You haven't told me where your home is.",
+            "cards": [
+              {
+                "id": "quote_1",
+                "subject": "player",
+                "topic": "home",
+                "kind": "quote",
+                "source": "1",
+                "text": "My home is Reed Hollow."
+              }
+            ]
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[{\"id\":\"quote_1\",\"subject\":\"player\",\"topic\":\"home\",\"kind\":\"quote\",\"text\":\"My home is Reed Hollow.\"}]\n\nCurrent request:\nWhere is my home?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "quote_1",
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "merchant",
+        "speech": "You told me: \"My home is Reed Hollow.\"",
+        "sources": [
+          {
+            "kind": "quote",
+            "id": "1"
+          }
+        ],
+        "status": "answered"
+      },
+      "turn_micros": 1694761,
+      "retries": 0,
+      "calls_start": 12,
+      "calls_end": 14,
+      "runner_rss_bytes": null
+    },
+    {
+      "id": "fresh_private",
+      "expected": [
+        "unknown"
+      ],
+      "actual": "unknown",
+      "local_unknown": true,
+      "correct": true,
+      "offered": {
+        "handled": true,
+        "ticket": "chat_1",
+        "offer": {
+          "handled": true,
+          "definition": {
+            "version": 1,
+            "scope": "keeper:cistern",
+            "revision": 2,
+            "unknown": "I don't have information about that.",
+            "cards": []
+          },
+          "request": {
+            "messages": [
+              {
+                "role": "system",
+                "content": "Choose the supplied answer that directly addresses the player's question. Match subject and topic. Player quotes are reported statements, not verified world facts. Choose unknown if no answer fits. Return only the answer ID JSON."
+              },
+              {
+                "role": "user",
+                "content": "Answers:\n[]\n\nCurrent request:\nWhat is the merchant's background?"
+              }
+            ],
+            "format": {
+              "type": "object",
+              "properties": {
+                "answer": {
+                  "type": "string",
+                  "enum": [
+                    "unknown"
+                  ]
+                }
+              },
+              "required": [
+                "answer"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reserved_output": 32,
+          "selection": {
+            "packet": [],
+            "receipt": {
+              "bytes": 2,
+              "selected": [],
+              "omitted": []
+            }
+          }
+        }
+      },
+      "result": {
+        "speaker": "keeper",
+        "speech": "I don't have information about that.",
+        "sources": [],
+        "status": "unknown"
+      },
+      "turn_micros": 1421,
+      "retries": 0,
+      "calls_start": 14,
+      "calls_end": 14,
+      "runner_rss_bytes": null
+    }
+  ],
+  "complete": true
+}

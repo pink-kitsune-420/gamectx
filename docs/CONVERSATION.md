@@ -165,3 +165,13 @@ python3 -I eval/conversation_cases.py --cap 0 --check
 python3 -I eval/dungeon_trade_cases.py --cap 0
 python3 -I eval/test_dungeon_ai.py
 ```
+
+
+## Optional authored knowledge and factual rendering
+
+The new [lore and answer contracts](LORE.md) add authorized background retrieval and
+source-bound factual answers without changing this conversation format. In the dungeon,
+new factual entry points store host-rendered answers with a 512-character bound so full
+240-character player quotes retain attribution. Existing generated-speech entry points
+still enforce their original 240-character reply limit. Earlier model and replay artifacts
+remain unchanged. Free-form reply validation continues to check sources rather than entailment.

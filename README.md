@@ -41,6 +41,19 @@ use the existing query and metadata APIs; hosts retain inventory ownership.
 sequences: transaction handling and name recall work, while free-form speech can still
 invent player history or item purposes. The offline audit separates those outcomes.
 
+## Authored world information (unreleased)
+
+Use `cargo run --example dungeon -- --ai --world examples/dungeon/world.json` to load
+editable character backgrounds and world facts. Only relevant, authorized records reach
+a character. Factual questions select a host-supplied source or an explicit unknown;
+player quotes stay distinct from lore and current inventory. Open-ended dialogue remains
+generated. `--dialogue legacy` selects the earlier control.
+
+The reusable [lore and answer APIs](docs/LORE.md) keep the Rust core dependency-free.
+[Local tests](docs/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
+20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local
+regression repair; these are small diagnostics, not universal accuracy. Every run $0 API.
+
 ## Further local optimizations (unreleased)
 
 [Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,

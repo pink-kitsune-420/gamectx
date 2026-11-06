@@ -175,3 +175,12 @@ validate snapshots and build identical packets; fixture parsing before the timer
 excluded. This measures one small synthetic registration workload, not engine frame rates
 or model latency. Raw evidence: [workflow checks](../eval/kit-results.json),
 [timing trials](../eval/kit-performance.json). New API spend: **$0**.
+
+
+## Authored lore and factual answers (unreleased)
+
+`lore::Lore` loads a bounded world-info definition once and selects records only after
+host-supplied actor/grant checks. Its model packet can be supplied as a recipe section
+or protected scene fact; section values still require host authorization. `dialogue::Answers`
+provides bounded source-ID selection and host-rendered facts/quotes with current source
+validation. Existing registrations/recipes remain unchanged. [Guide](LORE.md).

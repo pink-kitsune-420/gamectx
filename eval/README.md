@@ -1037,3 +1037,35 @@ and two purchases in separate successful-purchase sequences. It checks unchanged
 state for speech and original-player-only quote retention against the Python reference.
 The current validator accepts some factually wrong speech; acceptance is not correctness.
 No model is called; new API spend $0. CI runs the offline audit. [Report](../docs/DUNGEON_FEEDBACK.md).
+
+
+## Authored lore and source-bound local answers
+
+[LORE_EVAL](../docs/LORE_EVAL.md) records the full pilot history, token/accuracy usage,
+latency definitions and remaining failures. All runs use the same installed Qwen 3.09B
+Q4_K_M, four CPU threads, context 2048; every run spends $0 API. Frozen v1–v4 reference
+policies retain failed routing. Current policy is `dungeon_knowledge_reference.py`.
+
+```sh
+cargo build --locked
+cargo build --example dungeon --locked
+python3 -I eval/lore_cases.py --cap 0 --check
+python3 -I eval/dungeon_knowledge_cases.py --cap 0
+python3 -I eval/test_dungeon_knowledge.py
+python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
+```
+
+There are 108 independent core workflows, 28 new conformance cases, 60 byte-identical
+native example request workflows, eleven front-end checks and 30000 added mutations. After
+building the native bridge, `lore_cases.py --cap 0 --check-bindings` checks both transports.
+
+For new generation, `lore_native_eval.py --cap 0 --cohort extra --tokens-only --output
+<fresh-file>` precedes a matching `--tokens <file>` accuracy run. Native cohorts are
+regression/fresh/extra/repair; all older question sets are now known regression data.
+Freshness labels describe when questions were first introduced, not an untouched holdout
+on reruns. Calls are capped at 96 including preflights/corrections/failures. Complete-turn
+timing starts before native hydration and ends after source validation/conversation finish;
+scenario setup and extra audit state fetch are excluded. Per-turn missing memory stays null.
+`lore_memory.py --cap 0 --results <artifact> --output <fresh-file>` takes a separate warm
+post-run memory sample, not a peak or per-turn measurement. No script pulls weights,
+changes services, contacts a hosted endpoint or reads credentials. CI only audits saved data.

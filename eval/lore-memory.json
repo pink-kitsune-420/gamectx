@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "kind": "post_run_sample",
+  "identity": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+    "quantization": "Q4_K_M",
+    "template_sha256": "e94a8ecb9327ded799604a2e478659bc759230fe316c50d686358f932f52776c",
+    "runner": "0.40.3"
+  },
+  "resident_models": [
+    {
+      "name": "arzaan789/qwen2.5-3b-uncensored:latest",
+      "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+      "size": 2086561381,
+      "size_vram": 0,
+      "context_length": 2048
+    }
+  ],
+  "runner_rss_bytes": 2180976640,
+  "rust_host_rss_bytes": 4694016,
+  "evaluation_process_rss_bytes": 23695360,
+  "system_available_bytes": 3011461120,
+  "system_swap_in_bytes_cumulative": 21715673088,
+  "system_swap_out_bytes_cumulative": 41456226304,
+  "model_calls": 0,
+  "api_spend_usd": 0
+}

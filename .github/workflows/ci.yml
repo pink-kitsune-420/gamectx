@@ -26,6 +26,10 @@ jobs:
       - run: python3 -I eval/conversation_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_trade_cases.py --cap 0
       - run: python3 -I eval/check_dungeon_feedback.py --cap 0
+      - run: python3 -I eval/lore_cases.py --cap 0 --check
+      - run: python3 -I eval/dungeon_knowledge_cases.py --cap 0
+      - run: python3 -I eval/test_dungeon_knowledge.py
+      - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
       - run: python3 -I eval/test_dungeon_ai.py
       - run: python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
       - run: python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json
@@ -98,6 +102,7 @@ jobs:
       - run: cargo +stable build --manifest-path bindings/native/Cargo.toml --locked
       - run: python3 -I eval/workflow_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/conversation_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/lore_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/optimization_cases.py --check-bindings
       - run: python3 -I eval/kit_bindings_check.py --csharp-fixtures target/kit-csharp
       - run: node eval/kit_bindings_check.mjs

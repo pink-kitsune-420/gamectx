@@ -13,6 +13,23 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds bounded authored-lore loading/selection and source-bound factual answer
+  cards, actor/grant filtering, required-fit errors, live-over-lore field precedence,
+  exact attributed player quotes and live source/revision validation. Rust stays
+  dependency-free; old APIs/default outputs remain compatible.
+- **[format]** Adds local kinds `lore` and `answers`, 28 conformance cases; all 633 prior
+  cases unchanged. Independent Python/Rust: 108 workflows, plus 60 native example
+  request workflows, 11 front-end regressions and 30000 added text mutations.
+- **[api]** Dungeon AI conversations now load authorized lore and use factual source
+  selection before free-form dialogue. Adds editable world.json, `--world`,
+  `--dialogue sources|legacy` and example knowledge host operations. Existing generated
+  speech stays bounded at 240 characters; new host-rendered facts/quotes allow 512.
+- **[docs]** Preserves every local pilot: native 11/12, first fresh questions 17/20,
+  tuned rerun 20/20, additional questions 7/8, final local disclosure repair 1/1 without
+  a model call. Core byte fixture 1669→145 selected lore bytes; no lossless/token claim.
+  Timing/usage and a separate warm RSS sample are recorded with their limits. All new
+  runs $0 API; no larger models loaded. [Report](docs/LORE_EVAL.md).
+
 - **[internal]** Preserves 11 user-reported dungeon interaction sequences / 26 turns
   with separate manual grounding/recall/transaction annotations. Offline native/Python
   audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets,

@@ -4,6 +4,8 @@ mod game;
 mod host;
 #[path = "../examples/dungeon/intent.rs"]
 mod intent;
+#[path = "../examples/dungeon/knowledge.rs"]
+mod knowledge;
 #[path = "../examples/dungeon/social.rs"]
 mod social;
 #[path = "../examples/dungeon/trade.rs"]

@@ -14,6 +14,34 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "lore" => {
+            c::fields(a, &["world", "select"])?;
+            crate::lore::Lore::from_value(c::get(a, "world")?)?.select(c::get(a, "select")?)
+        }
+        "answers" => {
+            c::fields(a, &["definition", "calls"])?;
+            let answers = crate::dialogue::Answers::from_value(c::get(a, "definition")?)?;
+            let calls = c::list(c::get(a, "calls")?)?;
+            if calls.len() > 8 {
+                return Err(c::bad());
+            }
+            let mut results = Vec::new();
+            for call in calls {
+                c::fields(call, &["text", "context", "available"])?;
+                let available = c::list(c::get(call, "available")?)?;
+                if available.len() > 32 {
+                    return Err(c::bad());
+                }
+                let result = answers.resolve(c::text(c::get(call, "text")?)?, c::get(call, "context")?, |s| {
+                    available.iter().any(|v| v.same(s))
+                });
+                results.push(match result {
+                    Ok(v) => obj! {"ok"=>true,"result"=>v},
+                    Err(_) => obj! {"ok"=>false},
+                });
+            }
+            Ok(obj! {"offer"=>answers.offer(),"schema"=>answers.schema(),"results"=>results})
+        }
         "conversation" => crate::dialogue::conversation_workflow(a),
         "references" => crate::dialogue::resolve_references(a),
         "confirmation" => crate::decision::confirmation_workflow(a),

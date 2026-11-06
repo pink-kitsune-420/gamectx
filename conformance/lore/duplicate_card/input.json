@@ -1,0 +1,64 @@
+{
+  "kind": "answers",
+  "args": {
+    "definition": {
+      "version": 1,
+      "scope": "player:trader",
+      "revision": 7,
+      "unknown": "You haven't supplied that information.",
+      "cards": [
+        {
+          "id": "price",
+          "subject": "item:oil",
+          "topic": "price",
+          "kind": "state",
+          "source": "item:oil",
+          "text": "The oil costs 3 coins."
+        },
+        {
+          "id": "quote_1",
+          "subject": "player",
+          "topic": "home",
+          "kind": "quote",
+          "source": "1",
+          "text": "My home is Reed Hollow."
+        },
+        {
+          "id": "price",
+          "subject": "item:oil",
+          "topic": "price",
+          "kind": "state",
+          "source": "item:oil",
+          "text": "The oil costs 3 coins."
+        },
+        {
+          "id": "quote_1",
+          "subject": "player",
+          "topic": "home",
+          "kind": "quote",
+          "source": "1",
+          "text": "My home is Reed Hollow."
+        }
+      ]
+    },
+    "calls": [
+      {
+        "text": "{\"answer\":\"price\"}",
+        "context": {
+          "scope": "player:trader",
+          "revision": 7
+        },
+        "available": [
+          {
+            "kind": "state",
+            "id": "item:oil"
+          },
+          {
+            "kind": "quote",
+            "id": "1"
+          }
+        ]
+      }
+    ]
+  }
+}

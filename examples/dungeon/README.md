@@ -282,3 +282,41 @@ words and game effects remain example policies. All old social fixtures and froz
 cohorts still audit unchanged. A separate independent trade reference verifies 66
 workflows / 144 trade requests across six seeds with zero model calls; 11 front-end
 regressions and a real launcher smoke cover the reported loop. New API spend $0.
+
+
+## Authored world file and factual dialogue
+
+AI conversation now defaults to `--dialogue sources`. Keep using your installed local
+model; no new model is required. Start with the editable file:
+
+```sh
+cargo run --example dungeon -- --ai --size 3 --seed 7 --world examples/dungeon/world.json
+```
+
+Edit the merchant/keeper backgrounds, stable lore IDs, topics, tags, `known_by` audiences
+and `requires` knowledge grants. The file loads once; restart to apply edits. Omitting
+`--world` uses the embedded example. Lore cannot set coins, transfer items or waive rules.
+Only authorized relevant records reach a character. The keeper's vault inscription also
+requires the host's `vault_open` grant. See [LORE](../../docs/LORE.md) for exact format/bounds.
+
+Factual questions select a supplied source ID or an explicit unknown; the host renders
+the answer. Player disclosures use exact quotes and attribution, while current ownership,
+prices and balance come from the engine. This prevents added prose within that factual
+path, but a wrong valid source can still be selected. Missing player attributes and
+unobserved outdoor weather have unknown responses. An unrelated disclosure must not be
+filled using an NPC biography or a name quote.
+
+Open-ended conversation uses selected authored character lore alongside current facts;
+generated prose remains unverified. `--dialogue legacy` restores the earlier control
+while retaining local trade confirmation. New factual answers may be up to 512 characters
+to keep a complete 240-character player quote; legacy generated speech remains 240.
+The English question policy is deliberately bounded and can miss paraphrases or need
+clarification. [Measured successes and failures](../../docs/LORE_EVAL.md) include twenty
+new questions and eight additional questions, with all raw results retained.
+
+Host additions: `knowledge_prepare` takes `{speaker,input,context,size,choices_limit?}` and returns a
+one-use factual offer or dialogue fallback; send only its `offer.request` to the model.
+`knowledge_finish` takes `{ticket,text}` with strict `{answer:id}` model text and rechecks
+current scope/revision/source before returning `{speaker,speech,sources,status}`.
+`lore_speech_prepare` accepts the existing speech-prepare args and adds authorized authored
+lore to free-form dialogue. Existing host operation outputs remain unchanged.

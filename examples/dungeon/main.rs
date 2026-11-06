@@ -2,6 +2,7 @@
 mod game;
 mod host;
 mod intent;
+mod knowledge;
 mod social;
 mod trade;
 use game::{fields, get, text, uint, GOAL};
@@ -134,15 +135,25 @@ fn run() -> Result<()> {
     let mut context = None::<u32>;
     let mut size = "3".to_owned();
     let mut guidance = "focused".to_owned();
+    let mut world_path = None::<String>;
+    let mut dialogue_mode = "sources".to_owned();
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default) or legacy\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
             }
             "--play" => mode = "play",
             "--ai" => mode = "ai",
+            "--world" => {
+                i += 1;
+                world_path = Some(args.get(i).ok_or_else(|| Error::new("missing world file"))?.clone());
+            }
+            "--dialogue" => {
+                i += 1;
+                dialogue_mode = args.get(i).ok_or_else(|| Error::new("missing dialogue mode"))?.clone();
+            }
             "--model" => {
                 i += 1;
                 model = args.get(i).ok_or_else(|| Error::new("missing model"))?.clone();
@@ -199,6 +210,10 @@ fn run() -> Result<()> {
             .arg(size)
             .arg("--guidance")
             .arg(guidance);
+        command.arg("--dialogue").arg(dialogue_mode);
+        if let Some(path) = world_path {
+            command.arg("--world").arg(path);
+        }
         if let Some(context) = context {
             command.arg("--context").arg(context.to_string());
         }
@@ -222,7 +237,11 @@ fn run() -> Result<()> {
         println!("{}", if mode == "social-replay" { social::replay(&v)? } else { game::replay(&v)? }.to_json());
         return Ok(());
     }
-    let mut host = host::Host::new(seed)?;
+    let mut host = if let Some(path) = world_path {
+        host::Host::with_world(seed, gamectx::lore::Lore::read(path)?)?
+    } else {
+        host::Host::new(seed)?
+    };
     if mode == "serve" {
         let stdin = io::stdin();
         let mut reader = stdin.lock();
