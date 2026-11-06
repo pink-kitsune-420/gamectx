@@ -13,6 +13,10 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[internal]** Adds cross-language release regression coverage for all 126 new
+  information/inventory/conversation workflows: Python CLI/native 252, Node 126, C#
+  native 126, totaling 504 checks. CI retains the new fixtures; Rust formats unchanged.
+
 - **[api]** Adds individually selectable conversation tools for witnessed events, reported
   promises and relationship notes, original-utterance reference resolution and exact
   recipient-bound offers. Supports explicit participant IDs/private scopes; the dungeon

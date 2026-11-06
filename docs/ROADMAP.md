@@ -167,6 +167,12 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## New local work (unreleased)
 
+- Release-readiness transport coverage: 126 new information/inventory/conversation
+  workflows × four transports = 504 checks (Python CLI/native, Node, C# native), $0 API.
+  Added to CI; all 747 core conformance cases unchanged. Full offline/model-artifact
+  audit, Rust 1.82, isolated package tests and publish dry run pass. Live-model
+  tool-selection accuracy remains unmeasured; natural speech remains experimental.
+
 - Optional conversation tools: 87 independent Python/Rust workflows, 47 new conformance
   cases, 30000 mutations. Explicit participant scopes, visible events, reported promises/
   relationships, host progress, bound original-utterance references and recipient consent.

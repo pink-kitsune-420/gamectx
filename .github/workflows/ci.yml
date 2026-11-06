@@ -113,10 +113,13 @@ jobs:
       - run: python3 -I eval/kit_bindings_check.py --csharp-fixtures target/kit-csharp
       - run: node eval/kit_bindings_check.mjs
       - run: python3 -I eval/local_bindings_check.py
+      - run: python3 -I eval/information_bindings_check.py --cap 0 --fixtures target/information-csharp
+      - run: node eval/information_bindings_check.mjs --cap 0 target/information-csharp
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/local-csharp/requests.txt target/local-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/information-csharp/requests.txt target/information-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

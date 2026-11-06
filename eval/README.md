@@ -1110,3 +1110,21 @@ attempts. The 120-event byte fixture selects two records from 80 authorized even
 8589→231 bytes. Eight schema bytes total 3127; enable only useful tools for each turn.
 All checks are offline, $0 API, and do not establish live-model accuracy or latency.
 [Privacy, multiplayer and consent contracts](../docs/INTERACTIONS.md).
+
+
+## Information-tool transport regressions
+
+After building the CLI and native library:
+
+```bash
+python3 -I eval/information_bindings_check.py --cap 0 --fixtures target/information-csharp
+node eval/information_bindings_check.mjs --cap 0 target/information-csharp
+mcs -out:target/information-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
+LD_LIBRARY_PATH=bindings/native/target/debug mono target/information-csharp/Check.exe examples/kit/project.json target/information-csharp/requests.txt target/information-csharp/expected.txt
+```
+
+126 independent information/inventory/conversation workflows cross both Python transports
+(252 checks), Node (126) and C# native (126): **504 transport checks**, including Unicode,
+reported evidence, rejected source/owner injection, private events, promise progress,
+recipient confirmation and stale/replayed offers. CI now runs these checks. API spend $0;
+these checks exercise native behavior, not live-model tool-selection accuracy.
