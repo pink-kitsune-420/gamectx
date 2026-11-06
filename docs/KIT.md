@@ -224,3 +224,8 @@ remain separate. No runtime work or model calls occur for characters without thi
 Persistent host configure/update/observation/complete/reserve/save/restore operations are
 separate from `routine_status`/`activity_propose`. Python and Node supply helpers; C#/C
 use the existing session ABI. Project formats and immutable native symbols do not change.
+
+Host-only `character_routine_context/wake/affected` operations add explicit task evidence
+selection (including required tokens), timer hints and planning-event dependency checks.
+They use the same persistent session and never register model functions. Complete request
+counting is still required after replacing selected context. [Tested example](../examples/routine-context.rs).

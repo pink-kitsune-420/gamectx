@@ -180,3 +180,64 @@ Validation completed: root/native formatting and strict Clippy, root/native test
 rustdoc, Rust 1.82, 75 offline CI commands, 17 binding CI commands, all previous C#
 fixtures, package verification and the credential/local-reference sweep. No push, tag
 or publication was performed.
+
+## Optional task selection and responsive wakeups
+
+`cargo run --example routine-context --locked` runs the
+[tested host example](../examples/routine-context.rs). `observation::Selection` filters
+actual experiences by kind, location and time-source type, and pins required native
+tokens. Empty filters mean all values; there is no semantic guessing or unrelated
+fallback. Missing, expired or filtered-out required tokens fail selection. The host
+must explicitly expand `context_observations` before requesting more records.
+`Runtime::context_for` returns the same shape as `context`, deriving its time view only
+from selected observations and an explicitly enabled approximate routine phase. The
+ordinary default context and existing tool outputs retain their byte contracts.
+
+Use `affected(changed_conditions,changed_activities)` to avoid waking routines for
+unrelated planning events. It checks authored requirements/activity IDs, not sensor or
+privacy policy. Always handle perception, permission and scope changes independently.
+`next_wake()` includes eligible window starts/deadlines, entries into the rolling horizon,
+interruption protection ending when a higher-priority activity waits, and observation
+expiry. It returns the earliest useful timer subject to `interval`, or none. The engine
+marks the existing scheduler job changed at that tick; external emergencies still arrive
+as host events. Scheduler overload/intervals may delay work, so validate current engine
+state again before dispatch. Refresh the frame to the current tick before conversation.
+
+Persistent host operations (not model functions) add:
+
+| Operation | Additional fields beyond `id` |
+|---|---|
+| `character_routine_context` | `selection,revision,max_bytes` (64..32,768) |
+| `character_routine_wake` | none; returns `revision,at` (nullable) |
+| `character_routine_affected` | `conditions,activities`; returns `affected` |
+
+Python helpers use `routine_context`, `routine_wake`, `routine_affected`; Node uses
+camelCase equivalents. These reads do not grant model tools or execute actions. Recount
+any request after changing its selected context, even when the runtime revision is equal.
+
+The independent follow-up prototype adds **54** workflows (**48** accepted, **6** rejected)
+and **9** additive conformance cases; all **818** earlier outputs stay unchanged. The
+expanded persistent suite has **52** fixtures (the original 43 plus nine): Python
+CLI/native **104** checks, Node **52**, C# **52**. Selection adds **10,000** mutation
+iterations. In one deliberately noisy fixture, newest-three observations take **2,102
+JSON bytes** and omit required token 1; explicit task selection retains it in **371 bytes**.
+This is host-selected observation JSON, not lossless compression, full-request tokens
+or a model-accuracy result.
+
+Runtime updates now preflight history time before the existing atomic timeline update,
+avoiding a full history clone. Seven alternating release pairs of **1,000** synthetic
+updates with **128** retained records measured median **328,934,760 ns** with a whole-runtime
+transaction clone versus **6,986,127 ns** with preflight and a bounded timeline clone.
+Both arms assert identical final state. Setup/initial cloning is outside the timer;
+frame construction/validation is inside both. Initial serialized state is **228,575 bytes**.
+The paired process peak RSS was **4,488 KiB** for both arms together, excluding any model.
+These are one single-threaded host microbenchmark, not NPC frame deadlines, per-character
+RAM, controlled system-memory comparisons or complete model-turn latency. Compiler and
+raw pairs: [routine-performance.json](../eval/routine-performance.json);
+[reproducible benchmark](../eval/routine_bench.rs). Model/API spend remains **$0**.
+
+Follow-up validation also passes root/native formatting, strict Clippy, tests/rustdoc,
+Rust 1.82, 76 offline CI commands, 19 binding CI commands, original/expanded C#
+fixtures, package verification and the reference/credential sweep. Fifteen routine
+unit tests include nonhumanoid overlapping commitments on a 13-tick calendar. Total
+core cases: 827. Live model correctness and complete-turn metrics remain unmeasured.

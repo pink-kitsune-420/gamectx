@@ -169,3 +169,7 @@ Never reuse a count after changing provider formatting or deployment identity.
 These APIs constrain access and structure. They do not prove that unrestricted generated
 speech faithfully uses a tool result. Existing source-selected answers remain the safer
 default; see [the retained diagnostics](CONVERSATION_PATCH_EVAL.md).
+
+Optional task-specific observation selection and timer/dependency hints are documented
+in [ROUTINES](ROUTINES.md#optional-task-selection-and-responsive-wakeups). Required source
+tokens cannot silently disappear; host reads do not enable tools or widen audience scopes.

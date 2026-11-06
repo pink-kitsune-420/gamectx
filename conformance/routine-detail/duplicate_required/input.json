@@ -1,0 +1,257 @@
+{
+  "kind": "routine-detail",
+  "args": {
+    "definition": {
+      "version": 1,
+      "id": "merchant",
+      "revision": 1,
+      "calendar": "cycle:37",
+      "activities": [
+        {
+          "id": "work",
+          "location": "shop",
+          "start": 0,
+          "end": 12,
+          "repeat": 37,
+          "priority": 10,
+          "requirements": [],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        },
+        {
+          "id": "customer",
+          "location": "shop",
+          "start": 0,
+          "end": 12,
+          "repeat": 37,
+          "priority": 20,
+          "requirements": [
+            "customer"
+          ],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        },
+        {
+          "id": "walk",
+          "location": "court",
+          "start": 12,
+          "end": 16,
+          "repeat": 37,
+          "priority": 1,
+          "requirements": [
+            "route"
+          ],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        }
+      ]
+    },
+    "defaults": {
+      "routines": true,
+      "history": true,
+      "time": true,
+      "time_sources": [
+        "sun",
+        "instrument",
+        "report",
+        "routine"
+      ]
+    },
+    "overrides": {},
+    "frames": [
+      {
+        "revision": 1,
+        "now": 0,
+        "conditions": [
+          "route"
+        ],
+        "allowed": [
+          "work",
+          "walk",
+          "customer"
+        ],
+        "emergency": false
+      }
+    ],
+    "observations": [
+      {
+        "token": 1,
+        "observer": "merchant",
+        "location": "shop",
+        "at": 0,
+        "expires": 100,
+        "kind": "direct",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "sun",
+          "calendar": "cycle:37",
+          "low": 3,
+          "high": 5,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      },
+      {
+        "token": 2,
+        "observer": "merchant",
+        "location": "court",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:1",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 1
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      },
+      {
+        "token": 3,
+        "observer": "merchant",
+        "location": "shop",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:2",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 2
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      },
+      {
+        "token": 4,
+        "observer": "merchant",
+        "location": "court",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:3",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 3
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      },
+      {
+        "token": 5,
+        "observer": "merchant",
+        "location": "shop",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:4",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 4
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      },
+      {
+        "token": 6,
+        "observer": "merchant",
+        "location": "court",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:5",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 5
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      },
+      {
+        "token": 7,
+        "observer": "merchant",
+        "location": "shop",
+        "at": 0,
+        "expires": 100,
+        "kind": "report",
+        "source": {
+          "id": "report:6",
+          "speaker": "player",
+          "text": "Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. Unrelated stock tally. "
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "count": 6
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": null
+      }
+    ],
+    "now": 0,
+    "selection": {
+      "kinds": [],
+      "locations": [],
+      "time_sources": [
+        "sun"
+      ],
+      "required": [
+        1,
+        1
+      ],
+      "limit": 2
+    },
+    "changed_conditions": [
+      "distant"
+    ],
+    "changed_activities": []
+  }
+}

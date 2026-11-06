@@ -1,5 +1,8 @@
 use super::*;
-use crate::{decision::Choices, observation::History};
+use crate::{
+    decision::Choices,
+    observation::{History, Selection},
+};
 /// Optional per-character runtime. Host methods are privileged bridge operations;
 /// only `routine_status` and `activity_propose` can be registered as model tools.
 #[derive(Clone, Debug)]
@@ -73,18 +76,21 @@ impl Runtime {
         }) {
             return Err(c::bad());
         }
-        let mut draft = self.clone();
-        if let Some(t) = &mut draft.timeline {
+        // Preflight the only fallible history check before committing the timeline.
+        // Timeline::update is already atomic; retained history need not be cloned.
+        if let Some(h) = &self.history {
+            h.check_tick(frame.now)?;
+        }
+        if let Some(t) = &mut self.timeline {
             t.update(frame.clone())?;
         } else if !frame.allowed.is_empty() {
             return Err(c::bad());
         }
-        if let Some(h) = &mut draft.history {
+        if let Some(h) = &mut self.history {
             h.advance(frame.now)?;
         }
-        draft.frame = Some(frame);
-        draft.calls = 0;
-        *self = draft;
+        self.frame = Some(frame);
+        self.calls = 0;
         Ok(())
     }
     /// Explicit allowance for complete provider calls, including retries/corrections.
@@ -115,12 +121,6 @@ impl Runtime {
     }
     pub fn context(&self) -> Result<Value> {
         let f = self.frame.as_ref().ok_or_else(c::bad)?;
-        let status = self
-            .timeline
-            .as_ref()
-            .map(Timeline::status)
-            .transpose()?
-            .unwrap_or(obj! {"current"=>Value::Null,"next"=>Value::Null});
         let phase = self.timeline.as_ref().and_then(Timeline::phase);
         let time = self
             .history
@@ -130,9 +130,43 @@ impl Runtime {
             .unwrap_or(obj! {"status"=>"unknown","sources"=>Vec::<Value>::new(),"conflicting"=>false});
         let observations =
             self.history.as_ref().map(|h| h.recent(f.now)).transpose()?.unwrap_or_else(|| Vec::<Value>::new().into());
+        self.context_value(observations, time)
+    }
+    fn context_value(&self, observations: Value, time: Value) -> Result<Value> {
+        let f = self.frame.as_ref().ok_or_else(c::bad)?;
+        let status = self
+            .timeline
+            .as_ref()
+            .map(Timeline::status)
+            .transpose()?
+            .unwrap_or(obj! {"current"=>Value::Null,"next"=>Value::Null});
         Ok(
             obj! {"revision"=>f.revision,"current"=>c::get(&status,"current")?.clone(),"next"=>c::get(&status,"next")?.clone(),"observations"=>observations,"time"=>time},
         )
+    }
+    /// Build an explicit task view, preserving required evidence and deriving time
+    /// from only those selected observations (plus an enabled approximate routine).
+    pub fn context_for(&self, selection: &Selection) -> Result<Value> {
+        let f = self.frame.as_ref().ok_or_else(c::bad)?;
+        let h = self.history.as_ref().ok_or_else(c::bad)?;
+        let selected = h.select(f.now, selection)?;
+        let time = h.time_from_records(f.now, self.timeline.as_ref().and_then(Timeline::phase), c::list(&selected)?)?;
+        self.context_value(selected, time)
+    }
+    pub fn next_wake(&self) -> Option<u64> {
+        let f = self.frame.as_ref()?;
+        let next = [
+            self.timeline.as_ref().and_then(Timeline::next_wake),
+            self.history.as_ref().and_then(|h| h.next_expiry(f.now)),
+        ]
+        .into_iter()
+        .flatten()
+        .min()?
+        .max(f.now + self.config.interval);
+        (next <= u32::MAX as u64).then_some(next)
+    }
+    pub fn affected(&self, conditions: &[&str], activities: &[&str]) -> Result<bool> {
+        self.timeline.as_ref().map_or(Ok(false), |t| t.affected(conditions, activities))
     }
     fn choices(&self) -> Result<(Choices, Vec<usize>)> {
         let t = self.timeline.as_ref().ok_or_else(c::bad)?;
@@ -359,4 +393,60 @@ pub fn fixture(a: &Value) -> Result<Value> {
         history.observe(o)?;
     }
     Ok(obj! {"timeline"=>timeline.to_value(),"time"=>history.time_knowledge(num(a,"now")?,timeline.phase())?})
+}
+
+/// Offline independent-oracle adapter for explicit selection and timer/dependency hints.
+pub fn detail_fixture(a: &Value) -> Result<Value> {
+    bounded(a, 1_500_000)?;
+    c::fields(
+        a,
+        &[
+            "definition",
+            "defaults",
+            "overrides",
+            "frames",
+            "observations",
+            "now",
+            "selection",
+            "changed_conditions",
+            "changed_activities",
+        ],
+    )?;
+    let config = Config::resolve(c::get(a, "defaults")?, c::get(a, "overrides")?)?;
+    let routine = Arc::new(Routine::from_value(c::get(a, "definition")?)?);
+    let mut t = Timeline::new(routine.clone(), config.clone())?;
+    let frames = c::list(c::get(a, "frames")?)?;
+    if frames.len() > 128 {
+        return Err(c::bad());
+    }
+    for f in frames {
+        t.update(Frame::from_value(f)?)?;
+    }
+    let mut h = History::new("fixture", "merchant", &vec!["merchant"].into(), &routine.calendar, config.clone())?;
+    let rows = c::list(c::get(a, "observations")?)?;
+    if rows.len() > 128 {
+        return Err(c::bad());
+    }
+    for o in rows {
+        h.observe(o)?;
+    }
+    let now = num(a, "now")?;
+    let selected = h.select(now, &Selection::from_value(c::get(a, "selection")?)?)?;
+    let time = h.time_from_records(now, t.phase(), c::list(&selected)?)?;
+    let f = t.frame.as_ref().ok_or_else(c::bad)?;
+    let wake = [t.next_wake(), h.next_expiry(f.now)]
+        .into_iter()
+        .flatten()
+        .min()
+        .map(|at| at.max(f.now + config.interval))
+        .filter(|&at| at <= u32::MAX as u64);
+    let conditions = names(c::get(a, "changed_conditions")?, 128)?;
+    let activities = names(c::get(a, "changed_activities")?, 128)?;
+    let affected = t.affected(
+        &conditions.iter().map(String::as_str).collect::<Vec<_>>(),
+        &activities.iter().map(String::as_str).collect::<Vec<_>>(),
+    )?;
+    Ok(
+        obj! {"observations"=>selected,"time"=>time,"next_wake"=>wake.map_or(Value::Null,Value::from),"affected"=>affected},
+    )
 }

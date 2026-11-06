@@ -359,3 +359,118 @@ fn focused_and_expanded_context_keep_required_facts_with_full_request_recounts()
     set(&mut larger, "tool_results", vec!["x".repeat(2048)].into());
     assert!(larger.json_len() + 384 > 2048); // A previous count cannot authorize a larger follow-up.
 }
+
+#[test]
+fn task_selection_preserves_required_older_evidence_and_rejects_missing_sources() {
+    use gamectx::observation::Selection;
+    let mut r = runtime();
+    r.update(frame(1, 1, false, false)).unwrap();
+    let mut o = observation();
+    r.observe(&o).unwrap();
+    for token in 2..=6 {
+        set(&mut o, "token", Value::from(token as u32));
+        set(&mut o, "location", Value::str("shop"));
+        set(&mut o, "kind", Value::str("report"));
+        set(&mut o, "time", Value::Null);
+        r.observe(&o).unwrap();
+    }
+    assert!(!r
+        .context()
+        .unwrap()
+        .get("observations")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|o| o.get("token") == Some(&1u32.into())));
+    let query = obj! {"kinds"=>vec!["direct"],"locations"=>vec!["court"],"time_sources"=>vec!["sun"],"required"=>vec![1],"limit"=>1};
+    let before = r.to_value();
+    let selected = r.context_for(&Selection::from_value(&query).unwrap()).unwrap();
+    assert_eq!(selected.get("observations").unwrap().as_array().unwrap().len(), 1);
+    assert_eq!(selected.get("observations").unwrap().as_array().unwrap()[0].get("token"), Some(&1u32.into()));
+    assert_eq!(before, r.to_value());
+    let mut missing = query.clone();
+    set(&mut missing, "required", vec![99].into());
+    assert!(r.context_for(&Selection::from_value(&missing).unwrap()).is_err());
+    let mut hidden = query.clone();
+    set(&mut hidden, "locations", vec!["private:other"].into());
+    assert!(r.context_for(&Selection::from_value(&hidden).unwrap()).is_err());
+    r.update(frame(2, 50, false, false)).unwrap();
+    assert!(r.context_for(&Selection::from_value(&query).unwrap()).is_err());
+}
+#[test]
+fn timer_hints_cover_horizon_protection_expiry_and_event_dependencies() {
+    let mut r = runtime();
+    assert_eq!(r.next_wake(), None);
+    r.update(frame(1, 0, false, false)).unwrap();
+    assert_eq!(r.next_wake(), Some(11));
+    assert!(!r.affected(&["distant_weather"], &[]).unwrap());
+    assert!(r.affected(&["customer"], &[]).unwrap());
+    assert!(r.affected(&[], &["walk"]).unwrap());
+    assert!(r.affected(&["customer", "customer"], &[]).is_err());
+    r.update(frame(2, 1, true, false)).unwrap();
+    assert_eq!(current(&r), Value::str("work"));
+    assert_eq!(r.next_wake(), Some(2));
+    r.update(frame(3, 2, true, false)).unwrap();
+    assert_eq!(current(&r), Value::str("customer"));
+    assert_eq!(r.next_wake(), Some(11));
+    let mut o = observation();
+    set(&mut o, "at", 2u32.into());
+    set(&mut o, "expires", 4u32.into());
+    r.observe(&o).unwrap();
+    assert_eq!(r.next_wake(), Some(4));
+    // An immediate engine event can still trigger a same-tick emergency revision.
+    r.update(frame(4, 2, false, true)).unwrap();
+    assert_eq!(current(&r), Value::str("work"));
+    let mut def = input().get("definition").unwrap().clone();
+    let mut a = def.get("activities").unwrap().as_array().unwrap()[0].clone();
+    set(&mut a, "start", 1000000u32.into());
+    set(&mut a, "end", 1000010u32.into());
+    set(&mut a, "repeat", Value::Null);
+    set(&mut def, "activities", vec![a].into());
+    let mut t = Timeline::new(Routine::from_value(&def).unwrap(), config(obj! {})).unwrap();
+    t.update(
+        Frame::from_value(
+            &obj! {"revision"=>1,"now"=>0,"conditions"=>Vec::<Value>::new(),"allowed"=>vec!["work"],"emergency"=>false},
+        )
+        .unwrap(),
+    )
+    .unwrap();
+    assert_eq!(t.next_wake(), Some(999900));
+}
+#[test]
+fn cheaper_update_remains_atomic_when_a_new_horizon_overflows() {
+    let cfg = config(obj! {"timeline"=>9,"horizon"=>100});
+    let mut r =
+        Runtime::new("scope:a", "merchant", &vec!["merchant"].into(), "cycle:37", cfg, Some(definition())).unwrap();
+    r.update(frame(1, 1, false, false)).unwrap();
+    let mut o = observation();
+    set(&mut o, "expires", 11u32.into());
+    r.observe(&o).unwrap();
+    let before = r.to_value();
+    assert!(r.update(frame(2, 11, false, false)).is_err());
+    assert_eq!(r.to_value(), before);
+    // Invalid native activity permissions fail after the preflight; history stays intact.
+    let f = Frame::from_value(
+        &obj! {"revision"=>2,"now"=>11,"conditions"=>Vec::<Value>::new(),"allowed"=>vec!["unknown"],"emergency"=>false},
+    )
+    .unwrap();
+    assert!(r.update(f).is_err());
+    assert_eq!(r.to_value(), before);
+}
+
+#[test]
+fn nonhumanoid_overlapping_commitments_keep_stable_intent_and_honor_windows() {
+    let make = |id: &str, start: u32, end: u32, requirement: &str| obj! {"id"=>id,"location"=>"node:2","start"=>start,"end"=>end,"repeat"=>13,"priority"=>20,"requirements"=>vec![requirement],"interrupt"=>"allow","resume"=>"resume","missed"=>"cancel","grace"=>0};
+    let definition=Routine::from_value(&obj!{"version"=>1,"id"=>"drone:maintenance","revision"=>1,"calendar"=>"orbit:13","activities"=>vec![make("antenna",2,7,"commitment:antenna"),make("reactor",0,5,"commitment:reactor")]}).unwrap();
+    let cfg = Config::resolve(&obj! {"routines"=>true,"model_calls"=>0,"horizon"=>20}, &obj! {}).unwrap();
+    let mut timeline = Timeline::new(definition, cfg).unwrap();
+    let f = |revision: u32, now: u32| {
+        Frame::from_value(&obj!{"revision"=>revision,"now"=>now,"conditions"=>vec!["commitment:antenna","commitment:reactor"],"allowed"=>vec!["antenna","reactor"],"emergency"=>false}).unwrap()
+    };
+    for (revision, now, id) in [(1, 0, "reactor"), (2, 2, "reactor"), (3, 5, "antenna"), (4, 13, "reactor")] {
+        timeline.update(f(revision, now)).unwrap();
+        assert_eq!(timeline.status().unwrap().get("current").unwrap().get("id"), Some(&Value::str(id)));
+    }
+    assert!(timeline.affected(&["commitment:antenna"], &[]).unwrap());
+}

@@ -32,3 +32,6 @@ Python `Character.routine_configure/update/observation/complete/reserve/save/res
 Node camelCase equivalents wrap privileged host operations; none is a model tool.
 Select only registered `routine_status`/`activity_propose` for the current turn. Supply
 current revisions, actor permissions and durable restore watermarks from the engine.
+Host context selection, timer and planning-event checks additionally use
+`routine_context/wake/affected` (Python), `routineContext/Wake/Affected` (Node), or the
+same three `character_routine_*` host operation names over C#/C session requests.

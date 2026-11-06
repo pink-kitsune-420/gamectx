@@ -27,7 +27,10 @@ sensors, calendars, completion and action execution stay in the engine. No model
 are needed for planning. Run `cargo run --example routines` or the offline dungeon
 `--routines-demo`; editable files and persistent Python/Node/C# bridges are included.
 69 independent Python/Rust workflows agree; 21 additive cases preserve all 797 prior
-outputs. No new model accuracy, tokens, latency or RAM claims. Model/API spend $0.
+outputs. [Explicit task evidence selection and timer hints](docs/ROUTINES.md#optional-task-selection-and-responsive-wakeups)
+add 54 offline workflows; a measured host update optimization avoids copying retained
+history. These are deterministic checks and a synthetic CPU benchmark, with no new
+model-accuracy or full-turn latency claim. Model/API spend $0.
 
 ## Actor perception and adaptive context (unreleased v0.3.1a)
 

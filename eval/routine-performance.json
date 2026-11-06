@@ -1,0 +1,49 @@
+{
+  "workload": "1000 valid host updates, 128 retained observations, seven alternating pairs; no model calls",
+  "baseline": "clone complete runtime before each transactional update",
+  "optimized": "preflight history tick, clone only bounded timeline",
+  "initial_state_bytes": 228575,
+  "pairs": [
+    {
+      "pair": 0,
+      "snapshot_clone_ns": 330523353,
+      "preflight_ns": 7587326
+    },
+    {
+      "pair": 1,
+      "snapshot_clone_ns": 337599448,
+      "preflight_ns": 6451342
+    },
+    {
+      "pair": 2,
+      "snapshot_clone_ns": 332712544,
+      "preflight_ns": 7106987
+    },
+    {
+      "pair": 3,
+      "snapshot_clone_ns": 324471042,
+      "preflight_ns": 6476993
+    },
+    {
+      "pair": 4,
+      "snapshot_clone_ns": 323829391,
+      "preflight_ns": 7002857
+    },
+    {
+      "pair": 5,
+      "snapshot_clone_ns": 328934760,
+      "preflight_ns": 6719368
+    },
+    {
+      "pair": 6,
+      "snapshot_clone_ns": 322865616,
+      "preflight_ns": 6986127
+    }
+  ],
+  "api_spend_usd": 0,
+  "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "runner_peak_rss_kib": 4488,
+  "model_calls": 0,
+  "median_snapshot_clone_ns": 328934760,
+  "median_preflight_ns": 6986127
+}

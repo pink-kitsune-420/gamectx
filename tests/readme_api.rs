@@ -275,3 +275,10 @@ mod routines_example;
 fn documented_optional_routine_example() -> gamectx::Result<()> {
     routines_example::main()
 }
+
+#[path = "../examples/routine-context.rs"]
+mod routine_context_example;
+#[test]
+fn documented_routine_context_example() -> gamectx::Result<()> {
+    routine_context_example::main()
+}

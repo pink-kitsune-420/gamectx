@@ -99,6 +99,9 @@ export class Character {
   routineObservation(observation) { return this.request('routine_observation', { observation }); }
   routineComplete(activity, start, revision, token) { return this.request('routine_complete', { activity, start, revision, token }); }
   routineReserve(revision) { return this.request('routine_reserve', { revision }); }
+  routineContext(selection, revision, maxBytes = 8192) { return this.request('routine_context', { selection, revision, max_bytes: maxBytes }); }
+  routineWake() { return this.request('routine_wake'); }
+  routineAffected(conditions = [], activities = []) { return this.request('routine_affected', { conditions, activities }); }
   routineSave() { return this.request('routine_save'); }
   routineRestore(state, minRevision, minObservation, minCompletion, minTick) {
     return this.request('routine_restore', { state, min_revision: minRevision, min_observation: minObservation, min_completion: minCompletion, min_tick: minTick });

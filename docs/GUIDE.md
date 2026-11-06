@@ -638,3 +638,11 @@ it. Preserve aging ranges, reports and contradictory readings instead of fabrica
 confidence or exposing the simulation clock. Select current/next intent, required facts
 and a few relevant experiences for a small model; explicitly configured richer context
 still uses full rendered-request counting and protected facts. [Contracts](ROUTINES.md).
+
+For more responsive routines, use `next_wake` with your timer queue and `affected` for
+planning-event dependencies; both feed the existing scheduler. Use explicit observation
+selection with required source tokens when the newest experiences are unrelated to the
+current task. Missing required evidence should cause a refresh or unknown, rather than
+quietly substituting other memories. The [tested context example](../examples/routine-context.rs)
+combines these paths without model calls. The measured host-copy optimization and its
+synthetic-workload limits are recorded in [ROUTINES](ROUTINES.md#optional-task-selection-and-responsive-wakeups).

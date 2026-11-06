@@ -152,6 +152,15 @@ class Character:
     def routine_reserve(self, revision):
         return self._request('routine_reserve', revision=revision)
 
+    def routine_context(self, selection, revision, max_bytes=8192):
+        return self._request('routine_context', selection=selection, revision=revision, max_bytes=max_bytes)
+
+    def routine_wake(self):
+        return self._request('routine_wake')
+
+    def routine_affected(self, conditions=(), activities=()):
+        return self._request('routine_affected', conditions=list(conditions), activities=list(activities))
+
     def routine_save(self):
         return self._request('routine_save')
 

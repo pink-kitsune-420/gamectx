@@ -1044,3 +1044,27 @@ fn routines_observations_and_proposals_reject_mutated_untrusted_text() {
         }
     }
 }
+
+#[test]
+fn observation_selection_mutations_are_bounded_and_read_only() {
+    use gamectx::observation::{History, Selection};
+    let config = gamectx::routine::Config::resolve(&gamectx::obj! {"history"=>true}, &gamectx::obj! {}).unwrap();
+    let mut history = History::new("scope:a", "merchant", &vec!["merchant"].into(), "cycle:37", config).unwrap();
+    let input = parse(include_str!("../conformance/routines/remembered_sunlight/input.json"), 1_500_000).unwrap();
+    history.observe(&input.get("args").unwrap().get("observations").unwrap().as_array().unwrap()[0]).unwrap();
+    let before = history.to_value();
+    let mut rng = Rng(0x37a3_1239_881d_2256);
+    for _ in 0..10_000 {
+        let text =
+            mutate(&mut rng, r#"{"kinds":["direct"],"locations":[],"time_sources":["sun"],"required":[1],"limit":1}"#);
+        if let Ok(v) = parse(&text, 8192) {
+            if let Ok(s) = Selection::from_value(&v) {
+                if let Ok(result) = history.select(2, &s) {
+                    assert!(result.as_array().unwrap().len() <= 3);
+                    assert_eq!(parse(&result.to_json(), 32768).unwrap(), result);
+                }
+            }
+        }
+        assert_eq!(history.to_value(), before);
+    }
+}

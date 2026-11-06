@@ -1140,3 +1140,16 @@ CLI/native; `routine_bindings_check.mjs` and the existing C# fixture runner reus
 New Rust mutation tests make 20,000 attempts, without model calls or network access.
 These are host-correctness checks, not live model accuracy/token/latency/RAM measurements.
 Historical evaluation artifacts are untouched. New model/API spend $0.
+
+Follow-up: `python3 -I eval/routine_improvements_cases.py --cap 0` checks 54 independent
+selection/timer/dependency workflows and audits `routine-performance.json` (seven paired
+host-only timings, no provider calls). Nine new conformance cases preserve all earlier
+818 outputs. The noisy observation fixture measures selected JSON bytes 2,102→371 with
+a required older source retained; this is not a full-request token count or accuracy score.
+`routine_detail_bindings_check.py --cap 0` and the Node/C# runners check the expanded
+52-fixture session suite. Ten thousand additional mutations test selectors.
+
+To rerun host timings (results vary by machine/load): build release, compile
+`eval/routine_bench.rs` against `target/release/libgamectx.rlib`, and run `target/routine-bench`.
+Both timing arms assert byte-equivalent final state; setup is excluded. The recorded
+paired process RSS includes both arms, and excludes models. No live model was loaded.

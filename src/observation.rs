@@ -17,6 +17,60 @@ pub struct History {
     last: u64,
     clock: u64,
 }
+/// Explicit host-selected relevance. Empty filters mean all values; required native
+/// tokens must be live and match the filters or selection fails instead of dropping them.
+#[derive(Clone, Debug)]
+pub struct Selection {
+    kinds: Vec<String>,
+    locations: Vec<String>,
+    time_sources: Vec<String>,
+    required: Vec<u64>,
+    limit: usize,
+}
+impl Selection {
+    pub fn from_value(v: &Value) -> Result<Self> {
+        bounded(v, 8192)?;
+        c::fields(v, &["kinds", "locations", "time_sources", "required", "limit"])?;
+        let kinds = names(c::get(v, "kinds")?, 4)?;
+        let locations = names(c::get(v, "locations")?, 16)?;
+        let time_sources = names(c::get(v, "time_sources")?, 4)?;
+        if kinds.iter().any(|s| !matches!(s.as_str(), "direct" | "instrument" | "report" | "inference"))
+            || time_sources.iter().any(|s| !matches!(s.as_str(), "sun" | "instrument" | "report" | "inference"))
+        {
+            return Err(c::bad());
+        }
+        let rows = c::list(c::get(v, "required")?)?;
+        if rows.len() > 32 {
+            return Err(c::bad());
+        }
+        let mut required = Vec::new();
+        for row in rows {
+            let t = c::uint(row, 1, u32::MAX as u64)?;
+            if required.contains(&t) {
+                return Err(c::bad());
+            }
+            required.push(t);
+        }
+        let limit = c::uint(c::get(v, "limit")?, 0, 32)? as usize;
+        if required.len() > limit {
+            return Err(c::bad());
+        }
+        Ok(Self { kinds, locations, time_sources, required, limit })
+    }
+    fn matches(&self, o: &Value, now: u64) -> bool {
+        num(o, "at").expect("tick") <= now
+            && now < num(o, "expires").expect("expiry")
+            && (self.kinds.is_empty()
+                || self.kinds.iter().any(|k| Some(k.as_str()) == o.get("kind").and_then(Value::as_str)))
+            && (self.locations.is_empty()
+                || self.locations.iter().any(|k| Some(k.as_str()) == o.get("location").and_then(Value::as_str)))
+            && (self.time_sources.is_empty()
+                || self
+                    .time_sources
+                    .iter()
+                    .any(|k| Some(k.as_str()) == o.get("time").and_then(|t| t.get("source")).and_then(Value::as_str)))
+    }
+}
 impl History {
     pub fn new(scope: &str, actor: &str, participants: &Value, calendar: &str, config: Config) -> Result<Self> {
         for s in [scope, actor, calendar] {
@@ -126,8 +180,14 @@ impl History {
         self.clock = at;
         Ok(())
     }
+    pub(crate) fn check_tick(&self, now: u64) -> Result<()> {
+        c::time(now, self.clock)
+    }
+    pub(crate) fn next_expiry(&self, now: u64) -> Option<u64> {
+        self.rows.iter().filter_map(|r| num(r, "expires").ok()).filter(|&at| at > now).min()
+    }
     pub fn advance(&mut self, now: u64) -> Result<()> {
-        c::time(now, self.clock)?;
+        self.check_tick(now)?;
         self.rows.retain(|o| num(o, "expires").expect("expiry") > now);
         self.clock = now;
         Ok(())
@@ -145,14 +205,45 @@ impl History {
         rows.reverse();
         Ok(rows.into())
     }
+    /// Select only task-relevant actual experiences, newest first for eligibility,
+    /// returned in original observation order. No unrelated fallback or semantic guess.
+    pub fn select(&self, now: u64, selection: &Selection) -> Result<Value> {
+        self.check_tick(now)?;
+        if selection.limit > self.config.context_observations {
+            return Err(c::bad());
+        }
+        let candidates = self.rows.iter().filter(|o| selection.matches(o, now)).collect::<Vec<_>>();
+        if selection.required.iter().any(|t| !candidates.iter().any(|o| num(o, "token").ok() == Some(*t))) {
+            return Err(c::bad());
+        }
+        let mut selected = selection.required.clone();
+        for o in candidates.iter().rev() {
+            if selected.len() >= selection.limit {
+                break;
+            }
+            let token = num(o, "token")?;
+            if !selected.contains(&token) {
+                selected.push(token);
+            }
+        }
+        Ok(candidates
+            .into_iter()
+            .filter(|o| selected.contains(&num(o, "token").expect("token")))
+            .cloned()
+            .collect::<Vec<_>>()
+            .into())
+    }
     /// Return attributed ranges independently; conflicting sources stay separate.
     /// Coordinate arithmetic is host-defined, never a built-in Earth calendar.
     /// Growth rates bound how the source ages per simulation tick (0..16).
     pub fn time_knowledge(&self, now: u64, phase: Option<(&str, &str)>) -> Result<Value> {
+        self.time_from_records(now, phase, &self.rows)
+    }
+    pub(crate) fn time_from_records(&self, now: u64, phase: Option<(&str, &str)>, records: &[Value]) -> Result<Value> {
         c::time(now, self.clock)?;
         let mut sources = Vec::new();
         if self.config.time {
-            for o in self.rows.iter().rev() {
+            for o in records.iter().rev() {
                 if sources.len() >= self.config.context_observations {
                     break;
                 }

@@ -226,6 +226,7 @@ pub fn process(v: &Value) -> Result<Value> {
             crate::deployment::Profile::from_value(c::get(a, "profile")?)?
                 .describe(&crate::deployment::Identity::from_value(c::get(a, "actual_identity")?)?)
         }
+        "routine-detail" => crate::routine::detail_fixture(a),
         "routine-fixture" => crate::routine::fixture(a),
         "report" => crate::turn::report(a),
         _ => Err(c::bad()),

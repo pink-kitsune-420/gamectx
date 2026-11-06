@@ -8,6 +8,23 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Follow-up validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
+  76 offline CI commands, 19 binding CI commands, original/expanded C# fixtures and
+  package verification pass. Total core cases 827; reference/credential sweep clean.
+  Model/API spend $0; no model loaded, downloaded or called.
+- Optional follow-up improvements: exact task observation filters with required source
+  tokens, timer hints for horizon/windows/protection/expiry, and planning-event dependency
+  checks. 54 independent workflows, nine additive cases (818 earlier unchanged), 10,000
+  selector mutations and a 52-fixture expanded persistent suite. No new model tools.
+- Whole-runtime-copy baseline versus history preflight/timeline clone: seven alternating
+  1,000-update release pairs with 128 retained observations, medians 328,934,760→6,986,127
+  ns; identical final state. Initial state 228,575 JSON bytes; paired process peak RSS
+  4,488 KiB, no model. Synthetic CPU work, not engine/model latency or per-NPC RAM.
+- Newest-only retrieval rejected for required evidence: the synthetic newest-three view
+  omitted token 1 in 2,102 observation JSON bytes; pinned filtered view retained it in
+  371 bytes. No semantic/model accuracy or full-request token savings claim.
+
+
 - Routine-layer validation: root/native formatting, strict Clippy, tests/rustdoc,
   Rust 1.82, package verification, 75 offline CI commands and 17 binding CI commands
   pass. C# checks cover 43 new and 263 prior fixtures. All 797 prior core outputs

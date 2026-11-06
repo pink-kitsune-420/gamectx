@@ -115,6 +115,34 @@ impl Session {
                 character.reserve_routine_call(crate::routine::num(args, "revision")? as u32)?;
                 Ok(obj! {"reserved"=>id})
             }
+            "character_routine_context" => {
+                c::fields(args, &["id", "selection", "revision", "max_bytes"])?;
+                let runtime = character.routine().ok_or_else(bad)?;
+                if runtime.revision() != Some(crate::routine::num(args, "revision")? as u32) {
+                    return Err(bad());
+                }
+                let result =
+                    runtime.context_for(&crate::observation::Selection::from_value(c::get(args, "selection")?)?)?;
+                crate::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
+                Ok(result)
+            }
+            "character_routine_wake" => {
+                c::fields(args, &["id"])?;
+                let runtime = character.routine().ok_or_else(bad)?;
+                Ok(
+                    obj! {"revision"=>runtime.revision().map_or(Value::Null,Value::from),"at"=>runtime.next_wake().map_or(Value::Null,Value::from)},
+                )
+            }
+            "character_routine_affected" => {
+                c::fields(args, &["id", "conditions", "activities"])?;
+                let conditions = crate::routine::names(c::get(args, "conditions")?, 128)?;
+                let activities = crate::routine::names(c::get(args, "activities")?, 128)?;
+                let affected = character.routine().ok_or_else(bad)?.affected(
+                    &conditions.iter().map(String::as_str).collect::<Vec<_>>(),
+                    &activities.iter().map(String::as_str).collect::<Vec<_>>(),
+                )?;
+                Ok(obj! {"affected"=>affected})
+            }
             "character_routine_save" => {
                 c::fields(args, &["id"])?;
                 Ok(character.routine().ok_or_else(bad)?.to_value())

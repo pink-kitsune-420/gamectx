@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds explicit task observation selection with protected source tokens,
+  next-wake timers and host planning-event dependencies, including persistent helpers.
+- **[internal]** Preflights history time before atomic timeline updates, avoiding full
+  history copies. Seven paired 1,000-update synthetic trials: median 328,934,760→6,986,127
+  ns, identical final state. This is host work, not model-turn latency or model RAM.
+- **[format]** Adds nine selection/timer cases; all 818 previous outputs unchanged.
+  Adds three privileged host operations; no new model tools or default exposures.
+- **[docs]** Follow-up checks: 54 independent workflows, expanded 52 binding fixtures,
+  10,000 selector mutation iterations. Noisy observation JSON 2,102→371 bytes retains a
+  required older source; no provider-token or accuracy claim. Model/API spend $0.
+
 - **[api]** Adds opt-in shared/character routine policy, bounded deterministic timelines,
   scoped actual history and source-based aging time knowledge; reuses work scheduling,
   evidence source validation, bounded choices and character/session dispatch. Engines

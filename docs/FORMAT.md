@@ -1689,3 +1689,28 @@ observations,now`; at most 128 frames/observations. Its result is `timeline,time
 It evaluates timeline and observation history independently for offline byte parity,
 not live ingestion order, provider rendering or model behavior. Twenty-one new fixtures
 are additive, including six expected errors.
+
+### Explicit observation selection and timer hints
+
+`observation::Selection` takes exactly `kinds,locations,time_sources,required,limit`,
+at most 8,192 bytes. Kinds are a unique subset of `direct,instrument,report,inference`;
+locations at most 16 unique scoped IDs; time sources a unique subset of
+`sun,instrument,report,inference`. Empty filter arrays do not restrict that dimension.
+Required is at most 32 unique positive u32 native tokens. Limit is 0..32, at most the
+configured context_observations, and at least required count. Every required token must
+still be retained, unexpired, and match all filters. Fill remaining slots newest first;
+return full records in original observation order. Never mutate or renew evidence.
+`Runtime::context_for` uses these records for both observations and numeric time sources.
+
+`character_routine_context` is a host-only read with `id,selection,revision,max_bytes`;
+max_bytes is 64..32,768 and the live runtime revision must match. The result has the
+unchanged context shape. `character_routine_wake` (`id`) returns `revision,at`; both can
+be null before a frame, and at is null if no bounded future timer exists. Wake ticks
+respect the runtime interval and u32 bound. `character_routine_affected`
+(`id,conditions,activities`) returns `affected`; each list has at most 128 unique scoped
+IDs. These operations do not expose tools or invalidate a counted frame by themselves.
+
+Offline kind `routine-detail` takes the `routine-fixture` fields plus
+`selection,changed_conditions,changed_activities`; result order is
+`observations,time,next_wake,affected`. Nine additive fixtures cover selection, timers,
+required-source errors and bounds. No previous expected outputs change.

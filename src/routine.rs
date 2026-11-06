@@ -3,7 +3,7 @@
 use crate::{checked as c, obj, request::bounded, Result, Value};
 use std::sync::Arc;
 mod runtime;
-pub use runtime::{fixture, Runtime};
+pub use runtime::{detail_fixture, fixture, Runtime};
 pub(crate) fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
     c::text(c::get(v, k)?)
 }
@@ -402,6 +402,71 @@ impl Timeline {
             ))
         });
         rows
+    }
+    /// Earliest useful timer (window/deadline, rolling horizon or protection expiry),
+    /// respecting the configured interval. Host condition/permission changes still
+    /// require Scheduler::changed; this hint cannot predict engine events.
+    pub fn next_wake(&self) -> Option<u64> {
+        let f = self.frame.as_ref()?;
+        let mut events = Vec::new();
+        let boundary = |first: i64, repeat: Option<u64>| -> Option<u64> {
+            let now = f.now as i64;
+            let next = if first > now {
+                first
+            } else {
+                let p = repeat?;
+                first + ((now - first) / p as i64 + 1) * p as i64
+            };
+            (next <= u32::MAX as i64).then_some(next as u64)
+        };
+        for a in &self.routine.activities {
+            if !f.allowed.contains(&a.id) || !a.requirements.iter().all(|c| f.conditions.contains(c)) {
+                continue;
+            }
+            for first in [
+                a.start as i64,
+                a.start as i64 - self.config.horizon as i64,
+                (a.end + if a.missed == "defer" { a.grace } else { 0 }) as i64,
+            ] {
+                if let Some(at) = boundary(first, a.repeat) {
+                    events.push(at);
+                }
+            }
+        }
+        if let Some(active) = self.rows.iter().find(|r| r.state == "active") {
+            let a = self.activity(&active.id);
+            if a.interrupt == "allow"
+                && self.rows.iter().any(|r| {
+                    r.id != active.id
+                        && self.eligible(r, f)
+                        && self.activity(&r.id).priority >= a.priority + self.config.switch_margin
+                })
+            {
+                let release = active.since + self.config.min_active;
+                if release > f.now {
+                    events.push(release);
+                }
+            }
+        }
+        let tick = events.into_iter().min()?.max(f.now + self.config.interval);
+        (tick <= u32::MAX as u64).then_some(tick)
+    }
+    /// Cheap host event dependency check; it neither updates state nor grants facts.
+    pub fn affected(&self, conditions: &[&str], activities: &[&str]) -> Result<bool> {
+        for rows in [conditions, activities] {
+            if rows.len() > 128 {
+                return Err(c::bad());
+            }
+            for (i, s) in rows.iter().enumerate() {
+                c::scope(s)?;
+                if rows[..i].contains(s) {
+                    return Err(c::bad());
+                }
+            }
+        }
+        Ok(self.routine.activities.iter().any(|a| {
+            activities.contains(&a.id.as_str()) || a.requirements.iter().any(|c| conditions.contains(&c.as_str()))
+        }))
     }
     pub fn to_value(&self) -> Value {
         self.rows.iter().map(Entry::value).collect::<Vec<_>>().into()
