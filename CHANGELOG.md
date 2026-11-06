@@ -13,6 +13,12 @@ know what an upgrade costs:
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.4 — 2026-11-06
+
+- **[docs]** Packages the latest model report and install instructions. Rust runtime/API
+  behavior and all 366 conformance cases remain unchanged from alpha.3.
 - **[docs]** Publishes a fresh alpha.3 model check: six states/three schema families,
   48 questions/model on the two smaller default models. Full JSON 27/96, packed tables
   27/96, schema + query 91/96; completed-exchange input 1,786.792 / 1,252.125 / 916.490.

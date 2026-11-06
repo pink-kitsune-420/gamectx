@@ -39,7 +39,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Shared perception and independent brain modules | 12 candidates × 100 frames: 2,400→1,300 module evaluations; 3,600 identical predictions on seeds 9101/9102/9103 including unknowns. Seven paired release trials/12,000 candidates: 729,906→631,514 ns (0 hidden) and 3,341,042→2,014,761 ns (16 hidden). Scope/frame/module replacement invalidation. |
 | Runtime spending reservations | Integer microdollars, concurrent reservations/retries, dispatch/cancel/settle phases, ambiguous crash charges, overrun blocking and free fallback. Entire upgrade batch: 40 new cases, 283 byte-identical workflows, 54,000 added text mutations, $0 API. |
 
-## Post-release measurements
+## Documentation and measurements (0.1.0-alpha.4)
 
 | Item | Result |
 |---|---|
