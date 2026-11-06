@@ -13,6 +13,32 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds versioned `FeatureSchema`, `Features`, `BoundBrain`, opt-in
+  `StableBrain`/`Selection` and deterministic `Brain::diagnose` reasons. Bound restores
+  require full expected semantics. Stable choices retain raw prediction diagnostics.
+- **[api]** Adds `replay::Recorder`, replay execution and `gamectx replay`, with bounded
+  traces, explicit snapshots, labels and recorded latency summaries.
+- **[api]** Adds `query::describe_with` and CLI `query --schema ... --metadata ...` for
+  validated host meanings/units/categories. Three fresh states: executed queries 36/60
+  → 45/60 on the two smaller models; token-only inputs 205/190 → 365/352. Spend
+  $0.0053331125 including the token check. Default tools/descriptions stay unchanged.
+- **[api]** Adds optional `memory::Journal` and `EvidenceMemory`/`EvidenceSnapshot`.
+  Facts track provenance, scope, expiry and supersession. Hypotheses cite supplied
+  native sources, inherit privacy, expire with sources, reject stale/foreign views and
+  cannot inflate confidence or renew lifetime by repeating the same evidence.
+- **[format]** Adds bound-brain envelopes, feature schemas, metadata meanings, diagnostic
+  replay, journal and evidence/hypothesis state formats. Adds 46 `integration` cases;
+  all previous 261 cases remain byte-identical. Existing memory and brain state formats
+  stay unchanged.
+- **[internal]** Fitting byte-budget packets collect lengths while serializing, avoiding
+  duplicate length walks. Paired fitting builds: 9,171,479 → 5,905,360 ns/1,000;
+  mixed 8,822,089 → 5,708,635 ns. Pressure allocations rise 153 → 172/build; measured
+  runtime improves. New benchmark reports transient peak memory separately from timing.
+- **[docs]** Three fresh noisy trajectories: switches 355 → 15, zero missed urgent
+  switches or ineligible choices; utility regret 2,281,674 millionths/720 frames.
+  Stability is optional and trades immediate utility for consistency. Evidence tests
+  retain two native observations, confidence 0.6 and expiry 30 across repeated hypotheses.
+
 - **[api]** Adds allocation-free `Brain::run_into`, reusable `Prediction` and fixed-point
   `SCALE`; existing JSON inference uses the same kernel and keeps its output.
 - **[api]** Adds disposable `TrainingJob`s for single-rate, selection and host-policy

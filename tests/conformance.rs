@@ -13,6 +13,8 @@ use gamectx::{fingerprint, schema, signatures, table};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+#[path = "support/integration.rs"]
+mod integration;
 #[path = "support/runtime.rs"]
 mod runtime;
 
@@ -49,6 +51,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
+        "integration" => integration::process(&input)?,
         "runtime" => runtime::process(&input)?,
         "brain" | "brain-select" => gamectx::brain::process(&input)?,
         "brain-cache" => gamectx::brain::process_cached(&input, arg_usize(args, "capacity", 32))?,

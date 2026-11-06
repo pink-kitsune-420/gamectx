@@ -1,0 +1,27 @@
+{
+  "items": {
+    "description": "Carried item stacks.",
+    "columns": {
+      "rarity": {
+        "description": "Rarity category, independent of stack quantity.",
+        "unit": null,
+        "kind": "categorical",
+        "values": {
+          "unique": "A rarity label, not a count of one."
+        }
+      },
+      "count": {
+        "description": "Number of units in this stack.",
+        "unit": "items",
+        "kind": "quantity",
+        "values": {}
+      },
+      "mass": {
+        "description": "Mass per single item.",
+        "unit": "kg/item",
+        "kind": "continuous",
+        "values": {}
+      }
+    }
+  }
+}

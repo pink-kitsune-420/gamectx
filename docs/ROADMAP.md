@@ -29,6 +29,10 @@ noted; "3 models" adds Llama 3.3 70B.
 | Native frame inference and faster packet assembly | 20,000 changing-state calls: JSON 26,030,769/32,503,158 ns → native 1,968,370/6,171,925 ns (small/large), zero native allocations. 500 pressured packet builds 146,774,066 → 19,042,995 ns; prepared reuse 1,834,731 ns. Exact output/receipt parity. |
 | Scheduling, sliced training and host-policy validation | Synthetic 64 actors/240 frames: 15,360 → 512 evaluations, max eight/frame. Sample-sliced train/selection preserves weights/reports/state; cancellation and stale-state rejection. Host masks/thresholds evaluated on fresh seeds 3001/3002/3003: 1,466/1,536 for both old and host-metric selection, no measured gain. |
 | Acknowledged context synchronization and local prefix harness | 120 turns: 489,490 full-state bytes → 19,089 transfer bytes, exact reconstruction; explicit ACK, stream/revision checks and snapshot recovery. 35 new cases across runtime APIs, 148 byte-identical workflows/2,304 predictions, 40,000 extra text mutations. All offline, $0; actual local-model KV-cache savings unmeasured. |
+| Fitting-packet serialization repair | Paired seven-trial medians: 1,000 fitting builds 9,171,479 → 5,905,360 ns, mixed 8,822,089 → 5,708,635 ns. No extra fitting allocations; peak transient bytes 8,108→8,140. Pressure 34,371,446 → 29,824,656 ns, allocations 153→172/build. |
+| Versioned bindings, diagnostic replay and optional reaction stability | Full expected schema checks names/order/units/ranges/policies. Replays capture normalized observations/labels/latencies/state changes. Fresh seeds 5001/5002/5003: 355→15 switches, zero missed urgent switches/ineligible choices, total utility regret 2,281,674 millionths/720 frames. |
+| Host query meanings | Three fresh 24-row states, 30 questions/model: schema 36/60 → meanings 45/60 (3B 12→18; 24B 24→27). Token-only input 205/190 → 365/352. Token check $0.0001380125 + accuracy $0.0051951 = $0.0053331125. Three descriptions and 120 recorded queries byte-identical. |
+| Scoped journal, native evidence and cited hypotheses | Provenance/expiry/supersession; sealed supplied-evidence views, stale/foreign/dependency/privacy checks and subject/clock-bound restore. Six valid/nine invalid evidence workflows; repeated hypotheses keep observations 2, confidence 0.6 and expiry 30. Total 46 new integration cases, 152 differential workflows, 60,000 added text mutations. |
 
 ## Measured and rejected
 
@@ -47,13 +51,15 @@ noted; "3 models" adds Llama 3.3 70B.
 | Always-on brain prediction caching | Cycling 256 distinct states through 32 slots: 0 hits/20,000 calls; small network 29.011 ms uncached → 53.640 ms cached, large 37.100 → 67.276 ms (1.8–1.85× slower). Keep caching opt-in with counters; no approximate input bucketing added. |
 | Universal one-shot packet speedup | The fitting fixture took 5,587,160 → 6,098,296 ns (about 9% slower) despite allocations falling 47,000 → 30,500. The initial always-prepared variant added allocations too; the shipped fit path moves values directly. Prefer prepared reuse for repeated builds, and measure one-shot tradeoffs. |
 | Host-policy selection as an automatic accuracy boost | Same rates and 1,466/1,536 held-out masked/thresholded decisions as prior selection. Ship as opt-in metric correctness, not a measured accuracy win. |
+| Intermediate fitting-packet repair using another ordered vector | Improved fitting throughput but added an allocation and slowed the tiny fixture. Shipped two stable-first borrowing passes, preserving original pressure-path declaration order without another vector. |
+| Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
 
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
 - Clearer top-N aggregate guidance: Mistral still generates subqueries after a correction in some cases.
-- Explicit categorical semantics (e.g. rarity label `unique` versus count = 1), tested on fresh holdout seeds.
-- Reaction-brain feedback from real hosts and unseen policy families; native input adapters and held-out gameplay metrics remain integration work; the generic scheduler needs host notifications/costs.
+- Validate host meanings on other schema families and live questions; targeted meanings still miss 15/60 executed queries.
+- Reaction-brain feedback from real hosts and unseen policy families; versioned numeric bindings exist, while engine sensors, host metrics and scheduler notifications/costs remain integration work.
 - Measure acknowledged synchronization and periodic snapshot policies on live multi-turn model decisions.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
@@ -71,3 +77,5 @@ noted; "3 models" adds Llama 3.3 70B.
 
 - Runtime timing fixtures use two synthetic network sizes and mostly static packet reuse; real engines, allocators and actor change rates may differ. Estimated frame-work budgets are not wall-clock deadlines.
 - Sync deltas compress host transfer, not automatically LLM input/history; integrations reconstruct snapshots or implement explicit state handling. Actual local prefix-cache tokens/timings remain unmeasured without a running server.
+
+- Evidence validation establishes source availability/provenance, not logical entailment or calibrated confidence. Host evidence collection, consent, clock progression and archival storage remain integration responsibilities.

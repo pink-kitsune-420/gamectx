@@ -53,6 +53,15 @@ or `sync` (publish/deliver/apply operations). The reference adapter is
 they are not additional model tools. Error cases cover input/work bounds and invalid
 stream, revision, order, removals and scheduler events.
 
+`integration` cases use `input.kind` to exercise `bindings`, `metadata`, `diagnostics`,
+`stability`, `replay`, `journal` or `evidence`. The native adapter is
+[`tests/support/integration.rs`](../tests/support/integration.rs), with Python references
+[`integration_eval.py`](../eval/integration_eval.py) and [`evidence_eval.py`](../eval/evidence_eval.py).
+Error cases include incompatible saved meanings, malformed policies/citations, stale
+snapshots, privacy changes, event-token replay and missing dependencies. These are
+native API adapters, not additional default model tools. See the corresponding
+[format sections](../docs/FORMAT.md#versioned-feature-bindings).
+
 The Rust reference runner is `tests/conformance.rs`. After a deliberate behavior change:
 
 ```bash

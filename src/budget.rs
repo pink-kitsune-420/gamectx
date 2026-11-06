@@ -79,20 +79,43 @@ pub fn assemble_bytes(mut sections: Vec<Section>, max_bytes: usize) -> Result<Pa
             return Err(Error::new(format!("duplicate section \"{}\"", section.name)));
         }
     }
-    let size = 2
-        + sections.len().saturating_sub(1)
-        + sections.iter().map(|s| crate::json::string_len(&s.name) + 1 + s.value.json_len()).sum::<usize>();
-    // A fitting one-shot packet needs no retained member strings or value clones.
-    if size <= max_bytes {
+    // Write in stable-first order without moving or cloning the input sections.
+    // Capture receipt lengths during serialization instead of walking values twice.
+    // If pressure is detected, original declaration order is still available unchanged.
+    let mut text = String::new();
+    text.push('{');
+    let mut included = Vec::with_capacity(sections.len());
+    let mut complete = true;
+    'encode: for stable in [true, false] {
+        for section in sections.iter().filter(|s| s.stable == stable) {
+            if !included.is_empty() {
+                text.push(',');
+            }
+            crate::json::write_string(&section.name, &mut text);
+            text.push(':');
+            let start = text.len();
+            section.value.write(&mut text);
+            included.push(Line {
+                name: section.name.clone(),
+                bytes: text.len() - start,
+                priority: section.priority,
+                stable: section.stable,
+            });
+            if text.len().saturating_add(1) > max_bytes {
+                complete = false;
+                break 'encode;
+            }
+        }
+    }
+    text.push('}');
+    if complete && text.len() <= max_bytes {
+        let size = text.len();
         sections.sort_by_key(|s| !s.stable);
-        let included = sections
-            .iter()
-            .map(|s| Line { name: s.name.clone(), bytes: s.value.json_len(), priority: s.priority, stable: s.stable })
-            .collect();
         let value = Value::Object(sections.into_iter().map(|s| (s.name, s.value)).collect());
-        let text = value.to_json();
         return Ok(Packet { value, text, receipt: Receipt { included, dropped: Vec::new(), total_bytes: size } });
     }
+    drop(text);
+    drop(included);
     let prepared: Vec<_> = sections.into_iter().map(PreparedSection::new).collect();
     assemble_prepared_bytes(&prepared.iter().collect::<Vec<_>>(), max_bytes)
 }

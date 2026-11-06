@@ -47,7 +47,7 @@ use crate::json::{Error, Result, Value};
 use crate::view::{self, Op, View};
 
 mod schema;
-pub use schema::describe;
+pub use schema::{describe, describe_with};
 
 /// Limits on a query's text and shape.
 #[derive(Clone, Copy, Debug)]

@@ -259,3 +259,61 @@ Run the [combined example](../examples/runtime-loop.rs) with `cargo run --exampl
 It includes scheduled native predictions, sliced selection, prepared context, explicit ACKs
 and host-policy validation. It completes 40 frames with nine evaluations and one retained
 revision; a further host-metric update is rejected when its validation loss cannot improve.
+
+## 11. Keep input meaning and remembered claims explicit
+
+Use a `FeatureSchema` when an engine binds physical measurements to brain inputs.
+Give it a stable ID and revision, declare units/ranges and missing/outside policies,
+and save its complete definition with the learned state. `BoundBrain` compares the
+expected schema on restore and checks graph order on each bound call. The host still
+has to measure the units it declares. The [integration example](../examples/integration-tools.rs)
+normalizes named physical values, stabilizes a reaction, captures a replay and supplies
+query meanings. Run `cargo run --example integration-tools`.
+
+Use `Brain::diagnose` for exact abstention conditions and a bounded `Recorder` for
+observations, masks, thresholds, labels and brain snapshot changes. Replay tests what
+the policy would output on recorded inputs; changing policy may change future world
+states, which requires engine evaluation. Recorded p50/p95 times summarize host-supplied
+elapsed values, not replay performance. Keep the binding envelope alongside normalized
+traces. `gamectx replay examples/brain/trace.json` demonstrates all abstention reasons.
+
+Enable `StableBrain` only when fewer reaction switches help the game. It preserves the
+raw prediction separately and immediately honors urgency, eligibility and abstention.
+On three fresh 240-frame noisy trajectories it reduced 355 switches to 15 with zero
+missed urgent switches or ineligible choices, while giving up 2,281,674 utility
+millionths in total. Check utility loss and response delay, not only switch counts.
+
+Add `query::describe_with` meanings to ambiguous field names, with actual units and
+categorical literal explanations. Native validation catches metadata that disagrees
+with the tables; it does not prove that a model interpreted the meaning correctly.
+Three fresh 24-row states scored 36/60 → 45/60 executed queries with metadata on the
+two smaller models. Token-only input rose 205→365 / 190→352; this is an accuracy/token
+tradeoff on a targeted dataset. Token check $0.0001380125, accuracy run $0.0051951,
+combined $0.0053331125. [Reproduction and limitations](../eval/README.md#bindings-semantics-and-evidence).
+
+For freshness, `Journal` tracks entity/key/source channels and permanent supersession.
+A model proposal cannot shadow an active observation; an expired replacement does not
+revive an older observation. Use observed-source insertion only from trusted engine
+code, and `apply_proposal` for untrusted proposed memories. `forget` removes individual
+facts; source labels remain explicit when proposals are deliberately recalled.
+
+For cited reasoning, use `EvidenceMemory`: record native observations with increasing
+event tokens, then create a small filtered snapshot. Keep the sealed host object while
+sending only its payload to the model. Apply a returned hypothesis using that snapshot
+and current time/denied-privacy labels. Changes since the request, missing/expired sources,
+unsupplied citations and another store's snapshot are rejected atomically.
+
+Support/refutation links are proposals about evidence, never new observations. A
+hypothesis stays tentative or contested even at the maximum 0.95 declared confidence.
+The same evidence cannot renew its lifetime or increase confidence; source expiry caps
+its lifetime too. The reference test keeps two observations, confidence 0.6 and expiry
+30 after a repeated higher-confidence/longer-TTL request. This tests integrity, not
+whether the statement is true or logically entailed by its citations.
+
+Use `contradict` for invalid native evidence, and call `forget_privacy` when sources
+must be erased; dependent hypotheses disappear too. Filtered snapshots take effect
+immediately, while physical removal requires forgetting. Clock identity and subject are
+checked on restore. Define clock progression in the engine, especially during pauses
+or disconnected-player time. The library does not own archival files, consent policy,
+active-player timers or permissions. [The tested evidence example](../examples/evidence-memory.rs)
+runs with `cargo run --example evidence-memory`.

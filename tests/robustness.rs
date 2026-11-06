@@ -353,3 +353,85 @@ fn host_validation_and_sliced_model_text_never_partially_update() {
         }
     }
 }
+
+#[test]
+fn new_binding_metadata_journal_and_replay_text_is_bounded_and_atomic() {
+    use gamectx::{brain::FeatureSchema, memory::Journal, obj};
+    let schema = include_str!("../examples/brain/bindings.json");
+    let metadata = include_str!("../examples/query-meanings.json");
+    let tables = parse(include_str!("../examples/query-meaning-tables.json"), 1 << 16).unwrap();
+    let named: Vec<_> = tables.as_object().unwrap().iter().map(|(k, v)| (k.as_str(), v.as_array().unwrap())).collect();
+    let row=(obj!{"turn"=>1,"entity"=>"actor_a","key"=>"near_cover","text"=>"The actor approached cover.","tags"=>vec!["activity"],"importance"=>5,"source"=>"observed","expires"=>20}).to_json();
+    let trace = include_str!("../examples/brain/trace.json");
+    let seeds = [schema, metadata, &row, trace];
+    let mut rng = Rng(0xDA7A_4A51_7733_0012);
+    for i in 0..40_000 {
+        let text = mutate(&mut rng, seeds[i % 4]);
+        match i % 4 {
+            0 => {
+                if let Ok(schema) = FeatureSchema::parse(&text) {
+                    let _ = schema.normalize(&obj! {"x"=>2,"y"=>0.5});
+                    assert_eq!(
+                        schema.to_value(),
+                        FeatureSchema::parse(&schema.to_value().to_json()).unwrap().to_value()
+                    );
+                }
+            }
+            1 => {
+                if let Ok(value) = parse(&text, 1 << 16) {
+                    if let Ok(result) = gamectx::query::describe_with(&named, &value) {
+                        assert_eq!(parse(&result.to_json(), 1 << 20).unwrap(), result);
+                    }
+                }
+            }
+            2 => {
+                let mut journal = Journal::new(4).unwrap();
+                let before = journal.to_value();
+                if let Ok(value) = parse(&text, 1 << 16) {
+                    if journal.record(&value).is_err() {
+                        assert_eq!(journal.to_value(), before);
+                    }
+                    assert_eq!(Journal::restore(&journal.to_value()).unwrap().to_value(), journal.to_value());
+                }
+            }
+            _ => {
+                if let Ok(result) = gamectx::replay::run_json(&text) {
+                    assert_eq!(parse(&result.to_json(), 1 << 20).unwrap(), result);
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn cited_hypothesis_and_saved_evidence_text_never_mutates_observations() {
+    use gamectx::{memory::EvidenceMemory, obj};
+    let mut native = EvidenceMemory::new("actor_a", "game_ticks", 8, 4).unwrap();
+    for id in 1..=2 {
+        native.observe(id,&obj!{"turn"=>id,"entity"=>"actor_a","key"=>format!("signal_{id}"),"text"=>"The actor approached cover.","tags"=>vec!["activity"],"importance"=>5,"source"=>"observed","expires"=>30},&["position"]).unwrap();
+    }
+    let seed=(obj!{"id"=>"seeking_shelter","statement"=>"The actor may be seeking shelter.","confidence"=>0.6,"supports"=>vec![1],"contradicts"=>vec![2],"ttl"=>20}).to_json();
+    let first_view = native.snapshot(2, 16, 8000, &[]).unwrap();
+    native.propose(&first_view, 2, &parse(&seed, 1 << 16).unwrap(), &[]).unwrap();
+    let saved = native.to_value();
+    let state = saved.to_json();
+    let mut rng = Rng(0xE71D_EACE_0123_ABCD);
+    for i in 0..20_000 {
+        let text = mutate(&mut rng, if i % 2 == 0 { &seed } else { &state });
+        if i % 2 == 0 {
+            let mut memory = EvidenceMemory::restore(&saved, "actor_a", "game_ticks").unwrap();
+            let view = memory.snapshot(2, 16, 8000, &[]).unwrap();
+            if let Ok(request) = parse(&text, 1 << 16) {
+                let before = memory.to_value();
+                if memory.propose(&view, 2, &request, &[]).is_err() {
+                    assert_eq!(memory.to_value(), before);
+                }
+                assert_eq!(memory.to_value().get("journal"), saved.get("journal"));
+            }
+        } else if let Ok(memory) = EvidenceMemory::restore_json(&text, "actor_a", "game_ticks") {
+            let saved = memory.to_value();
+            assert_eq!(EvidenceMemory::restore(&saved, "actor_a", "game_ticks").unwrap().to_value(), saved);
+            let _ = memory.snapshot(2, 16, 8000, &["position"]);
+        }
+    }
+}

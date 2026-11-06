@@ -28,11 +28,13 @@ USAGE:
   gamectx query <tables.json> <sql>
       Run a model's SQL SELECT exactly over the tables (an object of name: array of
       objects); prints JSON. gamectx query --tool prints the query tool for the model.
-  gamectx query --schema <tables.json>
+  gamectx query --schema <tables.json> [--metadata meanings.json]
       Print column types and complete small string domains, without rows. - reads stdin.
   gamectx query --session <tables.json> [--result-bytes N]
       Read JSON argument objects (one per line) from stdin; print one JSON reply per attempt. A query error
       allows one correction. Success or the second failure ends the session.
+  gamectx replay <trace.json>
+      Replay bounded normalized observations and brain snapshots; - reads stdin.
   gamectx brain <workflow.json> [--cache N]
       Run a bounded local reaction-network workflow; prints results and saved state.
       - reads stdin. --cache uses a bounded per-workflow prediction cache (0..256 entries).
@@ -194,6 +196,24 @@ fn run(raw: &[String]) -> Result<()> {
             println!("{}", formulas.calc(&args.positional[0])?.to_json());
             Ok(())
         }
+        "replay" => {
+            args.only(&[], 1)?;
+            let mut text = String::new();
+            if args.positional[0] == "-" {
+                std::io::stdin()
+                    .take(gamectx::replay::MAX_TRACE_BYTES as u64 + 1)
+                    .read_to_string(&mut text)
+                    .map_err(|e| Error::new(e.to_string()))?;
+            } else {
+                std::fs::File::open(&args.positional[0])
+                    .map_err(|e| Error::new(e.to_string()))?
+                    .take(gamectx::replay::MAX_TRACE_BYTES as u64 + 1)
+                    .read_to_string(&mut text)
+                    .map_err(|e| Error::new(e.to_string()))?;
+            }
+            println!("{}", gamectx::replay::run_json(&text)?.to_json());
+            Ok(())
+        }
         "brain" if args.has("--tools") => {
             args.only(&["--tools"], 0)?;
             println!("{}", gamectx::brain::tools().to_json());
@@ -226,7 +246,7 @@ fn run(raw: &[String]) -> Result<()> {
             Ok(())
         }
         "query" if args.has("--schema") => {
-            args.only(&["--schema"], 1)?;
+            args.only(&["--schema", "--metadata"], 1)?;
             let tables = if args.positional[0] == "-" {
                 let mut text = String::new();
                 std::io::stdin()
@@ -237,7 +257,12 @@ fn run(raw: &[String]) -> Result<()> {
             } else {
                 read_json_file(Path::new(&args.positional[0]))?
             };
-            println!("{}", gamectx::query::describe(&named_tables(&tables)?)?.to_json());
+            let named = named_tables(&tables)?;
+            let description = match args.get("--metadata") {
+                Some(file) => gamectx::query::describe_with(&named, &read_json_file(Path::new(file))?)?,
+                None => gamectx::query::describe(&named)?,
+            };
+            println!("{}", description.to_json());
             Ok(())
         }
         "query" if args.has("--session") => {

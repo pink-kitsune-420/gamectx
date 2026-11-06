@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "id": "ash",
+      "rarity": "unique",
+      "count": 8,
+      "mass": 0.5
+    },
+    {
+      "id": "tide",
+      "rarity": "common",
+      "count": 1,
+      "mass": 2
+    }
+  ]
+}

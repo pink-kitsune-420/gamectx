@@ -25,6 +25,12 @@ jobs:
       - run: python3 -I eval/test_brain_accuracy.py
       - run: python3 -I eval/test_brain_cache.py
       - run: python3 -I eval/test_runtime.py
+      - run: python3 -I eval/test_integration.py
+      - run: rustc --edition=2021 -O eval/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
+      - run: python3 -I eval/integration_eval.py --check
+      - run: rustc --edition=2021 -O eval/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
+      - run: ./target/integration-bench > /dev/null
+      - run: python3 -I eval/query_meaning_eval.py --check --cap 0
       - run: python3 -I eval/prefix_cache_eval.py --cap 0
       - run: rustc --edition=2021 -O eval/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
       - run: python3 -I eval/runtime_eval.py --check

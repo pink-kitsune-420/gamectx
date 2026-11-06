@@ -1,0 +1,2605 @@
+{
+  "tokens_only": false,
+  "spend_usd": 0.0051951,
+  "completed": true,
+  "rows": [
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 205,
+        "completion_tokens": 16,
+        "total_tokens": 221,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.035e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 10,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 10,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 22,
+        "total_tokens": 229,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.425e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 204,
+        "completion_tokens": 20,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.259999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 313.25,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 95.05,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 206,
+        "completion_tokens": 18,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.17e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 80.55,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 21.25,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 24,
+        "total_tokens": 231,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.5449999999999993e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.5,
+      "sql": "SELECT mass FROM items ORDER BY mass DESC LIMIT 1",
+      "result": [
+        9.5
+      ],
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 22,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.484999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 26,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6649999999999996e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 40,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 40,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 24,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.575e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 4,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 4,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 27,
+        "total_tokens": 234,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.725e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 44.5,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 44.49999999999999,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 24,
+        "total_tokens": 235,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6049999999999994e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 365,
+        "completion_tokens": 21,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.735e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 10,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 10,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 22,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.825e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 364,
+        "completion_tokens": 20,
+        "total_tokens": 384,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.659999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 313.25,
+      "sql": "SELECT SUM(pack_mass) FROM items",
+      "result": 313.25,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 366,
+        "completion_tokens": 20,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.69e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 80.55,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 80.55,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.5,
+      "sql": "SELECT MAX(mass) FROM items",
+      "result": 9.5,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 40,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 40,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 369,
+        "completion_tokens": 24,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.975e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 4,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 4,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 27,
+        "total_tokens": 394,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.125e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 44.5,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 95.05,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 205,
+        "completion_tokens": 16,
+        "total_tokens": 221,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.035e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 22,
+        "total_tokens": 229,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.425e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 204,
+        "completion_tokens": 20,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.259999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 475.85,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 100.09999999999998,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 206,
+        "completion_tokens": 18,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.17e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 101.45,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 24,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 24,
+        "total_tokens": 231,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.5449999999999993e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.3,
+      "sql": "SELECT mass FROM items ORDER BY mass DESC LIMIT 1",
+      "result": [
+        9.3
+      ],
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 22,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.484999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 26,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6649999999999996e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 42,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 42,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 24,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.575e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 3,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 27,
+        "total_tokens": 234,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.725e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 26.7,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 26.700000000000003,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 24,
+        "total_tokens": 235,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6049999999999994e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 365,
+        "completion_tokens": 21,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.735e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 22,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.825e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 364,
+        "completion_tokens": 20,
+        "total_tokens": 384,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.659999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 475.85,
+      "sql": "SELECT SUM(pack_mass) FROM items",
+      "result": 475.85,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 366,
+        "completion_tokens": 20,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.69e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 101.45,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 101.45,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.3,
+      "sql": "SELECT MAX(mass) FROM items",
+      "result": 9.3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 42,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 42,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 369,
+        "completion_tokens": 24,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.975e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 3,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 27,
+        "total_tokens": 394,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.125e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 26.7,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 100.09999999999998,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 205,
+        "completion_tokens": 16,
+        "total_tokens": 221,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.035e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 22,
+        "total_tokens": 229,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.425e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 204,
+        "completion_tokens": 20,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.259999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 541.25,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 118.75,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 206,
+        "completion_tokens": 18,
+        "total_tokens": 224,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.17e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 422.95,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 70.30000000000001,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 24,
+        "total_tokens": 231,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.5449999999999993e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.85,
+      "sql": "SELECT mass FROM items ORDER BY mass DESC LIMIT 1",
+      "result": [
+        9.85
+      ],
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 22,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.484999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 26,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6649999999999996e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 16,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 16,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 209,
+        "completion_tokens": 24,
+        "total_tokens": 233,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.575e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 1,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 1,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 207,
+        "completion_tokens": 27,
+        "total_tokens": 234,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.725e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 20.25,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 20.249999999999996,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 211,
+        "completion_tokens": 24,
+        "total_tokens": 235,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 4.6049999999999994e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique'",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 365,
+        "completion_tokens": 21,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.735e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 22,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.825e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT * FROM items WHERE count = 1",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 364,
+        "completion_tokens": 20,
+        "total_tokens": 384,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.659999999999999e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 541.25,
+      "sql": "SELECT SUM(pack_mass) FROM items",
+      "result": 541.25,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 366,
+        "completion_tokens": 20,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.69e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 422.95,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 422.95000000000005,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.85,
+      "sql": "SELECT MAX(mass) FROM items",
+      "result": 9.85,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "sql": "SELECT * FROM items WHERE rarity = 'unique' AND count > 2",
+      "result": null,
+      "error": "SELECT * is not supported; name the columns",
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 26,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.065e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 16,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 16,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 369,
+        "completion_tokens": 24,
+        "total_tokens": 393,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.975e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 1,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1",
+      "result": 1,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 367,
+        "completion_tokens": 27,
+        "total_tokens": 394,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 7.125e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 20.25,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 118.75,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 371,
+        "completion_tokens": 18,
+        "total_tokens": 389,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 6.645e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique'",
+      "result": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 190,
+        "completion_tokens": 16,
+        "total_tokens": 206
+      },
+      "cost_usd": 2.18125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 10,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 10,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 17,
+        "total_tokens": 209
+      },
+      "cost_usd": 2.225e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1;",
+      "result": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 189,
+        "completion_tokens": 16,
+        "total_tokens": 205
+      },
+      "cost_usd": 2.171875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 313.25,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 95.05,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 191,
+        "completion_tokens": 13,
+        "total_tokens": 204
+      },
+      "cost_usd": 2.115625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 80.55,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 21.25,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 19,
+        "total_tokens": 211
+      },
+      "cost_usd": 2.275e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.5,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.5,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 198,
+        "completion_tokens": 14,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.20625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 22,
+        "total_tokens": 214
+      },
+      "cost_usd": 2.35e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 40,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 40,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 194,
+        "completion_tokens": 18,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.26875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 4,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 4,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 23,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 44.5,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 44.49999999999999,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 196,
+        "completion_tokens": 19,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.3125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique'",
+      "result": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 352,
+        "completion_tokens": 16,
+        "total_tokens": 368
+      },
+      "cost_usd": 3.7e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 10,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 10,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 17,
+        "total_tokens": 371
+      },
+      "cost_usd": 3.74375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1;",
+      "result": [
+        "item_6101_1",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_9",
+        "item_6101_10",
+        "item_6101_11",
+        "item_6101_13",
+        "item_6101_21",
+        "item_6101_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 351,
+        "completion_tokens": 16,
+        "total_tokens": 367
+      },
+      "cost_usd": 3.690625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 313.25,
+      "sql": "SELECT SUM(pack_mass) FROM items",
+      "result": 313.25,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 353,
+        "completion_tokens": 15,
+        "total_tokens": 368
+      },
+      "cost_usd": 3.684375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 80.55,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 80.55,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 21,
+        "total_tokens": 375
+      },
+      "cost_usd": 3.84375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.5,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.5,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 360,
+        "completion_tokens": 14,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.725e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6101_0",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_14"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 22,
+        "total_tokens": 376
+      },
+      "cost_usd": 3.86875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 40,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 40,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 356,
+        "completion_tokens": 18,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.7875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 4,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 4,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 23,
+        "total_tokens": 377
+      },
+      "cost_usd": 3.89375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 44.5,
+      "sql": "SELECT SUM(mass) FROM items WHERE count > 0",
+      "result": 95.05,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 358,
+        "completion_tokens": 18,
+        "total_tokens": 376
+      },
+      "cost_usd": 3.80625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique'",
+      "result": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 190,
+        "completion_tokens": 16,
+        "total_tokens": 206
+      },
+      "cost_usd": 2.18125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 17,
+        "total_tokens": 209
+      },
+      "cost_usd": 2.225e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1;",
+      "result": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 189,
+        "completion_tokens": 16,
+        "total_tokens": 205
+      },
+      "cost_usd": 2.171875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 475.85,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 100.09999999999998,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 191,
+        "completion_tokens": 13,
+        "total_tokens": 204
+      },
+      "cost_usd": 2.115625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 101.45,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 24,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 19,
+        "total_tokens": 211
+      },
+      "cost_usd": 2.275e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.3,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 198,
+        "completion_tokens": 14,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.20625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 22,
+        "total_tokens": 214
+      },
+      "cost_usd": 2.35e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 42,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 42,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 194,
+        "completion_tokens": 18,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.26875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 3,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 23,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 26.7,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 26.700000000000003,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 196,
+        "completion_tokens": 19,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.3125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique';",
+      "result": [
+        "item_6102_0",
+        "item_6102_2",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13",
+        "item_6102_23"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 352,
+        "completion_tokens": 16,
+        "total_tokens": 368
+      },
+      "cost_usd": 3.7e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 17,
+        "total_tokens": 371
+      },
+      "cost_usd": 3.74375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1",
+      "result": [
+        "item_6102_1",
+        "item_6102_2",
+        "item_6102_11",
+        "item_6102_12",
+        "item_6102_18",
+        "item_6102_19",
+        "item_6102_23"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 351,
+        "completion_tokens": 15,
+        "total_tokens": 366
+      },
+      "cost_usd": 3.665625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 475.85,
+      "sql": "SELECT SUM(pack_mass) FROM items;",
+      "result": 475.85,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 353,
+        "completion_tokens": 16,
+        "total_tokens": 369
+      },
+      "cost_usd": 3.709375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 101.45,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 101.45,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 21,
+        "total_tokens": 375
+      },
+      "cost_usd": 3.84375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.3,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 360,
+        "completion_tokens": 14,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.725e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6102_0",
+        "item_6102_6",
+        "item_6102_8",
+        "item_6102_13"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 22,
+        "total_tokens": 376
+      },
+      "cost_usd": 3.86875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 42,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 42,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 356,
+        "completion_tokens": 18,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.7875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 3,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 3,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 23,
+        "total_tokens": 377
+      },
+      "cost_usd": 3.89375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6102,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 26.7,
+      "sql": "SELECT SUM(mass) FROM items WHERE count > 0;",
+      "result": 100.09999999999998,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 358,
+        "completion_tokens": 19,
+        "total_tokens": 377
+      },
+      "cost_usd": 3.83125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique'",
+      "result": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 190,
+        "completion_tokens": 16,
+        "total_tokens": 206
+      },
+      "cost_usd": 2.18125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 17,
+        "total_tokens": 209
+      },
+      "cost_usd": 2.225e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1;",
+      "result": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 189,
+        "completion_tokens": 16,
+        "total_tokens": 205
+      },
+      "cost_usd": 2.171875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total mass I carry?",
+      "expected": 541.25,
+      "sql": "SELECT SUM(mass) FROM items",
+      "result": 118.75,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 191,
+        "completion_tokens": 13,
+        "total_tokens": 204
+      },
+      "cost_usd": 2.115625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 422.95,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'rare'",
+      "result": 70.30000000000001,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 19,
+        "total_tokens": 211
+      },
+      "cost_usd": 2.275e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.85,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.85,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 198,
+        "completion_tokens": 14,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.20625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 22,
+        "total_tokens": 214
+      },
+      "cost_usd": 2.35e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 16,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 16,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 194,
+        "completion_tokens": 18,
+        "total_tokens": 212
+      },
+      "cost_usd": 2.26875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "How many common stacks have only one unit?",
+      "expected": 1,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 1,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 192,
+        "completion_tokens": 23,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "schema",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 20.25,
+      "sql": "SELECT SUM(mass) FROM items WHERE rarity = 'unique'",
+      "result": 20.249999999999996,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 196,
+        "completion_tokens": 19,
+        "total_tokens": 215
+      },
+      "cost_usd": 2.3125e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique'",
+      "result": [
+        "item_6103_0",
+        "item_6103_2",
+        "item_6103_9",
+        "item_6103_15",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 352,
+        "completion_tokens": 16,
+        "total_tokens": 368
+      },
+      "cost_usd": 3.7e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "How many unique item rows do I carry?",
+      "expected": 6,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'unique'",
+      "result": 6,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 17,
+        "total_tokens": 371
+      },
+      "cost_usd": 3.74375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which items have quantity one?",
+      "expected": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "sql": "SELECT id FROM items WHERE count = 1;",
+      "result": [
+        "item_6103_1",
+        "item_6103_2",
+        "item_6103_7",
+        "item_6103_19",
+        "item_6103_22"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 351,
+        "completion_tokens": 16,
+        "total_tokens": 367
+      },
+      "cost_usd": 3.690625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total mass I carry?",
+      "expected": 541.25,
+      "sql": "SELECT SUM(pack_mass) FROM items;",
+      "result": 541.25,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 353,
+        "completion_tokens": 16,
+        "total_tokens": 369
+      },
+      "cost_usd": 3.709375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the combined mass of rare stacks?",
+      "expected": 422.95,
+      "sql": "SELECT SUM(pack_mass) FROM items WHERE rarity = 'rare'",
+      "result": 422.95000000000005,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 21,
+        "total_tokens": 375
+      },
+      "cost_usd": 3.84375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the mass of one item for the heaviest individual item?",
+      "expected": 9.85,
+      "sql": "SELECT MAX(mass) FROM items;",
+      "result": 9.85,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 360,
+        "completion_tokens": 14,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.725e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "Which unique items have count greater than two?",
+      "expected": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "sql": "SELECT id FROM items WHERE rarity = 'unique' AND count > 2;",
+      "result": [
+        "item_6103_0",
+        "item_6103_15"
+      ],
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 22,
+        "total_tokens": 376
+      },
+      "cost_usd": 3.86875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total number of units in unique stacks?",
+      "expected": 16,
+      "sql": "SELECT SUM(count) FROM items WHERE rarity = 'unique'",
+      "result": 16,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 356,
+        "completion_tokens": 18,
+        "total_tokens": 374
+      },
+      "cost_usd": 3.7875e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "How many common stacks have only one unit?",
+      "expected": 1,
+      "sql": "SELECT COUNT(*) FROM items WHERE rarity = 'common' AND count = 1;",
+      "result": 1,
+      "error": null,
+      "correct": true,
+      "usage": {
+        "prompt_tokens": 354,
+        "completion_tokens": 23,
+        "total_tokens": 377
+      },
+      "cost_usd": 3.89375e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6103,
+      "mode": "meaning",
+      "question": "What is the total mass of one unit from each unique stack?",
+      "expected": 20.25,
+      "sql": "SELECT SUM(mass) FROM items WHERE count > 0;",
+      "result": 118.75,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 358,
+        "completion_tokens": 19,
+        "total_tokens": 377
+      },
+      "cost_usd": 3.83125e-05
+    }
+  ]
+}

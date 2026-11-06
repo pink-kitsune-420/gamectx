@@ -18,14 +18,19 @@
 
 use crate::json::{Error, Result, Value};
 
+mod bindings;
 mod cache;
+mod diagnostics;
 mod infer;
 mod job;
 mod learn;
+mod stability;
 mod tools;
+pub use bindings::{BoundBrain, FeatureSchema, Features};
 pub use cache::{CacheStats, CachedBrain, MAX_CACHE_ENTRIES};
 pub use infer::{Prediction, SCALE};
 pub use job::TrainingJob;
+pub use stability::{Selection, SelectionPolicy, StableBrain};
 pub use tools::{create_call, process, process_cached, tools};
 
 const S: i64 = 1_000_000;

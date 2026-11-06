@@ -1,0 +1,125 @@
+{
+  "tokens_only": true,
+  "spend_usd": 0.0001380125,
+  "completed": true,
+  "rows": [
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "",
+      "result": null,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 205,
+        "completion_tokens": 1,
+        "total_tokens": 206,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 3.135e-05
+    },
+    {
+      "model": "llama-3.2-3b",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "",
+      "result": null,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 365,
+        "completion_tokens": 1,
+        "total_tokens": 366,
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      },
+      "cost_usd": 5.5350000000000004e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "schema",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "",
+      "result": null,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 190,
+        "completion_tokens": 1,
+        "total_tokens": 191
+      },
+      "cost_usd": 1.80625e-05
+    },
+    {
+      "model": "mistral-small-3-2-24b-instruct",
+      "seed": 6101,
+      "mode": "meaning",
+      "question": "Which unique items do I carry?",
+      "expected": [
+        "item_6101_0",
+        "item_6101_2",
+        "item_6101_4",
+        "item_6101_6",
+        "item_6101_7",
+        "item_6101_8",
+        "item_6101_14",
+        "item_6101_15",
+        "item_6101_20",
+        "item_6101_21"
+      ],
+      "sql": "",
+      "result": null,
+      "error": null,
+      "correct": false,
+      "usage": {
+        "prompt_tokens": 352,
+        "completion_tokens": 1,
+        "total_tokens": 353
+      },
+      "cost_usd": 3.325e-05
+    }
+  ]
+}

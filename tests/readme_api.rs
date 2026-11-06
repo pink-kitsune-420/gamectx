@@ -181,3 +181,13 @@ mod runtime_loop;
 fn combined_runtime_documented_example() -> gamectx::Result<()> {
     runtime_loop::main()
 }
+
+#[path = "../examples/evidence-memory.rs"]
+mod evidence_memory;
+#[path = "../examples/integration-tools.rs"]
+mod integration_tools;
+#[test]
+fn documented_integration_and_evidence_examples() -> gamectx::Result<()> {
+    integration_tools::main()?;
+    evidence_memory::main()
+}

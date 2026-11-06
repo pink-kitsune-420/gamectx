@@ -434,3 +434,162 @@ was available for this work, so actual KV-cache/token savings remain unmeasured.
 The request options and response interpretation follow the official
 [llama.cpp server documentation](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
 This harness is an integration aid; provider prompt-cache discounts remain unverified.
+
+## Bindings, semantics and evidence
+
+`integration_eval.py` prototypes versioned physical-input bindings, diagnostic replay,
+scoped memory, native evidence/hypotheses and optional stable reaction selection.
+`evidence_eval.py` supplies the evidence reference implementation. All measurements
+except the explicitly recorded query-meaning runs below are offline and cost $0.
+
+```bash
+python3 -I eval/integration_eval.py
+python3 -I eval/test_integration.py
+cargo build --release --locked
+rustc --edition=2021 -O eval/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
+python3 -I eval/integration_eval.py --check
+python3 -I eval/query_meaning_eval.py --check --cap 0
+rustc --edition=2021 -O eval/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
+./target/integration-bench > eval/integration-bench-results.json
+cargo run --example integration-tools
+cargo run --example evidence-memory
+```
+
+### Packet regression and memory measurements
+
+[Saved packet results](integration-bench-results.json) compare the frozen `dd87e76`
+assembler (`budget_pre_integration.rs`, including local copies of its private JSON
+helpers) against the repaired byte-budget path. The prior path walked values for
+size and then receipt size before/during serialization. The new fitting path collects
+receipt lengths while serializing, borrowing stable sections first without moving
+input declarations. A first attempt using another sorted index vector added an
+allocation and regressed tiny packets; the final path avoids that extra vector.
+
+Release timing uses seven paired trials, alternating before/after order, with allocation
+counters disabled. Allocation/reallocation counts and peak transient bytes come from
+separate single-build samples using a counting System allocator. Peak bytes exclude
+pre-existing input/prepared storage; every counted allocation is freed within the sampled
+closure. Prepared reuse runs after the pair in each trial and is a maximum-reuse scenario.
+This differs from the historical instrumented runtime benchmark, so compare the matched
+before/after rows here rather than absolute timings across experiments.
+
+| Workload | Builds | Before median ns | After median ns | Allocations before→after | Peak transient bytes before→after |
+|---|---:|---:|---:|---:|---:|
+| Tiny | 1,000 | 224,347 | 199,188 | 9→9 | 148→164 |
+| Fits | 1,000 | 9,171,479 | 5,905,360 | 61→61 | 8,108→8,140 |
+| Pressure | 1,000 | 34,371,446 | 29,824,656 | 153→172 | 26,825→26,825 |
+| Large | 100 | 34,650,555 | 28,934,700 | 411→432 | 231,497→231,497 |
+| Mixed | 1,000 | 8,822,089 | 5,708,635 | 72→72 | 6,034→6,066 |
+
+Tiny: one 8-byte string section, cap 128. Fits: 16×128-byte strings, cap 4096. Pressure:
+32×256, cap 2048. Large: 96×1024, cap 8192. Mixed: 16 sections, every fourth a small
+object, others 128-byte strings, cap 4096. Priorities cycle 0..4, stable flags alternate,
+section zero is required. Input clones occur inside both one-shot timing paths; prepared
+references are built outside. Text and receipts are asserted equal before timing.
+
+These fixtures improve throughput about 1.13–1.55×, with pressure-path allocation
+increases and small fitting peak-memory increases explicitly shown. They do not establish
+an improvement for every payload/allocator/engine. Prepared reuse remains faster here;
+its exact rows are retained in the JSON artifact rather than treated as dynamic-content
+savings. Native context and generic content predicates retain prior behavior.
+
+### Physical bindings, diagnostics and stability
+
+Bindings retain the full effective schema, not only an ID/hash. Tests change physical
+units, range, revision and feature order; saved bindings reject mismatches. Input tests
+include inverted/clamped/unknown values and physical ranges crossing zero. This validates
+the declared contract, not whether an engine measured what it claimed.
+
+[Deterministic integration results](integration-results.json) use fresh random seeds
+5001/5002/5003 for stability: two direct utility outputs, 240 frames/seed. At each frame,
+inputs are independent 0.5±0.01 noisy utilities, except every 40th frame supplies a strong
+0.8/0.2 preference and marks urgency. Frames 150..157 allow only the second reaction.
+Switch margin is 0.04 and minimum hold is four ticks. Compare raw greedy selection and
+held selection over identical observed utilities:
+
+| Seed | Raw switches | Stable switches | Missed urgent switches | Ineligible choices | Total utility regret, millionths |
+|---|---:|---:|---:|---:|---:|
+| 5001 | 120 | 5 | 0 | 0 | 839,763 |
+| 5002 | 119 | 5 | 0 | 0 | 682,109 |
+| 5003 | 116 | 5 | 0 | 0 | 759,802 |
+| Total | 355 | 15 | 0 | 0 | 2,281,674 |
+
+Regret sums best currently eligible utility minus selected utility; mean about 0.003169
+per frame. This is a consistency/utility tradeoff, not a new accuracy score. Test actual
+reaction delay and gameplay before enabling holding. These replayed observations cannot
+show how a different action changes subsequent world states.
+
+Differential checking covers 152 workflows including all 46 new cases, 720 held-out
+stability frames, 720 replay observations and 800 generated binding inputs. Replay
+reasons include unknown eligible scores, no eligibility, all-zero/tied utilities and
+score/margin thresholds. Label agreement and nearest-rank p50/p95 use supplied host data.
+The illustrative trace's 100..160 ns values are fixture data, not measured inference times.
+
+### Query-meaning model check
+
+`query_meaning_eval.py` freezes three fresh states (seeds 6101/6102/6103), 24 item-stack
+rows each with randomized IDs, quantities, rarity categories and physical mass. Four
+initial rows ensure rarity `unique` and quantity one are distinct concepts in every
+state. Ten fixed questions/state cover categories, counts, per-unit mass and per-stack
+mass. Both approved small models see table descriptions without rows, with or without
+host meanings. Each returns one SQL query; no correction/final-answer turn is included.
+Scores use executed result values (ID lists unordered; numeric relative tolerance 1e-6).
+Ambiguous natural-language meanings are defined by the host metadata; this is a targeted
+semantic test, not evidence that arbitrary gameplay questions improve equally.
+
+The token check ran first, capped at $0.01; the accuracy run was capped at $0.06. Only
+Llama 3.2 3B and Mistral Small 3.2 24B ran. [Token usage](query-meaning-tokens.json):
+
+| Model | Schema input tokens | Meanings input tokens |
+|---|---:|---:|
+| Llama 3.2 3B | 205 | 365 |
+| Mistral Small 3.2 24B | 190 | 352 |
+
+[Accuracy results and every recorded query](query-meaning-results.json):
+
+| Model | Schema correct / 30 | Meanings correct / 30 | Average input, schema→meanings | Average output, schema→meanings |
+|---|---:|---:|---:|---:|
+| Llama 3.2 3B | 12 | 18 | 207.4→367.4 | 22.3→22.2 |
+| Mistral Small 3.2 24B | 24 | 27 | 192.6→354.6 | 17.7→18.1 |
+| Total | 36/60 | 45/60 | | |
+
+Token check spend $0.0001380125; accuracy spend $0.0051951; total **$0.0053331125**.
+Meanings cost more tokens and still miss 15/60 queries. Provider usage supports these
+counts, not a cache discount claim. `--check --cap 0` proves three metadata descriptions
+and all 120 executed/error query outputs match Rust byte-for-byte, entirely offline.
+
+```bash
+# Paid examples; do not rerun automatically during tests.
+python3 -I eval/query_meaning_eval.py --tokens-only --cap 0.01
+python3 -I eval/query_meaning_eval.py --cap 0.06
+```
+
+### Freshness, evidence and hypotheses
+
+Journal fixtures distinguish active observations, proposals, expiry and permanent
+supersession. The capacity-one case retains an observation over a competing proposal.
+An expired replacement does not restore the old superseded observation; a recalled
+fallback proposal is still explicitly marked proposed. Existing Memory fixtures remain
+unchanged.
+
+Evidence reference tests include six valid and nine invalid workflows: native-token
+replay, stale snapshots, omitted/duplicate/unknown citations, changed privacy, wrong
+source provenance, confidence limits and byte budgets. Valid workflows exercise supporting
+and contradicting refs, repeated claims, expiry, contradiction and forgetting dependencies.
+Repeat test: requested confidence 0.6→0.9 and TTL 100→1000; actual confidence stays 0.6,
+creation stays 2 and expiry stays 30 (source expiry), with exactly two native observations
+before and after. Model guesses never enter the native evidence pool. Sealed-instance
+checks, restore subject/clock mismatches and saved metadata consistency have native tests.
+
+The raw persisted store may contain private observations; model context uses filtered,
+byte-budgeted snapshots. A hypothesis is omitted when a required source is absent from
+the retained packet. Only its retained source IDs are citable in the next reply. Filtering
+is immediate; physical forgetting removes evidence and dependent hypotheses. The host owns
+consent, source truth, logical clocks, schema meaning and durable archive I/O. Citation
+validation proves availability/provenance, not entailment, factual truth or calibrated
+confidence, and does not confer action permissions.
+
+Mutation tests add 40,000 binding/metadata/journal/replay texts plus 20,000 cited-proposal
+and saved-evidence texts. Errors must not partially alter observations, state or traces.
+All earlier 261 conformance fixtures stay unchanged. This phase's total API spend is
+$0.0053331125; other integrity and performance checks are offline.

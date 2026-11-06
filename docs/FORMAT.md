@@ -727,3 +727,188 @@ This protocol transfers host context; it is not automatic language-model memory 
 fact-authentication mechanism. Reconstruct full packets before ordinary model calls.
 Stable prefixes are retained by normal packet ordering. Provider/local-server prompt-cache
 behavior and token accounting must be measured in the integration.
+
+## Versioned feature bindings
+
+`FeatureSchema` parses strict JSON up to 16,384 bytes, with exactly `version:1`, `id`,
+`revision` (1..1,000,000) and 1..16 ordered `features`. ID/feature names follow brain
+names. Every feature has exactly `name`, `unit` (1..32 non-control characters), `min`,
+`max`, `invert` (boolean), `missing` (`unknown`/`error`) and `outside`
+(`unknown`/`error`/`clamp`). Physical bounds/observations must be finite numbers within
+±1,000,000,000 units. Bounds and observations first round to physical millionths;
+min must remain strictly below max. Normalization rounds `(value-min)/(max-min)` to
+millionths with i128 intermediates, then optionally subtracts from 1,000,000.
+Missing/null and out-of-range policies are independent. No implicit zero/unit conversion.
+
+`normalize` accepts named raw values in any object order, rejecting unknown/duplicate
+names. `Features::as_slice` returns declared-order fixed storage. `validate(brain)`
+requires the identical ordered input names. `BoundBrain::new` owns both; `run_into`
+validates compatibility again after mutable access, normalizes, then uses native inference.
+Errors leave its caller's prediction unchanged. Binding cannot determine whether a host
+actually measured the units it claims.
+
+Bound saved state is `{"version":1,"schema":SCHEMA,"brain":SAVED_BRAIN}`. Restore takes
+an explicit expected schema and compares the complete effective definition, including ID,
+revision, order, units, ranges, inversion and policies. Equivalent numeric spellings on
+the same millionth grid match. Text parsing is capped at 278,528 bytes. Old saved-brain
+formats remain unchanged; binding envelopes are optional.
+
+## Query meanings
+
+`query::describe_with(tables, metadata)` returns ordinary descriptions with a `meaning`
+field on annotated tables. Metadata is an object keyed by existing tables, at most
+65,536 serialized bytes. Each table value has exactly `description` (1..280 non-control
+characters) and `columns` (existing columns only, max 64). Each column has exactly:
+
+```json
+{"description":"Rarity label, independent of quantity.","unit":null,"kind":"categorical","values":{"unique":"A rarity label, not a count of one."}}
+```
+
+Units are null or 1..32 non-control characters. Kinds are `categorical` (string/null),
+`quantity` or `continuous` (number/null), and `identifier` (string/number/null). Literal
+meanings are an object of at most 16 currently present string values, each 1..64 characters,
+with descriptions 1..280 characters; nonempty maps require a categorical column.
+Duplicate, unknown or mismatched metadata is rejected. All-null columns can be annotated
+with a compatible declared kind. Empty tables have no inferred columns to annotate.
+Literal meanings are annotations, not an exhaustive replacement for inferred domains.
+Meaning object order follows the supplied metadata. `describe` and SQL semantics are
+unchanged. The CLI accepts `query --schema TABLES --metadata MEANINGS`.
+
+## Diagnostics and replay
+
+`Brain::diagnose` accepts the same native inputs/mask/thresholds as `run_into` and adds
+`reason` to the existing JSON prediction. Reason precedence is `no_eligible`,
+`unknown_eligible`, `all_zero`, `tie`, `score_threshold`, `margin_threshold`, `chosen`.
+Invalid arguments error rather than becoming abstention. Reasons describe numeric
+selection conditions, not causal intent or calibrated confidence.
+
+`replay::Recorder` retains an initial saved brain and up to 256 explicit events. A trace
+has exactly `version:1`, `initial`, `events`, at most 1,048,576 JSON bytes. Initial/state
+snapshots obey the 262,144-byte brain bound. Events use monotonic unsigned ticks <=
+4,294,967,295. A run event has exactly these fields:
+
+```json
+{"op":"run","tick":1,"inputs":[800000,200000],"mask":3,"low":0,"gap":0,"expected":{"choice":0},"elapsed_ns":null}
+```
+
+Inputs are native millionth integers/null; mask and thresholds follow inference bounds.
+`expected:null` means unlabeled; `{choice:null}` labels abstention; `{choice:i}` labels an
+existing output index. `elapsed_ns` is null or a host-recorded integer 0..1,000,000,000,000.
+A state event is exactly `{op:"state",tick,state:SAVED_BRAIN}`; replacing graphs is explicit
+and resets consecutive-choice switch accounting. Recorder errors preserve the prior trace;
+full recorders stop instead of losing the initial baseline. Traces store normalized data;
+keep feature schemas separately if reconstructing physical bindings is necessary.
+
+`replay::run`/`run_json` and `gamectx replay FILE` return `reports`, `summary`, `state`.
+Summary fields are `events`, `runs`, `labeled`, `correct`, `abstentions`, `switches`,
+`latency_samples`, `p50_ns`, `p95_ns`, `max_ns`. Switches count differing consecutive
+non-abstaining run choices; an abstention breaks that sequence. Latency percentiles use
+nearest rank over supplied elapsed samples and are null when absent. They describe the
+recorded run, not replay speed. Replay does not execute game actions or establish
+counterfactual gameplay outcomes. `-` reads bounded stdin.
+
+## Optional reaction stability
+
+`StableBrain::new(brain, switch_margin, min_hold_ticks)` owns one brain with margin
+0..1,000,000 and hold 0..1,000,000 ticks. `run_into(tick, inputs, SelectionPolicy, out)`
+requires monotonic u64 time and first performs normal inference. Policy contains `allowed`,
+`min_score`, `min_margin`, `urgent`. Unknowns, ties and other normal abstention clear the
+previous choice immediately. Urgent valid predictions bypass holding. Otherwise an old
+choice must still be eligible with score strictly above min_score; an invalid old choice
+is dropped immediately. A different valid winner is held while the hold period remains,
+then while its score gain over the previous choice is <= switch_margin. This can select
+a lower-utility eligible reaction; the host measures the tradeoff.
+
+`Selection` exposes raw `prediction()`, selected `choice()`, `held()` and `reason()`:
+`raw`, `abstained`, `urgent`, `ineligible`, `held_time`, `held_margin`. Raw margin/choice
+remain properties of the original inference, not of the held choice. Actual choice
+changes reset the hold clock. Invalid calls leave selection/state unchanged. Mutable
+brain access and explicit reset clear the previous choice while preserving monotonic
+clock checks. Holding state is ephemeral and absent from saved learning.
+
+## Scoped memory journal
+
+`memory::Journal` is optional; existing `Memory`/`Record` formats remain unchanged.
+Capacity is 1..1024 records. Native record requests have exactly `turn`, `entity`, `key`,
+`text`, `tags`, `importance`, `source`, `expires`. Turn is monotonic <=4,294,967,295;
+entity/key are 1..64 non-control characters. Text, tags and importance reuse legacy
+normalization (one-line text <=280 chars, max eight tags <=32 chars, importance 1..10).
+Source is `observed` or `proposed`; expiry is null or a strictly later bounded turn.
+
+New records permanently supersede previous active records of the same entity/key/source.
+Observed/proposed channels remain distinct. Recall first excludes superseded/expired
+records, then includes proposals only when explicitly requested and no active observation
+exists for that entity/key. Older superseded records do not revive after replacement
+expiry, eviction or forgetting. Ranking uses the existing inverse-document-frequency
+memory scorer over eligible records only. Recall rejects backward time, queries over
+512 characters or counts over 64.
+
+Eviction prefers expired/superseded records, then proposals, then lower importance,
+older turn and lower ID. An inserted low-priority record may immediately be evicted;
+returned IDs are not a promise of retention. `forget(id)` removes explicitly.
+`apply_proposal(turn,args)` accepts exactly entity/key/text/tags/importance/ttl and forces
+source=proposed with a 1..1,000,000-turn TTL. Model JSON cannot override provenance/time.
+Saved journal has version/capacity/clock/next_id/records, with record fields
+id/turn/entity/key/text/tags/importance/source/expires/superseded. Restore validates ID/time
+order, bounds and active-channel uniqueness; text loads cap at 4,194,304 bytes.
+
+## Evidence and hypotheses
+
+`EvidenceMemory::new(subject, clock_id, capacity, max_hypotheses)` scopes one store to an
+explicit subject (1..64 non-control chars) and host clock name (brain-style name, max 32).
+Evidence capacity is 1..128; hypotheses 1..16. All operations use host-supplied bounded
+logical time; no OS clock, game polling or network is owned by the library.
+
+`observe(native_token, record, privacy)` is a host operation, accepting only journal
+source=observed. Tokens must strictly increase, 1..4,294,967,295; replay/old tokens error.
+Observation time must not precede the store's last mutating time. Privacy has at most eight
+distinct brain-style labels. Eviction deletes metadata and dependent hypotheses. Source
+records retain their original clocks/expiry; model proposals cannot renew observations.
+
+`snapshot(now,count,max_bytes,denied)` returns a sealed `EvidenceSnapshot` plus its
+`to_value` payload. Count <=16, bytes 1..16384. Privacy is filtered before priority/recency
+selection. Contradicted, superseded and expired evidence is unavailable. Payload fields:
+subject/clock/revision/now/evidence/hypotheses/citable. Each evidence row contains a journal
+record, native token and privacy. Citable entries contain exactly id/token pairs from
+retained evidence. Existing hypotheses are included only while unexpired and all dependencies
+are retained. Truncation drops evidence, dependent hypotheses and references together.
+An empty payload that cannot fit errors. Reads never renew time, confidence or state.
+
+The host retains the sealed snapshot object while the model receives its payload unchanged.
+If outer packing drops or rewrites the evidence, create a matching snapshot before applying replies. Submit
+model replies through `propose(&snapshot, now, request, current_denied)`; the store rechecks
+instance identity, revision, snapshot time, supplied IDs, current availability and privacy.
+Restoring or creating another store invalidates old sealed snapshots even if state matches.
+Proposals have exactly:
+
+```json
+{"id":"seeking_shelter","statement":"The actor may be seeking shelter.","confidence":0.6,"supports":[1],"contradicts":[2],"ttl":100}
+```
+
+IDs use brain-style names, statements 1..280 non-control chars. Confidence rounds to
+millionths in 0..0.95; zero retracts an existing supplied hypothesis. Positive scores are
+uncalibrated proposal scores, not probabilities. At least one support and at most three
+total distinct support/contradiction IDs are required. References are canonicalized in
+ascending order and can cite only supplied native evidence, never hypotheses. TTL is
+1..1,000,000 ticks, further capped by the earliest expiring source. With the same combined
+reference set, repeats can only lower confidence/expiry; creation time stays fixed and
+rewording errors. An exact duplicate statement/reference set under a new ID is rejected.
+A currently valid hypothesis hidden by privacy or truncation cannot be overwritten unseen.
+An expired/invalidated hypothesis ID can be reused with a different currently supplied basis;
+the same-basis lifetime/confidence restrictions still apply. Changed evidence sets are new
+proposals; the library cannot detect semantic paraphrases or prove that a citation entails a claim.
+
+Stored hypotheses retain id/statement/confidence/created/expires/supports/contradicts/
+privacy; snapshots additionally label them `tentative` or `contested`. No score or status
+promotes a hypothesis to an observation or grants game-action authority. Full stores
+replace the earliest retained hypothesis. `contradict(id,now)` makes an evidence source
+unavailable. `forget_privacy` physically removes matching sources and every dependent
+hypothesis; filtered snapshots alone do not physically erase persisted data.
+
+Saved state includes version/subject/clock_id/revision/last_token/clock/max_hypotheses/
+journal/evidence/hypotheses. Evidence metadata carries id/token/privacy/contradicted.
+Restore requires expected subject/clock, validates counters, time/dependency/metadata
+coverage and inherited privacy, and caps text at 1,048,576 bytes. This validates structural
+consistency, not cryptographic origin. Persisted state is host-only and may contain
+private facts; use filtered snapshots for model context. Privacy labels, authentic
+observations, consent, clock progression and durable storage remain host responsibilities.

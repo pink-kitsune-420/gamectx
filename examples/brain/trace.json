@@ -1,0 +1,157 @@
+{
+  "version": 1,
+  "initial": {
+    "version": 1,
+    "definition": {
+      "version": 1,
+      "inputs": [
+        "x",
+        "y"
+      ],
+      "outputs": [
+        "a",
+        "b"
+      ],
+      "nodes": [
+        {
+          "id": "a",
+          "weights": {
+            "x": 1
+          },
+          "bias": 0,
+          "pinned": false,
+          "learning_limit": 1
+        },
+        {
+          "id": "b",
+          "weights": {
+            "y": 1
+          },
+          "bias": 0,
+          "pinned": false,
+          "learning_limit": 1
+        }
+      ]
+    },
+    "revision": 0,
+    "weights": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "used_ids": [],
+    "history": []
+  },
+  "events": [
+    {
+      "op": "run",
+      "tick": 0,
+      "inputs": [
+        800000,
+        200000
+      ],
+      "mask": 3,
+      "low": 0,
+      "gap": 0,
+      "expected": {
+        "choice": 0
+      },
+      "elapsed_ns": 100
+    },
+    {
+      "op": "run",
+      "tick": 1,
+      "inputs": [
+        null,
+        200000
+      ],
+      "mask": 3,
+      "low": 0,
+      "gap": 0,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 110
+    },
+    {
+      "op": "run",
+      "tick": 2,
+      "inputs": [
+        0,
+        0
+      ],
+      "mask": 3,
+      "low": 0,
+      "gap": 0,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 120
+    },
+    {
+      "op": "run",
+      "tick": 3,
+      "inputs": [
+        500000,
+        500000
+      ],
+      "mask": 3,
+      "low": 0,
+      "gap": 0,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 130
+    },
+    {
+      "op": "run",
+      "tick": 4,
+      "inputs": [
+        800000,
+        200000
+      ],
+      "mask": 0,
+      "low": 0,
+      "gap": 0,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 140
+    },
+    {
+      "op": "run",
+      "tick": 5,
+      "inputs": [
+        800000,
+        200000
+      ],
+      "mask": 3,
+      "low": 800000,
+      "gap": 0,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 150
+    },
+    {
+      "op": "run",
+      "tick": 6,
+      "inputs": [
+        800000,
+        200000
+      ],
+      "mask": 3,
+      "low": 0,
+      "gap": 600000,
+      "expected": {
+        "choice": null
+      },
+      "elapsed_ns": 160
+    }
+  ]
+}

@@ -20,6 +20,10 @@
 
 use crate::json::{Error, Result, Value};
 use crate::view::words;
+mod evidence;
+mod journal;
+pub use evidence::{EvidenceMemory, EvidenceSnapshot};
+pub use journal::{Fact, Journal, MAX_JOURNAL_BYTES};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Record {
@@ -138,39 +142,7 @@ impl Memory {
     /// important, then the more recent record. With no matching words this returns the most
     /// important recent records, so a vague message still recalls what matters.
     pub fn recall(&self, text: &str, count: usize) -> Vec<&Record> {
-        let wanted = words(text);
-        let parts: Vec<Vec<String>> = self
-            .records
-            .iter()
-            .map(|r| {
-                let mut p = words(&r.text);
-                p.extend(r.tags.iter().cloned());
-                let extra: Vec<String> = p.iter().filter_map(|w| singular(w)).collect();
-                p.extend(extra);
-                p
-            })
-            .collect();
-        let weight: Vec<f64> = wanted
-            .iter()
-            .map(|w| {
-                let n = parts.iter().filter(|p| p.contains(w)).count();
-                if n == 0 {
-                    0.0
-                } else {
-                    1.0 / n as f64
-                }
-            })
-            .collect();
-        let mut scored: Vec<(f64, &Record)> = self
-            .records
-            .iter()
-            .zip(&parts)
-            .map(|(r, p)| (wanted.iter().zip(&weight).filter(|(w, _)| p.contains(w)).map(|(_, x)| x).sum(), r))
-            .collect();
-        scored.sort_by(|(sa, a), (sb, b)| {
-            sb.total_cmp(sa).then((b.importance, b.turn, b.id).cmp(&(a.importance, a.turn, a.id)))
-        });
-        scored.into_iter().take(count).map(|(_, r)| r).collect()
+        recall_records(self.records.iter(), text, count)
     }
 
     /// Recalled records as a compact table for a packet, oldest first so events read in order.
@@ -274,6 +246,43 @@ impl Memory {
         memory.next_id = next_id as u64;
         Ok(memory)
     }
+}
+
+fn recall_records<'a>(records: impl IntoIterator<Item = &'a Record>, text: &str, count: usize) -> Vec<&'a Record> {
+    let records: Vec<_> = records.into_iter().collect();
+    let wanted = words(text);
+    let parts: Vec<Vec<String>> = records
+        .iter()
+        .copied()
+        .map(|r| {
+            let mut p = words(&r.text);
+            p.extend(r.tags.iter().cloned());
+            let extra: Vec<String> = p.iter().filter_map(|w| singular(w)).collect();
+            p.extend(extra);
+            p
+        })
+        .collect();
+    let weight: Vec<f64> = wanted
+        .iter()
+        .map(|w| {
+            let n = parts.iter().filter(|p| p.contains(w)).count();
+            if n == 0 {
+                0.0
+            } else {
+                1.0 / n as f64
+            }
+        })
+        .collect();
+    let mut scored: Vec<(f64, &Record)> = records
+        .iter()
+        .copied()
+        .zip(&parts)
+        .map(|(r, p)| (wanted.iter().zip(&weight).filter(|(w, _)| p.contains(w)).map(|(_, x)| x).sum(), r))
+        .collect();
+    scored.sort_by(|(sa, a), (sb, b)| {
+        sb.total_cmp(sa).then((b.importance, b.turn, b.id).cmp(&(a.importance, a.turn, a.id)))
+    });
+    scored.into_iter().take(count).map(|(_, r)| r).collect()
 }
 
 #[cfg(test)]

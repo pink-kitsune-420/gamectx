@@ -185,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 261 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 307 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -506,6 +506,88 @@ training, native inference, prepared context and acknowledged synchronization. T
 harness compares local server cache modes and records reported token counts/timings;
 actual server KV-cache savings remain unmeasured here. All new measurements cost $0.
 See [reproduction details](eval/README.md#frame-work-and-context-reuse).
+
+### Bind inputs, explain decisions and replay difficult states
+
+`brain::FeatureSchema` declares input names/order, units, physical ranges, inversion and
+missing/out-of-range policies. `BoundBrain` saves that schema with learned state and
+requires the complete expected schema when restoring. Changing units, ranges, versions
+or input order is rejected. Normalize physical values into fixed-point `Features` before
+native inference; unavailable values remain unknown unless the schema explicitly errors.
+
+`Brain::diagnose` adds deterministic reasons such as `unknown_eligible`, `tie`,
+`score_threshold` and `margin_threshold`. `replay::Recorder` captures normalized inputs,
+eligibility, labels, optional measured latency and explicit brain-state changes. Replay
+reports decision agreement, abstention/switch counts and recorded latency percentiles.
+It checks at most 256 events/1 MiB; it does not simulate world consequences or explain
+an actor's intentions. Keep a versioned binding envelope with traces when physical input
+meaning matters. The [combined example](examples/integration-tools.rs) runs as a test.
+
+`StableBrain` optionally keeps the previous eligible reaction until a new winner improves
+utility enough or its minimum hold period ends. Urgent events bypass holding; ineligible
+choices and normal inference abstention always take effect immediately. The reusable
+`Selection` exposes both raw prediction and selected reaction, so their meanings stay
+clear. Mutable brain access resets holding state. Three fresh 240-frame noisy trajectories
+produced 355 raw switches versus 15 stable switches, with zero missed urgent switches and
+zero ineligible choices. Holding sacrificed 2,281,674 total utility millionths across 720
+frames (about 0.003169 utility/frame). Evaluate response quality alongside consistency.
+
+### Supply meanings when field names are ambiguous
+
+`query::describe_with(tables, metadata)` adds bounded host-authored field descriptions,
+units, kinds and literal meanings; `describe` and query execution stay unchanged.
+For example, rarity `unique` is a category independent of quantity, while mass per item
+and mass per stack require different totals. Metadata is checked against table names,
+columns, types and supplied literal values.
+
+On three fresh 24-row states, 30 questions/model, meanings improved executed-query
+accuracy from 36/60 to 45/60: Llama 3.2 3B 12/30 → 18/30, Mistral Small 24/30 → 27/30.
+Token-only input counts rose 205 → 365 and 190 → 352 respectively. This is a targeted
+semantic test, not a general gameplay benchmark; metadata costs tokens and still leaves
+incorrect queries. Both runs together cost $0.0053331125. [Method and recorded queries](eval/README.md#bindings-semantics-and-evidence).
+
+```bash
+gamectx query --schema examples/query-meaning-tables.json --metadata examples/query-meanings.json
+gamectx replay examples/brain/trace.json
+cargo run --example integration-tools
+```
+
+### Remember observations and reason with evidence
+
+The existing `Memory` keeps its original event-log behavior. `memory::Journal` adds scoped
+entity/key facts, observed/proposed provenance, expiry, permanent supersession and explicit
+forgetting. Active observations take precedence over proposals; recalling after a newer
+fact expires never revives the older superseded observation.
+
+`memory::EvidenceMemory` adds separately labeled hypotheses with supporting and contradicting
+observation IDs. The host records actual evidence and retains a sealed `EvidenceSnapshot`
+while a model sees its JSON payload. Applying a proposal rechecks the originating instance,
+revision, actually supplied citations, current source availability, clock and privacy.
+Hypotheses never become native observations or cite each other as evidence.
+
+A proposal contains `id`, `statement`, `confidence`, `supports`, `contradicts` and `ttl`.
+Confidence is an uncalibrated declared score, capped at 0.95. Hypotheses remain `tentative`
+or `contested`; repeats with the same evidence cannot raise confidence, extend expiry
+or reword the claim. Lifetime is also capped by expiring sources. The host can contradict
+evidence, filter snapshots by privacy, and physically forget evidence plus dependent
+hypotheses. Snapshots fit an explicit byte budget, keeping references synchronized with
+retained evidence. Restores require matching subject and clock identity.
+
+```bash
+cargo run --example evidence-memory
+```
+
+The [tested example](examples/evidence-memory.rs) records two observations, stores a
+contested hypothesis, checks persistence and removes a private dependency. The offline
+reference accepted six valid workflows and rejected nine invalid workflows. Repeated
+proposals kept confidence at 0.6, expiry at turn 30 and native observations at two.
+These are integrity checks; citation validation does not establish that evidence logically
+supports a claim. The host supplies authoritative observations, time and consent.
+
+The fitting-packet regression was also addressed: a paired release benchmark measured
+1,000 fitting builds at 9,171,479 → 5,905,360 ns and mixed builds at
+8,822,089 → 5,708,635 ns. Pressure-path allocations increased 153 → 172/build while
+runtime improved; full timing/allocation/peak-memory results are in [the eval guide](eval/README.md#bindings-semantics-and-evidence).
 
 ## Be honest with your numbers
 

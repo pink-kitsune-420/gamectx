@@ -1,0 +1,1 @@
+{"kind":"metadata","tables":{"items":[{"id":"ash","rarity":"unique","count":8,"mass":0.5},{"id":"tide","rarity":"common","count":1,"mass":2}]},"metadata":{"items":{"description":"Carried item stacks.","columns":{"missing":{"description":"Number of units in this stack.","unit":"items","kind":"quantity","values":{}}}}}}

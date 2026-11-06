@@ -177,3 +177,33 @@ fn manifest_accepts_every_documented_table_key() {
     );
     assert_eq!(m.sections[0].verify().unwrap(), Check::ExactAfterView);
 }
+
+#[test]
+fn cli_meanings_and_replay_match_native_apis() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let tables = root.join("examples/query-meaning-tables.json");
+    let metadata = root.join("examples/query-meanings.json");
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_gamectx"))
+        .arg("query")
+        .arg("--schema")
+        .arg(&tables)
+        .arg("--metadata")
+        .arg(&metadata)
+        .output()
+        .unwrap();
+    assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
+    let rows = gamectx::json::parse(&std::fs::read_to_string(tables).unwrap(), 65536).unwrap();
+    let meta = gamectx::json::parse(&std::fs::read_to_string(metadata).unwrap(), 65536).unwrap();
+    let named: Vec<_> = rows.as_object().unwrap().iter().map(|(k, v)| (k.as_str(), v.as_array().unwrap())).collect();
+    assert_eq!(
+        String::from_utf8(result.stdout).unwrap().trim(),
+        gamectx::query::describe_with(&named, &meta).unwrap().to_json()
+    );
+    let path = root.join("examples/brain/trace.json");
+    let result = std::process::Command::new(env!("CARGO_BIN_EXE_gamectx")).arg("replay").arg(&path).output().unwrap();
+    assert!(result.status.success());
+    assert_eq!(
+        String::from_utf8(result.stdout).unwrap().trim(),
+        gamectx::replay::run_json(&std::fs::read_to_string(path).unwrap()).unwrap().to_json()
+    );
+}
