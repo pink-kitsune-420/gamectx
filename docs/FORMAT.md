@@ -1600,3 +1600,92 @@ Quote phrasing is a new opt-in renderer; old answer-resolution output stays unch
 
 The new version-1 character host operations and view/plan shapes are documented in
 [CHARACTERS.md](CHARACTERS.md). Persistent bridge envelopes retain their prior shape.
+
+## Routines, observations and time knowledge
+
+Additive unreleased v0.3.1a formats; all previous expected outputs stay unchanged.
+See [ROUTINES](ROUTINES.md) for policy/host responsibilities and persistent operations.
+
+Routine definition, exact fields: `version:1,id,revision,calendar,activities`. At most
+128 activities; 131,072 definition bytes. Scoped IDs are nonempty, no controls, at most
+64 Unicode characters/256 UTF-8 bytes. Revision/tick/reading coordinates are canonical
+unsigned JSON integers through u32::MAX. Every activity has exactly:
+
+`id,location,start,end,repeat,priority,requirements,interrupt,resume,missed,grace`.
+
+IDs are unique; `start<end`; `repeat` is null or 1..1,000,000 ticks and at least window
+duration. Priority is 0..1,000,000. Requirements are at most 16 unique scoped IDs.
+Interrupt is `allow|locked`, resume `resume|cancel`, missed `cancel|defer`.
+Grace is 0..1,000,000, and must be zero for cancel. Host conditions are not executable text.
+
+Configuration accepts partial default/override objects; unknown/duplicate fields fail.
+The resolved serialization uses this order:
+
+| Field | Default | Accepted bound |
+|---|---|---|
+| `routines,history,time` | false each | boolean; time requires history |
+| `tools` | [] | unique subset of `routine_status,activity_propose`; requires routines |
+| `timeline` | 32 | 1..128 |
+| `observations` | 32 | 1..128 |
+| `retention` | 1000 | 1..1,000,000 ticks |
+| `horizon` | 100 | 1..1,000,000 ticks |
+| `interval` | 1 | 1..1,000,000 ticks |
+| `min_active` | 2 | 0..1,000,000 ticks |
+| `switch_margin` | 1 | 0..1,000,000 priority units |
+| `choices` | 4 | 1..32 |
+| `context_observations` | 3 | 0..32 |
+| `model_calls` | 1 | 0..32 complete provider calls per frame; explicit host reservations |
+| `time_sources` | [] | unique subset of `sun,instrument,report,inference,routine` |
+
+A frame has exactly `revision,now,conditions,allowed,emergency`, up to 32,768 bytes.
+Conditions/allowed contain at most 128 unique scoped IDs; allowed activities must exist.
+New revisions strictly increase; ticks never decrease. Non-emergency updates also require
+`interval` elapsed ticks. Timelines are ordered by start then ID; each row has
+`id,start,end,state,since,reason`. States are `planned,active,interrupted,completed,cancelled`.
+Reasons are respectively `window,selected,preempted,host` and `preempted|missed`.
+Expired terminal entries retire; this is a bounded rolling plan, not historical evidence.
+
+An observation has exactly `token,observer,location,at,expires,kind,source,audience,value,
+uncertainty,time`. At most 8,192 bytes each; arbitrary `value` at most 1,024 bytes.
+Token is a positive monotonic u32, retained through eviction/clear. Observer is the bound
+actor. Expiry must exceed observation tick by 1..retention. Audience equals the bound
+participant set (at most 16 IDs). Kind is `direct|instrument|report|inference`.
+Source uses existing `info` evidence fields `id,speaker,text`, with text up to 512 characters.
+Uncertainty is null or nonempty host text up to 256 UTF-8 bytes without controls.
+
+Time is null or exactly `source,calendar,low,high,rate_low,rate_high,usable`. Low<=high;
+rates are integers 0..16 with low<=high, strictly less when usable. Calendar must match
+the history. Source/kind pair must be `sun/direct`, `instrument/instrument`, `report/report`
+or `inference/inference`. Usable sun requires `value.visible:true` supplied by a host sensor.
+No history API accepts model proposals as observations.
+
+Time knowledge field order is `status,sources,conflicting`. Status is `known|unknown`.
+Each numeric source has `source,basis,observed_at,age,calendar,low,high,precision,uncertainty`.
+Precision is `exact` only for a zero-width instrument interval, otherwise `range`.
+Routine sources instead have `source,basis:"routine",phase,precision:"approximate"`.
+Sources are newest first, capped by context_observations (routine phase may add one).
+Conflicting means any same-calendar intervals are disjoint; no source is automatically
+preferred. Expired/unusable/disallowed sources are absent; unknown has no sources.
+
+`routine_status` arguments are `{}`; result order is `revision,current,next,observations,time`.
+Current/next are null or `id,location,state`; simulation clock/windows stay host-side.
+`activity_propose` arguments use the existing exact `Choices` action/target pair schema,
+action `activity`. Result is `status:"proposed",revision,activity,start`; no mutation.
+Both use existing character argument/result limits and per-turn exposure. Live status
+permission is action `routine_status`, target bound actor. Proposal permission is the
+exact activity pair. Host operations cannot be called through model dispatch.
+
+Runtime saves have exact fields `version:1,scope,actor,participants,calendar,config,definition,
+frame,timeline,history,completion_token,calls`, at most 1,500,000 bytes. History saves have
+`version:1,scope,actor,participants,calendar,config,last,clock,records`, at most 1,200,000
+bytes. Identity, config, definition and durable host-supplied watermarks must match;
+restore validates every record/occurrence and commits atomically. Saves are trusted host
+data, not authenticated tokens. Empty initial runtime snapshots can round-trip with zero
+watermarks. Initial history-only runtimes use null definition/timeline. Ordinary clear
+retains frame/replay watermarks; intentional host replacement requires durable safeguards.
+
+`local` workflow kind `routine-fixture` takes exactly `definition,defaults,overrides,frames,
+observations,now`; at most 128 frames/observations. Its result is `timeline,time`.
+It evaluates timeline and observation history independently for offline byte parity,
+not live ingestion order, provider rendering or model behavior. Twenty-one new fixtures
+are additive, including six expected errors.

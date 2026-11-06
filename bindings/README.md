@@ -26,3 +26,9 @@ Checks: `eval/kit_bindings_check.py` exercises Python and native parity;
 C# driver. Python can emit its reference fixture replies with `--csharp-fixtures DIR`;
 the driver accepts project, requests.txt and expected.txt paths. CI compiles and runs it
 on Linux. Actual engine/mobile/Web deployments are not included in these checks.
+
+Optional [routine sessions](../docs/ROUTINES.md) use the same persistent ABI/envelopes.
+Python `Character.routine_configure/update/observation/complete/reserve/save/restore` and
+Node camelCase equivalents wrap privileged host operations; none is a model tool.
+Select only registered `routine_status`/`activity_propose` for the current turn. Supply
+current revisions, actor permissions and durable restore watermarks from the engine.

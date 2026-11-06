@@ -339,3 +339,13 @@ The `world` host operation reads game time; do not expose it wholesale to charac
 weather or the sun. See [character perception](../../docs/CHARACTERS.md) for reusable
 `look_around`, visibility, clocks and reports in other games, and
 [measurements](../../docs/CONVERSATION_PATCH_EVAL.md) for test scope and failed pilots.
+
+## Optional routine and sensor demonstration
+
+Run `cargo run --example dungeon -- --routines-demo` without a model. This scripted
+**surface annex** demonstration adds no sunlight to the normal underground game. It shows
+a customer interrupting the merchant, resumption/postponement, blocked travel, actual sun
+through an annex window, a later indoor view with no visible sun, remembered uncertainty
+and expiry to unknown. Edit `routine.json` and `routine-config.json`, or pass
+`--routine-file FILE --routine-config FILE`. A real host supplies these sensor/event
+confirmations and executes movement/work. [Library integration](../../docs/ROUTINES.md).

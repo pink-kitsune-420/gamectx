@@ -268,3 +268,10 @@ mod conversation_tools_example;
 fn documented_conversation_tools_example() -> gamectx::Result<()> {
     conversation_tools_example::main()
 }
+
+#[path = "../examples/routines.rs"]
+mod routines_example;
+#[test]
+fn documented_optional_routine_example() -> gamectx::Result<()> {
+    routines_example::main()
+}

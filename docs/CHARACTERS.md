@@ -46,8 +46,9 @@ prevent sun estimates. A routine alone does not grant exact clock knowledge.
 If exact global time is internal, omit `time` from `CharacterView::with_world`'s keys or
 bind a separate actor-specific world snapshot containing only their observation. A time
 report fits existing `info_remember` with a host-supplied original source; its `reported`
-status establishes attribution, not truth or freshness. The host must age, replace or
-forget stale observations. This library does not automatically reconcile contradictory clocks.
+status establishes attribution, not truth or freshness. Use the optional routine history below to age/expire sources and retain contradictions,
+or have the host age, replace or forget its own world values. No clock is automatically
+chosen as the truth.
 
 The dungeon demonstrates `none` for the merchant and `schedule` for the keeper. Authored
 lore can set subject `npc:merchant`/`npc:keeper`, topic `timekeeping`, v1 text `clock`,
@@ -57,24 +58,20 @@ check possession and condition before granting them. Fourteen offline workflows 
 these policies, denied access, reported time and forgetting. Sun estimation is a host
 integration pattern; the underground NPCs have no visible-sun sensor.
 
-## Proposed next layer: routines and actual observation history
+## Optional routines and actual observation history
 
-An optional host-owned routine file could seed a rolling timeline of work, travel, rest
-and observation opportunities. Activities could have time windows, priorities, requirements
-and interruption/resumption rules; weather, needs, customers and commitments could shift
-the plan locally. Keep the plan separate from actual activity: a scheduled morning walk is
-not evidence that the NPC saw the sun. Record completed activity and observed conditions
-through the existing witnessed-event APIs, retaining place, tick, source and uncertainty.
+The proposed layer is now implemented as an optional [routine runtime](ROUTINES.md).
+Definitions seed bounded per-character intended timelines; host-confirmed observations
+remain separate. Enable sources explicitly for instrument, visible-sun, routine-phase,
+report or inference knowledge. Earlier numeric readings age into widening ranges;
+contradictory sources stay attributed, and missing sources produce unknown.
 
-A remembered sun observation before entering a building can support a later rough time
-estimate. Its uncertainty should grow with elapsed time, interrupted routines and unreliable
-clocks. Being indoors alone does not forbid an observation through a usable window;
-visibility and occlusion remain engine checks. Do not derive time from sunny weather alone.
-
-This routine-file layer is a proposal, not an implemented scheduler or time-estimation
-algorithm. Current APIs already accept host-selected observations/events and rough time
-values. A future helper should feed only current/next activity and a few relevant actual
-observations to small models, leaving the full routine on the host.
+`routine_status` and `activity_propose` extend this same character dispatcher, with
+separate feature configuration, requested registration, turn exposure and live permission.
+Host-only session operations configure/update, ingest observations, confirm completion,
+reserve model calls and save/restore bounded identity/revision-validated state. The
+normal dungeon's underground time policies above remain unchanged; `--routines-demo`
+exercises an optional surface annex with real fixture sensor confirmations.
 
 ## Select context for the task and measured deployment
 

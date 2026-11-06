@@ -1,0 +1,171 @@
+{
+  "kind": "routine-fixture",
+  "args": {
+    "definition": {
+      "version": 1,
+      "id": "merchant",
+      "revision": 1,
+      "calendar": "cycle:37",
+      "activities": [
+        {
+          "id": "work",
+          "location": "shop",
+          "start": 0,
+          "end": 12,
+          "repeat": 37,
+          "priority": 10,
+          "requirements": [],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        },
+        {
+          "id": "customer",
+          "location": "shop",
+          "start": 0,
+          "end": 12,
+          "repeat": 37,
+          "priority": 20,
+          "requirements": [
+            "customer"
+          ],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        },
+        {
+          "id": "walk",
+          "location": "court",
+          "start": 12,
+          "end": 16,
+          "repeat": 37,
+          "priority": 1,
+          "requirements": [
+            "route"
+          ],
+          "interrupt": "allow",
+          "resume": "resume",
+          "missed": "cancel",
+          "grace": 0
+        }
+      ]
+    },
+    "defaults": {
+      "routines": true,
+      "history": true,
+      "time": true,
+      "time_sources": [
+        "sun",
+        "instrument",
+        "report",
+        "routine"
+      ]
+    },
+    "overrides": {},
+    "frames": [
+      {
+        "revision": 1,
+        "now": 0,
+        "conditions": [
+          "route"
+        ],
+        "allowed": [
+          "work",
+          "customer",
+          "walk"
+        ],
+        "emergency": false
+      },
+      {
+        "revision": 2,
+        "now": 3,
+        "conditions": [
+          "route",
+          "customer"
+        ],
+        "allowed": [
+          "work",
+          "customer",
+          "walk"
+        ],
+        "emergency": false
+      },
+      {
+        "revision": 3,
+        "now": 5,
+        "conditions": [
+          "route"
+        ],
+        "allowed": [
+          "work",
+          "customer",
+          "walk"
+        ],
+        "emergency": false
+      }
+    ],
+    "observations": [
+      {
+        "token": 1,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 3,
+          "high": 5,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      },
+      {
+        "token": 2,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "report:2",
+          "speaker": "player",
+          "text": "It is much later."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 80,
+          "high": 90,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      }
+    ],
+    "now": 6
+  }
+}

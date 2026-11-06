@@ -8,6 +8,24 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Routine-layer validation: root/native formatting, strict Clippy, tests/rustdoc,
+  Rust 1.82, package verification, 75 offline CI commands and 17 binding CI commands
+  pass. C# checks cover 43 new and 263 prior fixtures. All 797 prior core outputs
+  unchanged; total 818. Credential/local-reference sweep clean. Model/API spend $0.
+- Optional routine definitions/timelines, actual scoped observation history and source
+  time ranges: 69 independent Python/Rust workflows (63 accepted, six rejected), 21
+  additive cases, 20,000 text mutations, 43 persistent binding fixtures. No existing
+  conformance/evaluation output rewritten. [Integration and limits](ROUTINES.md).
+- Host calendars/conditions and stable priority/window/ID selection; interruption,
+  resumption, bounded deferral and explicit completion. Existing scheduler budgets
+  128 test NPCs at 16 updates/tick; no LLM planning calls. Source history retains real
+  visibility, broken instruments, stale/conflicting reports and growing uncertainty.
+- Initial recurrence prototype discarded during review: seeding only the latest and
+  previous occurrence could miss older still-deferred windows. Enumeration now starts
+  at the first unexpired occurrence and rejects excess work at the timeline cap.
+  A zero-observation cap also needed an explicit pre-selection check. No accuracy claim.
+
+
 - Validation: root/native formatting, strict Clippy, tests, rustdoc, Rust 1.82,
   package verification, 74 offline CI commands and 15 binding CI commands pass.
   All 747 prior cases unchanged; total 797 core cases. C# fixtures: 30 new plus
@@ -272,14 +290,11 @@ noted; "3 models" adds Llama 3.3 70B.
 - Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
 - Test host-defined semantic constraints for all-row versus eligible-row totals; explicit wording still fails some route questions. Keep both hosted cohorts frozen.
 
-## Candidate: host-owned character routines
+## Routine follow-up evaluation
 
-- Optional routine files seeding dynamic timelines for planned work/travel/rest and
-  perception opportunities, with windows, priorities, needs and interruption/resumption;
-  distinguish planned activity from host-confirmed witnessed observations. Reuse existing
-  event scopes and source IDs. Consider last-seen sun/time reports with growing uncertainty,
-  interruptions, windows and weather occlusion; send only current/next activity and relevant
-  observations. Not implemented; the new snapshot tools accept host-produced estimates.
+- Test authored routines and time-source explanations on unseen real game scenes and
+  question phrasing. The optional runtime is implemented; new model accuracy, complete
+  turn latency, provider tokens and RAM remain unmeasured. Keep historical pilots frozen.
 
 ## Known gaps
 

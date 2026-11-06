@@ -136,6 +136,29 @@ class Character:
     def observe(self, observation):
         return self._request('observe', observation=observation)
 
+    def routine_configure(self, calendar, definition=None, defaults=None, overrides=None):
+        return self._request('routine_configure', calendar=calendar, definition=definition,
+                             defaults={} if defaults is None else defaults, overrides={} if overrides is None else overrides)
+
+    def routine_update(self, frame):
+        return self._request('routine_update', frame=frame)
+
+    def routine_observation(self, observation):
+        return self._request('routine_observation', observation=observation)
+
+    def routine_complete(self, activity, start, revision, token):
+        return self._request('routine_complete', activity=activity, start=start, revision=revision, token=token)
+
+    def routine_reserve(self, revision):
+        return self._request('routine_reserve', revision=revision)
+
+    def routine_save(self):
+        return self._request('routine_save')
+
+    def routine_restore(self, state, min_revision, min_observation, min_completion, min_tick):
+        return self._request('routine_restore', state=state, min_revision=min_revision,
+                             min_observation=min_observation, min_completion=min_completion, min_tick=min_tick)
+
     def event(self, event):
         return self._request('event', event=event)
 

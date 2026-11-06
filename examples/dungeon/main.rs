@@ -6,6 +6,7 @@ mod intent;
 mod knowledge;
 mod natural;
 mod place;
+mod routines;
 mod social;
 mod trade;
 use game::{fields, get, text, uint, GOAL};
@@ -139,13 +140,26 @@ fn run() -> Result<()> {
     let mut size = "3".to_owned();
     let mut guidance = "focused".to_owned();
     let mut world_path = None::<String>;
+    let mut routine_path = None::<String>;
+    let mut routine_config = None::<String>;
     let mut dialogue_mode = "sources".to_owned();
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
+            }
+            "--routines-demo" => mode = "routines-demo",
+            "--routine-file" | "--routine-config" => {
+                let option = args[i].clone();
+                i += 1;
+                let path = args.get(i).ok_or_else(|| Error::new("missing routine file"))?.clone();
+                if option == "--routine-file" {
+                    routine_path = Some(path);
+                } else {
+                    routine_config = Some(path);
+                }
             }
             "--play" => mode = "play",
             "--ai" => mode = "ai",
@@ -195,6 +209,13 @@ fn run() -> Result<()> {
             _ => return Err(Error::new("unknown option; use --help")),
         }
         i += 1;
+    }
+    if mode == "routines-demo" {
+        println!("{}", routines::demo(routine_path.as_deref(), routine_config.as_deref())?.to_json());
+        return Ok(());
+    }
+    if routine_path.is_some() || routine_config.is_some() {
+        return Err(Error::new("routine files require --routines-demo"));
     }
     if mode == "ai" {
         let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/dungeon/play_ai.py");

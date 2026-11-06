@@ -73,7 +73,67 @@ impl Session {
                 resident.plan = None;
                 Ok(schemas)
             }
+            "character_routine_configure" => {
+                c::fields(args, &["id", "defaults", "overrides", "calendar", "definition"])?;
+                let config = crate::routine::Config::resolve(c::get(args, "defaults")?, c::get(args, "overrides")?)?;
+                let definition = c::get(args, "definition")?;
+                let routine = if definition == &Value::Null {
+                    None
+                } else {
+                    Some(std::sync::Arc::new(crate::routine::Routine::from_value(definition)?))
+                };
+                character.configure_routine(text(args, "calendar")?, config, routine)?;
+                resident.plan = None;
+                Ok(obj! {"configured"=>id})
+            }
+            "character_routine_update" => {
+                c::fields(args, &["id", "frame"])?;
+                resident.plan = None;
+                character.routine_mut()?.update(crate::routine::Frame::from_value(c::get(args, "frame")?)?)?;
+                Ok(obj! {"updated"=>id})
+            }
+            "character_routine_observation" => {
+                c::fields(args, &["id", "observation"])?;
+                resident.plan = None;
+                character.routine_mut()?.observe(c::get(args, "observation")?)?;
+                Ok(obj! {"observed"=>id})
+            }
+            "character_routine_complete" => {
+                c::fields(args, &["id", "activity", "start", "revision", "token"])?;
+                resident.plan = None;
+                character.routine_mut()?.complete(
+                    text(args, "activity")?,
+                    crate::routine::num(args, "start")?,
+                    crate::routine::num(args, "revision")? as u32,
+                    crate::routine::num(args, "token")?,
+                )?;
+                Ok(obj! {"completed"=>id})
+            }
+            "character_routine_reserve" => {
+                c::fields(args, &["id", "revision"])?;
+                // Reserving a provider call must not invalidate its counted request.
+                character.reserve_routine_call(crate::routine::num(args, "revision")? as u32)?;
+                Ok(obj! {"reserved"=>id})
+            }
+            "character_routine_save" => {
+                c::fields(args, &["id"])?;
+                Ok(character.routine().ok_or_else(bad)?.to_value())
+            }
+            "character_routine_restore" => {
+                c::fields(args, &["id", "state", "min_revision", "min_observation", "min_completion", "min_tick"])?;
+                resident.plan = None;
+                character.routine_mut()?.restore(
+                    c::get(args, "state")?,
+                    crate::routine::num(args, "min_revision")? as u32,
+                    crate::routine::num(args, "min_observation")?,
+                    crate::routine::num(args, "min_completion")?,
+                    crate::routine::num(args, "min_tick")?,
+                )?;
+                Ok(obj! {"restored"=>id})
+            }
             "character_prepare" => {
+                character.disable();
+                resident.plan = None;
                 c::fields(args, &["id", "plan_id", "identity", "budget", "turn"])?;
                 let revision = character.revision().ok_or_else(bad)?;
                 let turn = TurnPlan::from_value(c::get(args, "turn")?)?;

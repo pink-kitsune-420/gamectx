@@ -13,6 +13,19 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds opt-in shared/character routine policy, bounded deterministic timelines,
+  scoped actual history and source-based aging time knowledge; reuses work scheduling,
+  evidence source validation, bounded choices and character/session dispatch. Engines
+  retain sensors, calendars, completion and action execution. Defaults remain disabled.
+- **[format]** Adds 21 routine/time fixtures and privileged persistent host operations;
+  all 797 previous outputs remain byte-identical. No immutable project/native ABI change.
+- **[api]** Adds individually registered `routine_status` and `activity_propose`, explicit
+  model-call reservations, bounded save/restore and Python/Node host helpers. Adds the
+  offline editable dungeon surface-annex demo and tested minimal Rust example.
+- **[docs]** Records 69 independent offline Python/Rust workflows, 43 cross-language
+  session fixtures and 20,000 added mutation attempts. No new model/token/latency/RAM
+  results; historical evaluations remain intact. Model/API spend $0.
+
 - **[api]** Adds actor-bound read-only location/world lookup, `look_around`, scoped
   character dispatch and task-focused full-request selection. Attention and context
   budgets are independent; provider/model IDs have no parameter-size ceiling.

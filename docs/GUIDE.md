@@ -623,3 +623,18 @@ relevant data, while explicit attention limits keep a small model on one task.
 The [new measurements](CONVERSATION_PATCH_EVAL.md) distinguish local routing and byte
 parity from unsuccessful live speech diagnostics. General free-form speech is still
 experimental; it is not a verified paraphrase of authoritative facts.
+
+## Add usual activities only when your game needs them
+
+Start with the [tested optional routine example](../examples/routines.rs) and
+[editable dungeon demo](../examples/dungeon/routine.json). The engine resolves condition
+IDs, calendars and permissions; the local planner selects intended activities without
+LLM calls. Schedule dirty NPCs through the existing work budget. Only engine receipts
+confirm completion, and only actual sensor/event data creates an observation.
+
+Enable history/time separately and specify usable sources. A walk on the plan does not
+prove sunlight. A window can permit a direct sun estimate; clouds or occlusion can block
+it. Preserve aging ranges, reports and contradictory readings instead of fabricating
+confidence or exposing the simulation clock. Select current/next intent, required facts
+and a few relevant experiences for a small model; explicitly configured richer context
+still uses full rendered-request counting and protected facts. [Contracts](ROUTINES.md).

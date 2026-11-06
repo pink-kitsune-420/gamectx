@@ -1,0 +1,24 @@
+{
+  "defaults": {
+    "routines": true,
+    "history": true,
+    "time": true,
+    "tools": [
+      "routine_status",
+      "activity_propose"
+    ],
+    "time_sources": [
+      "sun",
+      "routine"
+    ]
+  },
+  "overrides": {
+    "timeline": 32,
+    "observations": 8,
+    "retention": 100,
+    "horizon": 60,
+    "context_observations": 3,
+    "choices": 3,
+    "model_calls": 1
+  }
+}

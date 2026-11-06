@@ -213,3 +213,14 @@ See [CHARACTERS.md](CHARACTERS.md) for binding views, individually enabling tool
 full-request count acknowledgements and scope lifecycle. These are host operations,
 not a bundle of automatically exposed model tools. Durable persistence, perception,
 current permissions, consent and engine action execution remain host responsibilities.
+
+## Optional routines, history and time knowledge (unreleased v0.3.1a)
+
+[ROUTINES.md](ROUTINES.md) adds a bounded per-character runtime on the existing session.
+Resolve defaults/overrides once, bind the host calendar/routine, schedule local updates
+with `schedule::Scheduler`, and publish real sensor records only when available. Feature
+flags, requested tool registration, task exposure, data visibility and live permission
+remain separate. No runtime work or model calls occur for characters without this layer.
+Persistent host configure/update/observation/complete/reserve/save/restore operations are
+separate from `routine_status`/`activity_propose`. Python and Node supply helpers; C#/C
+use the existing session ABI. Project formats and immutable native symbols do not change.

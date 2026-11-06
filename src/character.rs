@@ -74,6 +74,7 @@ pub struct CharacterTools {
     view: Option<CharacterView>,
     enabled: Vec<String>,
     world_id: Option<String>,
+    routine: Option<Box<crate::routine::Runtime>>,
 }
 impl CharacterTools {
     pub fn new(scope: &str, actor: &str, participants: &Value) -> Result<Self> {
@@ -83,6 +84,7 @@ impl CharacterTools {
             view: None,
             enabled: Vec::new(),
             world_id: None,
+            routine: None,
         })
     }
     /// Bind one fresh actor view; changing a world ID requires clearing the character.
@@ -102,6 +104,13 @@ impl CharacterTools {
     fn schema(&self, name: &str) -> Result<Value> {
         let view = self.view.as_ref().ok_or_else(c::bad)?;
         match name {
+            "routine_status" | "activity_propose" => {
+                let runtime = self.routine.as_ref().ok_or_else(c::bad)?;
+                if runtime.revision() != Some(view.revision) {
+                    return Err(c::bad());
+                }
+                runtime.schema(name)
+            }
             "location_lookup" => Ok(view.location.as_ref().ok_or_else(c::bad)?.0.tool()),
             "look_around" => {
                 let mut tool = view.location.as_ref().ok_or_else(c::bad)?.0.tool();
@@ -158,6 +167,9 @@ impl CharacterTools {
             return Err(c::bad());
         }
         let result = match name {
+            "routine_status" | "activity_propose" => {
+                self.routine.as_ref().ok_or_else(c::bad)?.call(name, input, revision, max_bytes, available)?
+            }
             "world_status" => {
                 let (world, keys) = view.world.as_ref().ok_or_else(c::bad)?;
                 world.call(input, revision, max_bytes, |k| keys.iter().any(|x| x == k))?
@@ -183,12 +195,48 @@ impl CharacterTools {
         bounded(&result, max_bytes)?;
         Ok(result)
     }
+    /// Attach a host-configured optional runtime. Scope/actor are not model inputs.
+    pub fn with_runtime(&mut self, runtime: crate::routine::Runtime) -> Result<()> {
+        let (scope, actor, participants) = self.interactions.identity();
+        if !runtime.identity_matches(scope, actor, participants) {
+            return Err(c::bad());
+        }
+        self.disable();
+        self.routine = Some(Box::new(runtime));
+        Ok(())
+    }
+    pub fn configure_routine(
+        &mut self,
+        calendar: &str,
+        config: crate::routine::Config,
+        definition: Option<Arc<crate::routine::Routine>>,
+    ) -> Result<()> {
+        let (scope, actor, participants) = self.interactions.identity();
+        let runtime =
+            crate::routine::Runtime::new(scope, actor, &Value::strings(participants), calendar, config, definition)?;
+        self.with_runtime(runtime)
+    }
+    /// Reserve one provider call without changing a counted/exposed request.
+    pub fn reserve_routine_call(&mut self, revision: u32) -> Result<()> {
+        self.routine.as_mut().ok_or_else(c::bad)?.reserve_model_call(revision)
+    }
+    pub fn routine(&self) -> Option<&crate::routine::Runtime> {
+        self.routine.as_deref()
+    }
+    /// Host updates invalidate exposed tools. Rebind/reassemble after any change.
+    pub fn routine_mut(&mut self) -> Result<&mut crate::routine::Runtime> {
+        self.disable();
+        self.routine.as_deref_mut().ok_or_else(c::bad)
+    }
     pub fn clear(&mut self) {
         self.notes.clear();
         self.interactions.clear();
         self.view = None;
         self.enabled.clear();
         self.world_id = None;
+        if let Some(runtime) = &mut self.routine {
+            runtime.clear();
+        }
     }
 }
 /// Cognitive limits are independent of context capacity. No provider/model-size table

@@ -17,6 +17,18 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Optional routines and source time knowledge (unreleased v0.3.1a)
+
+[Routine APIs](docs/ROUTINES.md) add bounded usual-activity definitions, deterministic
+per-character timelines, actual observation history and attributed aging time ranges.
+All features default off; hosts choose shared defaults, character overrides, individual
+tools, task exposure and live permissions. Plans never prove experiences. Movement,
+sensors, calendars, completion and action execution stay in the engine. No model calls
+are needed for planning. Run `cargo run --example routines` or the offline dungeon
+`--routines-demo`; editable files and persistent Python/Node/C# bridges are included.
+69 independent Python/Rust workflows agree; 21 additive cases preserve all 797 prior
+outputs. No new model accuracy, tokens, latency or RAM claims. Model/API spend $0.
+
 ## Actor perception and adaptive context (unreleased v0.3.1a)
 
 [Character tools](docs/CHARACTERS.md) provide optional `look_around`, location descriptions,

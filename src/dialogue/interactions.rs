@@ -67,6 +67,10 @@ pub struct InteractionTools {
     references: Option<Value>,
 }
 impl InteractionTools {
+    pub(crate) fn identity(&self) -> (&str, &str, &[String]) {
+        (&self.scope, &self.actor, &self.participants)
+    }
+
     pub fn new(scope: &str, actor: &str, participants: &Value) -> Result<Self> {
         c::scope(scope)?;
         c::scope(actor)?;

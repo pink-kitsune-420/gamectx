@@ -1128,3 +1128,15 @@ LD_LIBRARY_PATH=bindings/native/target/debug mono target/information-csharp/Chec
 reported evidence, rejected source/owner injection, private events, promise progress,
 recipient confirmation and stale/replayed offers. CI now runs these checks. API spend $0;
 these checks exercise native behavior, not live-model tool-selection accuracy.
+
+## Optional routine/time contract (unreleased v0.3.1a)
+
+`python3 -I eval/routines_cases.py --cap 0` checks an independent Python prototype
+against Rust on 69 deterministic workflows (63 accepted, six rejected). Twenty-one
+additive core fixtures retain all 797 prior outputs. `--prototype-only` works without
+Rust; `--write-conformance` writes only the new feature cases from the oracle.
+`routine_bindings_check.py --cap 0` generates/checks 43 persistent fixtures on Python
+CLI/native; `routine_bindings_check.mjs` and the existing C# fixture runner reuse them.
+New Rust mutation tests make 20,000 attempts, without model calls or network access.
+These are host-correctness checks, not live model accuracy/token/latency/RAM measurements.
+Historical evaluation artifacts are untouched. New model/API spend $0.

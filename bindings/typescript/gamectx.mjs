@@ -92,6 +92,17 @@ export class Character {
     return this.request('prepare', { plan_id: planId, identity, budget, turn });
   }
   observe(observation) { return this.request('observe', { observation }); }
+  routineConfigure(calendar, definition = null, defaults = {}, overrides = {}) {
+    return this.request('routine_configure', { calendar, definition, defaults, overrides });
+  }
+  routineUpdate(frame) { return this.request('routine_update', { frame }); }
+  routineObservation(observation) { return this.request('routine_observation', { observation }); }
+  routineComplete(activity, start, revision, token) { return this.request('routine_complete', { activity, start, revision, token }); }
+  routineReserve(revision) { return this.request('routine_reserve', { revision }); }
+  routineSave() { return this.request('routine_save'); }
+  routineRestore(state, minRevision, minObservation, minCompletion, minTick) {
+    return this.request('routine_restore', { state, min_revision: minRevision, min_observation: minObservation, min_completion: minCompletion, min_tick: minTick });
+  }
   event(event) { return this.request('event', { event }); }
   progress(progress) { return this.request('progress', { progress }); }
   references(context) { return this.request('references', { context }); }

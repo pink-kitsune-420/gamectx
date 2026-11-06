@@ -986,3 +986,61 @@ fn perception_and_character_model_calls_are_bounded() {
         }
     }
 }
+
+#[test]
+fn routines_observations_and_proposals_reject_mutated_untrusted_text() {
+    use gamectx::{
+        character::{CharacterTools, CharacterView},
+        routine::{Config, Frame, Routine, Runtime},
+    };
+    use std::sync::Arc;
+    let a = parse(include_str!("../conformance/routines/interruption_resume/input.json"), 1_500_000).unwrap();
+    let a = a.get("args").unwrap();
+    let definition = a.get("definition").unwrap();
+    let cfg=Config::resolve(&gamectx::obj!{"routines"=>true,"history"=>true,"time"=>true,"tools"=>vec!["routine_status","activity_propose"],"time_sources"=>vec!["sun"]},&gamectx::obj!{}).unwrap();
+    let mut runtime = Runtime::new(
+        "scope:a",
+        "merchant",
+        &vec!["merchant"].into(),
+        "cycle:37",
+        cfg,
+        Some(Arc::new(Routine::from_value(definition).unwrap())),
+    )
+    .unwrap();
+    runtime.update(Frame::from_value(&a.get("frames").unwrap().as_array().unwrap()[0]).unwrap()).unwrap();
+    let mut character = CharacterTools::new("scope:a", "merchant", &vec!["merchant"].into()).unwrap();
+    character.with_runtime(runtime.clone()).unwrap();
+    character.bind(CharacterView::new(1)).unwrap();
+    character.enable(&["routine_status", "activity_propose"]).unwrap();
+    let before = runtime.to_value();
+    let mut rng = Rng(0xa328_c237_dfa5_1257);
+    let snapshot = before.to_json();
+    let d = definition.to_json();
+    for i in 0..20_000 {
+        let seed = if i % 2 == 0 { "{}" } else { r#"{"action":"activity","target":"work"}"# };
+        let input = mutate(&mut rng, seed);
+        for name in
+            ["routine_status", "activity_propose", "character_routine_observation", "character_routine_complete"]
+        {
+            if let Ok(v) = character.call(name, &input, 1, 8192, |_| true) {
+                assert!(v.json_len() <= 8192);
+                assert_eq!(parse(&v.to_json(), 8192).unwrap(), v);
+            }
+        }
+        assert_eq!(character.routine().unwrap().to_value(), before);
+        let model = mutate(&mut rng, if i % 2 == 0 { &snapshot } else { &d });
+        if let Ok(v) = parse(&model, 1_500_000) {
+            let _ = Routine::from_value(&v);
+            let _ = Config::resolve(&v, &gamectx::obj! {});
+            let _ = Frame::from_value(&v);
+            let mut copy = runtime.clone();
+            if copy.restore(&v, 1, 0, 0, 0).is_err() {
+                assert_eq!(copy.to_value(), before);
+            }
+            let mut copy = runtime.clone();
+            if copy.observe(&v).is_err() {
+                assert_eq!(copy.to_value(), before);
+            }
+        }
+    }
+}
