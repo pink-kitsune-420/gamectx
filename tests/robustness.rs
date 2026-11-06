@@ -44,6 +44,7 @@ fn mutate(rng: &mut Rng, seed: &str) -> String {
 }
 
 fn exercise(value: &Value) {
+    assert_eq!(value.json_len(), value.to_json().len());
     assert_eq!(parse(&value.to_json(), usize::MAX).as_ref(), Ok(value), "serialization must round-trip");
     let mut session = gamectx::query::Session::new();
     session.apply_call(value, &[("items", &[])]).unwrap();
@@ -293,5 +294,62 @@ fn hostile_unpack_input_errors_cleanly() {
         r##"{"wrapper":"bare","rows":[[1,null,{},null]]}"##,
     ] {
         assert!(schema::unpack(&parse(text, 1024).unwrap()).is_err(), "{text}");
+    }
+}
+
+#[test]
+fn context_sync_model_text_is_bounded_and_atomic() {
+    use gamectx::{
+        obj,
+        sync::{Publisher, Replica},
+    };
+    let mut sender = Publisher::new("fuzz").unwrap();
+    let first = sender.publish(&obj! {"a"=>1,"b"=>"stable"}, None).unwrap();
+    let delta = sender.publish(&obj! {"b"=>"stable","a"=>2}, Some(1)).unwrap().to_json();
+    let snapshot = first.to_json();
+    let mut rng = Rng(0x5A7E_0001_F022_9393);
+    for i in 0..30_000 {
+        let mut receiver = Replica::new("fuzz").unwrap();
+        receiver.apply(&first).unwrap();
+        let before = receiver.state().cloned();
+        let revision = receiver.revision();
+        let text = mutate(&mut rng, if i % 2 == 0 { &delta } else { &snapshot });
+        if let Ok(reply) = receiver.apply_json(&text) {
+            assert_eq!(parse(&reply.to_json(), 1 << 19).unwrap(), *reply);
+            assert!(receiver.revision() > revision);
+        } else {
+            assert_eq!(receiver.state().cloned(), before);
+            assert_eq!(receiver.revision(), revision);
+        }
+    }
+}
+
+#[test]
+fn host_validation_and_sliced_model_text_never_partially_update() {
+    use gamectx::brain::Brain;
+    let workflow = parse(include_str!("../conformance/runtime/host-selection/input.json"), 1 << 16).unwrap();
+    let workflow = workflow.get("workflow").unwrap();
+    let brain = Brain::from_value(workflow.get("definition").unwrap()).unwrap();
+    let seed = workflow.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap().to_json();
+    let before = brain.to_value();
+    let mut rng = Rng(0xB0A7_519E_0001_1234);
+    for i in 0..10_000 {
+        let text = mutate(&mut rng, &seed);
+        let Ok(request) = parse(&text, 1 << 16) else { continue };
+        match brain.start_train_select_host(&request) {
+            Ok(mut job) => {
+                if i % 2 == 0 {
+                    job.advance(job.next_steps()).unwrap();
+                }
+                // Cancellation and rejected requests never touch the source brain.
+                assert_eq!(brain.to_value(), before);
+                let mut target = brain.clone();
+                if !job.is_finished() {
+                    assert!(job.finish(&mut target).is_err());
+                    assert_eq!(target.to_value(), before);
+                }
+            }
+            Err(_) => assert_eq!(brain.to_value(), before),
+        }
     }
 }

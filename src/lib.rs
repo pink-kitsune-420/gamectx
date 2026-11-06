@@ -20,7 +20,9 @@
 //!   filters and totals models get wrong when they read the data themselves.
 //!   Table descriptions keep rows in the game; correction sessions allow one retry.
 //! - [`brain`]: small game-defined reaction networks with deterministic local inference,
-//!   guarded training, bounded weight lessons, persistence, undo and optional prediction caching.
+//!   guarded/sliced training, allocation-free native inference, persistence, undo and optional caching.
+//! - [`schedule`]: bounded event-driven actor scheduling with periodic refresh.
+//! - [`sync`]: acknowledged context snapshots/deltas with strict reconstruction and resynchronization.
 //! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
 //! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
 //!
@@ -51,8 +53,10 @@ pub mod json;
 pub mod manifest;
 pub mod memory;
 pub mod query;
+pub mod schedule;
 pub mod schema;
 pub mod signatures;
+pub mod sync;
 pub mod table;
 pub mod view;
 

@@ -630,3 +630,100 @@ the packet's own keys and punctuation.)
 - An estimate is `ceil(ascii_bytes * ratio * 2) + non_ascii_bytes`, capped at the byte count.
 - A usage report above the estimate that was used, or above one token per byte, resets
   the calibration. A report of zero tokens is ignored.
+
+## Native frame work
+
+`Brain::run_into(inputs, allowed_mask, min_score, min_margin, &mut Prediction)` takes
+exactly one `Option<i64>` per declared input. Values/thresholds are integer millionths,
+0..=1,000,000; None is unknown. Mask bit i corresponds to output i, with no out-of-range
+bits. Fixed storage handles at most 16 inputs/32 nodes/16 outputs. Invalid arguments
+leave the reusable prediction unchanged. `scores`, `choice`, `margin`, `revision` expose
+native results; scores and margin remain millionths and choices are output indices.
+No allocation occurs on successful native calls. JSON inference has identical semantics.
+
+`Brain::start_train`, `start_train_select` and `start_train_select_host` validate their
+requests before returning a `TrainingJob`. Requests/work limits match the corresponding
+synchronous operations. The live brain is untouched while a job advances. `next_steps`
+is the minimum indivisible sample budget, `completed_steps`/`total_steps` expose work,
+and `advance(cap)` accepts 1..=2,000,000 units, stops at a sample boundary and never
+exceeds cap. Too-small budgets error before advancing. Each training sample costs 3P;
+validation costs P per sample for single-rate training or 2P for selection, where P is
+parameter count. Accounting matches the existing complete-run estimate exactly.
+
+`finish(&mut brain)` consumes a finished job, compares the full authored/learned starting
+state and either installs one validated winner or reports rejection. Incomplete/stale
+jobs error without mutation. Equivalent starting states may accept the same plan; this
+check does not authenticate ownership. Drop cancels. Jobs are in-memory work objects,
+not saved-learning formats. Copies and allocations at setup/phase transitions/finish
+are bounded but not included in estimated parameter work; caps are not wall-clock limits.
+
+### Host-policy validation
+
+`train_select_host` uses the same request/report fields as `train_select`, but each
+validation row has exactly `inputs`, `targets`, `allowed`, `min_score`, `min_margin`.
+Inputs/targets remain complete, with the existing 128-sample bound and train/validation
+input separation. Allowed outputs/thresholds obey inference validation. Every rate is
+trained from the same starting state; MSE uses all target utilities, and correct-count
+compares predicted choice/abstention with the unique winning target under that row's
+mask/thresholds. Target ties/empty masks/all-zero or insufficient scores/margins expect
+abstention. Default `train_select` keeps its existing tied-target acceptance behavior.
+
+A winner needs lower MSE and no correct-count regression; choose most correct, then
+lowest MSE, then earliest request rate. No winner leaves learning unchanged. The CLI
+workflow op is `train_select_host`; the default model tools stay unchanged. Native hosts
+may call `train_select_host` or `start_train_select_host`. Labels/masks remain host data,
+and metric improvements do not guarantee held-out gameplay improvements.
+
+### Scheduler
+
+`Scheduler::new(capacity, frame_budget)` accepts 1..=4096 registered jobs and
+1..=2,000,000 estimated units per frame. Register a unique u64 ID with positive cost
+<= frame_budget, positive interval <= max_age, and initial phase < max_age. Initially
+dirty jobs first become eligible at absolute tick `phase`. `changed(id, urgent)` marks
+new observations/policy/eligibility; urgent overrides interval/phase, never frame budget.
+`poll(tick)` reserves eligible work: urgent first, overdue next, least recently served
+next (never-served counts as zero), then ID. It skips work that cannot fit remaining
+budget. Periodic refresh uses elapsed max_age. The host executes reservations or marks
+failed jobs changed again. `remove` frees a slot; `remaining` exposes current budget.
+Ticks must be monotonic; repeated polls share budget and cannot reserve a job twice in
+the same tick. Deadlines may slip under overload. No threads, clocks or engine calls
+are owned by the library. Notifications/freshness/cost accuracy remain host concerns.
+
+## Acknowledged context synchronization
+
+`sync::Publisher` and `Replica` bind to an explicit stream name (1–64 ASCII letters,
+digits, underscore or hyphen). Use a new stream/receiver after a session reset. Revision
+0 means no state; wire revisions are integers 1..=2,147,483,647. Publisher exhaustion
+requires a new stream. State is an ordered JSON object of at most 128 sections, names
+at most 256 UTF-8 bytes, serialized state at most 262,144 bytes. Messages are bounded
+at 524,288 bytes and the strict parser's normal depth. Envelopes add nesting, so a
+state near the parser's maximum depth can be rejected before publication.
+
+Every message has exactly these fields in this emitted order:
+
+```json
+{"stream":"encounter_1","base":null,"revision":1,"order":["rules","mood"],"set":{"rules":"Act legally.","mood":"calm"},"remove":[]}
+```
+
+`Publisher::publish(state, acknowledged_revision)` emits a snapshot (`base:null`, all
+fields in `set`, empty `remove`) unless an existing sender state is explicitly
+acknowledged at its current revision. Matching ACK emits a delta, with `base` equal to
+that revision, `revision=base+1`, only changed fields in `set`, deleted fields in `remove`
+and the entire ordered list of current section names in `order`. Comparisons preserve
+exact JSON number text. Reordering alone changes `order`; unchanged fields stay omitted.
+Every successful emission advances revision, including unchanged state. Failed publication
+does not advance. ACKs must originate from the receiver for that stream.
+
+`Replica::apply_json` bounds text before parsing; `apply` accepts native JSON values.
+Receivers require their configured stream and a revision strictly greater than their
+current one. Deltas also require an existing snapshot, exact base match and next revision;
+snapshots may jump over dropped messages. Duplicate names, unknown removals, fields both
+set/removed, extra/missing fields and inconsistent order lists are rejected. Reconstruction
+is validated against state bounds before atomic installation. Any error preserves state
+and revision. A baseline error requires a new snapshot; send a missing ACK to request one.
+`state()` returns the full reconstructed object and `revision()` is the ACK to send.
+
+This protocol transfers host context; it is not automatic language-model memory or a
+fact-authentication mechanism. Reconstruct full packets before ordinary model calls.
+Stable prefixes are retained by normal packet ordering. Provider/local-server prompt-cache
+behavior and token accounting must be measured in the integration.

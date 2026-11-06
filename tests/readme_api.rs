@@ -164,3 +164,20 @@ fn preloaded_cache_readme_example() -> gamectx::Result<()> {
     assert_eq!(other.brain().revision(), 1);
     Ok(())
 }
+
+#[test]
+fn native_inference_readme_example() -> gamectx::Result<()> {
+    use gamectx::brain::{Brain, Prediction};
+    let brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
+    let mut prediction = Prediction::default();
+    brain.run_into(&[Some(800_000), Some(200_000)], 0b11, 0, 0, &mut prediction)?;
+    assert_eq!(prediction.scores().len(), 2);
+    Ok(())
+}
+
+#[path = "../examples/runtime-loop.rs"]
+mod runtime_loop;
+#[test]
+fn combined_runtime_documented_example() -> gamectx::Result<()> {
+    runtime_loop::main()
+}

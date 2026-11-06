@@ -28,7 +28,7 @@
 //! # Ok::<(), gamectx::Error>(())
 //! ```
 
-use crate::budget::{assemble, Packet, Section};
+use crate::budget::{assemble_prepared, assemble_prepared_bytes, Packet, PreparedSection, Section};
 use crate::catalog::Catalog;
 use crate::estimate::{self, Calibration};
 use crate::formula::Formulas;
@@ -40,7 +40,7 @@ use crate::{schema, signatures, table};
 /// Registered sections and budgets shared by every turn.
 #[derive(Clone, Debug, Default)]
 pub struct Context {
-    stable: Vec<Section>,
+    prepared: Vec<PreparedSection>,
     formulas: Formulas,
     budget_bytes: Option<usize>,
     budget_tokens: Option<usize>,
@@ -152,11 +152,11 @@ impl Table {
 /// Default priority for sections that do not set one.
 pub const DEFAULT_PRIORITY: i64 = 5;
 
-fn add(list: &mut Vec<Section>, others: &[Section], section: Section) -> Result<()> {
-    if list.iter().chain(others).any(|s| s.name == section.name) {
+fn add(list: &mut Vec<PreparedSection>, others: &[PreparedSection], section: Section) -> Result<()> {
+    if list.iter().chain(others).any(|s| s.section().name == section.name) {
         return Err(Error::new(format!("section \"{}\" is already set", section.name)));
     }
-    list.push(section);
+    list.push(PreparedSection::new(section));
     Ok(())
 }
 
@@ -186,6 +186,11 @@ fn table_section(name: &str, items: Value, options: Table, stable: bool, formula
 }
 
 impl Context {
+    fn register(&mut self, section: Section) -> Result<()> {
+        add(&mut self.prepared, &[], section)?;
+        Ok(())
+    }
+
     pub fn new() -> Context {
         Context::default()
     }
@@ -220,7 +225,7 @@ impl Context {
             Err(_) => schema::pack(&tools).map_err(|e| Error::new(format!("tools \"{name}\": {e}")))?,
         };
         let section = Section { name: name.to_owned(), priority: i64::MAX, stable: true, required: true, value };
-        add(&mut self.stable, &[], section)?;
+        self.register(section)?;
         Ok(self)
     }
 
@@ -233,7 +238,7 @@ impl Context {
             required: true,
             value: Value::str(text),
         };
-        add(&mut self.stable, &[], section)?;
+        self.register(section)?;
         Ok(self)
     }
 
@@ -241,14 +246,14 @@ impl Context {
     /// under budget pressure, after lower priorities.
     pub fn constant(&mut self, name: &str, value: impl Into<Value>, priority: i64) -> Result<&mut Context> {
         let section = Section { name: name.to_owned(), priority, stable: true, required: false, value: value.into() };
-        add(&mut self.stable, &[], section)?;
+        self.register(section)?;
         Ok(self)
     }
 
     /// Registers a table that rarely changes. Stable.
     pub fn constant_table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Context> {
         let section = table_section(name, items.into(), options, true, &self.formulas)?;
-        add(&mut self.stable, &[], section)?;
+        self.register(section)?;
         Ok(self)
     }
 
@@ -269,7 +274,7 @@ impl Context {
 #[derive(Debug)]
 pub struct Turn<'a> {
     context: &'a Context,
-    sections: Vec<Section>,
+    sections: Vec<PreparedSection>,
 }
 
 impl Turn<'_> {
@@ -287,14 +292,14 @@ impl Turn<'_> {
         required: bool,
     ) -> Result<&mut Self> {
         let section = Section { name: name.to_owned(), priority, stable: false, required, value: value.into() };
-        add(&mut self.sections, &self.context.stable, section)?;
+        add(&mut self.sections, &self.context.prepared, section)?;
         Ok(self)
     }
 
     /// Adds a table for this turn.
     pub fn table(&mut self, name: &str, items: impl Into<Value>, options: Table) -> Result<&mut Self> {
         let section = table_section(name, items.into(), options, false, &self.context.formulas)?;
-        add(&mut self.sections, &self.context.stable, section)?;
+        add(&mut self.sections, &self.context.prepared, section)?;
         Ok(self)
     }
 
@@ -323,8 +328,11 @@ impl Turn<'_> {
     /// lowest-priority optional sections are dropped if needed, and listed in the receipt.
     pub fn build(&self) -> Result<Packet> {
         let c = self.context;
-        let sections = c.stable.iter().chain(&self.sections).cloned().collect();
-        assemble(sections, &|text: &str| {
+        let sections: Vec<_> = c.prepared.iter().chain(&self.sections).collect();
+        if c.budget_tokens.is_none() {
+            return assemble_prepared_bytes(&sections, c.budget_bytes.unwrap_or(usize::MAX));
+        }
+        assemble_prepared(&sections, &|text: &str| {
             c.budget_bytes.is_none_or(|b| text.len() <= b)
                 && c.budget_tokens.is_none_or(|t| c.calibration.estimate(c.scope, text.as_bytes(), 0) <= t)
         })

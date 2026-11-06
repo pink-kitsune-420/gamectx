@@ -13,6 +13,9 @@ use gamectx::{fingerprint, schema, signatures, table};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+#[path = "support/runtime.rs"]
+mod runtime;
+
 const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance");
 
 fn read(path: &Path) -> String {
@@ -46,6 +49,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
+        "runtime" => runtime::process(&input)?,
         "brain" | "brain-select" => gamectx::brain::process(&input)?,
         "brain-cache" => gamectx::brain::process_cached(&input, arg_usize(args, "capacity", 32))?,
         "table" => table::pack(

@@ -311,3 +311,126 @@ mutation/undo, capacity zero and errors. The checker covers 64 Python/Rust workf
 learning. Rust tests check bounded FIFO occupancy, owned results, invalidation even for
 same-revision replacement and 10,000 mutated workflow texts against uncached execution.
 API spend: $0; no credentials or model calls are used.
+
+## Frame work and context reuse
+
+All experiments here are offline and cost $0. `runtime_eval.py` prototypes exact
+packet sizing, native prediction semantics, sample slicing, event scheduling,
+host-policy selection and acknowledged context transfer. `runtime_bench.rs` measures
+release APIs with allocation/reallocation counts from a single-threaded counting
+allocator. `budget_before.rs` retains the old assembly algorithm for comparison; it
+uses the same current JSON implementation (including allocation-free `json_len`), so
+this isolates assembly changes rather than comparing complete historical binaries.
+
+```bash
+python3 -I eval/runtime_eval.py                  # regenerate deterministic results
+python3 -I eval/test_runtime.py
+cargo build --release --locked
+rustc --edition=2021 -O eval/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
+python3 -I eval/runtime_eval.py --check
+rustc --edition=2021 -O eval/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
+./target/runtime-bench > eval/runtime-bench-results.json
+cargo run --example runtime-loop
+```
+
+[Timing/allocation results](runtime-bench-results.json) are medians of five trials in
+one local environment. Native and JSON inputs are prebuilt before timing, cycle 256
+states and represent the same millionth-grid observations. Small/large graphs have
+four inputs, 4/16 hidden nodes and 2/4 outputs, seed 3. Both APIs perform inference;
+JSON also maps names, validates numeric text and builds owned JSON results. Native
+success needs no heap allocation. Neither timing includes output serialization.
+
+| Network | Calls | JSON median ns | Native median ns | JSON allocations | Native allocations |
+|---|---:|---:|---:|---:|---:|
+| small | 20,000 | 26,030,769 | 1,968,370 | 380,000 | 0 |
+| large | 20,000 | 32,503,158 | 6,171,925 | 400,234 | 0 |
+
+Native is 5.3–13.2× faster in these workloads; API-path comparison, not a claim that
+all inference became that much faster. Prepared input/output storage trades caller
+binding work for fewer runtime allocations. JSON inference still matches old outputs.
+
+Packet fixtures contain 16 sections × 128-byte values with a 4,096-byte cap (`fits`),
+or 32 sections × 256-byte values with a 2,048-byte cap (`pressure`). Section zero is
+required; priorities cycle 0..4 and stable flags alternate. Each timed one-shot call
+clones its input sections; prepared references are created before timing. Both cases
+perform 500 builds per trial. Prepared fixtures reuse every section, so they represent
+maximum reuse, not a claim that all dynamic content can be cached. Results/receipts
+are asserted equal before timing.
+
+| Pattern | Old median ns | New one-shot ns | Prepared reuse ns | Old allocations | New allocations | Prepared allocations |
+|---|---:|---:|---:|---:|---:|---:|
+| fits | 5,587,160 | 6,098,296 | 1,316,569 | 47,000 | 30,500 | 26,000 |
+| pressure | 146,774,066 | 19,042,995 | 1,834,731 | 710,500 | 76,500 | 27,000 |
+
+Under pressure one-shot assembly is about 7.7× faster; already-fitting one-shot runtime
+was about 9% slower in this recorded run (5,587,160 → 6,098,296 ns), with fewer allocations.
+Prepared reuse is about 4.2×/80.0× faster than the old fits/pressure algorithm on these all-static fixtures. Initial always-prepare one-shot
+assembly added allocations when packets already fit; the shipped path counts first and
+moves fitting values directly. Arbitrary fit predicates retain full candidate callbacks.
+
+Sliced selection uses `examples/brain/selection.json`: one observed uninterrupted run
+1,307,880 ns versus 25 slices capped at 4,096 work units, total 1,185,084 ns, median
+slice 46,973 ns, maximum 53,370 ns. This is a latency illustration, not a benchmark of
+scheduler guarantees or a claim that slicing reduces total training work. Setup and
+finish occur outside those slice timings. The final report and saved state match direct
+selection byte-for-byte. Python also checks 1,024 training visits split into 147 slices
+per task over four tasks, preserving final weights exactly.
+
+[Deterministic runtime results](runtime-results.json): 64 actors over 240 frames,
+one unit/evaluation, budget eight/frame, initial phases 0..7, minimum interval one,
+refresh age 60 and all actors changed every 30 frames. Scheduled evaluations 512 versus
+15,360 per-frame evaluations, peak eight/frame. This models sparse change notifications;
+continuously changing or urgent actors need more work, and overload can delay deadlines.
+
+Context trace: 120 turns with stable rules/tools and changing tick/mood. Full states
+489,490 bytes; explicit-ACK snapshots/deltas 19,089 bytes, exact replay on every turn.
+Consecutive full-state prompts share 483,496 prefix bytes in aggregate. These are bytes,
+not tokenizer counts, billing discounts, context-window savings or measured prefill time.
+Wrong/lost ACKs cause snapshots; the corpus includes loss, replay and reordering tests.
+
+Host-policy selection freezes training seed 11 (32 examples), validation seed 23
+(128 examples), initializer 3 and rates 0.03/0.1/0.3 before test seeds 3001/3002/3003
+(128 each). Eligibility cycles empty, first-only, last-only and all-output masks;
+minimum score cycles 0/0.2/0.5 and minimum margin 0/0.05/0.15. Both methods evaluate the
+same held-out choices under those policies. Selection by all-output validation and
+selection by host-policy validation chose identical rates here:
+
+| Task | Prior selection / 384 | Host-policy selection / 384 | Chosen rate |
+|---|---:|---:|---:|
+| Stealth | 361 | 361 | 0.03 |
+| Support | 368 | 368 | 0.03 |
+| Switch | 354 | 354 | 0.3 |
+| Trade | 383 | 383 | 0.1 |
+| Total | 1,466 / 1,536 | 1,466 / 1,536 | |
+
+No measured accuracy improvement on this cohort. The new opt-in metric closes a
+validation-semantics gap; synthetic policies still do not represent live gameplay.
+Default selection keeps its original tied-target behavior; host selection expects
+abstention for tied target winners, using the exact runtime threshold rules.
+
+35 new conformance cases include errors. Differential checking covers 148 workflows,
+2,304 native predictions (including all 1,536 held-out host-policy predictions), 100
+generated escaped/Unicode budget cases and four complete host-selection states/reports.
+Mutation tests add 30,000 sync-message and 10,000 host-training/job text mutations.
+All previous fixtures remain unchanged.
+
+### Optional local llama.cpp prefix measurement
+
+```bash
+python3 -I eval/prefix_cache_eval.py --cap 0
+python3 -I eval/prefix_cache_eval.py --url http://127.0.0.1:8080 --turns 12 --cap 0
+```
+
+Without `--url`, this only accounts for byte prefixes. With a running local server it
+compares cache disabled/enabled on explicit slot zero, warms each mode with a distinct
+reset prompt and generates one token/turn. It records wall time and whatever token/time
+fields the server actually reports; absent counts remain null. Modes run sequentially,
+so timing comparisons can include warmup/order effects. Do not use a concurrently
+shared slot or assume cached and uncached generations are bit-identical.
+
+The harness accepts only an unauthenticated HTTP loopback origin, disables proxies and
+redirects, requires `--cap 0` and never reads credentials. No local executable/server
+was available for this work, so actual KV-cache/token savings remain unmeasured.
+The request options and response interpretation follow the official
+[llama.cpp server documentation](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md).
+This harness is an integration aid; provider prompt-cache discounts remain unverified.

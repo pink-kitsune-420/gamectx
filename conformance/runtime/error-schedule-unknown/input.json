@@ -1,0 +1,1 @@
+{"kind":"schedule","capacity":4,"budget":3,"jobs":[{"id":0,"cost":1,"interval":2,"max_age":5,"phase":0},{"id":1,"cost":1,"interval":2,"max_age":5,"phase":1},{"id":2,"cost":1,"interval":2,"max_age":5,"phase":0},{"id":3,"cost":2,"interval":2,"max_age":5,"phase":1}],"events":[{"op":"changed","id":90,"urgent":false}]}

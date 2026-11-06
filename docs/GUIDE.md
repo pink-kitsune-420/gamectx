@@ -204,3 +204,58 @@ hits and was 1.8–1.85× slower. Cloning 1,000 compiled templates took 1.412/8.
 versus 24.238/142.615 ms restoring saved JSON for small/large networks. These are local
 timings, not guarantees; [measurement details](../eval/README.md#brain-preloading-and-prediction-caching).
 No API calls.*
+
+## 10. Bound frame work and reuse context
+
+Preload/clone a brain at startup, bind inputs once in declared order and keep one
+`Prediction` per worker. `run_into` accepts integer millionths and an eligibility bit
+mask; all success-path storage is fixed-size. Validate host normalization and mask
+mapping when binding a different graph. Choice indices refer to that graph's output
+order. Convert scores to JSON only when exposing them outside native code.
+
+Register actor jobs with `schedule::Scheduler`, giving each a cost, minimum interval,
+maximum refresh age and initial phase. Notify observation, brain revision, eligibility
+and threshold changes; urgent events bypass the minimum interval while staying inside
+the per-frame budget. Execute reservations or re-mark failures dirty. A budget cannot
+guarantee refresh deadlines under overload, and estimated costs need host profiling.
+
+Create a `TrainingJob` outside the critical frame path, advance it with an explicit
+work budget, and finish after `is_finished()`. Allow at least `next_steps()` units per
+slice (one complete sample). Dropping cancels without touching learning. Finish rejects
+a brain whose complete starting state changed. Advance other jobs or keep using the
+current policy while a candidate trains; scheduling training separately from inference
+is a host choice. Allocation/copying at setup/transitions/commit is bounded, not timed
+by work units. Keep latency measurements for your largest actual graphs and histories.
+
+For host-policy selection, put eligibility and score/margin thresholds on each validation
+row and use `train_select_host` or its resumable counterpart. Compare desired and predicted
+choices under the same mask/thresholds. Do not tune validation sets against the test set.
+The fresh synthetic masked/thresholded cohort scored 1,466/1,536 for both old and new
+selection: appropriate metric coverage, not a measured accuracy improvement.
+
+`Context` prepares registered sections once. Use `PreparedSection` for repeated lower-level
+assembly, replacing a prepared section when its data changes. The byte-budget path counts
+exact encoded sizes and only serializes the selected packet. Generic fitting predicates
+still receive every complete candidate; calibrated token estimates retain their behavior.
+
+For a stateful host connection, use `sync::Publisher` / `Replica` with an explicit stream.
+Send the receiver's actual revision as ACK, and omit ACK after a reset/missing baseline
+to obtain a full snapshot. Replicas atomically reject bad streams/revisions/removals/order
+and preserve exact numbers. Never assume a sent message arrived. The ordinary model
+request contains reconstructed context; whether a local model retains a useful prompt
+prefix is a separate integration measurement. An acknowledged delta is transfer compression,
+not a guarantee of fewer inference tokens or smaller retained context.
+
+*Local offline results: 20,000 native predictions took 1,968,370/6,171,925 ns versus JSON
+26,030,769/32,503,158 ns (small/large), with zero native allocations. In 500 pressured
+packet builds, the old algorithm took 146,774,066 ns, new one-shot assembly 19,042,995 ns
+and reused prepared sections 1,834,731 ns. Scheduling reserved 512 versus 15,360 evaluations
+in a 64-actor, 240-frame trace, max eight/frame. A 120-turn context trace transferred
+19,089 versus 489,490 bytes with exact reconstruction. These are synthetic workloads;
+[methodology and limits](../eval/README.md#frame-work-and-context-reuse) accompany the numbers.
+API spend $0; actual local-model KV-cache savings remain unmeasured.*
+
+Run the [combined example](../examples/runtime-loop.rs) with `cargo run --example runtime-loop`.
+It includes scheduled native predictions, sliced selection, prepared context, explicit ACKs
+and host-policy validation. It completes 40 frames with nine evaluations and one retained
+revision; a further host-metric update is rejected when its validation loss cannot improve.

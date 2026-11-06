@@ -185,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 226 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 261 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -433,6 +433,79 @@ gamectx brain examples/brain/workflow.json --cache 32
 
 The CLI cache lives for one workflow; output and saved state remain byte-identical.
 API spend for these measurements: $0.
+
+### Keep work within a frame
+
+`Brain::run_into` accepts fixed-point input arrays and an output eligibility mask, and
+writes a reusable `Prediction`. It performs no heap allocation on successful calls:
+
+```rust
+use gamectx::brain::{Brain, Prediction};
+let brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
+let mut prediction = Prediction::default();
+brain.run_into(&[Some(800_000), Some(200_000)], 0b11, 0, 0, &mut prediction)?;
+assert_eq!(prediction.scores().len(), 2);
+```
+
+Inputs, scores and thresholds use integer millionths (`SCALE = 1_000_000`); `None` is
+unknown. Choice indices follow `Brain::outputs()`. The JSON APIs remain available and
+produce identical results. A local release benchmark of 20,000 changing-state calls
+measured 26,030,769 / 32,503,158 ns through JSON versus 1,968,370 / 6,171,925 ns natively
+(small/large networks), with zero native allocations. These compare API paths, not
+additional neural accuracy or universal game-loop speedups.
+
+`brain.start_train`, `start_train_select` and `start_train_select_host` create disposable
+`TrainingJob`s. Call `advance(work_budget)` each frame, then `finish(&mut brain)` when
+complete. A slice stops at a sample boundary; `next_steps()` reports its minimum budget.
+Dropping a job cancels it. Finish checks the entire starting state before committing;
+changed or replaced brains reject stale jobs. Training order, reports and saved results
+match uninterrupted execution. Work units are deterministic estimates, not milliseconds.
+
+`schedule::Scheduler` staggers actor work, responds to change/urgent events, refreshes
+idle actors and enforces an estimated per-frame budget. Hosts notify it when observations,
+brain revisions, eligibility or thresholds change and execute the returned reservations.
+In the synthetic 64-actor/240-frame check, it scheduled 512 evaluations versus 15,360
+per-frame evaluations, peaking at eight per frame. Overload can delay refresh deadlines.
+
+`train_select_host` uses validation rows with `inputs`, `targets`, `allowed`, `min_score`
+and `min_margin`; it compares actual choice/abstention to the target utilities under
+those same settings. Target ties, zero utilities and threshold failures expect abstention.
+It retains one candidate only when MSE improves and this decision count does not regress.
+On fresh masked/thresholded test seeds, both selection methods scored 1,466/1,536;
+this adds an appropriate host metric, with no measured accuracy gain on that cohort.
+
+### Reuse packet bytes and synchronize context
+
+`Context` now retains serialized registered sections. Byte-budget assembly sizes sections
+without allocating temporary JSON and serializes the final packet once. For repeated
+assembly outside `Context`, use `budget::PreparedSection` and `assemble_prepared_bytes`.
+In a local 500-call benchmark with budget pressure, the previous algorithm took
+146,774,066 ns, one-shot assembly 19,042,995 ns and reused prepared sections 1,834,731 ns.
+One-shot packets that already fit were about 9% slower in this run, with fewer allocations;
+prepared reuse is the preferred path for repeated builds. Arbitrary fitting
+predicates still inspect each complete candidate; token estimates are never treated as
+additive byte counts.
+
+`sync::Publisher` / `Replica` transfer a full snapshot initially, then changed sections
+when the receiver explicitly acknowledges the current revision. Lost or mismatched
+acknowledgements produce a new snapshot. Receivers reject replay, wrong streams/baselines,
+invalid removals and oversize input atomically, while preserving exact JSON numbers/order.
+A 120-turn synthetic trace transferred 19,089 bytes versus 489,490 full-state bytes.
+These are transfer bytes: a model receives reconstructed state unless its host implements
+the protocol. Deltas do not guarantee lower inference tokens or context-window usage.
+
+```bash
+cargo run --example runtime-loop
+python3 -I eval/prefix_cache_eval.py --cap 0
+# Optional: a running local llama.cpp server; no credentials or paid provider.
+python3 -I eval/prefix_cache_eval.py --url http://127.0.0.1:8080 --cap 0
+```
+
+The [complete host example](examples/runtime-loop.rs) combines scheduling, sliced
+training, native inference, prepared context and acknowledged synchronization. The prefix
+harness compares local server cache modes and records reported token counts/timings;
+actual server KV-cache savings remain unmeasured here. All new measurements cost $0.
+See [reproduction details](eval/README.md#frame-work-and-context-reuse).
 
 ## Be honest with your numbers
 

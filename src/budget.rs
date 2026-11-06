@@ -41,50 +41,134 @@ pub struct Packet {
     pub receipt: Receipt,
 }
 
-/// Fits sections into `max_bytes` of compact JSON.
-pub fn assemble_bytes(sections: Vec<Section>, max_bytes: usize) -> Result<Packet> {
-    assemble(sections, &|text: &str| text.len() <= max_bytes)
+/// A section serialized once for repeated assembly. Fields are private so bytes cannot
+/// become stale when a source value changes. Rebuild it to change content/metadata.
+#[derive(Clone, Debug)]
+pub struct PreparedSection {
+    section: Section,
+    member: String,
+    value_bytes: usize,
 }
 
-/// Fits sections using any measure, such as a calibrated token estimate.
-pub fn assemble(sections: Vec<Section>, fits: &dyn Fn(&str) -> bool) -> Result<Packet> {
-    for (i, s) in sections.iter().enumerate() {
-        if sections[..i].iter().any(|o| o.name == s.name) {
-            return Err(Error::new(format!("duplicate section \"{}\"", s.name)));
+impl PreparedSection {
+    pub fn new(section: Section) -> Self {
+        let value_bytes = section.value.json_len();
+        let mut member = String::with_capacity(crate::json::string_len(&section.name) + 1 + value_bytes);
+        crate::json::write_string(&section.name, &mut member);
+        member.push(':');
+        section.value.write(&mut member);
+        Self { section, member, value_bytes }
+    }
+    pub fn section(&self) -> &Section {
+        &self.section
+    }
+    fn line(&self) -> Line {
+        Line {
+            name: self.section.name.clone(),
+            bytes: self.value_bytes,
+            priority: self.section.priority,
+            stable: self.section.stable,
         }
     }
-    // Stable first, keeping declared order inside each group.
-    let mut ordered: Vec<(usize, Section)> = sections.into_iter().enumerate().collect();
-    ordered.sort_by_key(|(i, s)| (!s.stable, *i));
+}
 
-    let mut dropped = Vec::new();
-    loop {
-        let value = Value::Object(ordered.iter().map(|(_, s)| (s.name.clone(), s.value.clone())).collect());
+/// Exact byte-budget fitting. Serializes each member once, counts removals, builds once.
+pub fn assemble_bytes(mut sections: Vec<Section>, max_bytes: usize) -> Result<Packet> {
+    for (i, section) in sections.iter().enumerate() {
+        if sections[..i].iter().any(|old| old.name == section.name) {
+            return Err(Error::new(format!("duplicate section \"{}\"", section.name)));
+        }
+    }
+    let size = 2
+        + sections.len().saturating_sub(1)
+        + sections.iter().map(|s| crate::json::string_len(&s.name) + 1 + s.value.json_len()).sum::<usize>();
+    // A fitting one-shot packet needs no retained member strings or value clones.
+    if size <= max_bytes {
+        sections.sort_by_key(|s| !s.stable);
+        let included = sections
+            .iter()
+            .map(|s| Line { name: s.name.clone(), bytes: s.value.json_len(), priority: s.priority, stable: s.stable })
+            .collect();
+        let value = Value::Object(sections.into_iter().map(|s| (s.name, s.value)).collect());
         let text = value.to_json();
-        if fits(&text) {
-            let included = ordered.iter().map(|(_, s)| line(s)).collect();
-            let total_bytes = text.len();
-            return Ok(Packet { value, text, receipt: Receipt { included, dropped, total_bytes } });
+        return Ok(Packet { value, text, receipt: Receipt { included, dropped: Vec::new(), total_bytes: size } });
+    }
+    let prepared: Vec<_> = sections.into_iter().map(PreparedSection::new).collect();
+    assemble_prepared_bytes(&prepared.iter().collect::<Vec<_>>(), max_bytes)
+}
+
+/// Reuses previously serialized sections, including stable tools/rules across turns.
+pub fn assemble_prepared_bytes(sections: &[&PreparedSection], max_bytes: usize) -> Result<Packet> {
+    assemble_prepared_inner(sections, Some(max_bytes), &|_| true)
+}
+
+/// Arbitrary fitting predicates still receive the complete candidate on every attempt.
+/// Their result may depend on content/order and is never assumed additive or monotonic.
+pub fn assemble(sections: Vec<Section>, fits: &dyn Fn(&str) -> bool) -> Result<Packet> {
+    let prepared: Vec<_> = sections.into_iter().map(PreparedSection::new).collect();
+    assemble_prepared(&prepared.iter().collect::<Vec<_>>(), fits)
+}
+
+pub fn assemble_prepared(sections: &[&PreparedSection], fits: &dyn Fn(&str) -> bool) -> Result<Packet> {
+    assemble_prepared_inner(sections, None, fits)
+}
+
+fn assemble_prepared_inner(
+    sections: &[&PreparedSection],
+    max_bytes: Option<usize>,
+    fits: &dyn Fn(&str) -> bool,
+) -> Result<Packet> {
+    for (i, s) in sections.iter().enumerate() {
+        if sections[..i].iter().any(|old| old.section.name == s.section.name) {
+            return Err(Error::new(format!("duplicate section \"{}\"", s.section.name)));
+        }
+    }
+    let mut ordered: Vec<_> = sections.iter().copied().enumerate().collect();
+    ordered.sort_by_key(|(i, s)| (!s.section.stable, *i));
+    let mut dropped = Vec::new();
+    let encode = |items: &[(usize, &PreparedSection)]| {
+        let size = 2 + items.iter().map(|(_, s)| s.member.len()).sum::<usize>() + items.len().saturating_sub(1);
+        let mut text = String::with_capacity(size);
+        text.push('{');
+        for (i, (_, s)) in items.iter().enumerate() {
+            if i != 0 {
+                text.push(',');
+            }
+            text.push_str(&s.member);
+        }
+        text.push('}');
+        text
+    };
+    let mut size = 2 + ordered.iter().map(|(_, s)| s.member.len()).sum::<usize>() + ordered.len().saturating_sub(1);
+    loop {
+        let text = if let Some(cap) = max_bytes {
+            (size <= cap).then(|| encode(&ordered))
+        } else {
+            let text = encode(&ordered);
+            fits(&text).then_some(text)
+        };
+        if let Some(text) = text {
+            let value =
+                Value::Object(ordered.iter().map(|(_, s)| (s.section.name.clone(), s.section.value.clone())).collect());
+            let included = ordered.iter().map(|(_, s)| s.line()).collect();
+            return Ok(Packet { value, text, receipt: Receipt { included, dropped, total_bytes: size } });
         }
         let victim = ordered
             .iter()
             .enumerate()
-            .filter(|(_, (_, s))| !s.required)
-            .min_by_key(|(_, (declared, s))| (s.priority, std::cmp::Reverse(*declared)))
+            .filter(|(_, (_, s))| !s.section.required)
+            .min_by_key(|(_, (i, s))| (s.section.priority, std::cmp::Reverse(*i)))
             .map(|(pos, _)| pos);
-        match victim {
-            Some(pos) => dropped.push(line(&ordered.remove(pos).1)),
-            None => {
-                let names: Vec<String> =
-                    ordered.iter().map(|(_, s)| format!("{} ({} bytes)", s.name, s.value.json_len())).collect();
-                return Err(Error::new(format!("required sections alone exceed the budget: {}", names.join(", "))));
-            }
+        if let Some(pos) = victim {
+            let (_, s) = ordered.remove(pos);
+            size -= s.member.len() + usize::from(!ordered.is_empty());
+            dropped.push(s.line());
+        } else {
+            let names: Vec<_> =
+                ordered.iter().map(|(_, s)| format!("{} ({} bytes)", s.section.name, s.value_bytes)).collect();
+            return Err(Error::new(format!("required sections alone exceed the budget: {}", names.join(", "))));
         }
     }
-}
-
-fn line(s: &Section) -> Line {
-    Line { name: s.name.clone(), bytes: s.value.json_len(), priority: s.priority, stable: s.stable }
 }
 
 impl Packet {

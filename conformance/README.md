@@ -44,6 +44,15 @@ A case passes when:
 
 ## Changing behavior
 
+`runtime` cases select a native API workflow with `input.kind`: `infer` (millionth
+input arrays/mask/thresholds), `budget` (sections/cap), `schedule` (registrations/events),
+`job` (one training workflow plus slice cap), `host` (host-policy selection workflow),
+or `sync` (publish/deliver/apply operations). The reference adapter is
+[`tests/support/runtime.rs`](../tests/support/runtime.rs); Python expectations come from
+[`eval/runtime_eval.py`](../eval/runtime_eval.py). These adapters exercise native APIs;
+they are not additional model tools. Error cases cover input/work bounds and invalid
+stream, revision, order, removals and scheduler events.
+
 The Rust reference runner is `tests/conformance.rs`. After a deliberate behavior change:
 
 ```bash

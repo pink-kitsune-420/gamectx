@@ -19,9 +19,13 @@
 use crate::json::{Error, Result, Value};
 
 mod cache;
+mod infer;
+mod job;
 mod learn;
 mod tools;
 pub use cache::{CacheStats, CachedBrain, MAX_CACHE_ENTRIES};
+pub use infer::{Prediction, SCALE};
+pub use job::TrainingJob;
 pub use tools::{create_call, process, process_cached, tools};
 
 const S: i64 = 1_000_000;
@@ -366,38 +370,14 @@ impl Brain {
         }
         let low = ticks(&Value::from(min_score), 0, S)?;
         let gap = ticks(&Value::from(min_margin), 0, S)?;
-        let (values, _) = self.forward(&self.features(inputs, false)?);
-        let scores: Vec<Option<i64>> = self.output_indices.iter().map(|i| values[self.inputs.len() + i]).collect();
-        let mut eligible = Vec::new();
-        let mut unknown = false;
-        for (i, out) in self.outputs.iter().enumerate() {
-            if allowed.contains(&out.as_str()) {
-                if let Some(score) = scores[i] {
-                    eligible.push((score, i));
-                } else {
-                    unknown = true;
-                }
-            }
-        }
-        eligible.sort_by_key(|pair| std::cmp::Reverse(pair.0));
-        let mut choice = Value::Null;
-        let mut margin = Value::Null;
-        if !unknown {
-            if let Some(&(best, index)) = eligible.first() {
-                let difference = best - eligible.get(1).map_or(0, |(score, _)| *score);
-                margin = number(difference);
-                if best > low && difference > gap {
-                    choice = Value::str(self.outputs[index].as_str());
-                }
-            }
-        }
-        let scores = Value::Object(
-            self.outputs
-                .iter()
-                .zip(scores)
-                .map(|(key, value)| (key.clone(), value.map_or(Value::Null, number)))
-                .collect(),
-        );
-        Ok(crate::obj! {"revision" => self.revision, "scores" => scores, "choice" => choice, "margin" => margin})
+        let features = self.features(inputs, false)?;
+        let mask = self
+            .outputs
+            .iter()
+            .enumerate()
+            .fold(0, |mask, (i, name)| mask | if allowed.contains(&name.as_str()) { 1u16 << i } else { 0 });
+        let mut prediction = Prediction::default();
+        self.run_into(&features, mask, low, gap, &mut prediction)?;
+        Ok(self.prediction_value(&prediction))
     }
 }

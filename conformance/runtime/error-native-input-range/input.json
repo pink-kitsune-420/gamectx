@@ -1,0 +1,1 @@
+{"kind":"infer","workflow":{"dense":{"inputs":["x","y"],"outputs":["left","right"],"hidden":4,"seed":3},"operations":[]},"runs":[{"inputs":[1000001,0],"mask":3,"low":0,"gap":0},{"inputs":[null,0],"mask":3,"low":0,"gap":0},{"inputs":[0,1000000],"mask":1,"low":500000,"gap":0},{"inputs":[0,0],"mask":0,"low":0,"gap":0},{"inputs":[1000000,0],"mask":2,"low":0,"gap":300000}]}

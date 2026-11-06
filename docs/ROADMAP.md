@@ -26,6 +26,9 @@ noted; "3 models" adds Llama 3.3 70B.
 | Generic adaptive local reaction brains | Offline reference-policy agreement on four tasks: random 545/1,536 → trained 1,421/1,536 (fresh seeds 707/808/909); changed preference 264/384 → 384/384 (seeds 1001/1002/1003). Graphs, training, pins, validation gates, persistence/undo; 41 new cases, 30,000 text mutations, 292 byte-identical workflows including 2,304 predictions. No API calls. |
 | Opt-in validation-reaction rate selection | Fresh paired seeds 2001/2002/2003: single rate 1,436/1,536 → selected 1,487/1,536; nonlinear task 315/384 → 359/384. Rates chosen only on validation data; about 3× estimated training work, identical inference. 17 new cases, 45 byte-identical selection workflows/1,536 predictions; 10,000 additional text mutations. No API calls. |
 | Preloaded templates and opt-in bounded prediction caching | Local release medians, five trials: 20,000 repeated-state predictions 15.939–19.223 ms cached vs 29.161–36.524 ms uncached (1.7–2.0×); cloning 1,000 templates 1.412/8.952 ms vs JSON restore 24.238/142.615 ms (small/large). Independent owners, 0–256 FIFO entries, mutation invalidation; six new cases, 64 byte-identical cached workflows and 10,000 workflow mutations. No API calls. |
+| Native frame inference and faster packet assembly | 20,000 changing-state calls: JSON 26,030,769/32,503,158 ns → native 1,968,370/6,171,925 ns (small/large), zero native allocations. 500 pressured packet builds 146,774,066 → 19,042,995 ns; prepared reuse 1,834,731 ns. Exact output/receipt parity. |
+| Scheduling, sliced training and host-policy validation | Synthetic 64 actors/240 frames: 15,360 → 512 evaluations, max eight/frame. Sample-sliced train/selection preserves weights/reports/state; cancellation and stale-state rejection. Host masks/thresholds evaluated on fresh seeds 3001/3002/3003: 1,466/1,536 for both old and host-metric selection, no measured gain. |
+| Acknowledged context synchronization and local prefix harness | 120 turns: 489,490 full-state bytes → 19,089 transfer bytes, exact reconstruction; explicit ACK, stream/revision checks and snapshot recovery. 35 new cases across runtime APIs, 148 byte-identical workflows/2,304 predictions, 40,000 extra text mutations. All offline, $0; actual local-model KV-cache savings unmeasured. |
 
 ## Measured and rejected
 
@@ -42,15 +45,16 @@ noted; "3 models" adds Llama 3.3 70B.
 | More examples alone as a universal brain-accuracy fix | At equal 4,096 training sample-visits, switch validation MSE improved 0.012898 → 0.009566 but correct reactions fell 110/128 → 103/128 (32 → 128 training examples). More data can help other tasks; decision quality needs its own check. |
 | One universal initializer/rate | Switch validation scores ranged 74/128 (initializer 1) to 114/128 (7), versus 110/128 (3). Rate 0.3 helped switch (119/128) but hurt support (116/128 vs 119/128 at 0.1); use bounded validation selection without resetting an existing brain's learned state. |
 | Always-on brain prediction caching | Cycling 256 distinct states through 32 slots: 0 hits/20,000 calls; small network 29.011 ms uncached → 53.640 ms cached, large 37.100 → 67.276 ms (1.8–1.85× slower). Keep caching opt-in with counters; no approximate input bucketing added. |
+| Universal one-shot packet speedup | The fitting fixture took 5,587,160 → 6,098,296 ns (about 9% slower) despite allocations falling 47,000 → 30,500. The initial always-prepared variant added allocations too; the shipped fit path moves values directly. Prefer prepared reuse for repeated builds, and measure one-shot tradeoffs. |
+| Host-policy selection as an automatic accuracy boost | Same rates and 1,466/1,536 held-out masked/thresholded decisions as prior selection. Ship as opt-in metric correctness, not a measured accuracy win. |
 
 ## Next candidates
 
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
 - Clearer top-N aggregate guidance: Mistral still generates subqueries after a correction in some cases.
 - Explicit categorical semantics (e.g. rarity label `unique` versus count = 1), tested on fresh holdout seeds.
-- Reaction-brain feedback from real hosts and unseen policy families; native input adapters, held-out gameplay metrics and scheduling remain integration work.
-- Reusable inference scratch buffers or typed predictions for changing-state workloads; benchmark before adding API surface.
-- Sending only what changed between turns, for games that keep chat history.
+- Reaction-brain feedback from real hosts and unseen policy families; native input adapters and held-out gameplay metrics remain integration work; the generic scheduler needs host notifications/costs.
+- Measure acknowledged synchronization and periodic snapshot policies on live multi-turn model decisions.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
 - Feedback from the first real game integration once its gaps list arrives.
@@ -63,4 +67,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - Schema-only requests can confuse semantic labels (`unique` rarity became count = 1). Valid but wrong queries do not retry.
 - Query workflow eval covers 4 states of one synthetic game family, including 3 holdouts; real games and different distributions may differ.
 - Brain tests use synthetic labels and one initializer in final test runs, not live gameplay or model-authored-policy quality. Original single-rate switch test misses 78/384; rate selection misses 25/384 on a fresh cohort (paired baseline misses 69/384). Validation improvements do not guarantee gameplay or out-of-distribution behavior.
-- Rate selection measures decisions with every output eligible and zero thresholds. Hosts with dynamic masks or other thresholds need their own validation metric; selection adds training work and can overfit a reused validation set.
+- Default rate selection measures decisions with every output eligible and zero thresholds. Hosts can opt into `train_select_host` for masks/thresholds, but selection still adds training work and can overfit reused validation data.
+
+- Runtime timing fixtures use two synthetic network sizes and mostly static packet reuse; real engines, allocators and actor change rates may differ. Estimated frame-work budgets are not wall-clock deadlines.
+- Sync deltas compress host transfer, not automatically LLM input/history; integrations reconstruct snapshots or implement explicit state handling. Actual local prefix-cache tokens/timings remain unmeasured without a running server.

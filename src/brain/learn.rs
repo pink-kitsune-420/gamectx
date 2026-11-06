@@ -81,7 +81,7 @@ impl Brain {
         Self::restore(&crate::json::parse(text, MAX_STATE_BYTES)?)
     }
 
-    fn samples(&self, raw: &Value) -> Result<Samples> {
+    pub(super) fn samples(&self, raw: &Value) -> Result<Samples> {
         let rows = list(raw)?;
         if rows.is_empty() || rows.len() > MAX_EXAMPLES {
             return Err(err("sample count outside limits"));
@@ -115,7 +115,7 @@ impl Brain {
         div(total, (samples.len() * self.outputs.len()) as i64 * S)
     }
 
-    fn request(&self, data: &Value) -> Result<String> {
+    pub(super) fn request(&self, data: &Value) -> Result<String> {
         let id = text(get(data, "id")?)?;
         name(id)?;
         integer(get(data, "expected_revision")?, self.revision, self.revision)?;
@@ -136,7 +136,7 @@ impl Brain {
         "before_loss" => number(before), "after_loss" => number(after), "steps" => steps}
     }
 
-    fn retain(&mut self, candidate: Self, id: String) {
+    pub(super) fn retain(&mut self, candidate: Self, id: String) {
         self.history.push((id.clone(), std::mem::replace(&mut self.weights, candidate.weights)));
         if self.history.len() > MAX_HISTORY {
             self.history.remove(0);
@@ -218,46 +218,46 @@ impl Brain {
 
     fn trained(&self, examples: &Samples, epochs: usize, rate: i64) -> Self {
         let mut candidate = self.clone();
-        let mut output = vec![false; self.nodes.len()];
-        for index in &self.output_indices {
-            output[*index] = true;
-        }
         for _ in 0..epochs {
             for (features, targets) in examples {
-                let features: Vec<Option<i64>> = features.iter().copied().map(Some).collect();
-                let (values, active) = candidate.forward(&features);
-                let mut gradient = vec![0i64; self.nodes.len()];
-                for (index, target) in self.output_indices.iter().zip(targets) {
-                    gradient[*index] += values[self.inputs.len() + index].expect("complete features") - target;
-                }
-                let mut updates = Vec::new();
-                for i in (0..self.nodes.len()).rev() {
-                    let node = &self.nodes[i];
-                    // A straight-through output gradient can recover saturated old policies.
-                    // Hidden nodes retain the clamp derivative.
-                    let delta = if active[i] || output[i] { gradient[i].clamp(-S, S) } else { 0 };
-                    let mut row = vec![delta];
-                    for (j, (source, _)) in node.edges.iter().enumerate() {
-                        if *source >= self.inputs.len() {
-                            gradient[source - self.inputs.len()] += mul(delta, candidate.weights[i][j + 1]);
-                        }
-                        row.push(mul(delta, values[*source].expect("complete features")));
-                    }
-                    if node.pinned {
-                        row.fill(0);
-                    }
-                    updates.push((i, row));
-                }
-                for (i, derivatives) in updates {
-                    for (j, derivative) in derivatives.into_iter().enumerate() {
-                        let low = (-4 * S).max(self.base[i][j] - self.nodes[i].limit);
-                        let high = (4 * S).min(self.base[i][j] + self.nodes[i].limit);
-                        candidate.weights[i][j] = (candidate.weights[i][j] - mul(rate, derivative)).clamp(low, high);
-                    }
-                }
+                candidate.train_sample(features, targets, rate);
             }
         }
         candidate
+    }
+
+    pub(super) fn train_sample(&mut self, features: &[i64], targets: &[i64], rate: i64) {
+        let features: Vec<Option<i64>> = features.iter().copied().map(Some).collect();
+        let (values, active) = self.forward(&features);
+        let mut gradient = vec![0i64; self.nodes.len()];
+        for (index, target) in self.output_indices.iter().zip(targets) {
+            gradient[*index] += values[self.inputs.len() + index].expect("complete features") - target;
+        }
+        let mut updates = Vec::new();
+        for i in (0..self.nodes.len()).rev() {
+            let node = &self.nodes[i];
+            // A straight-through output gradient can recover saturated old policies.
+            // Hidden nodes retain the clamp derivative.
+            let delta = if active[i] || self.output_indices.contains(&i) { gradient[i].clamp(-S, S) } else { 0 };
+            let mut row = vec![delta];
+            for (j, (source, _)) in node.edges.iter().enumerate() {
+                if *source >= self.inputs.len() {
+                    gradient[source - self.inputs.len()] += mul(delta, self.weights[i][j + 1]);
+                }
+                row.push(mul(delta, values[*source].expect("complete features")));
+            }
+            if node.pinned {
+                row.fill(0);
+            }
+            updates.push((i, row));
+        }
+        for (i, derivatives) in updates {
+            for (j, derivative) in derivatives.into_iter().enumerate() {
+                let low = (-4 * S).max(self.base[i][j] - self.nodes[i].limit);
+                let high = (4 * S).min(self.base[i][j] + self.nodes[i].limit);
+                self.weights[i][j] = (self.weights[i][j] - mul(rate, derivative)).clamp(low, high);
+            }
+        }
     }
 
     /// Correct default-threshold decisions over complete utility samples. Tied best

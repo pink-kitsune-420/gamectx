@@ -13,6 +13,30 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds allocation-free `Brain::run_into`, reusable `Prediction` and fixed-point
+  `SCALE`; existing JSON inference uses the same kernel and keeps its output.
+- **[api]** Adds disposable `TrainingJob`s for single-rate, selection and host-policy
+  selection. Sample slices preserve training order/results; finishing rejects stale
+  state and dropping cancels without mutation. Adds `schedule::Scheduler` for bounded
+  event/urgency/refresh scheduling.
+- **[api]** Adds `PreparedSection` and reusable packet assembly; `Context` retains encoded
+  sections. Exact byte-budget fitting avoids repeated packet clones/serialization.
+  `json_len()` counts exact serialized bytes without allocating. Generic fitting
+  predicates preserve their complete-candidate behavior.
+- **[format]** Adds `train_select_host` workflows with per-validation eligibility and
+  thresholds, and acknowledged `sync` envelopes. Adds 35 `runtime` conformance cases;
+  all previous 226 cases remain unchanged. Default model tool schemas are unchanged;
+  hosts opt into the new validation operation.
+- **[api]** Adds bounded `sync::Publisher` / `Replica` with explicit stream/revision
+  checks, snapshots on missing ACK, exact reconstruction and atomic rejection.
+- **[docs]** Free offline measurements: native inference 5.3–13.2× faster than JSON in
+  two changing-state workloads, zero allocations; budget-pressure assembly about 7.7×
+  faster one-shot under pressure; already-fitting one-shot builds were about 9% slower
+  with fewer allocations. Synthetic scheduling 15,360 → 512 evaluations; synchronization
+  489,490 → 19,089 transfer bytes. Host-policy selection ties existing selection at
+  1,466/1,536 held-out decisions. Local-server prefix-cache harness added; actual KV
+  cache savings remain unmeasured. Timings are local workload results, not guarantees.
+
 - **[api]** Adds `brain::CachedBrain`, `CacheStats`, `process_cached` and CLI
   `brain WORKFLOW --cache N`. Bounded FIFO prediction caching is opt-in, clears on
   mutable access and never enters saved learning. Preload once and clone compiled

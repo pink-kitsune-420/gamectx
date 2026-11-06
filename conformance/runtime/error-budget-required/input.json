@@ -1,0 +1,1 @@
+{"kind":"budget","sections":[{"name":"rules","value":"quote \" \\ é \u0001","priority":5,"stable":true,"required":true},{"name":"live","value":[1,2,null],"priority":0},{"name":"late","value":"extraextraextraextraextraextraextraextraextraextra","priority":0}],"cap":3}

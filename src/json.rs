@@ -117,10 +117,20 @@ impl Value {
 
     /// Byte length of the compact serialization.
     pub fn json_len(&self) -> usize {
-        self.to_json().len()
+        match self {
+            Value::Null | Value::Bool(true) => 4,
+            Value::Bool(false) => 5,
+            Value::Number(n) => n.len(),
+            Value::String(s) => string_len(s),
+            Value::Array(items) => 2 + items.len().saturating_sub(1) + items.iter().map(Value::json_len).sum::<usize>(),
+            Value::Object(entries) => {
+                2 + entries.len().saturating_sub(1)
+                    + entries.iter().map(|(key, value)| string_len(key) + 1 + value.json_len()).sum::<usize>()
+            }
+        }
     }
 
-    fn write(&self, out: &mut String) {
+    pub(crate) fn write(&self, out: &mut String) {
         match self {
             Value::Null => out.push_str("null"),
             Value::Bool(true) => out.push_str("true"),
@@ -223,6 +233,17 @@ macro_rules! obj {
     ($($key:expr => $value:expr),* $(,)?) => {
         $crate::json::Value::Object(vec![$((::std::string::String::from($key), $crate::json::Value::from($value))),*])
     };
+}
+
+pub(crate) fn string_len(s: &str) -> usize {
+    2 + s
+        .bytes()
+        .map(|b| match b {
+            b'"' | b'\\' | b'\n' | b'\r' | b'\t' | 8 | 12 => 2,
+            0..=31 => 6,
+            _ => 1,
+        })
+        .sum::<usize>()
 }
 
 pub fn write_string(s: &str, out: &mut String) {

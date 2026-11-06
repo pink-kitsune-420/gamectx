@@ -1,0 +1,1 @@
+{"results":[{"stream":"numbers","base":null,"revision":1,"order":["n"],"set":{"n":1.5},"remove":[]},{"n":1.5},{"stream":"numbers","base":1,"revision":2,"order":[],"set":{},"remove":["n"]},{}],"publisher_revision":2,"receiver_revision":2,"state":{}}

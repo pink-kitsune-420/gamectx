@@ -1,0 +1,1 @@
+{"packet":{"rules":"quote \" \\ é \u0001","live":[1,2,null]},"receipt":{"columns":["name","bytes","priority","stable"],"included":[["rules",23,5,true],["live",10,0,false]],"dropped":[["late",52,0,false]],"total_bytes":51}}

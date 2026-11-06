@@ -43,6 +43,7 @@ impl Brain {
             }
             "train" => self.train(args),
             "train_select" => self.train_select(args),
+            "train_select_host" => self.train_select_host(args),
             "teach" => self.teach(args),
             "undo" => {
                 fields(args, &["expected_revision"])?;

@@ -24,6 +24,12 @@ jobs:
       - run: python3 -I eval/test_brain.py
       - run: python3 -I eval/test_brain_accuracy.py
       - run: python3 -I eval/test_brain_cache.py
+      - run: python3 -I eval/test_runtime.py
+      - run: python3 -I eval/prefix_cache_eval.py --cap 0
+      - run: rustc --edition=2021 -O eval/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
+      - run: python3 -I eval/runtime_eval.py --check
+      - run: rustc --edition=2021 -O eval/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
+      - run: ./target/runtime-bench > /dev/null
       - run: python3 -I eval/brain_cache_eval.py --check
       - run: python3 -I eval/brain_accuracy_eval.py --check
       - run: python3 -I eval/brain_eval.py --check

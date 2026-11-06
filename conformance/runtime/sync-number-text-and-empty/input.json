@@ -1,0 +1,1 @@
+{"kind":"sync","stream":"numbers","operations":[{"op":"publish","state":{"n":1.5},"ack":null},{"op":"deliver"},{"op":"publish","state":{},"ack":1},{"op":"deliver"}]}
