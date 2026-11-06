@@ -1143,3 +1143,13 @@ costs and total consistency, then `recover(now)` settles *all* unfinished reserv
 at full cost. Text cap 65,536 bytes. Recovery therefore deliberately changes pending
 state; a second same-time restore is stable. Durable atomic saving before dispatch,
 crash exclusion, provider request caps and authenticated billing remain host duties.
+
+## Model measurement references
+
+The [fresh alpha.3 model check](MODEL_TEST_2026_11_06.md) uses these existing table,
+metadata and query-session formats without changing them. Across six synthetic states,
+full JSON and packed tables each scored 27/96; schema + query scored 91/96. Average
+completed-exchange input was 1,786.792 / 1,252.125 / 916.490 tokens. All 105 recorded
+query feedback envelopes match Rust and Python exactly. Syntax/shape validation still
+cannot establish that a valid query matches a natural-language intention; the report
+records four syntactically valid queries with wrong intent and one terminal syntax failure.

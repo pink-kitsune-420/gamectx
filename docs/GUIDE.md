@@ -347,6 +347,14 @@ registered facts. The host owns archive I/O, validation and any model-facing too
 
 ## Reuse and checked runtime work
 
+The [fresh alpha.3 model check](MODEL_TEST_2026_11_06.md) compares full JSON, packed tables
+and schema + query across six states/three schema families on the two smaller models.
+Scores were 27/96, 27/96 and 91/96; average input per completed exchange was
+1,786.792, 1,252.125 and 916.490, including query/correction/final-answer calls. Packing
+alone keeps the aggregate score while reducing tokens; native queries handle arithmetic
+and row selection more reliably in this cohort. Valid queries can still add unintended
+limits/filters, and these measurements do not establish live-game accuracy.
+
 Start with the [tested synthetic host example](../examples/runtime-upgrades.rs):
 `cargo run --example runtime-upgrades`. It makes no real requests or game actions.
 

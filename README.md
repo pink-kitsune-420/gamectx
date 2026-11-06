@@ -17,7 +17,31 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
-## Measured on real models
+## Latest alpha.3 model check
+
+On six fresh synthetic states across cargo, teams and routes, 48 questions per model
+were tested on Llama 3.2 3B and Mistral Small 3.2 24B. Every format received the same
+field meanings. Query mode includes native tool execution, at most one correction and
+the model's final answer; all calls count toward the input averages below.
+
+| Method | Correct / 96 | Average completed-exchange input tokens |
+|---|---:|---:|
+| Full JSON | 27/96 | 1,786.792 |
+| Lossless packed tables | 27/96 | 1,252.125 |
+| Schema + query tool | 91/96 | 916.490 |
+
+Packing used 29.9% fewer input tokens at the same aggregate score. Schema + query used
+48.7% fewer, scoring 46/48 on Llama and 45/48 on Mistral. First queries scored 83/96;
+corrections raised this to 91/96, with zero correct-result copying errors. The five
+remaining misses were extra limits/filters and an unsupported subquery. JSON and packed
+scores tie overall but differ on individual cases.
+
+Total usage-priced spend was **$0.05529491875**, including the initial token check and
+one interrupted runner call. These are small synthetic tabular tasks, not live gameplay
+or a test of brain/memory quality. [Full method, per-family scores, limitations and raw
+responses](docs/MODEL_TEST_2026_11_06.md).
+
+## Earlier model measurements
 
 The same 53 questions about one game state (8 actions, 48 inventory items, 20 NPCs) were
 asked with the data as plain compact JSON and packed by gamectx, at temperature 0, on three

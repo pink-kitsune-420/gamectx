@@ -39,6 +39,12 @@ noted; "3 models" adds Llama 3.3 70B.
 | Shared perception and independent brain modules | 12 candidates × 100 frames: 2,400→1,300 module evaluations; 3,600 identical predictions on seeds 9101/9102/9103 including unknowns. Seven paired release trials/12,000 candidates: 729,906→631,514 ns (0 hidden) and 3,341,042→2,014,761 ns (16 hidden). Scope/frame/module replacement invalidation. |
 | Runtime spending reservations | Integer microdollars, concurrent reservations/retries, dispatch/cancel/settle phases, ambiguous crash charges, overrun blocking and free fallback. Entire upgrade batch: 40 new cases, 283 byte-identical workflows, 54,000 added text mutations, $0 API. |
 
+## Post-release measurements
+
+| Item | Result |
+|---|---|
+| Fresh alpha.3 hosted-model check | Six states across cargo/teams/routes, 48 questions/model, two small models. Full JSON 27/96, packed 27/96, schema + query 91/96. Completed-exchange average input 1,786.792→1,252.125→916.490; first query 83/96, after correction/final 91/96. 105 Rust/Python feedback envelopes match. Total usage-priced spend $0.05529491875 including token check and interrupted-run cost. [Full report](MODEL_TEST_2026_11_06.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
@@ -70,6 +76,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
 - Feedback from the first real game integration once its gaps list arrives.
 - Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
+- Test targeted guidance for unrequested LIMIT/filter additions and top-N subqueries; the new model check misses five completed query exchanges. Keep this cohort frozen and use fresh cases for any prompt change.
 
 ## Known gaps
 
@@ -77,7 +84,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - Numeric filtering by reading rows fails in every format; use `where` or have the model request a `query`.
 - Query is a SQL subset: one table, AND/IN, no joins, subqueries or GROUP BY; ORDER BY/LIMIT run before aggregates. Arithmetic uses 64-bit floats.
 - Schema-only requests can confuse semantic labels (`unique` rarity became count = 1). Valid but wrong queries do not retry.
-- Query workflow eval covers 4 states of one synthetic game family, including 3 holdouts; real games and different distributions may differ.
+- Original query workflow eval covers four states of one synthetic game family; the new alpha.3 check adds six states across three tabular schema families. All remain synthetic; live games and different distributions may differ.
 - Brain tests use synthetic labels and one initializer in final test runs, not live gameplay or model-authored-policy quality. Original single-rate switch test misses 78/384; rate selection misses 25/384 on a fresh cohort (paired baseline misses 69/384). Validation improvements do not guarantee gameplay or out-of-distribution behavior.
 - Default rate selection measures decisions with every output eligible and zero thresholds. Hosts can opt into `train_select_host` for masks/thresholds, but selection still adds training work and can overfit reused validation data.
 

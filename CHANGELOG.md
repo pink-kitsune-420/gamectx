@@ -13,7 +13,14 @@ know what an upgrade costs:
 
 ## Unreleased
 
-No changes yet.
+- **[docs]** Publishes a fresh alpha.3 model check: six states/three schema families,
+  48 questions/model on the two smaller default models. Full JSON 27/96, packed tables
+  27/96, schema + query 91/96; completed-exchange input 1,786.792 / 1,252.125 / 916.490.
+  Includes all responses, usage, five remaining errors and an interrupted-run audit.
+  Total usage-priced spend $0.05529491875; released library output stays unchanged.
+- **[internal]** Adds a capped evaluation runner with conservative per-request reserves,
+  one transport attempt, immutable result files, resume without repeated completed cases,
+  and offline native/Python replay. CI never makes paid requests.
 
 ## 0.1.0-alpha.3 — 2026-11-06
 

@@ -28,6 +28,10 @@ jobs:
       - run: python3 -I eval/test_integration.py
       - run: python3 -I eval/test_facts.py
       - run: python3 -I eval/test_upgrades.py
+      - run: python3 -I eval/test_release_model.py
+      - run: python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-tokens.json
+      - run: python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-results.json
+      - run: python3 -I eval/summarize_release_model.py --check
       - run: rustc --edition=2021 -O eval/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
       - run: python3 -I eval/upgrades_eval.py --check
       - run: rustc --edition=2021 -O eval/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench

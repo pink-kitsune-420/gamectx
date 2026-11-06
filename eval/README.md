@@ -693,3 +693,62 @@ has count/depth limits, failed primitive updates stay atomic, and successful loa
 round-trip. Ledger recovery deliberately settles pending reservations; second same-time
 restore is stable. No live paid requests occur in CI. The [format contract](../docs/FORMAT.md#optional-runtime-upgrades)
 separates library checks from host sensing, validation, archive and billing duties.
+
+## Fresh alpha.3 model check
+
+The [2026-11-06 report](../docs/MODEL_TEST_2026_11_06.md) records a new hosted-model run
+using Llama 3.2 3B and Mistral Small 3.2 24B on six fresh states across cargo, teams and
+routes. Eight questions/state/model/format give 288 scored exchanges. Full JSON and
+lossless packed tables receive identical meanings and rows; schema + query receives
+native schema/meanings, executes Rust sessions and asks for a final answer.
+
+| Method | Correct / 96 | Average complete-exchange input |
+|---|---:|---:|
+| JSON | 27/96 | 1,786.792 |
+| Packed | 27/96 | 1,252.125 |
+| Schema + query | 91/96 | 916.490 |
+
+Packing reduces input 29.9% at the same aggregate score; querying reduces input 48.7%
+including corrections and final answers. Individual JSON/packed outcomes differ. Queries
+score 83/96 first, 91/96 after correction and 91/96 final; five misses remain. The report
+includes per-model/family counts and all original replies, questions, oracle queries,
+field meanings, prompts, usage and price snapshots. This is a synthetic tabular benchmark,
+not a test of live gameplay, brain policies or memory reasoning.
+
+Token check: $0.0050195625 (cap $0.01). Cumulative accuracy spend: $0.05027535625 (cap
+$0.12), including $0.0000777 for one incomplete exchange after an adapter error. Total:
+$0.05529491875. The original interrupted run is retained; 15 completed cases were reused
+without requesting their answers again. Only the interrupted exchange was restarted.
+Neither prompts nor scoring were tuned after looking at results.
+
+Offline commands (CI uses these; no credential or model API access):
+
+```bash
+python3 -I eval/test_release_model.py
+python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-tokens.json
+python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-results.json
+python3 -I eval/summarize_release_model.py --check
+```
+
+The checker verifies six native prompt sets/48 independent oracle results and 105
+recorded Rust/Python feedback envelopes. Regression tests cover nonterminal session EOF,
+strict JSON/scoring, conservative reservations, unknown usage, metering overruns and
+resume without repeated completed requests. The report generator verifies identities,
+frozen inputs, source/script hashes, ledger totals and score recomputation. No Rust
+library format or existing conformance case changes.
+
+Paid reruns require new paths and explicit caps; preserve the token-first sequence:
+
+```bash
+mkdir -p eval/results
+python3 -I eval/release_model_eval.py --tokens-only --cap 0.01 --output eval/results/release-tokens-new.json
+python3 -I eval/release_model_eval.py --cap 0.12 --output eval/results/release-accuracy-new.json
+```
+
+The runner makes one transport attempt per call and checkpoints the full reservation
+before dispatch. Unknown/failed calls retain their reservation and stop. `--resume FILE`
+reuses completed cases with identical tables/prompts/pricing; its cap includes prior
+cumulative spend, not a fresh allowance. Nonterminal Rust session EOF is accepted only
+when the CLI returned exactly one expected retriable feedback envelope; the next step
+reconstructs both calls and checks complete native/Python parity. Final-answer generation
+is never skipped when a query succeeds.
