@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"id":"chat_1","revision":7,"scope":"actor:trader","speaker":"trader","input":"My name is Fen.","facts":{"price":9},"memories":[],"history":[],"tone":"neutral"}},{"ok":true,"result":{"forgotten":"actor:trader"}},{"ok":false},{"ok":true,"result":{"scope":"actor:trader","tone":"neutral","history":[],"memories":[]}}]}

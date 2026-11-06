@@ -31,6 +31,12 @@ language actions use bounded choices and targeted clarification. Local rules val
 world changes. [Size-and-task workflows](docs/WORKFLOWS.md) cover editable 1B, 1.5B, 3B,
 8B, 30B and 70B hints and the measured limits of the local 3B pilot. New API spend $0.
 
+Shared [conversation APIs](docs/CONVERSATION.md) now provide scoped quote memory,
+validated replies, entity references and one-use action confirmation for other hosts.
+The dungeon's merchant reports unaffordable purchases locally and completes affordable
+ones after yes/no confirmation. Inventory counts/sums and catalog/memory tags already
+use the existing query and metadata APIs; hosts retain inventory ownership.
+
 ## Further local optimizations (unreleased)
 
 [Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,

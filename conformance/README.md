@@ -48,6 +48,11 @@ A case passes when:
 
 ## Changing behavior
 
+The `conversation/` family adds 38 `op:local` fixtures for shared conversation retention,
+reply validation, entity references and explicit confirmation. Independent Python
+prototypes compare 78 workflows with `eval/conversation_cases.py --cap 0 --check`;
+all 595 prior cases remain unchanged. [Contract](../docs/CONVERSATION.md).
+
 The `workflow/` family adds 30 `op:local` cases: 24 size/task profiles, two direct
 renders and four errors. Independent expectations come from `eval/workflow_reference.py`
 and `eval/workflow_cases.py --cap 0 --check`. Existing `preset`, `render_chat` and all

@@ -1,0 +1,43 @@
+{
+  "kind": "conversation",
+  "args": {
+    "limits": {
+      "scopes": 32,
+      "records": 32,
+      "history": 8,
+      "text_chars": 240,
+      "tickets": 65536
+    },
+    "operations": [
+      {
+        "op": "prepare",
+        "args": {
+          "scope": "actor:trader",
+          "speaker": "trader",
+          "revision": 7,
+          "input": "My name is Fen.",
+          "facts": {
+            "price": 9
+          },
+          "recall": 2,
+          "history": 2
+        }
+      },
+      {
+        "op": "finish",
+        "args": {
+          "scope": "actor:trader",
+          "revision": 7,
+          "ticket": "chat_2",
+          "text": "{\"speech\":\"Welcome, Fen.\",\"tone\":\"neutral\",\"fact_ids\":[\"price\"],\"memory_ids\":[]}"
+        }
+      },
+      {
+        "op": "state",
+        "args": {
+          "scope": "actor:trader"
+        }
+      }
+    ]
+  }
+}

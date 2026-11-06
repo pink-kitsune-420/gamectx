@@ -1496,3 +1496,20 @@ The example-only dungeon adds `interpret`, `workflow`, `speech_prepare`, `speech
 fixtures live under `examples/dungeon`, outside the core format corpus. Protocol arguments,
 scoped memory, clarification revision checks and bounds are specified in its
 [guide](../examples/dungeon/README.md). These host operations are not automatic model tools.
+
+
+## Shared conversation, reference and confirmation contracts (unreleased)
+
+Local kinds `conversation`, `references` and `confirmation` expose the additive
+native APIs `dialogue::{Conversation,ConversationLimits,resolve_references}` and
+`decision::PendingAction`. Exact input/output schemas, bounds and workflow operations
+are specified in [CONVERSATION](CONVERSATION.md). Thirty-eight new cases under
+`conformance/conversation` cover these operations; all 595 prior cases stay unchanged.
+The replay adapters create fresh state; native callers retain instances across turns.
+No adapter dispatches game actions or promotes generated speech into authoritative facts.
+
+The example-only dungeon JSON host adds `trade` with exactly `{speaker,input}` and
+`trade_cancel` with `{}`. Trade returns `{handled:false}` for dialogue fallback or
+`{handled:true,reply,offer?,result?}` for a local receipt. Offer is the shared confirmed
+proposal contract; result is an accepted deterministic game action. A pending offer is
+created only by the host's explicit purchase-request handler, never by generated prose.

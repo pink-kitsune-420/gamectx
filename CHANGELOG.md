@@ -13,6 +13,21 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Extracts reusable scoped conversation memory/reply validation, configurable
+  lexical entity references and one-use confirmed action proposals into the library.
+  The dungeon now delegates to those APIs; current facts, pricing and callbacks stay
+  host-owned. Existing dungeon/model audit outputs remain identical.
+- **[format]** Adds local kinds `conversation`, `references`, `confirmation` and 38
+  conformance cases. All 595 prior cases unchanged. Independent Python/Rust: 78 workflows;
+  30,000 new text mutations and an adversarial repeated-alias work-bound test.
+- **[api]** Fixes the merchant purchase loop: exact unaffordable-price/coins/shortfall
+  receipt, affordable yes/no offers, one-use confirmation, cancellation and stale checks.
+  Generated prose cannot approve or create a purchase. Separate example reference:
+  66 workflows / 144 trade requests across six seeds; 11 front-end regression tests.
+- **[docs]** Documents existing inventory counts/sums and catalog/memory tags, shared
+  conversation APIs and the host responsibilities they preserve. New testing makes
+  zero model calls and spends $0 API; no new model-accuracy claim. [Guide](docs/CONVERSATION.md).
+
 - **[api]** Adds editable size-and-task workflow profiles for 1B/1.5B/3B/8B/30B/70B,
   plus opt-in direct current-request rendering. All generic tiers remain unmeasured;
   hints never authorize dropping required content or loading larger models.

@@ -56,8 +56,10 @@ schema and template, and reserve output plus safety; JSON byte estimates are not
 
 ## Ambiguous entity references
 
-The dungeon's example host resolver is in
-[`intent.rs`](../examples/dungeon/intent.rs); it is not a universal core language parser.
+The shared `dialogue::resolve_references` now provides the underlying lexical resolver;
+[CONVERSATION](CONVERSATION.md) specifies its language-configured contract. The dungeon's
+[`intent.rs`](../examples/dungeon/intent.rs) supplies English action/type policy. This is
+not a universal semantic language parser.
 It starts from current actor-visible entities and currently legal pairs:
 
 1. Match complete token phrases from IDs, labels and item kinds. Suppress a shorter

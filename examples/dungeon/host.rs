@@ -25,6 +25,7 @@ pub struct Host {
     project: Project,
     affordable: Template,
     social: Social,
+    trade: super::trade::Trade,
     focus: Option<(String, String, u32)>,
 }
 impl Host {
@@ -65,7 +66,14 @@ impl Host {
             .tool(Tool::from_function(&affordable.tool())?)
             .recipe(Recipe::new("turn", 4096).rows("items", obj! {}, 10, true).tool("act").tool("affordable"))
             .build()?;
-        Ok(Self { game: Game::new(seed)?, project, affordable, social: Social::default(), focus: None })
+        Ok(Self {
+            game: Game::new(seed)?,
+            project,
+            affordable,
+            social: Social::default(),
+            trade: super::trade::Trade::default(),
+            focus: None,
+        })
     }
     fn codec(&self) -> Result<ChoiceCodec> {
         let pairs = self.game.choices();
@@ -319,6 +327,20 @@ impl Host {
         fields(v, &["op", "args"])?;
         let a = get(v, "args")?;
         match text(v, "op")? {
+            "trade" => {
+                fields(a, &["speaker", "input"])?;
+                let speaker = text(a, "speaker")?;
+                self.social.state(&self.game, speaker)?;
+                let result = self.trade.exchange(&mut self.game, speaker, text(a, "input")?)?;
+                if result.get("handled") == Some(&Value::Bool(true)) {
+                    self.focus = None;
+                }
+                Ok(result)
+            }
+            "trade_cancel" => {
+                fields(a, &[])?;
+                Ok(self.trade.cancel())
+            }
             "workflow" => {
                 fields(a, &["size", "task", "identity"])?;
                 gamectx::deployment::ModelSize::parse(text(a, "size")?)?.workflow_profile(

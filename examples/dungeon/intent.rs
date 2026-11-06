@@ -79,105 +79,48 @@ pub fn resolve(
             targets.push(id.into());
         }
     }
-    let mut spans = Vec::new();
-    for (i, target) in targets.iter().enumerate() {
-        let mut aliases = vec![words(target.split(':').next_back().expect("target"))];
-        aliases.extend(
-            items
-                .iter()
-                .filter(|p| p.get("id").and_then(Value::as_str) == Some(target))
-                .filter_map(|p| p.get("label").and_then(Value::as_str))
-                .map(words),
-        );
-        aliases.extend(
-            items
-                .iter()
-                .filter(|p| p.get("id").and_then(Value::as_str) == Some(target))
-                .filter_map(|p| p.get("kind").and_then(Value::as_str))
-                .map(words),
-        );
-        if target.starts_with("door:") {
-            aliases.push(words("door"));
-            aliases.push(words("gate"));
-        }
-        for alias in aliases {
-            if !alias.is_empty() {
-                for (start, w) in wanted.windows(alias.len()).enumerate() {
-                    if w == alias {
-                        spans.push((i, start, start + alias.len()));
-                    }
-                }
-            }
-        }
-    }
-    let mut matched = Vec::new();
-    for &(i, start, end) in &spans {
-        if !spans.iter().any(|&(_, a, b)| a <= start && b >= end && b - a > end - start) && !matched.contains(&i) {
-            matched.push(i);
-        }
-    }
-    let pronoun = wanted.iter().any(|w| ["it", "this", "that", "there"].contains(&w.as_str()))
-        || contains(&wanted, &words("that one"))
-        || contains(&wanted, &words("this one"));
     let verbs = ["go", "inspect", "take", "buy", "unlock", "talk", "attack", "heal"]
         .into_iter()
         .filter(|a| wanted.iter().any(|w| w == a))
         .collect::<Vec<_>>();
-    let prefix = if verbs.len() == 1 {
+    let kind = if verbs.len() == 1 {
         match verbs[0] {
-            "go" => Some("room:"),
-            "take" | "buy" | "heal" => Some("item:"),
-            "unlock" => Some("door:"),
-            "talk" | "attack" => Some("npc:"),
+            "go" => Some("room"),
+            "take" | "buy" | "heal" => Some("item"),
+            "unlock" => Some("door"),
+            "talk" | "attack" => Some("npc"),
             _ => None,
         }
     } else {
         None
     };
-    let raw_matched = matched.clone();
-    if let Some(prefix) = prefix {
-        matched.retain(|&i| targets[i].starts_with(prefix));
-    }
-    let reason = if let Some(hint) = hint {
-        matched = vec![targets
-            .iter()
-            .position(|id| id == hint)
-            .ok_or_else(|| gamectx::Error::new("target hint is unavailable"))?];
-        "explicit_target"
-    } else if matched.is_empty() && !raw_matched.is_empty() {
-        "type_mismatch"
-    } else if matched.is_empty() && pronoun {
-        if let Some(i) = focus.and_then(|f| targets.iter().position(|id| id == f)) {
-            matched.push(i);
-            "recent_action"
-        } else {
-            "unresolved_reference"
-        }
-    } else if matched.len() == 1 {
-        "phrase"
-    } else if matched.len() > 1 {
-        "ambiguous"
-    } else {
-        "unmatched"
+    let entities=targets.iter().map(|id| {
+        let suffix=id.split(':').next_back().expect("target");
+        let item=items.iter().find(|v|v.get("id").and_then(Value::as_str)==Some(id));
+        let label=item.and_then(|v|v.get("label")).cloned().unwrap_or_else(||Value::str(suffix.replace('_'," ")));
+        let mut aliases=vec![Value::str(suffix)];
+        for key in ["label","kind"] {if let Some(v)=item.and_then(|v|v.get(key)) {aliases.push(v.clone());}}
+        if id.starts_with("door:") {aliases.extend([Value::str("door"),Value::str("gate")]);}
+        gamectx::obj! {"id"=>id.clone(),"label"=>label,"kind"=>id.split(':').next().expect("namespace"),"aliases"=>aliases}
+    }).collect::<Vec<_>>();
+    let referent = |id: &str| gamectx::obj! {"id"=>id,"scope"=>"current","revision"=>0};
+    // The host has already checked focus room/age and selection revision. The core
+    // resolver also accepts real scope/revision metadata for other integrations.
+    let resolved = gamectx::dialogue::resolve_references(&gamectx::obj! {"entities"=>entities,"input"=>input,
+    "kind"=>kind.map(Value::str).unwrap_or(Value::Null),"scope"=>"current","revision"=>0,"max_age"=>0,
+    "focus"=>focus.map(referent).unwrap_or(Value::Null),"selection"=>hint.map(referent).unwrap_or(Value::Null),
+    "pronouns"=>vec!["it","this","that","there"]})?;
+    let reason = match resolved.get("reason").and_then(Value::as_str).expect("reason") {
+        "explicit_target" => "explicit_target",
+        "type_mismatch" => "type_mismatch",
+        "recent_action" => "recent_action",
+        "unresolved_reference" => "unresolved_reference",
+        "phrase" => "phrase",
+        "ambiguous" => "ambiguous",
+        _ => "unmatched",
     };
-    let candidates = if matched.is_empty() && reason == "unresolved_reference" {
-        (0..targets.len()).filter(|&i| prefix.is_none_or(|p| targets[i].starts_with(p))).collect::<Vec<_>>()
-    } else {
-        matched.clone()
-    };
-    let candidates = candidates
-        .into_iter()
-        .map(|i| {
-            let id = &targets[i];
-            let label = items
-                .iter()
-                .find(|p| p.get("id").and_then(Value::as_str) == Some(id))
-                .and_then(|p| p.get("label"))
-                .cloned()
-                .unwrap_or_else(|| Value::str(id.split(':').next_back().expect("target").replace('_', " ")));
-            gamectx::obj! {"id"=>id.clone(),"label"=>label}
-        })
-        .collect();
+    let candidates = resolved.get("candidates").and_then(Value::as_array).expect("candidates").to_vec();
+    let matched = candidates.iter().filter_map(|v| v.get("id").and_then(Value::as_str)).collect::<Vec<_>>();
     let filtered = if ["ambiguous", "unresolved_reference", "type_mismatch"].contains(&reason) {
         Vec::new()
     } else if matched.is_empty() {
@@ -191,7 +134,7 @@ pub fn resolve(
         pairs
             .iter()
             .filter(|p| {
-                p.get("target").and_then(Value::as_str) == Some(targets[matched[0]].as_str())
+                p.get("target").and_then(Value::as_str) == Some(matched[0])
                     && (negative
                         || actions.len() != 1
                         || p.get("action").and_then(Value::as_str) == Some(actions[0])

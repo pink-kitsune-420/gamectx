@@ -6,6 +6,8 @@ mod host;
 mod intent;
 #[path = "../examples/dungeon/social.rs"]
 mod social;
+#[path = "../examples/dungeon/trade.rs"]
+mod trade;
 use gamectx::{obj, Value};
 fn act(host: &mut host::Host, action: &str, target: &str) {
     assert_eq!(

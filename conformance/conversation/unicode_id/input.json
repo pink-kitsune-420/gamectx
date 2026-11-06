@@ -1,0 +1,28 @@
+{
+  "kind": "references",
+  "args": {
+    "entities": [
+      {
+        "id": "旅.café",
+        "label": "café key",
+        "kind": "item",
+        "aliases": [
+          "café key"
+        ]
+      }
+    ],
+    "input": "Inspect café key.",
+    "kind": null,
+    "scope": "room:hall",
+    "revision": 7,
+    "max_age": 4,
+    "focus": null,
+    "selection": null,
+    "pronouns": [
+      "it",
+      "this",
+      "that",
+      "there"
+    ]
+  }
+}

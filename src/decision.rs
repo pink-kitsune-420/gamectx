@@ -2,6 +2,8 @@
 //! action. Current world permissions and atomic dispatch remain host responsibilities.
 use crate::{checked as c, obj, request::bounded, Error, Result, Value};
 
+mod confirmation;
+pub use confirmation::{confirmation_workflow, PendingAction};
 mod intent;
 pub use intent::IntentSession;
 mod routing;

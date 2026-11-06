@@ -539,3 +539,20 @@ adding more grounded instructions regressed one 3B intent pilot from 2/4 to 1/4;
 host slots and clarification did better on that tiny regression set. This does not prove
 universal semantic understanding. Required facts and recent required exchanges remain
 protected; a size hint must never silently remove them.
+
+
+## Let dialogue reach validated actions
+
+Use the shared [conversation and confirmation APIs](CONVERSATION.md) to separate
+speech from a pending action. The host supplies current scope/facts and stores original
+player quotes; it validates the model's reply and source IDs. A clearly requested trade
+can instead return a local offer containing actual item/price/quantity terms. Human
+approval must match that offer's scope, world revision, terms and current permissions
+before atomic dispatch. An unaffordable request should explain the exact shortfall
+locally instead of repeatedly asking for approval. An NPC sentence is not an offer.
+
+Inventory arithmetic already belongs in local queries: `COUNT(*)` counts rows;
+`SUM(count)` counts units when the host provides that field. Reuse catalog/memory tags
+for retrieval. Neither conversation memory nor tags establish item ownership or consent.
+The runnable [shared example](../examples/conversation.rs) exercises memory, confirmation
+and inventory totals without a model.

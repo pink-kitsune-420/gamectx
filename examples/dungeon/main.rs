@@ -3,6 +3,7 @@ mod game;
 mod host;
 mod intent;
 mod social;
+mod trade;
 use game::{fields, get, text, uint, GOAL};
 use gamectx::{json, obj, Error, Result, Value};
 use std::io::{self, BufRead, Read, Write};

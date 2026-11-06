@@ -240,3 +240,10 @@ mod task_workflow;
 fn documented_size_task_workflow_example() -> gamectx::Result<()> {
     task_workflow::main()
 }
+
+#[path = "../examples/conversation.rs"]
+mod conversation_example;
+#[test]
+fn documented_shared_conversation_example() -> gamectx::Result<()> {
+    conversation_example::main()
+}

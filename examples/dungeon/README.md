@@ -257,3 +257,28 @@ text mutations check atomic failure. Another 10,000 entity-text mutations never 
 an action or target. Offline entity parity checks cover 360 workflows across six seeds;
 seven Python front-end tests use real host rules with fake generation. Core formats keep
 all previous expected outputs. These are rule/validation tests, not model generalization.
+
+
+### Purchase requests inside dialogue
+
+Purchase dialogue now uses a local offer handler before speech generation. With seed 7,
+“i'd like to buy the tonic” yields “The tonic costs 9 coins. You have 5, so you need 4
+more.” No purchase is pending. Asking to buy hinge oil quotes 3 coins and asks for yes/no;
+“yes” buys it exactly once and reports 2 coins remaining. “No” cancels. Changing topic,
+`/back`, `/forget` or a stale world revision prevents a later unintended purchase. Free-form
+purchase requests while exploring the workshop use the same flow. Explicit listed
+commands retain their deterministic behavior. This example sells one unit per item.
+
+The example host's `trade` operation takes `{speaker,input}` and requires live speaker
+access; `trade_cancel` takes `{}`. A handled result contains `reply`, optionally `offer`
+or accepted `result`; unhandled text returns `{handled:false}` for normal AI dialogue.
+Generated merchant speech never creates an offer or approves payment. Local trade
+receipts are shown directly, separately from model dialogue memory. Current world facts
+reach the next model request. General English intent coverage remains limited.
+
+Memory, reply validation, entity matching and confirmation now use the reusable
+[core conversation APIs](../../docs/CONVERSATION.md). Prices, item visibility, action
+words and game effects remain example policies. All old social fixtures and frozen model
+cohorts still audit unchanged. A separate independent trade reference verifies 66
+workflows / 144 trade requests across six seeds with zero model calls; 11 front-end
+regressions and a real launcher smoke cover the reported loop. New API spend $0.

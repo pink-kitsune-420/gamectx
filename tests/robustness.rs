@@ -756,3 +756,31 @@ fn entity_reference_mutations_never_invent_actions_or_targets() {
         }
     }
 }
+
+#[test]
+fn shared_conversation_reference_and_confirmation_model_text_is_bounded() {
+    let seeds = [
+        include_str!("../conformance/conversation/remember/input.json"),
+        include_str!("../conformance/conversation/ambiguous/input.json"),
+        include_str!("../conformance/conversation/confirm/input.json"),
+    ];
+    let mut rng = Rng(0x7712_0119_aabb_cc30);
+    for i in 0..20_000 {
+        let input = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(value) = parse(&input, 65536) {
+            if let Ok(result) = gamectx::local::process(&value) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
+            }
+        }
+    }
+    let args = gamectx::obj! {"scope"=>"shop","speaker"=>"trader","revision"=>1,"input"=>"Hello.","facts"=>gamectx::obj! {"price"=>3},"recall"=>2,"history"=>2};
+    for _ in 0..10_000 {
+        let mut c = gamectx::dialogue::Conversation::default();
+        c.prepare(&args).unwrap();
+        let before = c.state("shop").unwrap();
+        let text = mutate(&mut rng, r#"{"speech":"Hello.","tone":"neutral","fact_ids":["price"],"memory_ids":[]}"#);
+        if c.finish("shop", 1, "chat_1", &text).is_err() {
+            assert_eq!(before, c.state("shop").unwrap());
+        }
+    }
+}

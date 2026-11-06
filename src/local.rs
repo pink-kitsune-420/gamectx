@@ -14,6 +14,9 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "conversation" => crate::dialogue::conversation_workflow(a),
+        "references" => crate::dialogue::resolve_references(a),
+        "confirmation" => crate::decision::confirmation_workflow(a),
         "workflow" => {
             c::fields(a, &["size", "task", "name", "identity"])?;
             crate::deployment::ModelSize::parse(c::text(c::get(a, "size")?)?)?.workflow_profile(

@@ -2,7 +2,6 @@
 use super::game::{fields, get, text, uint, Game, GOAL};
 use gamectx::{
     dialogue::{self, Scene},
-    memory::{Limits, Memory},
     obj,
     request::{Count, CountMethod, RequestBudget},
     Error, Result, Value,
@@ -10,39 +9,20 @@ use gamectx::{
 fn invalid() -> Error {
     Error::new("invalid conversation request")
 }
-fn body(s: &str) -> Result<()> {
-    if s.trim().is_empty() || s.chars().count() > 240 || s.chars().any(char::is_control) {
-        return Err(invalid());
-    }
-    Ok(())
-}
 #[derive(Clone, Debug)]
-struct Slot {
-    scope: String,
-    tone: String,
-    history: Vec<Value>,
-    memory: Memory,
+pub struct Social {
+    inner: gamectx::dialogue::Conversation,
 }
-impl Slot {
-    fn new(scope: &str) -> Self {
+impl Default for Social {
+    fn default() -> Self {
         Self {
-            scope: scope.into(),
-            tone: "neutral".into(),
-            history: Vec::new(),
-            memory: Memory::with_limits(Limits { records: 32, text_chars: 240, tags: 0 }),
+            inner: gamectx::dialogue::Conversation::with_limits(gamectx::dialogue::ConversationLimits {
+                tickets: 256,
+                ..Default::default()
+            })
+            .expect("valid example limits"),
         }
     }
-    fn memories(&self) -> Value {
-        Value::Array(
-            self.memory.records().iter().map(|r| obj! {"id"=>r.id,"turn"=>r.turn,"text"=>r.text.clone()}).collect(),
-        )
-    }
-}
-#[derive(Clone, Debug, Default)]
-pub struct Social {
-    sequence: u32,
-    pending: Option<Value>,
-    slots: Vec<Slot>,
 }
 impl Social {
     fn scope(game: &Game, speaker: &str) -> Result<String> {
@@ -75,10 +55,7 @@ impl Social {
         Value::Object(facts)
     }
     pub fn state(&self, game: &Game, speaker: &str) -> Result<Value> {
-        let scope = Self::scope(game, speaker)?;
-        let empty = Slot::new(&scope);
-        let slot = self.slots.iter().find(|s| s.scope == scope).unwrap_or(&empty);
-        Ok(obj! {"scope"=>scope,"tone"=>slot.tone.clone(),"history"=>slot.history.clone(),"memories"=>slot.memories()})
+        self.inner.state(&Self::scope(game, speaker)?)
     }
     pub fn prepare(&mut self, game: &Game, speaker: &str, input: &str) -> Result<Value> {
         self.prepare_limited(game, speaker, input, 2, 2)
@@ -95,103 +72,26 @@ impl Social {
             return Err(invalid());
         }
         let scope = Self::scope(game, speaker)?;
-        let input = input.trim();
-        body(input)?;
-        if self.sequence >= 256 {
-            return Err(invalid());
-        }
-        let empty = Slot::new(&scope);
-        let slot = self.slots.iter().find(|s| s.scope == scope).unwrap_or(&empty);
-        let mut recalled = slot.memory.recall(input, recall);
-        recalled.sort_by_key(|r| r.id);
-        let memories =
-            recalled.iter().map(|r| obj! {"id"=>r.id,"turn"=>r.turn,"text"=>r.text.clone()}).collect::<Vec<_>>();
-        self.sequence += 1;
-        let ticket = obj! {"id"=>format!("chat_{}",self.sequence),"revision"=>game.revision,"scope"=>scope,"speaker"=>speaker,"input"=>input,
-        "facts"=>Self::facts(game,speaker),"memories"=>memories,"history"=>slot.history.iter().skip(slot.history.len().saturating_sub(history)).cloned().collect::<Vec<_>>(),"tone"=>slot.tone.clone()};
-        self.pending = Some(ticket.clone());
-        Ok(ticket)
+        self.inner.prepare(&obj! {"scope"=>scope,"speaker"=>speaker,"revision"=>game.revision,"input"=>input,
+        "facts"=>Self::facts(game,speaker),"recall"=>recall,"history"=>history})
     }
     pub fn finish(&mut self, game: &Game, id: &str, input: &str) -> Result<Value> {
-        let ticket = self.pending.as_ref().ok_or_else(invalid)?;
-        if text(ticket, "id")? != id
-            || uint(get(ticket, "revision")?, u32::MAX)? != game.revision
-            || Self::scope(game, text(ticket, "speaker")?)? != text(ticket, "scope")?
-        {
+        // Preserve the example's narrower reply bound and live speaker access gate.
+        gamectx::json::parse(input, 4096)?;
+        let scope = self.inner.pending_scope().ok_or_else(invalid)?.to_owned();
+        let speaker = if scope.starts_with("narrator:") { "narrator" } else { scope.as_str() };
+        if Self::scope(game, speaker)? != scope {
             return Err(invalid());
         }
-        let reply = gamectx::json::parse(input, 4096)?;
-        fields(&reply, &["speech", "tone", "fact_ids", "memory_ids"])?;
-        let speech = text(&reply, "speech")?.trim();
-        body(speech)?;
-        let tone = text(&reply, "tone")?;
-        if !["neutral", "warm", "wary"].contains(&tone) {
-            return Err(invalid());
-        }
-        let facts = get(&reply, "fact_ids")?.as_array().ok_or_else(invalid)?;
-        if facts.len() > 8
-            || facts.iter().enumerate().any(|(i, f)| {
-                f.as_str().is_none_or(|f| ticket.get("facts").and_then(|v| v.get(f)).is_none())
-                    || facts[..i].contains(f)
-            })
-        {
-            return Err(invalid());
-        }
-        let memories = get(&reply, "memory_ids")?.as_array().ok_or_else(invalid)?;
-        let recalled = get(ticket, "memories")?.as_array().ok_or_else(invalid)?;
-        if memories.len() > 2
-            || memories.iter().enumerate().any(|(i, m)| {
-                uint(m, u32::MAX).is_err()
-                    || !recalled.iter().any(|r| r.get("id") == Some(m))
-                    || memories[..i].contains(m)
-            })
-        {
-            return Err(invalid());
-        }
-        let scope = text(ticket, "scope")?;
-        let mut slot = self.slots.iter().find(|s| s.scope == scope).cloned().unwrap_or_else(|| Slot::new(scope));
-        slot.tone = tone.into();
-        slot.history
-            .push(obj! {"id"=>id,"turn"=>self.sequence,"user"=>get(ticket,"input")?.clone(),"assistant"=>speech});
-        if slot.history.len() > 8 {
-            slot.history.remove(0);
-        }
-        slot.memory.remember(self.sequence as u64, text(ticket, "input")?, &[], 5)?;
-        let result = obj! {"speaker"=>get(ticket,"speaker")?.clone(),"speech"=>speech,"tone"=>tone,"fact_ids"=>facts.to_vec(),"memory_ids"=>memories.to_vec()};
-        self.slots.retain(|s| s.scope != scope);
-        self.slots.push(slot);
-        self.pending = None;
-        Ok(result)
+        self.inner.finish(&scope, game.revision, id, input)
     }
+
     pub fn forget(&mut self, game: &Game, speaker: &str) -> Result<Value> {
-        let scope = Self::scope(game, speaker)?;
-        self.slots.retain(|s| s.scope != scope);
-        if self.pending.as_ref().is_some_and(|p| p.get("scope").and_then(Value::as_str) == Some(&scope)) {
-            self.pending = None;
-        }
-        Ok(obj! {"forgotten"=>scope})
+        self.inner.forget(&Self::scope(game, speaker)?)
     }
 }
 pub fn schema(ticket: &Value) -> Result<Value> {
-    let facts =
-        get(ticket, "facts")?.as_object().ok_or_else(invalid)?.iter().map(|(k, _)| Value::str(k)).collect::<Vec<_>>();
-    let memories = get(ticket, "memories")?
-        .as_array()
-        .ok_or_else(invalid)?
-        .iter()
-        .map(|m| get(m, "id").cloned())
-        .collect::<Result<Vec<_>>>()?;
-    let count = memories.len();
-    let memory_item = if count == 0 {
-        obj! {"type"=>"integer"}
-    } else {
-        obj! {"type"=>"integer","enum"=>memories}
-    };
-    Ok(obj! {"type"=>"object","properties"=>obj! {
-    "speech"=>obj! {"type"=>"string","maxLength"=>240},"tone"=>obj! {"type"=>"string","enum"=>vec!["neutral","warm","wary"]},
-    "fact_ids"=>obj! {"type"=>"array","items"=>obj! {"type"=>"string","enum"=>facts},"maxItems"=>8},
-    "memory_ids"=>obj! {"type"=>"array","items"=>memory_item,"maxItems"=>count}},
-    "required"=>vec!["speech","tone","fact_ids","memory_ids"],"additionalProperties"=>false})
+    gamectx::dialogue::speech_schema(ticket, 240)
 }
 pub fn render(ticket: &Value, context: u32) -> Result<Value> {
     render_profile(ticket, context, false)

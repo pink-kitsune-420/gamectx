@@ -996,3 +996,31 @@ questions do not establish held-out semantic accuracy. Raw prose contradictions 
 New scripts record individual call times, not complete-turn latency or runner RSS;
 controlled end-to-end latency/retry/memory work remains necessary before promotion.
 CI replays all frozen data without generation. Old failed dungeon planning data remain.
+
+
+## Shared conversation contracts and local trading (unreleased)
+
+`conversation_reference.py` and `references_reference.py` independently specify the new
+library contracts; `conversation_cases.py --cap 0 --check` compares 78 workflows and
+writes 38 additive conformance fixtures with `--write-conformance`. Existing 595 cases
+and earlier model artifacts stay unchanged. The shared Rust APIs replace example storage,
+reply validation and entity matching without requiring an LLM rerun for byte parity.
+
+`dungeon_trade_reference.py` models the separate game purchase policy.
+`dungeon_trade_cases.py --cap 0` compares 66 workflows / 144 trade requests over six seeds
+against the real host, including insufficient funds, one-use acceptance, decline, stale
+confirmation, topic changes, owned items and ambiguous targets. `test_dungeon_ai.py`
+now has 11 real-host/fake-generation tests, including the actual conversation loop.
+All these tests make zero model calls and spend $0 API. Core mutations add 30,000
+attempts. See [CONVERSATION](../docs/CONVERSATION.md) for bounds, limitations and APIs.
+
+```sh
+cargo build --locked
+cargo build --example dungeon --locked
+python3 -I eval/conversation_cases.py --cap 0 --check
+python3 -I eval/dungeon_trade_cases.py --cap 0
+python3 -I eval/test_dungeon_ai.py
+```
+
+After building the native bridge, `conversation_cases.py --cap 0 --check-bindings`
+compares the same cases through persistent and native transports; CI runs both.

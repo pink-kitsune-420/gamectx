@@ -1,0 +1,54 @@
+{
+  "kind": "references",
+  "args": {
+    "entities": [
+      {
+        "id": "item:bronze_key",
+        "label": "bronze key",
+        "kind": "item",
+        "aliases": [
+          "bronze key",
+          "key"
+        ]
+      },
+      {
+        "id": "item:iron_key",
+        "label": "iron key",
+        "kind": "item",
+        "aliases": [
+          "iron key",
+          "key"
+        ]
+      },
+      {
+        "id": "npc:keeper",
+        "label": "keeper",
+        "kind": "npc",
+        "aliases": [
+          "keeper"
+        ]
+      },
+      {
+        "id": "item:keeper_seal",
+        "label": "keeper seal",
+        "kind": "item",
+        "aliases": [
+          "keeper seal"
+        ]
+      }
+    ],
+    "input": "the lamp",
+    "kind": null,
+    "scope": "room:hall",
+    "revision": 7,
+    "max_age": 4,
+    "focus": null,
+    "selection": null,
+    "pronouns": [
+      "it",
+      "this",
+      "that",
+      "there"
+    ]
+  }
+}

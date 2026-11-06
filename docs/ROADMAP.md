@@ -108,6 +108,14 @@ noted; "3 models" adds Llama 3.3 70B.
 | Entity reference guard | Longer overlapping phrases, canonical action type, fresh scoped action focus and targeted revision-bound human clarification. 360 independent workflows across six seeds; 30,000 social/entity mutations; seven fake-generation front-end tests. Example English heuristics, not a universal entity parser. |
 | Local pilot | Three nine-speech/four-intent cohorts, no retries, 26 calls each. Slot pilot 7/8; phrase-aware revision 8/8, four local deferrals plus 4/4 model choices. Revised cases are regression evidence, not fresh holdout. All token/accuracy runs $0 API; no other sizes tested. [Guide and raw artifact checks](WORKFLOWS.md). |
 
+## Shared dialogue-to-action support (unreleased)
+
+| Item | Result |
+|---|---|
+| Reusable conversations | Native `Conversation`/configurable limits: scoped whole exchanges and verbatim quotes, one-use source-validated replies, deletion, live scope/revision gates. Dungeon storage/validation delegates to core; all old social/model artifacts still audit identically. |
+| Reusable references and confirmation | Host-supplied entity types/aliases/pronouns with bounded overlap matching; generic pending action verifies scope/revision/terms/current permissions and never dispatches. 78 independent Python/Rust workflows, 38 new core cases, all 595 prior cases unchanged, 30,000 added mutations. |
+| Merchant loop repair | Local exact purchase receipts and yes/no offers; insufficient funds explain the shortfall without generation. 66 workflows / 144 trade requests over six seeds and 11 front-end tests; successful real launcher trade smoke, zero generation. All new API spend $0. [Shared guide](CONVERSATION.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
@@ -136,6 +144,10 @@ noted; "3 models" adds Llama 3.3 70B.
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
+
+- Broaden dialogue action-intent handling on fresh phrasing, including stack quantities,
+  offers and nontrade interactions. Current example purchase routing is deliberately
+  English and sells one item; shared reference/confirmation APIs accept host policies.
 
 - Replicate the focused human-play workflow and entity guard on unseen semantic families
   and states; separate incorrect local bypasses, actual model correctness and clarification

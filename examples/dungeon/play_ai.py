@@ -161,21 +161,26 @@ def show(state):
 
 def nearby(state):return {'room:workshop':'merchant','room:cistern':'keeper'}.get(state['room'])
 def display(reply):print(reply['speaker'].capitalize()+': '+reply['speech'])
+def converse(host,model,speaker,utterance):
+    local=host.call('trade',{'speaker':speaker,'input':utterance})
+    if local['handled']:return {'speaker':speaker,'speech':local['reply']}
+    return speak(host,model,speaker,utterance)
+
 def conversation(host,model,speaker):
     host.call('speech_state',{'speaker':speaker})
-    print(speaker.capitalize()+': Speak freely. /back returns to exploring; /memory shows remembered quotes; /forget clears this conversation.')
+    print(speaker.capitalize()+': Speak freely. /back returns to exploring; /memory shows remembered quotes; /forget clears this conversation. Purchases use a local offer; say yes or no to confirm or cancel.')
     while True:
         utterance=input(speaker+'> ').strip()
-        if utterance in ['/back','/leave']:return
+        if utterance in ['/back','/leave']:host.call('trade_cancel',{});return
         if not utterance:continue
         try:
-            if utterance=='/forget':host.call('speech_forget',{'speaker':speaker});print('Your earlier conversation with this character has been cleared.');continue
+            if utterance=='/forget':host.call('trade_cancel',{});host.call('speech_forget',{'speaker':speaker});print('Your earlier conversation with this character has been cleared.');continue
             if utterance=='/memory':
                 notes=host.call('speech_state',{'speaker':speaker})['memories']
                 for note in notes:print('You said: '+note['text'])
                 if not notes:print('No earlier words are remembered yet.')
                 continue
-            display(speak(host,model,speaker,utterance))
+            display(converse(host,model,speaker,utterance))
         except (ValueError,OSError,RuntimeError) as e:print('Conversation paused: '+str(e))
 
 def play(host,model):
@@ -196,12 +201,18 @@ def play(host,model):
             if utterance.startswith('say '):
                 speaker=nearby(state)
                 if speaker is None:print('There is nobody nearby to answer.');continue
-                display(speak(host,model,speaker,utterance[4:]));continue
+                display(converse(host,model,speaker,utterance[4:]));continue
             pair=exact(state,utterance)
             if pair is not None:
                 if pair['action']=='talk':conversation(host,model,pair['target'].split(':')[-1]);continue
                 result=host.call('act',{'revision':state['revision'],'decision':pair})
             else:
+                if nearby(state)=='merchant':
+                    local=host.call('trade',{'speaker':'merchant','input':utterance})
+                    if local['handled']:
+                        display({'speaker':'merchant','speech':local['reply']})
+                        if 'result' in local:show(host.call('state',{}))
+                        continue
                 def confirm(pair):
                     label=str(pair['target']).split(':')[-1].replace('_',' ')
                     current=host.call('state',{});item=next((i for i in current['items'] if i['id']==pair['target']),None)

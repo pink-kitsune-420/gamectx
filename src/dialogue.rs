@@ -1,8 +1,12 @@
 //! Scene-scoped whole exchanges and protected scene hydration. Conversation text remains
 //! data; old history is never silently promoted into authoritative facts or summaries.
+mod references;
+pub use references::resolve_references;
+mod conversation;
 use crate::budget::Section;
 use crate::request::{bounded, BudgetedRequest, Count, RequestBudget, MAX_REQUEST_BYTES};
 use crate::{checked as c, obj, Error, Result, Value};
+pub use conversation::{conversation_workflow, speech_schema, Conversation, ConversationLimits};
 
 #[derive(Clone, Debug)]
 pub struct Thread {

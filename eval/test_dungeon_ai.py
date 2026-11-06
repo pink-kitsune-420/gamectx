@@ -2,6 +2,9 @@
 import pathlib
 import sys
 import unittest
+from unittest import mock
+import contextlib
+import io
 sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'examples/dungeon'))
 import play_ai as ui
 ROOT=pathlib.Path(__file__).resolve().parents[1]
@@ -48,6 +51,34 @@ class HumanAIChecks(unittest.TestCase):
         before=self.host.call('state',{})
         result=ui.interpret(self.host,model,'Take the keeper seal.',lambda _:self.fail('should not confirm'))
         self.assertEqual(result['status'],'clarify');self.assertEqual(before,self.host.call('state',{}))
+    def test_unaffordable_conversation_purchase_reports_shortfall_without_model(self):
+        move(self.host,'gallery');move(self.host,'workshop');model=Replies();before=self.host.call('state',{})
+        answer=ui.converse(self.host,model,'merchant',"I'd like to buy the tonic.")
+        self.assertIn('9 coins',answer['speech']);self.assertIn('You have 5',answer['speech']);self.assertIn('4 more',answer['speech'])
+        again=ui.converse(self.host,model,'merchant','yes');self.assertIn('No purchase is waiting',again['speech'])
+        self.assertEqual(before,self.host.call('state',{}))
+    def test_affordable_conversation_purchase_is_confirmed_only_once(self):
+        move(self.host,'gallery');move(self.host,'workshop');model=Replies();before=self.host.call('state',{})
+        offer=ui.converse(self.host,model,'merchant',"I'd like to buy hinge oil.")
+        self.assertIn('Say yes or no',offer['speech']);self.assertEqual(before,self.host.call('state',{}))
+        answer=ui.converse(self.host,model,'merchant','yes');self.assertIn('You bought hinge oil',answer['speech'])
+        after=self.host.call('state',{});self.assertEqual(after['coins'],2)
+        self.assertEqual(next(i for i in after['items'] if i['id']=='item:oil')['owner'],'player')
+        ui.converse(self.host,model,'merchant','yes');self.assertEqual(after,self.host.call('state',{}))
+    def test_decline_and_stale_confirmation_preserve_inventory(self):
+        move(self.host,'gallery');move(self.host,'workshop');model=Replies()
+        before=self.host.call('state',{});ui.converse(self.host,model,'merchant','buy chalk')
+        ui.converse(self.host,model,'merchant','no');self.assertEqual(before,self.host.call('state',{}))
+        ui.converse(self.host,model,'merchant','buy chalk')
+        self.host.call('act',{'revision':before['revision'],'decision':{'action':'wait','target':None}})
+        changed=self.host.call('state',{});answer=ui.converse(self.host,model,'merchant','yes')
+        self.assertIn('no longer current',answer['speech']);self.assertEqual(changed,self.host.call('state',{}))
+    def test_real_conversation_loop_routes_purchase_and_yes(self):
+        move(self.host,'gallery');move(self.host,'workshop');before=self.host.call('state',{})
+        output=io.StringIO()
+        with mock.patch('builtins.input',side_effect=["I'd like to buy the tonic.",'yes','/back']),contextlib.redirect_stdout(output):
+            ui.conversation(self.host,Replies(),'merchant')
+        self.assertIn('4 more',output.getvalue());self.assertIn('No purchase is waiting',output.getvalue());self.assertEqual(before,self.host.call('state',{}))
     def test_generation_failure_still_consumes_call_limit(self):
         m=object.__new__(ui.LocalModel);m.model='fixture';m.context=2048;m.maximum=1;m.calls=[];m.log=None;m.records={'calls':m.calls}
         def fail(*_):raise OSError('simulated failure')

@@ -1,0 +1,50 @@
+{
+  "kind": "confirmation",
+  "args": {
+    "offer": {
+      "id": "offer_1",
+      "scope": "actor:trader",
+      "revision": 7,
+      "decision": {
+        "action": "buy",
+        "target": "item:oil"
+      },
+      "terms": {
+        "price": 3,
+        "count": 1
+      }
+    },
+    "calls": [
+      {
+        "scope": "actor:watcher",
+        "revision": 7,
+        "confirm": true,
+        "terms": {
+          "price": 3,
+          "count": 1
+        },
+        "available": [
+          {
+            "action": "buy",
+            "target": "item:oil"
+          }
+        ]
+      },
+      {
+        "scope": "actor:trader",
+        "revision": 7,
+        "confirm": true,
+        "terms": {
+          "price": 3,
+          "count": 1
+        },
+        "available": [
+          {
+            "action": "buy",
+            "target": "item:oil"
+          }
+        ]
+      }
+    ]
+  }
+}

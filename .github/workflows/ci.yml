@@ -23,6 +23,8 @@ jobs:
       - run: python3 -I eval/test_dungeon_agent.py
       - run: python3 -I eval/workflow_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_social_cases.py --cap 0 --check
+      - run: python3 -I eval/conversation_cases.py --cap 0 --check
+      - run: python3 -I eval/dungeon_trade_cases.py --cap 0
       - run: python3 -I eval/test_dungeon_ai.py
       - run: python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
       - run: python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json
@@ -94,6 +96,7 @@ jobs:
       - run: cargo +stable test --manifest-path bindings/native/Cargo.toml --locked
       - run: cargo +stable build --manifest-path bindings/native/Cargo.toml --locked
       - run: python3 -I eval/workflow_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/conversation_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/optimization_cases.py --check-bindings
       - run: python3 -I eval/kit_bindings_check.py --csharp-fixtures target/kit-csharp
       - run: node eval/kit_bindings_check.mjs
