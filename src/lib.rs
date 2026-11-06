@@ -4,6 +4,8 @@
 //! Start with [`Context`]: register tools and prompts once, then add variables and tables
 //! each turn. The modules below are the building blocks it uses.
 //!
+//! - [`request`], [`dialogue`], [`decision`], [`deployment`], [`turn`]: full-request budgets, protected scenes, bounded choices and local deployment telemetry.
+//! - [`kit`]: shared data registration, named recipes, validated callbacks, inspection and host bridges.
 //! - [`context`]: the easy API ([`Context`], [`Turn`], [`Table`]).
 //! - [`table`]: uniform objects to a header plus rows, optionally grouped by one or more
 //!   columns (lossless).
@@ -57,10 +59,15 @@ pub mod budget;
 pub mod catalog;
 mod checked;
 pub mod context;
+pub mod decision;
+pub mod deployment;
+pub mod dialogue;
 pub mod estimate;
 pub mod facts;
 pub mod formula;
 pub mod json;
+pub mod kit;
+pub mod local;
 pub mod manifest;
 pub mod memory;
 pub mod outcome;
@@ -68,6 +75,7 @@ pub mod playbook;
 pub mod query;
 pub mod recall;
 pub mod replay;
+pub mod request;
 pub mod requests;
 pub mod schedule;
 pub mod schema;
@@ -76,6 +84,7 @@ pub mod spending;
 pub mod sync;
 pub mod table;
 pub mod temporal;
+pub mod turn;
 pub mod view;
 
 pub use context::{Context, Table, Turn};

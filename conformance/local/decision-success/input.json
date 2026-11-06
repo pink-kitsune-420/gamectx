@@ -1,0 +1,1 @@
+{"kind":"decision","args":{"choices":{"version":1,"revision":7,"choices":[{"action":"inspect","target":"grove:gate"},{"action":"wait","target":null}],"fallback":{"action":"wait","target":null}},"calls":[{"text":"{\"action\":\"inspect\",\"target\":\"grove:gate\"}","revision":7,"available":[{"action":"inspect","target":"grove:gate"},{"action":"wait","target":null}]}]}}

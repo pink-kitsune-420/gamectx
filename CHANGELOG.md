@@ -13,6 +13,35 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds full-request `RequestBudget` with renderer/tokenizer callbacks and explicit
+  output/safety reservations, plus `Turn::build_request`; exact/estimated counts remain
+  distinguishable and existing packet builds retain their behavior.
+- **[api]** Adds scene-scoped whole-dialogue retention, required-fact hydration, bounded
+  legal-pair decisions with one retry/live fallback, deployment identity/profile checks,
+  and separate full-turn telemetry. Local filtering/arithmetic remain in existing tools.
+- **[api]** Adds workload guidelines and editable starting profiles for 1B, 1.5B, 3B, 8B,
+  30B and 70B. Generic tiers are explicitly unmeasured hints, not capability or RAM limits.
+- **[format]** Adds opt-in local workflow contracts: 48 new cases, all 448 previous
+  cases unchanged; 148 Python/Rust comparisons (132 accepted, 16 rejected), 20,000 new
+  text mutations. CLI `local`, kit bridge `local`, and bounded `query - SQL` stdin support.
+- **[docs]** Adds actual Qwen 3B Q4_K_M local evaluation on four physical cores / roughly
+  8 GB: raw/scene/schema pipeline 26/30, 30/30, 30/30; median complete-turn microseconds
+  19,226,226 / 8,651,346 / 5,451,699. Six-scene guidance/tool/narration pilot, sampled RAM
+  and swap, strict local-only runner and offline cohort audit. Total API spend $0.
+  See [the report](docs/LOCAL_MODEL_2026_11_06.md); no general model-size accuracy claim.
+
+- **[api]** Adds optional `kit` Rust registration/builders, named recipes, visibility/freshness
+  validation, recipe-scoped SQL, brain feature-unit reuse and validated host callback dispatch.
+- **[format]** Adds version-1 project/snapshot/inspection/bridge/evaluation contracts: 47 new
+  conformance cases, all 401 previous expected outputs unchanged. Independent Python/Rust
+  comparison: 144 workflows (113 accepted, 31 rejected); 20,000 new text mutations.
+- **[api]** Adds CLI `init`, `doctor`, `inspect`, `serve`, `evaluate`, `kit`, optional native
+  C ABI and Python, Node/TypeScript and C# adapters. Bridge checks: 265 Python/native,
+  8 Node, 59 C# fixture replies plus two smoke checks; actual engines untested.
+- **[internal]** Reuses prepared recipe registration. Seven paired synthetic release trials:
+  1,000 turns 146,130,805 → 78,931,400 ns versus reparsing registration each turn. Not a
+  model-latency or universal runtime speedup. New API spend $0; [integration guide](docs/KIT.md).
+
 - **[format]** Table and catalog `relevant_to` recognize namespace/dotted/path identifier
   components (`: . / - _`); full cells and underscore segments still match. Lexical
   regressions 2/10 → 10/10; four catalog cases. No existing expected output changed.

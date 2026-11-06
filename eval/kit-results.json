@@ -1,0 +1,12 @@
+{
+  "cases": 144,
+  "success": 113,
+  "rejected": 31,
+  "native_comparisons": 144,
+  "api_spend_usd": 0,
+  "source_rows": 24,
+  "selected_rows": 3,
+  "source_table_bytes": 1646,
+  "selected_table_bytes": 97,
+  "packet_bytes": 646
+}

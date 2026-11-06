@@ -1,0 +1,1 @@
+{"kind":"preset","args":{"size":"70","name":"starting","identity":{"model_digest":"fixture-model","quantization":"Q4_K_M","template_hash":"fixture-template","tokenizer":"fixture-tokenizer","runner":"fixture-runner"}}}

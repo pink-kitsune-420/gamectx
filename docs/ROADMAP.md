@@ -54,10 +54,33 @@ noted; "3 models" adds Llama 3.3 70B.
 | Namespace and dotted-ID relevance | Ten lexical regressions 2/10→10/10; four additional catalog parity cases and one exact-ID/numeric-spelling query case. All 366 prior conformance outputs unchanged; 35 new cases in this batch. No API spend or semantic/model-accuracy claim. |
 | Optional explicit-selection system guidance | Fresh paired six-state cohort: 3B 46/48→48/48, 24B 47/48→46/48; overall 93/96→94/96, input 907.865→1,107.802 (+22.0%). Exact text available per host configuration; default standard. Four new profile cases; 209 fresh feedback envelopes agree. Token/accuracy total $0.0293735125, caps $0.01/$0.08. [Report](QUERY_OPTIMIZATION_2026_11_06.md). |
 
+## Integration kit implemented (unreleased)
+
+| Item | Result |
+|---|---|
+| Shared registration and Rust builders | Data types/meanings/units/IDs/visibility/age reused by packing, recipe-scoped queries, tool validation and brain bindings. 144 Rust/Python workflows agree (113 accepted, 31 rejected); 101 generated stock states plus three scripted scoring states. |
+| Tool authoring and callback dispatch | Closed bounded schemas, nested/nullable/optional arguments, exact decimal limits, recipe availability before callbacks; host rechecks world permissions. 47 new conformance cases, all 401 previous cases unchanged; 20,000 added text mutations. |
+| Inspector, doctor and starter | Explains selected source indices/omitted fields/age/budget; validates references and warns about missing units/unbounded age. Starter source 1,646 bytes → selected packed table 97 bytes, complete packet 646; 550-byte cap drops rows to 540 bytes. Lossy host selection, no model-accuracy claim. |
+| Named reusable context recipes | Prepared stable tools/schema and host-selected rows/schema-only/extra memory or fact sections. Seven paired release trials/1,000 turns: registration each turn 146,130,805 ns → shared registration 78,931,400 ns. Synthetic registration reuse, not model latency. |
+| Persistent and native host bridges | Versioned bounded JSON-lines, separate C ABI, thin Python/Node/TypeScript/C# adapters. 265 Python/native checks, 8 Node checks, 59 C# fixture replies plus two smoke checks on Linux; engine/mobile/Web deployment untested. |
+| Developer-owned evaluation kit | Complete recorded cohorts, independent expected results, separate answer/query scores, invalid calls, bytes/tokens/latency with missing data kept null. Three scripted states: correct run 3/3, injected-error run 2/3, one invalid query/call detected. No hosted-model run; entire batch $0 API. [Guide and evidence](KIT.md). |
+
+## Local deployment support implemented (unreleased)
+
+| Item | Result |
+|---|---|
+| Full-request contracts and protected scenes | Exact/estimated host-rendered counts, output/safety reserve, required facts/current input/outcome, whole-exchange dialogue and optional-first dropping. 148 Python/Rust workflows (132 accepted/16 rejected); 48 new cases, all 448 prior cases unchanged; 20,000 extra mutations. |
+| Legal-pair decisions and explicit deployment profiles | One correction, live availability/revision checks, current fallback or abstention, no action execution. Identity pins digest/quantization/template/tokenizer/runner. Guidance/transport stay opt-in. |
+| Model-size workload guide | Editable 1B, 1.5B, 3B, 8B, 30B and 70B templates and task/content/choice hints; all generic tiers marked unmeasured. Size does not infer model capability, guidance or hardware fit. |
+| Actual local Qwen 3B evaluation | Four physical cores / 7,996,997,632 bytes RAM, Q4_K_M, 2K starting context. 30 scenes × three modes: raw/scene/schema final pipeline 26/30, 30/30, 30/30; accepted model correctness 23/30, 27/30, 30/30. Median turn µs 19,226,226 / 8,651,346 / 5,451,699; p95 35,123,472 / 19,212,467 / 14,292,873. Preflights/retries/local hydration included; natural cache reuse and memory pressure limit extrapolation. |
+| Local guidance/tool/narration pilot and telemetry | Six scenes: concise/example/native-tools decision 6/6, 6/6, 5/6; no proved guidance gain over baseline. Backend-aware sampled runner RSS up to 2,705,707,008 bytes; main-cohort missing RSS remains null. Independent raw-data/decision/budget/report audits, all local API spend $0. [Report](LOCAL_MODEL_2026_11_06.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
 |---|---|
+| Model-loop timing presented as complete-turn latency | An initial local pilot began timing after hydration. Retain nine completed pilot turns, exclude its timing comparisons, and rerun with native hydration/filtering inside the clock. |
+| Universal default native tools or extra guidance on the local 3B | Six-scene narration pilot: native tools 5/6 with a truncation/retry/fallback, concise/example 6/6 with extra tokens; baseline schema already 6/6. Keep explicit; no size-based winner. |
 | Universal default explicit-selection guidance | Only one extra final success (93/96→94/96), first queries 86/96→84/96, 24B regresses 47/48→46/48, input +22.0%. Keep opt-in per model/workload; no size-based automatic choice. |
 | Automatic exact oracle-shape validation for natural-language queries | Rejects 27/96 recorded queries, including 22 correct equivalents; keep strict shape checks only for independent host-declared structure. |
 | Flattening top-N IN subqueries automatically | Tie counterexample `[10,9,9,9]`: top-three sum 28 versus IN-membership sum 37. Reject rewriting that silently changes meaning. |
@@ -79,13 +102,20 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Next candidates
 
+- Live local scene/dialogue workloads and held-out question templates; the current Qwen result is small synthetic decision tasks. Compare 2K/4K context and 2/4/6/8 threads under controlled RAM/thermal load before changing defaults.
+- Measure 1B/1.5B and larger size-class workloads independently; their profiles are advisory and unmeasured. No larger models were loaded by this change.
+- Test correction feedback that retains the latest intent explicitly: raw local corrections sometimes repaired pair legality while changing an inspection request into opening.
+
+- Exercise the integration kit and native adapters in real hosts; capture lifecycle, unit/visibility and engine deployment gaps. The current bridge reuses registration, not model context or per-request row JSON.
+- Compare independently recorded recipe/guidance candidates on live questions with the evaluation kit; current kit checks are offline scripted correctness, not model accuracy.
+
 - Catalog `relevant_to` measured with model questions (only checked by conformance cases so far).
 - Validate query guidance on independent question templates and live hosts; the opt-in profile has mixed per-model results on fresh row seeds.
 - Validate host meanings on other schema families and live questions; targeted meanings still miss 15/60 executed queries.
 - Reaction-brain feedback from real hosts and unseen policy families; versioned numeric bindings exist, while engine sensors, host metrics and scheduler notifications/costs remain integration work.
 - Measure acknowledged synchronization and periodic snapshot policies on live multi-turn model decisions.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
-- Ports (TypeScript first, then C#/Python) checked against `conformance/`.
+- Independent ports checked against `conformance/` if hosts need them; thin Node/TypeScript, C# and Python adapters now reuse Rust through versioned bridges.
 - Feedback from the first real game integration once its gaps list arrives.
 - Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
 - Test host-defined semantic constraints for all-row versus eligible-row totals; explicit wording still fails some route questions. Keep both hosted cohorts frozen.

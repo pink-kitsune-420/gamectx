@@ -1,0 +1,34 @@
+{
+  "guideline": {
+    "size_class": "3b",
+    "nominal_parameter_millions": 3000,
+    "task": "Handle one scene and a bounded decision or short grounded narration.",
+    "content_tokens_min_hint": 800,
+    "content_tokens_max_hint": 1400,
+    "choices_hint": 8,
+    "context_start": 2048,
+    "output_start": 256,
+    "measured": false,
+    "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+  },
+  "profile": {
+    "version": 1,
+    "name": "model_3b",
+    "identity": {
+      "model_digest": "fixture-model",
+      "quantization": "Q4_K_M",
+      "template_hash": "fixture-template",
+      "tokenizer": "fixture-tokenizer",
+      "runner": "fixture-runner"
+    },
+    "budget": {
+      "context": 2048,
+      "output": 256,
+      "safety": 256
+    },
+    "threads": 4,
+    "transport": "schema",
+    "guidance": "standard",
+    "temperature_milli": 0
+  }
+}

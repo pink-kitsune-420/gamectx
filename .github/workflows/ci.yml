@@ -61,9 +61,35 @@ jobs:
       - run: python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
       - run: python3 -I eval/query_eval.py --differential 3000 --cap 0
 
+  kit-bindings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: cargo +stable build --locked
+      - run: python3 -I eval/kit_eval.py --check
+      - run: python3 -I eval/local_cases.py --check
+      - run: python3 -I eval/test_ollama.py
+      - run: python3 -I eval/check_local_model.py --cap 0 eval/local-model-tokens.json eval/local-model-results.json eval/local-tools-tokens.json eval/local-guidance-results.json
+      - run: cargo +stable fmt --manifest-path bindings/native/Cargo.toml --check
+      - run: cargo +stable clippy --manifest-path bindings/native/Cargo.toml --all-targets --locked -- -D warnings
+      - run: cargo +stable test --manifest-path bindings/native/Cargo.toml --locked
+      - run: cargo +stable build --manifest-path bindings/native/Cargo.toml --locked
+      - run: python3 -I eval/kit_bindings_check.py --csharp-fixtures target/kit-csharp
+      - run: node eval/kit_bindings_check.mjs
+      - run: python3 -I eval/local_bindings_check.py
+      - run: sudo apt-get update && sudo apt-get install -y mono-mcs
+      - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/local-csharp/requests.txt target/local-csharp/expected.txt
+
   msrv:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: rustup toolchain install 1.82 --profile minimal
       - run: cargo +1.82 test --locked
+      - run: cargo +1.82 test --manifest-path bindings/native/Cargo.toml --locked

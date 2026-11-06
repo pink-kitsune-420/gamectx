@@ -1,0 +1,1 @@
+{"version":1,"id":"stock","revision":1,"features":[{"name":"count","unit":"items","min":0,"max":100,"invert":false,"missing":"unknown","outside":"clamp"}]}

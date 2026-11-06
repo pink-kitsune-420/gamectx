@@ -448,3 +448,43 @@ correction/final turns; do not repeatedly append it. Six fresh synthetic states 
 3B 46/48→48/48, 24B 47/48→46/48 and 22.0% higher complete-exchange input. It is opt-in;
 model size alone does not choose a profile. See the tested query-plans example and
 [paired report](QUERY_OPTIMIZATION_2026_11_06.md).
+
+## Shared registration and integration tools (unreleased)
+
+Use the optional [integration kit](KIT.md) when the same data definitions need to drive
+packing, query meanings, validation and brain feature units. Start with the tested
+[registered project example](../examples/registered-project.rs), or generate the CLI
+starter with `gamectx init <new-directory>` and run its `check.py`.
+
+Register immutable dataset/tool definitions and named recipes, then supply current,
+actor-visible snapshots. `Project::build` returns a model packet and a separate host-only
+inspection. Recipes choose rows versus schema, columns, filters, sorting, limits, tools,
+extra section priorities and a byte budget. Existing memory/fact APIs produce values you
+can supply as recipe sections; sanitize those values in the host. Tool callbacks still
+check current world permissions after argument validation.
+
+`doctor`, `inspect`, persistent `serve`, native and language adapters, and offline recorded
+run evaluation are described in [KIT](KIT.md). The evaluator requires complete candidate
+cohorts and independent expected answers; missing usage stays null. On its scripted three
+states the correct candidate scores 3/3; an intentionally flawed one scores 2/3 with one
+invalid query and one invalid call. These are evaluator checks, not hosted-model results.
+The implementation has 144 byte-identical Python/Rust workflows and $0 new API spend.
+
+## Local models and complete requests (unreleased)
+
+Use [LOCAL](LOCAL.md) and the tested [local turn example](../examples/local-turn.rs).
+`RequestBudget` accounts for the full rendered request through the host's actual tokenizer,
+reserving generation and safety headroom. Packet byte/ratio estimates alone omit external
+messages and hidden native tool/template framing. Recheck every correction/tool reply.
+
+`Scene` preserves supplied required facts, approved outcome, current input and protected
+whole exchanges; drop optional lore first and fail when the protected minimum cannot fit.
+`Choices` makes the model choose from a tiny host-resolved action/target set, with local
+validation and one correction before fallback/abstention. Existing SQL/formulas compute
+filters and totals; the model does not need to perform that arithmetic.
+
+Profiles are explicit and bound to complete deployment identity. Two thousand context
+tokens is a starting trial, not a model capacity limit. `ollama_eval.py` measures actual
+local requests, complete turns, retries and sampled memory. Token-only checks precede
+accuracy. Compare held-out scenes/templates and actual hardware before changing defaults;
+see [the measured report](LOCAL_MODEL_2026_11_06.md) for scope and limitations.

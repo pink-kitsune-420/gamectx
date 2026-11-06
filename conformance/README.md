@@ -25,6 +25,7 @@ A case passes when:
 
 | `op` | Input | `args` | Output |
 |---|---|---|---|
+| `kit` | `{project,op,args}` | | version-1 registration/build/query/tool-validation/feature/evaluation workflow; see [integration kit](../docs/FORMAT.md#integration-kit). Errors reject the workflow; bridge error text is diagnostic. |
 | `parse` | raw JSON text | | the parsed value |
 | `table` | array of objects | `group_by` (column name or list); `formulas` (definitions for `derive`); view keys `derive`, `where`, `relevant_to`, `relevant_fallback`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
 | `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |

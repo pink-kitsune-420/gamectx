@@ -596,3 +596,53 @@ fn query_contracts_plans_and_identifier_text_survive_mutation() {
         assert_eq!(parse(&query.plan().to_json(), 8192).unwrap(), query.plan());
     }
 }
+
+#[test]
+fn kit_model_text_mutations() {
+    let project = gamectx::kit::Project::parse(include_str!("../examples/kit/project.json")).unwrap();
+    let seeds = [
+        r#"{"version":1,"id":"a","op":"validate","args":{"name":"inspect_item","arguments":{"id":"grove:Élan.1"}}}"#,
+        r#"{"version":1,"id":"a","op":"query","args":{"recipe":"conversation","snapshot":{"now":1,"tables":{"stock":{"updated_at":1,"rows":[]}},"sections":{"event":"hi"}},"sql":"SELECT COUNT(*) FROM stock"}}"#,
+        r#"{"version":1,"id":"a","op":"features","args":{"dataset":"stock","revision":1,"policies":[{"name":"count","min":0,"max":100,"invert":false,"missing":"unknown","outside":"clamp"}]}}"#,
+        include_str!("../conformance/kit/nested/input.json"),
+        include_str!("../examples/kit/project.json"),
+    ];
+    let mut rng = Rng(0x7452_891a_0041_6677);
+    for i in 0..20_000 {
+        let input = mutate(&mut rng, seeds[i % seeds.len()]);
+        let reply = project.request(&input);
+        assert_eq!(parse(&reply.to_json(), gamectx::kit::MAX_REQUEST_BYTES).as_ref(), Ok(&reply));
+        if let Ok(v) = parse(&input, gamectx::kit::MAX_REQUEST_BYTES) {
+            let _ = gamectx::kit::process(&v);
+            let _ = gamectx::kit::Project::from_value(&v);
+            let _ = project.validate_call("inspect_item", &v);
+            let _ = project.snapshot(&v);
+        }
+    }
+}
+
+#[test]
+fn local_decision_dialogue_profile_and_telemetry_text_is_bounded() {
+    let seeds = [
+        include_str!("../conformance/local/decision-correction/input.json"),
+        include_str!("../conformance/local/scene/input.json"),
+        include_str!("../conformance/local/profile-concise/input.json"),
+        include_str!("../conformance/local/report/input.json"),
+        include_str!("../conformance/local/budget-1529/input.json"),
+    ];
+    let mut rng = Rng(0x619b_0a77_5512_0081);
+    for i in 0..20_000 {
+        let input = mutate(&mut rng, seeds[i % seeds.len()]);
+        if let Ok(v) = parse(&input, 1_572_864) {
+            if let Ok(result) = gamectx::local::process(&v) {
+                assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
+            }
+            let _ = gamectx::dialogue::Thread::from_value(&v);
+            let _ = gamectx::dialogue::Scene::from_value(&v);
+            let _ = gamectx::deployment::Profile::from_value(&v);
+            if let Ok(c) = gamectx::decision::Choices::from_value(&v) {
+                let _ = c.session().apply(&input, 0, |_| false);
+            }
+        }
+    }
+}

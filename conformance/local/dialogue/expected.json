@@ -1,0 +1,1 @@
+{"messages":[{"role":"user","content":"Question 2"},{"role":"assistant","content":"Reply 2"},{"role":"user","content":"Question 3"},{"role":"assistant","content":"Reply 3"},{"role":"user","content":"Question 4"},{"role":"assistant","content":"Reply 4"}],"kept":["e2","e3","e4"],"omitted":["e0","e1"]}

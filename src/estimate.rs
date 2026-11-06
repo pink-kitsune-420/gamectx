@@ -1,8 +1,10 @@
-//! Conservative input-token estimates that learn from what a provider actually reports.
+//! Input-token estimates that learn from what a provider actually reports.
 //!
 //! Every model family tokenizes differently and exact counting needs that provider's own
-//! tokenizer, so this never guesses low. Uncalibrated, the estimate is the byte count (real
-//! tokenizers average well under one token per byte). After each reply that reports its
+//! tokenizer. Uncalibrated, the estimate is the packet byte count. Neither a byte estimate
+//! nor a learned ratio accounts for hidden templates/tools or guarantees unseen inputs.
+//! Use [`crate::request::RequestBudget`] with a host-rendered count for full requests.
+//! After each reply that reports its
 //! input-token usage, [`Calibration::observe`] records the worst tokens-per-byte ratio seen
 //! for that provider/model scope, and estimates use it with a 2x safety margin.
 

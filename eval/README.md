@@ -845,3 +845,60 @@ Future paid runs require new output paths and explicit caps, token-only first:
 python3 -I eval/query_upgrade_eval.py --models --tokens-only --cap 0.01 --output eval/results/query-guidance-tokens-new.json
 python3 -I eval/query_upgrade_eval.py --models --cap 0.08 --output eval/results/query-guidance-results-new.json
 ```
+
+## Integration kit (offline, unreleased)
+
+`kit_eval.py` independently prototypes registration, selection, packing, argument validation,
+brain bindings and recorded-run scoring. `python3 -I eval/kit_eval.py --check` compares
+144 workflows (113 accepted, 31 rejected) byte for byte with `target/debug/gamectx`.
+It includes 101 generated stock snapshots and three separately seeded scripted evaluation
+states. Expected results are not model-generated. `kit-results.json` records this run.
+
+`kit_bench.rs` measures registration reuse against reparsing the same definition on every
+turn. Compile against the release rlib like the existing benchmarks. Seven alternating
+paired trials, 1,000 turns each: 146,130,805 ns versus 78,931,400 ns median, identical output;
+raw samples in `kit-performance.json`. Both arms validate each snapshot. This is synthetic
+registration reuse, not model latency or a comparison against hand-optimized host code.
+
+Build the separate native crate, then run `kit_bindings_check.py` (265 Python/native checks)
+and `node eval/kit_bindings_check.mjs` (8 Node checks). The Python script can produce
+C# fixtures with `--csharp-fixtures DIR`; compile `bindings/csharp/{GamectxClient,Check}.cs`
+and pass the project and generated requests/expected paths. Linux run: 59 fixture replies
+and two smoke checks. The Rust suite adds 47 conformance cases and 20,000 text mutations.
+
+No API/network requests are made by these scripts. The public `gamectx evaluate` command
+scores host-collected runs over independent expected snapshots; guidance is metadata,
+missing usage stays null, and incomplete/duplicate cohorts fail. No new model-accuracy
+claim. New API spend $0. See [KIT](../docs/KIT.md) for formats and limits.
+
+## Local 1B–3B deployment contracts (unreleased)
+
+`local_reference.py` and `local_cases.py` prototype full-request reservations, protected
+scene/dialogue hydration, exact legal-pair decisions, explicit deployment profiles and
+complete-turn reporting. New API docs: [LOCAL](../docs/LOCAL.md). Run
+`python3 -I eval/local_cases.py --check` after building `target/debug/gamectx`; it compares
+148 workflows (132 accepted, 16 rejected) byte for byte. Forty-eight new conformance cases
+include errors; all 448 previous cases are unchanged. Mutation tests add 20,000 inputs.
+The fixture byte counter is explicitly estimated, not a model tokenizer.
+`local_bindings_check.py` adds 296 Python/native checks and generates 48 C# fixture
+replies for the existing C# driver; CI exercises both transports.
+
+`ollama_eval.py` is opt-in, requires `--cap 0`, uses standard-library HTTP with loopback-only
+origins and no redirects/credentials/pulls/unloads. Run `--tokens-only` first. Accuracy
+conditions isolate raw-vs-scene selection and JSON-vs-schema, with optional concise/example,
+native tools and narration. Every model invocation, preflight, correction and result is
+recorded; unmatched token preflights count inside complete-turn time and usage. Hydration,
+local query work and validation are inside the timer. Natural cache reuse is not disabled.
+Do not benchmark while compiling or running other heavy workloads.
+
+`test_ollama.py` exercises a fake streaming endpoint, malformed replies, local-only URL
+validation, independent affordability oracles and missing-metric semantics without a model.
+`check_local_model.py --cap 0 ARTIFACT...` recomputes decision/report outputs and checks
+complete cohorts, actual prompt counts, retained required facts and raw-offer oracles.
+Use fresh output files; partial checkpoints remain explicit. Linux memory values are sampled
+RSS/available RAM/swap deltas, not true allocator peaks. Missing cache metrics stay null.
+
+The [local report](../docs/LOCAL_MODEL_2026_11_06.md) links frozen prompts, responses, settings,
+per-call usage/timing and measured hardware. No hosted API spend is incurred. Existing paid
+cohorts and their scripts remain frozen. Prose quality is independently reviewed, not inferred
+from schema compliance or a correct action ID.

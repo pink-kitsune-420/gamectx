@@ -10,6 +10,20 @@ use std::process::ExitCode;
 const HELP: &str = "gamectx: compile game data and tool schemas into small, budgeted context packets
 
 USAGE:
+  gamectx init <new-directory>
+      Generate a project, snapshot, evaluation suite and runnable starter checks.
+  gamectx doctor <project.json>
+      Check project registration and print configuration diagnostics as JSON.
+  gamectx inspect <project.json> <snapshot.json> <recipe>
+      Build a packet and print its separate host-only selection/budget inspection.
+  gamectx serve <project.json>
+      Persistent version-1 JSON-lines bridge; bounded requests on stdin, replies on stdout.
+  gamectx evaluate <project.json> <suite.json>
+      Score complete recorded model runs against independent snapshot expectations; offline.
+  gamectx local <workflow.json>
+      Run an additive request/dialogue/decision/profile/turn-report workflow; - reads stdin.
+  gamectx kit
+      Read a stateless {project,op,args} request on stdin (reference/conformance adapter).
   gamectx pack <manifest.json> [BUDGETS] [--receipt]
       Print the packet as compact JSON. --receipt prints what was kept/dropped to stderr.
       Use - as the manifest to read it from standard input.
@@ -31,7 +45,7 @@ USAGE:
       Print the parsed query plan without reading or executing a table.
   gamectx query <tables.json> <sql>
       Run a model's SQL SELECT exactly over the tables (an object of name: array of
-      objects); prints JSON. gamectx query --tool prints the query tool for the model.
+      objects); - reads tables from stdin. Prints JSON. gamectx query --tool prints the query tool for the model.
   gamectx query --schema <tables.json> [--metadata meanings.json]
       Print column types and complete small string domains, without rows. - reads stdin.
   gamectx query --session <tables.json> [--result-bytes N]
@@ -124,6 +138,67 @@ fn run(raw: &[String]) -> Result<()> {
     };
     let args = Args::parse(&raw[1..])?;
     match command.as_str() {
+        "local" => {
+            args.only(&[], 1)?;
+            let mut input = String::new();
+            let cap = gamectx::request::MAX_REQUEST_BYTES;
+            if args.positional[0] == "-" {
+                std::io::stdin()
+                    .take(cap as u64 + 1)
+                    .read_to_string(&mut input)
+                    .map_err(|e| Error::new(e.to_string()))?;
+            } else {
+                std::fs::File::open(&args.positional[0])
+                    .map_err(|e| Error::new(e.to_string()))?
+                    .take(cap as u64 + 1)
+                    .read_to_string(&mut input)
+                    .map_err(|e| Error::new(e.to_string()))?;
+            }
+            println!("{}", gamectx::local::process(&gamectx::json::parse(&input, cap)?)?.to_json());
+            Ok(())
+        }
+        "kit" => {
+            args.only(&[], 0)?;
+            let mut input = String::new();
+            std::io::stdin()
+                .take(gamectx::kit::MAX_REQUEST_BYTES as u64 + 1)
+                .read_to_string(&mut input)
+                .map_err(|e| Error::new(e.to_string()))?;
+            println!(
+                "{}",
+                gamectx::kit::process(&gamectx::json::parse(&input, gamectx::kit::MAX_REQUEST_BYTES)?)?.to_json()
+            );
+            Ok(())
+        }
+        "doctor" => {
+            args.only(&[], 1)?;
+            let project = load_project(&args.positional[0])?;
+            println!("{}", project.doctor().to_json());
+            Ok(())
+        }
+        "inspect" => {
+            args.only(&[], 3)?;
+            let project = load_project(&args.positional[0])?;
+            let snapshot = project.snapshot(&read_json_file(Path::new(&args.positional[1]))?)?;
+            println!("{}", project.build(&args.positional[2], &snapshot)?.to_value().to_json());
+            Ok(())
+        }
+        "serve" => {
+            args.only(&[], 1)?;
+            let project = load_project(&args.positional[0])?;
+            gamectx::kit::serve(&project, &mut std::io::stdin().lock(), &mut std::io::stdout().lock())
+        }
+        "init" => {
+            args.only(&[], 1)?;
+            gamectx::kit::init(Path::new(&args.positional[0]))
+        }
+        "evaluate" => {
+            args.only(&[], 2)?;
+            let project = load_project(&args.positional[0])?;
+            let suite = read_json_file(Path::new(&args.positional[1]))?;
+            println!("{}", gamectx::kit::evaluation::run(&project, &suite)?.to_json());
+            Ok(())
+        }
         "pack" => {
             args.only(&["--budget", "--budget-tokens", "--calibration", "--scope", "--receipt"], 1)?;
             let manifest = manifest::load(Path::new(&args.positional[0]))?;
@@ -309,7 +384,16 @@ fn run(raw: &[String]) -> Result<()> {
         }
         "query" => {
             args.only(&[], 2)?;
-            let tables = read_json_file(Path::new(&args.positional[0]))?;
+            let tables = if args.positional[0] == "-" {
+                let mut input = String::new();
+                std::io::stdin()
+                    .take((1 << 20) + 1)
+                    .read_to_string(&mut input)
+                    .map_err(|e| Error::new(e.to_string()))?;
+                gamectx::json::parse(&input, 1 << 20)?
+            } else {
+                read_json_file(Path::new(&args.positional[0]))?
+            };
             println!("{}", gamectx::query::run(&args.positional[1], &named_tables(&tables)?)?.to_json());
             Ok(())
         }
@@ -438,4 +522,14 @@ fn saved(original: usize, packed: usize) -> String {
         return "-".into();
     }
     format!("{:.1}%", 100.0 * (original as f64 - packed as f64) / original as f64)
+}
+
+fn load_project(path: &str) -> Result<gamectx::kit::Project> {
+    let mut input = String::new();
+    std::fs::File::open(path)
+        .map_err(|e| Error::new(e.to_string()))?
+        .take(gamectx::kit::MAX_PROJECT_BYTES as u64 + 1)
+        .read_to_string(&mut input)
+        .map_err(|e| Error::new(e.to_string()))?;
+    gamectx::kit::Project::parse(&input)
 }

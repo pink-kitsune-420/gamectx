@@ -202,7 +202,8 @@ impl Context {
     }
 
     /// Limit every packet to this many input tokens. Without [`Context::calibration`],
-    /// every byte counts as a token, which is safe but strict.
+    /// every packet byte counts as one estimated token. External messages, native tools,
+    /// template framing and reserved output require [`Turn::build_request`].
     pub fn budget_tokens(mut self, tokens: usize) -> Context {
         self.budget_tokens = Some(tokens);
         self
@@ -336,6 +337,19 @@ impl Turn<'_> {
         let page =
             catalog.search(query, None, 0, count, None).map_err(|e| Error::new(format!("catalog \"{name}\": {e}")))?;
         self.var_with(name, page.to_value(), DEFAULT_PRIORITY, false)
+    }
+
+    /// Assembles against a full rendered-request contract, including external messages,
+    /// native tools and reserved output. Unlike `build`, this uses the supplied request
+    /// contract instead of the Context packet budgets; existing build behavior is unchanged.
+    pub fn build_request(
+        &self,
+        budget: &crate::request::RequestBudget,
+        renderer: impl FnMut(&Value) -> Result<Value>,
+        counter: impl FnMut(&Value) -> Result<crate::request::Count>,
+    ) -> Result<crate::request::BudgetedRequest> {
+        let sections = self.context.prepared.iter().chain(&self.sections).collect::<Vec<_>>();
+        budget.assemble_prepared(&sections, renderer, counter)
     }
 
     /// Assembles the packet within the context's budgets. Stable sections come first; the

@@ -17,6 +17,33 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Integrating a game (unreleased)
+
+The optional [integration kit](docs/KIT.md) registers data meanings, units, visibility,
+tools and named context recipes once. Build each turn from a validated snapshot, inspect
+selection/budget decisions separately, and dispatch model tool calls through validated
+host callbacks. [The runnable Rust example](examples/registered-project.rs) includes Rust
+builders, schema-only queries and shared brain feature units.
+
+`gamectx init <new-directory>` generates a project, snapshot, recorded-run evaluation
+suite and runnable starter checks. `doctor` checks registration; `inspect` explains a
+recipe's packet. Persistent JSON-lines and a separate native C ABI have Python,
+Node/TypeScript and C# adapters in [bindings](bindings/README.md).
+
+Offline: 144 Rust/Python workflows agree, with 47 new conformance cases and 20,000 text
+mutations. Reusing registration instead of rebuilding each turn measured 146,130,805 →
+78,931,400 ns per 1,000 synthetic turns (seven paired release trials). These changes make
+integration and validation easier; new model accuracy has not been measured. API spend $0.
+
+## Local 1B–3B workflows (unreleased)
+
+[Local-model APIs](docs/LOCAL.md) add full-request budgets with a host tokenizer callback,
+protected scene facts and whole dialogue exchanges, legal-pair decisions with one retry,
+and explicit deployment-bound guidance/format profiles. Existing filtering, arithmetic,
+queries, facts and action validation do the local work. The core remains dependency-free.
+See the [workload guide for 1B, 1.5B, 3B, 8B, 30B and 70B](docs/MODEL_SIZES.md),
+[tested example](examples/local-turn.rs) and [local evaluation report](docs/LOCAL_MODEL_2026_11_06.md).
+
 ## Latest alpha.3 model check
 
 On six fresh synthetic states across cargo, teams and routes, 48 questions per model
@@ -170,9 +197,10 @@ packet: 1906 bytes; budget 2000 bytes
   the data changed in between.
 - **Budgets**: stable sections first, then per-turn sections. Over budget, the lowest-priority
   optional section is dropped, and required sections fail loudly instead of being cut.
-- **Token estimates**: never optimistic. Uncalibrated, one byte counts as one token. Feed it
-  the input-token counts your provider reports and it learns a per-model ratio, used with a
-  2x safety margin.
+- **Token estimates**: uncalibrated packet estimates count one byte per token; provider
+  reports teach a per-model ratio with a 2x margin. These remain estimates, not a guarantee
+  for hidden chat/tool framing. The optional [full-request contract](docs/LOCAL.md) counts
+  rendered requests and reserves output/safety separately.
 - **Verification**: `gamectx verify` unpacks every lossless section and checks it matches
   the original exactly, or for a table with a view, the rows the view selected. Numbers
   keep their original text (`1.50` stays `1.50`) unless a `round` view changes them.
@@ -211,7 +239,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 366 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 496 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.

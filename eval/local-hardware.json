@@ -1,0 +1,20 @@
+{
+  "cpu_models": [
+    "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz"
+  ],
+  "physical_cores": 4,
+  "logical_cpus": 8,
+  "memory_total_bytes": 7996997632,
+  "swap_total_bytes": 2147479552,
+  "requested_decode_threads": 4,
+  "requested_num_gpu": 0,
+  "loaded_model_samples": [
+    {
+      "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+      "size": 2086561381,
+      "size_vram": 0,
+      "context_length": 2048,
+      "runner": "llamacpp"
+    }
+  ]
+}

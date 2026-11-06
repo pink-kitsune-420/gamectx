@@ -212,3 +212,17 @@ mod query_plans;
 fn documented_query_plan_example() -> gamectx::Result<()> {
     query_plans::main()
 }
+
+#[path = "../examples/registered-project.rs"]
+mod registered_project;
+#[test]
+fn documented_project_example() -> gamectx::Result<()> {
+    registered_project::main()
+}
+
+#[path = "../examples/local-turn.rs"]
+mod local_turn;
+#[test]
+fn documented_local_turn_example() -> gamectx::Result<()> {
+    local_turn::main()
+}

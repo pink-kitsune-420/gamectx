@@ -1206,3 +1206,226 @@ completed-exchange input was 1,786.792 / 1,252.125 / 916.490 tokens. All 105 rec
 query feedback envelopes match Rust and Python exactly. Syntax/shape validation still
 cannot establish that a valid query matches a natural-language intention; the report
 records four syntactically valid queries with wrong intent and one terminal syntax failure.
+
+## Integration kit
+
+Opt-in version 1; existing formats are unchanged. `kit::process` / `gamectx kit` accept
+exactly `{project,op,args}`. `Project::parse` accepts the project alone. Unknown, missing
+and duplicate fields are rejected. Full workflows and examples: [KIT](KIT.md).
+
+A project has exactly `version:1`, `datasets`, `tools`, `recipes`. Maximum compact project
+size 262,144 UTF-8 bytes; at most 16 datasets, 32 tools and 32 recipes. Names (including
+field/property/section names) are lowercase ASCII identifiers, initial letter, at most
+32 bytes. Dataset names `tools` and `schemas` are reserved. Names must be unique in their
+registration list. Descriptions forbid controls, with 280 Unicode characters for datasets
+and fields, 1,024 for tools and parameter schemas. Nonempty units allow 32 characters.
+
+| Registration | Exact fields |
+|---|---|
+| Dataset | `name`, `description`, `id` (column name), `max_age` (null or unsigned u32 ticks), `fields` (1..64) |
+| Field | `name`, `type` (`string`, `number`, `integer`, `boolean`), `description`, `unit` (text or null), `nullable` (boolean), `visibility` (`model` or `host`) |
+| Tool | `name`, `description`, `parameters` (supported object schema) |
+| Recipe | `name`, `budget_bytes` (0..1,048,576), `datasets` (0..16), `tools` (unique declared names, 0..32), `sections` (0..32) |
+| Recipe dataset | `name`, `mode` (`rows` or `schema`), `view`, `priority` (integer −1,000,000..1,000,000), `required` (boolean) |
+| Recipe section | `name`, `priority`, `required` |
+
+The ID field must be non-null model-visible string. Views allow only `fields`, `where`,
+`sort_by`, `limit`, with existing view semantics. All referenced columns must be visible.
+Explicit fields must be nonempty and unique; limit is unsigned 0..4,096; IN arrays hold
+at most 128 options. Recipe dataset/section names cannot collide or use reserved names.
+Maximum ages, versions, limits, counts and times use canonical unsigned integer text.
+
+A snapshot is exactly `{now,tables,sections}`, at most 1,048,576 bytes. `now` is unsigned
+u32 ticks. `tables` maps registered dataset names to exactly `{updated_at,rows}`; capture
+time is at most now. Each table has at most 4,096 rows with exactly its declared columns
+and matching scalar/null types. IDs are unique strings of 1..256 Unicode characters.
+`sections` maps at most 32 names to trusted arbitrary host JSON values. Unknown tables,
+invalid rows and future captures fail before visibility projection. Selected stale tables
+fail before building or querying. Host-only fields are removed from the retained snapshot.
+
+Tool schemas support only `type`, `description`, `enum` and the following type-specific
+keywords. Type is one supported JSON type or `[type,"null"]`. Root parameters must be a
+non-null object. Maximum schema depth 8, 256 nodes. Object properties: at most 32; strings
+count Unicode scalar characters. Unknown keywords, including refs, patterns and unions
+other than nullable types, are refused. Schema enum values must satisfy their schema
+and be distinct under recursive JSON equality with exact decimal numeric equality.
+
+| Type | Keywords and requirements |
+|---|---|
+| object | `properties` object, `required` unique subset, `additionalProperties:false`, all mandatory |
+| array | `items` schema and `maxItems` (0..128), mandatory; optional `minItems` (0..max) |
+| string | mandatory `maxLength` (0..4,096); optional `minLength` (0..max) |
+| number, integer | optional `minimum`, `maximum`, ordered exact decimals |
+| boolean, null | no additional keywords |
+| any supported type | optional `enum` (1..32), `description` |
+
+Dataset/tool numbers are finite as f64 and use at most 128 bytes of JSON number text,
+with exponent magnitude at most 10,000. Integer validation and tool bounds do not round
+through f64; decimal text is retained. This does not change view/query numeric semantics.
+Arguments and callback results are independently capped at 65,536 bytes, including JSON
+framing. Callback result validation occurs after execution and provides no rollback.
+
+Stable packet sections are `tools` then `schemas`, when nonempty, both required with
+priority 1,000,001. Tools are ordinary function wrappers with `strict:false`. Schema entries
+are keyed by dataset and contain `description` and `columns`; each column contains
+`name,type,description,unit,nullable`, in recipe projection order. Dynamic packed table
+sections follow recipe order, then supplied extra sections; existing budget receipt and
+dropping rules apply. `schema` mode includes no dynamic table. Empty row packing uses the
+existing empty-table format, while declared schemas remain present.
+
+Build returns `{packet,inspection}`. Inspection is host-only, exactly
+`{recipe,receipt,datasets,missing_sections}`. Each dataset report contains
+`name,source_rows,selected_rows,source_indices,fields,omitted_fields,updated_at,age,mode,view,included`.
+Indices refer to the original input table order, before selection. Schema-mode datasets
+are included; row mode reports whether its dynamic section survived. Omitted field names
+include private fields. This diagnostic object is outside the model packet budget.
+
+Dispatcher success is `{ok:true,result}`. Failure is
+`{ok:false,error:{code,message}}`; codes are `unavailable_tool`, `invalid_arguments`,
+`missing_handler`, `host_error`, `result_limit`. No callback executes before recipe and
+argument validation. Host error details are not copied into model replies. Callback
+execution, live authorization and idempotency remain host responsibilities.
+
+Persistent/native bridge requests are exactly `{version:1,id,op,args}`. ID is nonempty
+text, at most 64 characters. Reply order is `version,id,ok,result` on success, or
+`version,id,ok,error` with code `invalid_request`. ID is null when framing/version/ID
+validation fails; otherwise the original ID is echoed. Messages are diagnostic and not
+an exact error-text contract. Each line/request is at most 1,572,864 bytes; the server
+drains an oversized line in bounded chunks and continues. A line above twice the cap
+plus two framing bytes terminates serving to bound recovery work. EOF completes a partial final
+line. Malformed JSON, invalid UTF-8 and unknown versions/operations get error replies.
+
+| op | Exact args / result |
+|---|---|
+| build | `{recipe,snapshot}` → `{packet,inspection}` |
+| query | `{recipe,snapshot,sql}` → ordinary query result over the recipe view, including its row/column restrictions; 4,096 rows / 65,536 result bytes |
+| validate | `{name,arguments}` → validated `{name,arguments}`, without executing or authorizing an action |
+| doctor | `{}` → `{version:1,datasets,tools,recipes,warnings}`; warnings `{code,path}`, codes `unbounded_age`, `missing_unit` |
+| tools | `{recipe}` → selected function schema array |
+| features | `{dataset,revision,policies}` → existing brain feature schema; policies contain `name,min,max,invert,missing,outside`; registered units are inserted |
+| evaluate | the suite below → `{version:1,runs:[reports]}` |
+
+Feature conversion retains the existing brain limits, including lowercase names, numeric
+ranges, revision 1..1,000,000 and at most 16 features. It refuses nonnumeric/private fields
+and missing units. Policies are explicitly host supplied, not inferred.
+
+An evaluation suite has exactly `{version:1,cases,runs}`, at most 1,572,864 bytes, with
+1..128 cases and 1..8 runs. Cases have exactly `id,recipe,snapshot,question,expected`;
+IDs use the identifier rule, questions are nonempty control-free text up to 4,096
+characters. Runs have exactly `name,recipe,guidance,observations`; recipe is null (use
+case recipe) or an override; guidance is a registered query profile name. Each observation
+has `case_id,sql,answer,input_tokens,output_tokens,latency_micros,tool_calls`. SQL is null or
+at most 4,096 bytes; usage/latency are null or unsigned integers at most 1,000,000,000,000.
+Tool calls are at most 32 `{name,arguments}` objects. Every run must contain every case
+exactly once; extra/duplicate/missing observations fail.
+
+Each report has `name,guidance,cases,answers_correct,queries_correct,invalid_queries,
+invalid_tool_calls,packet_bytes,input_tokens,output_tokens,latency_micros,details`.
+Details are `{id,answer_correct,query_correct,invalid_tool_calls,packet_bytes}` in observation
+order. Counts/bytes/usage sum over the cohort; one missing measurement makes its total
+null. No SQL means no query success, not an invalid query. Invalid tool names or arguments
+count without dispatch. Expected-result equality ignores object key order but preserves
+array order and exact number spellings. The scorer does not verify external usage, apply
+guidance or contact a provider. `question` is for the collecting host harness.
+
+## Local-model workflow contracts
+
+All are opt-in additions. Existing kit v1 and legacy packet/query/session shapes remain
+unchanged. `gamectx local <workflow.json>` accepts `-` for bounded stdin; `kit` bridge op
+`local` passes the same workflow. A workflow is exactly `{kind,args}`, maximum 1,572,864
+UTF-8 bytes. This adapter's dialogue/scene counter counts request JSON bytes and labels
+that count `estimate`; it is a deterministic fixture counter, not a model tokenizer.
+Production Rust callers supply their complete rendered-request counter.
+
+| kind | Exact args | Result |
+|---|---|---|
+| budget | `{budget:{context,output,safety},count:{input,method}}` | request receipt |
+| dialogue | `{thread,current,protect,maximum,tokens}` | selected messages and kept/omitted exchange IDs |
+| scene | `{scene,protect,maximum,dialogue_tokens,budget}` | budgeted packet/request/section receipt plus dialogue selection |
+| decision | `{choices,calls:[{text,revision,available}]}` | `{schema,results,finished}`; available is a host-supplied list of current legal pairs |
+| cancel | `{choices,available}` | live-approved fallback or abstention, without a model attempt |
+| preset | `{size,name,identity}` | `{guideline,profile}`; advisory size class and editable existing v1 definition |
+| profile | `{profile,actual_identity}` | `{identity,guidance,transport,options}` after complete identity comparison |
+| report | `{version:1,trials:[...]}` | `{version:1,conditions:[...]}` complete-turn telemetry |
+
+Request budgets require canonical unsigned `context` (1..1,048,576), `output`, `safety`;
+output+safety cannot exceed context. Counts are canonical unsigned 0..1,048,576 with method
+`exact` or `estimate`. Receipt fields in order: `context,input,reserved_output,safety,
+remaining,overflow,method,fits`. Remaining/overflow saturate at zero; assess reports an
+overflow, while dispatch checks/builds refuse it. Renderer/counter failures are errors.
+Assembly accepts at most 128 sections and bounded request JSON. `BudgetedRequest::to_value`
+is `{packet,request,sections,budget}` using the legacy section receipt as `sections`.
+The host must enforce generation limits and provide an honest full-render count.
+
+Threads are exactly `{version:1,scene,conversation,participants,exchanges}`, at most
+262,144 bytes. Scene/conversation/request/participant IDs are nonempty, control-free,
+up to 64 Unicode characters / 256 bytes. Participants are 1..16 unique IDs. There are
+0..128 exchanges, each exactly `{id,turn,user,assistant}` with unique IDs, strictly
+increasing unsigned u32 turns and nonempty user/assistant text up to 4,096 UTF-8 bytes.
+Message text may contain quoted controls represented by JSON escapes. Protect is 0..3;
+maximum is 0..128 and at least protect. Selection returns exactly `{messages,kept,omitted}`;
+messages are alternating `{role,content}` pairs. The current request ID is excluded. Empty
+dialogue emits no messages. A protected tail that cannot fit is an error. Compaction
+candidates are existing whole exchanges; the API never deletes or invents history.
+
+Scenes are exactly `{version:1,id,rules,current,outcome,required_facts,dialogue,optional}`.
+ID must equal the thread's scene ID. Rules are nonempty text up to 8,192 bytes; current is
+exactly `{id,text}`, text nonempty up to 8,192 bytes. Required facts are an object of at
+most 64 entries; outcome is host-supplied JSON. Optional sections are at most 32 objects
+`{name,priority,value}`, with unique scoped names, priorities −1,000,000..1,000,000 and
+no reserved names (`rules,scene,facts,outcome,dialogue,input`). Rules/facts/outcome/input/
+scene and the protected dialogue are required. All optional sections drop before older
+unprotected dialogue; optional data is not restored ahead of dialogue. Scene output is
+`{packet,request,sections,budget,dialogue}`. `render_chat` uses native roles and JSON scene
+data, not manually nested chat-template markers.
+
+Choices are exactly `{version:1,revision,choices,fallback}`, at most 16,384 bytes. Revision
+is unsigned u32; choices are 1..32 distinct pairs `{action,target}`. Action is a lowercase
+ASCII identifier of 1..32 bytes, initial letter; target is null or a scoped ID. Fallback
+is null or a declared pair. Schema is an ordinary closed object schema with properties,
+required fields and whole-pair `enum`. A model response must be strict JSON at most
+4,096 bytes, with exactly action and target and one declared pair. No code-fence/prose
+repair occurs. The workflow allows at most three calls to demonstrate terminal-session
+rejection; the actual session permits one correction only. Stale revisions bypass retry.
+Replies are `{status:"accepted",decision}`, `{status:"retry",error:"invalid_decision",schema}`,
+`{status:"fallback",decision}` or `{status:"abstain",decision:null}`. Availability checks
+and final atomic execution are host responsibilities. The library invokes availability checks; action execution stays outside this API.
+
+Identity has exactly `model_digest,quantization,template_hash,tokenizer,runner`, nonempty
+control-free text up to 128 Unicode characters each. Identity normalizes key order in
+that order and compares all values. A profile is exactly
+`{version:1,name,identity,budget,threads,transport,guidance,temperature_milli}`; name is a
+scoped ID, threads 1..64, temperature_milli unsigned 0..2,000. Transport is `json`, `schema`,
+`tools` or `signatures`; guidance is `standard`, `concise`, `example`, `explicit-selection`.
+Size presets accept `1`, `1.5`, `3`, `8`, `30`, `70` with optional `b`/`B` suffix. They return
+a guideline with size class, nominal parameter millions, task/content/choice hints,
+context/output starting values, host-work notes and `measured:false`; no library enforcement
+is inferred from a hint. Other models can use an ordinary explicit profile.
+Options are `num_ctx,num_predict,num_thread,temperature`, with temperature written as a
+minimal decimal scaled from thousandths. Settings are returned, never applied to services.
+Standard adds no supplemental text. The exact text is defined by the new conformance
+cases, without changing the existing query guidance format or default.
+
+Turn reports accept 1..512 trials and at most 1,572,864 bytes. Each trial has exactly
+`id,condition,expected,actual,elapsed_micros,ttft_micros,attempts,fallback,required,supplied,
+memory,dialogue_score`. IDs are unique scoped IDs; condition is a scoped name. Elapsed is
+unsigned 0..1,000,000,000,000; TTFT is null or within elapsed. Fallback is boolean; required
+and supplied are unique scoped-ID arrays of 0..64. Dialogue score is null or unsigned 0..5.
+Expected/actual equality ignores object key order but preserves array order and exact
+number spellings. The report does not certify semantic truth or external measurements.
+
+Each of at most eight attempts has exactly `phase,input_tokens,output_tokens,cached_tokens,
+prompt_micros,decode_micros,load_micros,valid,truncated`. Metrics are null or unsigned
+0..1,000,000,000,000; flags are booleans. Phases `decision,query,narration` occur at most
+twice each; `preflight` at most four times. Retry count excludes preflights and counts
+repeated model phases. Intentional one-token preflight truncation is excluded from the
+truncation count, while preflight time/tokens still contribute to totals.
+
+Memory has exactly `runner_rss_bytes,game_rss_bytes,available_bytes,swap_in_bytes,
+swap_out_bytes`, each null or unsigned 0..9,007,199,254,740,991. Reports group conditions
+in first-use order and return name/trial/correct/invalid-attempt/retry/fallback/truncation/
+missing-required counts, integer median and nearest-rank p95 turn microseconds, TTFT
+median and coverage, summed usage/timings, memory extrema and dialogue-score coverage/
+total. Empty or partly unknown usage totals remain null. Memory is max for RSS/swap and
+min for available RAM; any unknown trial makes that metric null. No historical evaluator
+format was extended to accept these fields.

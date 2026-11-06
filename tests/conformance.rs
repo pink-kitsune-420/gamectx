@@ -57,6 +57,8 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
+        "local" => gamectx::local::process(&input)?,
+        "kit" => gamectx::kit::process(&input)?,
         "facts" => facts::process(&input)?,
         "query-plan" => query_plan::process(&input)?,
         "query-guidance" => Value::str(
