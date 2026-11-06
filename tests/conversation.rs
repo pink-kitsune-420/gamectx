@@ -63,3 +63,38 @@ fn empty_fact_and_quote_sets_have_usable_zero_citation_schemas() {
         assert!(p.get("items").unwrap().get("enum").is_none());
     }
 }
+
+#[test]
+fn assistant_biography_is_never_registered_as_a_player_quote_or_world_fact() {
+    let mut c = Conversation::default();
+    let facts = obj! {"player_home"=>Value::Null,"salve_owner"=>"player"};
+    let introduction = "My name is Fen, and I collect stories.";
+    let prepare = |input: &str| {
+        obj! {"scope"=>"player_1:trader","speaker"=>"trader","revision"=>7,
+        "input"=>input,"facts"=>facts.clone(),"recall"=>2,"history"=>2}
+    };
+    c.prepare(&prepare(introduction)).unwrap();
+    // Legacy free-form speech validation checks schema and available sources, not
+    // entailment. Keep this limitation explicit while testing storage provenance.
+    let invented = "You told me you grew up in a cottage in a distant village.";
+    c.finish(
+        "player_1:trader",
+        7,
+        "chat_1",
+        &obj! {"speech"=>invented,"tone"=>"neutral","fact_ids"=>vec!["player_home"],"memory_ids"=>Vec::<Value>::new()}
+            .to_json(),
+    )
+    .unwrap();
+    let ticket = c.prepare(&prepare("What did I actually tell you about myself?")).unwrap();
+    assert_eq!(ticket.get("facts"), Some(&facts));
+    let quotes = ticket.get("memories").unwrap().as_array().unwrap();
+    assert_eq!(quotes.len(), 1);
+    assert_eq!(quotes[0].get("text"), Some(&Value::str(introduction)));
+    assert_eq!(ticket.get("history").unwrap().as_array().unwrap()[0].get("assistant"), Some(&Value::str(invented)));
+    c.forget("player_1:trader").unwrap();
+    assert!(c.pending_scope().is_none());
+    let after = c.prepare(&prepare("Where is my home?")).unwrap();
+    assert!(after.get("memories").unwrap().as_array().unwrap().is_empty());
+    assert!(after.get("history").unwrap().as_array().unwrap().is_empty());
+    assert_eq!(after.get("facts"), Some(&facts));
+}

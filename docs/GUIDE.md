@@ -556,3 +556,16 @@ Inventory arithmetic already belongs in local queries: `COUNT(*)` counts rows;
 for retrieval. Neither conversation memory nor tags establish item ownership or consent.
 The runnable [shared example](../examples/conversation.rs) exercises memory, confirmation
 and inventory totals without a model.
+
+
+### Test recall and invented memories separately
+
+A model may correctly recall “My name is Fen, and I collect stories” after inventing a
+home or claiming the player disclosed an unrelated past. Check `/memory` in the dungeon:
+only original player words belong in that quote store. Assistant dialogue remains
+unverified context, even when it sounds confident or uses an available citation ID.
+Ask the model to distinguish exact supplied quotes, current host facts and unknown
+attributes; source availability alone does not validate its explanation. `/forget`
+clears conversation material and pending replies, while host-owned inventory persists.
+The [reported regression audit](DUNGEON_FEEDBACK.md) preserves examples and verifies
+these storage/state boundaries without claiming the prose hallucinations are fixed.

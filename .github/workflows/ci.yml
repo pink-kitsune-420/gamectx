@@ -25,6 +25,7 @@ jobs:
       - run: python3 -I eval/dungeon_social_cases.py --cap 0 --check
       - run: python3 -I eval/conversation_cases.py --cap 0 --check
       - run: python3 -I eval/dungeon_trade_cases.py --cap 0
+      - run: python3 -I eval/check_dungeon_feedback.py --cap 0
       - run: python3 -I eval/test_dungeon_ai.py
       - run: python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
       - run: python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json

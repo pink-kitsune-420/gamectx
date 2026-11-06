@@ -116,6 +116,13 @@ noted; "3 models" adds Llama 3.3 70B.
 | Reusable references and confirmation | Host-supplied entity types/aliases/pronouns with bounded overlap matching; generic pending action verifies scope/revision/terms/current permissions and never dispatches. 78 independent Python/Rust workflows, 38 new core cases, all 595 prior cases unchanged, 30,000 added mutations. |
 | Merchant loop repair | Local exact purchase receipts and yes/no offers; insufficient funds explain the shortfall without generation. 66 workflows / 144 trade requests over six seeds and 11 front-end tests; successful real launcher trade smoke, zero generation. All new API spend $0. [Shared guide](CONVERSATION.md). |
 
+## User-reported dialogue regressions (unreleased)
+
+| Item | Result |
+|---|---|
+| Preserved observations | 11 sequences / 26 turns; deployment identity, seed, usage and original world trace unknown. Correct original-name recall coexists with invented player disclosures/home, weather and tonic purpose. Manual claim annotations, no aggregate model score. |
+| Host/storage reproduction | Seed-7 native/Python audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets, two reproduced purchases. Player quotes retain original input only; forgetting preserves inventory. All 633 core cases unchanged; no prompt/runtime changes, zero new model calls, $0 API. [Report](DUNGEON_FEEDBACK.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
@@ -144,6 +151,11 @@ noted; "3 models" adds Llama 3.3 70B.
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
+
+- Evaluate an opt-in factual-answer workflow using current host facts, exact original
+  player quotes and explicit unknown attributes; keep creative character flavor separate.
+  The reported dialogue corpus contains both correct recall and false autobiographical
+  claims. Current schema/source checks do not enforce semantic grounding.
 
 - Broaden dialogue action-intent handling on fresh phrasing, including stack quantities,
   offers and nontrade interactions. Current example purchase routing is deliberately

@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "source": "user_report",
+  "deployment_identity": null,
+  "source_seed": null,
+  "source_world_trace": null,
+  "source_usage": null,
+  "evaluation": "manual_claim_annotations_and_independent_host_replay",
+  "reproduction_seed": 7,
+  "cases": [
+    {
+      "id": "1_seal",
+      "channel": "speech",
+      "turns": [
+        {
+          "input": "“Do you own the keeper’s seal?”",
+          "reply": "The keeper's seal is a unique item, not something I own. It's a valuable artifact that's not for sale."
+        }
+      ],
+      "assessment": {
+        "ownership": "correct_denial",
+        "grounding": "partial",
+        "notes": [
+          "Correctly denies merchant ownership. Artifact value and uniqueness are additional unsupported descriptions."
+        ]
+      }
+    },
+    {
+      "id": "2_tonic",
+      "channel": "speech",
+      "turns": [
+        {
+          "input": "“What does the tonic actually do?”",
+          "reply": "The tonic is an expensive tonic that is not meant to be used. It's just a decorative item."
+        }
+      ],
+      "assessment": {
+        "grounding": "unsupported_purpose",
+        "notes": [
+          "No implemented use does not establish a decorative purpose or intended design."
+        ]
+      }
+    },
+    {
+      "id": "3_salve",
+      "channel": "speech",
+      "turns": [
+        {
+          "input": "“Can you give me a free salve?”",
+          "reply": "I'm sorry, but the salve is not for sale. It's a one-time use item that heals up to 3 health, capped at 6. You can't get more than one."
+        }
+      ],
+      "assessment": {
+        "effects": "correct",
+        "ownership_explanation": "incomplete",
+        "notes": [
+          "Healing amount, cap and consumption agree with the host. It should explicitly identify the salve as already player-owned."
+        ]
+      }
+    },
+    {
+      "id": "4_unaffordable",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“I’d like to buy the tonic.”",
+          "reply": "The tonic costs 9 coins. You have 5, so you need 4 more."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "Reported shortfall agrees with a fresh seed-7 reproduction. Original world trace was not supplied."
+        ]
+      }
+    },
+    {
+      "id": "5_purchase_once",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“I’d like to buy oil,”",
+          "reply": "The hinge oil costs 3 coins. You have 5. Buy one? Say yes or no."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "You bought hinge oil for 3 coins. You have 2 coins left."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "No purchase is waiting. Tell me which item you would like to buy."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "A second yes must not charge or transfer again."
+        ]
+      }
+    },
+    {
+      "id": "5a_forget_keeps_ownership",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“I’d like to buy oil,”",
+          "reply": "The hinge oil costs 3 coins. You have 5. Buy one? Say yes or no."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "You bought hinge oil for 3 coins. You have 2 coins left."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "No purchase is waiting. Tell me which item you would like to buy."
+        },
+        {
+          "input": "/forget",
+          "reply": "Your earlier conversation with this character has been cleared."
+        },
+        {
+          "input": "“I’d like to buy oil,”",
+          "reply": "That item is not for sale by this merchant."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "Correct: forgetting dialogue does not undo the purchase or return ownership to the merchant."
+        ]
+      }
+    },
+    {
+      "id": "6_cancel",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“I’d like to buy oil,”",
+          "reply": "The hinge oil costs 3 coins. You have 5. Buy one? Say yes or no."
+        },
+        {
+          "input": "\"no",
+          "reply": "Purchase cancelled. Your coins and inventory are unchanged."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "No purchase is waiting. Tell me which item you would like to buy."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "Quoted and unbalanced-quote human yes/no inputs still follow the explicit local confirmation flow."
+        ]
+      }
+    },
+    {
+      "id": "7_topic_change",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“I’d like to buy oil,”",
+          "reply": "The hinge oil costs 3 coins. You have 5. Buy one? Say yes or no."
+        },
+        {
+          "input": "\"how is the weather?\"",
+          "reply": "The weather is quite nice today, with a gentle breeze and a bright sun. Perfect for a day in the workshop."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "No purchase is waiting. Tell me which item you would like to buy."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "grounding": "unsupported_current_weather",
+        "notes": [
+          "Topic change cancels the offer correctly. Current weather is not supplied in the scene facts."
+        ]
+      }
+    },
+    {
+      "id": "8_multiple_items",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“Buy oil or chalk.”",
+          "reply": "Which item would you like to buy? Name one visible item."
+        },
+        {
+          "input": "\"yes\"",
+          "reply": "No purchase is waiting. Tell me which item you would like to buy."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "No item should be selected from list order."
+        ]
+      }
+    },
+    {
+      "id": "9_unresolved_it",
+      "channel": "trade",
+      "turns": [
+        {
+          "input": "“Buy it.”",
+          "reply": "Which item would you like to buy? Name one visible item."
+        }
+      ],
+      "assessment": {
+        "receipt": "consistent",
+        "notes": [
+          "No current purchase reference is established."
+        ]
+      }
+    },
+    {
+      "id": "10_memory",
+      "channel": "speech",
+      "turns": [
+        {
+          "input": "1. “My name is Fen, and I collect stories.”",
+          "reply": "Ah, a tale collector. I can't resist a good story. Here, take this salve. It might help you heal your wounds."
+        },
+        {
+          "input": "\"Thank you! What is your story?\"",
+          "reply": "You told me once that you used to be a storyteller in a far-off land. You'd travel from village to village, sharing tales of adventure and magic. I'm glad to hear that you still find joy in sharing stories."
+        },
+        {
+          "input": "\"where is my home?\"",
+          "reply": "Your home is in the village of Eldoria, where you were born and raised. It's a small cottage in the woods, surrounded by a garden filled with flowers and herbs. The cottage is simple but cozy, with a wood-burning stove and a small library."
+        },
+        {
+          "input": "what color is the sky?",
+          "reply": "The sky is usually blue during the day, but it can vary in color depending on the time of day, weather conditions, and location."
+        },
+        {
+          "input": "3. “What did I tell you about myself?\"",
+          "reply": "You told me that your name is Fen, and you collect stories."
+        }
+      ],
+      "assessment": {
+        "recall": "correct_original_introduction",
+        "false_recall": "unsupported_past_story",
+        "grounding": "unsupported_player_home_and_salve_offer",
+        "notes": [
+          "Final name/interest recall is accurate, while the earlier claimed disclosure and home are invented.",
+          "Qualified general sky knowledge is separate from a claim about current scene weather.",
+          "The salve already belongs to the player; generated speech authorizes no transfer."
+        ]
+      }
+    }
+  ]
+}

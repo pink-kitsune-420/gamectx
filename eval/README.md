@@ -1024,3 +1024,16 @@ python3 -I eval/test_dungeon_ai.py
 
 After building the native bridge, `conversation_cases.py --cap 0 --check-bindings`
 compares the same cases through persistent and native transports; CI runs both.
+
+
+## User-reported dialogue corpus
+
+`dungeon-feedback.json` preserves 11 reported sequences / 26 turns, with manual claim
+annotations and missing deployment/usage fields explicitly null. These are observations,
+not fresh model calls or an aggregate accuracy score. After building the dungeon,
+`python3 -I eval/check_dungeon_feedback.py --cap 0` independently audits seed-7 host
+reproductions: 17 trade requests, 16 matching local receipts, nine supplied speech packets
+and two purchases in separate successful-purchase sequences. It checks unchanged world
+state for speech and original-player-only quote retention against the Python reference.
+The current validator accepts some factually wrong speech; acceptance is not correctness.
+No model is called; new API spend $0. CI runs the offline audit. [Report](../docs/DUNGEON_FEEDBACK.md).

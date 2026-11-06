@@ -37,6 +37,10 @@ The dungeon's merchant reports unaffordable purchases locally and completes affo
 ones after yes/no confirmation. Inventory counts/sums and catalog/memory tags already
 use the existing query and metadata APIs; hosts retain inventory ownership.
 
+[Reported dialogue regressions](docs/DUNGEON_FEEDBACK.md) now preserve 11 playthrough
+sequences: transaction handling and name recall work, while free-form speech can still
+invent player history or item purposes. The offline audit separates those outcomes.
+
 ## Further local optimizations (unreleased)
 
 [Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,

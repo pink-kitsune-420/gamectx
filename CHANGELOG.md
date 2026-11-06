@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[internal]** Preserves 11 user-reported dungeon interaction sequences / 26 turns
+  with separate manual grounding/recall/transaction annotations. Offline native/Python
+  audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets,
+  two reproduced purchases; zero model calls. Source identity/usage remain unknown.
+- **[internal]** Adds regressions proving that forgetting dialogue preserves purchased
+  inventory and that invented assistant biography is never registered as player quotes
+  or host facts. All 633 core cases unchanged; runtime prompts/behavior unchanged.
+- **[docs]** Records remaining fabricated player history, home, weather and tonic
+  purpose alongside correct transactions and name recall. Schema/citation acceptance
+  is not a semantic score. New audit spend $0 API. [Report](docs/DUNGEON_FEEDBACK.md).
+
 - **[api]** Extracts reusable scoped conversation memory/reply validation, configurable
   lexical entity references and one-use confirmed action proposals into the library.
   The dungeon now delegates to those APIs; current facts, pricing and callbacks stay

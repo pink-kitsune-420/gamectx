@@ -1513,3 +1513,10 @@ The example-only dungeon JSON host adds `trade` with exactly `{speaker,input}` a
 `{handled:true,reply,offer?,result?}` for a local receipt. Offer is the shared confirmed
 proposal contract; result is an accepted deterministic game action. A pending offer is
 created only by the host's explicit purchase-request handler, never by generated prose.
+
+
+The user-feedback corpus `eval/dungeon-feedback.json` is diagnostic data, outside the
+core conformance formats. It preserves unpinned reported input/reply text and separate
+manual annotations; missing deployment/world/usage data remain null. Its offline audit
+reproduces host rules and feeds supplied speech through validation, without treating
+structural acceptance as semantic accuracy. [Report](DUNGEON_FEEDBACK.md).

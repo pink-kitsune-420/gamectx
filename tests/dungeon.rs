@@ -197,3 +197,26 @@ fn entity_references_use_phrases_scope_and_explicit_clarification() {
     assert_eq!(after.get("resolution").unwrap().get("reason"), Some(&Value::str("unresolved_reference")));
     assert!(host.request(&obj! {"op"=>"interpret","args"=>obj! {"input"=>"Inspect it.","context"=>2048,"guidance"=>"focused","resolve_ambiguity"=>true,"target_hint"=>"item:salve","expected_revision"=>rev}}).is_err());
 }
+
+#[test]
+fn forgetting_dialogue_erases_quotes_and_preserves_purchased_inventory() {
+    let mut host = host::Host::new(7).unwrap();
+    act(&mut host, "go", "room:gallery");
+    act(&mut host, "go", "room:workshop");
+    let prepared=host.request(&obj! {"op"=>"speech_prepare","args"=>obj! {"speaker"=>"merchant","input"=>"My name is Fen.","context"=>2048}}).unwrap();
+    host.request(&obj! {"op"=>"speech_finish","args"=>obj! {"ticket"=>prepared.get("ticket").unwrap().clone(),"text"=>r#"{"speech":"Welcome, Fen.","tone":"neutral","fact_ids":[],"memory_ids":[]}"#}}).unwrap();
+    let trade = |input: &str| obj! {"op"=>"trade","args"=>obj! {"speaker"=>"merchant","input"=>input}};
+    host.request(&trade("I'd like to buy oil.")).unwrap();
+    let bought = host.request(&trade("yes")).unwrap();
+    assert!(bought.get("result").is_some());
+    let before = host.game.public();
+    host.request(&obj! {"op"=>"trade_cancel","args"=>obj! {}}).unwrap();
+    host.request(&obj! {"op"=>"speech_forget","args"=>obj! {"speaker"=>"merchant"}}).unwrap();
+    assert_eq!(host.game.public(), before);
+    let empty = host.request(&obj! {"op"=>"speech_state","args"=>obj! {"speaker"=>"merchant"}}).unwrap();
+    assert!(empty.get("memories").unwrap().as_array().unwrap().is_empty());
+    assert!(empty.get("history").unwrap().as_array().unwrap().is_empty());
+    let owned = host.request(&trade("I'd like to buy oil.")).unwrap();
+    assert_eq!(owned.get("reply"), Some(&Value::str("That item is not for sale by this merchant.")));
+    assert_eq!(host.game.public(), before);
+}
