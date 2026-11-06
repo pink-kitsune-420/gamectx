@@ -72,6 +72,15 @@ claim checks, not a model registration capability. Cases cover typed numeric agr
 stale/cyclic/expired dependencies, pins, user precedence, scoped lookup, privacy erasure,
 byte budgets and clock bounds. See [registered facts](../docs/FORMAT.md#registered-facts).
 
+`upgrades` workflows select `kind`: recall, playbook, outcomes, temporal, bundle, requests
+or ledger. The native adapter is [`tests/support/upgrades.rs`](../tests/support/upgrades.rs)
+and independent expectations come from [`eval/upgrades_eval.py`](../eval/upgrades_eval.py).
+The 40 cases include 18 positive/rejection-report workflows and 22 errors. Current versus
+issued request contexts are independent snapshots; changed actor/world/schema/permissions
+must produce false. Other cases cover stale fact versions, one-use labels/tickets, absent
+exposure, invalid phases, original event clocks, aliases, imported ports and reservations.
+These exercise native APIs, not new default model tools.
+
 After a deliberate behavior change:
 
 ```bash

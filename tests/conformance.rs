@@ -19,6 +19,8 @@ mod facts;
 mod integration;
 #[path = "support/runtime.rs"]
 mod runtime;
+#[path = "support/upgrades.rs"]
+mod upgrades;
 
 const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/conformance");
 
@@ -54,6 +56,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
         "facts" => facts::process(&input)?,
+        "upgrades" => upgrades::process(&input)?,
         "integration" => integration::process(&input)?,
         "runtime" => runtime::process(&input)?,
         "brain" | "brain-select" => gamectx::brain::process(&input)?,

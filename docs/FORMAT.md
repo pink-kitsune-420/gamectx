@@ -977,3 +977,169 @@ no self/duplicate dependency and inherited privacy for matching current sources.
 or stale sources remain representable as invalidated facts. Text loading is capped at
 4,194,304 bytes. Structural validation does not authenticate persisted data. Full state
 contains private and invalidated payloads: keep it host-only and filter model packets.
+
+## Optional runtime upgrades
+
+All seven APIs are opt-in native building blocks, with no new default model tools or
+network/filesystem operations. JSON parsers reject duplicate keys. Runtime IDs, clocks
+and revisions below use unsigned integers at most 4,294,967,295 unless otherwise noted.
+Mutating clocks are nondecreasing; reads must not precede the last mutation and never
+advance clocks. The host chooses a consistent tick unit and owns subject separation,
+truth, consent, engine observations and current action permissions.
+
+### Indexed recall
+
+`RecallIndex::new(records, config)` owns an immutable copy of at most 4,096 `Record`s.
+IDs are distinct/nonzero, turns bounded, importance 1..10, text <=280 Unicode characters,
+tags <=8 brain-style names. Configuration has exactly `normalize` (boolean) and `aliases`
+(up to 64 `[source,target]` pairs of brain-style names). Sources are unique, distinct from
+targets, and no target can also be a source: chains/cycles are refused. Aliases apply once
+*after* optional normalization, so supply normalized tokens as alias keys.
+
+Tokenization lowercases ASCII and splits outside `[a-z0-9_]`, retaining tokens of 1..64
+bytes. When normalization is enabled, strip `ing` from words longer than five bytes,
+otherwise `ed` from words longer than four, otherwise a final `s` from words longer than
+three that do not end in `ss`. This is intentionally a small lexical rule, not full
+English morphology or multilingual semantic retrieval. Original text/IDs are unchanged.
+Each record appears once in a term's posting list, even if the term occurs repeatedly.
+
+`search(query,count)` limits query to 4,096 UTF-8 bytes and count to 0..128. Each distinct
+query term adds one point per matching record. Rank by score, importance and turn
+(descending), then ID ascending. Result is `{records,candidates,postings}` with record
+fields `id,turn,importance,text,tags`; diagnostics count matched records before limiting
+and posting visits. No match yields an empty list, unlike legacy recall's fallback.
+Records must already be filtered for scope/expiry/privacy/provenance. Rebuild/drop the
+index after edits, forgetting or permission changes; immutable snapshots cannot notice
+external changes. There is no persisted index or implicit promotion into facts.
+
+### Validated playbooks
+
+A `Playbook` is a host-registered array of at most 64 recipes, sorted by ID on serialization:
+`{id,action,args,requires,expires}`. IDs/action names use brain-style names; recipe IDs
+are unique. Args must be an object within registered-fact value bounds (4,096 bytes,
+depth eight/256 nodes). Requires has 1..8 distinct scope/key prerequisites, each exactly
+`{reference:{scope,key,revision},value}`. Values have the same typed bounds. Expiry is
+null or a positive bounded tick. Text loading and total serialized definitions cap at
+524,288 bytes; this is definitions data, never executable scripts.
+
+`select(facts,now,denied,validate)` returns matching `{id,action,args}` drafts in ID order.
+Every prerequisite must be currently visible, structurally supported, and have the exact
+registered revision; equal values under new revisions still invalidate the recipe. Expiry
+and transitive source invalidation apply. Only then is the current host
+`validate(action,args)` callback consulted, checking actual schema, permissions, resources
+and game rules. False excludes the draft. The host must validate authored procedures and
+recheck immediately before executing returned drafts. Matching does not prove effectiveness,
+make calls, execute actions or accept model-authored procedures as trusted skills.
+
+### Observable outcomes
+
+`OutcomeTracker::new(capacity)` accepts 1..128 transient trials. `begin(id,now,wait,window)`
+requires strictly increasing nonzero native IDs, wait/window 1..1,000,000, enough capacity,
+and `now+wait+window` within the clock bound. Phases are planned→executed→exposed→observed;
+`executed`, `exposed` and `resolve` require the preceding phase and `now < deadline`.
+Exposure starts a single response deadline `now+window`; repeated exposure is refused.
+`resolve` accepts one host score in integer millionths 0..1,000,000. The host establishes
+an actual opportunity to observe a response; silence without observation is not failure.
+
+`report(id,now)` emits `{id,status,score,trainable}`. Unobserved phases past deadline, and
+cancelled trials, are unknown with null score/false trainable. Observed scores remain
+available, including observed zero. `take_label` returns an observed report once and
+marks it consumed; later reports remain observed but untrainable, and repeated take errors.
+`cancel` refuses terminal trials. `forget` frees a slot without resetting the ID watermark.
+The host joins labels to original action/features and validation sets; no automatic
+weight update, causal claim or fear/personality inference follows from a score.
+
+### Temporal event features
+
+`TemporalWindow::new(capacity,window,start)` has capacity 1..256 and window
+1..1,000,000 ticks. The host asserts observation coverage from start. Native
+`observe(token,now,expires,kind,value)` requires increasing nonzero tokens, brain-style
+kind, expiry after now, value in −1,000,000,000..1,000,000,000 and current availability.
+Prune expired/out-of-window events before a successful insertion. A full live window
+refuses insertion atomically, rather than silently undercounting; watermarks survive
+pruning and availability changes. Repeated reads do not create events.
+
+At query time retain `event.at <= now < expires` and `now-event.at < window`.
+`features(kind,now)` returns `{count,rate_millionths,first,last,delta}`. Rate is
+`floor(count*1,000,000/min(window,now-start+1))`; first/last are retained event times,
+delta is last numeric value minus first (null if no samples). This is event frequency,
+not a probability. `sequence(kinds,now)` accepts 1..8 names, greedily counts ordered
+non-overlapping subsequences; gaps are allowed, and distinct same-tick events may match.
+A sample is used at most once in one sequence match.
+
+Changing `availability` clears retained events and resets coverage start. Unavailable
+queries return null count/rate/sequence; available empty coverage returns zero.
+Hosts must clear availability on observation gaps, subject/world changes, privacy
+revocation or source erasure. No sensor polling, archive, habit certainty or preference
+training is implied. Outcome/temporal trackers are transient, not restored from saved
+JSON; hosts retain durable source watermarks if their engines can replay old events.
+
+### Shared perception frames
+
+`BrainBundle::new(perception,decision,ports)` owns two independent existing brains.
+Ports is 1..16 `{input,output}` bindings, unique by decision input, pointing from a
+perception output to a decision input. All signals are normalized millionths; host
+`FeatureSchema` bindings still define physical units. Bounds apply per module (up to
+32 nodes/16 inputs/16 outputs each); modules are not cyclic or mutually recurrent.
+
+`prepare(scope,frame,inputs)` validates perception inputs and computes one sealed
+`PreparedFrame`. Scope has 1..64 non-control Unicode characters; frame is nondecreasing.
+Each successful prepare invalidates prior frames, including same-frame/same-scope ones.
+`run_into` requires the originating bundle, exact scope/frame, full decision input array
+with imported slots None, current output mask/thresholds and a caller-owned Prediction.
+Imported scores are filled from the sealed frame; unknown scores remain unknown.
+JSON `run` requires exactly the non-imported input keys; imported overrides are refused.
+Failed native runs preserve the output object.
+
+Clone a module, teach/train it through existing guards, then call `replace_perception`
+or `replace_decision`. Port compatibility is checked atomically; successful replacement
+invalidates prepared frames while preserving the other module's weights/history/pins.
+Native candidate inference allocates no new buffers; prepare allocates a new sealed
+identity/scope once per cycle. Saved bundle is exactly
+`{version:1,perception:<brain-state>,decision:<brain-state>,ports}` with text cap
+528,384 bytes. Restore revalidates both modules and ports, creating a new identity;
+prepared frames are never persisted or shared across actors/cycles.
+
+### Asynchronous result tickets
+
+`RequestContext::from_value` accepts exactly `{actor,world,schema,permissions,facts}`.
+Actor/world use scope strings; schema/permissions are host revision counters. Facts has
+at most 16 exact `FactRef`s, unique scope/key and canonicalized by scope/key. Include
+all relevant dependencies; undeclared state changes cannot be checked automatically.
+
+`RequestGate` holds at most 32 pending tickets. `issue(context,now,ttl)` creates an opaque
+instance-bound ticket with monotonic ID, TTL 1..1,000,000 and bounded expiry. Native
+`accept(ticket,current,now,facts,denied)` returns true only before expiry, with exactly
+matching current actor/world/schema/permission context and visible current fact revisions.
+It consumes the ticket even when freshness checks return false. Unknown/replayed/foreign
+tickets error. Invalid clocks/denied labels error before consumption. `cancel` explicitly
+frees a slot; expired slots remain until accept/cancel. Tickets/gates have no saved form;
+restart invalidates outstanding requests. Context parsing never creates an executable
+capability. A true result is a freshness check, and action/schema/permission validation
+still belongs immediately before native execution.
+
+### Runtime spending ledger
+
+`SpendingLedger::new(limit,window)` uses integer microdollars (1,000,000 = $1), limit
+0..1,000,000,000,000 and window 1..1,000,000 host-clock ticks. At most 256 charges are
+retained; at most 256 simultaneous reservations, sharing one cap. `reserve(now,amount)`
+prunes only expired settled charges and checks spent+reserved+amount against the limit.
+Pending charges never age out. IDs increase across cancellation/recovery. Every retry
+requires its own reservation; the caller supplies provider pricing and maximum input,
+output/reasoning/retry costs. Unknown pricing is not inferred by the library.
+
+State transitions are reserved→dispatched→settled. `cancel_before_dispatch` refunds only
+reserved requests; dispatched requests cannot be cancelled for a refund. `finish` takes
+actual cost or None for unknown usage (full reservation retained), and starts settled
+retention at finish time. If actual cost exceeds reservation, record it and permanently
+block positive-cost reservations until the host explicitly replaces/audits the ledger;
+zero-cost fallback remains possible, within entry limits. A cap cannot prevent an
+already-dispatched provider from billing more than its estimate.
+
+Saved state is exactly `{version:1,limit,window,clock,next,blocked,entries}`; charges are
+`{id,at,amount,state}` in increasing ID order. `summary(now)` emits `{spent,blocked,pending}`
+without changing clocks or retention. Restore validates fields, counters, ordering, time,
+costs and total consistency, then `recover(now)` settles *all* unfinished reservations
+at full cost. Text cap 65,536 bytes. Recovery therefore deliberately changes pending
+state; a second same-time restore is stable. Durable atomic saving before dispatch,
+crash exclusion, provider request caps and authenticated billing remain host duties.

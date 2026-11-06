@@ -1,0 +1,1 @@
+{"kind":"recall","records":[{"id":1,"turn":1,"importance":5,"text":"Lighting near the cellar.","tags":[]},{"id":2,"turn":2,"importance":5,"text":"A medic waits by the door.","tags":[]}],"config":{"normalize":false,"aliases":[]},"queries":[{"text":"light","count":2},{"text":"healer","count":2},{"text":"unrelated","count":2}]}

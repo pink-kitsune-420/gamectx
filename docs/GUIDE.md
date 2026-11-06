@@ -344,3 +344,64 @@ check, not a model-accuracy result. [The tested example](../examples/registered-
 runs with `cargo run --example registered-facts`. Use `Journal` for observations and
 `EvidenceMemory` for tentative reasoning; neither automatically promotes ideas into
 registered facts. The host owns archive I/O, validation and any model-facing tool routing.
+
+## Reuse and checked runtime work
+
+Start with the [tested synthetic host example](../examples/runtime-upgrades.rs):
+`cargo run --example runtime-upgrades`. It makes no real requests or game actions.
+
+Build `RecallIndex` from records already filtered by subject, time and consent. Keep the
+original IDs/provenance in the host, and rebuild the index after edits or forgetting.
+Enable suffix normalization/aliases explicitly and test false matches as well as misses.
+No match now returns nothing, so make any fallback policy explicit. The selective fixture
+uses 100 posting visits for 100 queries/1,000 records versus 100,000 full-scan record
+visits; construction/storage costs are extra. Two simple alias/normalization matches
+are integrity examples, not evidence of broad semantic accuracy.
+
+Use a host-validated `Playbook` when a situation has a known procedure. Store exact fact
+references and typed required values with each recipe. On reuse, the library checks
+current facts and asks your callback to validate the action and arguments under current
+schemas, resources and permissions. The returned draft still needs execution-time checks.
+One repeated fixture matched 100/100 locally; no measured live API savings are claimed.
+Changed source revisions invalidate a procedure even if its value happens to stay equal.
+
+For learning, call `OutcomeTracker::begin` when considering a trial, `executed` only
+after native success, and `exposed` only after an actual observation opportunity. Supply
+a measured score through `resolve`, then consume `take_label` once, joining its ID to
+your retained input/action record. Send it through existing holdout/mask/pin/replay guards
+before accepting any weight change. If the actor never had a chance to notice the action,
+leave it unknown. Offline checks produce 100 labels, zero unexposed labels and zero
+replayed labels; they do not establish causality or gameplay quality.
+
+Use `TemporalWindow` for bounded native counts, rates, numeric changes or event sequences.
+Each source event needs a distinct monotonic ID and original time. Mark observation gaps
+unavailable; doing so clears old data and returns unknown instead of zero. Reset coverage
+on privacy/subject/world changes and erasure. Retain source watermarks durably if your
+engine replays events across restarts. These helpers create features; they do not infer
+personality, motives or certain habits from repeated events.
+
+Use `BrainBundle` when perception is the same for several candidate reactions. Prepare
+once for one actor/frame, then run the decision module for each candidate with imported
+slots empty. Original unknowns remain unknown. New frames and compatible module updates
+invalidate prior sealed results. Train cloned perception/decision modules independently
+using existing validation, then replace one; the other module's pins/history stay intact.
+Three fresh cohorts produced 3,600 predictions identical to duplicate evaluation. For
+12 candidates on each of 100 frames, module evaluations fall 2,400→1,300. Paired release
+medians for 12,000 candidates: 729,906→631,514 ns (zero hidden nodes/module),
+3,341,042→2,014,761 ns (16 hidden). Benchmark your own network sizes/change rates.
+
+For an asynchronous model reply, mint a `RequestGate` ticket with actor/world, schema and
+permission revisions, relevant fact references and TTL. Supply independently captured
+*current* context to accept, never reuse the request's context object as current state.
+A stale result consumes its ticket and is discarded; a fresh one still needs your normal
+native action validation. Drop/cancel outstanding work on disconnects or consent changes.
+No state ticket can detect a dependency the host omitted.
+
+For hosted requests, reserve the full worst-case cost in `SpendingLedger`, atomically
+persist it, mark dispatch durably and then send. Settle reported usage afterward; each
+retry gets a new reservation. Recovery conservatively charges interrupted requests at
+their full estimates, and metering overruns block new paid reservations. Free/local
+fallback remains possible. The library handles accounting, while your host owns pricing,
+HTTP limits/concurrency, durable saves and operator controls. All seven additions and
+their checks used $0 API; [the eval guide](../eval/README.md#optional-runtime-upgrades)
+records methods and limits.

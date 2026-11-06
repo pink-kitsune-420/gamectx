@@ -1,0 +1,1 @@
+{"kind":"temporal","capacity":8,"window":10,"start":0,"operations":[{"op":"observe","token":1,"now":1,"expires":20,"kind":"visit","value":8},{"op":"observe","token":2,"now":2,"expires":20,"kind":"rest","value":5},{"op":"observe","token":3,"now":3,"expires":20,"kind":"visit","value":2},{"op":"observe","token":3,"now":4,"expires":20,"kind":"visit","value":1}]}

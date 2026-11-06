@@ -173,7 +173,7 @@ fn decimal(s: &str) -> Result<(bool, String, i64)> {
     let power = exponent - fraction + (significant.len() - coefficient.len()) as i64;
     Ok((negative, coefficient.into(), power))
 }
-fn validate_value(v: &Value) -> Result<()> {
+pub(crate) fn validate_value(v: &Value) -> Result<()> {
     fn visit(v: &Value, depth: usize, nodes: &mut usize) -> Result<()> {
         *nodes += 1;
         if depth > 8 || *nodes > 256 {
@@ -239,6 +239,10 @@ impl FactRegistry {
             return Err(bad("fact clock moved backward or exceeded bounds"));
         }
         Ok(())
+    }
+    pub(crate) fn validate_read(&self, now: u64, denied: &[String]) -> Result<()> {
+        self.time(now)?;
+        privacy(denied, 32)
     }
     fn active(&self, index: usize, now: u64, denied: &[String], cache: &mut [u8; MAX_FACTS]) -> bool {
         if cache[index] != 0 {

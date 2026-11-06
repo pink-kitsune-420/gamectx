@@ -1,0 +1,1 @@
+{"kind":"ledger","limit":100,"window":10,"operations":[{"op":"reserve","now":0,"amount":60},{"op":"reserve","now":0,"amount":30},{"op":"dispatch","now":1,"id":1},{"op":"cancel","now":1,"id":2},{"op":"finish","now":2,"id":1,"actual":40},{"op":"summary","now":2},{"op":"reserve","now":3,"amount":60},{"op":"recover","now":4},{"op":"summary","now":4},{"op":"summary","now":14}]}

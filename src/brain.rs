@@ -19,6 +19,7 @@
 use crate::json::{Error, Result, Value};
 
 mod bindings;
+mod bundle;
 mod cache;
 mod diagnostics;
 mod infer;
@@ -27,6 +28,7 @@ mod learn;
 mod stability;
 mod tools;
 pub use bindings::{BoundBrain, FeatureSchema, Features};
+pub use bundle::{BrainBundle, PreparedFrame};
 pub use cache::{CacheStats, CachedBrain, MAX_CACHE_ENTRIES};
 pub use infer::{Prediction, SCALE};
 pub use job::TrainingJob;

@@ -1,0 +1,26 @@
+{
+  "api_spend_usd": 0,
+  "recall": {
+    "records": 1000,
+    "queries": 100,
+    "scan_record_visits": 100000,
+    "index_posting_visits": 100,
+    "normalized_alias_hits": 2
+  },
+  "bundle": {
+    "frames": 100,
+    "candidates_per_frame": 12,
+    "naive_module_evaluations": 2400,
+    "shared_module_evaluations": 1300
+  },
+  "outcomes": {
+    "observed_labels": 100,
+    "unexposed_trainable": 0,
+    "replay_labels": 0
+  },
+  "playbook": {
+    "repeated_matches": 100,
+    "checks": 100
+  },
+  "limitations": "Deterministic operation counts and integrity fixtures, not LLM accuracy, token usage, causal learning or measured frame times."
+}

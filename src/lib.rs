@@ -17,11 +17,18 @@
 //! - [`memory`]: long-term records, scoped facts and cited hypotheses with expiry/privacy, with a
 //!   legacy `remember` tool for the model.
 //! - [`facts`]: explicit host/user assertions, pins, versioned dependencies and exact typed claim checks.
+//! - [`recall`]: optional immutable lexical indexes with host aliases and word normalization.
+//! - [`playbook`]: reusable host-validated procedures with current versioned prerequisites.
+//! - [`outcome`]: execution/exposure-gated, single-consumption training labels.
+//! - [`temporal`]: native event windows, rates and ordered sequence counts.
+//! - [`requests`]: sealed one-use asynchronous result tickets with freshness checks.
+//! - [`spending`]: integer reservations, settlement and conservative crash recovery.
 //! - [`query`]: a small SQL `SELECT` the model writes and the game runs exactly, for
 //!   filters and totals models get wrong when they read the data themselves.
 //!   Table descriptions keep rows in the game; correction sessions allow one retry.
 //! - [`brain`]: small game-defined reaction networks with deterministic local inference,
 //!   guarded/sliced training, native inference, versioned bindings, diagnostics and optional stability/caching.
+//!   [`brain::BrainBundle`] reuses one sealed perception frame across decision candidates.
 //! - [`replay`]: bounded observation/state traces with diagnostic and recorded-latency summaries.
 //! - [`schedule`]: bounded event-driven actor scheduling with periodic refresh.
 //! - [`sync`]: acknowledged context snapshots/deltas with strict reconstruction and resynchronization.
@@ -48,6 +55,7 @@
 pub mod brain;
 pub mod budget;
 pub mod catalog;
+mod checked;
 pub mod context;
 pub mod estimate;
 pub mod facts;
@@ -55,13 +63,19 @@ pub mod formula;
 pub mod json;
 pub mod manifest;
 pub mod memory;
+pub mod outcome;
+pub mod playbook;
 pub mod query;
+pub mod recall;
 pub mod replay;
+pub mod requests;
 pub mod schedule;
 pub mod schema;
 pub mod signatures;
+pub mod spending;
 pub mod sync;
 pub mod table;
+pub mod temporal;
 pub mod view;
 
 pub use context::{Context, Table, Turn};

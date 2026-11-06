@@ -34,6 +34,10 @@ noted; "3 models" adds Llama 3.3 70B.
 | Host query meanings | Three fresh 24-row states, 30 questions/model: schema 36/60 → meanings 45/60 (3B 12→18; 24B 24→27). Token-only input 205/190 → 365/352. Token check $0.0001380125 + accuracy $0.0051951 = $0.0053331125. Three descriptions and 120 recorded queries byte-identical. |
 | Scoped journal, native evidence and cited hypotheses | Provenance/expiry/supersession; sealed supplied-evidence views, stale/foreign/dependency/privacy checks and subject/clock-bound restore. Six valid/nine invalid evidence workflows; repeated hypotheses keep observations 2, confidence 0.6 and expiry 30. Total 46 new integration cases, 152 differential workflows, 60,000 added text mutations. |
 | Explicit typed fact registry | Host/user assertions, user precedence/pins, exact decimal claim checks, revision dependencies with transitive invalidation, inherited privacy/physical erasure and budgeted context tables. Offline 128/128 assertion checks; 1,024-byte cap retains 8 in 927 bytes, 120 dropped. 19 new cases, 119 byte-identical workflows, 20,000 text mutations. $0 API; no model-accuracy claim. |
+| Indexed recall and reusable validated procedures | Selective fixture: 100 queries/1,000 records, 100,000 scan record visits→100 index postings, excluding index construction. Two normalized/alias matches 2/2; repeated procedure matches 100/100. Immutable filtered index; exact fact revisions, current action validator, expiry/privacy gates. No live call/token reduction claim. |
+| Outcome labels, temporal features and async freshness | 100 observed labels, zero trainable unexposed trials and zero replay labels. Bounded execution/exposure windows; one-use labels; event counts/rates/sequences with original times/watermarks; sealed one-use actor/world/schema/permissions/fact-bound result tickets. |
+| Shared perception and independent brain modules | 12 candidates × 100 frames: 2,400→1,300 module evaluations; 3,600 identical predictions on seeds 9101/9102/9103 including unknowns. Seven paired release trials/12,000 candidates: 729,906→631,514 ns (0 hidden) and 3,341,042→2,014,761 ns (16 hidden). Scope/frame/module replacement invalidation. |
+| Runtime spending reservations | Integer microdollars, concurrent reservations/retries, dispatch/cancel/settle phases, ambiguous crash charges, overrun blocking and free fallback. Entire upgrade batch: 40 new cases, 283 byte-identical workflows, 54,000 added text mutations, $0 API. |
 
 ## Measured and rejected
 
@@ -65,10 +69,11 @@ noted; "3 models" adds Llama 3.3 70B.
 - Provider prompt-cache discounts; the small-model query token check omitted cached-token accounting, so discounts remain unverified.
 - Ports (TypeScript first, then C#/Python) checked against `conformance/`.
 - Feedback from the first real game integration once its gaps list arrives.
+- Measure indexed-recall precision and procedure eligibility on real host questions; aliases/normalization remain opt-in and live request savings are unmeasured.
 
 ## Known gaps
 
-- Word matching is literal plus an optional plural `s`: "lighting" does not match "light".
+- Legacy word matching is literal plus an optional plural `s`; optional `RecallIndex` adds simple English suffix normalization/host aliases, not semantic embeddings or a multilingual stemmer.
 - Numeric filtering by reading rows fails in every format; use `where` or have the model request a `query`.
 - Query is a SQL subset: one table, AND/IN, no joins, subqueries or GROUP BY; ORDER BY/LIMIT run before aggregates. Arithmetic uses 64-bit floats.
 - Schema-only requests can confuse semantic labels (`unique` rarity became count = 1). Valid but wrong queries do not retry.
@@ -80,3 +85,4 @@ noted; "3 models" adds Llama 3.3 70B.
 - Sync deltas compress host transfer, not automatically LLM input/history; integrations reconstruct snapshots or implement explicit state handling. Actual local prefix-cache tokens/timings remain unmeasured without a running server.
 
 - Evidence validation establishes source availability/provenance, not logical entailment or calibrated confidence. Host evidence collection, consent, clock progression and archival storage remain integration responsibilities.
+- Indexed recall owns a filtered snapshot and must be rebuilt after edits/erasure/privacy changes. Outcome/temporal trackers are transient; hosts supply source IDs, coverage, clocks and any durable history. Runtime ledger persistence/prices and current permission checks remain host responsibilities. Reusable drafts and observed outcomes do not prove causal effectiveness.

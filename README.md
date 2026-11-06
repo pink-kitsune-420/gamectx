@@ -185,7 +185,7 @@ See [docs/FORMAT.md](docs/FORMAT.md) for every field and packed shape.
 
 ### Porting
 
-The formats are defined by 326 shared [conformance cases](conformance/README.md), each an input
+The formats are defined by 366 shared [conformance cases](conformance/README.md), each an input
 plus its exact expected output. A port in Java, JavaScript or anything else is
 conformant when it passes all of them, so every project using gamectx can check itself
 against the same files.
@@ -618,6 +618,45 @@ cargo run --example registered-facts
 The [tested example](examples/registered-facts.rs) covers registration, pins, claim checks,
 dependency invalidation, persistence and packet assembly. [Format and limits](docs/FORMAT.md#registered-facts)
 and [offline reproduction](eval/README.md#registered-facts) describe the contract.
+
+### Reuse knowledge and computations in the game loop
+
+Seven optional APIs extend the existing building blocks; default recall, tools and brain
+formats keep their behavior:
+
+| API | Purpose |
+|---|---|
+| `recall::RecallIndex` | Build a lexical index once; optional word normalization and host aliases, with no unrelated fallback. Rebuild after source/privacy changes. |
+| `playbook::Playbook` | Return reusable action drafts only when exact fact versions/values, expiry, privacy and a current host action validator pass. |
+| `outcome::OutcomeTracker` | Require execution and observation opportunity before accepting a host score; consume a training label once. Unseen trials remain unknown. |
+| `temporal::TemporalWindow` | Count distinct native events, rates, numeric changes and ordered sequences within bounded windows. Missing observation coverage stays unknown. |
+| `brain::BrainBundle` | Prepare perception once per scope/frame and reuse its normalized output ports across candidate decisions. Modules train independently; replacements invalidate prepared frames. |
+| `requests::RequestGate` | Consume sealed result tickets once, checking actor/world, schema/permission revisions, fact versions, privacy and expiry. |
+| `spending::SpendingLedger` | Reserve integer microdollars before dispatch; settle usage, cover concurrent requests/retries, and retain worst-case charges after interrupted requests. |
+
+Offline selective recall: 100 queries over 1,000 records visited 100 index postings versus
+100,000 record visits for a full scan (index construction excluded). Two normalization/alias
+examples matched 2/2; broader retrieval precision remains unmeasured. A repeated validated
+procedure matched 100/100 checks; this measures local reuse opportunities, not avoided
+provider calls in a live game. Outcome fixtures returned 100 observed labels, zero trainable
+unexposed trials and zero duplicate labels.
+
+With 12 candidates on each of 100 frames, shared perception reduces module evaluations
+2,400→1,300. All 3,600 candidate predictions on fresh seeds 9101/9102/9103 match duplicate
+evaluation exactly, including unknown inputs. A seven-trial paired release benchmark for
+12,000 candidates measured 729,906→631,514 ns with no hidden nodes and
+3,341,042→2,014,761 ns with 16 hidden nodes/module. Workload and hardware matter;
+this is not a measured game-frame or model-accuracy improvement. All new checks cost $0 API.
+
+```bash
+cargo run --example runtime-upgrades
+```
+
+The [tested synthetic example](examples/runtime-upgrades.rs) combines all seven APIs.
+See [the guide](docs/GUIDE.md#reuse-and-checked-runtime-work),
+[format contracts](docs/FORMAT.md#optional-runtime-upgrades) and
+[measurements](eval/README.md#optional-runtime-upgrades). The host retains world sensing,
+permissions, action execution, durable storage, provider pricing and request dispatch.
 
 ## Be honest with your numbers
 

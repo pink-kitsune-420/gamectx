@@ -1,0 +1,1 @@
+{"kind":"ledger","limit":100,"window":10,"operations":[{"op":"reserve","now":0,"amount":20},{"op":"dispatch","now":1,"id":1},{"op":"cancel","now":2,"id":1}]}

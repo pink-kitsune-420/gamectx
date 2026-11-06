@@ -1,0 +1,1 @@
+{"results":[1,2,null,null,null,{"spent":40,"blocked":false,"pending":0},3,null,{"spent":100,"blocked":false,"pending":0},{"spent":0,"blocked":false,"pending":0}],"state":{"version":1,"limit":100,"window":10,"clock":4,"next":3,"blocked":false,"entries":[{"id":1,"at":2,"amount":40,"state":"settled"},{"id":3,"at":4,"amount":60,"state":"settled"}]}}

@@ -626,3 +626,70 @@ model-written typed claims/values and saved registry text, checking bounded pars
 no read mutation, atomic rejected registrations and successful restore round-trips.
 All previous 307 conformance fixtures remain unchanged. This addition costs $0 API;
 the preceding model-meaning token/accuracy checks together cost $0.0053331125.
+
+## Optional runtime upgrades
+
+`upgrades_eval.py` is an independent offline Python prototype for indexed recall,
+validated procedures, observable outcomes, temporal features, shared perception frames,
+asynchronous context tickets and runtime spending reservations. No API calls, keys or
+provider libraries are used. Original model tools and all earlier 326 conformance cases
+remain unchanged.
+
+```bash
+python3 -I eval/test_upgrades.py
+python3 -I eval/upgrades_eval.py
+cargo build --release --locked
+rustc --edition=2021 -O eval/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
+python3 -I eval/upgrades_eval.py --check
+rustc --edition=2021 -O eval/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench
+./target/upgrades-bench
+cargo run --example runtime-upgrades
+```
+
+[Deterministic results](upgrades-results.json):
+
+| Check | Result |
+|---|---|
+| Selective recall, 100 queries/1,000 records | 100,000 scan record visits versus 100 index postings |
+| Optional normalization/host aliases | 2/2 illustrative matches |
+| Repeated validated procedure | 100/100 checks return a draft |
+| Observed training labels | 100; zero unexposed labels; zero duplicate labels |
+| Shared perception, 100 frames ×12 candidates | 2,400 naive versus 1,300 shared module evaluations |
+| API spend | $0 |
+
+The recall fixture uses unique marker terms; common terms can still visit every record.
+Index construction, storage and rebuild costs are excluded from the visit count. It is
+not an embeddings benchmark or general retrieval-accuracy result. Procedures offer local
+reuse opportunities, not measured avoided model calls. Host-observed labels do not prove
+an action caused a response. Temporal rates require actual host observation coverage.
+
+Differential checks cover 283 workflows: 40 conformance cases (18 positive/rejection-report
+workflows, 22 errors), 240 generated recall/outcome/temporal/ledger workflows and three
+bundle cohorts with 100 frames/12 candidates each. Fresh seeds 9101/9102/9103 include
+unknown perception inputs; all 3,600 candidate predictions also match duplicate native
+module evaluation exactly. Unit tests cover cross-instance tickets, changed contexts,
+privacy/capacity/expiry, current argument validation, failed atomic updates, module teaching
+isolation, source replay and conservative ledger restore. Expected outputs were reviewed
+for exact source/version/phase semantics. In particular issued and current request
+contexts are independent copies; changed actor/world/schema/permissions must return false.
+
+[Paired release benchmark](upgrades-bench-results.json), seven alternating trials, median
+nanoseconds for 1,000 frames ×12 candidates; both paths use existing native inference,
+prebuilt modules and the same inputs. Bundle preparation is included; construction is
+excluded. Checksums agree before and during timing; native unit tests compare full results.
+
+| Hidden nodes/module | Duplicate perception ns | Shared perception ns |
+|---|---:|---:|
+| 0 | 729,906 | 631,514 |
+| 16 | 3,341,042 | 2,014,761 |
+
+These timings cover two synthetic sizes on one machine, not engine frame times. A
+prepared identity/scope allocates once per cycle; candidate `run_into` uses stack storage.
+Measurements do not imply equal gains for every module mix or candidate count.
+
+Mutation checks add 14,000 seven-kind workflow texts plus 40,000 authored configuration,
+saved module/ledger and request-context texts. Parsers have byte bounds, native data
+has count/depth limits, failed primitive updates stay atomic, and successful loads
+round-trip. Ledger recovery deliberately settles pending reservations; second same-time
+restore is stable. No live paid requests occur in CI. The [format contract](../docs/FORMAT.md#optional-runtime-upgrades)
+separates library checks from host sensing, validation, archive and billing duties.

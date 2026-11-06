@@ -1,0 +1,1 @@
+{"kind":"outcomes","capacity":4,"operations":[{"op":"begin","id":1,"now":0,"wait":10,"window":5},{"op":"execute","id":1,"now":1},{"op":"expose","id":1,"now":4},{"op":"resolve","id":1,"now":6,"score":800000},{"op":"report","id":1,"now":20}]}

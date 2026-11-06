@@ -198,3 +198,10 @@ mod registered_facts;
 fn documented_registered_facts_example() -> gamectx::Result<()> {
     registered_facts::main()
 }
+
+#[path = "../examples/runtime-upgrades.rs"]
+mod runtime_upgrades;
+#[test]
+fn documented_runtime_upgrades_example() -> gamectx::Result<()> {
+    runtime_upgrades::main()
+}

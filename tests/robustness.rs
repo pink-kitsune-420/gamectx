@@ -470,3 +470,99 @@ fn registered_fact_claims_and_saved_states_are_bounded_and_atomic() {
         }
     }
 }
+
+#[path = "support/upgrades.rs"]
+mod upgrades;
+
+#[test]
+fn runtime_upgrade_workflow_text_is_bounded() {
+    let seeds = [
+        include_str!("../conformance/upgrades/recall-aliases/input.json"),
+        include_str!("../conformance/upgrades/outcome-one-label/input.json"),
+        include_str!("../conformance/upgrades/temporal-windows/input.json"),
+        include_str!("../conformance/upgrades/ledger-concurrent-recovery/input.json"),
+        include_str!("../conformance/upgrades/playbook-current-preconditions/input.json"),
+        include_str!("../conformance/upgrades/request-current/input.json"),
+        include_str!("../conformance/upgrades/bundle-reuse/input.json"),
+    ];
+    let mut rng = Rng(0x0A11_0123_4567_8910);
+    for i in 0..14000 {
+        let text = mutate(&mut rng, seeds[i % 7]);
+        if let Ok(v) = parse(&text, 1 << 16) {
+            if let Ok(result) = upgrades::process(&v) {
+                assert_eq!(parse(&result.to_json(), 1 << 20).unwrap(), result);
+            }
+        }
+    }
+}
+
+#[test]
+fn saved_runtime_and_authored_configuration_mutations_round_trip() {
+    use gamectx::{
+        brain::BrainBundle, playbook::Playbook, recall::RecallIndex, requests::RequestContext, spending::SpendingLedger,
+    };
+    let workflow = parse(include_str!("../conformance/upgrades/bundle-reuse/input.json"), 1 << 16).unwrap();
+    let bundle = BrainBundle::new(
+        gamectx::brain::Brain::from_value(workflow.get("perception").unwrap()).unwrap(),
+        gamectx::brain::Brain::from_value(workflow.get("decision").unwrap()).unwrap(),
+        workflow.get("ports").unwrap(),
+    )
+    .unwrap()
+    .to_value()
+    .to_json();
+    let book = parse(include_str!("../conformance/upgrades/playbook-current-preconditions/input.json"), 1 << 16)
+        .unwrap()
+        .get("recipes")
+        .unwrap()
+        .to_json();
+    let mut ledger = SpendingLedger::new(100, 10).unwrap();
+    ledger.reserve(0, 60).unwrap();
+    let ledger = ledger.to_value().to_json();
+    let context = parse(include_str!("../conformance/upgrades/request-current/input.json"), 1 << 16)
+        .unwrap()
+        .get("operations")
+        .unwrap()
+        .as_array()
+        .unwrap()[0]
+        .get("context")
+        .unwrap()
+        .to_json();
+    let config = r#"{"normalize":true,"aliases":[["healer","medic"]]}"#;
+    let seeds = [bundle.as_str(), book.as_str(), ledger.as_str(), context.as_str(), config];
+    let mut rng = Rng(0x0B11_9123_4567_8910);
+    for i in 0..40000 {
+        let text = mutate(&mut rng, seeds[i % 5]);
+        match i % 5 {
+            0 => {
+                if let Ok(state) = BrainBundle::restore_json(&text) {
+                    let saved = state.to_value();
+                    assert_eq!(BrainBundle::restore(&saved).unwrap().to_value(), saved);
+                }
+            }
+            1 => {
+                if let Ok(book) = Playbook::from_json(&text) {
+                    let saved = book.to_value();
+                    assert_eq!(Playbook::from_value(&saved).unwrap().to_value(), saved);
+                }
+            }
+            2 => {
+                if let Ok(ledger) = SpendingLedger::restore_json(&text, u32::MAX as u64) {
+                    let saved = ledger.to_value();
+                    assert_eq!(SpendingLedger::restore(&saved, u32::MAX as u64).unwrap().to_value(), saved);
+                }
+            }
+            3 => {
+                if let Ok(v) = parse(&text, 1 << 16) {
+                    let _ = RequestContext::from_value(&v);
+                }
+            }
+            _ => {
+                if let Ok(v) = parse(&text, 1 << 16) {
+                    if let Ok(index) = RecallIndex::new(&[], &v) {
+                        let _ = index.search("healer", 8);
+                    }
+                }
+            }
+        }
+    }
+}

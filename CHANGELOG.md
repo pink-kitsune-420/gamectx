@@ -13,6 +13,20 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds opt-in `RecallIndex`, `Playbook`, `OutcomeTracker`, `TemporalWindow`,
+  `BrainBundle`/`PreparedFrame`, `RequestGate`/`RequestContext`/`RequestTicket` and
+  `SpendingLedger`. No new default model tools or network/file I/O. Procedures require
+  current native validation; outcome labels require execution/exposure and single use;
+  prepared frames and request tickets are instance-bound and invalidated on change.
+- **[format]** Adds strict recall configuration/reports, procedure definitions/drafts,
+  outcome/temporal reports, module-bundle envelopes, request contexts and ledger state.
+  Adds 40 `upgrades` conformance cases; all preceding 326 remain byte-identical.
+- **[docs]** Offline recall work: 100,000 scan visits→100 postings for 100 selective
+  queries/1,000 records. Shared module evaluations 2,400→1,300 per 100 frames; 3,600
+  held-out predictions unchanged. Paired 12,000-candidate release medians:
+  729,906→631,514 ns (0 hidden), 3,341,042→2,014,761 ns (16 hidden). 100/100 repeated
+  procedure matches; 100 observed labels, zero unexposed/replayed labels. 283 reference
+  workflows, 54,000 new text mutations; $0 API, no new model-accuracy claim.
 - **[api]** Adds `facts::FactRegistry`, host/user authority, explicit pins, exact typed
   claim checks, versioned dependencies, privacy erasure and `Turn::facts`. Native
   registration stays separate from model proposals. Source changes invalidate derived
