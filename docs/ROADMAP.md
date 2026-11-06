@@ -16,7 +16,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | `memory` recall | −84% tokens vs a 60-event history, 20/20 both |
 | `round` view | about one token per dropped digit per number (−5% for one place here) |
 
-## Implemented (unreleased)
+## Shipped (0.1.0-alpha.3)
 
 | Item | Result |
 |---|---|

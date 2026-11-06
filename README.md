@@ -156,7 +156,9 @@ packet: 1906 bytes; budget 2000 bytes
 ## Quick start
 
 ```bash
-cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.2
+cargo install gamectx --version '=0.1.0-alpha.3' --locked
+# or, from the matching Git tag:
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.1.0-alpha.3
 # or, from a clone:
 cargo build --release
 ./target/release/gamectx report examples/ember-keep/manifest.json
@@ -202,6 +204,13 @@ Only a hash of the scope name is stored.
 
 ## Use it in your code
 
+Pin the alpha version in `Cargo.toml`:
+
+```toml
+[dependencies]
+gamectx = "=0.1.0-alpha.3"
+```
+
 Register what stays the same once, then set what changes each turn:
 
 ```rust
@@ -244,7 +253,7 @@ packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
 ```
 
 The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
-you need full control; see the [API docs](https://docs.rs/gamectx) once published, or
+you need full control; see the [API docs](https://docs.rs/gamectx/0.1.0-alpha.3/gamectx/), or
 `cargo doc --open`.
 
 ### Give the model a query tool

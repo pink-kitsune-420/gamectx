@@ -13,6 +13,12 @@ know what an upgrade costs:
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0-alpha.3 — 2026-11-06
+
+- **[docs]** Adds exact-version crates.io installation/dependency instructions for the
+  library and CLI, alongside the matching Git tag.
 - **[api]** Adds opt-in `RecallIndex`, `Playbook`, `OutcomeTracker`, `TemporalWindow`,
   `BrainBundle`/`PreparedFrame`, `RequestGate`/`RequestContext`/`RequestTicket` and
   `SpendingLedger`. No new default model tools or network/file I/O. Procedures require
