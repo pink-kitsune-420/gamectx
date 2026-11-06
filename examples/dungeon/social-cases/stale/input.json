@@ -1,0 +1,46 @@
+{
+  "seed": 7,
+  "operations": [
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:gallery"
+        }
+      }
+    },
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:workshop"
+        }
+      }
+    },
+    {
+      "op": "prepare",
+      "args": {
+        "speaker": "merchant",
+        "input": "My name is Fen."
+      }
+    },
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "look",
+          "target": "room:workshop"
+        }
+      }
+    },
+    {
+      "op": "finish",
+      "args": {
+        "ticket": "chat_1",
+        "text": "{\"speech\": \"Welcome, Fen.\", \"tone\": \"warm\", \"fact_ids\": [], \"memory_ids\": []}"
+      }
+    }
+  ]
+}

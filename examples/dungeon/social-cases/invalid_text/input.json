@@ -1,0 +1,36 @@
+{
+  "seed": 7,
+  "operations": [
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:gallery"
+        }
+      }
+    },
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:workshop"
+        }
+      }
+    },
+    {
+      "op": "prepare",
+      "args": {
+        "speaker": "merchant",
+        "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "speaker": "merchant"
+      }
+    }
+  ]
+}

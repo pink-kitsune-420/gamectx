@@ -183,6 +183,38 @@ pub fn render_chat(packet: &Value) -> Result<Value> {
     msgs.push(obj! {"role"=>"user","content"=>data.to_json()});
     Ok(obj! {"messages"=>msgs})
 }
+/// Alternative rendering: context data precedes the current utterance as plain text
+/// in the final native user message. Keeps supplied dialogue verbatim; never inserts
+/// ChatML or estimates a tokenizer. Count the complete final provider rendering.
+pub fn render_direct(packet: &Value) -> Result<Value> {
+    bounded(packet, MAX_REQUEST_BYTES)?;
+    let fields = packet.as_object().ok_or_else(c::bad)?;
+    let current = c::get(packet, "input")?;
+    c::fields(current, &["id", "text"])?;
+    let input = c::text(c::get(current, "text")?)?;
+    c::text(c::get(current, "id")?)?;
+    c::text(c::get(packet, "rules")?)?;
+    let history = c::list(c::get(packet, "dialogue")?)?;
+    if history.len() > 256 || history.len() % 2 != 0 {
+        return Err(c::bad());
+    }
+    for (i, message) in history.iter().enumerate() {
+        c::fields(message, &["role", "content"])?;
+        if c::text(c::get(message, "role")?)? != if i % 2 == 0 { "user" } else { "assistant" } {
+            return Err(c::bad());
+        }
+        c::text(c::get(message, "content")?)?;
+    }
+    let mut messages = vec![obj! {"role"=>"system","content"=>c::get(packet,"rules")?.clone()}];
+    messages.extend(c::list(c::get(packet, "dialogue")?)?.iter().cloned());
+    let data = Value::Object(
+        fields.iter().filter(|(k, _)| !["rules", "dialogue", "input"].contains(&k.as_str())).cloned().collect(),
+    );
+    messages.push(
+        obj! {"role"=>"user","content"=>format!("Context data:\n{}\n\nCurrent request:\n{input}",data.to_json())},
+    );
+    Ok(obj! {"messages"=>messages})
+}
 impl Scene {
     pub fn from_value(v: &Value) -> Result<Self> {
         bounded(v, MAX_REQUEST_BYTES)?;

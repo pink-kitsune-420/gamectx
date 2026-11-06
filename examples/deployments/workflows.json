@@ -1,0 +1,1154 @@
+[
+  {
+    "guideline": {
+      "size_class": "1b",
+      "nominal_parameter_millions": 1000,
+      "task": "Classify one intent or select a supplied legal pair.",
+      "content_tokens_min_hint": 400,
+      "content_tokens_max_hint": 700,
+      "choices_hint": 4,
+      "context_start": 2048,
+      "output_start": 64,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "1b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 4,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1b",
+      "nominal_parameter_millions": 1000,
+      "task": "Classify one intent or select a supplied legal pair.",
+      "content_tokens_min_hint": 400,
+      "content_tokens_max_hint": 700,
+      "choices_hint": 4,
+      "context_start": 2048,
+      "output_start": 64,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 64,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "1b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 1,
+      "recall_hint": 1,
+      "choices_hint": 4,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1b",
+      "nominal_parameter_millions": 1000,
+      "task": "Classify one intent or select a supplied legal pair.",
+      "content_tokens_min_hint": 400,
+      "content_tokens_max_hint": 700,
+      "choices_hint": 4,
+      "context_start": 2048,
+      "output_start": 64,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 64,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "1b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 4,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1b",
+      "nominal_parameter_millions": 1000,
+      "task": "Classify one intent or select a supplied legal pair.",
+      "content_tokens_min_hint": 400,
+      "content_tokens_max_hint": 700,
+      "choices_hint": 4,
+      "context_start": 2048,
+      "output_start": 64,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 64,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "1b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 4,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1.5b",
+      "nominal_parameter_millions": 1500,
+      "task": "Extract one intent and entity, or select a few prefiltered legal choices.",
+      "content_tokens_min_hint": 500,
+      "content_tokens_max_hint": 900,
+      "choices_hint": 6,
+      "context_start": 2048,
+      "output_start": 96,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "1.5b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 6,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1.5b",
+      "nominal_parameter_millions": 1500,
+      "task": "Extract one intent and entity, or select a few prefiltered legal choices.",
+      "content_tokens_min_hint": 500,
+      "content_tokens_max_hint": 900,
+      "choices_hint": 6,
+      "context_start": 2048,
+      "output_start": 96,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 96,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "1.5b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 1,
+      "recall_hint": 1,
+      "choices_hint": 6,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1.5b",
+      "nominal_parameter_millions": 1500,
+      "task": "Extract one intent and entity, or select a few prefiltered legal choices.",
+      "content_tokens_min_hint": 500,
+      "content_tokens_max_hint": 900,
+      "choices_hint": 6,
+      "context_start": 2048,
+      "output_start": 96,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 96,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "1.5b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 6,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "1.5b",
+      "nominal_parameter_millions": 1500,
+      "task": "Extract one intent and entity, or select a few prefiltered legal choices.",
+      "content_tokens_min_hint": 500,
+      "content_tokens_max_hint": 900,
+      "choices_hint": 6,
+      "context_start": 2048,
+      "output_start": 96,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 96,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "1.5b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 6,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "3b",
+      "nominal_parameter_millions": 3000,
+      "task": "Handle one scene and a bounded decision or short grounded narration.",
+      "content_tokens_min_hint": 800,
+      "content_tokens_max_hint": 1400,
+      "choices_hint": 8,
+      "context_start": 2048,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "3b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 8,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "3b",
+      "nominal_parameter_millions": 3000,
+      "task": "Handle one scene and a bounded decision or short grounded narration.",
+      "content_tokens_min_hint": 800,
+      "content_tokens_max_hint": 1400,
+      "choices_hint": 8,
+      "context_start": 2048,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 128,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "3b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 1,
+      "recall_hint": 2,
+      "choices_hint": 8,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "3b",
+      "nominal_parameter_millions": 3000,
+      "task": "Handle one scene and a bounded decision or short grounded narration.",
+      "content_tokens_min_hint": 800,
+      "content_tokens_max_hint": 1400,
+      "choices_hint": 8,
+      "context_start": 2048,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 128,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "3b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 8,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "3b",
+      "nominal_parameter_millions": 3000,
+      "task": "Handle one scene and a bounded decision or short grounded narration.",
+      "content_tokens_min_hint": 800,
+      "content_tokens_max_hint": 1400,
+      "choices_hint": 8,
+      "context_start": 2048,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 2048,
+        "output": 128,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "3b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 8,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "8b",
+      "nominal_parameter_millions": 8000,
+      "task": "Test richer single-scene reasoning with bounded tool use.",
+      "content_tokens_min_hint": 1000,
+      "content_tokens_max_hint": 2200,
+      "choices_hint": 16,
+      "context_start": 4096,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 4096,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "8b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 16,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "8b",
+      "nominal_parameter_millions": 8000,
+      "task": "Test richer single-scene reasoning with bounded tool use.",
+      "content_tokens_min_hint": 1000,
+      "content_tokens_max_hint": 2200,
+      "choices_hint": 16,
+      "context_start": 4096,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 4096,
+        "output": 160,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "8b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 2,
+      "recall_hint": 3,
+      "choices_hint": 16,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "8b",
+      "nominal_parameter_millions": 8000,
+      "task": "Test richer single-scene reasoning with bounded tool use.",
+      "content_tokens_min_hint": 1000,
+      "content_tokens_max_hint": 2200,
+      "choices_hint": 16,
+      "context_start": 4096,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 4096,
+        "output": 192,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "8b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 16,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "8b",
+      "nominal_parameter_millions": 8000,
+      "task": "Test richer single-scene reasoning with bounded tool use.",
+      "content_tokens_min_hint": 1000,
+      "content_tokens_max_hint": 2200,
+      "choices_hint": 16,
+      "context_start": 4096,
+      "output_start": 256,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 4096,
+        "output": 160,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "8b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 16,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "30b",
+      "nominal_parameter_millions": 30000,
+      "task": "Test short explicit multi-step plans with host validation at each step.",
+      "content_tokens_min_hint": 1200,
+      "content_tokens_max_hint": 3200,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 384,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "30b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "30b",
+      "nominal_parameter_millions": 30000,
+      "task": "Test short explicit multi-step plans with host validation at each step.",
+      "content_tokens_min_hint": 1200,
+      "content_tokens_max_hint": 3200,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 384,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 192,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "30b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 3,
+      "recall_hint": 4,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "30b",
+      "nominal_parameter_millions": 30000,
+      "task": "Test short explicit multi-step plans with host validation at each step.",
+      "content_tokens_min_hint": 1200,
+      "content_tokens_max_hint": 3200,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 384,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 256,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "30b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "30b",
+      "nominal_parameter_millions": 30000,
+      "task": "Test short explicit multi-step plans with host validation at each step.",
+      "content_tokens_min_hint": 1200,
+      "content_tokens_max_hint": 3200,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 384,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 192,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "30b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "70b",
+      "nominal_parameter_millions": 70000,
+      "task": "Test broader planning or nuanced dialogue while retaining explicit state and tool bounds.",
+      "content_tokens_min_hint": 1500,
+      "content_tokens_max_hint": 4800,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 512,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 32,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "interpret",
+      "size_class": "70b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "choice",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "70b",
+      "nominal_parameter_millions": 70000,
+      "task": "Test broader planning or nuanced dialogue while retaining explicit state and tool bounds.",
+      "content_tokens_min_hint": 1500,
+      "content_tokens_max_hint": 4800,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 512,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 192,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "dialogue",
+      "size_class": "70b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 3,
+      "recall_hint": 6,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "70b",
+      "nominal_parameter_millions": 70000,
+      "task": "Test broader planning or nuanced dialogue while retaining explicit state and tool bounds.",
+      "content_tokens_min_hint": 1500,
+      "content_tokens_max_hint": 4800,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 512,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 256,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "narration",
+      "size_class": "70b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "speech",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  },
+  {
+    "guideline": {
+      "size_class": "70b",
+      "nominal_parameter_millions": 70000,
+      "task": "Test broader planning or nuanced dialogue while retaining explicit state and tool bounds.",
+      "content_tokens_min_hint": 1500,
+      "content_tokens_max_hint": 4800,
+      "choices_hint": 32,
+      "context_start": 8192,
+      "output_start": 512,
+      "measured": false,
+      "host_work": "Filter candidates, compute arithmetic, enforce permissions and resolve state changes locally."
+    },
+    "profile": {
+      "version": 1,
+      "name": "trial",
+      "identity": {
+        "model_digest": "fixture-model",
+        "quantization": "Q4_K_M",
+        "template_hash": "fixture-template",
+        "tokenizer": "fixture-tokenizer",
+        "runner": "fixture-runner"
+      },
+      "budget": {
+        "context": 8192,
+        "output": 256,
+        "safety": 256
+      },
+      "threads": 4,
+      "transport": "schema",
+      "guidance": "standard",
+      "temperature_milli": 0
+    },
+    "workflow": {
+      "version": 1,
+      "task": "query",
+      "size_class": "70b",
+      "measured": false,
+      "renderer": "direct",
+      "response": "sql",
+      "exchanges_hint": 0,
+      "recall_hint": 0,
+      "choices_hint": 32,
+      "include_quest_goal": false,
+      "required_policy": "preserve_or_fail",
+      "hint_policy": "editable_not_capability_limits"
+    }
+  }
+]

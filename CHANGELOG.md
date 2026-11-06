@@ -13,6 +13,25 @@ know what an upgrade costs:
 
 ## Unreleased
 
+- **[api]** Adds editable size-and-task workflow profiles for 1B/1.5B/3B/8B/30B/70B,
+  plus opt-in direct current-request rendering. All generic tiers remain unmeasured;
+  hints never authorize dropping required content or loading larger models.
+- **[format]** Adds local kinds `workflow` and `render-direct`, with 30 new conformance
+  cases including errors. All 565 prior expected outputs remain byte-identical.
+- **[api]** Adds human-play AI characters, scoped verbatim player memory, one-use
+  revision-bound speech tickets, bounded natural-language interpretation, phrase-aware
+  entity matching and explicit clarification to the dungeon example. Exact rules retain
+  control over all world changes; generated dialogue can still be semantically wrong.
+- **[internal]** Adds 13 social fixture sets, 43 independent Python/Rust social workflows
+  (507 accepted/11 rejected operations), 360 entity workflows across six seeds, seven
+  fake-generation UI tests and 30,000 social/entity mutation attempts. New core parsing
+  kinds also enter the existing local mutation suite.
+- **[docs]** Retains three local Qwen cohorts: standard/extra-guidance/focused intent
+  2/4, 1/4, 2/4; generation input 7468/8240/6767 tokens, output 525/610/308.
+  Host-slot pilot 7/8, then phrase-aware regression pilot 8/8, including four local
+  deferrals and four correct model choices. Not independent held-out accuracy or a
+  controlled latency/RAM benchmark; all local runs $0 API. [Evidence](docs/WORKFLOWS.md).
+
 - **[api]** Adds the playable `dungeon` example: six rooms, seeded key/prices/health,
   deterministic shop/combat, atomic revision-checked actions, persistent JSON host,
   scene/codec packets, saved replays and optional local-only model-player tooling.

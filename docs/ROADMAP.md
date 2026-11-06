@@ -98,10 +98,21 @@ noted; "3 models" adds Llama 3.3 70B.
 | Replays and packet checkpoints | Six scripted seeds win; 240 mode observations. Raw/scene/named request JSON totals 275,304/261,304/206,347 bytes across 80 matching checkpoints. Raw archive drops at 55 checkpoints; byte/history differences are not isolated tokenizer savings. |
 | Optional local agent | Token-first loopback-only bounded player with complete-turn traces and independent rule/native audits. First Qwen named-mode smoke repeats legal look actions without advancing the quest; validity is not success. API spend $0 per local run. [Guide](../examples/dungeon/README.md). |
 
+## Human-play characters and task workflows (unreleased)
+
+| Item | Result |
+|---|---|
+| Size-and-task profiles | 24 editable templates for 1B/1.5B/3B/8B/30B/70B × interpret/dialogue/narration/query, all marked unmeasured. Thirty new core cases, all 565 prior outputs unchanged; old generic profiles and renderer unchanged. |
+| Direct current utterance | Native chat renderer keeps current text outside nested JSON. Focused 3B cohort generation input/output 6767/308 versus standard 7468/525, both 2/4 intent; bundled task/prompt changes prevent isolating the renderer effect. |
+| Human player, AI characters | Free-form keeper/merchant/narrator speech with scoped original player quotes, bounded dialogue, deletion and one-use revision checks; speech executes no action. 43 independent workflows, 507 accepted/11 rejected operations, 13 fixture sets. |
+| Entity reference guard | Longer overlapping phrases, canonical action type, fresh scoped action focus and targeted revision-bound human clarification. 360 independent workflows across six seeds; 30,000 social/entity mutations; seven fake-generation front-end tests. Example English heuristics, not a universal entity parser. |
+| Local pilot | Three nine-speech/four-intent cohorts, no retries, 26 calls each. Slot pilot 7/8; phrase-aware revision 8/8, four local deferrals plus 4/4 model choices. Revised cases are regression evidence, not fresh holdout. All token/accuracy runs $0 API; no other sizes tested. [Guide and raw artifact checks](WORKFLOWS.md). |
+
 ## Measured and rejected
 
 | Idea | Why not |
 |---|---|
+| More instructions as the default cure for character understanding | Standard intent 2/4, extra grounded instructions 1/4; generation input 7468→8240 and output 525→610 across nine speeches/four intents. Retain opt-in control. Focused prompts still hallucinate tonic effects and seal permission; validation cannot prove prose entailment. |
 | Unmatched choice order as a format-only accuracy comparison | Initial 12-scene codec pilot scored 11/12 for both, but presented different candidate orders. Retain frozen runner/results, exclude that comparison, rerun with matched order (8/12 versus 11/12). No prompt tuning; needs fresh/live replication. |
 | Model-loop timing presented as complete-turn latency | An initial local pilot began timing after hydration. Retain nine completed pilot turns, exclude its timing comparisons, and rerun with native hydration/filtering inside the clock. |
 | Universal default native tools or extra guidance on the local 3B | Six-scene narration pilot: native tools 5/6 with a truncation/retry/fallback, concise/example 6/6 with extra tokens; baseline schema already 6/6. Keep explicit; no size-based winner. |
@@ -125,6 +136,14 @@ noted; "3 models" adds Llama 3.3 70B.
 | Stability as free decision-quality improvement | Switches fell 355→15, but holding sacrificed 2,281,674 utility millionths/720 frames. Keep optional, measure response quality/regret and honor urgency/eligibility immediately. |
 
 ## Next candidates
+
+- Replicate the focused human-play workflow and entity guard on unseen semantic families
+  and states; separate incorrect local bypasses, actual model correctness and clarification
+  burden. New 8/8 pilot reuses regression questions and proves no broad accuracy claim.
+- Measure full human-turn latency, correction cost and runner/system RAM for the new
+  conversation workflow; individual call timings in these diagnostics are insufficient.
+- Test authoritative fact phrasing and bounded speech claims without bloating prompts;
+  current Qwen dialogue can still invent effects or contradict ownership.
 
 - Use the dungeon to measure planning/state-change failures separately from legal output. Test explicit subgoals or validated procedures on new seeds; preserve the original failed smoke rather than silently constraining away repeated look actions.
 

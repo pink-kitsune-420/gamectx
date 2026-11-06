@@ -1,0 +1,15 @@
+{
+  "kind": "workflow",
+  "args": {
+    "size": "30",
+    "task": "interpret",
+    "name": "trial",
+    "identity": {
+      "model_digest": "fixture-model",
+      "quantization": "Q4_K_M",
+      "template_hash": "fixture-template",
+      "tokenizer": "fixture-tokenizer",
+      "runner": "fixture-runner"
+    }
+  }
+}

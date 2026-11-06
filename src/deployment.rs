@@ -2,6 +2,8 @@
 //! model-size rule, template rewriting, model loading or server configuration changes.
 use crate::request::{bounded, RequestBudget};
 use crate::{checked as c, obj, Error, Result, Value};
+mod workflow;
+pub use workflow::{Workload, WorkloadHints};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Identity {

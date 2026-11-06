@@ -17,6 +17,13 @@ const NOISE: &[u8] = b"{}[]\":,\\-+.eE0123456789tfnul \t\nabc#\x01\xc3\xa9";
 #[allow(dead_code)] // Interactive host methods are covered by the dungeon integration test.
 #[path = "../examples/dungeon/game.rs"]
 mod dungeon;
+use dungeon as game;
+#[allow(dead_code)]
+#[path = "../examples/dungeon/intent.rs"]
+mod dungeon_intent;
+#[allow(dead_code)] // Rendering is exercised by the dungeon host integration tests.
+#[path = "../examples/dungeon/social.rs"]
+mod dungeon_social;
 
 struct Rng(u64);
 impl Rng {
@@ -108,6 +115,33 @@ fn dungeon_replays_are_bounded_and_never_panic() {
                 assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
             }
         }
+    }
+}
+
+#[test]
+fn npc_reply_and_memory_parsers_are_bounded_and_atomic() {
+    let seeds = [
+        include_str!("../examples/dungeon/social-cases/remember/input.json"),
+        include_str!("../examples/dungeon/social-cases/bad_memory/input.json"),
+        include_str!("../examples/dungeon/social-cases/stale/input.json"),
+    ];
+    let mut rng = Rng(0x219a_1234_bccc_7771);
+    let mut world = game::Game::new(7).unwrap();
+    world.act(&0.into(), &game::pair("go", Some("room:gallery")));
+    world.act(&1.into(), &game::pair("go", Some("room:workshop")));
+    let before = world.public();
+    for i in 0..10_000 {
+        if let Ok(v) = parse(&mutate(&mut rng, seeds[i % seeds.len()]), 262144) {
+            let _ = dungeon_social::replay(&v);
+        }
+        let mut social = dungeon_social::Social::default();
+        let ticket = social.prepare(&world, "merchant", "Hello.").unwrap();
+        let initial = social.state(&world, "merchant").unwrap();
+        let text = mutate(&mut rng, r#"{"speech":"Hello.","tone":"warm","fact_ids":[],"memory_ids":[]}"#);
+        if social.finish(&world, ticket.get("id").unwrap().as_str().unwrap(), &text).is_err() {
+            assert_eq!(initial, social.state(&world, "merchant").unwrap());
+        }
+        assert_eq!(before, world.public());
     }
 }
 
@@ -651,6 +685,9 @@ fn local_decision_dialogue_profile_and_telemetry_text_is_bounded() {
         include_str!("../conformance/local/profile-concise/input.json"),
         include_str!("../conformance/local/report/input.json"),
         include_str!("../conformance/local/budget-1529/input.json"),
+        include_str!("../conformance/workflow/direct/input.json"),
+        include_str!("../conformance/workflow/direct_dialogue/input.json"),
+        include_str!("../conformance/workflow/3_dialogue/input.json"),
     ];
     let mut rng = Rng(0x619b_0a77_5512_0081);
     for i in 0..20_000 {
@@ -699,5 +736,23 @@ fn optimization_contracts_and_model_text_are_bounded() {
             choices.validate(&pair).unwrap();
         }
         let _ = codec.session().apply(&text, 7, |_| false);
+    }
+}
+
+#[test]
+fn entity_reference_mutations_never_invent_actions_or_targets() {
+    let world = game::Game::new(7).unwrap();
+    let pairs = world.choices();
+    let items = world.visible_items();
+    let seeds = ["Inspect it.", "Take the keeper seal.", "Go to the gallery or the workshop.", "Inspect café.門_1"];
+    let mut rng = Rng(0x219b_7700_ac99_4131);
+    for i in 0..10_000 {
+        let text = mutate(&mut rng, seeds[i % seeds.len()]);
+        let resolved = dungeon_intent::resolve(&pairs, &items, &text, Some("room:gallery"), None).unwrap();
+        assert!(resolved.pairs.iter().all(|p| pairs.contains(p)));
+        for candidate in resolved.candidates {
+            let id = candidate.get("id").unwrap();
+            assert!(pairs.iter().any(|p| p.get("target") == Some(id)) || items.iter().any(|p| p.get("id") == Some(id)));
+        }
     }
 }

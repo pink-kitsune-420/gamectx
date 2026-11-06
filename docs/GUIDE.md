@@ -519,3 +519,23 @@ Measure completion and state changes separately from valid actions; the first lo
 smoke repeats legal look commands without progressing. Treat that as an observed planning
 gap, rather than declaring success from schema validity. Test new seeds and question
 phrasing before changing guidance or recipes. The game and all offline checks need no model.
+
+
+## One model job at a time (unreleased)
+
+Use a size-and-task profile as an editable starting point, then measure the exact model,
+quantization and template. Interpret the immediate player request independently of the
+quest goal. Let one NPC speak from current facts and its own scoped dialogue. Query or
+compute exact results locally before narration. Supply implemented item capabilities,
+not just evocative labels. Reserve the full rendered request plus output and safety.
+
+Prefer complete entity phrases over overlapping short names. Keep candidate IDs stable,
+use only fresh scoped referents, and ask “which key?” when several candidates remain.
+Never turn a guessed match or generated speech into inventory permission. A targeted
+human selection must still pass the current revision/visibility/action checks.
+
+The [workflow guide](WORKFLOWS.md) records real failures as well as smaller packets:
+adding more grounded instructions regressed one 3B intent pilot from 2/4 to 1/4; exact
+host slots and clarification did better on that tiny regression set. This does not prove
+universal semantic understanding. Required facts and recent required exchanges remain
+protected; a size hint must never silently remove them.

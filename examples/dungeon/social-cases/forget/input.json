@@ -1,0 +1,63 @@
+{
+  "seed": 7,
+  "operations": [
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:gallery"
+        }
+      }
+    },
+    {
+      "op": "act",
+      "args": {
+        "decision": {
+          "action": "go",
+          "target": "room:workshop"
+        }
+      }
+    },
+    {
+      "op": "prepare",
+      "args": {
+        "speaker": "merchant",
+        "input": "My name is Fen."
+      }
+    },
+    {
+      "op": "finish",
+      "args": {
+        "ticket": "chat_1",
+        "text": "{\"speech\": \"Welcome, Fen.\", \"tone\": \"warm\", \"fact_ids\": [], \"memory_ids\": []}"
+      }
+    },
+    {
+      "op": "prepare",
+      "args": {
+        "speaker": "merchant",
+        "input": "What is my name?"
+      }
+    },
+    {
+      "op": "forget",
+      "args": {
+        "speaker": "merchant"
+      }
+    },
+    {
+      "op": "finish",
+      "args": {
+        "ticket": "chat_2",
+        "text": "{\"speech\": \"Welcome, Fen.\", \"tone\": \"warm\", \"fact_ids\": [], \"memory_ids\": []}"
+      }
+    },
+    {
+      "op": "state",
+      "args": {
+        "speaker": "merchant"
+      }
+    }
+  ]
+}

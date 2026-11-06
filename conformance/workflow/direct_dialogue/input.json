@@ -1,0 +1,23 @@
+{
+  "kind": "render-direct",
+  "args": {
+    "rules": "Use supplied facts.",
+    "facts": {
+      "locked": true
+    },
+    "dialogue": [
+      {
+        "role": "user",
+        "content": "Which gate?"
+      },
+      {
+        "role": "assistant",
+        "content": "The grove gate."
+      }
+    ],
+    "input": {
+      "id": "r1",
+      "text": "Inspect the gate; do not open it."
+    }
+  }
+}

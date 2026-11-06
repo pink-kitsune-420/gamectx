@@ -14,6 +14,15 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "workflow" => {
+            c::fields(a, &["size", "task", "name", "identity"])?;
+            crate::deployment::ModelSize::parse(c::text(c::get(a, "size")?)?)?.workflow_profile(
+                crate::deployment::Workload::parse(c::text(c::get(a, "task")?)?)?,
+                c::text(c::get(a, "name")?)?,
+                &crate::deployment::Identity::from_value(c::get(a, "identity")?)?,
+            )
+        }
+        "render-direct" => crate::dialogue::render_direct(a),
         "tune" => crate::tune::compare(a),
         "choice-codec" => {
             c::fields(a, &["choices", "names", "calls"])?;

@@ -1,0 +1,14 @@
+{
+  "kind": "render-direct",
+  "args": {
+    "rules": "Use supplied facts.",
+    "facts": {
+      "locked": true
+    },
+    "dialogue": [],
+    "input": {
+      "id": 3,
+      "text": "Hello."
+    }
+  }
+}

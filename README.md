@@ -24,7 +24,12 @@ Run `cargo run --example dungeon -- --seed 7` for an original six-room text game
 replay files and a persistent JSON interface for local agents. It exercises scene packets,
 typed affordability queries, bounded decisions and current-state validation. Six scripted
 routes escape; optional model runs report actual wins separately from legal actions.
-No model or network is needed to play. New API spend $0.
+Basic play needs no model or network. For human play with local AI characters, run
+`cargo run --example dungeon -- --ai --size 3 --seed 7` with Python 3 and an installed
+Ollama model. NPCs answer free-form questions and remember scoped player quotes; natural
+language actions use bounded choices and targeted clarification. Local rules validate
+world changes. [Size-and-task workflows](docs/WORKFLOWS.md) cover editable 1B, 1.5B, 3B,
+8B, 30B and 70B hints and the measured limits of the local 3B pilot. New API spend $0.
 
 ## Further local optimizations (unreleased)
 

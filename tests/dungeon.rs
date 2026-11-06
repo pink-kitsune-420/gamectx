@@ -2,6 +2,10 @@
 mod game;
 #[path = "../examples/dungeon/host.rs"]
 mod host;
+#[path = "../examples/dungeon/intent.rs"]
+mod intent;
+#[path = "../examples/dungeon/social.rs"]
+mod social;
 use gamectx::{obj, Value};
 fn act(host: &mut host::Host, action: &str, target: &str) {
     assert_eq!(
@@ -90,4 +94,104 @@ fn independent_dungeon_replay_fixtures() {
         count += 1;
     }
     assert_eq!(count, 23);
+}
+
+#[test]
+fn social_replay_can_leave_world_unchanged() {
+    let v = obj! {"seed"=>7,"operations"=>Vec::<Value>::new()};
+    assert_eq!(social::replay(&v).unwrap().get("world"), Some(&game::Game::new(7).unwrap().public()));
+}
+
+#[test]
+fn independent_social_fixtures_and_freshness() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/dungeon/social-cases");
+    let mut count = 0;
+    for entry in std::fs::read_dir(root).unwrap() {
+        let dir = entry.unwrap().path();
+        let input = gamectx::json::parse(&std::fs::read_to_string(dir.join("input.json")).unwrap(), 262144).unwrap();
+        assert_eq!(
+            social::replay(&input).unwrap().to_json() + "\n",
+            std::fs::read_to_string(dir.join("expected.json")).unwrap(),
+            "{}",
+            dir.display()
+        );
+        count += 1;
+    }
+    assert_eq!(count, 13);
+    let mut host = host::Host::new(7).unwrap();
+    act(&mut host, "go", "room:gallery");
+    act(&mut host, "go", "room:workshop");
+    let before = host.game.public();
+    let initial=host.request(&obj! {"op"=>"speech_prepare","args"=>obj! {"speaker"=>"merchant","input"=>"My name is Fen.","context"=>2048}}).unwrap();
+    assert!(host
+        .request(
+            &obj! {"op"=>"speech_prepare","args"=>obj! {"speaker"=>"merchant","input"=>"Other message.","context"=>512}}
+        )
+        .is_err());
+    let reply = r#"{"speech":"Welcome, Fen.","tone":"warm","fact_ids":[],"memory_ids":[]}"#;
+    host.request(
+        &obj! {"op"=>"speech_finish","args"=>obj! {"ticket"=>initial.get("ticket").unwrap().clone(),"text"=>reply}},
+    )
+    .unwrap();
+    assert_eq!(before, host.game.public());
+    let state = host.request(&obj! {"op"=>"speech_state","args"=>obj! {"speaker"=>"merchant"}}).unwrap();
+    assert_eq!(state.get("memories").unwrap().as_array().unwrap().len(), 1);
+    act(&mut host, "go", "room:gallery");
+    act(&mut host, "go", "room:cistern");
+    let keeper=host.request(&obj! {"op"=>"speech_prepare","args"=>obj! {"speaker"=>"keeper","input"=>"What is my name?","context"=>2048}}).unwrap();
+    assert!(!keeper.get("request").unwrap().to_json().contains("Fen"));
+}
+
+#[test]
+fn entity_references_use_phrases_scope_and_explicit_clarification() {
+    let pairs = vec![
+        game::pair("inspect", Some("item:bronze_key")),
+        game::pair("inspect", Some("item:iron_key")),
+        game::pair("talk", Some("npc:keeper")),
+        game::pair("inspect", Some("item:keeper_seal")),
+    ];
+    let items = vec![
+        obj! {"id"=>"item:bronze_key","label"=>"bronze key","kind"=>"key"},
+        obj! {"id"=>"item:iron_key","label"=>"iron key","kind"=>"key"},
+        obj! {"id"=>"item:keeper_seal","label"=>"keeper seal","kind"=>"token"},
+    ];
+    let seal = intent::resolve(&pairs, &items, "Inspect the keeper seal.", None, None).unwrap();
+    assert_eq!(seal.pairs, vec![game::pair("inspect", Some("item:keeper_seal"))]);
+    let keys = intent::resolve(&pairs, &items, "Inspect the key.", None, None).unwrap();
+    assert_eq!(keys.reason, "ambiguous");
+    assert!(keys.pairs.is_empty());
+    assert_eq!(keys.candidates.len(), 2);
+    let explicit = intent::resolve(&pairs, &items, "Inspect the key.", None, Some("item:iron_key")).unwrap();
+    assert_eq!(explicit.pairs, vec![game::pair("inspect", Some("item:iron_key"))]);
+    let compound = intent::resolve(&pairs, &items, "Talk to the keeper about the keeper seal.", None, None).unwrap();
+    assert_eq!(compound.reason, "phrase");
+    assert_eq!(compound.pairs, vec![game::pair("talk", Some("npc:keeper"))]);
+    let mut host = host::Host::new(7).unwrap();
+    act(&mut host, "go", "room:gallery");
+    act(&mut host, "go", "room:workshop");
+    act(&mut host, "inspect", "item:bronze_key");
+    let request = |input: &str| obj! {"op"=>"interpret","args"=>obj! {"input"=>input,"context"=>2048,"guidance"=>"focused","resolve_ambiguity"=>true}};
+    let focus = host.request(&request("Take it.")).unwrap();
+    assert_eq!(focus.get("resolution").unwrap().get("reason"), Some(&Value::str("recent_action")));
+    let ambiguous = host.request(&request("Inspect the oil or the chalk.")).unwrap();
+    assert_eq!(ambiguous.get("resolution").unwrap().get("reason"), Some(&Value::str("ambiguous")));
+    for _ in 0..5 {
+        let result = host.act(&obj! {"revision"=>host.game.revision,"decision"=>game::pair("wait", None)}).unwrap();
+        assert_eq!(result.get("status"), Some(&Value::str("accepted")));
+    }
+    let expired = host.request(&request("Take it.")).unwrap();
+    assert_eq!(expired.get("resolution").unwrap().get("reason"), Some(&Value::str("unresolved_reference")));
+    act(&mut host, "inspect", "item:bronze_key");
+    let prepared = host
+        .request(&obj! {"op"=>"speech_prepare","args"=>obj! {"speaker"=>"merchant","input"=>"Hello.","context"=>2048}})
+        .unwrap();
+    host.request(&obj! {"op"=>"speech_finish","args"=>obj! {"ticket"=>prepared.get("ticket").unwrap().clone(),"text"=>r#"{"speech":"Hello.","tone":"neutral","fact_ids":[],"memory_ids":[]}"#}}).unwrap();
+    let after_talk = host.request(&request("Take it.")).unwrap();
+    assert_eq!(after_talk.get("resolution").unwrap().get("reason"), Some(&Value::str("unresolved_reference")));
+    act(&mut host, "inspect", "item:bronze_key");
+    let rev = host.game.revision;
+    act(&mut host, "go", "room:gallery");
+    let after = host.request(&request("Take it.")).unwrap();
+    assert_eq!(after.get("resolution").unwrap().get("reason"), Some(&Value::str("unresolved_reference")));
+    assert!(host.request(&obj! {"op"=>"interpret","args"=>obj! {"input"=>"Inspect it.","context"=>2048,"guidance"=>"focused","resolve_ambiguity"=>true,"target_hint"=>"item:salve","expected_revision"=>rev}}).is_err());
 }

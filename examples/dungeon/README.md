@@ -149,3 +149,111 @@ quest. Success, validity, state changes and distinct rooms are audited separatel
 JSON is not a win. This is one small diagnostic, not a model comparison. Background Rust
 checks overlapped the run, so its timings are not a controlled latency benchmark. Token
 and gameplay runs each spend $0 API. CI audits saved traces without generating anything.
+
+## Human player with local AI characters (unreleased)
+
+Keep the basic player above for deterministic rule testing. To play as the human while
+NPCs generate their own replies, build the example and start the new AI mode:
+
+```sh
+cargo run --example dungeon -- --ai --size 3 --seed 7
+```
+
+This uses Python 3's standard library and an already installed Ollama GGUF model at
+`127.0.0.1:11434`. The default tag is `arzaan789/qwen2.5-3b-uncensored:latest`; choose your
+installed tag with `--model`. No model is pulled, no credentials are read, no hosted API
+is called, and the runner configuration is not changed. The game reports an error if
+the model is unavailable; use basic play to continue without AI.
+
+Use `go gallery`, `go workshop`, then `talk merchant`. Introduce yourself and ask another
+question; `/back` returns to exploring. `talk keeper` works at the cistern. `say <words>`
+asks the nearby character once; `describe` asks the narrator about the current scene.
+`/memory` inside a conversation shows original player quotes; `/forget` clears that
+character's conversation. Everything is transient and ends when the process exits.
+
+Natural-language actions go through a bounded interpreter. Exact listed commands need
+no generation. Clear entity phrases narrow choices locally; overlapping phrases prefer
+“keeper seal” over “keeper”. Ambiguous requests ask which target you meant. A recent
+accepted action can resolve “it” only in the same room, at most four accepted turns old,
+while the entity is still available. Moving rooms or completing a conversation clears
+that action focus. Clarification selections require the same world revision. The human
+confirms model-proposed world changes; purchase prompts show the current host price.
+Arithmetic, availability, ownership and final action checks stay in Rust.
+
+`--size 1`, `1.5`, `3`, `8`, `30` or `70` selects editable **task hints**, not a model or
+measured capability limit. The context starts at 2048 for classes through 3B, 4096 for
+8B, 8192 for 30B/70B; `--context` overrides it. Larger templates do not imply a model
+fits 8 GB RAM. `--guidance focused` is the default separated workflow; `standard` and
+`grounded` retain comparison prompts. See [WORKFLOWS](../../docs/WORKFLOWS.md) for exact
+reservations, all 24 profiles, saved local measurements and known semantic failures.
+If a required packet cannot fit, the turn fails instead of losing required facts.
+
+For explicit generation/log limits, run the standalone front end directly:
+
+```sh
+cargo build --example dungeon --locked
+python3 -I examples/dungeon/play_ai.py --cap 0 --size 3 --seed 7 --max-calls 64
+```
+
+Defaults: 128 calls, maximum 256; each native one-token preflight, generation or correction
+counts, including failed dispatches. One correction is allowed per utterance. CPU-only,
+four threads, temperature zero and identity checks match the local diagnostic setup.
+`/stats` shows usage while exploring. `--log <fresh-file>` opts into full request/response
+logs; otherwise conversations are not written to disk. Native prompt counts are observed
+after dispatch; they do not prove an arbitrary oversized prompt escaped truncation.
+The host first estimates the full request, then the runner probes and reserves actual
+reported prompt usage plus output plus 256 safety before generation.
+
+Each character scope stores up to 32 original player quotes and eight whole exchanges;
+the narrator is scoped per room. Focused dialogue selects 1–3 recent exchanges and 1–6
+recalled quotes according to the editable tier, protecting its most recent exchange.
+Player claims and earlier model speech are never promoted to verified world facts.
+NPCs can know authored clues (key location and gate requirements); the narrator receives
+only public scene facts. A model reply cannot move the player, set prices or transfer
+items. **Generated prose can still contradict facts**: local tests include invented tonic
+effects and inconsistent seal permission. The game never treats that prose as authority.
+
+### Additional example-host operations
+
+These extend the existing JSON-lines host. Do not expose its state, diagnostics or memory
+management indiscriminately as model tools. Optional fields are shown with `?`.
+
+| op | args | Result |
+|---|---|---|
+| workflow | `{size,task,identity}` | Size/task profile named `dungeon`; no model configuration applied |
+| interpret | `{input,context,guidance?,size?,resolve_slots?,resolve_ambiguity?,target_hint?,expected_revision?}` | Request, budget, legal named `offer`, revision, optional resolution metadata |
+| speech_prepare | `{speaker,input,context,guidance?,size?}` | One-use ticket ID, speaker, request, budget/dialogue receipts |
+| speech_finish | `{ticket,text}` | Validated speech/tone/source IDs; world unchanged |
+| speech_state | `{speaker}` | Current accessible scope's tone, history and player quotes |
+| speech_forget | `{speaker}` | Clears that scope, including its pending ticket |
+
+`guidance` is `standard` (host API default), `grounded` or `focused`; `size` defaults to
+`3`. Interpretation defaults to the legacy unfiltered control; the focused interactive
+client explicitly enables both slot and ambiguity resolution. Resolution reasons include
+`phrase`, `recent_action`, `explicit_target`, `ambiguous`, `unresolved_reference`,
+`type_mismatch` and `unmatched`. A target hint requires `resolve_ambiguity:true` and an
+`expected_revision`; neither hint nor revision may be supplied alone. Unavailable hints
+and stale revisions fail. Current user text must be nonempty and at most 2048 bytes.
+
+`speaker` is merchant, keeper or narrator. NPC access requires its current room; terminal
+runs reject conversations. Utterances and speech are nonempty single lines, at most 240
+Unicode characters. At most 256 tickets are prepared per session. Preparing another
+ticket replaces the pending one; successful finish consumes it. A failed render or reply
+does not commit social changes. Accepted game actions make earlier tickets stale.
+
+The finish `text` is strict JSON, at most 4096 bytes, exactly
+`{speech,tone,fact_ids,memory_ids}`. Tone is neutral/warm/wary; at most eight distinct
+supplied fact IDs and two distinct recalled memory IDs are accepted. Extra fields,
+duplicate JSON keys and unavailable citations fail. Focused generation instead produces
+`{speech}`; its client wraps neutral tone and empty citation arrays before finish.
+Citation checks establish source availability only, not prose entailment.
+
+`--social-replay FILE|-` accepts `{seed,operations}` with at most 128 operations and
+262,144 bytes. Operations are `act`, `prepare`, `finish`, `state`, `forget`; args match
+the corresponding social/rules reference functions. Output records accepted/rejected
+operations and final public world. Thirteen separate social fixture sets and 43 independent
+Python/Rust workflows cover 507 accepted and 11 rejected operations; 20,000 added social
+text mutations check atomic failure. Another 10,000 entity-text mutations never invent
+an action or target. Offline entity parity checks cover 360 workflows across six seeds;
+seven Python front-end tests use real host rules with fake generation. Core formats keep
+all previous expected outputs. These are rule/validation tests, not model generalization.

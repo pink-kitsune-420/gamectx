@@ -948,3 +948,51 @@ The first named-mode Qwen/seed-7 smoke exposes repeated legal `look_entry` actio
 quest progress. Preserve it as a failure, not a successful legal-output score. Both local
 runs spend $0 API; CI only replays saved data. The [guide](../examples/dungeon/README.md)
 separates byte/checkpoint figures from token/model claims and includes playable commands.
+
+
+## Human-play workflows and entity references (unreleased)
+
+[WORKFLOWS](../docs/WORKFLOWS.md) records exact counts, remaining prose errors and
+limits. All new runs use the same installed local Qwen 3.09B Q4_K_M, context 2048,
+four CPU threads. Every token and accuracy run spends $0 API; no larger model is loaded.
+
+Offline reproduction:
+
+```sh
+cargo build --locked
+cargo build --example dungeon --locked
+python3 -I eval/workflow_cases.py --cap 0 --check
+python3 -I eval/dungeon_social_cases.py --cap 0 --check
+python3 -I eval/test_dungeon_ai.py
+python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
+python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json
+```
+
+`workflow_cases.py` independently checks 24 size/task presets plus two render successes
+and four errors, byte-identical to Rust. `dungeon_social_cases.py` checks 43 conversation
+workflows and 13 example fixture sets. `check_dungeon_slots.py --check` compares 360
+entity workflows across six seeds against independent Python rules. Its positional
+artifacts replay full offers, raw calls, budget reservations and scores. Host deferrals
+are separate from model correctness. Core fixture cases remain independent of this game.
+
+For new local runs use **fresh output paths**, token-only first, then a matching token
+artifact. The scripts bound generation reservations (64 for speech cohorts, 32 for slot
+cohorts), pin deployment identity, use loopback only, and never download models or read
+API credentials. `--cap 0` is mandatory. Token probes and corrections count toward the
+local call cap, including failed dispatches.
+
+```sh
+python3 -I eval/dungeon_social_eval.py --cap 0 --tokens-only --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/social-tokens.json
+python3 -I eval/dungeon_social_eval.py --cap 0 --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/social-tokens.json --output eval/results/social-results.json
+python3 -I eval/dungeon_slots_eval.py --cap 0 --tokens-only --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/entity-tokens.json
+python3 -I eval/dungeon_slots_eval.py --cap 0 --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/entity-tokens.json --output eval/results/entity-results.json
+```
+
+Standard/grounded/focused character cohorts each make 26 calls with no correction.
+The focused variant uses fewer input/output tokens, but still fails 2/4 interpretations
+without local guards. Slot-only pilot 7/8, phrase-aware regression pilot 8/8; the latter
+uses four local deferrals plus four correct model decisions. These reused regression
+questions do not establish held-out semantic accuracy. Raw prose contradictions remain.
+New scripts record individual call times, not complete-turn latency or runner RSS;
+controlled end-to-end latency/retry/memory work remains necessary before promotion.
+CI replays all frozen data without generation. Old failed dungeon planning data remain.

@@ -1467,3 +1467,32 @@ library/kit/local formats. Its action/visibility/revision rules and request limi
 specified in the [testbed guide](../examples/dungeon/README.md). `examples/dungeon/cases`
 contains separate example conformance fixtures for the pure replay rules. They do not
 add a library operation or require library ports to implement the game.
+
+
+## Task workflow templates and direct rendering (unreleased)
+
+Two additive `local` kinds preserve existing kinds and expected outputs:
+
+- `workflow`, args exactly `{size,task,name,identity}`: `size` uses the existing preset
+  aliases, `task` is `interpret`, `dialogue`, `narration` or `query`. Returns the unchanged
+  generic `guideline`, a v1 `profile` with task output reservation, and `workflow`
+  metadata with version 1, task, size_class, measured:false, renderer:direct,
+  response:choice/speech/sql, exchanges_hint, recall_hint, choices_hint,
+  include_quest_goal:false, required_policy:preserve_or_fail and
+  hint_policy:editable_not_capability_limits. No configuration or content is applied.
+- `render-direct`, args the packet itself: `rules` string; `input` exactly `{id,text}`
+  strings; `dialogue` an even-length array of at most 256 exact `{role,content}` objects,
+  alternating user/assistant. Other fields become compact context JSON in insertion
+  order. Returns `{messages}` with the rules as native system content, supplied dialogue,
+  and a final user message `Context data:\n<JSON>\n\nCurrent request:\n<text>`.
+  Bounded input 1,572,864 bytes; no template/schema/tool framing is inserted.
+
+The Rust APIs are `deployment::{Workload,WorkloadHints}`, `ModelSize::workflow_profile`,
+`ModelSize::workload_hints` and `dialogue::render_direct`. Thirty new conformance cases;
+all 565 previous cases unchanged. [Profiles and measurements](WORKFLOWS.md).
+
+The example-only dungeon adds `interpret`, `workflow`, `speech_prepare`, `speech_finish`,
+`speech_state` and `speech_forget` to its own JSON-lines protocol. Its social replays and
+fixtures live under `examples/dungeon`, outside the core format corpus. Protocol arguments,
+scoped memory, clarification revision checks and bounds are specified in its
+[guide](../examples/dungeon/README.md). These host operations are not automatic model tools.

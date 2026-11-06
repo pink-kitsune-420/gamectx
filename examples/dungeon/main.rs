@@ -1,6 +1,8 @@
 //! Lantern Vault: a deterministic playable game and JSON integration testbed.
 mod game;
 mod host;
+mod intent;
+mod social;
 use game::{fields, get, text, uint, GOAL};
 use gamectx::{json, obj, Error, Result, Value};
 use std::io::{self, BufRead, Read, Write};
@@ -127,14 +129,40 @@ fn run() -> Result<()> {
     let mut mode = "play";
     let mut seed = 7;
     let mut replay_path = None;
+    let mut model = "arzaan789/qwen2.5-3b-uncensored:latest".to_owned();
+    let mut context = None::<u32>;
+    let mut size = "3".to_owned();
+    let mut guidance = "focused".to_owned();
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\nSeeds: 0..65535. No model or network required.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --social-replay FILE|-  conversation regression replay\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
             }
             "--play" => mode = "play",
+            "--ai" => mode = "ai",
+            "--model" => {
+                i += 1;
+                model = args.get(i).ok_or_else(|| Error::new("missing model"))?.clone();
+            }
+            "--size" => {
+                i += 1;
+                size = args.get(i).ok_or_else(|| Error::new("missing size"))?.clone();
+            }
+            "--guidance" => {
+                i += 1;
+                guidance = args.get(i).ok_or_else(|| Error::new("missing guidance"))?.clone();
+            }
+            "--context" => {
+                i += 1;
+                context = Some(
+                    args.get(i)
+                        .ok_or_else(|| Error::new("missing context"))?
+                        .parse()
+                        .map_err(|_| Error::new("invalid context"))?,
+                );
+            }
             "--serve" => mode = "serve",
             "--seed" => {
                 i += 1;
@@ -144,16 +172,43 @@ fn run() -> Result<()> {
                     .parse()
                     .map_err(|_| Error::new("invalid seed"))?;
             }
-            "--replay" => {
+            "--replay" | "--social-replay" => {
                 i += 1;
                 replay_path = Some(args.get(i).ok_or_else(|| Error::new("missing replay file"))?.clone());
-                mode = "replay";
+                mode = if args[i - 1] == "--social-replay" { "social-replay" } else { "replay" };
             }
             _ => return Err(Error::new("unknown option; use --help")),
         }
         i += 1;
     }
-    if mode == "replay" {
+    if mode == "ai" {
+        let script = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/dungeon/play_ai.py");
+        let mut command = std::process::Command::new("python3");
+        command
+            .arg(script)
+            .arg("--cap")
+            .arg("0")
+            .arg("--binary")
+            .arg(std::env::current_exe().map_err(|e| Error::new(e.to_string()))?)
+            .arg("--model")
+            .arg(model)
+            .arg("--seed")
+            .arg(seed.to_string())
+            .arg("--size")
+            .arg(size)
+            .arg("--guidance")
+            .arg(guidance);
+        if let Some(context) = context {
+            command.arg("--context").arg(context.to_string());
+        }
+        let status = command.status().map_err(|e| Error::new(e.to_string()))?;
+        return if status.success() {
+            Ok(())
+        } else {
+            Err(Error::new("AI player interface stopped; check Ollama/model settings above"))
+        };
+    }
+    if mode == "replay" || mode == "social-replay" {
         let path = replay_path.ok_or_else(|| Error::new("missing replay file"))?;
         let reader: Box<dyn Read> = if path == "-" {
             Box::new(io::stdin())
@@ -163,7 +218,7 @@ fn run() -> Result<()> {
         let mut input = String::new();
         reader.take(262145).read_to_string(&mut input).map_err(|e| Error::new(e.to_string()))?;
         let v = json::parse(&input, 262144)?;
-        println!("{}", game::replay(&v)?.to_json());
+        println!("{}", if mode == "social-replay" { social::replay(&v)? } else { game::replay(&v)? }.to_json());
         return Ok(());
     }
     let mut host = host::Host::new(seed)?;

@@ -233,3 +233,10 @@ mod optimized_turn;
 fn documented_optimization_example() -> gamectx::Result<()> {
     optimized_turn::main()
 }
+
+#[path = "../examples/task-workflow.rs"]
+mod task_workflow;
+#[test]
+fn documented_size_task_workflow_example() -> gamectx::Result<()> {
+    task_workflow::main()
+}

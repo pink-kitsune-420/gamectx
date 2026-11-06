@@ -48,6 +48,12 @@ A case passes when:
 
 ## Changing behavior
 
+The `workflow/` family adds 30 `op:local` cases: 24 size/task profiles, two direct
+renders and four errors. Independent expectations come from `eval/workflow_reference.py`
+and `eval/workflow_cases.py --cap 0 --check`. Existing `preset`, `render_chat` and all
+565 earlier cases remain unchanged. The same cases pass through the persistent and
+native bridges with `--check-bindings`. See [WORKFLOWS](../docs/WORKFLOWS.md).
+
 The `optimization/` family adds 69 cases using `op:local`. Independent outputs come
 from `eval/optimization_reference.py`; `optimization_cases.py --check` compares 179
 accepted/rejected workflows against Rust. They cover host intent, prepared predicate

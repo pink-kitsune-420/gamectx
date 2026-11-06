@@ -73,3 +73,11 @@ language-model call.
 See [LOCAL](LOCAL.md) for the executable APIs and [the local report](LOCAL_MODEL_2026_11_06.md)
 for what was actually measured. No larger or 1.5B model is downloaded or tested by these
 configuration templates.
+
+## Task-specific templates (unreleased)
+
+The new additive `ModelSize::workflow_profile` splits interpretation, dialogue,
+narration and query settings within every size class. See [WORKFLOWS](WORKFLOWS.md)
+for all 24 templates, direct request rendering, exact local measurements and limits.
+Older `starting_profile` outputs stay unchanged. These are still editable unmeasured
+hints; no model is downloaded or selected from a size label.
