@@ -165,7 +165,14 @@ fn endpoint(url: &str, online: bool) -> Result<()> {
     Ok(())
 }
 #[derive(Clone, Debug)]
+pub enum Method {
+    Post,
+    Get,
+    ConnectOnly,
+}
+#[derive(Clone, Debug)]
 pub struct Request {
+    pub method: Method,
     pub url: String,
     pub content_type: String,
     pub body: Vec<u8>,
@@ -252,6 +259,7 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
         return Err(err());
     }
     Ok(Request {
+        method: Method::Post,
         url: text(e, "url")?.into(),
         content_type,
         body,
@@ -279,11 +287,15 @@ fn local_http(r: &Request) -> Result<Vec<u8>> {
     let (port, path) = tail.split_once('/').ok_or_else(err)?;
     let mut stream =
         TcpStream::connect_timeout(&format!("127.0.0.1:{port}").parse().map_err(|_| err())?, Duration::from_secs(3))
-            .map_err(|_| err())?;
+            .map_err(|_| Error::new("provider_connection"))?;
+    if matches!(r.method, Method::ConnectOnly) {
+        return Ok(obj! {"reachable"=>true}.to_json().into_bytes());
+    }
     stream.set_write_timeout(Some(Duration::from_secs(10))).map_err(|_| err())?;
-    write!(stream,"POST /{path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",r.content_type,r.body.len()).map_err(|_|err())?;
+    let method = if matches!(r.method, Method::Get) { "GET" } else { "POST" };
+    write!(stream,"{method} /{path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",r.content_type,r.body.len()).map_err(|_|err())?;
     stream.write_all(&r.body).map_err(|_| err())?;
-    let deadline = Instant::now() + Duration::from_secs(90);
+    let deadline = Instant::now() + Duration::from_secs(if matches!(r.method, Method::Get) { 3 } else { 90 });
     let mut bytes = Vec::new();
     let mut chunk = [0u8; 8192];
     loop {
@@ -310,7 +322,7 @@ fn local_http(r: &Request) -> Result<Vec<u8>> {
         .and_then(|s| s.parse::<u16>().ok())
         .ok_or_else(err)?;
     if code != 200 {
-        return Err(err());
+        return Err(Error::new(format!("provider_http_{code}")));
     }
     let raw = &bytes[split + 4..];
     let result = if headers.lines().any(|l| l.eq_ignore_ascii_case("transfer-encoding: chunked")) {

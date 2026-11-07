@@ -786,3 +786,10 @@ anchors for facts that must be present rather than relying on lexical similarity
 The restored-cast paired holdout passes 12/12 required-answer checks with host-authored
 sentences, versus 3/12 when generic deferral is allowed. This bounds wording rather than
 improving unconstrained model reasoning; a sole allowed sentence needs zero model calls.
+
+
+For the Lantern Vault preview, open **Model setup**, check local servers, choose an
+installed model and **Apply changes**. Setting a tier alone does not select installed
+weights. The visible activity log and reply-origin label explain whether an LLM ran or
+the offline line was retained. **New game** resets current play while preserving settings,
+branches, art approvals and spending; see [the Studio guide](STUDIO.md).

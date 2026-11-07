@@ -275,3 +275,60 @@ question-specific answer is present. An authored sentence expressing actual unce
 remains valid and source-checked. A sole authorized sentence uses the immediate 0B line;
 multiple variants permit optional model wording selection. Generic `Answers` APIs still
 allow deferral unless the caller explicitly selects this required-answer policy.
+
+
+## Setup, activity and starting over
+
+Offline play is immediately available; meeting a character never requires configuring a
+model first. The header shows the applied provider state. **Model setup** separates the
+actual model ID from its context tier: choosing `3` does not install `qwen2.5:3b`.
+Choose Ollama, click **Check local servers / Find models**, pick an installed model and
+click **Apply changes**. A visible draft indicator distinguishes selected controls from
+applied settings. Settings affect the next message and preserve game progress.
+
+The connection check uses the same single worker as generation, outside the state lock.
+It fetches only Ollama `/api/tags`, validates at most 64 names/65,536 response bytes, and
+checks other local ports without generating assets/audio. An open port proves
+reachability; it does not establish API compatibility, installed voices or ready models.
+No downloads, online calls or spending reservations occur. A missing exact model name is
+shown explicitly. Local voice/transcription each require a separately running service.
+
+**What is running?** retains at most 24 worker receipts, with the selected model/backend,
+queued/running/completed/failed/stale state, elapsed time including queue wait, and a
+bounded explanation. The current reply identifies offline fallback, pending generation,
+validated free dialogue, or model-selected authorized wording. This exposes operational
+status rather than hidden model reasoning. Clicking **Talk to merchant** enters that same
+conversation flow; it no longer only displays the deterministic game's legacy talk hint.
+Typed exact addressing phrases also enter conversation. Existing game/CLI action outputs
+remain unchanged. Text-only **Read reply** acknowledges a line in one click.
+
+Connection establishment failures and explicit 400/404 rejections leave other local
+services usable. Uncertain failures still pause local dispatch because an external server
+may still be computing; **Resume local requests** requires the host to confirm it is idle.
+Settings/check commands do not silently resume it or execute an old prompt.
+
+**New game** asks for confirmation, resets current gameplay, conversations, habits and
+promises, and invalidates late speech/microphone replies. Provider settings, saved branch
+files, approved/repaired art and the cumulative spending ledger are preserved. It neither
+refunds dispatched spending nor assumes that a remote model has stopped. The monotonic
+job/receipt IDs and scene generation survive the reset boundary. Save/load remains the
+way to return to an earlier branch.
+
+Evidence: the independent setup prototype has eight expectations; a fresh offline HTTP
+holdout covers eleven workflows with one mock discovery and four mock generations,
+including reset while the mock is held and rejection of its late response. Existing
+85-HTTP/five-browser-audio and 41-request command checks still pass. Real Firefox layout
+and interaction checks are separate from physical voice/image/model-quality claims.
+See `eval/studio-setup-results.json` and the evaluation instructions.
+
+Firefox follow-up: nine real-browser workflows pass at desktop 1366×630 and mobile
+390×844; the composer ends at 566.4 pixels in the recorded desktop trace. These are
+layout/interaction checks, not a player study. Unsupported browser speech recognition
+is labeled explicitly instead of presenting a usable-looking microphone button.
+
+A separate manual local smoke run uses the already installed Qwen 3B and four configured
+CPU threads at `--cap 0`: one generation returns a validated authorized reply in about
+23.9 seconds on this busy desktop. This proves provider wiring, not accuracy, stable
+latency or physical voice. The artifact retains validated speech, not the unretained raw
+wire response; see `eval/studio-setup-live.json`. Successful requests refresh readiness
+so a recovered service does not keep a stale missing-model warning.

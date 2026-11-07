@@ -62,6 +62,9 @@ jobs:
       - run: python3 -I eval/overnight_input_holdout.py --cap 0
       - run: python3 -I eval/overnight_scope_holdout.py --cap 0 --expect-rejection --output target/overnight-scope-ci.json
       - run: node eval/test_studio_context.mjs --cap 0
+      - run: python3 -I eval/studio_setup_cases.py --cap 0
+      - run: python3 -I eval/studio_setup_holdout.py --cap 0
+      - run: node eval/test_studio_setup.mjs --cap 0
       - run: python3 -I eval/overnight_causality_cases.py --cap 0 --semantic
       - run: python3 -I eval/overnight_required_speech_cases.py --cap 0
       - run: python3 -I eval/overnight_campaign_audit.py --cap 0 --check eval/overnight-campaign-review.json

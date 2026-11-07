@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {selectedModel,channelLabel,choiceLabel,draftKey,browserAvailability} from '../examples/dungeon/web/setup.mjs';
+assert(process.argv.includes('--cap')&&process.argv[process.argv.indexOf('--cap')+1]==='0');
+const p={text:'local_ollama',size:'3B',text_models:{local_ollama:{'3':'installed:3b','8':''}}};
+assert.equal(selectedModel(p),'installed:3b');assert.equal(selectedModel(p,'local_ollama','8'),'');
+assert.equal(channelLabel({status:'missing_model'}),'Model not installed');
+assert.equal(channelLabel({status:'offline',backend:'0b_fallback'}),'Offline replies · no LLM');
+assert.equal(choiceLabel({action:'go',target:'room:workshop'}),'Go to workshop');
+assert.equal(choiceLabel({action:'buy',target:'item:oil'},[{id:'item:oil',label:'hinge oil',price:3}]),'Buy hinge oil · 3 coins');
+const d={text:'local_ollama',size:'3',model:'installed:3b',cap_micros:0};assert.equal(draftKey(d),draftKey({...d}));assert.notEqual(draftKey(d),draftKey({...d,model:'absent:3b'}));
+assert.equal(browserAvailability({backend:'browser_speech_recognition'},{}).status,'browser_unavailable');
+assert.equal(browserAvailability({backend:'browser_speech_recognition',status:'offline'},{SpeechRecognition:class{}}).status,'offline');
+console.log(JSON.stringify({setup_presentation_checks:10,actual_provider_calls:0,api_spend_usd:0}));

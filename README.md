@@ -998,3 +998,8 @@ deferral while retaining source checks. A fresh restored-cast paired 3B check im
 required-answer coverage from 3/12 to 12/12 using host-authored sentences. The completed
 [overnight report](docs/OVERNIGHT_DEEP_EVAL.md) includes raw failures, bounded-storage
 limits, tier audits and the distinction from free-model intelligence.
+
+The local Studio now shows applied model status, installed Ollama names, request activity
+and offline/model reply labels. Use **Model setup** to check and apply a model, and
+**New game** to reset play while retaining settings, saves, approved art and spending.
+No model setup is required before meeting a character.

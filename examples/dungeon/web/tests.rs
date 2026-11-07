@@ -9,6 +9,9 @@ use std::{
         Arc, Mutex,
     },
 };
+fn array(v: &Value) -> Result<&[Value]> {
+    v.as_array().ok_or_else(err)
+}
 struct Dir(std::path::PathBuf);
 impl Dir {
     fn new() -> Self {
@@ -454,6 +457,127 @@ fn invalid_provider_output_preserves_fallback_and_never_confirms_audio_tail() {
     let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello again."});
     assert!(jobs.is_empty());
     command(&mut a, "resume_local", obj! {});
+}
+
+#[test]
+fn setup_checks_find_installed_names_and_do_not_generate_or_pause_on_refusal() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    backend(&mut a, "text", "local_ollama");
+    let (_, jobs) = command(&mut a, "check_providers", obj! {});
+    assert_eq!(jobs.len(), 4);
+    assert!(matches!(jobs[0].request.method, providers::Method::Get));
+    assert!(jobs[0].request.url.ends_with("/api/tags"));
+    for job in jobs {
+        assert!(job.reservation.is_none());
+        assert!(a.before_dispatch(&job).unwrap());
+        let response = if job.backend == "local_ollama" {
+            Ok(br#"{"models":[{"name":"installed:3b"}]}"#.to_vec())
+        } else {
+            Err(Error::new("provider_connection"))
+        };
+        a.complete(&job, response).unwrap();
+    }
+    let s = a.state().unwrap();
+    let setup = get(&s, "setup").unwrap();
+    assert_eq!(get(setup, "installed_models").unwrap(), &vec!["installed:3b"].into());
+    assert_eq!(text(&array(get(setup, "channels").unwrap()).unwrap()[0], "status").unwrap(), "missing_model");
+    assert_eq!(get(&s, "local_paused").unwrap(), &Value::Bool(false));
+    let mut settings = a.config.public();
+    if let Value::Object(xs) = &mut settings {
+        xs.retain(|(k, _)| !["local_fallback", "text_models"].contains(&k.as_str()));
+    }
+    set(&mut settings, "cap_micros", 0.into());
+    set(&mut settings, "model", "installed:3b".into());
+    command(&mut a, "settings", settings.clone());
+    assert_eq!(super::setup::selected_model(&a.config), "installed:3b");
+    assert_eq!(
+        text(&array(get(get(&a.state().unwrap(), "setup").unwrap(), "channels").unwrap()).unwrap()[0], "status")
+            .unwrap(),
+        "ready"
+    );
+    let before = a.config.value.clone();
+    set(&mut settings, "model", "bad model\n".into());
+    assert!(a.command("settings", &settings).is_err());
+    assert_eq!(a.config.value, before);
+    assert_eq!(num(&a.budget.summary(), "charged_or_reserved_micros", 100).unwrap(), 0);
+}
+
+#[test]
+fn missing_model_has_visible_failure_and_does_not_pause_all_local_services() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    backend(&mut a, "text", "local_ollama");
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello."});
+    let job = &jobs[0];
+    a.before_dispatch(job).unwrap();
+    a.complete(job, Err(Error::new("provider_http_404"))).unwrap();
+    let s = a.state().unwrap();
+    assert_eq!(get(&s, "local_paused").unwrap(), &Value::Bool(false));
+    assert!(text(&s, "notice").unwrap().contains("exact model name"));
+    assert_eq!(
+        text(&array(get(get(&s, "setup").unwrap(), "activity").unwrap()).unwrap()[0], "status").unwrap(),
+        "failed"
+    );
+    assert_eq!(text(get(&s, "speech").unwrap(), "origin").unwrap(), "offline");
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Try this reply."});
+    assert_eq!(jobs.len(), 1);
+    a.before_dispatch(&jobs[0]).unwrap();
+    a.complete(&jobs[0], Ok(br#"{"message":{"content":"I tend this counter."}}"#.to_vec())).unwrap();
+    let s = a.state().unwrap();
+    assert_eq!(
+        text(&array(get(get(&s, "setup").unwrap(), "channels").unwrap()).unwrap()[0], "status").unwrap(),
+        "ready"
+    );
+}
+
+#[test]
+fn new_game_preserves_settings_spend_cache_saves_and_invalidates_inflight_speech() {
+    let dir = Dir::new();
+    let mut a = app::App::new(7, 20, config(), dir.0.clone()).unwrap();
+    let reservation = a.budget.reserve("text", "online_openai_compatible", 5, false).unwrap();
+    let token = num(&reservation, "reservation", 100).unwrap();
+    a.budget.dispatch(token).unwrap();
+    a.budget.finish(token).unwrap();
+    a.persist_budget().unwrap();
+    travel(&mut a);
+    command(&mut a, "promise", obj! {});
+    command(&mut a, "save", obj! {"slot"=>0});
+    let saved = std::fs::read(dir.0.join("branch-0.json")).unwrap();
+    set(&mut a.config.value, "text", "local_ollama".into());
+    let config = a.config.value.clone();
+    let budget = a.budget.checkpoint();
+    let patch = obj! {"replace_tokens"=>Vec::<Value>::new(),"add_tokens"=>Vec::<Value>::new(),"negative_tokens"=>Vec::<Value>::new(),"forbid_props"=>Vec::<Value>::new(),"seed_delta"=>1,"asset"=>Value::Null};
+    command(
+        &mut a,
+        "repair",
+        obj! {"target"=>"portrait","patch"=>patch,"image"=>providers::encode64(include_bytes!("fixtures/flat.png"))},
+    );
+    let cache = std::fs::read(dir.0.join("assets/index.json")).unwrap();
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello again."});
+    assert!(a.before_dispatch(&jobs[0]).unwrap());
+    let old_id = get(get(&a.state().unwrap(), "speech").unwrap(), "id").unwrap().clone();
+    let epoch = a.epoch;
+    command(&mut a, "reset", obj! {});
+    assert!(a.epoch > epoch);
+    assert_eq!(a.game.room, "entry");
+    assert_eq!(a.game.coins, 5);
+    assert_eq!(a.config.value, config);
+    assert_eq!(a.budget.checkpoint(), budget);
+    assert_eq!(std::fs::read(dir.0.join("assets/index.json")).unwrap(), cache);
+    assert_eq!(std::fs::read(dir.0.join("branch-0.json")).unwrap(), saved);
+    a.complete(&jobs[0], Ok(br#"{"message":{"content":"A late response."}}"#.to_vec())).unwrap();
+    let s = a.state().unwrap();
+    assert_eq!(get(&s, "speech").unwrap(), &Value::Null);
+    assert_eq!(num(&s, "pending_jobs", 8).unwrap(), 0);
+    assert!(array(get(&s, "promises").unwrap())
+        .unwrap()
+        .iter()
+        .all(|p| array(get(p, "accepted").unwrap()).unwrap().is_empty()));
+    assert!(a.command("delivery", &obj! {"id"=>old_id,"event"=>"finished","through"=>0,"heard"=>0}).is_err());
+    command(&mut a, "load", obj! {"slot"=>0});
+    assert_eq!(a.game.room, "workshop");
 }
 
 #[test]

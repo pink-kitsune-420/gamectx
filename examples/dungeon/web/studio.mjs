@@ -2,9 +2,10 @@ import {
   VoicePlayer,prefix}
 from './voice.mjs';
 import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
+import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
 let recognitionSerial=Promise.resolve();
-let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0;
+let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0,appliedDraft='',clientNotice='';
 const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
 const post=async(op,args={},generation=state?.generation)=>{
   if(scopedOperations.has(op)&&op!=='select'&&state&&($('player').value!==state.player||$('npc').value!==state.npc))throw Error('Participant selection is still applying; try again.');
@@ -27,11 +28,13 @@ const player=new VoicePlayer({
 async function invoke(op,args={},generation=state?.generation) {
   try {
     const result=await post(op,args,generation);
+    clientNotice='';
     await refresh(result.generation||0);
     return result;
   }
   catch(e){
     await refresh(e.generation||0);
+    clientNotice=e.message;
     $('notice').textContent=e.message;
     throw e;
   }
@@ -58,7 +61,10 @@ function settings(s) {
   $('speech-mode').value=s.providers.speech_mode;
   $('cap').value=s.spending.cap_micros/1e6;
   $('cap').max=s.spending.authorized_cap_micros/1e6;
+  $('model').value=selectedModel(s.providers);
   voiceSettings();
+  appliedDraft=draftKey(draftSettings());
+  renderSetup(s);
 }
 function voiceSettings(){
   if(!state)return;
@@ -91,24 +97,26 @@ async function loadState(){
     $('room-label').textContent=s.game.room.replace('room:','');
     $('npc-label').textContent=s.npc+(s.npc_present?' · present':' · not in this room');
     $('description').textContent=s.game.description;
-    $('stats').textContent=`Party health ${s.game.hp}/6 · Shared coins ${s.game.coins} · Revision ${s.game.revision}`;
+    $('stats').textContent=`Party health ${s.game.hp}/6 · Shared coins ${s.game.coins}`;
     $('player').value=s.player;
     $('npc').value=s.npc;
     $('presence').textContent=s.npc_present?'In speaking range':'NPC is elsewhere';
-    const actions=s.game.choices.map(choice=>{
+    const actionButton=choice=>{
       const b=document.createElement('button');
-      b.textContent=[choice.action,choice.target?.split(':').at(-1)].filter(Boolean).join(' ');
-      b.onclick=async()=>{
+      b.textContent=choiceLabel(choice,s.game.items);
+      b.onclick=async()=>{try{
         await player.interrupt();
-        await invoke('act',{
-          revision:s.game.revision,decision:choice}
-        ,s.generation);
-      }
-      ;
+        if(choice.action==='talk'){
+          let generation=s.generation;
+          const npc=choice.target.split(':').at(-1);
+          if(npc!==s.npc){const receipt=await invoke('select',{player:s.player,npc},generation);generation=receipt.generation;}
+          await invoke('chat',{text:'Hello.'},generation);
+        } else await invoke('act',{revision:s.game.revision,decision:choice},s.generation);
+      }catch{}};
       return b;
-    }
-    );
-    $('actions').replaceChildren(...actions);
+    };
+    $('quick-actions').replaceChildren(...s.game.choices.filter(c=>['go','talk'].includes(c.action)).map(actionButton));
+    $('actions').replaceChildren(...s.game.choices.map(actionButton));
     const transcript=JSON.stringify(s.transcript);
     if(transcript!==lastTranscript){
       lastTranscript=transcript;
@@ -124,6 +132,7 @@ async function loadState(){
       $('transcript').scrollTop=$('transcript').scrollHeight;
     }
     if(s.speech){
+      $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated'})[s.speech.origin]||'Offline reply';
       $('speaker').textContent=s.speech.actor+' → '+s.speech.player;
       if(s.speech.id!==lastSpeech){
         lastSpeech=s.speech.id;
@@ -138,6 +147,16 @@ async function loadState(){
       }
       await player.chunk(s.speech);
     }
+    else { $('speech-text').textContent='Speak to a nearby character to start a conversation.'; $('reply-origin').textContent='No reply yet'; $('voice-status').textContent='Ready'; $('voice-progress').value=0; }
+    $('current-reply').hidden=!s.speech;
+    $('current-reply').classList.toggle('text-only',s.effective_backends.tts==='off');
+    $('play').textContent=s.effective_backends.tts==='off'?'Read reply':'Play reply';
+    $('play').disabled=!s.speech||s.speech.delivery.done;
+    $('stock').disabled=$('promise').disabled=!s.npc_present;
+    const micUnsupported=s.effective_backends.stt==='browser_speech_recognition'&&!globalThis.SpeechRecognition&&!globalThis.webkitSpeechRecognition;
+    $('mic').disabled=s.effective_backends.stt==='off'||micUnsupported;
+    $('mic').title=micUnsupported?'This browser does not support speech recognition. Type instead or use a local server.':s.effective_backends.stt==='off'?'Choose a microphone provider in Model setup.':'';
+    $('interrupt').disabled=!s.speech||s.speech.delivery.done;
     image('scene-image',s.scene_asset.selection.asset);
     image('portrait-image',s.portraits.visible?s.portraits.selection.asset:null);
     drawAsset();
@@ -165,8 +184,9 @@ async function loadState(){
     $('receipts').textContent=JSON.stringify({
       ...s.spending,ledger:s.spending_receipts,pending_jobs:s.pending_jobs}
     ,null,2);
-    $('spend').textContent=`Committed $${(s.spending.charged_or_reserved_micros/1e6).toFixed(6)} / $${(s.spending.cap_micros/1e6).toFixed(6)} cap · ${s.pending_jobs} queued`;
-    $('notice').textContent=s.notice;
+    const money=n=>n===0?'$0':'$'+(n/1e6).toFixed(6);
+    $('spend').textContent=`${money(s.spending.charged_or_reserved_micros)} / ${money(s.spending.cap_micros)} cap · ${s.pending_jobs} queued`;
+    $('notice').textContent=clientNotice||s.notice;
     if(s.recognition&&s.recognition.text!=='[speech detected]'){
       $('interim').textContent=`${s.recognition.status}: ${s.recognition.text}${s.recognition.uncertainty?' · '+s.recognition.uncertainty:''}`;
     }
@@ -174,6 +194,7 @@ async function loadState(){
       configured=true;
       settings(s);
     }
+    renderSetup(s);
 }
 const refresh=coalescedRefresh(loadState,()=>state);
 $('player').onchange=$('npc').onchange=async()=>{
@@ -196,17 +217,20 @@ $('chat').onsubmit=async e=>{
 ;
 $('interrupt').onclick=()=>player.interrupt().then(refresh).catch(e=>$('notice').textContent=e.message);
 $('play').onclick=async()=>{
-  if(!state.speech)return;
-  if(player.current?.id===state.speech.id&&!player.current.closed&&state.providers.tts==='off'){
-    await player.read();
+  try{
+    if(!state.speech)return;
+    if(state.effective_backends.tts==='off'){
+      if(!player.current||player.current.id!==state.speech.id||player.current.closed){
+        if(state.speech.delivery.stage!=='validated')return;
+        await player.start(state.speech,'off',state.providers.voices[state.speech.actor]);
+      }
+      await player.read();await refresh();return;
+    }
+    if(state.speech.delivery.stage!=='validated')return;
+    await player.start(state.speech,state.effective_backends.tts,state.providers.voices[state.speech.actor]);
     await refresh();
-    return;
-  }
-  if(state.speech.delivery.stage!=='validated')return;
-  await player.start(state.speech,state.effective_backends.tts,state.providers.voices[state.speech.actor]);
-  await refresh();
-}
-;
+  }catch(e){clientNotice=e.message;$('notice').textContent=e.message;}
+};
 $('save').onclick=async()=>{
   const generation=state?.generation;
   await player.interrupt();
@@ -221,18 +245,62 @@ $('load').onclick=async()=>{
 }
 ;
 $('promise').onclick=()=>invoke('promise');
-$('settings').onclick=async()=>{
-  const generation=state?.generation;
-  await player.interrupt();
+function draftSettings(){
   const voices=structuredClone(state.providers.voices);
-  voices[state.npc]={
-    voice_id:$('voice-id').value,pitch:Number($('pitch').value),rate:Number($('rate').value)}
-  ;
-  await invoke('settings',{
-    speech_mode:$('speech-mode').value,text:$('text-backend').value,image:$('image-backend').value,tts:$('tts-backend').value,stt:$('stt-backend').value,size:$('size').value,cap_micros:Math.round(Number($('cap').value)*1e6),voices}
-  ,generation);
+  voices[state.npc]={voice_id:$('voice-id').value,pitch:Number($('pitch').value),rate:Number($('rate').value)};
+  const draft={speech_mode:$('speech-mode').value,text:$('text-backend').value,image:$('image-backend').value,tts:$('tts-backend').value,stt:$('stt-backend').value,size:$('size').value,cap_micros:Math.round(Number($('cap').value)*1e6),voices};
+  if(['local_ollama','online_openai_compatible'].includes(draft.text))draft.model=$('model').value.trim();
+  return draft;
 }
-;
+function renderSetup(s){
+  const dirty=appliedDraft&&draftKey(draftSettings())!==appliedDraft;
+  $('settings-state').textContent=dirty?'Not applied · current settings still in use':'Applied · affects your next message';
+  $('settings-state').className=dirty?'dirty':'';
+  $('settings').textContent=dirty?'Apply changes':'Apply settings';
+  $('model').disabled=!['local_ollama','online_openai_compatible'].includes($('text-backend').value);
+  const rows=(s.setup?.channels||[]).map(row=>browserAvailability(row,globalThis));
+  $('channel-status').replaceChildren(...rows.map(row=>{
+    const badge=document.createElement('span');badge.className='status-chip '+(['ready','offline'].includes(row.status)?'ready':['unchecked','checking','online'].includes(row.status)?'':'warning');badge.textContent=channelNames[row.channel]+': '+channelLabel(row);badge.title=row.detail;return badge;
+  }));
+  const warnings=rows.filter(r=>['missing_model','unavailable','unconfigured','paused','browser_unavailable'].includes(r.status));
+  document.querySelector('.setup-banner').classList.toggle('needs-attention',Boolean(dirty||warnings.length));
+  $('setup-title').textContent=dirty?'You have unapplied model settings.':warnings.length?'Some selected services need attention.':s.pending_jobs?'Working in the background · you can keep playing.':'Play now, add models whenever you like.';
+  $('setup-help').textContent=dirty?'Click Apply changes to use these settings for your next message.':warnings.length?warnings.map(r=>channelNames[r.channel]+': '+r.detail).join(' '):'Exploration and trade always work offline. Model setup can happen before or after meeting a character.';
+  const text=rows.find(r=>r.channel==='text');
+  $('model-detail').textContent=text?`Applied: ${text.model||channelLabel(text)}. ${text.detail}`:'';
+  $('audio-checks').textContent=rows.filter(r=>r.channel!=='text').map(r=>channelNames[r.channel]+': '+channelLabel(r)+'. '+r.detail).join(' ');
+  const models=s.setup?.installed_models||[];const list=$('installed-models');
+  if(JSON.stringify(models)!==list.dataset.models){
+    list.dataset.models=JSON.stringify(models);list.replaceChildren(...models.map(name=>{const option=document.createElement('option');option.value=name;return option;}));
+    const picker=$('installed-choice');const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose an installed model…';picker.replaceChildren(placeholder,...models.map(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;return option;}));
+  }
+  $('installed-label').hidden=!models.length;
+  $('check-providers').disabled=s.pending_jobs>0;
+  const activity=s.setup?.activity||[];
+  const current=activity.find(r=>r.status==='running')||activity.find(r=>r.status==='queued')||activity[0];
+  $('work-status').hidden=!current;
+  $('work-status').textContent=current?`${channelNames[current.channel]||current.channel}: ${current.status} · ${current.model||current.backend} · ${(current.elapsed_ms/1000).toFixed(1)}s`:'No model requests yet. You can explore, trade and get offline replies.';
+  if(!activity.length)$('activity').textContent='No model requests yet. Movement, purchases and offline replies use game rules.';
+  else $('activity').replaceChildren(...activity.slice(0,10).map(row=>{
+    const div=document.createElement('div');div.className='activity-row';const heading=document.createElement('strong');heading.textContent=`${channelNames[row.channel]||row.channel} · ${row.status} · ${(row.elapsed_ms/1000).toFixed(1)}s`;const small=document.createElement('small');small.textContent=[row.backend,row.model].filter(Boolean).join(' · ');div.append(heading,document.createTextNode(row.detail),small);return div;
+  }));
+}
+$('settings').onclick=async()=>{
+  try{const generation=state.generation,args=draftSettings();await player.interrupt();await invoke('settings',args,generation);settings(state);}
+  catch(e){clientNotice=e.message;}
+};
+for(const id of ['text-backend','size'])$(id).addEventListener('change',()=>{$('model').value=selectedModel(state.providers,$('text-backend').value,$('size').value);renderSetup(state);});
+for(const id of ['text-backend','image-backend','tts-backend','stt-backend','size','speech-mode','model','cap','voice-id','pitch','rate'])$(id).addEventListener('input',()=>renderSetup(state));
+$('installed-choice').onchange=()=>{if($('installed-choice').value){$('text-backend').value='local_ollama';$('model').value=$('installed-choice').value;renderSetup(state);}};
+$('check-providers').onclick=()=>invoke('check_providers').catch(()=>{});
+$('show-setup').onclick=()=>{$('provider-panel').open=true;$('provider-panel').scrollIntoView({behavior:'smooth',block:'start'});$('text-backend').focus({preventScroll:true});};
+let resetGeneration=0;
+$('new-game').onclick=()=>{resetGeneration=state.generation;$('reset-dialog').showModal();};
+$('cancel-reset').onclick=()=>$('reset-dialog').close();
+$('confirm-reset').onclick=async()=>{
+  try{if(mic){if(mic.abort)mic.abort();else mic.stop();mic=null;}await player.interrupt();await invoke('reset',{},resetGeneration);lastSpeech=0;$('input').value='';$('interim').textContent='';$('reset-dialog').close();}
+  catch(e){clientNotice=e.message;}
+};
 $('asset-target').onchange=$('preview-candidate').onchange=drawAsset;
 $('generate').onclick=()=>invoke('generate',{
   target:$('asset-target').value}
@@ -429,4 +497,4 @@ setInterval(()=>refresh().catch(e=>$('notice').textContent=e.message),600);
 
 $('resume-local').onclick=()=>invoke('resume_local',{});
 
-$('stock').onclick=async()=>{await player.interrupt();await invoke('chat',{text:'What stock do you sell?'});};
+$('stock').onclick=async()=>{$('actions').closest('details').open=true;await player.interrupt();await invoke('chat',{text:'What stock do you sell?'});};

@@ -505,3 +505,17 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   Final suite: 1,184 cases (1,122 baseline unchanged), 10,000 new mutations, 17 dungeon
   tests, binding/MSRV/package checks and $0 API. Remaining bounded-storage, host-authoring,
   physical-device and unloaded-tier limits are documented, not capability claims.
+
+
+## Studio setup and feedback usability
+
+- Explain applied vs draft providers, actual model IDs vs tier hints, and no-model play;
+  list installed Ollama models with asynchronous zero-generation local checks.
+- Expose bounded per-request activity and reply origin, identify missing-model/connection
+  failures, and retain conservative pause handling only for uncertain local failures.
+- Route the Talk UI into conversation, put the current reply/input before optional event
+  history, and acknowledge text with one click. Keep advanced picture/audio controls out
+  of the main setup path.
+- Add confirmed New game with monotonic stale-result rejection; keep settings, saved
+  branches, approved assets and spending intact. Offline setup/recovery holdout passes
+  eleven workflows without an installed service or API spend.

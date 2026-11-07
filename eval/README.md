@@ -1363,3 +1363,20 @@ the frozen failed and corrected live cohorts without calling a model.
 The final optional preference trace reproduces all twelve previously live-tested packets;
 it is not counted as another live model cohort. The complete report records 230 local
 calls and the possible single interrupted unrecorded call, with $0 API spend.
+
+
+Studio usability follow-up: `studio_setup_cases.py --cap 0` declares eight independent
+setup/reset expectations; `studio_setup_holdout.py --cap 0 --output NEW.json` exercises
+the actual host with an original loopback Ollama mock. It tests installed-name discovery,
+apply-after-travel, Talk routing, fallback/recovery, reset while a response is held, stale
+results and saved branches. `node eval/test_studio_setup.mjs --cap 0` checks pure UI helpers.
+No real provider runs in these automated checks. The original Studio artifact stays fixed.
+
+For a manual real-browser check, start an isolated Firefox with `--headless --no-remote --profile PROFILE --remote-debugging-port=9223`, start an isolated offline preview at
+port 8788, then run `python3 -I eval/studio_setup_browser.py --cap 0 --port 8788 --webdriver 9223 --output NEW.json`. This uses the original stdlib loopback BiDi driver,
+not a product dependency; it modifies that preview's game and branch A. Physical audio,
+STT accuracy, image quality and general player usability are outside its claims.
+
+`studio-setup-live.json` is a separate one-call manual installed-Qwen wiring check,
+not part of the offline CI suites or an accuracy benchmark. It records host-validated
+speech and explicitly identifies the absence of retained raw generation wire output.

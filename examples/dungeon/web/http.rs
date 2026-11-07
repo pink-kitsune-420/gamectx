@@ -112,6 +112,7 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             "/studio.css" => Some(("text/css", include_bytes!("studio.css").as_slice())),
             "/studio.mjs" => Some(("text/javascript", include_bytes!("studio.mjs").as_slice())),
             "/context.mjs" => Some(("text/javascript", include_bytes!("context.mjs").as_slice())),
+            "/setup.mjs" => Some(("text/javascript", include_bytes!("setup.mjs").as_slice())),
             "/voice.mjs" => Some(("text/javascript", include_bytes!("voice.mjs").as_slice())),
             _ => None,
         };
@@ -166,7 +167,14 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             );
         }
     }
-    let (value, jobs) = current.command(op, &args)?;
+    let (value, jobs) = match current.command(op, &args) {
+        Ok(result) => result,
+        Err(_) => {
+            let epoch = current.epoch;
+            drop(current);
+            return response(stream,400,"application/json",obj! {"ok"=>false,"error"=>if op=="settings"{"Settings were not applied. Check the model name, voice values and authorized spending cap."}else{"That request could not be applied to the current game. Refresh and try again."},"generation"=>epoch}.to_json().as_bytes());
+        }
+    };
     let generation = current.epoch;
     drop(current);
     for job in jobs {

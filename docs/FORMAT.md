@@ -2007,3 +2007,16 @@ the Studio keeps its immediate authored line in that case.
 Selected-episode lexical ranking also includes a simple trailing-`s` alias for words
 longer than three characters (`wicks` / `wick`), with no semantic inference. One additive
 archived-preference case establishes this behavior; existing expected outputs stay fixed.
+
+
+### Studio example setup/status extensions
+
+The opt-in example's `/api/state` adds `setup` (four channel statuses, bounded installed
+model names and the latest 24 worker receipts). Speech adds `origin`: `offline`, `pending`,
+`authorized_model` or `model`. Elapsed milliseconds include queue wait. These are example
+host diagnostics, not inferred model thoughts or core conformance-format changes.
+`POST /api/check_providers {}` queues local metadata/reachability checks; `POST /api/reset
+{}` starts a fresh current game while preserving settings, saved branches, asset cache and
+spending. Both browser calls carry the current scene-generation header. Settings optionally
+accept `model`, applying that validated ID only to the selected text backend/tier. Existing
+settings payloads remain valid; endpoint URLs/credentials remain host-owned.

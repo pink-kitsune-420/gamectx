@@ -1,5 +1,6 @@
 :root{color-scheme:dark;--bg:#101a20;--panel:#16252d;--line:#30454d;--ink:#e8e5da;--muted:#9eafb3;--copper:#daa479;--accent:#97c6bc;font:14px/1.5 system-ui,sans-serif}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink)}
 header{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-bottom:1px solid var(--line);background:#132129}
 header strong{font-size:18px;letter-spacing:.15em}
@@ -73,4 +74,61 @@ header strong{font-size:13px}
 header small{font-size:8px;margin:0}
 #spend{font-size:11px}
 h1{font-size:28px}
+}
+
+.header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.setup-banner{max-width:1700px;margin:0 auto;padding:16px 24px;border-bottom:1px solid var(--line);display:flex;gap:20px;justify-content:space-between;align-items:center;background:#15272b}
+.setup-banner strong{font-size:14px;color:var(--accent)}
+.setup-banner p{margin:4px 0 0;color:var(--muted);font-size:12px}
+#channel-status{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.status-chip{border:1px solid var(--line);border-radius:20px;padding:5px 10px;font-size:11px}
+.status-chip.warning{color:#f2bf94;border-color:#856347}
+.status-chip.ready{color:var(--accent)}
+#model-detail{overflow-wrap:anywhere}
+.primary{background:#345b52;border-color:#80b4a4;font-weight:600}
+.setup-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;position:sticky;top:0;background:var(--bg);z-index:2}
+#settings-state{font-size:11px;color:var(--muted)}
+#settings-state.dirty{color:var(--copper)}
+.model-field{flex:3!important}
+.explore{padding:8px 0}
+.explore summary{font-size:12px;color:var(--muted)}
+.explore .actions{padding-top:12px;border:0}
+#quick-actions:empty{display:none}
+#chat{margin:10px 0}#chat label{margin-top:0}
+#activity{font-size:12px;max-height:260px;overflow:auto}
+.activity-row{padding:9px 0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.activity-row strong{display:block;color:var(--accent);font-size:11px}
+.activity-row small{display:block;color:var(--muted);margin-top:3px}
+#reply-origin{color:var(--accent)}
+.speech{padding:12px}#speech-text{font-size:17px;margin:8px 0}
+.speech-heading{flex-wrap:wrap}
+#notice{margin:8px 0;min-height:20px}
+.art{margin-bottom:12px}
+.art-label{font-size:12px}
+.inspector>details:first-of-type{padding-top:0;border-top:0}
+dialog{max-width:440px;border:1px solid var(--accent);border-radius:14px;background:var(--panel);color:var(--ink);padding:24px}
+dialog::backdrop{background:#060f14b8}
+@media(min-width:1151px){header{padding:12px 24px}main{gap:20px;padding-top:18px;grid-template-columns:minmax(200px,.8fr) minmax(440px,2fr) minmax(280px,1fr)}.play{min-width:0}.room-copy{padding:5px 0}h1{font-size:30px}.party label{margin:0}.party button{margin-top:17px}#transcript{min-height:100px;max-height:220px}.inspector{max-height:calc(100dvh - 180px);overflow:auto;padding-right:5px;position:sticky;top:12px;align-self:start}}
+@media(max-width:730px){.setup-banner{display:block;padding:12px 15px}#channel-status{justify-content:flex-start;margin-top:10px}.header-actions{gap:5px}#spend{border:0;padding:0}.compose{flex-wrap:wrap}.compose input{flex-basis:100%}}
+
+.inspector,#transcript,#activity{scrollbar-width:thin;scrollbar-color:var(--line) var(--bg)}
+.history{padding:8px 0}.history summary{font-size:12px;color:var(--muted)}
+#work-status{font-size:11px;margin:7px 0;overflow-wrap:anywhere}
+#notice{font-size:12px;margin:6px 0}
+button:disabled{cursor:not-allowed}
+
+@media(max-width:730px){header{flex-wrap:wrap}.header-actions{width:100%;justify-content:space-between}}
+
+.text-only progress{display:none}
+@media(min-width:1151px) and (max-height:800px){
+header{padding:9px 24px}header small{display:none}
+.setup-banner{padding:10px 24px}.setup-banner:not(.needs-attention) p{display:none}
+main{padding-top:12px}.eyebrow{margin-bottom:7px}
+.party select{padding:6px}.party button{padding:7px}
+.room-copy{padding:3px 0}h1{font-size:26px;line-height:1.15;margin:4px 0}.room-copy p{margin:4px 0}
+#notice{font-size:11px;line-height:1.4;margin:4px 0}
+#quick-actions{padding-bottom:7px}#quick-actions button{padding:7px}
+.explore{padding:4px 0}.speech{padding:10px}#speech-text{margin:6px 0;font-size:17px;line-height:1.4}
+.speech small{display:none}.speech .button-row button{padding:6px}
+#chat{margin:8px 0}#chat label{margin-bottom:5px}
 }

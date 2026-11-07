@@ -30,6 +30,7 @@ struct Speech {
     voice: VoiceTurn,
     pending: bool,
     audio: Option<Value>,
+    origin: String,
 }
 pub struct App {
     pub config: Config,
@@ -57,6 +58,7 @@ pub struct App {
     mic: u64,
     mic_open: bool,
     local_paused: bool,
+    monitor: super::setup::Monitor,
     focus: Option<(String, u64)>,
     recognition: Value,
     counters: [u64; 2],
@@ -153,6 +155,7 @@ impl App {
             mic: 0,
             mic_open: false,
             local_paused: false,
+            monitor: super::setup::Monitor::default(),
             focus: None,
             recognition: Value::Null,
             counters: [0, 0],
@@ -293,6 +296,9 @@ impl App {
                 };
                 s.voice.interrupt(p, h)?;
                 s.pending = false;
+                if s.origin == "pending" {
+                    s.origin = "offline".into();
+                }
                 s.audio = None;
                 self.archive_speech(was_playing)?;
             }
@@ -310,6 +316,7 @@ impl App {
             voice,
             pending: false,
             audio: None,
+            origin: "offline".into(),
         });
         Ok(())
     }
@@ -572,6 +579,8 @@ impl App {
         };
         let id = self.next();
         self.pending.push((id, self.epoch, modality.into()));
+        let model = if modality == "text" { super::setup::selected_model(&self.config) } else { String::new() };
+        self.monitor.queued(id, modality, &backend, &model, false);
         if let Err(e) = if reservation.is_some() { self.persist_budget() } else { Ok(()) } {
             if let Some(r) = reservation {
                 self.budget.cancel(r)?;
@@ -609,7 +618,8 @@ impl App {
                     }))
             && job.epoch == self.epoch
             && self.pending.iter().any(|x| x.0 == job.id)
-            && (job.modality == "image"
+            && (job.modality == "check"
+                || job.modality == "image"
                 || job.modality == "stt"
                 || self.speech.as_ref().is_some_and(|s| {
                     Some(s.id) == job.binding.get("speech").and_then(Value::as_usize).map(|x| x as u64)
@@ -617,7 +627,7 @@ impl App {
                 }))
     }
     pub fn before_dispatch(&mut self, job: &Job) -> Result<bool> {
-        if !self.valid_job(job) || self.local_paused && job.backend.starts_with("local_") {
+        if !self.valid_job(job) || job.modality != "check" && self.local_paused && job.backend.starts_with("local_") {
             self.cancel_job(job)?;
             return Ok(false);
         }
@@ -625,9 +635,19 @@ impl App {
             self.budget.dispatch(id)?;
             self.persist_budget()?;
         }
+        self.monitor.update(
+            job.id,
+            "running",
+            if job.modality == "check" {
+                "Checking connection; no generation."
+            } else {
+                "Provider request is running; the immediate fallback remains available."
+            },
+        );
         Ok(true)
     }
     pub fn cancel_job(&mut self, job: &Job) -> Result<()> {
+        self.monitor.update(job.id, "cancelled", "Request cancelled before dispatch or because the scene changed.");
         if self.owns_image_ticket(job) {
             let _ = self.assets.reject(text(&job.binding, "key")?, "Cancelled stale worker.");
         }
@@ -639,13 +659,30 @@ impl App {
         if let Some(s) = &mut self.speech {
             if Some(s.id) == job.binding.get("speech").and_then(Value::as_usize).map(|x| x as u64) {
                 s.pending = false;
+                if job.modality == "text" {
+                    s.origin = "offline".into();
+                }
             }
+        }
+        if job.modality == "check" {
+            self.monitor.cancel_check(text(&job.binding, "channel")?);
         }
         Ok(())
     }
     pub fn complete(&mut self, job: &Job, response: Result<Vec<u8>>) -> Result<Vec<Job>> {
         let mut followups = Vec::new();
-        if response.is_err() && job.backend.starts_with("local_") {
+        let failure = response.as_ref().err().map(|e| super::setup::failure_detail(e, &job.backend));
+        let problem_status = response.as_ref().err().map(|e| {
+            if e.to_string() == "provider_http_404" && job.backend == "local_ollama" {
+                "missing_model"
+            } else {
+                "unavailable"
+            }
+        });
+        if job.modality != "check"
+            && response.as_ref().err().is_some_and(|e| !super::setup::definite_failure(e))
+            && job.backend.starts_with("local_")
+        {
             self.local_paused = true;
         }
 
@@ -656,9 +693,23 @@ impl App {
         let valid = self.valid_job(job);
         self.pending.retain(|x| x.0 != job.id);
         if !valid {
+            self.monitor.update(job.id, "stale", "Response ignored: the scene, settings or speech delivery changed.");
+            if job.modality == "check" {
+                self.monitor.cancel_check(text(&job.binding, "channel")?);
+            }
             if self.owns_image_ticket(job) {
                 let _ = self.assets.reject(text(&job.binding, "key")?, "Stale worker result.");
             }
+            return Ok(followups);
+        }
+        if job.modality == "check" {
+            let channel = text(&job.binding, "channel")?;
+            let ok = self.monitor.finish_check(channel, &job.backend, response);
+            self.monitor.update(
+                job.id,
+                if ok { "checked" } else { "failed" },
+                "Connection check finished; see setup status.",
+            );
             return Ok(followups);
         }
         let apply = (|| -> Result<()> {
@@ -691,6 +742,7 @@ impl App {
                     }
                     let s = self.speech.as_mut().ok_or_else(err)?;
                     s.pending = false;
+                    s.origin = if grounded.is_some() { "authorized_model" } else { "model" }.into();
                     if text(&s.voice.snapshot(), "stage")? == "validated" {
                         s.voice = VoiceTurn::new("studio_save", &s.actor, &s.player, &self.people, line)?;
                     }
@@ -736,13 +788,17 @@ impl App {
             Ok(())
         })();
         if apply.is_err() {
-            self.notice = format!("{} provider failed validation or was unavailable; fallback retained.", job.modality);
+            let detail = failure
+                .unwrap_or("Provider output failed validation. The host kept the offline reply or approved asset.");
+            self.monitor.update(job.id, "failed", detail);
+            if let Some(status) = problem_status {
+                self.monitor.problem(&job.modality, &job.backend, status, detail);
+            }
+            self.notice = format!("{}: {detail}", job.modality);
             if let Some(s) = &mut self.speech {
                 if job.modality == "text" {
                     s.pending = false;
-                }
-                if job.modality == "tts" {
-                    s.audio = Some(obj! {"fallback"=>"browser_web_speech"});
+                    s.origin = "offline".into();
                 }
                 if job.modality == "tts" {
                     s.audio = Some(obj! {"fallback"=>"browser_web_speech"});
@@ -752,7 +808,15 @@ impl App {
                 let _ = self.assets.reject(text(&job.binding, "key")?, "Provider failed or candidate invalid.");
             }
         } else {
-            self.notice = format!("{} worker completed; images still require approval.", job.modality);
+            self.monitor.succeeded(&job.modality, &job.backend, &super::setup::selected_model(&self.config));
+            let detail = match job.modality.as_str() {
+                "text" => "Model reply validated. Play/read the line to confirm delivery.",
+                "image" => "Image candidate received. Review and approve it before use.",
+                "tts" => "Audio chunk ready for playback.",
+                _ => "Transcript validated; only final recognition may act.",
+            };
+            self.monitor.update(job.id, "completed", detail);
+            self.notice = detail.into();
         }
         Ok(followups)
     }
@@ -849,9 +913,9 @@ impl App {
             let life = self.world.effective_life(actor)?;
             characters.push(obj!{"id"=>actor,"life"=>self.world.inspect_actor(actor)?,"episodes"=>life.recall_episodes("conversation returned",&vec!["conversation","trade"].into(),gamectx::deployment::ModelSize::parse(text(&self.config.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).recall)?});
         }
-        let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
+        let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&self.config,self.local_paused),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -860,6 +924,70 @@ impl App {
         }
         let mut jobs = Vec::new();
         let result = match op {
+            "check_providers" => {
+                fields(v, &[])?;
+                if !self.pending.is_empty() {
+                    self.notice = "Wait for current requests to finish before checking connections.".into();
+                    return Ok((obj! {"queued"=>false,"reason"=>"busy"}, jobs));
+                }
+                for (channel, backend) in [
+                    ("text", "local_ollama"),
+                    ("image", "local_sd_cpp"),
+                    ("tts", "local_tts_http"),
+                    ("stt", "local_stt_http"),
+                ] {
+                    let id = self.next();
+                    self.monitor.checking(channel, backend);
+                    self.monitor.queued(id, channel, backend, "", true);
+                    self.pending.push((id, self.epoch, "check".into()));
+                    jobs.push(Job {
+                        id,
+                        epoch: self.epoch,
+                        modality: "check".into(),
+                        backend: backend.into(),
+                        reservation: None,
+                        request: super::setup::probe(&self.config, channel)?,
+                        binding: obj! {"channel"=>channel},
+                    });
+                }
+                self.notice = "Checking local servers and installed Ollama models; no generation or paid calls.".into();
+                obj! {"queued"=>true}
+            }
+            "reset" => {
+                fields(v, &[])?;
+                let world = LivingWorld::new(self.pack.clone(), "studio_save")?;
+                let party = Self::party(&self.people, 0)?;
+                let interactions = ["merchant", "keeper"]
+                    .into_iter()
+                    .map(|id| Ok((id.into(), InteractionTools::new("studio_save", id, &self.people)?)))
+                    .collect::<Result<Vec<_>>>()?;
+                let game = game::Game::new(self.game.seed)?;
+                self.stop(None)?;
+                self.epoch += 1;
+                self.branch += 1;
+                self.game = game;
+                self.world = world;
+                self.party = party;
+                self.interactions = interactions;
+                self.actions.clear();
+                self.world_ops.clear();
+                self.receipts.clear();
+                self.transcript.clear();
+                self.speech = None;
+                self.tick = 0;
+                self.player = "player_1".into();
+                self.npc = "merchant".into();
+                self.focus = None;
+                self.mic_open = false;
+                self.mic += 1;
+                self.recognition = Value::Null;
+                self.counters = [0, 0];
+                self.fulfilled = [0, 0];
+                self.counter_seq = 0;
+                self.notice =
+                    "New game started. Provider settings, saved branches, approved art and spending are kept.".into();
+                obj! {"reset"=>true}
+            }
             "act" => {
                 fields(v, &["revision", "decision"])?;
                 self.stop(None)?;
@@ -897,6 +1025,8 @@ impl App {
                     }
                 }
                 self.fulfill_promises()?;
+                self.notice =
+                    result.get("message").and_then(Value::as_str).unwrap_or("Action could not be applied.").into();
                 result
             }
             "select" => {
@@ -934,14 +1064,21 @@ impl App {
                 let resolved = gamectx::studio::resolve_command(
                     &obj! {"input"=>line,"choices"=>choices.clone(),"labels"=>labels,"focus"=>focus},
                 )?;
+                let addressed_talk = self.active()
+                    && [
+                        format!("talk {}", self.npc),
+                        format!("talk to {}", self.npc),
+                        format!("talk to the {}", self.npc),
+                    ]
+                    .contains(&line.trim().trim_end_matches(['.', '!']).to_lowercase());
                 match text(&resolved, "status")? {
-                    "resolved" => {
+                    "resolved" if get(&resolved, "decision")?.get("action").and_then(Value::as_str) != Some("talk") => {
                         return self.command(
                             "act",
                             &obj! {"revision"=>self.game.revision,"decision"=>get(&resolved,"decision")?.clone()},
                         )
                     }
-                    "clarify" => {
+                    "clarify" if !addressed_talk => {
                         self.stop(None)?;
                         self.epoch += 1;
                         self.mic_open = false;
@@ -1009,6 +1146,7 @@ impl App {
                     let speech = self.speech.as_ref().unwrap().id;
                     if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null)})? {
                         self.speech.as_mut().unwrap().pending = true;
+                        self.speech.as_mut().unwrap().origin = "pending".into();
                         jobs.push(job);
                     }
                     obj! {"addressed"=>true}
@@ -1028,6 +1166,9 @@ impl App {
                         }
                         s.voice.queue()?;
                         s.pending = false;
+                        if s.origin == "pending" {
+                            s.origin = "offline".into();
+                        }
                     }
                     "played" => s.voice.progress(n, h)?,
                     "interrupted" => {
@@ -1119,6 +1260,9 @@ impl App {
                 if v.get("speech_mode").is_some() {
                     keys.push("speech_mode");
                 }
+                if v.get("model").is_some() {
+                    keys.push("model");
+                }
                 fields(v, &keys)?;
                 let mut value = self.config.value.clone();
                 for k in ["text", "image", "tts", "stt", "size", "voices"] {
@@ -1127,6 +1271,18 @@ impl App {
                 if let Some(mode) = v.get("speech_mode") {
                     set(&mut value, "speech_mode", mode.clone());
                 }
+                if let Some(model) = v.get("model") {
+                    let backend = text(&value, "text")?.to_owned();
+                    if !["local_ollama", "online_openai_compatible"].contains(&backend.as_str()) {
+                        return Err(err());
+                    }
+                    let size = text(&value, "size")?.trim_end_matches(['b', 'B']).to_owned();
+                    let mut models = get(&value, "text_models")?.clone();
+                    let mut mapping = get(&models, &backend)?.clone();
+                    set(&mut mapping, &size, model.clone());
+                    set(&mut models, &backend, mapping);
+                    set(&mut value, "text_models", models);
+                }
                 let config = Config::parse(&value.to_json())?;
                 self.budget.limit(num(v, "cap_micros", 1_000_000_000_000)?)?;
                 self.persist_budget()?;
@@ -1134,6 +1290,7 @@ impl App {
                 self.epoch += 1;
                 self.mic_open = false;
                 self.config = config;
+                self.notice = "Settings applied to the next message. Existing game progress is kept; check local connections if needed.".into();
                 obj! {"configured"=>true}
             }
             "generate" => {
@@ -1264,6 +1421,7 @@ impl App {
                 self.stop(None)?;
                 let saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
                 atomic(&self.dir.join(format!("branch-{slot}.json")), saved.to_json().as_bytes())?;
+                self.notice = format!("Branch {} saved.", char::from(b'A' + slot as u8));
                 obj! {"saved"=>slot}
             }
             "load" => {

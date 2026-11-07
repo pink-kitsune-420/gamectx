@@ -556,3 +556,11 @@ First public release.
   lexical alias; all prior conformance outputs remain unchanged. Final restored-cast
   paired evidence reports 3/12→12/12 required replies under host-authored answer policy,
   with failed evaluation-gate integration retained and corrected using PartyScene APIs.
+
+- [api] Add optional Studio model-ID selection, asynchronous bounded local connection
+  checks, request activity and reply-origin diagnostics without changing core APIs.
+- [fix] Make missing models and unavailable services visible, preserve other local work
+  after definite connection/400/404 failures, and retain pause handling for ambiguous
+  failures. Route Talk UI/addressing phrases through dialogue and acknowledge text once.
+- [api] Add confirmed New game with stale-result fencing; keep provider settings, saved
+  branches, approved art and cumulative spending. Simplify the main play/setup layout.

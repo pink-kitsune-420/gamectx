@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+  "configured_cpu_threads": 4,
+  "cap_micros": 0,
+  "actual_text_generation_requests": 1,
+  "model_metadata_requests": 1,
+  "api_spend_usd": 0,
+  "origin": "authorized_model",
+  "validated_speech": "I tend this counter; choose an item or tell me what you need.",
+  "activity": [
+    {
+      "id": 4,
+      "channel": "text",
+      "backend": "local_ollama",
+      "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+      "status": "completed",
+      "detail": "Model reply validated. Play/read the line to confirm delivery.",
+      "elapsed_ms": 23783
+    }
+  ],
+  "wall_ms": 23884.619,
+  "limits": "Manual local provider-wiring smoke check against an isolated host, not an accuracy cohort or controlled latency benchmark. Exact generation wire output is not retained by this example transport; the field records host-validated speech. No physical audio or image request was made; no downloads or online calls."
+}

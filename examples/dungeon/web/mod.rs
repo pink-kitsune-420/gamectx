@@ -2,6 +2,7 @@
 mod app;
 mod http;
 mod providers;
+mod setup;
 #[cfg(test)]
 mod tests;
 use super::game;

@@ -1,0 +1,22 @@
+{
+  "http_checks": 30,
+  "mock_discovery_requests": 1,
+  "mock_generation_requests": 4,
+  "reset_while_mock_blocked_ms": 0.866,
+  "cases": [
+    "installed-model discovery without generation",
+    "missing-model explanation",
+    "scoped model setting and invalid-name rejection",
+    "setup after entering the game",
+    "talk command invokes conversation",
+    "visible model completion",
+    "404 retains fallback without global pause",
+    "subsequent request recovery",
+    "nonblocking reset while model is held",
+    "late response and stale command rejected",
+    "saved branch preserved"
+  ],
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Offline mock HTTP and game state. Port checks prove reachability only, not provider compatibility. Reset timing is one uncontrolled local observation, not a frame-rate or general performance claim."
+}
