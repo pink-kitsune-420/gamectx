@@ -1,0 +1,1 @@
+{"kind":"studio-expression","args":{"op":"packet","args":{"mode":"negotiate","speaker":"merchant","listener":"player_1","profile":{"traits":"Practical, reserved."},"scene":{"location":"workshop"},"context":{"trust":15,"atmosphere":"calm"},"history":[],"input":"Tell me a very long intricate story.","style":"expressive"}}}

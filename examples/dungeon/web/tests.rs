@@ -1319,3 +1319,223 @@ fn long_recognition_interims_never_execute_actions_and_final_is_bounded() {
     command(&mut a, "recognition", obj! {"session"=>mic,"text"=>line,"final"=>true,"uncertainty"=>Value::Null});
     assert_eq!(a.game.public(), before);
 }
+
+#[test]
+fn explicit_player_disclosures_are_scoped_and_survive_transient_chatter() {
+    let d = Dir::new();
+    let mut mind = parse(include_str!("personalities.json")).unwrap();
+    set(&mut mind, "enabled", true.into());
+    atomic(&d.0.join("personalities.json"), mind.to_json().as_bytes()).unwrap();
+    let mut a = app(&d);
+    travel(&mut a);
+    for line in ["My name is Vira.", "My name is Vela, not Vira.", "I prefer quiet music."] {
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>line});
+        assert!(jobs.is_empty());
+    }
+    for _ in 0..600 {
+        command(&mut a, "chat", obj! {"text"=>"Hello."});
+    }
+    command(&mut a, "save", obj! {"slot"=>0});
+    command(&mut a, "chat", obj! {"text"=>"What is my name?"});
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("Vela"));
+    command(&mut a, "select", obj! {"player"=>"player_2","npc"=>"merchant"});
+    command(&mut a, "chat", obj! {"text"=>"What is my name?"});
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("not told"));
+    command(&mut a, "chat", obj! {"text"=>"Call me Sera."});
+    command(&mut a, "load", obj! {"slot"=>0});
+    command(&mut a, "chat", obj! {"text"=>"What do I prefer?"});
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("quiet music"));
+    assert!(!a.state().unwrap().get("rumors").unwrap().to_json().contains("Vela"));
+    for room in ["gallery", "cistern"] {
+        let revision = a.game.revision;
+        command(
+            &mut a,
+            "act",
+            obj! {"revision"=>revision,"decision"=>obj!{"action"=>"go","target"=>format!("room:{room}")}},
+        );
+    }
+    command(&mut a, "chat", obj! {"text"=>"What is my name?"});
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("not told"));
+}
+#[test]
+fn expressive_turns_get_real_generation_instead_of_a_fallback_enum() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    for (input, mode) in [
+        ("Do you have any plans?", "personal"),
+        ("Can you tell me a story?", "fiction"),
+        ("I had a long day; keep me company.", "social"),
+    ] {
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>input});
+        assert_eq!(jobs.len(), 1);
+        let j = &jobs[0];
+        assert_eq!(j.binding.get("expression"), Some(&mode.into()));
+        let body = parse(std::str::from_utf8(&j.request.body).unwrap()).unwrap();
+        assert!(!get(get(&body, "format").unwrap(), "properties")
+            .unwrap()
+            .get("speech")
+            .unwrap()
+            .to_json()
+            .contains("specific answer"));
+        assert!(!String::from_utf8_lossy(&j.request.body).contains("only the supplied facts, attitude"));
+    }
+}
+#[test]
+fn confirmed_fiction_stays_a_tale_and_partial_plans_never_publish() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Tell me a story."});
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(j,Ok(obj!{"message"=>obj!{"content"=>obj!{"speech"=>vec!["Imagine a pebble too shy to sing.","In this tale, a stream taught it a rhythm."]}.to_json()}}.to_json().into_bytes())).unwrap();
+    let s = a.state().unwrap().get("speech").unwrap().clone();
+    assert_eq!(s.get("origin"), Some(&"fiction_model".into()));
+    let id = s.get("id").unwrap().clone();
+    let n = text(&s, "text").unwrap().chars().count();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>n,"heard"=>n});
+    assert!(a.state().unwrap().get("transcript").unwrap().to_json().contains("heard imagined tale"));
+    assert_eq!(
+        a.state()
+            .unwrap()
+            .get("personality")
+            .unwrap()
+            .get("viewpoints")
+            .unwrap()
+            .get("entries")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+    command(&mut a, "chat", obj! {"text"=>"Do you have any plans?"});
+    let s = a.state().unwrap().get("speech").unwrap().clone();
+    command(&mut a, "delivery", obj! {"id"=>s.get("id").unwrap().clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(
+        &mut a,
+        "delivery",
+        obj! {"id"=>s.get("id").unwrap().clone(),"event"=>"interrupted","through"=>8,"heard"=>8},
+    );
+    assert_eq!(
+        a.state()
+            .unwrap()
+            .get("personality")
+            .unwrap()
+            .get("viewpoints")
+            .unwrap()
+            .get("entries")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+}
+
+#[test]
+fn out_of_character_notes_do_not_become_npc_memories_or_world_actions() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let before = a.game.public();
+    let (result, jobs) = command(&mut a, "chat", obj! {"text"=>"OOC: pause; my name is UnheardName"});
+    assert!(jobs.is_empty());
+    assert_eq!(result.get("out_of_character"), Some(&true.into()));
+    let state = a.state().unwrap();
+    assert_eq!(a.game.public(), before);
+    assert!(!state.get("roleplay_memory").unwrap().to_json().contains("UnheardName"));
+    assert!(state.get("transcript").unwrap().to_json().contains("\"kind\":\"ooc\""));
+}
+
+#[test]
+fn configured_ai_words_greetings_and_recall_with_source_checks_and_scene_cache() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    command(
+        &mut a,
+        "conversation_settings",
+        obj! {"version"=>1,"max_sentences"=>2,"max_player_chars"=>2048,"summarize_long"=>false,"ai_wording"=>true},
+    );
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"My name is Vela."});
+    assert_eq!(jobs.len(), 1);
+    let j = &jobs[0];
+    assert!(j.binding.get("wording").is_some());
+    let canonical = j.binding.get("wording").unwrap().clone();
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(
+        j,
+        Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>canonical.clone()}.to_json()}}.to_json().into_bytes()),
+    )
+    .unwrap();
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("origin"), Some(&"wording_model".into()));
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What is my name?"});
+    assert_eq!(jobs.len(), 1);
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(
+        j,
+        Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>"You told me your name is Sera."}.to_json()}}
+            .to_json()
+            .into_bytes()),
+    )
+    .unwrap();
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("Vela"));
+    // A validated cache line may be reused only while the exact situation matches.
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"My name is Vela."});
+    assert!(jobs.is_empty());
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("origin"), Some(&"cached_model".into()));
+    command(&mut a, "select", obj! {"player"=>"player_2","npc"=>"merchant"});
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"My name is Vela."});
+    assert_eq!(jobs.len(), 1);
+}
+#[test]
+fn oversized_story_is_negotiated_by_the_model_with_a_bounded_fallback() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Tell me a very long and intricate story."});
+    assert_eq!(jobs.len(), 1);
+    let j = &jobs[0];
+    assert_eq!(j.binding.get("expression"), Some(&"negotiate".into()));
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(j,Ok(obj!{"message"=>obj!{"content"=>obj!{"speech"=>vec!["I can't spare a whole day for an epic, but I can offer a short tale."]}.to_json()}}.to_json().into_bytes())).unwrap();
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("origin"), Some(&"scope_model".into()));
+    let state = a.state().unwrap();
+    let speech = state.get("speech").unwrap();
+    let id = speech.get("id").unwrap().clone();
+    let n = text(speech, "text").unwrap().chars().count();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>n,"heard"=>n});
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Yes."});
+    assert_eq!(jobs.len(), 1);
+    assert_eq!(jobs[0].binding.get("expression"), Some(&"fiction".into()));
+}
+#[test]
+fn repeated_fiction_is_pruned_after_validation_and_raw_text_is_retained() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Tell me a story."});
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    let line = "In this tale, a lantern gives a moth a spark.";
+    a.complete(
+        j,
+        Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>vec![line,line]}.to_json()}}.to_json().into_bytes()),
+    )
+    .unwrap();
+    let state = a.state().unwrap();
+    assert_eq!(state.get("speech").unwrap().get("text"), Some(&line.into()));
+    assert_eq!(state.get("speech").unwrap().get("segments"), Some(&1.into()));
+    assert!(state.get("deliberation").unwrap().to_json().contains("\"omitted\":[1]"));
+}
+
+#[test]
+fn maximum_authored_interests_and_seeds_fit_the_selected_profile_cap() {
+    let authored = obj! {"traits"=>"T".repeat(512),"interests"=>vec!["I".repeat(512);8],"story_seeds"=>vec!["S".repeat(512);8],"dream"=>"I hope to learn.","preference"=>"I prefer care."};
+    for mode in ["personal", "social", "fiction", "negotiate"] {
+        let selected = super::expression::profile(&authored, mode, "merchant", 0).unwrap();
+        assert!(selected.json_len() <= 4096);
+        if mode != "fiction" {
+            assert!(selected.get("story_seeds").is_none());
+        }
+    }
+}

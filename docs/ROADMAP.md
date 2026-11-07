@@ -8,6 +8,16 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Connected character wording + bounded expression/fiction/short-scope negotiation,
+  scoped disclosed names/preferences, explicit OOC, conservative repeat pruning and
+  context-matched AI wording cache. 74 additive Python/Rust cases; 600 transient-turn
+  memory regression; 33-chat-turn offline/live host journey with two players/two NPCs.
+  Live campaign adopted 4/5 packets but exposed duplicate/flat replies; fresh three-call
+  holdout structurally passes with connected original fables. Small manual cohort,
+  no universal quality claim, all cap0/$0. [Evidence](STUDIO_EXPRESSION.md),
+  [public research](ROLEPLAY_RESEARCH.md). Remaining: finite English routing, occasional
+  generic/presumptive social speech, lexical guards are not semantic truth proofs.
+
 - Optional loopback Lantern Vault studio: RPG/party controls, live cast inspection,
   approved art/repair, independent text/image/TTS/STT channels, actual model-tier maps,
   durable shared spending cap and receipt-driven interruption. Single bounded model worker;

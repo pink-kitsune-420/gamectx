@@ -1439,3 +1439,19 @@ Firefox workflows with mock audio/model). `conversation_extensions_model.py` req
 `--tokens-only` first, then a local installed `--model` with cap zero. Retained paired
 artifacts and manual review report complete packets but a name-summary omission and
 higher wall time; they do not establish quality or performance improvements.
+
+Expression/AI wording: `python3 eval/expression_cases.py --cap 0` (60),
+`python3 eval/wording_cases.py --cap 0` (14), `roleplayer_campaign.py --cap 0` and
+`ai_wording_host.py --cap 0` use actual host state with offline mocks. Both host scripts
+accept `--tokens-only --model INSTALLED_NAME` before a local four-thread live run;
+`--output` refuses overwrites. `expression_browser.py --cap 0` uses isolated Firefox
+BiDi 9223 and mocked model/audio. Bindings use `expression_bindings.py`/`.mjs`.
+Frozen `expression-model-*`, `roleplayer-*` and `ai-wording-*` retain packets, raw local
+responses and failures; [interpretation and limits](../docs/STUDIO_EXPRESSION.md).
+These scripts never require a paid API, model download or physical voice in CI.
+
+`expression_replay.py --cap 0` replays frozen campaign output through the old chunk
+check and new novelty filter with zero model calls. `roleplayer-review.json` separates
+mechanical adoption, manual quality observations and remaining limitations, including
+an aborted four-call attempt that wrote no raw artifact. AI wording's `--holdout` uses
+a different name and request phrasing; capture `--tokens-only` first.

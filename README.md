@@ -1032,3 +1032,11 @@ See [deliberation controls](docs/STUDIO_DELIBERATION.md) for opt-in, capability-
 ## Longer conversations and registered roleplay actions
 
 See [conversation extensions](docs/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+
+With [AI character wording](docs/STUDIO_EXPRESSION.md), connected models word greetings,
+recall and factual replies as well as personal conversation; matching validated wording
+can be reused, and authored lines cover offline/failed generation. Original tiny tales,
+scoped name/preference disclosures and oversized-request negotiation have separate
+contracts. Try `cargo run --bin gamectx -- local examples/cast/expression-fixture.json`;
+that editable packet is checked in the API tests. See the [roleplay investigation](docs/ROLEPLAY_RESEARCH.md)
+for public research, original implementation choices and measured limitations.

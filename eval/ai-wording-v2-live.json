@@ -1,0 +1,388 @@
+{
+  "turns": [
+    {
+      "kind": "greeting",
+      "speech": {
+        "id": 2,
+        "actor": "merchant",
+        "player": "player_1",
+        "text": "Hello, I'm Ilen; welcome to the workshop.",
+        "delivery": {
+          "stage": "validated",
+          "played": 0,
+          "heard": 0,
+          "done": false,
+          "heard_text": ""
+        },
+        "pending": false,
+        "segment": 1,
+        "segments": 1,
+        "origin": "offline",
+        "audio": null,
+        "voice": {
+          "voice_id": "alloy",
+          "pitch": 1.0,
+          "rate": 1.0
+        }
+      }
+    },
+    {
+      "input": "My name is Vela.",
+      "speech": {
+        "id": 9,
+        "actor": "merchant",
+        "player": "player_1",
+        "text": "Vela; thank you for telling me your name.",
+        "delivery": {
+          "stage": "validated",
+          "played": 0,
+          "heard": 0,
+          "done": false,
+          "heard_text": ""
+        },
+        "pending": false,
+        "segment": 1,
+        "segments": 1,
+        "origin": "offline",
+        "audio": null,
+        "voice": {
+          "voice_id": "alloy",
+          "pitch": 1.0,
+          "rate": 1.0
+        }
+      }
+    },
+    {
+      "input": "What is my name?",
+      "speech": {
+        "id": 15,
+        "actor": "merchant",
+        "player": "player_1",
+        "text": "You told me your name is Vela.",
+        "delivery": {
+          "stage": "validated",
+          "played": 0,
+          "heard": 0,
+          "done": false,
+          "heard_text": ""
+        },
+        "pending": false,
+        "segment": 1,
+        "segments": 1,
+        "origin": "offline",
+        "audio": null,
+        "voice": {
+          "voice_id": "alloy",
+          "pitch": 1.0,
+          "rate": 1.0
+        }
+      }
+    },
+    {
+      "input": "Tell me a very long and intricate story.",
+      "speech": {
+        "id": 21,
+        "actor": "merchant",
+        "player": "player_1",
+        "text": "I can offer a short tale, but not an epic all at once.",
+        "delivery": {
+          "stage": "validated",
+          "played": 0,
+          "heard": 0,
+          "done": false,
+          "heard_text": ""
+        },
+        "pending": false,
+        "segment": 1,
+        "segments": 1,
+        "origin": "offline",
+        "audio": null,
+        "voice": {
+          "voice_id": "alloy",
+          "pitch": 1.0,
+          "rate": 1.0
+        }
+      }
+    }
+  ],
+  "checks": {
+    "exactly_one_call_per_turn": true,
+    "scope_model": false,
+    "zero_spend": true
+  },
+  "model_records": [
+    {
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"Hello, I'm Ilen; welcome to the workshop.\",\"scene\":\"workshop\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":null,\"recent_confirmed_replies\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say the intended reply in character, preserving its facts."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T23:13:50.80470937Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"Hello, I'm Ilen.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 12558065026,
+        "load_duration": 5065929063,
+        "prompt_eval_count": 304,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 5788868000,
+        "eval_count": 13,
+        "eval_duration": 1697513000
+      }
+    },
+    {
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"Vela; thank you for telling me your name.\",\"scene\":\"workshop\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":\"My name is Vela.\",\"recent_confirmed_replies\":[\"Hello, I'm Ilen; welcome to the workshop.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say the intended reply in character, preserving its facts."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T23:14:03.056038746Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"Ah, Vela.\"\n\n}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 12195557329,
+        "load_duration": 5416300104,
+        "prompt_eval_count": 318,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 5503194000,
+        "eval_count": 11,
+        "eval_duration": 1271214000
+      }
+    },
+    {
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"You told me your name is Vela.\",\"scene\":\"workshop\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":\"What is my name?\",\"recent_confirmed_replies\":[\"Vela; thank you for telling me your name.\",\"Hello, I'm Ilen; welcome to the workshop.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say the intended reply in character, preserving its facts."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T23:14:16.24733185Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"Vela, it's a pleasure to meet you.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 13138452405,
+        "load_duration": 5136525354,
+        "prompt_eval_count": 327,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 5878925000,
+        "eval_count": 16,
+        "eval_duration": 2116399000
+      }
+    },
+    {
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Decline the oversized scope or offer a brief alternative instead of attempting the requested long task. Explicitly say short, brief, or a little, or clearly decline the requested length; do not just offer another story topic. Choose your own in-character wording, shaped by the supplied personality, attitude and urgency. Do not invent being busy if the scene is calm. Do not mention AI, tokens, schemas or implementation limits, and do not promise an unlimited continuation. Begin with I can, I cannot, I can't, I could, I prefer, I would rather, I don't or I do not. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Offer one manageable alternative and leave the next choice with the player. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{\"location\":\"workshop\",\"description\":\"A merchant offers oil, chalk and an expensive tonic.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[{\"kind\":\"player_claim\",\"slot\":\"name\",\"value\":\"Vela\",\"polarity\":null,\"corrects\":null}],\"recent_confirmed_replies\":[\"You told me your name is Vela.\",\"Vela; thank you for telling me your name.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"heard_speech\",\"speaker\":\"merchant\",\"text\":\"You told me your name is Vela.\",\"event\":7},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Tell me a very long and intricate story.\",\"event\":8}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "assistant",
+            "content": "Vela; thank you for telling me your name."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] What is my name?"
+          },
+          {
+            "role": "assistant",
+            "content": "You told me your name is Vela."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Tell me a very long and intricate story."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] Tell me a very long and intricate story."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^I (can|cannot|can't|could|prefer|would rather|don't|do not) [^.!?]{1,180}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T23:14:45.897949583Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I can share a simple tale of a traveler who met a wise old man.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 29588951615,
+        "load_duration": 5456552161,
+        "prompt_eval_count": 719,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 20704587000,
+        "eval_count": 21,
+        "eval_duration": 3413649000
+      }
+    }
+  ],
+  "actual_local_calls": 4,
+  "mock_calls": 0,
+  "http_checks": 1065,
+  "api_spend_usd": 0,
+  "limits": "Four actual host turns; source-bound wording checks constrain vocabulary/anchors, not general semantic truth. Raw model outputs are retained even if rejected."
+}

@@ -16,6 +16,8 @@ pub fn process(v: &Value) -> Result<Value> {
     match c::text(c::get(v, "kind")?)? {
         "studio-roleplay-actions" => crate::studio::roleplay_actions_fixture(a),
         "studio-message-chunks" => crate::studio::message_chunks(a),
+        "studio-wording" => crate::studio::validate_wording(a),
+        "studio-expression" => crate::studio::expression_fixture(a),
         "studio-deliberation" => crate::studio::deliberation_fixture(a),
         "studio-greetings" => crate::studio::greetings_fixture(a),
         "studio-conversation" => crate::studio::conversation_route(a),

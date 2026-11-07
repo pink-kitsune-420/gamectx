@@ -2079,3 +2079,13 @@ See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware
 ## Additive message and roleplay contracts
 
 See [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+
+## Additive character expression contracts
+
+`studio-expression` adds bounded `route`, `packet`, `validate`, `claim` and `distinct`
+operations. `studio-wording` checks source-bound `{canonical,speech}`. There are 74
+additive conformance cases, with existing expected outputs unchanged. The optional
+example `conversation.json` boolean `ai_wording` is false when absent; GUI model/text
+configuration enables it. Personality profiles may add bounded `interests`/`story_seeds`.
+No required checkpoint field is added; claims derive from existing confirmed operations.
+See [exact fields, bounds and speech authority](STUDIO_EXPRESSION.md).

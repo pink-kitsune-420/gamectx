@@ -307,3 +307,13 @@ fn registered_roleplay_action_proposes_a_current_affordance() {
     assert_eq!(result.get("status").and_then(gamectx::Value::as_str), Some("proposed"));
     assert_eq!(result.get("decision").unwrap().get("action").and_then(gamectx::Value::as_str), Some("buy"));
 }
+
+#[test]
+fn documented_expression_packet_keeps_current_request_outside_json() {
+    let input = include_str!("../examples/cast/expression-fixture.json");
+    let v = gamectx::json::parse(input, 65536).unwrap();
+    let packet = gamectx::local::process(&v).unwrap();
+    let messages = packet.get("messages").unwrap().as_array().unwrap();
+    assert!(messages.last().unwrap().get("content").unwrap().as_str().unwrap().starts_with("Current request:\n"));
+    assert_eq!(messages[1].get("role").unwrap().as_str(), Some("system"));
+}

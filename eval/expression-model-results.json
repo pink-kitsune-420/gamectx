@@ -1,0 +1,479 @@
+{
+  "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+  "threads": 4,
+  "api_spend_usd": 0,
+  "results": [
+    {
+      "case": "plans",
+      "mode": "baseline",
+      "expression": "personal",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":2,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":2,\"at\":3,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_4\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Do you have any plans?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Do you have any plans?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"player_purse\":\"unobserved\"},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I do not have a specific answer to that; could you ask about one thing?\",\"To be clear: I do not have a specific answer to that; could you ask about one thing?\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] Do you have any plans?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I do not have a specific answer to that; could you ask about one thing?",
+                "To be clear: I do not have a specific answer to that; could you ask about one thing?"
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:09:20.332893883Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I do not have a specific answer to that; could you ask about one thing?\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 17928012156,
+        "load_duration": 5315673723,
+        "prompt_eval_count": 719,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 9975384000,
+        "eval_count": 22,
+        "eval_duration": 2625152000
+      },
+      "contract_valid": false,
+      "seconds": 17.931
+    },
+    {
+      "case": "plans",
+      "mode": "candidate",
+      "expression": "personal",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Answer the current personal question as this character. Express a concrete small hope or intention shaped by the supplied disposition and heard experiences; an intention is not a promise or completed action. Begin with I hope, I dream, I prefer, I think, I value or I would like. Avoid generic job descriptions. Stay consistent with supplied established views. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people. "
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{\"location\":\"workshop\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"atmosphere\":\"calm\",\"episodes\":[],\"promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] Do you have any plans?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^I (hope|dream|wish|prefer|feel|value|think|believe|would like) [^.!?]{1,180}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:09:32.641029376Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I hope to make this counter a place where people feel fairly treated.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 12306027030,
+        "load_duration": 5435512367,
+        "prompt_eval_count": 293,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 4696699000,
+        "eval_count": 19,
+        "eval_duration": 2165268000
+      },
+      "contract_valid": true,
+      "seconds": 12.307
+    },
+    {
+      "case": "fable",
+      "mode": "baseline",
+      "expression": "fiction",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Tovin keeps witness records and honors accepted promises.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"cistern\",\"description\":\"An indoor fountain chamber.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":2,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":2,\"at\":6,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_10\",\"speaker\":\"keeper\",\"text\":\"player_1 said: Can you tell me a story?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Can you tell me a story?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"cistern\",\"items\":[],\"player_purse\":\"unobserved\"},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I do not have a specific answer to that; could you ask about one thing?\",\"To be clear: I do not have a specific answer to that; could you ask about one thing?\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Can you tell me a story?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I do not have a specific answer to that; could you ask about one thing?",
+                "To be clear: I do not have a specific answer to that; could you ask about one thing?"
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:09:52.402255944Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I do not have a specific answer to that; could you ask about one thing?\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 19760284781,
+        "load_duration": 5667308282,
+        "prompt_eval_count": 726,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 11524314000,
+        "eval_count": 22,
+        "eval_duration": 2560112000
+      },
+      "contract_valid": false,
+      "seconds": 19.761
+    },
+    {
+      "case": "fable",
+      "mode": "candidate",
+      "expression": "fiction",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people. "
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"keeper\",\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"dream\":\"I dream of this quiet place feeling cared for rather than forgotten.\",\"preference\":\"I value patience and the care people put into ordinary things.\",\"generosity\":65,\"prudence\":60,\"reason\":\"I value patience because people and places deserve careful attention.\"}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{\"location\":\"cistern\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"atmosphere\":\"calm\",\"episodes\":[],\"promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Can you tell me a story?"
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^(Imagine |In this tale, )[^.!?]{1,180}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:10:06.665757931Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"In this tale, a keeper tended to a cistern, a place where water was kept safe from the elements.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 14262189700,
+        "load_duration": 5942636722,
+        "prompt_eval_count": 283,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 4822235000,
+        "eval_count": 29,
+        "eval_duration": 3491650000
+      },
+      "contract_valid": true,
+      "seconds": 14.263
+    },
+    {
+      "case": "company",
+      "mode": "baseline",
+      "expression": "social",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":4,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":2,\"at\":3,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_4\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Do you have any plans?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Do you have any plans?\",\"causes\":[],\"retain\":false},{\"token\":4,\"at\":9,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_16\",\"speaker\":\"merchant\",\"text\":\"player_1 said: I had a long day; keep me company.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: I had a long day; keep me company.\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"player_purse\":\"unobserved\"},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Do you have any plans?"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I do not have a specific answer to that; could you ask about one thing?\",\"To be clear: I do not have a specific answer to that; could you ask about one thing?\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] I had a long day; keep me company."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I do not have a specific answer to that; could you ask about one thing?",
+                "To be clear: I do not have a specific answer to that; could you ask about one thing?"
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:10:34.698397063Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I do not have a specific answer to that; could you ask about one thing?\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 28031336005,
+        "load_duration": 5999942272,
+        "prompt_eval_count": 833,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 19085037000,
+        "eval_count": 22,
+        "eval_duration": 2937832000
+      },
+      "contract_valid": false,
+      "seconds": 28.033
+    },
+    {
+      "case": "company",
+      "mode": "candidate",
+      "expression": "social",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond naturally to the current speaker using the supplied personality, attitudes, atmosphere and heard context. You may express a preference, empathize with what the player says, or ask a relevant short question. Do not just describe your job or repeat a previous line. Begin with I feel, I think, I prefer, I value, I like, I enjoy, I can imagine, That sounds, What, How, Would you or Do you. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people. "
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"merchant\",\"listener\":\"player_1\",\"personality\":{\"actor\":\"merchant\",\"traits\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\",\"dream\":\"I hope to make this counter a place where people feel fairly treated.\",\"preference\":\"I prefer simple things that are useful and honestly made.\",\"generosity\":40,\"prudence\":75,\"reason\":\"I value fair treatment because useful work means less to me without honesty.\"}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{\"location\":\"workshop\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"atmosphere\":\"calm\",\"episodes\":[],\"promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] I had a long day; keep me company."
+          }
+        ],
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^(I (hope|dream|wish|prefer|feel|value|think|believe|would like|like|enjoy|can imagine)|That sounds|What|How|Would you|Do you) [^.!?]{1,180}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        }
+      },
+      "raw_response": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T22:10:50.001912809Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I can imagine how tiring a long day can be.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 15302099435,
+        "load_duration": 5746658321,
+        "prompt_eval_count": 317,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 7210777000,
+        "eval_count": 18,
+        "eval_duration": 2335306000
+      },
+      "contract_valid": true,
+      "seconds": 15.303
+    }
+  ]
+}

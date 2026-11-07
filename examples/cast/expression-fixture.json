@@ -1,0 +1,24 @@
+{
+  "kind": "studio-expression",
+  "args": {
+    "op": "packet",
+    "args": {
+      "mode": "fiction",
+      "speaker": "keeper",
+      "listener": "player_1",
+      "profile": {
+        "traits": "Patient and quietly hopeful."
+      },
+      "scene": {
+        "location": "cistern"
+      },
+      "context": {
+        "trust": 15,
+        "atmosphere": "calm"
+      },
+      "history": [],
+      "input": "Tell me a little story.",
+      "style": "expressive"
+    }
+  }
+}

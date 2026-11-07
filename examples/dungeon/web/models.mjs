@@ -49,7 +49,7 @@ export function attachModels({$,post,refresh,current,interrupt=async()=>{}}){
  async function act(action,profile){try{if(draft&&['start','prewarm'].includes(action))throw Error('Apply profile changes before loading models.');await post('manager_action',{action,profile});await refresh();}catch(e){$('manager-message').textContent=e.message;}}
  $('manager-scan').onclick=()=>act('refresh','text');
  $('manager-apply').onclick=async()=>{
-  try{const config=read();await interrupt();const result=await post('manager_settings',{config});await refresh(result.generation||0);if(result.result?.configured){write(current().model_manager.config);$('manager-message').textContent='Applied. Models load when requested; larger missing profiles fall back.';}}
+  try{const config=read();await interrupt();const result=await post('manager_settings',{config});await refresh(result.generation||0);if(config.enabled&&current().conversation_options){const wording=await post('conversation_settings',{...current().conversation_options,ai_wording:true});await refresh(wording.generation||0);if($('ai-wording'))$('ai-wording').checked=true;}if(result.result?.configured){write(current().model_manager.config);$('manager-message').textContent='Applied. Models load when requested; larger missing profiles fall back.';}}
   catch(e){$('manager-message').textContent=e.message;}
  };
  $('voice-native-preset').onclick=()=>{

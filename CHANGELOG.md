@@ -1,5 +1,15 @@
 # Changelog
 
+- [api] Add bounded character expression, explicit disclosure parsing, conservative
+  sentence novelty checks and source-bound AI wording through the generic bindings.
+- [format] Add 60 expression and 14 wording conformance cases; optional `ai_wording`,
+  personality interests/story seeds preserve old configs and existing expected outputs.
+- Studio: connected AI wording for greetings, acknowledgements and recall; matching
+  contextual cache, AI-written short-scope offers, attributed fictional tales, scoped
+  corrected names/preferences, OOC notes and perceived senses. Raw local failures and
+  follow-ups retained; see docs/STUDIO_EXPRESSION.md and docs/ROLEPLAY_RESEARCH.md.
+
+
 - [api] Add bounded `studio::GreetingMemory` for confirmed per-NPC/listener encounters,
   introduction state and contextual first/continuing/return/location/gap greeting plans.
 - [format] Add 26 greeting-memory and two social-routing cases; optional example

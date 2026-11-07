@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "api_spend_usd": 0,
+  "interpretation": "Mechanical acceptance is not a roleplay quality score. All raw outputs are retained in referenced artifacts, including rejected replies.",
+  "wording_runs": [
+    {
+      "artifact": "eval/ai-wording-live.json",
+      "local_calls": 4,
+      "ai_packets_adopted": 3,
+      "turns": 4,
+      "scope_ai_adopted": true
+    },
+    {
+      "artifact": "eval/ai-wording-v2-live.json",
+      "local_calls": 4,
+      "ai_packets_adopted": 0,
+      "turns": 4,
+      "scope_ai_adopted": false
+    },
+    {
+      "artifact": "eval/ai-wording-v3-live.json",
+      "local_calls": 4,
+      "ai_packets_adopted": 3,
+      "turns": 4,
+      "scope_ai_adopted": true
+    },
+    {
+      "artifact": "eval/ai-wording-holdout-live.json",
+      "local_calls": 4,
+      "ai_packets_adopted": 3,
+      "turns": 4,
+      "scope_ai_adopted": true
+    }
+  ],
+  "aborted_attempt": {
+    "local_calls": 4,
+    "artifact": null,
+    "limitation": "An earlier four-call attempt asserted before writing its artifact; raw replies were lost. It contributes no quality evidence. The evaluator now records rejected outcomes before checking results."
+  },
+  "campaign": {
+    "artifact": "eval/roleplayer-campaign-live.json",
+    "chat_turns": 33,
+    "noise_turns": 12,
+    "live_calls": 5,
+    "adopted_packets": 4,
+    "deterministic_checks": 7,
+    "limitations": [
+      "Merchant tale repeated an identical sentence; whole packet originally rejected.",
+      "Keeper tale rephrased its first sentence; originally accepted.",
+      "Company response presumed the long day was well spent."
+    ]
+  },
+  "replay": {
+    "artifact": "eval/expression-replay.json",
+    "calls": 0,
+    "observations": [
+      "New pruning keeps the first merchant sentence rather than discarding the entire invented tale.",
+      "New pruning keeps the keeper tale and omits its redundant restatement.",
+      "Both original raw sentences remain in the replay artifact; semantic quality is not automatically graded."
+    ]
+  },
+  "followup": {
+    "artifact": "eval/roleplayer-followup-results.json",
+    "fresh_local_calls": 3,
+    "structurally_valid": 3,
+    "manual_observations": [
+      "Merchant tale links lending a spark to the moth returning with glow-worm friends.",
+      "Company response uses quiet-music preference without choosing a player action.",
+      "Keeper tale has a shy pebble, offered rhythm and a joint song."
+    ]
+  },
+  "holdout": {
+    "artifact": "eval/ai-wording-holdout-live.json",
+    "manual_observations": [
+      "AI greets with its name and current place.",
+      "AI acknowledges Neris with a natural name-sharing line.",
+      "Name recall produced Ah, I see, which omits the required name and was correctly rejected.",
+      "AI offers a brief story rather than attempting an entire novel."
+    ]
+  },
+  "implemented_in_priority_order": [
+    "Separate subjective expression/explicit fiction from source-bound factual speech.",
+    "Preserve attributed corrected names/preferences per NPC/player and branch under transient chatter.",
+    "Select compact memories, stable personality/senses and confirmed perspective history.",
+    "Conservatively prune later restatements only after all raw sentences pass validation.",
+    "Use connected AI wording for NPC greetings/facts/recall, exact-context validated cache, failed/offline fallback.",
+    "Negotiate excessive requested scope through AI wording and bounded decoding without increasing call caps."
+  ],
+  "remaining_limits": [
+    "Finite English routing and finite authoritative senses.",
+    "Lexical validation can reject valid synonyms and does not establish semantic entailment.",
+    "Lexical repetition filtering misses some semantic paraphrases.",
+    "Tone can be generic or presumptive; the small cohort is not a general fun/personality benchmark.",
+    "Selected claims, operation journal and cache are bounded, not unlimited memory."
+  ]
+}

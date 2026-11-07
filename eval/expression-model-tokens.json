@@ -1,0 +1,43 @@
+{
+  "provider_calls": 0,
+  "api_spend_usd": 0,
+  "method": "Prepared UTF-8 content bytes, not tokenization.",
+  "cases": [
+    {
+      "case": "plans",
+      "mode": "baseline",
+      "content_bytes": 2854,
+      "enum_locked": true
+    },
+    {
+      "case": "plans",
+      "mode": "candidate",
+      "content_bytes": 1325,
+      "enum_locked": false
+    },
+    {
+      "case": "fable",
+      "mode": "baseline",
+      "content_bytes": 2869,
+      "enum_locked": true
+    },
+    {
+      "case": "fable",
+      "mode": "candidate",
+      "content_bytes": 1255,
+      "enum_locked": false
+    },
+    {
+      "case": "company",
+      "mode": "baseline",
+      "content_bytes": 3256,
+      "enum_locked": true
+    },
+    {
+      "case": "company",
+      "mode": "candidate",
+      "content_bytes": 1372,
+      "enum_locked": false
+    }
+  ]
+}

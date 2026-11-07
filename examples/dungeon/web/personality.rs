@@ -171,6 +171,21 @@ fn validate(v: &Value) -> Result<()> {
             }
             validate_viewpoint_line(r)?;
         }
+        for field in ["story_seeds", "interests"] {
+            if let Some(seeds) = p.get(field) {
+                keys.push(field);
+                let xs = array(seeds)?;
+                if xs.is_empty() || xs.len() > 8 {
+                    return Err(err());
+                }
+                for x in xs {
+                    let s = x.as_str().ok_or_else(err)?;
+                    if s.is_empty() || s.len() > 512 || s.chars().any(char::is_control) {
+                        return Err(err());
+                    }
+                }
+            }
+        }
         fields(p, &keys)?;
         let actor = text(p, "actor")?;
         if !["merchant", "keeper"].contains(&actor)

@@ -1,0 +1,9 @@
+{
+  "pairs": 3,
+  "api_spend_usd": 0,
+  "contract_valid": {
+    "baseline": 0,
+    "candidate": 3
+  },
+  "limits": "Three paired prompts, mechanical contract checks only; manual semantic review required. This does not establish general intelligence or hallucination-rate improvements. Baseline is a captured real pre-change host request."
+}

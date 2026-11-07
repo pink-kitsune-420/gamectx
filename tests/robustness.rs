@@ -1450,3 +1450,34 @@ fn registered_action_and_phrase_mutations_remain_proposals() {
         }
     }
 }
+
+#[test]
+fn expressive_contracts_and_disclosures_remain_bounded_under_mutation() {
+    let mut rng = Rng(0x65787072657373);
+    for seed in [
+        include_str!("../conformance/expression/packet/input.json"),
+        include_str!("../conformance/expression/correction/input.json"),
+        include_str!("../conformance/expression/fiction_line/input.json"),
+    ] {
+        for _ in 0..1000 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 131072) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}
+
+#[test]
+fn source_bound_wording_and_restatement_filters_reject_mutated_model_text() {
+    let mut rng = Rng(0x776f7264696e67);
+    for seed in [
+        include_str!("../conformance/wording/price/input.json"),
+        include_str!("../conformance/expression/paraphrase_repeat/input.json"),
+    ] {
+        for _ in 0..1000 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 131072) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

@@ -823,3 +823,18 @@ See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware
 ## Conversation length and stage actions
 
 See [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+
+## Give connected characters their own wording
+
+In Settings → Characters, enable AI character wording; applying a text connection also
+enables it. The model words source-bound facts and acknowledgements, while separate
+personal/social/fiction contracts allow bounded expression. Offline or invalid generation
+keeps the authored fallback. The library's `studio-expression` and `studio-wording` local
+contracts preserve old defaults and share all binding transports.
+
+`cargo run --bin gamectx -- local examples/cast/expression-fixture.json` renders a
+confirmed-perspective fictional turn; the fixture runs in the documented API tests.
+Only pass host-selected facts/attitudes and actually heard history. A character's
+invented tale is not an observation, and a player's disclosed name is still a claim.
+See [formats, evidence and limitations](STUDIO_EXPRESSION.md) and the
+[short roleplay investigation](ROLEPLAY_RESEARCH.md).

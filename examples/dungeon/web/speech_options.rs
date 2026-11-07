@@ -22,7 +22,7 @@ impl Options {
         Ok(())
     }
     pub fn decorate(&self, payload: &mut Value, binding: &mut Value) -> Result<()> {
-        let cap = if binding.get("answers").is_some_and(|v| *v != Value::Null) {
+        let cap = if binding.get("wording").is_some() || binding.get("answers").is_some_and(|v| *v != Value::Null) {
             1
         } else {
             num(&self.value, "max_sentences", 3)?
@@ -36,7 +36,11 @@ impl Options {
         let mut props = get(&schema, "properties")?.clone();
         if cap > 1 {
             let item = get(&props, "speech")?.clone();
-            set(&mut props, "speech", obj! {"type"=>"array","minItems"=>1,"maxItems"=>cap,"items"=>item});
+            set(
+                &mut props,
+                "speech",
+                obj! {"type"=>"array","minItems"=>if binding.get("expression")==Some(&Value::str("fiction")){2}else{1},"maxItems"=>cap,"items"=>item},
+            );
             set(binding, "sentence_chunks", cap.into());
         }
         if summary {
@@ -53,6 +57,9 @@ impl Options {
         set(payload, "speech_schema", schema);
         let mut messages = get(payload, "messages")?.as_array().ok_or_else(err)?.to_vec();
         messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>format!("Return speech JSON. Speech {}. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. {}",if cap>1{format!("is an array of 1 to {cap} sentences")}else{"is a string".into()},if summary{"First produce player_summary, a brief account of what the PLAYER SAID, preserving names, corrections, negations and unresolved questions. It is an unverified aid, not a fact or action; then answer the original message."}else{""})});
+        if binding.get("expression") == Some(&Value::str("fiction")) && cap > 1 {
+            messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>"For the fable return exactly two short complete sentences: Imagine starts the problem, In this tale, starts its resolution. Follow the supplied plot seed. This is invented, not your biography or the current room."});
+        }
         set(payload, "messages", messages.into());
         let tokens = num(payload, "max_tokens", 4096)?;
         set(payload, "max_tokens", tokens.max(if summary { 512 } else { (cap * 96).min(512) }).into());
@@ -63,7 +70,12 @@ fn validate(v: &Value) -> Result<()> {
     if !v.is_valid(1024) {
         return Err(err());
     }
-    fields(v, &["version", "max_sentences", "max_player_chars", "summarize_long"])?;
+    let mut fields_expected = vec!["version", "max_sentences", "max_player_chars", "summarize_long"];
+    if let Some(flag) = v.get("ai_wording") {
+        fields_expected.push("ai_wording");
+        flag.as_bool().ok_or_else(err)?;
+    }
+    fields(v, &fields_expected)?;
     if num(v, "version", 1)? != 1
         || num(v, "max_sentences", 3)? < 1
         || num(v, "max_player_chars", 4096)? < 512
