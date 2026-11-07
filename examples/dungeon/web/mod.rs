@@ -9,6 +9,7 @@ mod manager_view;
 mod native_voice;
 mod personality;
 mod reactions;
+mod speech_options;
 pub fn configure_voice(root: &str, dir: &str) -> Result<()> {
     native_voice::configure(std::path::Path::new(root), std::path::Path::new(dir))
 }

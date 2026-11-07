@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "api_spend_usd": 0,
+  "provider_calls": 0,
+  "counts_are": "Prepared UTF-8 bytes and an intentionally rough ceil(bytes/4) token proxy, not provider tokenization.",
+  "cases": [
+    {
+      "case": "visitor_hopes",
+      "mode": "baseline",
+      "request_bytes": 5437,
+      "content_bytes": 4317,
+      "rough_tokens": 1080,
+      "output_cap": 64,
+      "context_cap": 2048
+    },
+    {
+      "case": "visitor_hopes",
+      "mode": "chunks",
+      "request_bytes": 5816,
+      "content_bytes": 4613,
+      "rough_tokens": 1154,
+      "output_cap": 288,
+      "context_cap": 2048
+    },
+    {
+      "case": "long_corrected_preference",
+      "mode": "baseline",
+      "request_bytes": 9073,
+      "content_bytes": 7829,
+      "rough_tokens": 1958,
+      "output_cap": 64,
+      "context_cap": 4096
+    },
+    {
+      "case": "long_corrected_preference",
+      "mode": "chunks",
+      "request_bytes": 9752,
+      "content_bytes": 8343,
+      "rough_tokens": 2086,
+      "output_cap": 512,
+      "context_cap": 4096
+    }
+  ]
+}

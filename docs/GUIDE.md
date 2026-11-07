@@ -819,3 +819,7 @@ With personality turns enabled, travel to a character's room to see an arrival a
 ## Studio reasoning and speech
 
 See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
+
+## Conversation length and stage actions
+
+See [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.

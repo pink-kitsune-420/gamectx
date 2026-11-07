@@ -196,7 +196,7 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
             let messages = get(payload, "messages")?.clone();
             let limit = num(payload, "max_tokens", 4096)?;
             let mut request = if backend == "local_ollama" {
-                obj! {"model"=>model,"messages"=>messages,"stream"=>false,"keep_alive"=>0,"options"=>obj!{"num_predict"=>limit,"num_thread"=>num(&c.value,"cpu_threads",4)?,"num_ctx"=>if gamectx::deployment::ModelSize::parse(text(&c.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).exchanges<=1 {2048}else{8192},"temperature"=>0}}
+                obj! {"model"=>model,"messages"=>messages,"stream"=>false,"keep_alive"=>0,"options"=>obj!{"num_predict"=>limit,"num_thread"=>num(&c.value,"cpu_threads",4)?,"num_ctx"=>if gamectx::deployment::ModelSize::parse(text(&c.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).exchanges<=1 {if payload.get("long_player_message")==Some(&Value::Bool(true)){4096}else{2048}}else{8192},"temperature"=>0}}
             } else {
                 obj! {"model"=>model,"messages"=>messages,"stream"=>false,"max_completion_tokens"=>limit}
             };

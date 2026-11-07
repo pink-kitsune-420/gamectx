@@ -636,3 +636,12 @@ First public release.
   (28 additive cases), exact-model provider controls and shared reasoning/output budgets.
 - [ui] Add a per-browser automatic-speech checkbox; keep private reasoning out of speech
   and memory, with bounded diagnostic counts and unsupported-model fallback.
+
+- [api] [format] Add `studio-message-chunks` (22 cases) and host-authored
+  `RoleplayActions`/`studio-roleplay-actions` (14 cases), preserving existing cases.
+- [ui] Add opt-in 1–3 sentence replies in one text request, per-sentence delivery,
+  interrupted-tail cancellation, a bounded multiline player composer and optional
+  unverified same-call summaries. Preserve originals and explicit name excerpts.
+- [fix] Route natural stock questions deterministically, omit private purse balances
+  from NPC context/price replies, retain typed action requests and acknowledge
+  host-confirmed purchases. Registered stage actions still require current affordances.

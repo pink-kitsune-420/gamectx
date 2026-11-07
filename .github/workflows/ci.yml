@@ -229,6 +229,11 @@ jobs:
       - run: python3 -I eval/deliberation_cases.py --cap 0
       - run: python3 -I eval/deliberation_bindings.py --cap 0
       - run: node eval/deliberation_bindings.mjs --cap 0
+      - run: python3 -I eval/message_chunks_cases.py --cap 0
+      - run: python3 -I eval/roleplay_actions_cases.py --cap 0
+      - run: python3 -I eval/conversation_extensions_bindings.py --cap 0
+      - run: node eval/conversation_extensions_bindings.mjs --cap 0
+      - run: python3 -I eval/conversation_extensions_host.py --cap 0
       - run: node eval/autospeech_check.mjs --cap 0
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
@@ -259,6 +264,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/social-routing-bindings/requests.txt target/social-routing-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/greeting-memory-bindings/requests.txt target/greeting-memory-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/deliberation-bindings/requests.txt target/deliberation-bindings/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/conversation-extensions-bindings/requests.txt target/conversation-extensions-bindings/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

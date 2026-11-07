@@ -42,10 +42,39 @@ pub fn replies(actor: &str, room: &str, input: &str) -> Option<Vec<&'static str>
         }
     } else if actor == "merchant" && room == "workshop" && role {
         return Some(vec![
-            "I run this counter; I can explain the current stock, prices and what you can afford.",
+            "I run this counter; I can explain the current stock and listed prices.",
             "Ask about an item, its price or what is currently for sale.",
             "Trading is my business here; tell me which listed item interests you.",
         ]);
     }
     None
+}
+
+/// Finite original phrasing aliases; a stock query cannot execute a purchase.
+pub fn stock_query(input: &str) -> bool {
+    let q = input
+        .to_lowercase()
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { ' ' })
+        .collect::<String>()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ");
+    let q = q.trim_end_matches(" please");
+    [
+        "what do you have for sale",
+        "what have you got for sale",
+        "what s for sale",
+        "what is for sale",
+        "what can i buy",
+        "what can i buy here",
+        "show me your wares",
+        "show me your goods",
+        "what goods do you have",
+        "what items are available",
+        "what do you have available",
+        "can i see your wares",
+        "can you show me your stock",
+    ]
+    .contains(&q)
 }

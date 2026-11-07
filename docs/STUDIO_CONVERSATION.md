@@ -74,3 +74,7 @@ tokens. The two routine turns made zero model requests. This is a three-question
 check, not a broader accuracy rate. `conversation-model-final-audit.json` verifies these
 counts and corrects an inherited “two-question” label in the retained review's limits
 string; the raw/review files remain unchanged.
+
+Sentence continuations, longer input, summaries and host-registered stage actions are described
+in [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md). Trade price replies now omit
+private player balances and confirmed sales receive a deterministic merchant acknowledgement.

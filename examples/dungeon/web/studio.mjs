@@ -10,6 +10,11 @@ const $=id=>document.getElementById(id);
 const autoSpeech=new AutoSpeech();
 try{$('auto-speak').checked=localStorage.getItem('lantern-auto-speak')==='true';}catch{}
 $('auto-speak').onchange=()=>{try{localStorage.setItem('lantern-auto-speak',String($('auto-speak').checked));}catch{}refresh();};
+$('roleplay-apply').onclick=async()=>{$('roleplay-apply').disabled=true;$('roleplay-status').textContent='Registering…';try{await invoke('roleplay_settings',JSON.parse($('roleplay-registry').value));$('roleplay-status').textContent='Registered';}catch(e){$('roleplay-status').textContent=e.message;}finally{$('roleplay-apply').disabled=false;}};
+$('conversation-apply').onclick=async()=>{$('conversation-apply').disabled=true;$('conversation-state').textContent='Applying…';try{await invoke('conversation_settings',{version:1,max_sentences:Number($('reply-sentences').value),max_player_chars:Number($('player-message-limit').value),summarize_long:$('player-summary').checked});$('conversation-state').textContent='Applied';}catch(e){$('conversation-state').textContent=e.message;}finally{$('conversation-apply').disabled=false;}};
+function inputCount(){const cap=state?.conversation_options?.max_player_chars||2048;$('input-count').textContent=`${Array.from($('input').value).length} / ${cap} characters · Enter to send, Shift+Enter for a new line`;}
+$('input').oninput=inputCount;
+$('input').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$('chat').requestSubmit();}};
 $('reasoning-apply').onclick=async()=>{$('reasoning-apply').disabled=true;try{await invoke('deliberation_settings',{version:1,mode:$('reasoning-mode').value,effort:$('reasoning-effort').value,max_tokens:Number($('reasoning-tokens').value),hypotheses:$('reasoning-hypotheses').checked,online:JSON.parse($('reasoning-online').value)});}catch(e){$('reasoning-status').textContent=e.message;}finally{$('reasoning-apply').disabled=false;}};
 
 let lastReactions='';
@@ -124,7 +129,10 @@ async function loadState(){
     if(!response.ok)throw Error('Host state unavailable.');
     const s=await response.json();
     state=s;
-    if(s.deliberation){const d=s.deliberation;if(!$('reasoning-mode').dataset.loaded){$('reasoning-mode').value=d.config.mode;$('reasoning-effort').value=d.config.effort;$('reasoning-tokens').value=d.config.max_tokens;$('reasoning-hypotheses').checked=d.config.hypotheses;$('reasoning-online').value=JSON.stringify(d.config.online,null,2);$('reasoning-mode').dataset.loaded='1';}$('reasoning-status').textContent=JSON.stringify({mode:d.config.mode,advertised_controls:d.capabilities,last_plan:d.latest?.plan},null,2);$('reasoning-debug').textContent=JSON.stringify(d.latest,null,2);}
+    if(s.roleplay_registry&&!$('roleplay-registry').dataset.loaded){$('roleplay-registry').value=JSON.stringify(s.roleplay_registry,null,2);$('roleplay-registry').dataset.loaded='1';}
+    if(s.conversation_options){const c=s.conversation_options;$('input').maxLength=c.max_player_chars;if(!$('reply-sentences').dataset.loaded){$('reply-sentences').value=c.max_sentences;$('player-message-limit').value=c.max_player_chars;$('player-summary').checked=c.summarize_long;$('reply-sentences').dataset.loaded='1';}inputCount();}
+
+    if(s.deliberation){const d=s.deliberation;if(!$('reasoning-mode').dataset.loaded){$('reasoning-mode').value=d.config.mode;$('reasoning-effort').value=d.config.effort;$('reasoning-tokens').value=d.config.max_tokens;$('reasoning-hypotheses').checked=d.config.hypotheses;$('reasoning-online').value=JSON.stringify(d.config.online,null,2);$('reasoning-mode').dataset.loaded='1';}$('reasoning-status').textContent=`Policy: ${d.config.mode}. `+(d.latest?.plan?.active?'Native reasoning selected for the last difficult turn. ':'')+(d.capabilities||[]).map(c=>c.model+': '+(c.values?.some(v=>v!==false)?'advertised controls '+c.values.join(', '):'no advertised thinking control; provider default')).join('\n');$('reasoning-debug').textContent=JSON.stringify(d.latest,null,2);}
 
     drawHistory(s);drawProfiler(s);
     if(s.greetings){if(!$('greeting-gap').dataset.loaded){$('greeting-gap').value=s.greetings.config.long_gap_turns;$('greeting-gap').dataset.loaded='1';}$('greeting-debug').textContent=JSON.stringify(s.greetings,null,2);}
@@ -183,7 +191,7 @@ async function loadState(){
       $('play').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
       $('interrupt').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
       $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated',subjective_model:'Personal reply · validated',authored_social:'Character reply · no LLM'})[s.speech.origin]||'Offline reply';
-      $('speaker').textContent=s.speech.actor+' → '+s.speech.player;
+      $('speaker').textContent=s.speech.actor+' → '+s.speech.player+(s.speech.segments>1?` · ${s.speech.segment}/${s.speech.segments}`:'');
       if(s.speech.id!==lastSpeech){
         lastSpeech=s.speech.id;
         voiceView({

@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "buy_oil",
+      "phrases": [
+        "buys hinge oil",
+        "buys the hinge oil"
+      ],
+      "decision": {
+        "action": "buy",
+        "target": "item:oil"
+      },
+      "narration": "buys hinge oil"
+    },
+    {
+      "id": "buy_chalk",
+      "phrases": [
+        "buys chalk",
+        "buys the chalk"
+      ],
+      "decision": {
+        "action": "buy",
+        "target": "item:chalk"
+      },
+      "narration": "buys chalk"
+    },
+    {
+      "id": "buy_tonic",
+      "phrases": [
+        "buys tonic",
+        "buys the tonic"
+      ],
+      "decision": {
+        "action": "buy",
+        "target": "item:tonic"
+      },
+      "narration": "buys tonic"
+    },
+    {
+      "id": "take_bronze_key",
+      "phrases": [
+        "takes bronze key",
+        "takes the bronze key"
+      ],
+      "decision": {
+        "action": "take",
+        "target": "item:bronze_key"
+      },
+      "narration": "takes bronze key"
+    },
+    {
+      "id": "inspect_oil",
+      "phrases": [
+        "inspects hinge oil",
+        "inspects the hinge oil"
+      ],
+      "decision": {
+        "action": "inspect",
+        "target": "item:oil"
+      },
+      "narration": "inspects hinge oil"
+    },
+    {
+      "id": "inspect_bronze_key",
+      "phrases": [
+        "inspects bronze key",
+        "inspects the bronze key"
+      ],
+      "decision": {
+        "action": "inspect",
+        "target": "item:bronze_key"
+      },
+      "narration": "inspects bronze key"
+    },
+    {
+      "id": "nod",
+      "phrases": [
+        "nods",
+        "nods politely"
+      ],
+      "decision": null,
+      "narration": "nods politely"
+    },
+    {
+      "id": "wait",
+      "phrases": [
+        "waits",
+        "waits a moment"
+      ],
+      "decision": {
+        "action": "wait",
+        "target": null
+      },
+      "narration": "waits a moment"
+    }
+  ]
+}

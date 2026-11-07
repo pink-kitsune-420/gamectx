@@ -568,4 +568,13 @@ profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 - Optional native reasoning controls and ephemeral hypotheses: implemented with exact-model
   capability checks; 28 independent offline policy cases and automatic-speech browser policy.
   No reasoning quality claim: the installed Qwen 2.5 model advertises no thinking controls.
-  Next in this task: bounded sentence continuations and longer player-message assembly.
+  Bounded sentence continuations and longer player-message assembly are now implemented.
+
+- Conversation extensions: 22 message cases/14 action-registry cases; 10 offline host
+  and 6 Firefox workflows. Sentence continuations use one text call and discard unheard
+  tails. Stock phrasing, purse privacy and sale acknowledgements corrected.
+- Local 3B follow-up retained: 4/4 complete packets, but the optional summary omitted a
+  corrected name and added latency (61.161s vs 52.841s on one long pair). Summaries stay
+  off by default; full input and protected name excerpts are retained. Future work:
+  broader semantic summary coverage, persistent whole-opinion bundles and measured
+  sentence-audio lookahead; no gapless playback or intelligence gain claimed.

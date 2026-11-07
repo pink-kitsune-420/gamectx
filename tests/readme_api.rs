@@ -298,3 +298,12 @@ mod party_example;
 #[allow(dead_code)]
 #[path = "../examples/living-world.rs"]
 mod living_world_example;
+
+#[test]
+fn registered_roleplay_action_proposes_a_current_affordance() {
+    let input = include_str!("../examples/cast/roleplay-action-fixture.json");
+    let v = gamectx::json::parse(input, 65536).unwrap();
+    let result = gamectx::local::process(&v).unwrap();
+    assert_eq!(result.get("status").and_then(gamectx::Value::as_str), Some("proposed"));
+    assert_eq!(result.get("decision").unwrap().get("action").and_then(gamectx::Value::as_str), Some("buy"));
+}

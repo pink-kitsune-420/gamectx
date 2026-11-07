@@ -1028,3 +1028,7 @@ The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPO
 ## Optional reasoning and automatic speech
 
 See [deliberation controls](docs/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
+
+## Longer conversations and registered roleplay actions
+
+See [conversation extensions](docs/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.

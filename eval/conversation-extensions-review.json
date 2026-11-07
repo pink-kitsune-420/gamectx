@@ -1,0 +1,18 @@
+{
+  "independent_message_cases": 22,
+  "independent_registered_action_cases": 14,
+  "new_mutation_inputs": 4000,
+  "example_tests": 49,
+  "python_cli_native_checks": 72,
+  "node_checks": 36,
+  "csharp_checks": 36,
+  "offline_host_workflows": 10,
+  "offline_host_http_checks": 43,
+  "firefox_mock_workflows": 6,
+  "paired_local_model_calls": 4,
+  "paired_complete_packets": 4,
+  "api_spend_usd": 0,
+  "summaries_default": "off",
+  "summary_limitation": "Observed corrected-name omission; originals and host-protected name excerpts remain available.",
+  "limits": "Contract, integration and small local cohort checks. No general semantic intelligence improvement, physical audio quality, gapless playback or speedup claim."
+}

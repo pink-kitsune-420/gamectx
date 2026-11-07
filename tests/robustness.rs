@@ -1423,3 +1423,30 @@ fn deliberation_and_untrusted_hypothesis_mutations_are_bounded() {
         }
     }
 }
+
+#[test]
+fn message_chunk_mutations_never_create_calls_or_unbounded_packets() {
+    let seeds = [
+        include_str!("../conformance/message-chunks/long/input.json"),
+        include_str!("../conformance/message-chunks/two_sentences/input.json"),
+    ];
+    let mut rng = Rng(0x6368756e6b73);
+    for seed in seeds {
+        for _ in 0..1000 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}
+
+#[test]
+fn registered_action_and_phrase_mutations_remain_proposals() {
+    let seed = include_str!("../conformance/roleplay-actions/buy/input.json");
+    let mut rng = Rng(0x7374616765);
+    for _ in 0..2000 {
+        if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

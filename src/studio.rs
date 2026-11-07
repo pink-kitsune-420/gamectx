@@ -1,6 +1,11 @@
 //! Opt-in host policies for the local example studio. No network, audio device or
 //! world executor: external transports acknowledge only confirmed character offsets.
 mod archive;
+mod roleplay_actions;
+pub(crate) use roleplay_actions::fixture as roleplay_actions_fixture;
+pub use roleplay_actions::RoleplayActions;
+mod message_chunks;
+pub use message_chunks::message_chunks;
 mod deliberation;
 pub(crate) use deliberation::fixture as deliberation_fixture;
 pub use deliberation::{

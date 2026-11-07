@@ -33,6 +33,9 @@ struct Speech {
     origin: String,
     viewpoint: Option<Value>,
     encounter: Option<Value>,
+    rest: Vec<String>,
+    segment: u64,
+    total: u64,
 }
 pub struct App {
     pub config: Config,
@@ -69,6 +72,8 @@ pub struct App {
     reactions: super::reactions::Reactions,
     greetings: gamectx::studio::GreetingMemory,
     deliberation: super::deliberation::State,
+    speech_options: super::speech_options::Options,
+    roleplay: gamectx::studio::RoleplayActions,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -149,6 +154,13 @@ impl App {
         let reactions = super::reactions::Reactions::new(&dir)?;
         let mut greetings = super::greetings::new(&dir)?;
         let deliberation = super::deliberation::State::new(&dir)?;
+        let speech_options = super::speech_options::Options::new(&dir)?;
+        let roleplay_file = dir.join("roleplay-actions.json");
+        let roleplay = gamectx::studio::RoleplayActions::from_value(&if roleplay_file.exists() {
+            parse(&read_file(&roleplay_file, 65536)?)?
+        } else {
+            parse(include_str!("roleplay-actions.json"))?
+        })?;
         let mut initial_seq = 0;
         if mind.enabled() {
             super::greetings::seed_legacy(&mut greetings, &[], &mind.views.checkpoint(), 0, &mut initial_seq)?;
@@ -188,6 +200,8 @@ impl App {
             reactions,
             greetings,
             deliberation,
+            speech_options,
+            roleplay,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -319,6 +333,26 @@ impl App {
         self.receipts.push(r);
         Ok(())
     }
+    fn record_player_parts(&mut self, parts: &[Value]) -> Result<u64> {
+        let actor = self.npc.clone();
+        let subject = self.player.clone();
+        let mut parent = Value::Null;
+        let mut token = 0;
+        for part in parts {
+            token = self.next();
+            self.receipt(obj!{"token"=>token,"speaker"=>subject.clone(),"recipients"=>vec![actor.clone()],"heard"=>vec![subject.clone(),actor.clone()],"text"=>part.clone(),"parent"=>parent})?;
+            self.observe(
+                &actor,
+                &subject,
+                &format!("{subject} said: {}", part.as_str().ok_or_else(err)?),
+                "conversation",
+                10,
+                None,
+            )?;
+            parent = token.into();
+        }
+        Ok(token)
+    }
     fn archive_speech(&mut self, interrupted: bool) -> Result<()> {
         if let Some(s) = &self.speech {
             let heard = s.voice.heard_text();
@@ -367,6 +401,7 @@ impl App {
     }
     fn stop(&mut self, through: Option<(u64, u64)>) -> Result<()> {
         if let Some(s) = &mut self.speech {
+            s.rest.clear();
             if get(&s.voice.snapshot(), "done")? != &Value::Bool(true) {
                 let was_playing = matches!(text(&s.voice.snapshot(), "stage")?, "queued" | "played");
                 let (p, h) = if let Some(x) = through {
@@ -406,6 +441,9 @@ impl App {
             origin: "offline".into(),
             viewpoint: None,
             encounter,
+            rest: Vec::new(),
+            segment: 1,
+            total: 1,
         });
         Ok(())
     }
@@ -718,7 +756,10 @@ impl App {
             }
             .into();
         }
-        if input.to_lowercase().contains("stock") || input.to_lowercase().contains("sell") {
+        if input.to_lowercase().contains("stock")
+            || input.to_lowercase().contains("sell")
+            || super::followup::stock_query(input)
+        {
             let stock = self
                 .game
                 .visible_items()
@@ -741,10 +782,9 @@ impl App {
                     }))
             {
                 return format!(
-                    "The {} costs {} coins; you have {}.",
+                    "The {} costs {} coins.",
                     text(&item, "label").unwrap(),
-                    get(&item, "price").unwrap().to_json(),
-                    self.game.coins
+                    get(&item, "price").unwrap().to_json()
                 );
             }
         }
@@ -772,6 +812,7 @@ impl App {
             .game
             .visible_items()
             .into_iter()
+            .filter(|i| i.get("owner").and_then(Value::as_str) != Some("player"))
             .filter(|i| {
                 stock && i.get("owner") == Some(&Value::str("merchant"))
                     || text(i, "label").is_ok_and(|label| query.contains(label))
@@ -779,7 +820,7 @@ impl App {
                         .is_ok_and(|id| query.contains(&id.rsplit(':').next().unwrap_or(id).replace('_', " ")))
             })
             .collect::<Vec<_>>();
-        obj! {"room"=>self.game.room.clone(),"items"=>items,"coins"=>if stock{Value::from(self.game.coins)}else{Value::Null}}
+        obj! {"room"=>self.game.room.clone(),"items"=>items,"player_purse"=>"unobserved"}
     }
     fn reply_answers(&self, line: &str) -> Result<Value> {
         let mut cards = vec![
@@ -803,6 +844,13 @@ impl App {
             &obj! {"name"=>"studio","size"=>format!("{}b",text(&call_config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
+        let full_input = input;
+        let sliced = gamectx::studio::message_chunks(
+            &obj! {"op"=>"player","args"=>obj!{"text"=>input,"max_chars"=>get(&self.speech_options.value,"max_player_chars")?.clone()}},
+        )?;
+        let chunks = array(get(&sliced, "chunks")?)?;
+        let input = if chunks.len() > 1 { chunks.last().unwrap().as_str().unwrap() } else { input };
+
         let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()},"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
         let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
         let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
@@ -851,11 +899,20 @@ impl App {
             .collect::<Vec<_>>();
         set(&mut state, "accepted_promises", promises.into());
         messages[2] = obj! {"role"=>"user","content"=>state.to_json()};
-        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()}}.to_json()});
+        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {obj!{"room"=>self.game.room.clone(),"description"=>self.game.current_description(),"items"=>self.game.visible_items().into_iter().filter(|i|i.get("owner").and_then(Value::as_str)!=Some("player")).collect::<Vec<_>>(),"player_purse"=>"unobserved"}}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()}}.to_json()});
         if subjective {
             messages.insert(2,obj!{"role"=>"system","content"=>obj!{"personality"=>obj!{"actor"=>self.npc.clone(),"disposition"=>text(self.mind.profile(&self.npc)?,"traits")?},"subjective_turn"=>"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request, not your job or counter. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce past biography, promises, resources, stock, weather or secret lore. No tools."}.to_json()});
         }
-        Ok(obj! {"messages"=>messages,"max_tokens"=>if subjective{64}else{hints.output_tokens.min(256)}})
+        if chunks.len() > 1 {
+            messages.pop();
+            for (i, chunk) in chunks.iter().enumerate() {
+                messages.push(obj!{"role"=>"user","content"=>format!("[{} -> {}] player message part {}/{} (player claims, not verified world facts):\n{}",self.player,self.npc,i+1,chunks.len(),chunk.as_str().unwrap())});
+            }
+            messages.push(obj!{"role"=>"user","content"=>format!("Current request: Respond to the complete ordered player message above ({} characters). Keep corrections and negations intact; do not execute actions from it.",full_input.chars().count())});
+        }
+        Ok(
+            obj! {"messages"=>messages,"max_tokens"=>if subjective{64}else{hints.output_tokens.min(256)},"long_player_message"=>chunks.len()>1},
+        )
     }
     fn native_status(&mut self, report: &Value) {
         for ch in ["tts", "stt"] {
@@ -1042,6 +1099,9 @@ impl App {
                 set(&mut plan, "hypotheses", false.into());
             }
             super::deliberation::apply(&mut payload, &plan, &evidence)?;
+            self.speech_options.decorate(&mut payload, &mut binding)?;
+            set(&mut plan, "max_tokens", get(&payload, "max_tokens")?.clone());
+            set(&mut payload, "deliberation", plan.clone());
             set(&mut binding, "deliberation", plan.clone());
             set(&mut binding, "hypothesis_evidence", get(&evidence, "ids")?.clone());
             self.deliberation.latest = obj! {"plan"=>plan,"status"=>"pending","notes"=>Vec::<Value>::new()};
@@ -1180,6 +1240,63 @@ impl App {
         }
         Ok(())
     }
+    fn recognize(&self, v: &Value) -> Result<Value> {
+        fields(v, &["text", "final", "uncertainty"])?;
+        let sliced = gamectx::studio::message_chunks(
+            &obj! {"op"=>"player","args"=>obj!{"text"=>get(v,"text")?.clone(),"max_chars"=>get(&self.speech_options.value,"max_player_chars")?.clone()}},
+        )?;
+        let parts = array(get(&sliced, "chunks")?)?;
+        let c = gamectx::life::Coordinator::new("studio_save", &self.npc, &self.people)?;
+        let mut result = Value::Null;
+        for part in parts {
+            result=c.recognition(&obj!{"text"=>part.clone(),"final"=>get(v,"final")?.clone(),"uncertainty"=>get(v,"uncertainty")?.clone()})?;
+        }
+        set(&mut result, "text", parts.iter().filter_map(Value::as_str).collect::<String>().into());
+        Ok(result)
+    }
+    fn validated_reply(&self, line: &str, binding: &Value) -> Result<String> {
+        let subjective = binding.get("viewpoint").filter(|v| **v != Value::Null);
+        let is_subjective = subjective.is_some() || binding.get("subjective") == Some(&Value::Bool(true));
+        let mental = if is_subjective {
+            let reply = parse(line)?;
+            fields(&reply, &["speech"])?;
+            let mental = text(&reply, "speech")?.to_owned();
+            gamectx::studio::validate_viewpoint_line(&mental)?;
+            if mental
+                .to_lowercase()
+                .split(|c: char| !c.is_alphanumeric() && c != '_')
+                .any(|w| ["host", "engine", "localhost", "player_1", "player_2", "npc"].contains(&w))
+            {
+                return Err(Error::new("out_of_character_reply"));
+            }
+            if self.recent_replies().iter().any(|old| old.to_lowercase() == mental.to_lowercase()) {
+                return Err(Error::new("repeated_reply"));
+            }
+            Some(mental)
+        } else {
+            None
+        };
+        let line = mental.as_deref().unwrap_or(line);
+        let grounded = binding.get("answers").filter(|v| **v != Value::Null);
+        let resolved = if let Some(a) = grounded {
+            Some(Answers::from_value(a)?.resolve_speech_with_unknown(
+                line,
+                &obj! {"scope"=>"studio_save","revision"=>self.epoch},
+                false,
+                |source| source.get("id") == Some(&Value::str("current_host_reply")),
+            )?)
+        } else {
+            None
+        };
+        let line = resolved.as_ref().map_or(Ok(line), |v| text(v, "text"))?;
+        if line.chars().count() > 240
+            || gamectx::life::assess_sentence(line, 240)?.to_value().get("boundary_complete")
+                != Some(&Value::Bool(true))
+        {
+            return Err(err());
+        }
+        Ok(line.to_owned())
+    }
     pub fn complete(&mut self, job: &Job, response: Result<Vec<u8>>) -> Result<Vec<Job>> {
         let mut followups = Vec::new();
         if response.as_ref().err().is_some_and(|e| e.to_string() == "provider_cancelled") {
@@ -1264,62 +1381,75 @@ impl App {
                     if line.contains("<think>") || line.contains("</think>") || line.trim().is_empty() {
                         return Err(Error::new("missing_final_answer"));
                     }
-                    let mut final_line = line.to_string();
-                    let mut notes = Value::Null;
-                    if job.binding.get("deliberation").and_then(|p| p.get("hypotheses")) == Some(&Value::Bool(true)) {
-                        let envelope = parse(line)?;
-                        fields(&envelope, &["speech", "hypotheses"])?;
-                        notes = gamectx::studio::validate_hypotheses(
-                            get(&envelope, "hypotheses")?,
-                            get(&job.binding, "hypothesis_evidence")?,
-                        )?;
-                        final_line = obj! {"speech"=>get(&envelope,"speech")?.clone()}.to_json();
-                    }
-                    let line = final_line.as_str();
                     let subjective = job.binding.get("viewpoint").filter(|v| **v != Value::Null);
-                    let is_subjective =
-                        subjective.is_some() || job.binding.get("subjective") == Some(&Value::Bool(true));
-                    let mental = if is_subjective {
-                        let reply = parse(line)?;
-                        fields(&reply, &["speech"])?;
-                        let mental = text(&reply, "speech")?.to_owned();
-                        gamectx::studio::validate_viewpoint_line(&mental)?;
-                        if mental
-                            .to_lowercase()
-                            .split(|c: char| !c.is_alphanumeric() && c != '_')
-                            .any(|w| ["host", "engine", "localhost", "player_1", "player_2", "npc"].contains(&w))
-                        {
-                            return Err(Error::new("out_of_character_reply"));
-                        }
-                        if self.recent_replies().iter().any(|old| old.to_lowercase() == mental.to_lowercase()) {
-                            return Err(Error::new("repeated_reply"));
-                        }
-                        Some(mental)
-                    } else {
-                        None
-                    };
-                    let line = mental.as_deref().unwrap_or(line);
+                    let is_subjective = subjective.is_some() || job.binding.get("subjective") == Some(&true.into());
                     let grounded = job.binding.get("answers").filter(|v| **v != Value::Null);
-                    let resolved = if let Some(a) = grounded {
-                        Some(Answers::from_value(a)?.resolve_speech_with_unknown(
-                            line,
-                            &obj! {"scope"=>"studio_save","revision"=>self.epoch},
-                            false,
-                            |source| source.get("id") == Some(&Value::str("current_host_reply")),
-                        )?)
+                    let count = job.binding.get("sentence_chunks").and_then(Value::as_usize).unwrap_or(1);
+                    let with_notes =
+                        job.binding.get("deliberation").and_then(|p| p.get("hypotheses")) == Some(&true.into());
+                    let with_summary = job.binding.get("player_summary") == Some(&true.into());
+                    let mut notes = Value::Null;
+                    let mut summary = Value::Null;
+                    let mut parts = Vec::new();
+                    if count > 1 || with_notes || with_summary {
+                        let envelope = parse(line)?;
+                        let mut keys = vec!["speech"];
+                        if with_notes {
+                            keys.push("hypotheses");
+                        }
+                        if with_summary {
+                            keys.push("player_summary");
+                        }
+                        fields(&envelope, &keys)?;
+                        if with_notes {
+                            notes = gamectx::studio::validate_hypotheses(
+                                get(&envelope, "hypotheses")?,
+                                get(&job.binding, "hypothesis_evidence")?,
+                            )?;
+                        }
+                        if with_summary {
+                            let raw = text(&envelope, "player_summary")?;
+                            if raw.is_empty()
+                                || raw.len() > 960
+                                || raw.chars().count() > 240
+                                || raw.chars().any(char::is_control)
+                            {
+                                return Err(err());
+                            }
+                            summary = obj! {"status"=>"unverified_player_claim_summary","text"=>raw,"protected_correction"=>job.binding.get("protected_correction").cloned().unwrap_or(Value::Null)};
+                        }
+                        let raw = get(&envelope, "speech")?;
+                        let chunks = if count > 1 {
+                            gamectx::studio::message_chunks(
+                                &obj! {"op"=>"reply","args"=>obj!{"speech"=>raw.clone(),"max_chunks"=>count}},
+                            )?
+                            .get("chunks")
+                            .unwrap()
+                            .as_array()
+                            .unwrap()
+                            .to_vec()
+                        } else {
+                            vec![raw.clone()]
+                        };
+                        for chunk in chunks {
+                            let raw = chunk.as_str().ok_or_else(err)?;
+                            let input = if grounded.is_some() || is_subjective {
+                                obj! {"speech"=>raw}.to_json()
+                            } else {
+                                raw.to_owned()
+                            };
+                            parts.push(self.validated_reply(&input, &job.binding)?);
+                        }
                     } else {
-                        None
-                    };
-                    let line = resolved.as_ref().map_or(Ok(line), |v| text(v, "text"))?;
-                    if line.chars().count() > 240
-                        || gamectx::life::assess_sentence(line, 240)?.to_value().get("boundary_complete")
-                            != Some(&Value::Bool(true))
-                    {
-                        return Err(err());
+                        parts.push(self.validated_reply(line, &job.binding)?);
                     }
-                    self.deliberation.latest = obj! {"plan"=>job.binding.get("deliberation").cloned().unwrap_or(Value::Null),"status"=>"validated","hypotheses"=>notes,"actor"=>get(&job.binding,"actor")?.clone(),"epoch"=>self.epoch};
+                    let line = parts.remove(0);
+                    self.deliberation.latest = obj! {"plan"=>job.binding.get("deliberation").cloned().unwrap_or(Value::Null),"status"=>"validated","hypotheses"=>notes,"player_summary"=>summary,"actor"=>get(&job.binding,"actor")?.clone(),"epoch"=>self.epoch};
                     let s = self.speech.as_mut().ok_or_else(err)?;
                     s.pending = false;
+                    s.total = parts.len() as u64 + 1;
+                    s.segment = 1;
+                    s.rest = parts;
                     s.origin = if grounded.is_some() {
                         "authorized_model"
                     } else if is_subjective {
@@ -1330,12 +1460,12 @@ impl App {
                     .into();
                     if let Some(proposal) = subjective {
                         let mut entry = proposal.clone();
-                        set(&mut entry, "stance", line.into());
+                        set(&mut entry, "stance", line.clone().into());
                         set(&mut entry, "source", "model".into());
                         s.viewpoint = Some(entry);
                     }
                     if text(&s.voice.snapshot(), "stage")? == "validated" {
-                        s.voice = VoiceTurn::new("studio_save", &s.actor, &s.player, &self.people, line)?;
+                        s.voice = VoiceTurn::new("studio_save", &s.actor, &s.player, &self.people, &line)?;
                     }
                 }
                 "image" => {
@@ -1423,7 +1553,9 @@ impl App {
                         self.recognition = obj! {"status"=>"no_speech","text"=>"","uncertainty"=>"No speech detected. Check the selected microphone and input level, then try again.","actions"=>Vec::<Value>::new()};
                         return Ok(());
                     }
-                    self.recognition=gamectx::life::Coordinator::new("studio_save",&self.npc,&self.people)?.recognition(&obj!{"text"=>line,"final"=>true,"uncertainty"=>"Provider transcript; host-selected speaker."})?;
+                    self.recognition = self.recognize(
+                        &obj! {"text"=>line,"final"=>true,"uncertainty"=>"Provider transcript; host-selected speaker."},
+                    )?;
                     self.mic_open = false;
                     let (_, next) = self.command("chat", &obj! {"text"=>line})?;
                     followups.extend(next);
@@ -1658,8 +1790,21 @@ impl App {
         if !(npc == "merchant" && self.game.room == "workshop" || npc == "keeper" && self.game.room == "cistern") {
             return Err(err());
         }
-        if let Some(direction) = super::greetings::direction(text(v, "text")?) {
-            if !matches!(direction, super::greetings::Direction::Approach(_)) {
+        let guest_line = text(v, "text")?;
+        if guest_line.trim().starts_with('*') && guest_line.trim().ends_with('*') && guest_line.len() <= 1024 {
+            let plan = self.roleplay.resolve(guest_line.trim(), &self.game.choices().into())?;
+            if plan.get("status") == Some(&Value::str("proposed")) && plan.get("decision") != Some(&Value::Null) {
+                return Err(Error::new("The host controls world actions."));
+            }
+        }
+        if let Some(direction) =
+            if !guest_line.trim().starts_with('*') { None } else { super::greetings::direction(guest_line) }
+        {
+            let registered = self.roleplay.resolve(guest_line.trim(), &self.game.choices().into())?;
+            if !matches!(direction, super::greetings::Direction::Approach(_))
+                && !(registered.get("status") == Some(&Value::str("proposed"))
+                    && registered.get("decision") == Some(&Value::Null))
+            {
                 return Err(Error::new("The host controls travel and world actions."));
             }
         }
@@ -1671,9 +1816,16 @@ impl App {
             .iter()
             .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
             .collect::<Vec<_>>();
-        let resolved = gamectx::studio::resolve_command(
-            &obj! {"input"=>text(v,"text")?,"choices"=>choices,"labels"=>labels,"focus"=>Value::Null},
+        let sliced = gamectx::studio::message_chunks(
+            &obj! {"op"=>"player","args"=>obj!{"text"=>text(v,"text")?,"max_chars"=>get(&self.speech_options.value,"max_player_chars")?.clone()}},
         )?;
+        let resolved = if array(get(&sliced, "chunks")?)?.len() > 1 {
+            obj! {"status"=>"unmatched"}
+        } else {
+            gamectx::studio::resolve_command(
+                &obj! {"input"=>text(v,"text")?,"choices"=>choices,"labels"=>labels,"focus"=>Value::Null},
+            )?
+        };
         if text(&resolved, "status")? == "resolved"
             && resolved.get("decision").and_then(|d| d.get("action")).and_then(Value::as_str) != Some("talk")
         {
@@ -1704,9 +1856,9 @@ impl App {
             let life = self.world.effective_life(actor)?;
             characters.push(obj!{"id"=>actor,"life"=>self.world.inspect_actor(actor)?,"episodes"=>life.recall_episodes("conversation returned",&vec!["conversation","trade"].into(),gamectx::deployment::ModelSize::parse(text(&active_config.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).recall)?});
         }
-        let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
+        let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"segment"=>s.segment,"segments"=>s.total,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"roleplay_registry"=>self.roleplay.to_value(),"conversation_options"=>self.speech_options.value.clone(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1740,6 +1892,20 @@ impl App {
             "approach" => {
                 fields(v, &["npc"])?;
                 return Ok((self.approach(text(v, "npc")?)?, jobs));
+            }
+            "roleplay_settings" => {
+                let registry = gamectx::studio::RoleplayActions::from_value(v)?;
+                atomic(&self.dir.join("roleplay-actions.json"), v.to_json().as_bytes())?;
+                self.stop(None)?;
+                self.roleplay = registry;
+                self.epoch += 1;
+                obj! {"configured"=>true}
+            }
+            "conversation_settings" => {
+                self.speech_options.configure(v, &self.dir)?;
+                self.stop(None)?;
+                self.epoch += 1;
+                obj! {"configured"=>true}
             }
             "deliberation_settings" => {
                 self.deliberation.configure(v, &self.dir)?;
@@ -1907,6 +2073,7 @@ impl App {
                 self.mic_open = false;
                 self.mic += 1;
                 self.recognition = Value::Null;
+                self.deliberation.latest = Value::Null;
                 self.counters = [0, 0];
                 self.fulfilled = [0, 0];
                 self.counter_seq = 0;
@@ -1942,6 +2109,10 @@ impl App {
                         let player = self.player.clone();
                         self.log(&player, &format!("*enters the {}*", self.game.room.replace('_', " ")), "action");
                     }
+                    if let Some(narration) = self.roleplay.narration(get(v, "decision")?).map(str::to_owned) {
+                        let player = self.player.clone();
+                        self.log(&player, &format!("*{narration}*"), "action");
+                    }
                     let message = result.get("message").and_then(Value::as_str).unwrap_or("Action completed.");
                     self.log("host", message, "world");
                     if get(v, "decision")?.get("action") == Some(&Value::str("buy")) {
@@ -1955,6 +2126,17 @@ impl App {
                             80,
                             Some(&format!("purchase_{player}")),
                         )?;
+                        let target = get(v, "decision")?.get("target");
+                        let name = prior
+                            .visible_items()
+                            .into_iter()
+                            .find(|item| item.get("id") == target)
+                            .and_then(|i| i.get("label").and_then(Value::as_str).map(str::to_owned))
+                            .unwrap_or_else(|| "purchase".into());
+                        self.npc = "merchant".into();
+                        self.say(&format!("Here is your {name}; thank you."))?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        immediate_greeting = true;
                     }
                     if entered && self.mind.enabled() && self.active() {
                         let actor = self.npc.clone();
@@ -1993,18 +2175,51 @@ impl App {
             }
             "chat" => {
                 fields(v, &["text"])?;
-                let line = text(v, "text")?;
-                if line.is_empty() || line.len() > 1024 || line.chars().any(char::is_control) {
-                    return Err(err());
+                let original_line = text(v, "text")?;
+                let sliced = gamectx::studio::message_chunks(
+                    &obj! {"op"=>"player","args"=>obj!{"text"=>original_line,"max_chars"=>get(&self.speech_options.value,"max_player_chars")?.clone()}},
+                )?;
+                let input_chunks = array(get(&sliced, "chunks")?)?;
+                let normalized = input_chunks.iter().filter_map(Value::as_str).collect::<String>();
+                let line = normalized.as_str();
+                let long = input_chunks.len() > 1;
+
+                if line.trim().starts_with('*') && line.trim().ends_with('*') && line.len() <= 1024 {
+                    let staged = self.roleplay.resolve(line.trim(), &self.game.choices().into())?;
+                    if staged.get("status") == Some(&Value::str("proposed")) {
+                        if staged.get("decision") != Some(&Value::Null) {
+                            return self.command(
+                                "act",
+                                &obj! {"revision"=>self.game.revision,"decision"=>get(&staged,"decision")?.clone()},
+                            );
+                        }
+                        self.stop(None)?;
+                        self.epoch += 1;
+                        self.advance()?;
+                        let player = self.player.clone();
+                        let narration = text(&staged, "narration")?;
+                        self.log(&player, &format!("*{narration}*"), "action");
+                        if self.active() {
+                            let actor = self.npc.clone();
+                            self.observe(&actor, &player, &format!("{player} {narration}."), "gesture", 10, None)?;
+                        }
+                        return Ok((obj! {"status"=>"accepted","roleplay_action"=>get(&staged,"id")?.clone()}, jobs));
+                    }
+                    if staged.get("status") == Some(&Value::str("blocked")) {
+                        self.notice = "That roleplay action is unavailable here; choose an available action.".into();
+                        return Ok((staged, jobs));
+                    }
                 }
-                if let Some(direction) = super::greetings::direction(line) {
+                if let Some(direction) =
+                    if long && !line.trim().starts_with('*') { None } else { super::greetings::direction(line) }
+                {
                     match direction{
                     super::greetings::Direction::Approach(npc)=>return self.command("approach",&obj!{"npc"=>npc}),
                     super::greetings::Direction::Enter(room)=>return self.command("act",&obj!{"revision"=>self.game.revision,"decision"=>game::pair("go",Some(&format!("room:{room}")))}),
                     super::greetings::Direction::Unsupported=>{self.notice="Choose a destination with a travel button, or use *enters the workshop* or *approaches the merchant*.".into();return Ok((obj!{"stage"=>"unsupported","message"=>self.notice.clone()},jobs));}
                 }
                 }
-                if self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
+                if !long && self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
                     return Ok((self.reaction_chat(line, None)?, jobs));
                 }
                 let choices = self.game.choices();
@@ -2018,9 +2233,13 @@ impl App {
                     .as_ref()
                     .filter(|(_, at)| self.tick.saturating_sub(*at) <= 4)
                     .map_or(Value::Null, |(id, _)| Value::str(id));
-                let resolved = gamectx::studio::resolve_command(
-                    &obj! {"input"=>line,"choices"=>choices.clone(),"labels"=>labels,"focus"=>focus},
-                )?;
+                let resolved = if long {
+                    obj! {"status"=>"unmatched"}
+                } else {
+                    gamectx::studio::resolve_command(
+                        &obj! {"input"=>line,"choices"=>choices.clone(),"labels"=>labels,"focus"=>focus},
+                    )?
+                };
                 let addressed_talk = self.active()
                     && [
                         format!("talk {}", self.npc),
@@ -2030,10 +2249,16 @@ impl App {
                     .contains(&line.trim().trim_end_matches(['.', '!']).to_lowercase());
                 match text(&resolved, "status")? {
                     "resolved" if get(&resolved, "decision")?.get("action").and_then(Value::as_str) != Some("talk") => {
+                        self.stop(None)?;
+                        let player = self.player.clone();
+                        self.log(&player, original_line, "player");
+                        if self.active() {
+                            self.record_player_parts(input_chunks)?;
+                        }
                         return self.command(
                             "act",
                             &obj! {"revision"=>self.game.revision,"decision"=>get(&resolved,"decision")?.clone()},
-                        )
+                        );
                     }
                     "clarify" if !addressed_talk => {
                         self.stop(None)?;
@@ -2061,23 +2286,22 @@ impl App {
                 self.mic_open = false;
                 self.advance()?;
                 let player = self.player.clone();
-                self.log(&player, line, "player");
+                self.log(&player, original_line, "player");
                 if !self.active() {
                     self.notice = "Travel to the workshop for the merchant, or the cistern for the keeper.".into();
                     obj! {"addressed"=>false}
                 } else {
-                    let token = self.next();
-                    let receipt = obj! {"token"=>token,"speaker"=>self.player.clone(),"recipients"=>vec![self.npc.clone()],"heard"=>vec![self.player.clone(),self.npc.clone()],"text"=>line,"parent"=>Value::Null};
-                    self.receipt(receipt)?;
-                    let actor = self.npc.clone();
-                    let subject = self.player.clone();
-                    self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
+                    let token = self.record_player_parts(input_chunks)?;
                     self.fulfill_promises()?;
                     let trust = self.attitude_level("trust")?;
                     let previous = if self.mind.enabled() { self.previous_topic() } else { None };
-                    let route = gamectx::studio::conversation_route(
-                        &obj! {"input"=>if self.mind.enabled(){super::greetings::addressed(line,&self.npc)}else{line.into()},"previous"=>previous.clone().map_or(Value::Null,Value::from)},
-                    )?;
+                    let route = if long {
+                        obj! {"kind"=>"other"}
+                    } else {
+                        gamectx::studio::conversation_route(
+                            &obj! {"input"=>if self.mind.enabled(){super::greetings::addressed(line,&self.npc)}else{line.into()},"previous"=>previous.clone().map_or(Value::Null,Value::from)},
+                        )?
+                    };
                     let kind = if self.mind.enabled() { text(&route, "kind")? } else { "other" };
                     if kind == "greeting" {
                         return Ok((self.greet()?, jobs));
@@ -2179,6 +2403,10 @@ impl App {
                         fallback = format!("Briefly: {fallback}");
                     }
                     self.say(&fallback)?;
+                    if super::followup::stock_query(line) {
+                        self.notice = "Current stock and prices are ready.".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"stock_query"=>true}, jobs));
+                    }
                     if chosen.is_some() {
                         self.notice = "Reply ready from the character's current role and visible scene.".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
@@ -2230,7 +2458,7 @@ impl App {
                         set(&mut payload, "speech_schema", schema);
                     }
                     let speech = self.speech.as_ref().unwrap().id;
-                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null),"subjective"=>topic.is_some(),"speech_act"=>kind,"reasoning_task"=>super::deliberation::task(line,self.manager.route.get("dramatic")==Some(&Value::Bool(true)))})? {
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null),"subjective"=>topic.is_some(),"protected_correction"=>super::speech_options::protected_correction(line),"speech_act"=>kind,"reasoning_task"=>super::deliberation::task(line,self.manager.route.get("dramatic")==Some(&Value::Bool(true)))})? {
                         self.speech.as_mut().unwrap().pending = true;
                         self.speech.as_mut().unwrap().origin = "pending".into();
                         jobs.push(job);
@@ -2263,6 +2491,19 @@ impl App {
                     "finished" => {
                         s.voice.finish(n, h)?;
                         self.archive_speech(false)?;
+                        let (mut rest, origin, segment, total) = {
+                            let s = self.speech.as_mut().unwrap();
+                            (std::mem::take(&mut s.rest), s.origin.clone(), s.segment, s.total)
+                        };
+                        if !rest.is_empty() {
+                            let next = rest.remove(0);
+                            self.say(&next)?;
+                            let s = self.speech.as_mut().unwrap();
+                            s.rest = rest;
+                            s.origin = origin;
+                            s.segment = segment + 1;
+                            s.total = total;
+                        }
                     }
                     _ => return Err(err()),
                 };
@@ -2284,8 +2525,7 @@ impl App {
                 if num(v, "session", u32::MAX as u64)? != self.mic || !self.mic_open {
                     return Err(err());
                 }
-                let c = gamectx::life::Coordinator::new("studio_save", &self.npc, &self.people)?;
-                let result=c.recognition(&obj!{"text"=>get(v,"text")?.clone(),"final"=>get(v,"final")?.clone(),"uncertainty"=>get(v,"uncertainty")?.clone()})?;
+                let result=self.recognize(&obj!{"text"=>get(v,"text")?.clone(),"final"=>get(v,"final")?.clone(),"uncertainty"=>get(v,"uncertainty")?.clone()})?;
                 if get(v, "final")? == &Value::Bool(false) {
                     self.stop(None)?;
                 } else {
@@ -2747,6 +2987,7 @@ impl App {
         self.counter_seq = counter_seq;
         self.transcript = transcript;
         self.speech = None;
+        self.deliberation.latest = Value::Null;
         self.mic_open = false;
         self.epoch += 1;
         self.mic_open = false;

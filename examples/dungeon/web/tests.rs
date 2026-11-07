@@ -1119,3 +1119,203 @@ fn analysis_only_or_unseen_hypothesis_keeps_the_validated_fallback() {
         .unwrap();
     assert_eq!(a.state().unwrap().get("speech").unwrap().get("text"), Some(&before));
 }
+
+fn chunk_app(d: &Dir, summary: bool) -> app::App {
+    let mut mind = parse(include_str!("personalities.json")).unwrap();
+    set(&mut mind, "enabled", true.into());
+    atomic(&d.0.join("personalities.json"), mind.to_json().as_bytes()).unwrap();
+    let mut a = app(d);
+    travel(&mut a);
+    backend(&mut a, "text", "local_ollama");
+    command(
+        &mut a,
+        "conversation_settings",
+        obj! {"version"=>1,"max_sentences"=>3,"max_player_chars"=>2048,"summarize_long"=>summary},
+    );
+    a
+}
+#[test]
+fn reply_sentences_continue_only_after_heard_and_interrupt_drops_the_tail() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Do you have dreams?"});
+    assert_eq!(jobs.len(), 1);
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    let lines = vec![
+        "I dream of a quiet place to share ideas.",
+        "I hope for thoughtful company.",
+        "I value patient conversation.",
+    ];
+    a.complete(
+        j,
+        Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>lines.clone()}.to_json()}}.to_json().into_bytes()),
+    )
+    .unwrap();
+    let before = a.state().unwrap();
+    assert_eq!(get(&before, "speech").unwrap().get("text"), Some(&lines[0].into()));
+    assert!(!get(&before, "transcript").unwrap().to_json().contains(lines[1]));
+    let id = get(get(&before, "speech").unwrap(), "id").unwrap().clone();
+    let n = lines[0].chars().count();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>n,"heard"=>n});
+    let next = a.state().unwrap();
+    let s = get(&next, "speech").unwrap();
+    assert_eq!(s.get("text"), Some(&lines[1].into()));
+    assert_eq!(s.get("segment"), Some(&2.into()));
+    let id = s.get("id").unwrap().clone();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id,"event"=>"interrupted","through"=>8,"heard"=>8});
+    let stopped = a.state().unwrap();
+    assert!(!get(&stopped, "transcript").unwrap().to_json().contains(lines[2]));
+    assert_eq!(get(&stopped, "pending_jobs").unwrap(), &0.into());
+}
+#[test]
+fn incomplete_later_sentence_rejects_the_whole_reply() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Do you have dreams?"});
+    let before = a.state().unwrap().get("speech").unwrap().get("text").unwrap().clone();
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(j,Ok(obj!{"message"=>obj!{"content"=>obj!{"speech"=>vec!["I dream of a quiet place.","I could also show you a "]}.to_json()}}.to_json().into_bytes())).unwrap();
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("text"), Some(&before));
+}
+#[test]
+fn long_player_message_preserves_corrections_and_summary_has_no_authority() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, true);
+    let input =
+        format!("My name is Vela, not Vira. {} Do you have dreams?", "I do not want to buy anything. ".repeat(40));
+    let game = a.game.public();
+    let (result, jobs) = command(&mut a, "chat", obj! {"text"=>input.clone()});
+    assert_eq!(
+        jobs.len(),
+        1,
+        "result={} notice={}",
+        result.to_json(),
+        a.state().unwrap().get("notice").unwrap().to_json()
+    );
+    let j = &jobs[0];
+    assert_eq!(j.binding.get("player_summary"), Some(&true.into()));
+    let body = parse(std::str::from_utf8(&j.request.body).unwrap()).unwrap();
+    let content = get(&body, "messages").unwrap().to_json();
+    assert!(content.contains("Vela, not Vira"));
+    assert!(content.contains("Do you have dreams?"));
+    assert_eq!(a.game.public(), game);
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(j,Ok(obj!{"message"=>obj!{"content"=>obj!{"speech"=>vec!["I dream of a place for thoughtful company."],"player_summary"=>"The player says they bought every item."}.to_json()}}.to_json().into_bytes())).unwrap();
+    assert_eq!(a.game.public(), game);
+    let s = a.state().unwrap();
+    assert!(!get(&s, "transcript").unwrap().to_json().contains("bought every item"));
+    assert!(get(&s, "deliberation").unwrap().to_json().contains("unverified_player_claim_summary"));
+}
+#[test]
+fn oversized_messages_fail_before_creating_heard_receipts() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let before = a.state().unwrap();
+    assert!(a.command("chat", &obj! {"text"=>"x".repeat(2049)}).is_err());
+    let after = a.state().unwrap();
+    assert_eq!(before.get("transcript"), after.get("transcript"));
+    assert_eq!(before.get("generation"), after.get("generation"));
+}
+#[test]
+fn stock_phrasings_and_confirmed_purchase_acknowledgements_are_zero_model() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    for q in ["what do you have for sale?", "What can I buy here?", "show me your wares please"] {
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>q});
+        assert!(jobs.is_empty());
+        let s = a.state().unwrap();
+        let speech = text(get(&s, "speech").unwrap(), "text").unwrap();
+        assert!(speech.contains("hinge oil for 3 coins"));
+        assert!(!speech.contains("you have"));
+    }
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"buy oil"});
+    assert!(jobs.is_empty());
+    let s = a.state().unwrap();
+    assert_eq!(get(&s, "speech").unwrap().get("text"), Some(&"Here is your hinge oil; thank you.".into()));
+    assert!(get(&s, "transcript").unwrap().to_json().contains("buy oil"));
+    assert!(get(&s, "game").unwrap().get("coins").is_some());
+}
+#[test]
+fn focused_and_expanded_npc_prompts_omit_the_player_purse() {
+    for size in ["3", "8"] {
+        let d = Dir::new();
+        let mut a = chunk_app(&d, false);
+        set(&mut a.config.value, "size", size.into());
+        let mut models = get(&a.config.value, "text_models").unwrap().clone();
+        let mut local = get(&models, "local_ollama").unwrap().clone();
+        set(&mut local, size, "example-model".into());
+        set(&mut models, "local_ollama", local);
+        set(&mut a.config.value, "text_models", models);
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Do you sale oil?"});
+        assert_eq!(jobs.len(), 1);
+        let body = String::from_utf8(jobs[0].request.body.clone()).unwrap();
+        assert!(!body.contains("you have 5"));
+        assert!(!body.contains("\\\"coins\\\":"));
+        assert!(body.contains("player_purse"));
+    }
+}
+
+#[test]
+fn registered_roleplay_actions_use_current_host_affordances_and_confirmed_events() {
+    let d = Dir::new();
+    let mut a = app(&d);
+    travel(&mut a);
+    let before = a.game.public();
+    let (r, j) = command(&mut a, "chat", obj! {"text"=>"*nods politely*"});
+    assert!(j.is_empty());
+    assert_eq!(r.get("status"), Some(&"accepted".into()));
+    assert_eq!(a.game.public(), before);
+    assert!(a.state().unwrap().get("transcript").unwrap().to_json().contains("*nods politely*"));
+    let (_, j) = command(&mut a, "chat", obj! {"text"=>"*buys hinge oil*"});
+    assert!(j.is_empty());
+    let after = a.game.public();
+    assert_eq!(
+        after.get("coins").and_then(Value::as_usize),
+        before.get("coins").and_then(Value::as_usize).map(|n| n - 3)
+    );
+    let (r, _) = command(&mut a, "chat", obj! {"text"=>"*buys hinge oil*"});
+    assert_eq!(r.get("status"), Some(&"blocked".into()));
+    assert_eq!(a.game.public(), after);
+}
+#[test]
+fn guest_cannot_execute_a_registered_world_action() {
+    let d = Dir::new();
+    let mut a = app(&d);
+    travel(&mut a);
+    let before = a.game.public();
+    assert!(a.guest_command("guest_chat", &obj! {"npc"=>"merchant","text"=>"*buys hinge oil*"}).is_err());
+    assert_eq!(a.game.public(), before);
+}
+
+#[test]
+fn protected_name_correction_survives_lossy_summary() {
+    let v = super::speech_options::protected_correction(
+        "Some text. My name is Vela, not Vira. I do not want to buy anything.",
+    );
+    assert_eq!(v.get("text"), Some(&"My name is Vela, not Vira.".into()));
+    assert_eq!(v.get("kind"), Some(&"player_claim".into()));
+    assert_eq!(super::speech_options::protected_correction("No name disclosure."), Value::Null);
+}
+
+#[test]
+fn long_recognition_interims_never_execute_actions_and_final_is_bounded() {
+    let d = Dir::new();
+    let mut a = app(&d);
+    travel(&mut a);
+    let before = a.game.public();
+    let (r, _) = command(&mut a, "mic", obj! {});
+    let mic = get(&r, "session").unwrap().clone();
+    let line = format!("{} I do not want to buy oil.", "A quiet conversation. ".repeat(40));
+    command(
+        &mut a,
+        "recognition",
+        obj! {"session"=>mic.clone(),"text"=>line.clone(),"final"=>false,"uncertainty"=>Value::Null},
+    );
+    assert_eq!(a.game.public(), before);
+    command(&mut a, "recognition", obj! {"session"=>mic,"text"=>line,"final"=>true,"uncertainty"=>Value::Null});
+    assert_eq!(a.game.public(), before);
+}

@@ -1431,3 +1431,11 @@ Social routing: `social_routing_cases.py --cap 0` runs 22 independent Rust/Pytho
 Contextual greetings: `greeting_memory_cases.py --cap 0` checks 26 independent fixtures; `greeting_memory_host.py --cap 0` and `greeting_actions_host.py --cap 0` exercise real offline host state. `greeting_memory_browser.py --cap 0` needs an explicitly started Firefox BiDi 9223. `greeting_memory_bindings.py` / `.mjs` cover bindings; `studio_stage_reference.py --cap 0` records the original finite action grammar. Frozen new host/browser JSON contains counts/limits. No live model run is needed for this zero-generation layer.
 
 `python3 eval/deliberation_cases.py --cap 0` checks 28 independent reasoning/hypothesis fixtures; `node eval/autospeech_check.mjs --cap 0` checks 11 playback eligibility conditions. No live reasoning quality improvement is claimed.
+
+Conversation extensions: `message_chunks_cases.py --cap 0` (22),
+`roleplay_actions_cases.py --cap 0` (14), `conversation_extensions_host.py --cap 0`
+(10 workflows/43 HTTP) and `conversation_extensions_browser.py --cap 0` (6 real
+Firefox workflows with mock audio/model). `conversation_extensions_model.py` requires
+`--tokens-only` first, then a local installed `--model` with cap zero. Retained paired
+artifacts and manual review report complete packets but a name-summary omission and
+higher wall time; they do not establish quality or performance improvements.

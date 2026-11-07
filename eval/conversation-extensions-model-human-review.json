@@ -1,0 +1,14 @@
+{
+  "paired_cases": 2,
+  "complete_packets_baseline": 2,
+  "complete_packets_chunks": 2,
+  "short_chunk_count": 1,
+  "long_chunk_count": 2,
+  "summary_preserved_no_purchase": true,
+  "summary_omitted_corrected_name": true,
+  "long_baseline_seconds": 52.841,
+  "long_summary_chunks_seconds": 61.161,
+  "summary_policy": "Off by default; full input retained. Host protected correction excerpt accompanies any unverified generated summary.",
+  "limits": "Manual review of the retained four local outputs. No statistical accuracy/latency gain claim; these measured wall times include loading and desktop scheduling.",
+  "api_spend_usd": 0
+}
