@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "workflows": 68,
+  "compile_workflows": 12,
+  "model_calls": 0,
+  "api_spend_usd": 0,
+  "ambient_reserved_calls": 0,
+  "trusted_request_bytes": 3210,
+  "untrusted_request_bytes": 2708,
+  "untrusted_gated_payloads_present": 0,
+  "prototype_rust_parity": true,
+  "limits": "Deterministic host checks only; bytes are not tokenizer counts. No social-quality, semantic speech, speed, cache-hit, or model-tier accuracy claim."
+}

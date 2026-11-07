@@ -1821,3 +1821,51 @@ max_chars` and returns `characters,boundary_complete,single_sentence,at_schema_w
 over_limit,suspected_cutoff`. Bounds are 1..1,024 max_chars and 1,024 Unicode characters /
 4,096 bytes of text. Empty text is diagnosable. This punctuation heuristic preserves raw
 text and does not certify semantic completeness or factual support.
+
+## Archetype and party layer (opt-in v1)
+
+[Complete contracts and host responsibilities](ARCHETYPES.md). Blueprint input is exactly
+`version:1,preset,size,modules,policies,tools,model_calls`; presets are ambient/service/quest/
+companion, sizes 0b/1b/1.5b/3b/8b/30b/70b. Module overrides are partial booleans; policies
+are exactly balanced/deception/mistaken. Tools are a unique subset of life_recall/life_change
+under module/tier requirements, with at most eight reserved turn calls. Resolved output
+includes module flags, attention caps and existing life/routine/initiative configurations.
+
+A scene is exactly `version:1,id,epoch,revision,participants`; participant records are
+`id,kind` (player/ai), with 1..16 unique ASCII names. Receipts are exactly
+`token,speaker,recipients,heard,text,parent`, bounded to 128 records, monotonic u32 tokens,
+512 text characters / 2,048 bytes, and an earlier existing parent or null. No receipt is
+authoritative evidence of a quoted factual claim. Up to 16 messages can be rendered.
+
+Gate rules are `kind,id,clauses` (lore/facet/affordance); up to 128 unique kind/ID rules,
+1..8 clauses each, exactly `attitude,target,op,value`, target speaker/listener, op ge/le,
+value -100..100. Gate/item IDs retain existing bounded scope strings. Live gate frames are exactly
+`revision,speaker,listeners` and are validated against current Life. Multi-listener clauses
+apply to every listener; missing/ambiguous attitudes fail closed. Gate diagnostics are
+host-only. Existing audiences, knowledge grants and subject scopes still apply.
+
+`PartyScene::floor` takes `turn,now,trigger,policy,spotlight,candidates`. Floor policy is
+`enabled,social_limit,model_calls,max_depth` with maxima 16/8/4 and disabled by default.
+Spotlight is `enabled,significance` (threshold 1..100), disabled by default. Each of at most
+16 unique AI candidates is `actor,priority,focused,expanded,signal`; priority -100..100,
+expanded may be null. Routes are `name,size,calls,cost_micros`, calls 0..8, microdollars
+0..1e12; zero-call routes cost zero. Signals are `significance,changes,conflicts` with
+significance 0..100, conflicts 0..16 and at most 16 `before,after,threshold` crossings
+bounded to -100..100. Results include selected one-use grants, omission reasons and shared
+turn counters. Scene instances retain at most 16 reserved / 128 total grants.
+
+`SceneTurn` borrows Life, Blueprint, gates, Lore and the host request. Request fields are
+exactly `trigger,revision,life_revision,listeners,subjects,tags,turn,rules,stable_scene,
+lore_select,affordances,tools`. Turn follows the existing SpeechTurn contract; lore_select
+follows Lore::select and must identify the active AI. At most 32 affordances have exactly
+`id,text,audience`. Up to two actually configured/exposed Life schemas are permitted.
+The result is `request,refusal,inspection`; a denied required lore card yields a null
+request and deterministic deferral. Full request bytes and all ordinary Life caps apply.
+Stable scene/rules and every non-gated host field must already be redacted.
+
+Additive `local` kinds: `archetype` resolves a blueprint; `party` replays exactly
+`scene,ledger,operations` (ledger limit/window, up to 256 operations receipt/render/floor/
+dispatch/cancel/revision); `party-compile` takes `life,blueprint,gates,scene,receipts,lore,
+request`; `attitude-gates` is an offline fixture with `rules,actor,speaker,listeners,
+participants,revision,expected_revision,attitudes,kind,items`. Its compact attitude rows
+are kind/subject/level. These adapters are host/testing operations, never model tools.

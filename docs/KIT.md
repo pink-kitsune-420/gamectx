@@ -285,3 +285,11 @@ a v2 packet plus host inspection; scene/question facts share the attention cap. 
 the same session/native ABI and existing generic Python/Node `life`/`continuity` helpers.
 They register no model tools. The stateless `local` sentence-boundary helper is available
 through the existing bridges. [V2 speech contracts](FORMAT.md#turn-aware-life-speech-v2).
+
+The [archetype/party layer](ARCHETYPES.md) is available through the unchanged `local` bridge
+operation: kinds archetype, attitude-gates, party and party-compile. Python `Client.request`,
+Node `GamectxClient.request` and C#/native `Request` use the same version-1 envelopes. The
+party workflow adapter replays up to 256 host operations in one request; it does not keep a
+new persistent native scene between calls. Rust integrations own `PartyScene` directly;
+other hosts retain authenticated replay/state and reservations. Do not expose these host
+configuration or fixture operations to models. No new native entry point is required.

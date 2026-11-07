@@ -13,6 +13,15 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds opt-in composable ambient/service/quest/companion blueprints over existing
+  modules, current-attitude gates, heard-only multi-party perspectives, shared floor quotas,
+  one-use spending-backed grants and explicit spotlight routing. No automatic model/tool work.
+- **[format]** Adds 68 archetype/party conformance cases, including malformed inputs;
+  all 904 prior cases and native APIs remain unchanged.
+- **[docs]** Adds an editable four-archetype/six-participant example and offline parity/
+  byte measurements (3,210 trusted / 2,708 untrusted request bytes; 0 model calls / $0 API).
+  Token counts, model-tier accuracy and social quality remain unmeasured.
+
 - **[api]** Adds opt-in speech compiler v2: focused/unknown-state grounded policy, explicit
   speaker/subject factual bindings, direct current utterances and bounded sentence-wall
   diagnostics. Includes coordinator/session operations and a tested Rust example.

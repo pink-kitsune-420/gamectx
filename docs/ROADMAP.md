@@ -398,3 +398,28 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Raw v2 token/results/review artifacts and [method/limits](LIFE_SPEECH_V2_EVAL.md) are retained;
   no tuned rerun, larger model, automatic repair or default source-answer change. Next:
   independent human review and fresh multi-turn families covering unknown scenes and stock.
+
+## Modular archetype and multi-party layer
+
+- Completed opt-in ambient/service/quest/companion loadouts and a composable builder with
+  validated module dependencies, zero-call background policies, actual existing-runtime
+  adapters, model hints and explicit tool registration controls.
+- Added current-Life listener/speaker attitude gates for lore, private facets and offered
+  affordances, including multi-listener all-of requirements, deterministic deferral and
+  a gate-aware Life tool dispatcher. Withheld payloads/IDs stay outside compiled requests.
+- Added bounded host hearing receipts, active-AI relative roles/attribution, subject-ranked
+  attitudes, shared per-turn floor quotas, causal/root and confirmed-reply guards, one-use
+  stale-checked grants and SpendingLedger reservations/cancellation.
+- Added disabled-by-default spotlight routing for significance, actual threshold crossings
+  and explicit conflict signals, with focused fallback on spending/call exhaustion and
+  identity-pinned deployment binding. Selected routes project actual context caps.
+- Evidence: 68 independent Python/Rust workflows, 68 additive conformance cases (904 prior
+  cases unchanged), 136 Python CLI/native replies and 68 Node/C# fixture replies each.
+  Editable original four-archetype/six-participant example runs without a model.
+- Offline compiled requests measure 3,210 trusted / 2,708 untrusted bytes, with zero gated
+  payloads in the untrusted request and zero ambient reserved calls. 0 model calls / $0 API;
+  tokenizer counts, tier capability, social quality and latency remain unmeasured.
+- Host work remains: truthful receipt/signal/listener inputs, private-scope/redaction policy,
+  complete provider counting, actual model loading/call limits, game dispatch, persistent
+  scene/floor state, spending settlement and independent live/human evaluation. Existing
+  failed speech artifacts remain unchanged. [Full contract/evidence](ARCHETYPES.md).

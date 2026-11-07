@@ -285,3 +285,14 @@ The [fresh paired follow-up](LIFE_SPEECH_V2_EVAL.md) preserves v1 artifacts: 48 
 $0 API, 16 token-first checks and eight pairs across regressions/holdouts. Terminal endings
 improve 5/8→8/8 and suspected wall cutoffs 3/8→0/8; weather and stock invention still occur.
 Balanced free-form prose remains experimental; independent human quality review is unknown.
+
+## Archetypes and multi-party scenes
+
+[Blueprints and party contexts](ARCHETYPES.md) optionally compose existing Life definitions,
+subjective appraisals, routines, lore, evidence and promise tracking. `Life::party_context`
+selects listener/relevant-subject attitudes and gates private facets before attention caps.
+`PartyScene::compile` joins this with gated lore/affordances, heard-only perspective history
+and existing SpeechTurn policy. It preserves the fixed participant scope: an attitude gate
+cannot override a facet's audience. `PartyScene::call_life` rechecks those restrictions for
+exposed recall tools; changes remain proposals. Existing Life context/call contracts stay
+unchanged. Authoritative hearing, storage, permissions and accepted experiences are host-owned.

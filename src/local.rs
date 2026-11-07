@@ -24,6 +24,10 @@ pub fn process(v: &Value) -> Result<Value> {
             .to_value())
         }
         "character-context" => crate::life::context_fixture(a),
+        "archetype" => crate::archetype::Blueprint::from_value(a).map(|b| b.to_value()),
+        "attitude-gates" => crate::party::select_gates_fixture(a),
+        "party" => crate::party::workflow(a),
+        "party-compile" => crate::party::compile_fixture(a),
         "initiative" => crate::life::initiative_fixture(a),
         "episodes" => crate::life::episodes_fixture(a),
         "continuity" => crate::life::continuity_fixture(a),

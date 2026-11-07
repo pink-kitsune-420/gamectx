@@ -1,0 +1,1 @@
+{"kind":"archetype","args":{"version":1,"preset":"companion","size":"70b","modules":{},"policies":{"balanced":true,"deception":true,"mistaken":false},"tools":["life_recall","life_change"],"model_calls":2}}

@@ -1,0 +1,1 @@
+{"kind":"archetype","args":{"version":1,"preset":"ambient","size":"0b","modules":{"brain":false},"policies":{"balanced":false,"deception":false,"mistaken":false},"tools":[],"model_calls":0}}

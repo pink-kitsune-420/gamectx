@@ -1174,3 +1174,21 @@ fn speech_turns_and_sentence_diagnostics_bound_model_written_text() {
         assert_eq!(before, speech);
     }
 }
+
+#[test]
+fn archetype_and_party_frames_reject_mutations_with_bounded_work() {
+    let seeds = [
+        include_str!("../conformance/archetype-party/compile_untrusted/input.json"),
+        include_str!("../conformance/archetype-party/escalate_significance/input.json"),
+        include_str!("../conformance/archetype-party/loadout_ambient/input.json"),
+    ];
+    let mut rng = Rng(0x452891);
+    for seed in seeds {
+        for _ in 0..4000 {
+            let text = mutate(&mut rng, seed);
+            if let Ok(value) = parse(&text, 262144) {
+                let _ = gamectx::local::process(&value);
+            }
+        }
+    }
+}

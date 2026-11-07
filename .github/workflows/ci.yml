@@ -51,6 +51,8 @@ jobs:
       - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-tokens.json
       - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-results.json
       - run: python3 -I eval/life_speech_cases.py --cap 0
+      - run: python3 -I eval/archetype_cases.py --cap 0 --check eval/archetype-party-results.json
+      - run: cargo +stable test --example party --locked
       - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-tokens.json
       - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-results.json
       - run: python3 -I eval/life_model_v2_review.py --cap 0 --check
@@ -158,6 +160,8 @@ jobs:
       - run: node eval/adversarial_bindings_check.mjs
       - run: python3 -I eval/life_bindings_check.py --cap 0
       - run: python3 -I eval/life_speech_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/archetype_cases.py --cap 0 --check-bindings
+      - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
@@ -169,6 +173,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/routine-detail-csharp/requests.txt target/routine-detail-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/adversarial-csharp/requests.txt target/adversarial-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/life-csharp/requests.txt target/life-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/archetype-party-csharp/requests.txt target/archetype-party-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

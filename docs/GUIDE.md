@@ -695,3 +695,11 @@ mark player attributes with explicit subject and unknown status. The compiler le
 actual utterance outside JSON and asks focused models for grounded short speech. Diagnose
 sentence endings with `assess_sentence` before queueing; retain raw rejected output.
 [Runnable example](../examples/character-speech.rs) and [paired results with retained failures](LIFE_SPEECH_V2_EVAL.md).
+
+For multiple NPC roles, use an explicit `archetype::Blueprint` or compose modules with
+`BlueprintBuilder`. The [party example](../examples/party.rs) installs approved life and
+routine data, selects authoritative stock, reserves a spotlight route, and compiles
+different replies for two players. Feed only host-confirmed hearing to `PartyScene`; apply
+sidecar `AttitudeGates` before selection, and dispatch any exposed Life tools through
+`PartyScene::call_life` so recall cannot bypass gates. Recount the actual provider request
+before dispatching a one-use floor grant. [Contracts, limits and offline evidence](ARCHETYPES.md).

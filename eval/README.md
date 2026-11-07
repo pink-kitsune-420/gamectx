@@ -1235,3 +1235,22 @@ retained; helper diagnostics do not trim, silently repair, retry or replace them
 v1 files are SHA-256-bound and remain frozen. Audit frozen v2 tokens/results with `--check`.
 `life_model_v2_review.py --cap 0 --check` reproduces separately labeled assistant notes and
 mechanical metrics; it is not independent human scoring. [Results and remaining failures](../docs/LIFE_SPEECH_V2_EVAL.md).
+
+## Archetype and multi-party host checks
+
+`archetype_reference.py` and `party_compile_reference.py` independently prototype four
+composable loadouts, current-attitude gates, relative hearing history, floor reservations
+and spotlight routing. Run `python3 -I eval/archetype_cases.py --cap 0 --prototype-only
+--tokens-only` before implementation/evaluation: no provider/tokenizer is assumed, and
+token counts are explicitly unknown. After building the CLI, `--check
+eval/archetype-party-results.json` checks 68 workflows, including 12 compiled-turn cases.
+`--write-conformance` writes only the additive archetype-party family.
+
+`--check-bindings` checks 136 persistent CLI/native bridge replies and creates fixtures in
+target/archetype-party-csharp. Run `node eval/archetype_bindings_check.mjs`; the existing C#
+Check driver accepts that directory's requests.txt/expected.txt. All make zero model calls.
+`--report FRESH_PATH` writes deterministic byte measurements, refusing existing paths.
+The retained report measures 3,210/2,708 trusted/untrusted provider-neutral request bytes,
+zero gated payloads in the untrusted request and zero ambient reserved model calls.
+These are structural host checks, not a conversational or model-tier benchmark. Existing
+v1/v2 life-model artifacts stay frozen. [Method, limits and runnable example](../docs/ARCHETYPES.md).

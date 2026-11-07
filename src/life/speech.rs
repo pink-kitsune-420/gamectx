@@ -92,7 +92,7 @@ impl SpeechTurn {
     pub fn to_value(&self) -> Value {
         self.value.clone()
     }
-    pub(super) fn scoped_facts(&self, actor: &str) -> Result<Value> {
+    pub(crate) fn scoped_facts(&self, actor: &str) -> Result<Value> {
         let rows = c::list(get(&self.value, "facts")?)?;
         let subjects = Value::Object(
             rows.iter()

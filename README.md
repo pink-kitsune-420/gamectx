@@ -50,6 +50,16 @@ variant invented weather and produced unfinished replies. Balanced free-form pro
 experimental; no model correctness or cache-hit improvement is claimed. Source-selected
 answers remain the default. Human social-quality evaluation is still needed.
 
+## Modular archetypes and multi-party scenes
+
+The opt-in [archetype and multi-party layer](docs/ARCHETYPES.md) provides ambient (0B),
+service, quest and companion loadouts. Compose modules through `BlueprintBuilder`, gate
+lore/facets/affordances by listener attitudes, render confirmed hearing from each AI's
+perspective, and reserve bounded responders and spotlight routes through the shared ledger.
+Run `cargo run --example party` and edit [the six-participant scene](examples/party/chime-counter.json).
+Offline evidence covers 68 Python/Rust workflows and 68 additive cases, with zero model calls.
+Provider token counting, authoritative execution and hearing stay with the host.
+
 ## Turn-aware short speech follow-up
 
 [Speech compiler v2](docs/LIFE_SPEECH_V2_EVAL.md) gates creative policy by host profile and

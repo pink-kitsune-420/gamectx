@@ -57,6 +57,7 @@
 //! # Ok::<(), gamectx::Error>(())
 //! ```
 
+pub mod archetype;
 pub mod brain;
 pub mod budget;
 pub mod catalog;
@@ -81,6 +82,7 @@ pub mod manifest;
 pub mod memory;
 pub mod observation;
 pub mod outcome;
+pub mod party;
 pub mod playbook;
 pub mod query;
 pub mod recall;
