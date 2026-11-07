@@ -60,6 +60,10 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
                 .ok_or_else(bad)?
                 .context_capped(c::get(a, "tags")?, ContextCaps::from_value(c::get(a, "caps")?)?)
         }
+        "character_life_recall_selected" => {
+            c::fields(a, &["id", "selection"])?;
+            r.character.life().ok_or_else(bad)?.recall_selected(c::get(a, "selection")?)
+        }
         "character_life_recall" => {
             c::fields(a, &["id", "input", "tags", "count"])?;
             r.character.life().ok_or_else(bad)?.recall_episodes(

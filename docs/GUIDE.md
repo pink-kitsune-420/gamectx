@@ -747,3 +747,12 @@ retained/appraisal evidence and its complete active causal groups. Use `observe`
 consequential shareable experiences; it retains its explicit bounded-root contract.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
+
+Use `Life::recall_selected` for checkpoint consolidation recall with explicit current
+player subjects and host-chosen required anchors (for example an unresolved promise).
+Supply only the relevant anchor on focused turns: a corrected name and its original need
+two episode slots; five unrelated anchors do not fit a two-slot packet. Missing required
+evidence is an error, rather than a plausible but incomplete memory. Python and Node
+Character adapters provide `life_recall_selected` / `lifeRecallSelected`; generic host
+life operations expose the same selection in other bindings. Disk archives remain
+host-owned. Never share private participant scopes merely to improve recall.

@@ -1324,3 +1324,10 @@ artifacts; `--holdout` selects separately authored names/preferences. Prototype-
 `overnight_memory_cases.py --cap 0 --prototype-only` and `overnight_input_cases.py`
 record repair expectations before Rust changes. See `docs/OVERNIGHT_DEEP_EVAL.md` for
 ranked failures, raw observations and diagnostic false negatives.
+
+`overnight_memory_probe.rs` is a standalone release trace linked to this crate, recording
+4,000 original events, 40 checkpoint restores and GlobalAlloc payload counts. The frozen
+legacy/selected/optimized artifacts and review distinguish deterministic retrieval from
+model recall. `overnight_causality_cases.py --cap 0` checks a fresh 132-operation social
+arc/rumor cycle against the independent oracle. `overnight_bindings_check.py --cap 0`
+checks stateful Python CLI/native selection and prepares Node/C# fixtures in target/.

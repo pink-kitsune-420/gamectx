@@ -1953,3 +1953,18 @@ appraisal or social ripple. At 128 active events it atomically trims to at most 
 recording. Retained events, appraisal evidence and complete active causal groups are
 protected; exceeding that mandatory bound fails explicitly. Three new cases preserve
 all 1,122 prior conformance outputs.
+
+### Selected episodic recall
+
+`Life::recall_selected` and `character_life_recall_selected` (`selection`) accept
+`{input,tags,subjects,required,count,archive}`. Subjects must be nonempty approved entity
+IDs; required tokens are unique, positive and at most 16; count is 0–16. Archive enables
+only the bounded original-event consolidation ranges already in this Life checkpoint,
+not automatic disk/network searches. Duplicate active/archive tokens appear once.
+Only selected subjects may enter the packet. Required anchors include their complete
+bidirectional causal groups, including corrections; missing/cross-subject/oversized
+required groups reject. Optional lexical matches are ranked by overlap, retention,
+time and token, and complete groups that cannot fit are skipped. No-match returns empty.
+The `episodes` adapter adds `recall_selected` and `trim_transient` operations. Legacy
+recall/context/checkpoint formats are unchanged. Archival erasure now includes causal
+children in returned tombstones; no existing expected output changes.

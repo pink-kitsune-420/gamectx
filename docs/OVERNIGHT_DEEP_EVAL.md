@@ -94,3 +94,36 @@ The historical living-world timing artifact's source fingerprint was stale after
 runtime additions. It stays frozen. CI now audits a fresh source-bound replay retained as
 `eval/overnight-living-timing.json`, with the same declared 1,000-frame workload and its
 original exclusions. Python CLI/native, Node and C# all match the three new workflows.
+
+## Repair 2: scoped original-event recall and erasure
+
+A fresh release-mode campaign ingests **4,000 events**, across merchant, keeper, guard
+and companion Life instances, **1,000 events each**, ten chapters, two player subjects
+and **40 checkpoint restores**. The guard's Life is explicitly host-enabled for this
+memory test; the ambient pack preset still needs no model or mandatory memory module.
+Every chapter tests required preference, corrected-name, promise and pivotal anchors.
+Legacy active-set recall passes **0/80** declared participant/anchor probes after
+eviction; selected original-event recall passes **80/80**, with no cross-player episodes
+and complete Vira→Vela correction pairs. This is deterministic retrieval, not a live
+model's ability to apply every recalled event. Five player_1 anchors use five slots;
+focused hosts choose fewer task-relevant anchors within their smaller budget.
+
+The first selected implementation performed needless ranking even when required anchors
+filled the packet. An early return reduces allocator calls **3,682,978→3,065,858** in
+this same trace, with identical 80/80 results. Peak requested live allocation remains
+**3,769,707 bytes**; this excludes allocator metadata, process mappings and model RAM.
+Merchant checkpoints grow **39,432→330,455 bytes** over ten retained consolidation
+ranges: bounded durable context grows intentionally, rather than exhibiting constant
+memory. The 16-range/524,288-byte checkpoint limits remain explicit; disk archive recall
+and unlimited campaign retention are host responsibilities. Measurements are one
+uncontrolled run per variant; no general latency reduction follows.
+
+Eleven independent selection cases, three direct compaction/erasure tests and 2,000
+selection mutations cover missing/foreign/duplicate anchors, zero caps, irrelevant noise,
+causal overflow and non-mutating rejection. Erasure now includes archived descendants in
+tombstones, avoiding recovery of a corrected child after deleting its causal parent.
+Fifteen shared Python/native/Node/C# workflows include the new transient/selection cases
+and a separately authored **132-operation** causality holdout. That holdout verifies the
+trust arc **0→−20→−10→0→10→20**, twelve attributed reports with at most two hops, no new
+reports in **100 cyclic noise ticks**, ten emergency guard frames and **zero player_2
+attitude delta**. Existing initiative, living-world and attitude-gate suites remain green.

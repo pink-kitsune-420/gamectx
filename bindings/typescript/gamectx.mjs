@@ -112,6 +112,7 @@ export class Character {
   lifeExperience(event) { return this.life('experience', { event }); }
   lifeAppraise(rule, event, revision) { return this.life('appraise', { rule, event, revision }); }
   lifeContext(tags, caps) { return this.life('context', { tags, caps }); }
+  lifeRecallSelected(selection) { return this.life('recall_selected', { selection }); }
   lifeRecall(input, tags = [], count = 2) { return this.life('recall', { input, tags, count }); }
   continuity(operation, args = {}) { return this.request('continuity_' + operation, args); }
   initiative(operation, args = {}) { return this.request('initiative_' + operation, args); }

@@ -479,3 +479,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   `Life::trim_transient`, used by the Web host. Fresh 600-chat trace: 0 rejected turns
   versus 536/600 in the retained baseline. A separate 1,000 fully delivered turn test
   includes five save/load restores, at most 128 active events and zero rumor roots.
+- Scoped archival selection passes 80/80 declared required-anchor probes across four
+  characters, 4,000 events and 40 restores (legacy working-only recall: 0/80). Complete
+  correction groups and required attention bounds are explicit. Archived erasure now
+  includes causal descendants in tombstones. Host disk archival remains separate.

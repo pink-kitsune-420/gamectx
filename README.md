@@ -983,3 +983,6 @@ trace. Existing outputs stay unchanged; this adds no model dependency or whole-g
 Long-session diagnostics and opt-in transient dialogue retention are documented in
 [the overnight evaluation](docs/OVERNIGHT_DEEP_EVAL.md). Routine Web chat no longer
 consumes rumor roots; the retained 600-turn offline trace completes with zero rejections.
+Archive-aware `Life::recall_selected` adds explicit subject filters and required causal
+anchors while preserving legacy recall. Its bounded, host-selected policy is explained
+in [the guide](docs/GUIDE.md).

@@ -1257,3 +1257,15 @@ fn transient_dialogue_mutations_are_bounded_and_never_become_rumor_origins() {
         }
     }
 }
+
+#[test]
+fn scoped_archival_recall_mutations_fail_closed() {
+    let seed = include_str!("../conformance/deep-memory/after_eviction/input.json");
+    let mut rng = Rng(0x61726368);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 1_572_864) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

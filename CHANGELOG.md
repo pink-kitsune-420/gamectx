@@ -528,3 +528,8 @@ First public release.
   recording; prevent routine Web conversations exhausting the rumor ledger at turn 65.
   Fresh 600-chat trace rejects 0 turns (previously 536); 1,000 delivered turns exercise
   five branch restores. Three additive cases preserve all 1,122 prior cases.
+- [api] Add scoped original-event `Life::recall_selected` with optional checkpoint
+  consolidation search, required anchors, complete causal groups and Python/Node helpers.
+  Four-character 4,000-event trace: 80/80 required-anchor probes versus 0/80 legacy.
+  Eleven additive cases preserve legacy outputs; archived erasure returns causal-child
+  tombstones previously omitted after working-set eviction.

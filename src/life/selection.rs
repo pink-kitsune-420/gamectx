@@ -74,6 +74,117 @@ fn close(pool: &[&Value], chosen: &mut [bool], strict: bool) -> Result<()> {
         }
     }
 }
+
+impl Life {
+    /// Opt-in original-event recall across bounded consolidations and the working set.
+    /// Host-selected subjects/required anchors are authoritative, not inferred from prose.
+    /// Required causal groups must fit in full; irrelevant optional episodes are omitted.
+    pub fn recall_selected(&self, q: &Value) -> Result<Value> {
+        self.active()?;
+        bounded(q, 8192)?;
+        c::fields(q, &["input", "tags", "subjects", "required", "count", "archive"])?;
+        let input = text(q, "input")?;
+        if input.len() > 2048 {
+            return Err(c::bad());
+        }
+        let tags = names(get(q, "tags")?, 8)?;
+        let subjects = names(get(q, "subjects")?, 16)?;
+        if subjects.is_empty() || !subset(&subjects, &self.definition.entities) {
+            return Err(c::bad());
+        }
+        let count = c::uint(get(q, "count")?, 0, 16)? as usize;
+        let archived = c::boolean(get(q, "archive")?)?;
+        let required = c::list(get(q, "required")?)?;
+        if required.len() > 16 {
+            return Err(c::bad());
+        }
+        for (i, n) in required.iter().enumerate() {
+            c::uint(n, 1, self.watermark)?;
+            if required[..i].contains(n) {
+                return Err(c::bad());
+            }
+        }
+        let mut pool = self.events.iter().collect::<Vec<_>>();
+        if archived {
+            for summary in &self.summaries {
+                for event in c::list(get(summary, "events")?)? {
+                    if !pool.iter().any(|e| e.get("token") == event.get("token")) {
+                        pool.push(event);
+                    }
+                }
+            }
+        }
+        pool.sort_by_key(|e| num(e, "token").expect("token"));
+        let mut chosen = vec![false; pool.len()];
+        for token in required {
+            let i = pool.iter().position(|e| e.get("token") == Some(token)).ok_or_else(c::bad)?;
+            chosen[i] = true;
+        }
+        close(&pool, &mut chosen, true)?;
+        let allowed = |selected: &[bool]| {
+            selected.iter().filter(|b| **b).count() <= count
+                && pool.iter().zip(selected).all(|(e, yes)| {
+                    !yes || subjects.iter().any(|s| e.get("subject").and_then(Value::as_str) == Some(s))
+                })
+        };
+        if !allowed(&chosen) {
+            return Err(c::bad());
+        }
+        if chosen.iter().filter(|b| **b).count() == count {
+            return Ok(pool
+                .iter()
+                .zip(chosen)
+                .filter(|(_, yes)| *yes)
+                .map(|(e, _)| (*e).clone())
+                .collect::<Vec<_>>()
+                .into());
+        }
+        let wanted = terms(&format!("{input} {}", tags.join(" ")));
+        let mut ranked = pool
+            .iter()
+            .enumerate()
+            .map(|(i, e)| {
+                let labels = terms(&format!("{} {}", text(e, "text").expect("event"), text(e, "tag").expect("tag")));
+                let score = wanted.intersection(&labels).count();
+                (
+                    i,
+                    score,
+                    get(e, "retain").expect("retain") == &Value::Bool(true),
+                    num(e, "at").expect("at"),
+                    num(e, "token").expect("token"),
+                )
+            })
+            .filter(|(_, score, _, _, _)| *score > 0)
+            .collect::<Vec<_>>();
+        ranked.sort_by_key(|(i, score, retain, at, token)| {
+            (
+                std::cmp::Reverse(*score),
+                std::cmp::Reverse(*retain),
+                std::cmp::Reverse(*at),
+                std::cmp::Reverse(*token),
+                *i,
+            )
+        });
+        for (i, _, _, _, _) in ranked {
+            if chosen.iter().filter(|b| **b).count() == count {
+                break;
+            }
+            if chosen[i] {
+                continue;
+            }
+            let mut trial = chosen.clone();
+            trial[i] = true;
+            if close(&pool, &mut trial, true).is_ok() && allowed(&trial) {
+                chosen = trial;
+            }
+        }
+        Ok(pool.iter().zip(chosen).filter(|(_, yes)| *yes).map(|(e, _)| (*e).clone()).collect::<Vec<_>>().into())
+    }
+}
+fn terms(s: &str) -> std::collections::BTreeSet<String> {
+    s.to_lowercase().split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()).map(str::to_owned).collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -125,5 +236,17 @@ mod tests {
         }
         assert_eq!(l.events.len(), 104);
         assert_eq!(l.events[0].get("token"), Some(&1.into()));
+    }
+    #[test]
+    fn archival_erasure_includes_causal_descendants_in_tombstones() {
+        let mut l = life();
+        l.experience(&event(1, true, vec![])).unwrap();
+        l.experience(&event(2, true, vec![1])).unwrap();
+        l.consolidate(1, 2).unwrap();
+        l.acknowledge_archive(2).unwrap();
+        l.evict(2).unwrap();
+        let result = l.forget_episodes(&vec![1].into(), l.revision()).unwrap();
+        assert_eq!(result.get("forgotten"), Some(&vec![1, 2].into()));
+        assert!(l.recall_selected(&obj!{"input"=>"chatter","tags"=>Vec::<Value>::new(),"subjects"=>vec!["player"],"required"=>vec![2],"count"=>2,"archive"=>true}).is_err());
     }
 }

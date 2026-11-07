@@ -481,6 +481,11 @@ pub fn fixture(a: &Value) -> Result<Value> {
                     Err(c::bad())
                 }
             }
+            "recall_selected" => life.recall_selected(v),
+            "trim_transient" => {
+                c::fields(v, &["keep"])?;
+                life.trim_transient(c::uint(get(v, "keep")?, 0, 128)? as usize).map(|n| obj! {"removed"=>n})
+            }
             "stats" => {
                 c::fields(v, &[])?;
                 Ok(life.memory_stats())
@@ -517,7 +522,9 @@ impl Life {
         let mut changed = true;
         while changed {
             changed = false;
-            for e in &self.events {
+            for e in self.events.iter().chain(
+                self.summaries.iter().flat_map(|s| c::list(get(s, "events").expect("events")).expect("events").iter()),
+            ) {
                 let token = num(e, "token")?;
                 if !removed.contains(&token)
                     && c::list(get(e, "causes")?)?

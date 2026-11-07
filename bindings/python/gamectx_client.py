@@ -192,6 +192,10 @@ class Character:
     def life_recall(self, text, tags=(), count=2):
         return self.life('recall', input=text, tags=list(tags), count=count)
 
+    def life_recall_selected(self, selection):
+        """Host-chosen subjects/required anchors; optional bounded archive recall."""
+        return self.life('recall_selected', selection=selection)
+
     def continuity(self, operation, **args):
         return self._request('continuity_' + operation, **args)
 
