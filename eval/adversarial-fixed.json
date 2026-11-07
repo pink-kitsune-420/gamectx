@@ -1,0 +1,788 @@
+{
+  "version": 1,
+  "source_commit": "bf9365b484b682015124333a9549ff667a098d2d",
+  "summary": {
+    "probes": 57,
+    "passed": 57,
+    "failed": 0,
+    "engine_stress_steps": 900,
+    "api_spend_usd": 0,
+    "model_calls": 0
+  },
+  "observations": [
+    {
+      "family": "command",
+      "id": "7:take bronze_key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take bronze key please",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:inspect the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "bronze key; owner: world; price: 0."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:go gallery",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "A bronze vault gate blocks the east passage. Its hinge needs oil."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key only if I confirm.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key? I am asking, not ordering.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key after we return.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key; actually leave it.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take neither the bronze key nor the oil.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take the bronze key and then unlock the vault.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take bronze key unless I say otherwise.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:inspect no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:go nowhere near gallery.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:\"take the bronze key\"",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:```take bronze_key```",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "7:take bronze key is only an example command.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take bronze_key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take bronze key please",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:inspect the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "bronze key; owner: world; price: 0."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:go gallery",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "A bronze vault gate blocks the east passage. Its hinge needs oil."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key only if I confirm.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key? I am asking, not ordering.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key after we return.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key; actually leave it.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take neither the bronze key nor the oil.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take the bronze key and then unlock the vault.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take bronze key unless I say otherwise.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:inspect no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:go nowhere near gallery.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:\"take the bronze key\"",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:```take bronze_key```",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "101:take bronze key is only an example command.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take bronze_key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take bronze key please",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "You acquired bronze key."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:inspect the bronze key",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "bronze key; owner: world; price: 0."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:go gallery",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "A bronze vault gate blocks the east passage. Its hinge needs oil."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key only if I confirm.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key? I am asking, not ordering.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key after we return.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key; actually leave it.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take neither the bronze key nor the oil.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take the bronze key and then unlock the vault.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take bronze key unless I say otherwise.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:inspect no bronze key.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:go nowhere near gallery.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:\"take the bronze key\"",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:```take bronze_key```",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "command",
+      "id": "409:take bronze key is only an example command.",
+      "expected": false,
+      "actual": false,
+      "correct": true,
+      "reply": {
+        "speaker": "game",
+        "speech": "Which available action and item did you mean? Nothing has changed."
+      }
+    },
+    {
+      "family": "time",
+      "id": "hidden_old_conflict",
+      "expected": true,
+      "actual": true,
+      "correct": true,
+      "context": {
+        "revision": 1,
+        "current": {
+          "id": "work",
+          "location": "shop",
+          "state": "active"
+        },
+        "next": {
+          "id": "walk",
+          "location": "court",
+          "state": "planned"
+        },
+        "observations": [
+          {
+            "token": 2,
+            "observer": "merchant",
+            "location": "court",
+            "at": 1,
+            "expires": 50,
+            "kind": "report",
+            "source": {
+              "id": "sensor:1",
+              "speaker": "merchant",
+              "text": "Sun visible through the window."
+            },
+            "audience": [
+              "merchant"
+            ],
+            "value": {
+              "visible": true
+            },
+            "uncertainty": "Host angular estimate.",
+            "time": {
+              "source": "report",
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "rate_low": 0,
+              "rate_high": 2,
+              "usable": true
+            }
+          },
+          {
+            "token": 3,
+            "observer": "merchant",
+            "location": "court",
+            "at": 1,
+            "expires": 50,
+            "kind": "report",
+            "source": {
+              "id": "sensor:1",
+              "speaker": "merchant",
+              "text": "Sun visible through the window."
+            },
+            "audience": [
+              "merchant"
+            ],
+            "value": {
+              "visible": true
+            },
+            "uncertainty": "Host angular estimate.",
+            "time": {
+              "source": "report",
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "rate_low": 0,
+              "rate_high": 2,
+              "usable": true
+            }
+          },
+          {
+            "token": 4,
+            "observer": "merchant",
+            "location": "court",
+            "at": 1,
+            "expires": 50,
+            "kind": "report",
+            "source": {
+              "id": "sensor:1",
+              "speaker": "merchant",
+              "text": "Sun visible through the window."
+            },
+            "audience": [
+              "merchant"
+            ],
+            "value": {
+              "visible": true
+            },
+            "uncertainty": "Host angular estimate.",
+            "time": {
+              "source": "report",
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "rate_low": 0,
+              "rate_high": 2,
+              "usable": true
+            }
+          }
+        ],
+        "time": {
+          "status": "known",
+          "sources": [
+            {
+              "source": {
+                "id": "sensor:1",
+                "speaker": "merchant",
+                "text": "Sun visible through the window."
+              },
+              "basis": "report",
+              "observed_at": 1,
+              "age": 0,
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "precision": "range",
+              "uncertainty": "Host angular estimate."
+            },
+            {
+              "source": {
+                "id": "sensor:1",
+                "speaker": "merchant",
+                "text": "Sun visible through the window."
+              },
+              "basis": "report",
+              "observed_at": 1,
+              "age": 0,
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "precision": "range",
+              "uncertainty": "Host angular estimate."
+            },
+            {
+              "source": {
+                "id": "sensor:1",
+                "speaker": "merchant",
+                "text": "Sun visible through the window."
+              },
+              "basis": "report",
+              "observed_at": 1,
+              "age": 0,
+              "calendar": "cycle:37",
+              "low": 100,
+              "high": 101,
+              "precision": "range",
+              "uncertainty": "Host angular estimate."
+            },
+            {
+              "source": "merchant",
+              "basis": "routine",
+              "phase": "work",
+              "precision": "approximate"
+            }
+          ],
+          "conflicting": true
+        }
+      }
+    },
+    {
+      "family": "restore",
+      "id": "future_completed_before_start",
+      "expected": true,
+      "actual": true,
+      "correct": true
+    },
+    {
+      "family": "restore",
+      "id": "same_revision_changed_conditions",
+      "expected": true,
+      "actual": true,
+      "correct": true
+    }
+  ]
+}

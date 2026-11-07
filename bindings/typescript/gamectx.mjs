@@ -100,6 +100,7 @@ export class Character {
   routineComplete(activity, start, revision, token) { return this.request('routine_complete', { activity, start, revision, token }); }
   routineReserve(revision) { return this.request('routine_reserve', { revision }); }
   routineContext(selection, revision, maxBytes = 8192) { return this.request('routine_context', { selection, revision, max_bytes: maxBytes }); }
+  routineAssessTime(revision, maxBytes = 8192) { return this.request('routine_assess_time', { revision, max_bytes: maxBytes }); }
   routineWake() { return this.request('routine_wake'); }
   routineAffected(conditions = [], activities = []) { return this.request('routine_affected', { conditions, activities }); }
   routineSave() { return this.request('routine_save'); }

@@ -646,3 +646,19 @@ current task. Missing required evidence should cause a refresh or unknown, rathe
 quietly substituting other memories. The [tested context example](../examples/routine-context.rs)
 combines these paths without model calls. The measured host-copy optimization and its
 synthetic-workload limits are recorded in [ROUTINES](ROUTINES.md#optional-task-selection-and-responsive-wakeups).
+
+
+## Validate meaning as well as legal syntax
+
+The [new adversarial probes](ADVERSARIAL_EVAL.md) found that a legal action could still
+violate a negated command, and a perfectly valid JSON reply could misread time sources.
+Use a whole-command grammar for local shortcuts, clarify unsupported clauses, and keep
+natural world-changing interpretations behind host confirmation. Prefer typed
+`time_assessment` for exact source-policy decisions; render source readings and reports
+with attribution instead of asking a model to classify them again.
+
+For repeated identical Ollama requests, the dungeon's opt-in `--count-cache 8` can avoid
+redundant preflights while preserving verified full-request counts. Tool results,
+corrections, budgets or identity changes require a fresh count. The measured benefit
+applies to exact repeats; dynamic game turns often miss. Shorter context did not improve
+accuracy in the fresh 16-state probe, and free-form speech remains experimental.

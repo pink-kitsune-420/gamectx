@@ -1,5 +1,8 @@
 # Optional routines and actual time knowledge (unreleased v0.3.1a)
 
+Current adversarial/local-model findings are in [ADVERSARIAL_EVAL](ADVERSARIAL_EVAL.md).
+The implementation measurements below retain their original evaluation scope.
+
 Start with `cargo run --example routines --locked` ([tested source](../examples/routines.rs)).
 Enable `routines:true` and list the requested `tools`; defaults enable nothing. Omit the
 runtime entirely when unused. No Cargo features, network, tokenizer, model, engine plug-in
@@ -171,8 +174,8 @@ and 128 NPCs sharing a 16-update-per-tick scheduler budget. Mutation tests add *
 attempts against tool text, definitions, observations and saved state. Persistent transports
 share **43** fixtures; Python CLI/native make **86** fixture checks, Node **43**, C# **43**.
 
-These measure deterministic host behavior and byte contracts. New model correctness,
-complete-turn latency, provider tokens and RAM have **not** been measured. No model was
+For the initial routine delivery, these measured deterministic host behavior and byte contracts. Model correctness,
+complete-turn latency, provider tokens and RAM had **not** been measured. No model was
 called, loaded or downloaded. Model/API spend **$0**. Historical dialogue evaluations and
 failed speech pilots remain unchanged; free-form generation can still invent facts.
 
@@ -240,4 +243,26 @@ Follow-up validation also passes root/native formatting, strict Clippy, tests/ru
 Rust 1.82, 76 offline CI commands, 19 binding CI commands, original/expanded C#
 fixtures, package verification and the reference/credential sweep. Fifteen routine
 unit tests include nonhumanoid overlapping commitments on a 13-tick calendar. Total
-core cases: 827. Live model correctness and complete-turn metrics remain unmeasured.
+core cases: 827. At that checkpoint, live model correctness and complete-turn metrics were unmeasured.
+
+## Typed time answers and stricter probe guards
+
+Call `History::assess_time(now, phase)` or `Runtime::time_assessment()` when the host
+needs to categorize a time answer without model reasoning. `TimeAssessment::kind()`
+returns `Unknown`, `Approximate`, `ExactReading`, `Reported` or `Conflicting`;
+`knowledge()` preserves the underlying source payload. Render/localize this in the host.
+An exact reading is what an instrument displays, not proof of exact simulation time.
+Reports remain reports even when their text asks the model to call them exact.
+
+This is an explicit host helper; no model tool or default exposure is added. Persistent
+hosts use `character_routine_assess_time` (`id,revision,max_bytes`), Python
+`routine_assess_time` or Node `routineAssessTime`. Result fields are `kind,knowledge`.
+The [tested context example](../examples/routine-context.rs) checks typed assessment.
+
+Conflict flags now inspect every usable authorized source in the supplied view even
+when output sources are capped. A flag can therefore warn about an omitted contradiction;
+select/pin the relevant original sources when the task needs its explanation. Zero numeric
+source allowance still withholds numeric evidence; task filters still restrict the view.
+Restore rejects non-planned lifecycle timestamps before occurrence start and altered
+host frames under the same revision. Host authorization and authenticated storage remain
+necessary. [Probe results, limits and optional count reuse](ADVERSARIAL_EVAL.md).

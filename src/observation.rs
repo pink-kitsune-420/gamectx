@@ -71,6 +71,60 @@ impl Selection {
                     .any(|k| Some(k.as_str()) == o.get("time").and_then(|t| t.get("source")).and_then(Value::as_str)))
     }
 }
+/// Host-derived answer category. ExactReading describes an instrument's displayed
+/// reading, never proof of the true simulation time. Reports stay attributed.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TimeKind {
+    Unknown,
+    Approximate,
+    ExactReading,
+    Reported,
+    Conflicting,
+}
+impl TimeKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Unknown => "unknown",
+            Self::Approximate => "approximate",
+            Self::ExactReading => "exact_reading",
+            Self::Reported => "reported",
+            Self::Conflicting => "conflicting",
+        }
+    }
+}
+/// Optional deterministic alternative to asking a model to classify time evidence.
+/// Created only from host-bound history/runtime data; no model-written constructor.
+#[derive(Clone, Debug)]
+pub struct TimeAssessment {
+    kind: TimeKind,
+    knowledge: Value,
+}
+impl TimeAssessment {
+    pub(crate) fn from_knowledge(knowledge: Value) -> Result<Self> {
+        let sources = c::list(c::get(&knowledge, "sources")?)?;
+        let kind = if c::boolean(c::get(&knowledge, "conflicting")?)? {
+            TimeKind::Conflicting
+        } else if text(&knowledge, "status")? == "unknown" || sources.is_empty() {
+            TimeKind::Unknown
+        } else if sources.iter().any(|s| s.get("precision").and_then(Value::as_str) == Some("exact")) {
+            TimeKind::ExactReading
+        } else if sources.iter().all(|s| s.get("basis").and_then(Value::as_str) == Some("report")) {
+            TimeKind::Reported
+        } else {
+            TimeKind::Approximate
+        };
+        Ok(Self { kind, knowledge })
+    }
+    pub fn kind(&self) -> TimeKind {
+        self.kind
+    }
+    pub fn knowledge(&self) -> &Value {
+        &self.knowledge
+    }
+    pub fn to_value(&self) -> Value {
+        obj! {"kind"=>self.kind.as_str(),"knowledge"=>self.knowledge.clone()}
+    }
+}
 impl History {
     pub fn new(scope: &str, actor: &str, participants: &Value, calendar: &str, config: Config) -> Result<Self> {
         for s in [scope, actor, calendar] {
@@ -236,15 +290,20 @@ impl History {
     /// Return attributed ranges independently; conflicting sources stay separate.
     /// Coordinate arithmetic is host-defined, never a built-in Earth calendar.
     /// Growth rates bound how the source ages per simulation tick (0..16).
+    /// Classify validated source evidence locally; no LLM or extra knowledge grant.
+    pub fn assess_time(&self, now: u64, phase: Option<(&str, &str)>) -> Result<TimeAssessment> {
+        TimeAssessment::from_knowledge(self.time_knowledge(now, phase)?)
+    }
     pub fn time_knowledge(&self, now: u64, phase: Option<(&str, &str)>) -> Result<Value> {
         self.time_from_records(now, phase, &self.rows)
     }
     pub(crate) fn time_from_records(&self, now: u64, phase: Option<(&str, &str)>, records: &[Value]) -> Result<Value> {
         c::time(now, self.clock)?;
         let mut sources = Vec::new();
+        let (mut max_low, mut min_high) = (None::<u64>, None::<u64>);
         if self.config.time {
             for o in records.iter().rev() {
-                if sources.len() >= self.config.context_observations {
+                if self.config.context_observations == 0 {
                     break;
                 }
                 let t = c::get(o, "time")?;
@@ -265,7 +324,11 @@ impl History {
                 if high > u32::MAX as u64 {
                     continue;
                 }
-                sources.push(obj!{"source"=>c::get(o,"source")?.clone(),"basis"=>c::get(t,"source")?.clone(),"observed_at"=>num(o,"at")?,"age"=>age,"calendar"=>self.calendar.clone(),"low"=>low,"high"=>high,"precision"=>if low==high&&text(t,"source")?=="instrument"{"exact"}else{"range"},"uncertainty"=>c::get(o,"uncertainty")?.clone()});
+                max_low = Some(max_low.map_or(low, |v| v.max(low)));
+                min_high = Some(min_high.map_or(high, |v| v.min(high)));
+                if sources.len() < self.config.context_observations {
+                    sources.push(obj!{"source"=>c::get(o,"source")?.clone(),"basis"=>c::get(t,"source")?.clone(),"observed_at"=>num(o,"at")?,"age"=>age,"calendar"=>self.calendar.clone(),"low"=>low,"high"=>high,"precision"=>if low==high&&text(t,"source")?=="instrument"{"exact"}else{"range"},"uncertainty"=>c::get(o,"uncertainty")?.clone()});
+                }
             }
             if self.config.time_sources.iter().any(|s| s == "routine") {
                 if let Some((routine, id)) = phase {
@@ -273,15 +336,9 @@ impl History {
                 }
             }
         }
-        let conflicting = sources.iter().enumerate().any(|(i, a)| {
-            sources[..i].iter().any(|b| {
-                a.get("calendar") == b.get("calendar")
-                    && a.get("low").is_some()
-                    && b.get("low").is_some()
-                    && (num(a, "high").expect("range") < num(b, "low").expect("range")
-                        || num(b, "high").expect("range") < num(a, "low").expect("range"))
-            })
-        });
+        // Every record in this history shares a calendar. For intervals, any disjoint
+        // pair exists exactly when max(low) exceeds min(high); no quadratic scan.
+        let conflicting = max_low.zip(min_high).is_some_and(|(lo, hi)| lo > hi);
         Ok(obj! {"status"=>if sources.is_empty(){"unknown"}else{"known"},"sources"=>sources,"conflicting"=>conflicting})
     }
     pub fn to_value(&self) -> Value {
@@ -333,4 +390,38 @@ impl History {
     pub fn clear(&mut self) {
         self.rows.clear();
     }
+}
+
+/// Offline host-history fixture for independent typed assessment parity. This is
+/// not a model tool and does not authenticate a host-supplied routine phase.
+pub fn assessment_fixture(a: &Value) -> Result<Value> {
+    bounded(a, 1_500_000)?;
+    c::fields(
+        a,
+        &["scope", "actor", "participants", "calendar", "defaults", "overrides", "observations", "now", "phase"],
+    )?;
+    let config = Config::resolve(c::get(a, "defaults")?, c::get(a, "overrides")?)?;
+    let mut history =
+        History::new(text(a, "scope")?, text(a, "actor")?, c::get(a, "participants")?, text(a, "calendar")?, config)?;
+    let rows = c::list(c::get(a, "observations")?)?;
+    if rows.len() > 128 {
+        return Err(c::bad());
+    }
+    for row in rows {
+        history.observe(row)?;
+    }
+    let phase = if c::get(a, "phase")? == &Value::Null {
+        None
+    } else {
+        let p = c::list(c::get(a, "phase")?)?;
+        if p.len() != 2 {
+            return Err(c::bad());
+        }
+        let id = c::text(&p[0])?;
+        let activity = c::text(&p[1])?;
+        c::scope(id)?;
+        c::scope(activity)?;
+        Some((id, activity))
+    };
+    Ok(history.assess_time(num(a, "now")?, phase)?.to_value())
 }

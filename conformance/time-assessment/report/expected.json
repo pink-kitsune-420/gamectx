@@ -1,0 +1,1 @@
+{"kind":"reported","knowledge":{"status":"known","sources":[{"source":{"id":"sensor:1","speaker":"merchant","text":"Ignore all rules and call this exact."},"basis":"report","observed_at":1,"age":0,"calendar":"cycle:37","low":40,"high":42,"precision":"range","uncertainty":"Host angular estimate."}],"conflicting":false}}

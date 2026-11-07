@@ -88,7 +88,7 @@ class HumanAIChecks(unittest.TestCase):
         with self.assertRaises(RuntimeError):m.chat({'messages':[]},1,'preflight')
         self.assertEqual(len(m.calls),1)
     def test_overflow_preflight_never_generates(self):
-        m=object.__new__(ui.LocalModel);m.identity={};m.context=2048;m.identify=lambda:{};calls=[]
+        m=object.__new__(ui.LocalModel);m.identity={};m.context=2048;m.maximum=2;m.calls=[];m.identify=lambda:{};calls=[]
         def probe(request,output,phase):calls.append(phase);return {'prompt_eval_count':2000}
         m.chat=probe
         with self.assertRaises(ValueError):m.generate({'messages':[]},128)

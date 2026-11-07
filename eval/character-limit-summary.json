@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "classification": {
+    "focused": {
+      "correct": 12,
+      "total": 16,
+      "valid_json": 16,
+      "model_calls": 32,
+      "full_turn_input_tokens": 6440,
+      "median_turn_micros": 1847744.5,
+      "runner_rss_bytes": 2558652416,
+      "harness_rss_bytes": 27287552,
+      "minimum_available_bytes": 2558341120,
+      "swap_in_bytes": 90112,
+      "swap_out_bytes": 77824,
+      "retries": 0
+    },
+    "expanded": {
+      "correct": 13,
+      "total": 16,
+      "valid_json": 16,
+      "model_calls": 32,
+      "full_turn_input_tokens": 19460,
+      "median_turn_micros": 6303493.0,
+      "runner_rss_bytes": 2538516480,
+      "harness_rss_bytes": 27197440,
+      "minimum_available_bytes": 2598604800,
+      "swap_in_bytes": 774144,
+      "swap_out_bytes": 37261312,
+      "retries": 0
+    }
+  },
+  "cache": {
+    "baseline": {
+      "turns": 9,
+      "correct": 3,
+      "calls": 18,
+      "input_tokens": 3630,
+      "median_turn_micros": 2023613,
+      "median_repeated_micros": 1780275.0
+    },
+    "cached": {
+      "turns": 9,
+      "correct": 3,
+      "calls": 12,
+      "input_tokens": 2420,
+      "median_turn_micros": 1301517,
+      "median_repeated_micros": 1637055.0
+    }
+  },
+  "classification_model_calls": 96,
+  "cache_model_calls": 63,
+  "total_model_calls": 159,
+  "api_spend_usd": 0,
+  "adversarial_before": {
+    "probes": 57,
+    "passed": 15,
+    "failed": 42,
+    "engine_stress_steps": 900,
+    "api_spend_usd": 0,
+    "model_calls": 0
+  },
+  "adversarial_after": {
+    "probes": 57,
+    "passed": 57,
+    "failed": 0,
+    "engine_stress_steps": 900,
+    "api_spend_usd": 0,
+    "model_calls": 0
+  },
+  "limits": "Small synthetic time classification and repeated adapter requests, no gameplay/model-speech accuracy claim. Natural caches and global memory pressure are uncontrolled. Pilot latency excludes scoring; production includes it."
+}

@@ -13,6 +13,25 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Fixes conversation shortcuts executing negated/conditional/quoted commands,
+  capped time summaries hiding older conflicts, and restore accepting pre-window
+  lifecycle states or changed same-revision frames. Targeted probes 15/57→57/57;
+  900 independent engine steps match. No existing conformance output changes.
+- **[api]** Adds optional typed source time assessment and a privileged session read,
+  keeping exact instrument readings and reported claims distinct from simulation truth.
+- **[api]** Adds opt-in example `--count-cache 0..64` (default 0), verified request-count
+  receipts, pinned transport settings and whole-turn allowance/output validation.
+  Production cache test: 18→12 calls, 3,630→2,420 input tokens over nine turns, same
+  paired answers; six repeated-turn median 1,780,275→1,637,055 microseconds. Small warm
+  fixed-request diagnostic, not general gameplay latency or model-accuracy improvement.
+- **[format]** Adds 15 time/assessment conformance cases including errors; all 827 prior
+  outputs unchanged. Existing model schemas, defaults and immutable native ABI preserved.
+- **[docs]** Records 159 local Qwen calls including tokens/preflights and $0 API spend.
+  Time classification: 25/32 correct despite 32/32 valid JSON; focused 12/16 versus
+  expanded 13/16, with lower input/latency. Retains all misses and the earlier adapter-only
+  timing pilot. No semantic guarantee from compact prompts or grammar. See [ADVERSARIAL_EVAL](docs/ADVERSARIAL_EVAL.md).
+
+
 - **[api]** Adds explicit task observation selection with protected source tokens,
   next-wake timers and host planning-event dependencies, including persistent helpers.
 - **[internal]** Preflights history time before atomic timeline updates, avoiding full

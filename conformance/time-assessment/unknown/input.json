@@ -1,0 +1,26 @@
+{
+  "kind": "time-assessment",
+  "args": {
+    "scope": "scope:a",
+    "actor": "merchant",
+    "participants": [
+      "merchant"
+    ],
+    "calendar": "cycle:37",
+    "defaults": {
+      "history": true,
+      "time": true,
+      "time_sources": [
+        "sun",
+        "instrument",
+        "report"
+      ]
+    },
+    "overrides": {
+      "context_observations": 1
+    },
+    "observations": [],
+    "now": 1,
+    "phase": null
+  }
+}

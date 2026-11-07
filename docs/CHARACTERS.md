@@ -173,3 +173,10 @@ default; see [the retained diagnostics](CONVERSATION_PATCH_EVAL.md).
 Optional task-specific observation selection and timer/dependency hints are documented
 in [ROUTINES](ROUTINES.md#optional-task-selection-and-responsive-wakeups). Required source
 tokens cannot silently disappear; host reads do not enable tools or widen audience scopes.
+
+
+Use the optional host `time_assessment` helper to classify time evidence locally; it
+keeps an instrument's exact reading distinct from true simulation time, and a report
+from direct observation. Capped output no longer hides a live contradictory source's
+conflict flag. [Fresh probes](ADVERSARIAL_EVAL.md) show valid JSON and smaller contexts
+still fail some source judgments on the installed model. No new tools are auto-enabled.

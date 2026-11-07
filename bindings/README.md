@@ -35,3 +35,8 @@ current revisions, actor permissions and durable restore watermarks from the eng
 Host context selection, timer and planning-event checks additionally use
 `routine_context/wake/affected` (Python), `routineContext/Wake/Affected` (Node), or the
 same three `character_routine_*` host operation names over C#/C session requests.
+
+`routine_assess_time(revision,max_bytes)` (Python), `routineAssessTime` (Node) and
+`character_routine_assess_time` over the existing C#/C session return a host-derived
+`kind,knowledge` answer. This read is not a model function; no ABI symbols changed.
+The expanded adversarial binding suite contains 61 fixtures.

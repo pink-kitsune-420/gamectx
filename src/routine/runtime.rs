@@ -1,7 +1,7 @@
 use super::*;
 use crate::{
     decision::Choices,
-    observation::{History, Selection},
+    observation::{History, Selection, TimeAssessment},
 };
 /// Optional per-character runtime. Host methods are privileged bridge operations;
 /// only `routine_status` and `activity_propose` can be registered as model tools.
@@ -121,16 +121,26 @@ impl Runtime {
     }
     pub fn context(&self) -> Result<Value> {
         let f = self.frame.as_ref().ok_or_else(c::bad)?;
+        let time = self.time_knowledge()?;
+        let observations =
+            self.history.as_ref().map(|h| h.recent(f.now)).transpose()?.unwrap_or_else(|| Vec::<Value>::new().into());
+        self.context_value(observations, time)
+    }
+    /// Optional source-bound host answer classification. It neither exposes a tool
+    /// nor confirms an action, and keeps exact instrument readings separate from truth.
+    pub fn time_assessment(&self) -> Result<TimeAssessment> {
+        TimeAssessment::from_knowledge(self.time_knowledge()?)
+    }
+    fn time_knowledge(&self) -> Result<Value> {
+        let f = self.frame.as_ref().ok_or_else(c::bad)?;
         let phase = self.timeline.as_ref().and_then(Timeline::phase);
-        let time = self
+        let knowledge = self
             .history
             .as_ref()
             .map(|h| h.time_knowledge(f.now, phase))
             .transpose()?
             .unwrap_or(obj! {"status"=>"unknown","sources"=>Vec::<Value>::new(),"conflicting"=>false});
-        let observations =
-            self.history.as_ref().map(|h| h.recent(f.now)).transpose()?.unwrap_or_else(|| Vec::<Value>::new().into());
-        self.context_value(observations, time)
+        Ok(knowledge)
     }
     fn context_value(&self, observations: Value, time: Value) -> Result<Value> {
         let f = self.frame.as_ref().ok_or_else(c::bad)?;
@@ -296,6 +306,9 @@ impl Runtime {
         {
             return Err(c::bad());
         }
+        if self.frame.as_ref().is_some_and(|old| old.revision == f.revision && !old.value().same(&f.value())) {
+            return Err(c::bad());
+        }
         let completion = num(v, "completion_token")?;
         let calls = num(v, "calls")?;
         if completion < min_completion.max(self.completion_token)
@@ -327,6 +340,10 @@ impl Runtime {
                     || end != start + a.end - a.start
                     || start != a.start && !a.repeat.is_some_and(|p| (start - a.start) % p == 0)
                     || since > f.now
+                    || state != "planned" && since < start
+                    || state == "interrupted" && a.resume != "resume"
+                    || state == "cancelled" && reason == "preempted" && a.resume != "cancel"
+                    || state == "cancelled" && reason == "missed" && since < a.deadline(start)
                     || a.deadline(start) <= f.now
                     || start > f.now + t.config.horizon
                     || !matches!(

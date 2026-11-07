@@ -1153,3 +1153,28 @@ To rerun host timings (results vary by machine/load): build release, compile
 `eval/routine_bench.rs` against `target/release/libgamectx.rlib`, and run `target/routine-bench`.
 Both timing arms assert byte-equivalent final state; setup is excluded. The recorded
 paired process RSS includes both arms, and excludes models. No live model was loaded.
+
+
+## Adversarial and local source-classification probes
+
+Offline checks: `adversarial_probe.py --cap 0 --require-fixed` (57 targeted checks and
+900 independent engine actions), `adversarial_cases.py --cap 0` (96 time conflicts,
+162 command comparisons, 64 typed assessments), `time_assessment_cases.py --cap 0`
+(ten additive fixtures), `test_adversarial.py` (10,000 text mutations) and
+`test_count_cache.py` (fake transport, identity/count/budget/eviction boundaries).
+`adversarial_bindings_check.py --cap 0` plus Node/C# shares 61 persistent fixtures.
+
+Live `character_limit_eval.py --cap 0 --tokens-only --output NEW` must precede its
+matching generation run (`--tokens TOKENS --output NEW`). It accepts only the installed
+pinned local Qwen tag, CPU4/GPU0/context2048, and never pulls/loads another model. The
+recorded 16-state/two-format cohort uses 32 token checks plus 64 turn calls. JSON
+validity is 32/32, source classification 25/32; not an NPC speech/gameplay score.
+
+`count_cache_eval.py --cap 0 --tokens-only --output NEW` precedes the paired adapter
+experiment. `--production --tokens TOKENS --output NEW` uses the actual opt-in UI cache;
+the earlier independent prototype remains reproducible without `--production`. The old
+adapter-only pilot and complete diagnostic production timing have different scopes.
+`check_character_limits.py --cap 0 --check eval/character-limit-summary.json` reconstructs
+all requests/scores/count receipts and validates all five retained live artifacts offline.
+Every recorded run spends $0 API; combined 159 local calls. No new model speech correctness
+or general context-size/parameter-capability claim. [Full evidence](../docs/ADVERSARIAL_EVAL.md).

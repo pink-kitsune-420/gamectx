@@ -1,0 +1,56 @@
+{
+  "kind": "time-assessment",
+  "args": {
+    "scope": "scope:a",
+    "actor": "merchant",
+    "participants": [
+      "merchant"
+    ],
+    "calendar": "cycle:37",
+    "defaults": {
+      "history": false,
+      "time": false,
+      "time_sources": [
+        "sun",
+        "instrument",
+        "report"
+      ]
+    },
+    "overrides": {
+      "context_observations": 1
+    },
+    "observations": [
+      {
+        "token": 1,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "direct",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "sun",
+          "calendar": "cycle:37",
+          "low": 40,
+          "high": 42,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      }
+    ],
+    "now": 1,
+    "phase": null
+  }
+}

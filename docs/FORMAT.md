@@ -1714,3 +1714,33 @@ Offline kind `routine-detail` takes the `routine-fixture` fields plus
 `selection,changed_conditions,changed_activities`; result order is
 `observations,time,next_wake,affected`. Nine additive fixtures cover selection, timers,
 required-source errors and bounds. No previous expected outputs change.
+
+
+### Typed time assessment and restored lifecycle checks
+
+Opt-in `TimeAssessment::to_value()` has fields `kind,knowledge`. Kind is
+`unknown|approximate|exact_reading|reported|conflicting`; knowledge retains the existing
+`status,sources,conflicting` object. Conflict takes precedence, then unknown/empty,
+then any exact instrument reading, then all-emitted-sources-report, else approximate.
+These are host answer categories, not calibrated confidence or simulation truth.
+`character_routine_assess_time` accepts exactly `id,revision,max_bytes` (64..32,768),
+requires the live revision and returns this shape. It is not model-callable.
+
+Existing time-summary conflict detection now considers all usable authorized records
+in its supplied view, even beyond the source output cap. Numeric allowance zero reveals
+no numeric conflict. Sources excluded by explicit task selection remain excluded.
+Non-planned restored rows require `since>=start`; interrupted/preempted-cancelled rows
+must agree with the authored resume policy. A restored frame under the current revision
+must match it exactly, including conditions, permissions, tick and emergency status.
+
+Offline `local` kind `time-assessment` accepts exactly
+`scope,actor,participants,calendar,defaults,overrides,observations,now,phase`; phase is null
+or two host-scoped IDs `[routine,activity]`. It is an independent host-history fixture,
+not an engine sensor or model operation. Ten cases include four errors; five further
+conflict cases exercise caps. All 827 earlier cases retain their bytes.
+
+The example adapter's optional count receipts record `key,reused,input_tokens,
+source_preflight,source_generation,status`. Source indices cite complete calls agreeing
+on count. Keys bind the entire request, output, context and model/template/runner.
+These are host telemetry, not a new packed/core format. Invalid neutral transport
+controls, nonpositive output or insufficient whole-turn allowance fail before inference.

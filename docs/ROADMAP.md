@@ -8,6 +8,30 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Probe validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
+  82 offline CI commands, 21 binding CI commands, all C# fixture groups, package
+  verification and reference/credential sweep pass. Core total 842, prior 827 unchanged.
+- Adversarial repairs: whole-command conversation guard, complete authorized-view time
+  conflict detection, restored lifecycle timing and same-revision frame consistency.
+  15/57→57/57 probes; 900 independent engine steps match. Fake-transport tests reject
+  model overrides, invalid output reservations and preflights without turn allowance.
+- Optional typed host time assessment: 64 additional states match its oracle; 96 conflict
+  workflows and 162 command comparisons. Fifteen additive cases retain all earlier 827
+  outputs; expanded session suite 61 fixtures. No new model-callable tool or default.
+- Installed Qwen time-classification diagnostic: valid JSON 32/32, correct 25/32. Focused
+  12/16, expanded 13/16; full-turn input 6,440 versus 19,460 tokens; median 1,847,744.5
+  versus 6,303,493 microseconds. Smaller is not accepted as more accurate. Wrong sun/report
+  types, quote-containing reports returned as exact, one wrong instrument classification.
+- Verified count-reuse prototype then opt-in production adapter: nine turns/arm, 18→12
+  calls and 3,630→2,420 input tokens; paired answers identical and only 3/9 correct each.
+  Production repeated-turn medians 1,780,275→1,637,055 µs. Exact repeats only; no model
+  accuracy gain. Earlier pilot timings excluded scoring/memory; retained as adapter-only.
+- New model work: 159 local calls including token-first checks/preflights, API spend $0,
+  no other model loaded/downloaded. Four CPU threads/GPU0/context2048; sampled runner RSS
+  peak 2,558,652,416 bytes in classification. Global memory/cache state uncontrolled.
+  [Evidence, raw artifacts and limits](ADVERSARIAL_EVAL.md).
+
+
 - Follow-up validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
   76 offline CI commands, 19 binding CI commands, original/expanded C# fixtures and
   package verification pass. Total core cases 827; reference/credential sweep clean.
@@ -310,8 +334,9 @@ noted; "3 models" adds Llama 3.3 70B.
 ## Routine follow-up evaluation
 
 - Test authored routines and time-source explanations on unseen real game scenes and
-  question phrasing. The optional runtime is implemented; new model accuracy, complete
-  turn latency, provider tokens and RAM remain unmeasured. Keep historical pilots frozen.
+  question phrasing. The optional runtime is implemented; new gameplay/model-speech
+  accuracy remains unmeasured. Source-classification/adapter diagnostics are recorded
+  separately above; keep historical pilots frozen.
 
 ## Known gaps
 

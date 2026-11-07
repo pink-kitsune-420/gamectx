@@ -17,6 +17,17 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+## Adversarial probes and measured limits (unreleased v0.3.1a)
+
+[Fresh probes](docs/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,
+hidden time conflicts and invalid restores: 15/57→57/57 checks pass; 900 engine steps
+match the independent rules. The installed local Qwen variant produced valid JSON on
+32/32 source/time tests but only 25/32 correct answers. Shorter context was faster and
+one answer worse. Optional typed time assessment keeps that classification in host code.
+An opt-in `--count-cache 8` reuses verified counts for identical requests: 18→12 model
+calls over nine turns, with the same answers. All new spend $0; 159 local calls recorded.
+Default tool exposure, prior outputs and immutable native ABI remain unchanged.
+
 ## Optional routines and source time knowledge (unreleased v0.3.1a)
 
 [Routine APIs](docs/ROUTINES.md) add bounded usual-activity definitions, deterministic

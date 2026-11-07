@@ -349,3 +349,18 @@ through an annex window, a later indoor view with no visible sun, remembered unc
 and expiry to unknown. Edit `routine.json` and `routine-config.json`, or pass
 `--routine-file FILE --routine-config FILE`. A real host supplies these sensor/event
 confirmations and executes movement/work. [Library integration](../../docs/ROUTINES.md).
+
+
+## Explicit conversation actions and optional count reuse
+
+Conversation shortcuts now require a whole explicit command/alias. Negations, conditions,
+quoted commands, compound actions and unsupported wording ask for clarification instead
+of matching an item anywhere in the sentence. Natural world-changing interpretations
+outside this shortcut still require confirmation.
+
+`cargo run --example dungeon -- --ai --count-cache 8` optionally retains up to eight
+verified exact-request token counts. Default 0 keeps the existing preflight flow. Changing
+messages, tool results, corrections, grammar, output/context or model identity recounts;
+responses are never cached. Whole-turn allowance, pinned model settings and returned
+counts are checked. This saves calls for exact repeats, not general dynamic prompts.
+[Measured results and limits](../../docs/ADVERSARIAL_EVAL.md).

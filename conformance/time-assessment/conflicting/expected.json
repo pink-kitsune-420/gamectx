@@ -1,0 +1,1 @@
+{"kind":"conflicting","knowledge":{"status":"known","sources":[{"source":{"id":"sensor:1","speaker":"merchant","text":"Sun visible through the window."},"basis":"report","observed_at":1,"age":0,"calendar":"cycle:37","low":100,"high":101,"precision":"range","uncertainty":"Host angular estimate."}],"conflicting":true}}

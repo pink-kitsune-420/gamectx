@@ -138,6 +138,7 @@ fn run() -> Result<()> {
     let mut model = "arzaan789/qwen2.5-3b-uncensored:latest".to_owned();
     let mut context = None::<u32>;
     let mut size = "3".to_owned();
+    let mut count_cache = 0u8;
     let mut guidance = "focused".to_owned();
     let mut world_path = None::<String>;
     let mut routine_path = None::<String>;
@@ -147,7 +148,7 @@ fn run() -> Result<()> {
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --count-cache N        opt-in exact-request token-count reuse, 0..64 entries\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
             }
             "--routines-demo" => mode = "routines-demo",
@@ -170,6 +171,17 @@ fn run() -> Result<()> {
             "--dialogue" => {
                 i += 1;
                 dialogue_mode = args.get(i).ok_or_else(|| Error::new("missing dialogue mode"))?.clone();
+            }
+            "--count-cache" => {
+                i += 1;
+                count_cache = args
+                    .get(i)
+                    .ok_or_else(|| Error::new("missing count cache capacity"))?
+                    .parse()
+                    .map_err(|_| Error::new("invalid count cache capacity"))?;
+                if count_cache > 64 {
+                    return Err(Error::new("count cache capacity must be 0..64"));
+                }
             }
             "--model" => {
                 i += 1;
@@ -232,6 +244,8 @@ fn run() -> Result<()> {
             .arg(seed.to_string())
             .arg("--size")
             .arg(size)
+            .arg("--count-cache")
+            .arg(count_cache.to_string())
             .arg("--guidance")
             .arg(guidance);
         command.arg("--dialogue").arg(dialogue_mode);

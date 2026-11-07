@@ -1,0 +1,143 @@
+{
+  "kind": "time-assessment",
+  "args": {
+    "scope": "scope:a",
+    "actor": "merchant",
+    "participants": [
+      "merchant"
+    ],
+    "calendar": "cycle:37",
+    "defaults": {
+      "history": true,
+      "time": true,
+      "time_sources": [
+        "sun",
+        "instrument",
+        "report"
+      ]
+    },
+    "overrides": {
+      "context_observations": 1
+    },
+    "observations": [
+      {
+        "token": 1,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 0,
+          "high": 1,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      },
+      {
+        "token": 2,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 100,
+          "high": 101,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      },
+      {
+        "token": 3,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 100,
+          "high": 101,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      },
+      {
+        "token": 4,
+        "observer": "merchant",
+        "location": "court",
+        "at": 1,
+        "expires": 50,
+        "kind": "report",
+        "source": {
+          "id": "sensor:1",
+          "speaker": "merchant",
+          "text": "Sun visible through the window."
+        },
+        "audience": [
+          "merchant"
+        ],
+        "value": {
+          "visible": true
+        },
+        "uncertainty": "Host angular estimate.",
+        "time": {
+          "source": "report",
+          "calendar": "cycle:37",
+          "low": 100,
+          "high": 101,
+          "rate_low": 0,
+          "rate_high": 2,
+          "usable": true
+        }
+      }
+    ],
+    "now": 1,
+    "phase": null
+  }
+}

@@ -126,6 +126,16 @@ impl Session {
                 crate::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
                 Ok(result)
             }
+            "character_routine_assess_time" => {
+                c::fields(args, &["id", "revision", "max_bytes"])?;
+                let runtime = character.routine().ok_or_else(bad)?;
+                if runtime.revision() != Some(crate::routine::num(args, "revision")? as u32) {
+                    return Err(bad());
+                }
+                let result = runtime.time_assessment()?.to_value();
+                crate::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
+                Ok(result)
+            }
             "character_routine_wake" => {
                 c::fields(args, &["id"])?;
                 let runtime = character.routine().ok_or_else(bad)?;

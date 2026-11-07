@@ -38,6 +38,12 @@ jobs:
       - run: python3 -I eval/character_cases.py --cap 0
       - run: python3 -I eval/routines_cases.py --cap 0
       - run: python3 -I eval/routine_improvements_cases.py --cap 0
+      - run: python3 -I eval/test_adversarial.py
+      - run: python3 -I eval/test_count_cache.py
+      - run: python3 -I eval/adversarial_probe.py --cap 0 --require-fixed
+      - run: python3 -I eval/adversarial_cases.py --cap 0
+      - run: python3 -I eval/time_assessment_cases.py --cap 0
+      - run: python3 -I eval/check_character_limits.py --cap 0 --check eval/character-limit-summary.json
       - run: cargo +stable test --example dungeon --locked
       - run: python3 -I eval/info_inventory_cases.py --cap 0
       - run: python3 -I eval/interaction_cases.py --cap 0
@@ -131,6 +137,8 @@ jobs:
       - run: node eval/routine_bindings_check.mjs
       - run: python3 -I eval/routine_detail_bindings_check.py --cap 0
       - run: node eval/routine_detail_bindings_check.mjs
+      - run: python3 -I eval/adversarial_bindings_check.py --cap 0
+      - run: node eval/adversarial_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
@@ -139,6 +147,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/character-csharp/requests.txt target/character-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/routine-csharp/requests.txt target/routine-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/routine-detail-csharp/requests.txt target/routine-detail-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/adversarial-csharp/requests.txt target/adversarial-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

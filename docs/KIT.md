@@ -229,3 +229,10 @@ Host-only `character_routine_context/wake/affected` operations add explicit task
 selection (including required tokens), timer hints and planning-event dependency checks.
 They use the same persistent session and never register model functions. Complete request
 counting is still required after replacing selected context. [Tested example](../examples/routine-context.rs).
+
+
+Optional host read `character_routine_assess_time` categorizes existing scoped time
+knowledge as unknown, approximate, exact reading, reported or conflicting. Python/Node
+helpers and C#/C session transport share the same bounded revision-checked operation.
+It adds no model schema or permission, and preserves the immutable project/native ABI.
+[Measured limits and guards](ADVERSARIAL_EVAL.md).

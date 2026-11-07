@@ -50,10 +50,14 @@ class Host:
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise ValueError('HTTP redirects are disabled')
 class LocalModel:
-    def __init__(self,model,context=2048,max_calls=128,log=None,guidance="focused",size="3"):
+    def __init__(self,model,context=2048,max_calls=128,log=None,guidance="focused",size="3",count_cache=0):
+        if type(count_cache) is not int or not 0<=count_cache<=64:raise ValueError('count cache must be 0..64')
+        self.count_cache=count_cache;self._counts={};self.count_receipts=[]
         self.choices_limit=None;self.size=size;self.guidance=guidance;self.model=model;self.context=context;self.maximum=max_calls;self.log=log;self.calls=[]
         self.opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
-        self.identity=self.identify();self.records={'version':1,'identity':self.identity,'guidance':guidance,'size':size,'api_spend_usd':0,'calls':self.calls};checkpoint(log,self.records)
+        self.identity=self.identify();self.records={'version':1,'identity':self.identity,'guidance':guidance,'size':size,'api_spend_usd':0,'calls':self.calls}
+        if count_cache:self.records.update(count_cache=count_cache,count_receipts=self.count_receipts)
+        checkpoint(log,self.records)
     def data(self,path,payload=None):
         request=urllib.request.Request('http://127.0.0.1:11434'+path,data=encode(payload).encode() if payload is not None else None,headers={'Content-Type':'application/json'})
         with self.opener.open(request,timeout=60) as response:
@@ -70,6 +74,8 @@ class LocalModel:
         return {'model':self.model,'digest':found['digest'],'quantization':found['details'].get('quantization_level'),
                 'template_sha256':hashlib.sha256(show.get('template','').encode()).hexdigest(),'runner':self.data('/api/version')['version']}
     def chat(self,request,output,phase):
+        if not isinstance(request,dict) or set(request)&{'model','options','stream','keep_alive'}:raise ValueError('model and transport settings are host-owned')
+        if type(output) is not int or not 1<=output<=self.context:raise ValueError('invalid output reservation')
         if len(self.calls)>=self.maximum:raise RuntimeError('Local generation-call limit reached; restart or choose a larger --max-calls')
         payload={'model':self.model,**request,'stream':False,'keep_alive':'10m',
             'options':{'num_ctx':self.context,'num_predict':output,'num_thread':4,'num_gpu':0,'temperature':0,'seed':42}}
@@ -83,14 +89,39 @@ class LocalModel:
         except Exception as e:
             entry.update(status='failed',error=type(e).__name__);checkpoint(self.log,self.records);raise
     def generate(self,request,output):
-        if self.identify()!=self.identity:raise ValueError('Model/template/runner identity changed; restart this AI session')
-        probe=self.chat(request,1,'preflight');count=probe.get('prompt_eval_count')
-        if type(count) is not int or count<0 or count+output+256>self.context:raise ValueError('Full model prompt does not fit the output/safety reservation')
-        response=self.chat(request,output,'generation')
-        if response.get('done_reason')=='length':raise ValueError('reply reached its generation limit')
-        value=response.get('message',{}).get('content')
-        if not isinstance(value,str) or len(value.encode())>4096:raise ValueError('invalid or oversized model text')
-        return value
+        if type(output) is not int or not 1<=output<=self.context:raise ValueError('invalid output reservation')
+        capacity=getattr(self,'count_cache',0)
+        key=hashlib.sha256(encode({'identity':self.identity,'context':self.context,'output':output,'request':request}).encode()).hexdigest() if capacity else None
+        cached=self._counts.get(key) if capacity else None
+        if len(self.calls)+(1 if cached else 2)>self.maximum:raise RuntimeError('Not enough local calls for a complete turn')
+        if self.identify()!=self.identity:
+            if capacity:self._counts.clear()
+            raise ValueError('Model/template/runner identity changed; restart this AI session')
+        receipt=None
+        if capacity:
+            receipt={'key':key,'reused':cached is not None,'input_tokens':None,'source_preflight':None,'source_generation':None,'status':'reserved'}
+            self.count_receipts.append(receipt)
+        try:
+            if cached:count,first,second=cached
+            else:
+                first=len(self.calls);probe=self.chat(request,1,'preflight');count=probe.get('prompt_eval_count');second=None
+            if type(count) is not int or count<0 or count+output+256>self.context:raise ValueError('Full model prompt does not fit the output/safety reservation')
+            generated=len(self.calls);response=self.chat(request,output,'generation')
+            if type(response.get('prompt_eval_count')) is not int or response['prompt_eval_count']!=count:
+                if capacity:self._counts.pop(key,None)
+                raise ValueError('Full request token count changed; cached count discarded')
+            if response.get('done_reason')=='length':raise ValueError('reply reached its generation limit')
+            value=response.get('message',{}).get('content')
+            if not isinstance(value,str) or len(value.encode())>4096:raise ValueError('invalid or oversized model text')
+            if capacity and not cached:
+                second=generated
+                if len(self._counts)>=capacity:self._counts.pop(next(iter(self._counts)))
+                self._counts[key]=(count,first,second)
+            if receipt:receipt.update(input_tokens=count,source_preflight=first,source_generation=second,status='complete')
+            checkpoint(self.log,self.records);return value
+        except Exception:
+            if receipt:receipt['status']='failed';checkpoint(self.log,self.records)
+            raise
 
 def corrected(request,text):
     return {**request,'messages':[*request['messages'],{'role':'assistant','content':text[:4096]},
@@ -163,26 +194,38 @@ def show(state):
 
 def nearby(state):return {'room:workshop':'merchant','room:cistern':'keeper'}.get(state['room'])
 def display(reply):print(reply['speaker'].capitalize()+': '+reply['speech'])
+def literal_action(state, utterance):
+    """Small explicit command grammar. Extra clauses ask for clarification.
+
+    This is an example English policy, not a natural-language intent classifier.
+    """
+    if '?' in utterance or any(ord(c) < 32 for c in utterance):return None
+    words=re.findall(r'[^\W_]+',utterance.lower(),re.UNICODE)
+    if not words:return None
+    action=words[0]
+    if not re.match(r'^\s*'+re.escape(action)+r'(?:\s|$)',utterance,re.IGNORECASE):return None
+    rest=words[1:]
+    if rest and rest[-1]=='please':rest.pop()
+    preposition={'go':'to','inspect':'at','look':'at','heal':'with'}.get(action)
+    if rest and rest[0]==preposition:rest.pop(0)
+    if rest and rest[0] in ['a','an','the']:rest.pop(0)
+    candidates=[]
+    for pair in state['choices']:
+        if pair['action']!=action:continue
+        target=pair['target']
+        if target is None:
+            if not rest:candidates.append(pair)
+            continue
+        aliases=[target,target.split(':')[-1]]+[item[k] for item in state['items'] if item['id']==target for k in ['label','kind']]
+        if any(rest==re.findall(r'[^\W_]+',alias.lower(),re.UNICODE) for alias in aliases):candidates.append(pair)
+    return candidates[0] if len(candidates)==1 else None
+
 def converse(host,model,speaker,utterance):
     local=host.call('trade',{'speaker':speaker,'input':utterance})
     if local['handled']:return {'speaker':speaker,'speech':local['reply']}
     words=re.findall(r'[^\W_]+',utterance.lower(),re.UNICODE)
     if words and words[0] in ['take','inspect','go','look','wait','unlock','attack','heal']:
-        state=host.call('state',{});pair=exact(state,utterance)
-        if pair is None:
-            # Only explicit imperative commands enter this path. Named aliases narrow
-            # targets, and the engine still checks the current legal action/revision.
-            candidates=[]
-            for candidate in state['choices']:
-                if candidate['action']!=words[0]:continue
-                target=candidate['target']
-                if target is None:continue
-                aliases=[target.split(':')[-1]]+[i[k] for i in state['items'] if i['id']==target for k in ['label','kind']]
-                def matches(alias):
-                    n=re.findall(r'[^\W_]+',alias.lower(),re.UNICODE)
-                    return bool(n) and any(words[i:i+len(n)]==n for i in range(1,len(words)-len(n)+1))
-                if any(matches(a) for a in aliases):candidates.append(candidate)
-            if len(candidates)==1:pair=candidates[0]
+        state=host.call('state',{});pair=literal_action(state,utterance)
         if pair is None:return {'speaker':'game','speech':'Which available action and item did you mean? Nothing has changed.'}
         result=host.call('act',{'revision':state['revision'],'decision':pair})
         return {'speaker':'game','speech':result.get('message','That action is not available right now.')}
@@ -268,14 +311,14 @@ def play(host,model):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--cap',type=float,required=True)
     p.add_argument('--binary',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[2]/'target/debug/examples/dungeon')
-    p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','natural','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
+    p.add_argument('--count-cache',type=int,default=0,help='opt-in exact-request token-count cache, 0..64 entries');p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','natural','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
     p.add_argument('--size',choices=['1','1.5','3','8','30','70'],default='3');p.add_argument('--guidance',choices=['standard','grounded','focused'],default='focused');p.add_argument('--context',type=int);p.add_argument('--choices-limit',type=int);p.add_argument('--max-calls',type=int,default=128);p.add_argument('--log',type=pathlib.Path)
     a=p.parse_args()
-    if a.cap!=0 or not 0<=a.seed<=65535 or (a.context is not None and not 512<=a.context<=32768) or not 1<=a.max_calls<=256 or (a.choices_limit is not None and not 1<=a.choices_limit<=32):p.error('require --cap 0 and bounded seed/context/calls')
+    if not 0<=a.count_cache<=64 or a.cap!=0 or not 0<=a.seed<=65535 or (a.context is not None and not 512<=a.context<=32768) or not 1<=a.max_calls<=256 or (a.choices_limit is not None and not 1<=a.choices_limit<=32):p.error('require --cap 0 and bounded seed/context/calls')
     if a.log is not None and a.log.exists():p.error('use a fresh log path')
     host=None
     try:
-        model=LocalModel(a.model,a.context or 2048,a.max_calls,a.log,a.guidance,a.size);model.dialogue=a.dialogue;model.knowledge=a.dialogue!='legacy';host=Host(a.binary,a.seed,a.world)
+        model=LocalModel(a.model,a.context or 2048,a.max_calls,a.log,a.guidance,a.size,a.count_cache);model.dialogue=a.dialogue;model.knowledge=a.dialogue!='legacy';host=Host(a.binary,a.seed,a.world)
         identity={'model_digest':model.identity['digest'],'quantization':model.identity['quantization'],
             'template_hash':model.identity['template_sha256'],'tokenizer':'gguf:'+model.identity['digest'],'runner':model.identity['runner']}
         workflow=host.call('workflow',{'size':a.size,'task':'dialogue','identity':identity})

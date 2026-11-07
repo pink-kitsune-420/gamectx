@@ -1,0 +1,1 @@
+{"kind":"exact_reading","knowledge":{"status":"known","sources":[{"source":{"id":"sensor:1","speaker":"merchant","text":"Sun visible through the window."},"basis":"instrument","observed_at":1,"age":0,"calendar":"cycle:37","low":40,"high":40,"precision":"exact","uncertainty":"Host angular estimate."}],"conflicting":false}}

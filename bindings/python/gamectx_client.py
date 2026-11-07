@@ -155,6 +155,9 @@ class Character:
     def routine_context(self, selection, revision, max_bytes=8192):
         return self._request('routine_context', selection=selection, revision=revision, max_bytes=max_bytes)
 
+    def routine_assess_time(self, revision, max_bytes=8192):
+        return self._request('routine_assess_time', revision=revision, max_bytes=max_bytes)
+
     def routine_wake(self):
         return self._request('routine_wake')
 

@@ -49,6 +49,7 @@ pub fn main() -> Result<()> {
     let context = npc.context_for(&Selection::from_value(&query)?)?;
     assert_eq!(context.get("current").unwrap().get("id"), Some(&Value::str("customer")));
     assert_eq!(context.get("observations").unwrap().as_array().unwrap().len(), 1);
+    assert_eq!(npc.time_assessment()?.kind(), gamectx::observation::TimeKind::Approximate);
     println!("{}", context.to_json());
     Ok(())
 }
