@@ -1,3 +1,4 @@
+import {AutoSpeech} from './autospeech.mjs';
 import {attachProfiler} from './profiler.mjs';
 import {attachModels} from './models.mjs';
 import {
@@ -6,6 +7,11 @@ from './voice.mjs';
 import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
 import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
+const autoSpeech=new AutoSpeech();
+try{$('auto-speak').checked=localStorage.getItem('lantern-auto-speak')==='true';}catch{}
+$('auto-speak').onchange=()=>{try{localStorage.setItem('lantern-auto-speak',String($('auto-speak').checked));}catch{}refresh();};
+$('reasoning-apply').onclick=async()=>{$('reasoning-apply').disabled=true;try{await invoke('deliberation_settings',{version:1,mode:$('reasoning-mode').value,effort:$('reasoning-effort').value,max_tokens:Number($('reasoning-tokens').value),hypotheses:$('reasoning-hypotheses').checked,online:JSON.parse($('reasoning-online').value)});}catch(e){$('reasoning-status').textContent=e.message;}finally{$('reasoning-apply').disabled=false;}};
+
 let lastReactions='';
 let reviewUrl=null,lastArchive='',chatStarting=0,requestedReplyGeneration=0;
 let recognitionSerial=Promise.resolve(),micStarting=false;
@@ -118,6 +124,8 @@ async function loadState(){
     if(!response.ok)throw Error('Host state unavailable.');
     const s=await response.json();
     state=s;
+    if(s.deliberation){const d=s.deliberation;if(!$('reasoning-mode').dataset.loaded){$('reasoning-mode').value=d.config.mode;$('reasoning-effort').value=d.config.effort;$('reasoning-tokens').value=d.config.max_tokens;$('reasoning-hypotheses').checked=d.config.hypotheses;$('reasoning-online').value=JSON.stringify(d.config.online,null,2);$('reasoning-mode').dataset.loaded='1';}$('reasoning-status').textContent=JSON.stringify({mode:d.config.mode,advertised_controls:d.capabilities,last_plan:d.latest?.plan},null,2);$('reasoning-debug').textContent=JSON.stringify(d.latest,null,2);}
+
     drawHistory(s);drawProfiler(s);
     if(s.greetings){if(!$('greeting-gap').dataset.loaded){$('greeting-gap').value=s.greetings.config.long_gap_turns;$('greeting-gap').dataset.loaded='1';}$('greeting-debug').textContent=JSON.stringify(s.greetings,null,2);}
     if(s.reactions){
@@ -188,6 +196,9 @@ async function loadState(){
         );
       }
       await player.chunk(s.speech);
+      if(autoSpeech.take(s,{enabled:$('auto-speak').checked,host:!sessionInfo.enabled||s.speech.player!=='player_2',busy:Boolean(mic||micStarting||chatStarting)})){
+        try{await player.start(s.speech,s.effective_backends.tts,s.providers.voices[s.speech.actor]);}catch(e){clientNotice='Automatic playback could not start; use Play reply. '+e.message;}
+      }
     }
     else { $('speech-text').textContent='Speak to a nearby character to start a conversation.'; $('reply-origin').textContent='No reply yet'; $('voice-status').textContent='Ready'; $('voice-progress').value=0; }
     drawPending();

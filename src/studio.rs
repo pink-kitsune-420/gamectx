@@ -1,6 +1,11 @@
 //! Opt-in host policies for the local example studio. No network, audio device or
 //! world executor: external transports acknowledge only confirmed character offsets.
 mod archive;
+mod deliberation;
+pub(crate) use deliberation::fixture as deliberation_fixture;
+pub use deliberation::{
+    deliberation_plan, validate_deliberation_config, validate_hypotheses, validate_thinking_values,
+};
 mod greetings;
 pub(crate) use greetings::fixture as greetings_fixture;
 pub use greetings::GreetingMemory;

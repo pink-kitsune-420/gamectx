@@ -226,6 +226,10 @@ jobs:
       - run: node eval/social_routing_bindings.mjs --cap 0
       - run: python3 -I eval/greeting_memory_bindings.py --cap 0
       - run: node eval/greeting_memory_bindings.mjs --cap 0
+      - run: python3 -I eval/deliberation_cases.py --cap 0
+      - run: python3 -I eval/deliberation_bindings.py --cap 0
+      - run: node eval/deliberation_bindings.mjs --cap 0
+      - run: node eval/autospeech_check.mjs --cap 0
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
@@ -254,6 +258,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/reactions-bindings/requests.txt target/reactions-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/social-routing-bindings/requests.txt target/social-routing-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/greeting-memory-bindings/requests.txt target/greeting-memory-bindings/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/deliberation-bindings/requests.txt target/deliberation-bindings/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

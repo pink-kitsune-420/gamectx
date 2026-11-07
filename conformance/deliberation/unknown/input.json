@@ -1,0 +1,1 @@
+{"kind":"studio-deliberation","args":{"op":"plan","args":{"config":{"version":1,"mode":"auto","effort":"low","max_tokens":768,"hypotheses":true,"online":[]},"backend":"local_ollama","model":"example-model","values":null,"task":"planning","expanded":true,"output_tokens":64}}}

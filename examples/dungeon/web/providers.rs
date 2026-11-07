@@ -194,12 +194,23 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
     let body = match modality {
         "text" => {
             let messages = get(payload, "messages")?.clone();
-            let limit = num(payload, "max_tokens", 512)?;
+            let limit = num(payload, "max_tokens", 4096)?;
             let mut request = if backend == "local_ollama" {
                 obj! {"model"=>model,"messages"=>messages,"stream"=>false,"keep_alive"=>0,"options"=>obj!{"num_predict"=>limit,"num_thread"=>num(&c.value,"cpu_threads",4)?,"num_ctx"=>if gamectx::deployment::ModelSize::parse(text(&c.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).exchanges<=1 {2048}else{8192},"temperature"=>0}}
             } else {
                 obj! {"model"=>model,"messages"=>messages,"stream"=>false,"max_completion_tokens"=>limit}
             };
+            if let Some(control) =
+                payload.get("deliberation").and_then(|v| v.get("control")).filter(|v| **v != Value::Null)
+            {
+                let field = text(control, "field")?;
+                if (backend == "local_ollama" && field != "think")
+                    || (backend != "local_ollama" && field != "reasoning_effort")
+                {
+                    return Err(err());
+                }
+                set(&mut request, field, get(control, "value")?.clone());
+            }
             if let Some(schema) = payload.get("speech_schema") {
                 if backend == "local_ollama" {
                     set(&mut request, "format", schema.clone());

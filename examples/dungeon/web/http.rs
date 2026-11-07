@@ -224,6 +224,7 @@ fn handle(
             "/context.mjs" => Some(("text/javascript", include_bytes!("context.mjs").as_slice())),
             "/models.mjs" => Some(("text/javascript", include_bytes!("models.mjs").as_slice())),
             "/setup.mjs" => Some(("text/javascript", include_bytes!("setup.mjs").as_slice())),
+            "/autospeech.mjs" => Some(("text/javascript", include_bytes!("autospeech.mjs").as_slice())),
             "/profiler.mjs" => Some(("text/javascript", include_bytes!("profiler.mjs").as_slice())),
             "/voice.mjs" => Some(("text/javascript", include_bytes!("voice.mjs").as_slice())),
             _ => None,

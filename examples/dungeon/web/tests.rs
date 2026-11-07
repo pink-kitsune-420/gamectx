@@ -1041,3 +1041,81 @@ fn guest_stage_directions_do_not_bypass_host_world_permissions() {
         .any(|r| r.get("kind") == Some(&Value::str("player"))));
     assert_eq!(a.game.public(), before);
 }
+
+#[test]
+fn deliberation_controls_are_model_pinned_and_share_one_output_budget() {
+    let d = Dir::new();
+    let mut state = super::deliberation::State::new(&d.0).unwrap();
+    state.configure(&obj!{"version"=>1,"mode"=>"auto","effort"=>"low","max_tokens"=>768,"hypotheses"=>true,"online"=>vec![obj!{"model"=>"declared","values"=>vec!["low"]}]},&d.0).unwrap();
+    let c = config();
+    let model = super::setup::selected_model_for(&c, "local_ollama");
+    let report = obj! {"thinking_controls"=>vec![obj!{"model"=>model,"endpoint"=>get(c.endpoint("local_ollama").unwrap(),"url").unwrap().clone(),"values"=>vec![true,false]}]};
+    let mut payload = obj! {"messages"=>vec![obj!{"role"=>"user","content"=>"Current request: Compare our options."}],"max_tokens"=>64};
+    let p = state.plan(&c, "local_ollama", &report, "planning", &payload).unwrap();
+    assert_eq!(p.get("active"), Some(&true.into()));
+    super::deliberation::apply(&mut payload, &p, &Value::Null).unwrap();
+    let req = providers::prepare(&c, "local_ollama", "text", &payload).unwrap();
+    let body = parse(std::str::from_utf8(&req.body).unwrap()).unwrap();
+    assert_eq!(body.get("think"), Some(&true.into()));
+    assert_eq!(get(&body, "options").unwrap().get("num_predict"), Some(&768.into()));
+    let p = state.plan(&c, "local_ollama", &report, "routine", &obj! {"max_tokens"=>64}).unwrap();
+    assert_eq!(get(&p, "control").unwrap().get("value"), Some(&false.into()));
+    assert_eq!(p.get("max_tokens"), Some(&64.into()));
+    let p = state.plan(&c, "local_ollama", &obj! {}, "planning", &obj! {"max_tokens"=>64}).unwrap();
+    assert_eq!(p.get("control"), Some(&Value::Null));
+    let p = state.plan(&c, "online_openai_compatible", &report, "planning", &obj! {"max_tokens"=>64}).unwrap();
+    assert_eq!(p.get("control"), Some(&Value::Null));
+}
+#[test]
+fn reasoning_and_hypotheses_never_become_spoken_facts() {
+    let d = Dir::new();
+    let mut mind = parse(include_str!("personalities.json")).unwrap();
+    set(&mut mind, "enabled", true.into());
+    atomic(&d.0.join("personalities.json"), mind.to_json().as_bytes()).unwrap();
+    let mut c = config();
+    set(&mut c.value, "size", "8".into());
+    let mut models = get(&c.value, "text_models").unwrap().clone();
+    let mut local = get(&models, "local_ollama").unwrap().clone();
+    set(&mut local, "8", "fixture-model".into());
+    set(&mut models, "local_ollama", local);
+    set(&mut c.value, "text_models", models);
+    set(&mut c.value, "text", "local_ollama".into());
+    let mut a = app::App::new(7, 0, c, d.0.clone()).unwrap();
+    travel(&mut a);
+    command(
+        &mut a,
+        "deliberation_settings",
+        obj! {"version"=>1,"mode"=>"auto","effort"=>"low","max_tokens"=>768,"hypotheses"=>true,"online"=>Vec::<Value>::new()},
+    );
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What could you dream of?"});
+    assert_eq!(jobs.len(), 1);
+    let j = &jobs[0];
+    assert_eq!(get(&j.binding, "deliberation").unwrap().get("hypotheses"), Some(&true.into()));
+    assert!(a.before_dispatch(j).unwrap());
+    let speech = "I dream of sharing a quiet place to think.";
+    let reply = obj! {"speech"=>speech,"hypotheses"=>vec![obj!{"claim"=>"The counter might allow a quiet conversation.","evidence"=>vec!["visible_scene"],"check"=>"Ask before continuing."}]};
+    a.complete(
+        j,
+        Ok(obj! {"message"=>obj!{"thinking"=>"private test trace","content"=>reply.to_json()}}.to_json().into_bytes()),
+    )
+    .unwrap();
+    let s = a.state().unwrap();
+    assert_eq!(get(&s, "speech").unwrap().get("text"), Some(&speech.into()));
+    assert!(!get(&s, "transcript").unwrap().to_json().contains("quiet conversation"));
+    assert!(!s.to_json().contains("private test trace"));
+    assert_eq!(get(&s, "spending").unwrap().get("charged_or_reserved_micros"), Some(&0.into()));
+}
+#[test]
+fn analysis_only_or_unseen_hypothesis_keeps_the_validated_fallback() {
+    let d = Dir::new();
+    let mut a = app(&d);
+    travel(&mut a);
+    backend(&mut a, "text", "local_ollama");
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What could explain this?"});
+    assert_eq!(jobs.len(), 1);
+    let before = a.state().unwrap().get("speech").unwrap().get("text").unwrap().clone();
+    assert!(a.before_dispatch(&jobs[0]).unwrap());
+    a.complete(&jobs[0], Ok(obj! {"message"=>obj!{"thinking"=>"test only","content"=>""}}.to_json().into_bytes()))
+        .unwrap();
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("text"), Some(&before));
+}

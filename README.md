@@ -1024,3 +1024,7 @@ The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPO
 [Studio social turns](docs/STUDIO_CONVERSATION.md) route greetings, wellbeing and heard-topic follow-ups separately from factual shop answers when personality turns are enabled.
 
 [Contextual greetings](docs/CONTEXTUAL_GREETINGS.md) remember confirmed introductions per NPC/player and adapt to encounters and places. Entering a room or using Approach can open conversation through a stage direction, with zero model calls.
+
+## Optional reasoning and automatic speech
+
+See [deliberation controls](docs/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.

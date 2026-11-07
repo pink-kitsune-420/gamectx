@@ -1,0 +1,15 @@
+{
+  "policy_fixtures": 28,
+  "mutation_inputs": 2000,
+  "example_tests": 39,
+  "python_binding_checks": 56,
+  "node_binding_checks": 28,
+  "csharp_binding_checks": 28,
+  "automatic_playback_policy_checks": 11,
+  "browser_workflows": 5,
+  "rust_msrv": "1.82",
+  "api_spend_usd": 0,
+  "extra_inference_calls": 0,
+  "live_reasoning_quality_measured": false,
+  "limits": "Offline contracts, mock provider envelopes and simulated browser audio only. Current installed Qwen 2.5 reported no dedicated thinking controls; no supported reasoning model was installed or benchmarked."
+}

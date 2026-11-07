@@ -68,6 +68,7 @@ pub struct App {
     mind: super::personality::Mind,
     reactions: super::reactions::Reactions,
     greetings: gamectx::studio::GreetingMemory,
+    deliberation: super::deliberation::State,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -147,6 +148,7 @@ impl App {
         let mind = super::personality::Mind::new(&dir)?;
         let reactions = super::reactions::Reactions::new(&dir)?;
         let mut greetings = super::greetings::new(&dir)?;
+        let deliberation = super::deliberation::State::new(&dir)?;
         let mut initial_seq = 0;
         if mind.enabled() {
             super::greetings::seed_legacy(&mut greetings, &[], &mind.views.checkpoint(), 0, &mut initial_seq)?;
@@ -185,6 +187,7 @@ impl App {
             mind,
             reactions,
             greetings,
+            deliberation,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -977,7 +980,7 @@ impl App {
         }
         Ok(())
     }
-    fn plan(&mut self, modality: &str, payload: &Value, binding: Value) -> Result<Option<Job>> {
+    fn plan(&mut self, modality: &str, payload: &Value, mut binding: Value) -> Result<Option<Job>> {
         let call_config = self.manager.provider(&self.config, modality)?;
         if self.pending.len() >= 8 {
             self.notice = "Worker queue is full; using the immediate fallback.".into();
@@ -1028,6 +1031,20 @@ impl App {
             if let Some(id) = self.manager.selected("image") {
                 set(&mut payload, "steps", get(self.manager.policy.profile(id)?, "steps")?.clone());
             }
+        }
+        if modality == "text" {
+            let task = binding.get("reasoning_task").and_then(Value::as_str).unwrap_or("routine");
+            let plan = self.deliberation.plan(&call_config, &backend, &self.manager.report, task, &payload)?;
+            let evidence = obj! {"ids"=>vec!["visible_scene"],"facts"=>vec![obj!{"id"=>"visible_scene","kind"=>"perceived","text"=>self.game.current_description()}]};
+            // Free dialogue without a constrained speech envelope cannot attach notes.
+            let mut plan = plan;
+            if payload.get("speech_schema").is_none() {
+                set(&mut plan, "hypotheses", false.into());
+            }
+            super::deliberation::apply(&mut payload, &plan, &evidence)?;
+            set(&mut binding, "deliberation", plan.clone());
+            set(&mut binding, "hypothesis_evidence", get(&evidence, "ids")?.clone());
+            self.deliberation.latest = obj! {"plan"=>plan,"status"=>"pending","notes"=>Vec::<Value>::new()};
         }
         let mut request = match providers::prepare(&call_config, &backend, modality, &payload) {
             Ok(r) => r,
@@ -1244,6 +1261,21 @@ impl App {
                     } else {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
                     };
+                    if line.contains("<think>") || line.contains("</think>") || line.trim().is_empty() {
+                        return Err(Error::new("missing_final_answer"));
+                    }
+                    let mut final_line = line.to_string();
+                    let mut notes = Value::Null;
+                    if job.binding.get("deliberation").and_then(|p| p.get("hypotheses")) == Some(&Value::Bool(true)) {
+                        let envelope = parse(line)?;
+                        fields(&envelope, &["speech", "hypotheses"])?;
+                        notes = gamectx::studio::validate_hypotheses(
+                            get(&envelope, "hypotheses")?,
+                            get(&job.binding, "hypothesis_evidence")?,
+                        )?;
+                        final_line = obj! {"speech"=>get(&envelope,"speech")?.clone()}.to_json();
+                    }
+                    let line = final_line.as_str();
                     let subjective = job.binding.get("viewpoint").filter(|v| **v != Value::Null);
                     let is_subjective =
                         subjective.is_some() || job.binding.get("subjective") == Some(&Value::Bool(true));
@@ -1285,6 +1317,7 @@ impl App {
                     {
                         return Err(err());
                     }
+                    self.deliberation.latest = obj! {"plan"=>job.binding.get("deliberation").cloned().unwrap_or(Value::Null),"status"=>"validated","hypotheses"=>notes,"actor"=>get(&job.binding,"actor")?.clone(),"epoch"=>self.epoch};
                     let s = self.speech.as_mut().ok_or_else(err)?;
                     s.pending = false;
                     s.origin = if grounded.is_some() {
@@ -1400,6 +1433,9 @@ impl App {
             Ok(())
         })();
         if apply.is_err() {
+            if job.modality == "text" {
+                self.deliberation.latest = obj! {"plan"=>job.binding.get("deliberation").cloned().unwrap_or(Value::Null),"status"=>"rejected","notes"=>Vec::<Value>::new()};
+            }
             let detail = if apply.as_ref().err().is_some_and(|e| e.to_string() == "out_of_character_reply") {
                 "Model confused engine metadata with a character; the host kept an in-character fallback."
             } else if apply.as_ref().err().is_some_and(|e| e.to_string() == "repeated_reply") {
@@ -1670,7 +1706,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1704,6 +1740,12 @@ impl App {
             "approach" => {
                 fields(v, &["npc"])?;
                 return Ok((self.approach(text(v, "npc")?)?, jobs));
+            }
+            "deliberation_settings" => {
+                self.deliberation.configure(v, &self.dir)?;
+                self.stop(None)?;
+                self.epoch += 1;
+                obj! {"configured"=>true}
             }
             "greeting_settings" => {
                 super::greetings::configure(&mut self.greetings, &self.dir, v)?;
@@ -2188,7 +2230,7 @@ impl App {
                         set(&mut payload, "speech_schema", schema);
                     }
                     let speech = self.speech.as_ref().unwrap().id;
-                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null),"subjective"=>topic.is_some(),"speech_act"=>kind})? {
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null),"subjective"=>topic.is_some(),"speech_act"=>kind,"reasoning_task"=>super::deliberation::task(line,self.manager.route.get("dramatic")==Some(&Value::Bool(true)))})? {
                         self.speech.as_mut().unwrap().pending = true;
                         self.speech.as_mut().unwrap().origin = "pending".into();
                         jobs.push(job);

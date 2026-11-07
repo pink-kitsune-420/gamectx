@@ -815,3 +815,7 @@ Settings → Characters → Optional world reactions enables host-approved gifts
 With personality turns enabled, try “Hello”, “How are you today?” and, after reading/hearing the reply, “Why is that?” Greetings need no LLM; mood and explanation turns are immediate and temporary and do not replace saved opinions. [Routing and evidence](STUDIO_CONVERSATION.md).
 
 With personality turns enabled, travel to a character's room to see an arrival and contextual greeting; **Approach** engages without speaking for the player. Typed `*enters the workshop*` still needs a legal route. Read/Play confirms an introduction. Settings → Characters → Greeting behavior adjusts quiet turns. [Memory, venue, party and save behavior](CONTEXTUAL_GREETINGS.md).
+
+## Studio reasoning and speech
+
+See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.

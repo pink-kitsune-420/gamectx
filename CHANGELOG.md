@@ -631,3 +631,8 @@ First public release.
   and display queue/run timing separately. Add scoped role/room follow-up replies.
 - [api] Move inspection into a movable/resizable/minimizable Debug window with context
   byte breakdown, optional prompt capture, provider token counters and execution timelines.
+
+- [api] [format] Add opt-in studio deliberation planning and unverified note validation
+  (28 additive cases), exact-model provider controls and shared reasoning/output budgets.
+- [ui] Add a per-browser automatic-speech checkbox; keep private reasoning out of speech
+  and memory, with bounded diagnostic counts and unsupported-model fallback.

@@ -56,7 +56,7 @@ impl Monitor {
             Value::Null
         };
         self.context = Some(
-            obj! {"request_id"=>id,"model"=>selected_model(config),"tier"=>config.value.get("size").cloned().unwrap_or(Value::Null),"prepared_body_bytes"=>request.body.len(),"schema_bytes"=>payload.get("speech_schema").map_or(0,Value::json_len),"output_token_limit"=>payload.get("max_tokens").cloned().unwrap_or(Value::Null),"messages"=>messages,"capture_prompts"=>self.capture_prompts,"preview"=>preview,"notes"=>"Byte counts describe the compiled request. Actual provider token counts appear after a completed call; no tokenizer/inference is run for profiling."},
+            obj! {"request_id"=>id,"model"=>selected_model(config),"tier"=>config.value.get("size").cloned().unwrap_or(Value::Null),"prepared_body_bytes"=>request.body.len(),"schema_bytes"=>payload.get("speech_schema").map_or(0,Value::json_len),"output_token_limit"=>payload.get("max_tokens").cloned().unwrap_or(Value::Null),"deliberation"=>payload.get("deliberation").cloned().unwrap_or(Value::Null),"messages"=>messages,"capture_prompts"=>self.capture_prompts,"preview"=>preview,"notes"=>"Byte counts describe the compiled request. Actual provider token counts appear after a completed call; no tokenizer/inference is run for profiling."},
         );
     }
     pub fn usage(&mut self, id: u64, response: &Value) {
@@ -75,6 +75,12 @@ impl Monitor {
                     set(&mut usage, key, n.into());
                 }
             }
+            let thinking = response
+                .get("message")
+                .and_then(|m| m.get("thinking"))
+                .and_then(Value::as_str)
+                .map_or(0, |s| s.chars().count());
+            set(&mut usage, "thinking_characters", thinking.into());
             if let Some(v) = response.get("usage") {
                 if v.is_valid(2048) {
                     set(&mut usage, "online_usage", v.clone());
@@ -227,7 +233,9 @@ impl Monitor {
     }
 }
 pub fn selected_model(c: &providers::Config) -> String {
-    let backend = c.value.get("text").and_then(Value::as_str).unwrap_or("");
+    selected_model_for(c, c.value.get("text").and_then(Value::as_str).unwrap_or(""))
+}
+pub fn selected_model_for(c: &providers::Config, backend: &str) -> String {
     c.value
         .get("text_models")
         .and_then(|v| v.get(backend))

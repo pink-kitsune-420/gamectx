@@ -1407,3 +1407,19 @@ fn encounter_receipt_mutations_do_not_create_world_actions() {
         }
     }
 }
+
+#[test]
+fn deliberation_and_untrusted_hypothesis_mutations_are_bounded() {
+    let seeds = [
+        include_str!("../conformance/deliberation/enabled/input.json"),
+        include_str!("../conformance/deliberation/hypothesis/input.json"),
+    ];
+    let mut rng = Rng(0x726561736f6e);
+    for seed in seeds {
+        for _ in 0..1000 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

@@ -564,3 +564,8 @@ profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 - Fixed: personal small talk falling through to role-only speech enums. Opt-in social routing, immediate varied greetings, zero-call mood/explanation turns with NPC/player perspective and confirmed context, and duplicate/engine-metadata rejection. 22 parity cases, 12 host workflows and five Firefox workflows; paired local 3B experiments/final holdout and limits in [studio conversation](STUDIO_CONVERSATION.md).
 
 - Completed: per-NPC/listener encounter memory and zero-model contextual greeting plans, full-heard introductions, scoped legacy migration and branch/reset behavior. Arrival/Approach uses host-confirmed stage directions; typed travel is permission checked and guests cannot bypass host control. 26 parity cases, two new aliases, 12 encounter / seven action host workflows and seven Firefox workflows; [evidence/limits](CONTEXTUAL_GREETINGS.md).
+
+- Optional native reasoning controls and ephemeral hypotheses: implemented with exact-model
+  capability checks; 28 independent offline policy cases and automatic-speech browser policy.
+  No reasoning quality claim: the installed Qwen 2.5 model advertises no thinking controls.
+  Next in this task: bounded sentence continuations and longer player-message assembly.

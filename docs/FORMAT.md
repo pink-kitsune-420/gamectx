@@ -2071,3 +2071,7 @@ profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 `studio-conversation` adds a bounded `{input,previous}` → `{kind,topic}` social routing hint, with 22 additive `social-routing` cases. It grants no actions or facts; [host behavior and limits](STUDIO_CONVERSATION.md). Existing conversation fixtures are unchanged.
 
 `studio-greetings` adds bounded `{config,state,ops}` encounter planning/confirmation, 26 additive cases and an optional example `encounters` checkpoint extension. `approach` and finite wrapped stage directions are validated example host actions. [Contracts and bounds](CONTEXTUAL_GREETINGS.md).
+
+## Additive studio deliberation contract
+
+See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.

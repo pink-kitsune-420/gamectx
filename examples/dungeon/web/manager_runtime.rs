@@ -303,6 +303,32 @@ impl Runtime {
                     .map(str::to_owned)
                     .collect::<Vec<_>>()
             });
+        // Metadata probes run on the worker, never load weights and never generate.
+        let mut thinking_controls = Vec::new();
+        let mut probes = ["text", "dramatic_text"]
+            .into_iter()
+            .filter_map(|id| policy.profile(id).ok())
+            .filter(|p| p.get("backend").and_then(Value::as_str) != Some("online_openai_compatible"))
+            .filter_map(|p| p.get("model").and_then(Value::as_str))
+            .map(str::to_owned)
+            .collect::<Vec<_>>();
+        if let Some(raw) = &self.config {
+            if let Ok(c) = providers::Config::parse(&raw.to_json()) {
+                probes.push(super::setup::selected_model_for(&c, "local_ollama"));
+            }
+        }
+        probes.sort();
+        probes.dedup();
+        for model in probes.into_iter().filter(|m| names.contains(m)).take(3) {
+            let values = self
+                .base("text")
+                .ok()
+                .and_then(|b| json(req(&b, "/api/show", Some(obj! {"model"=>model.clone()}))).ok())
+                .and_then(|v| v.get("thinking").and_then(|v| v.get("values")).cloned())
+                .filter(|v| gamectx::studio::validate_thinking_values(v).is_ok())
+                .unwrap_or(Value::Null);
+            thinking_controls.push(obj! {"model"=>model,"endpoint"=>self.config.as_ref().and_then(|v|v.get("endpoints")).and_then(|v|v.get("local_ollama")).and_then(|v|v.get("url")).cloned().unwrap_or(Value::Null),"values"=>values});
+        }
         let files = self.base("image").ok().and_then(|b| json(req(&b, "/sdcpp/v1/model-files", None)).ok());
         let ids = files.as_ref().and_then(|v| v.get("files")).and_then(Value::as_array).map_or_else(Vec::new, |rows| {
             rows.iter()
@@ -361,7 +387,7 @@ impl Runtime {
             let owned = self.children.get_mut(ch).is_some_and(|c| c.try_wait().ok().flatten().is_none());
             obj! {"channel"=>ch,"ownership"=>if self.native.handles(ch,text(policy.profile(ch).unwrap(),"model").unwrap()) {"on_demand"} else if owned {"managed"} else if self.reachable(ch) {"external"} else {"stopped"},"start_configured"=>self.native.available(ch,text(policy.profile(ch).unwrap(),"model").unwrap()) || self.start_configured(ch, text(policy.profile(ch).unwrap(), "model").unwrap()),"native"=>self.native.handles(ch,text(policy.profile(ch).unwrap(),"model").unwrap())}
         }).collect::<Vec<_>>();
-        let report = obj! {"observed_text"=>observed_text,"observed_image"=>observed_image,"available"=>available,"text_models"=>names,"image_files"=>ids,"services"=>services,"free_mib"=>available_memory().map_or(Value::Null,Value::from),"loaded"=>self.lease.as_ref().map_or(Value::Null,|l|obj!{"profile"=>l.profile.clone(),"channel"=>l.channel.clone(),"model"=>l.model.clone()}),"error"=>self.last_error.clone()};
+        let report = obj! {"thinking_controls"=>thinking_controls,"observed_text"=>observed_text,"observed_image"=>observed_image,"available"=>available,"text_models"=>names,"image_files"=>ids,"services"=>services,"free_mib"=>available_memory().map_or(Value::Null,Value::from),"loaded"=>self.lease.as_ref().map_or(Value::Null,|l|obj!{"profile"=>l.profile.clone(),"channel"=>l.channel.clone(),"model"=>l.model.clone()}),"error"=>self.last_error.clone()};
         self.last_catalog = report.clone();
         report
     }
