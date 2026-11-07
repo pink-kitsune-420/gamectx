@@ -1,0 +1,1 @@
+{"schema":{"type":"object","properties":{"speech":{"type":"string","enum":["You told me you prefer copper wicks."]}},"required":["speech"],"additionalProperties":false},"results":[{"ok":true,"result":{"status":"answered","text":"You told me you prefer copper wicks.","sources":[{"kind":"state","id":"confirmed_quote"}]}},{"ok":false},{"ok":false},{"ok":false},{"ok":false}]}

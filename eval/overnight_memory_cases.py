@@ -4,7 +4,8 @@ sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
 from life_cases import base,event
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 def enc(v):return json.dumps(v,ensure_ascii=False,separators=(',',':'))
-def words(s):return set(re.findall(r'[^\W_]+',s.lower(),re.UNICODE))
+def words(s):
+ values=set(re.findall(r'[^\W_]+',s.lower(),re.UNICODE));return values|{w[:-1] for w in values if len(w)>3 and w.endswith('s')}
 def select(events,summaries,q):
  assert set(q)==set('input tags subjects required count archive'.split())
  assert isinstance(q['input'],str) and len(q['input'].encode())<=2048 and type(q['archive']) is bool
@@ -42,6 +43,8 @@ def cases():
  out=[]
  def add(name,q=q,archived=False,error=False):out.append((name,copy.deepcopy(es),copy.deepcopy(q),archived,error))
  add('anchors');add('after_eviction',archived=True);add('other_subject',q=dict(q,subjects=['colony'],required=[],input='wick'));add('causal_cap',q=dict(q,count=2),error=True);add('missing_anchor',q=dict(q,required=[99]),error=True);add('wrong_subject_anchor',q=dict(q,required=[5]),error=True);add('no_archive',q=dict(q,archive=False),archived=True,error=True);add('no_irrelevant',q=dict(q,input='unrelated',required=[],count=2));add('zero',q=dict(q,required=[],count=0));add('duplicate',q=dict(q,required=[2,2]),error=True);add('foreign_subject',q=dict(q,subjects=['outsider']),error=True)
+ plural=copy.deepcopy(es);plural[0]['text']='The player said: I prefer copper wicks.';plural[0]['source'].update(speaker='player',text=plural[0]['text'])
+ out.append(('optional_plural_after_eviction',plural,dict(q,input='Which wick would suit me?',required=[],count=2),True,False))
  return out
 def request(es,q,archived):
  b=base();b['identity']=dict(campaign='deep',branch='save_a',instance='merchant');b['operations']=[dict(op='experience',args=e) for e in es]

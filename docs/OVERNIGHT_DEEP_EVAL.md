@@ -1,6 +1,6 @@
 # Overnight deep evaluation
 
-This ongoing investigation uses only `--cap 0`, installed local weights and offline
+This completed evaluation and repair loop uses only `--cap 0`, installed local weights and offline
 fixtures. Existing evaluation artifacts are frozen. Expectations in
 `eval/overnight_deep.py` precede live outputs. Synthetic lexical diagnostics are not
 independent human judgments of social quality.
@@ -199,3 +199,125 @@ frozen. An additional semantic fixture supplies matching broken/repaired agreeme
 and verifies the same 132 operations, twelve two-hop reports, 100 cyclic noise ticks and
 player isolation. Host-authored event tags, rules and prose must be consistent; source
 availability cannot establish that consistency automatically.
+
+
+## Repair 5: useful answers from the restored cast
+
+A second integrated campaign constructs four actual character sessions, ingests **1,000
+confirmed events per character**, consolidates/evicts every 100 events, and restores into
+fresh sessions **40 times**. An accepted player_1 promise remains accepted at all **40
+checks**. Three speaking NPCs receive twelve focused packets from the restored state;
+the guard stores host-enabled evidence but makes **zero model calls**. Player-specific
+preferences, the complete name correction and the open promise use at most two episodes
+per query. Simulated hearing receipts distinguish another NPC's line from the active
+speaker's line and exclude an unheard guard line. These are generated-state integration
+queries after 4,000 synthetic events, not 4,000 generated conversations.
+
+The first evaluation host mistakenly called the legacy single-Life speech renderer,
+which does not apply cast gates. Its free arm exposed the supplied keeper watchword in
+**2/12 replies**. Those raw requests and replies stay frozen; they cannot establish a
+privacy failure in the gate-aware runtime. The corrected public-API host adapter uses
+CastPack validation and PartyScene compilation, checks facets against the independent
+Python gate oracle, and verifies the withheld watchword and unheard guard line are
+absent from every compiled request. The guide now explicitly names this API boundary.
+The legacy free arm's **11/12 lexical hits** include wrong-subject first-person
+preferences and invented delivery history; that number is not an accuracy score.
+
+Even with preserved evidence, the optional source-bound arm chose generic “I don't
+know.” in **9/12 replies**. The independent prototype therefore adds an explicit host
+policy: when question-specific answers have already been authored, exclude generic
+unknown from the choices and validate their sources even if an authorized answer itself
+expresses uncertainty. Original APIs still permit unknown and preserve old outputs.
+Four additive cases and **2,000 further mutations** cover that policy. The Studio uses
+it for grounded replies; a sole authorized answer keeps its immediate 0B line without
+requesting a model.
+
+A token-first paired holdout uses fresh Lina/Lira, copper/ivory preferences and a
+measuring-cord promise, with the corrected gate-aware compiler. Optional vs required
+arms produce **3/12→12/12 required-answer matches**, **9→0 generic deferrals**, and
+**12/12 authorized replies** in both arms. No withheld watchword appears in either arm.
+Maximum input is **862/866 tokens**, respectively, plus 96 output and 256 guard tokens
+within 2,048. Same families and path-dependent dialogue mean this is integration and
+regression evidence, not unseen semantic generalization. The host supplies the exact
+sentences; a one-choice diagnostic does not demonstrate improved free-model intelligence
+and can run without any model in a game. Raw outputs and failed harness evidence remain
+in `overnight-campaign-*.json`; `overnight_campaign_audit.py` verifies them offline.
+
+The last optional-recall check exposed singular “wick” vs archived “wicks.” The selector
+now includes bounded trailing-s aliases, independently specified in Python, without
+changing legacy recall. The baseline misses token 1; the new additive case retrieves it.
+Six preference queries in a fresh 4,000-event CLI campaign now omit mandatory anchors;
+all **twelve compiled packets equal the already live-tested holdout packets**. No extra
+model call is counted. This is lexical matching, not semantic or multilingual recall.
+The twelve selection workflows pass byte parity, including all eleven prior workflows.
+A final release allocator replay retains the same **80/80 probes**, **3,065,858 allocation
+calls** and **3,769,707 peak requested live bytes** as the earlier optimized trace; the
+new optional alias does not add work when required anchors fill the packet.
+
+A configuration audit also found that accepted uppercase `3B` was forwarded as `3Bb` to
+the Web route. It now selects the same configured model as `3b`, with a regression test.
+The final actual 3B Web body uses **699 input tokens**, plus 128 output and 256 guard,
+versus the earlier 704-token body. Final 1/1.5/3B request sizes are
+**3,696/3,698/3,697 bytes**; 8/30/70B sizes are **5,079/5,080/5,080 bytes**. These remain
+structural audits for the unloaded tiers, not their tokenization or capability scores.
+
+## Final ranked disposition
+
+| Priority | Observed limitation | Completed repair and fresh check |
+| --- | --- | --- |
+| 1 | Ordinary dialogue exhausts rumor roots | Transient recording and protected compaction; 600/600 accepted, separate 1,000 delivered turns with five branch restores |
+| 2 | Archived anchors unavailable to focused recall | Subject-scoped original episodes, causal closure and archive erasure; 80/80 anchors, 40 restores; optional plural preference retrieval |
+| 3 | Free 3B invents facts despite valid JSON | Opt-in host-authorized variants and scoped context; fresh paired 24/24 bounded replies, unsupported factual claims 10/24→0/24 by assistant review |
+| 4 | Natural commands cause friction; delayed commands change player | Bounded legal-choice grammar, scoped focus and generation checks; 41-request holdout and stale purchase rejected with HTTP 409 |
+| 5 | Preserved evidence still yields generic deferral; evaluation host bypasses gates | Explicit required-answer policy and corrected PartyScene evaluation adapter; fresh 12/12 useful authorized answers, zero withheld watchwords in packets/outputs |
+| 6 | Uppercase tier accepted but route construction fails | Normalize accepted suffix; actual configured-model regression |
+
+All concrete repairs recommended by this investigation are implemented. Bounded storage,
+host authoring and unmeasured physical/higher-tier behavior remain explicit limits below.
+Each completed stage has its own local commit; no remote push or paid call is made.
+
+## Verification and remaining limits
+
+Final verification includes the required chained format, all-target Clippy, tests and
+warning-free rustdoc checks; **1,184 conformance cases**, **62 additive cases**, with all
+**1,122 baseline cases byte-identical**. Five new mutation cohorts exercise **10,000
+inputs** beyond the existing robustness suite. Dungeon tests cover **17** workflows,
+including 1,000 delivered turns and restored branches. Python CLI/native run **24**
+stateful selection checks; Node and C# each match **62 shared fixture replies**. Rust
+1.82, native bindings, package verification, the offline CI command set and the fresh
+campaign audit are checked locally. Existing baseline evaluation JSON remains frozen.
+Fake browser checks cover **five audio** and **six context** cohorts; frozen Studio
+HTTP/provider/visual approval checks also pass. None measures physical acoustic quality.
+
+Across the retained runs, **230 recorded local provider calls** comprise **110 token
+prefills and 120 speech generations**. The interrupted cohort may have made **one
+additional unrecorded in-flight generation**. Copied partial-run responses are counted
+once. All calls use the installed Qwen 3B, four CPU threads, zero GPU layers and local
+Ollama; **API spend is $0**. No download, paid provider or larger live model is needed.
+
+Remaining limits, ranked by practical impact:
+
+1. Unconstrained 3B speech remains unreliable. Authorized variants guarantee only the
+   current host-authored choice contract, not entailment of arbitrary source text,
+   naturalness or general intelligence. Preferences/pivotal events need truthful host
+   metadata and retention; ordinary transient chatter is not automatically understood
+   and permanently pinned. Promises and correction anchors still require host selection.
+2. Archives are bounded to sixteen retained ranges and 524,288 checkpoint bytes; active
+   Life holds 128 events, consequential rumor roots 64, and the Web journal 8,192
+   operations/8 MiB. External archival, redaction and long-term retention remain host
+   policy. The measured checkpoint grows intentionally; there is no constant-RSS claim.
+3. Secret gates require the gate-aware World/Party host APIs. Legacy single-Life APIs
+   intentionally retain their original behavior. Source provenance, hearing receipts,
+   tags and appraisal prose must be mutually consistent; validation cannot infer truth.
+4. The input grammar is bounded English. Ambiguous/typo/batch input defers to action
+   buttons instead of guessing. Optional generation headers preserve legacy trusted
+   callers; they are not authentication or a multi-controller synchronization service.
+5. The busy desktop and local cache prevent controlled latency comparisons. Actual
+   microphone/audio devices, image quality, online TLS providers, whole-game FPS and
+   capability of unloaded larger tiers are unmeasured. The report makes no claim for
+   those measurements. Social quality review is assistant-authored, not blinded human
+   evaluation, and the small repeated cohorts do not establish general error rates.
+
+`eval/overnight-verification.json` records the final local checks, baseline freeze hashes,
+source digest and non-duplicated local-call ledger. It is local verification evidence,
+not a hosted CI-service result. All 104 baseline evaluation JSON files are byte-identical.

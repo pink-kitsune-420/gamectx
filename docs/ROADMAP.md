@@ -492,3 +492,16 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   covers 14 phrases with no unintended purchases or interim STT actions. A separate
   delayed-player-switch race reproduced a purchase for the wrong player; optional
   generation receipts and browser scope capture now reject it before mutation.
+- The linked 1,000-event-per-character campaign retained accepted promises through all
+  40 restores but exposed generic deferral in 9/12 authorized replies. Added an explicit
+  required-answer policy and fresh paired archived-state holdout. A failed evaluation
+  harness bypassed pack gates via the legacy Life renderer; raw leaks are retained,
+  the corrected host uses PartyScene compilation, and the guide names that boundary.
+
+- Completed all ranked overnight repairs and fresh verification: restored-cast paired
+  coverage 3/12→12/12, generic deferrals 9→0, no gated watchwords in corrected packets
+  or outputs. Optional plural preference queries reproduce all twelve live-tested
+  packets without required preference anchors. Uppercase tier normalization is covered.
+  Final suite: 1,184 cases (1,122 baseline unchanged), 10,000 new mutations, 17 dungeon
+  tests, binding/MSRV/package checks and $0 API. Remaining bounded-storage, host-authoring,
+  physical-device and unloaded-tier limits are documented, not capability claims.

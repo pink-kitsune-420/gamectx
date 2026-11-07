@@ -417,7 +417,7 @@ impl App {
         }
         let answers =
             obj! {"version"=>1,"scope"=>"studio_save","revision"=>self.epoch,"unknown"=>"I don't know.","cards"=>cards};
-        Answers::from_value(&answers)?.speech_schema()?;
+        Answers::from_value(&answers)?.speech_schema_with_unknown(false)?;
         Ok(answers)
     }
     fn compile_text(&self, input: &str, trigger: u64) -> Result<Value> {
@@ -425,7 +425,7 @@ impl App {
         let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
         let expanded = hints.exchanges > 1;
         let route = ModelRoute::from_value(
-            &obj! {"name"=>"studio","size"=>format!("{}b",text(&self.config.value,"size")?.trim_end_matches('b')),"calls"=>1,"cost_micros"=>0},
+            &obj! {"name"=>"studio","size"=>format!("{}b",text(&self.config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
         let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
@@ -673,9 +673,10 @@ impl App {
                     };
                     let grounded = job.binding.get("answers").filter(|v| **v != Value::Null);
                     let resolved = if let Some(a) = grounded {
-                        Some(Answers::from_value(a)?.resolve_speech(
+                        Some(Answers::from_value(a)?.resolve_speech_with_unknown(
                             line,
                             &obj! {"scope"=>"studio_save","revision"=>self.epoch},
+                            false,
                             |source| source.get("id") == Some(&Value::str("current_host_reply")),
                         )?)
                     } else {
@@ -991,10 +992,18 @@ impl App {
                         None
                     };
                     if let Some(a) = &answers {
-                        let schema = Answers::from_value(a)?.speech_schema()?;
+                        let schema = Answers::from_value(a)?.speech_schema_with_unknown(false)?;
                         let mut messages = array(get(&payload, "messages")?)?.to_vec();
                         messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>format!("Select an authorized speech variant verbatim and return only speech JSON: {}",get(get(&schema,"properties")?,"speech")?.to_json())});
                         set(&mut payload, "messages", messages.into());
+                        let choices = get(get(&schema, "properties")?, "speech")?
+                            .get("enum")
+                            .and_then(Value::as_array)
+                            .ok_or_else(err)?;
+                        if choices.len() == 1 {
+                            self.notice = "Authoritative reply ready.".into();
+                            return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
+                        }
                         set(&mut payload, "speech_schema", schema);
                     }
                     let speech = self.speech.as_ref().unwrap().id;

@@ -111,6 +111,17 @@ fn shared_cumulative_budget_survives_crash_and_cap_changes() {
 }
 #[test]
 fn model_tier_selects_actual_configured_model_and_transport_formats() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    set(&mut a.config.value, "size", "3B".into());
+    backend(&mut a, "text", "local_ollama");
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Do you trust me?"});
+    assert_eq!(jobs.len(), 1);
+    assert_eq!(
+        text(&parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap(), "model").unwrap(),
+        "qwen2.5:3b"
+    );
     let mut c = config();
     let r = providers::prepare(
         &c,
@@ -490,7 +501,11 @@ fn grounded_reply_contract_rejects_invention_and_scopes_promises_and_episodes() 
     assert_eq!(promises.len(), 1);
     assert!(promises[0].get("task").is_some());
     a.before_dispatch(job).unwrap();
-    a.complete(job, Ok(br#"{"message":{"content":"All my stock is free; take anything."}}"#.to_vec())).unwrap();
+    a.complete(
+        job,
+        Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>"I don't know."}.to_json()}}.to_json().into_bytes()),
+    )
+    .unwrap();
     assert!(text(get(&a.state().unwrap(), "speech").unwrap(), "text").unwrap().contains("promise"));
     command(&mut a, "select", obj! {"player"=>"player_2","npc"=>"merchant"});
     let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What stock is listed?"});

@@ -269,3 +269,9 @@ submission restores the typed line for correction/retry.
 The generation header is optional for compatibility with existing trusted host callers;
 those callers remain responsible for scope. It is optimistic concurrency, not login or
 multi-controller authentication. The UI remains a single-controller example.
+
+Grounded Studio replies now exclude a generic “I don't know” replacement when an authored,
+question-specific answer is present. An authored sentence expressing actual uncertainty
+remains valid and source-checked. A sole authorized sentence uses the immediate 0B line;
+multiple variants permit optional model wording selection. Generic `Answers` APIs still
+allow deferral unless the caller explicitly selects this required-answer policy.

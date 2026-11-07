@@ -992,3 +992,9 @@ host cards, and focused requests scope recalled episodes/promises to the active 
 The Studio also supports bounded polite commands and scoped pronouns, with action-button
 clarification for ambiguity. Scene-generation receipts reject delayed controls after a
 participant switch; delivery/recognition continue using their own speech/session IDs.
+
+For question-specific factual answers, the optional required-answer policy removes generic
+deferral while retaining source checks. A fresh restored-cast paired 3B check improves
+required-answer coverage from 3/12 to 12/12 using host-authored sentences. The completed
+[overnight report](docs/OVERNIGHT_DEEP_EVAL.md) includes raw failures, bounded-storage
+limits, tier audits and the distinction from free-model intelligence.

@@ -1299,3 +1299,15 @@ fn human_command_mutations_never_execute_or_escape_current_choices() {
         }
     }
 }
+
+#[test]
+fn required_speech_never_uses_generic_unknown_to_skip_source_validation() {
+    let seed = include_str!("../conformance/deep-required-speech/known_absence_keeps_source/input.json");
+    let mut rng = Rng(0x72657164);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

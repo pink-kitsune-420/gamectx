@@ -772,3 +772,17 @@ player/scene. The Web example expires focus after four ticks and clears it on pl
 switches, travel and branch loads. A typo or multi-item instruction asks the player to
 choose a listed action; questions and negation stay dialogue. The helper never executes
 its proposal. The host still applies the current game revision and rules.
+
+Gated cast turns use `LivingWorld::compile` or `PartyScene::compile` with the cast's
+current Life, blueprint and attitude gates. The legacy single-Life `compile_speech`
+renderer predates party gates and has no gate input; feeding a cast definition directly
+to it can expose its gated facets. After checkpoint recovery, pass the recovered Life
+to the party compiler before adding bounded, host-authorized archival episodes. The
+overnight campaign evaluation retains a failed renderer integration and a corrected
+public-API host adapter in `eval/overnight_campaign_compile.rs`.
+
+Optional selected recall can match `wick` against archived `wicks`; use required causal
+anchors for facts that must be present rather than relying on lexical similarity.
+The restored-cast paired holdout passes 12/12 required-answer checks with host-authored
+sentences, versus 3/12 when generic deferral is allowed. This bounds wording rather than
+improving unconstrained model reasoning; a sole allowed sentence needs zero model calls.

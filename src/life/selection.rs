@@ -182,7 +182,15 @@ impl Life {
     }
 }
 fn terms(s: &str) -> std::collections::BTreeSet<String> {
-    s.to_lowercase().split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()).map(str::to_owned).collect()
+    let mut terms = std::collections::BTreeSet::new();
+    let lower = s.to_lowercase();
+    for word in lower.split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()) {
+        if word.chars().count() > 3 && word.ends_with('s') {
+            terms.insert(word[..word.len() - 1].to_owned());
+        }
+        terms.insert(word.to_owned());
+    }
+    terms
 }
 
 #[cfg(test)]

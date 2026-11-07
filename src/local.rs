@@ -23,10 +23,11 @@ pub fn process(v: &Value) -> Result<Value> {
             )?
             .to_value())
         }
-        "source-speech" => {
+        "source-speech" | "required-speech" => {
+            let allow_unknown = c::text(c::get(v, "kind")?)? == "source-speech";
             c::fields(a, &["answers", "calls"])?;
             let answers = crate::dialogue::Answers::from_value(c::get(a, "answers")?)?;
-            let schema = answers.speech_schema()?;
+            let schema = answers.speech_schema_with_unknown(allow_unknown)?;
             let calls = c::list(c::get(a, "calls")?)?;
             if calls.len() > 32 {
                 return Err(c::bad());
@@ -39,9 +40,12 @@ pub fn process(v: &Value) -> Result<Value> {
                     return Err(c::bad());
                 }
                 results.push(
-                    match answers.resolve_speech(c::text(c::get(call, "text")?)?, c::get(call, "context")?, |s| {
-                        available.iter().any(|x| x.same(s))
-                    }) {
+                    match answers.resolve_speech_with_unknown(
+                        c::text(c::get(call, "text")?)?,
+                        c::get(call, "context")?,
+                        allow_unknown,
+                        |s| available.iter().any(|x| x.same(s)),
+                    ) {
                         Ok(v) => obj! {"ok"=>true,"result"=>v},
                         Err(_) => obj! {"ok"=>false},
                     },

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "baseline": "overnight-optional-recall-baseline.json",
+  "expected_tokens": [
+    1
+  ],
+  "recalled_tokens": [
+    1
+  ],
+  "campaign_events": 4000,
+  "restores": 40,
+  "accepted_promise_checks": 40,
+  "optional_preference_queries": 6,
+  "compiled_packets_equal_to_live_holdout": 12,
+  "live_plan_sha256": "1fd843ae49ca355ed3c3d8b187379cf4627f3270e0dc812843a11e2c50aee5cd",
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Optional preference queries use no mandatory anchors and simple trailing-s lexical aliases, not semantic retrieval. Required correction and promise anchors remain host supplied. All 12 compiled packets equal the frozen live-tested holdout, so no additional generation is counted."
+}

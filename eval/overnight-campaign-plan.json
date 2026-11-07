@@ -1,0 +1,1591 @@
+{
+  "version": 1,
+  "events": 4000,
+  "chapters_per_character": 10,
+  "restores": 40,
+  "accepted_promise_checks": 40,
+  "guard_model_calls": 0,
+  "packets": [
+    {
+      "actor": "merchant",
+      "player": "player_1",
+      "family": "preference",
+      "required_tokens": [
+        1
+      ],
+      "selected": [
+        {
+          "token": 1,
+          "at": 1,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_1",
+            "speaker": "player_1",
+            "text": "player_1 said: I prefer amber wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: I prefer amber wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "merchant",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "amber",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "preference",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer amber wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as merchant to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":1,\"at\":1,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_1\",\"speaker\":\"player_1\",\"text\":\"player_1 said: I prefer amber wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: I prefer amber wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"merchant\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer amber wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick would suit me?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer amber wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "merchant",
+      "player": "player_1",
+      "family": "correction",
+      "required_tokens": [
+        2,
+        3
+      ],
+      "selected": [
+        {
+          "token": 2,
+          "at": 2,
+          "kind": "direct",
+          "tag": "name",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_2",
+            "speaker": "player_1",
+            "text": "player_1 said: My name is Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: My name is Vira.",
+          "causes": [],
+          "retain": true
+        },
+        {
+          "token": 3,
+          "at": 3,
+          "kind": "correction",
+          "tag": "correction",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_3",
+            "speaker": "player_1",
+            "text": "player_1 corrected the name: Vela, not Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 corrected the name: Vela, not Vira.",
+          "causes": [
+            2
+          ],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "merchant",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "vela",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "correction",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Hello, Vela."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as merchant to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":2,\"at\":2,\"kind\":\"direct\",\"tag\":\"name\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_2\",\"speaker\":\"player_1\",\"text\":\"player_1 said: My name is Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: My name is Vira.\",\"causes\":[],\"retain\":true},{\"token\":3,\"at\":3,\"kind\":\"correction\",\"tag\":\"correction\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_3\",\"speaker\":\"player_1\",\"text\":\"player_1 corrected the name: Vela, not Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 corrected the name: Vela, not Vira.\",\"causes\":[2],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"merchant\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Hello, Vela."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nPlease greet me by name."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Hello, Vela.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "merchant",
+      "player": "player_1",
+      "family": "promise",
+      "required_tokens": [
+        4
+      ],
+      "selected": [
+        {
+          "token": 4,
+          "at": 4,
+          "kind": "direct",
+          "tag": "promise",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_4",
+            "speaker": "player_1",
+            "text": "player_1 promised to return the borrowed lamp; still unfulfilled."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 promised to return the borrowed lamp; still unfulfilled.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "merchant",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "lamp",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "promise",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Your promise to return the borrowed lamp is still open."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as merchant to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":4,\"at\":4,\"kind\":\"direct\",\"tag\":\"promise\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_4\",\"speaker\":\"player_1\",\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"merchant\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Your promise to return the borrowed lamp is still open."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhat should I take care of first?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Your promise to return the borrowed lamp is still open.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "merchant",
+      "player": "player_2",
+      "family": "other_player",
+      "required_tokens": [
+        5
+      ],
+      "selected": [
+        {
+          "token": 5,
+          "at": 5,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_2",
+          "source": {
+            "id": "campaign_receipt_5",
+            "speaker": "player_2",
+            "text": "player_2 said: I prefer blue wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_2 said: I prefer blue wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [],
+      "needle": "blue",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_2",
+            "topic": "other_player",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer blue wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as merchant to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_2\",\"kind\":\"trust\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":0,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":0,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_2\",\"kind\":\"resentment\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":5,\"at\":5,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_2\",\"source\":{\"id\":\"campaign_receipt_5\",\"speaker\":\"player_2\",\"text\":\"player_2 said: I prefer blue wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_2 said: I prefer blue wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[],\"progress\":[]},\"facts\":{\"question_subject\":\"player_2\",\"utterance_speaker\":\"player_2\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_2. First-person I/my in the current request refers to that speaker. Question subject: player_2. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer blue wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick matches my taste?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer blue wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "keeper",
+      "player": "player_1",
+      "family": "preference",
+      "required_tokens": [
+        1
+      ],
+      "selected": [
+        {
+          "token": 1,
+          "at": 1,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_1",
+            "speaker": "player_1",
+            "text": "player_1 said: I prefer amber wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: I prefer amber wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "keeper",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "amber",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "preference",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer amber wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as keeper to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Tovin keeps witness records and honors accepted promises.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":1,\"at\":1,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_1\",\"speaker\":\"player_1\",\"text\":\"player_1 said: I prefer amber wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: I prefer amber wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"keeper\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[merchant -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[keeper -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer amber wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick would suit me?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer amber wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "keeper",
+      "player": "player_1",
+      "family": "correction",
+      "required_tokens": [
+        2,
+        3
+      ],
+      "selected": [
+        {
+          "token": 2,
+          "at": 2,
+          "kind": "direct",
+          "tag": "name",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_2",
+            "speaker": "player_1",
+            "text": "player_1 said: My name is Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: My name is Vira.",
+          "causes": [],
+          "retain": true
+        },
+        {
+          "token": 3,
+          "at": 3,
+          "kind": "correction",
+          "tag": "correction",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_3",
+            "speaker": "player_1",
+            "text": "player_1 corrected the name: Vela, not Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 corrected the name: Vela, not Vira.",
+          "causes": [
+            2
+          ],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "keeper",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "vela",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "correction",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Hello, Vela."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as keeper to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Tovin keeps witness records and honors accepted promises.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":2,\"at\":2,\"kind\":\"direct\",\"tag\":\"name\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_2\",\"speaker\":\"player_1\",\"text\":\"player_1 said: My name is Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: My name is Vira.\",\"causes\":[],\"retain\":true},{\"token\":3,\"at\":3,\"kind\":\"correction\",\"tag\":\"correction\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_3\",\"speaker\":\"player_1\",\"text\":\"player_1 corrected the name: Vela, not Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 corrected the name: Vela, not Vira.\",\"causes\":[2],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"keeper\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[merchant -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[keeper -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Hello, Vela."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nPlease greet me by name."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Hello, Vela.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "keeper",
+      "player": "player_1",
+      "family": "promise",
+      "required_tokens": [
+        4
+      ],
+      "selected": [
+        {
+          "token": 4,
+          "at": 4,
+          "kind": "direct",
+          "tag": "promise",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_4",
+            "speaker": "player_1",
+            "text": "player_1 promised to return the borrowed lamp; still unfulfilled."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 promised to return the borrowed lamp; still unfulfilled.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "keeper",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "lamp",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "promise",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Your promise to return the borrowed lamp is still open."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as keeper to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Tovin keeps witness records and honors accepted promises.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":4,\"at\":4,\"kind\":\"direct\",\"tag\":\"promise\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_4\",\"speaker\":\"player_1\",\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"keeper\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[merchant -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[keeper -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Your promise to return the borrowed lamp is still open."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhat should I take care of first?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Your promise to return the borrowed lamp is still open.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "keeper",
+      "player": "player_2",
+      "family": "other_player",
+      "required_tokens": [
+        5
+      ],
+      "selected": [
+        {
+          "token": 5,
+          "at": 5,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_2",
+          "source": {
+            "id": "campaign_receipt_5",
+            "speaker": "player_2",
+            "text": "player_2 said: I prefer blue wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_2 said: I prefer blue wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [],
+      "needle": "blue",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_2",
+            "topic": "other_player",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer blue wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as keeper to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Tovin keeps witness records and honors accepted promises.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_2\",\"kind\":\"trust\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":0,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":0,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_2\",\"kind\":\"resentment\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":5,\"at\":5,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_2\",\"source\":{\"id\":\"campaign_receipt_5\",\"speaker\":\"player_2\",\"text\":\"player_2 said: I prefer blue wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_2 said: I prefer blue wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[],\"progress\":[]},\"facts\":{\"question_subject\":\"player_2\",\"utterance_speaker\":\"player_2\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[merchant -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[keeper -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_2. First-person I/my in the current request refers to that speaker. Question subject: player_2. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer blue wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick matches my taste?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer blue wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "companion",
+      "player": "player_1",
+      "family": "preference",
+      "required_tokens": [
+        1
+      ],
+      "selected": [
+        {
+          "token": 1,
+          "at": 1,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_1",
+            "speaker": "player_1",
+            "text": "player_1 said: I prefer amber wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: I prefer amber wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "companion",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "amber",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "preference",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer amber wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as companion to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Meral values steady help and asks before taking risks.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":1,\"at\":1,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_1\",\"speaker\":\"player_1\",\"text\":\"player_1 said: I prefer amber wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: I prefer amber wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"companion\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[companion -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer amber wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick would suit me?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer amber wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "companion",
+      "player": "player_1",
+      "family": "correction",
+      "required_tokens": [
+        2,
+        3
+      ],
+      "selected": [
+        {
+          "token": 2,
+          "at": 2,
+          "kind": "direct",
+          "tag": "name",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_2",
+            "speaker": "player_1",
+            "text": "player_1 said: My name is Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 said: My name is Vira.",
+          "causes": [],
+          "retain": true
+        },
+        {
+          "token": 3,
+          "at": 3,
+          "kind": "correction",
+          "tag": "correction",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_3",
+            "speaker": "player_1",
+            "text": "player_1 corrected the name: Vela, not Vira."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 corrected the name: Vela, not Vira.",
+          "causes": [
+            2
+          ],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "companion",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "vela",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "correction",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Hello, Vela."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as companion to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Meral values steady help and asks before taking risks.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":2,\"at\":2,\"kind\":\"direct\",\"tag\":\"name\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_2\",\"speaker\":\"player_1\",\"text\":\"player_1 said: My name is Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: My name is Vira.\",\"causes\":[],\"retain\":true},{\"token\":3,\"at\":3,\"kind\":\"correction\",\"tag\":\"correction\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_3\",\"speaker\":\"player_1\",\"text\":\"player_1 corrected the name: Vela, not Vira.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 corrected the name: Vela, not Vira.\",\"causes\":[2],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"companion\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[companion -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Hello, Vela."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nPlease greet me by name."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Hello, Vela.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "companion",
+      "player": "player_1",
+      "family": "promise",
+      "required_tokens": [
+        4
+      ],
+      "selected": [
+        {
+          "token": 4,
+          "at": 4,
+          "kind": "direct",
+          "tag": "promise",
+          "subject": "player_1",
+          "source": {
+            "id": "campaign_receipt_4",
+            "speaker": "player_1",
+            "text": "player_1 promised to return the borrowed lamp; still unfulfilled."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_1 promised to return the borrowed lamp; still unfulfilled.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [
+        {
+          "id": 1,
+          "subject": "player_1",
+          "attribute": "promise",
+          "value": {
+            "beneficiary": "companion",
+            "task": "Return the borrowed lamp."
+          },
+          "status": "reported",
+          "source": {
+            "id": "open_promise",
+            "speaker": "player_1",
+            "text": "I will return the borrowed lamp."
+          }
+        }
+      ],
+      "needle": "lamp",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_1",
+            "topic": "promise",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "Your promise to return the borrowed lamp is still open."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as companion to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Meral values steady help and asks before taking risks.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":4,\"at\":4,\"kind\":\"direct\",\"tag\":\"promise\",\"subject\":\"player_1\",\"source\":{\"id\":\"campaign_receipt_4\",\"speaker\":\"player_1\",\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 promised to return the borrowed lamp; still unfulfilled.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[{\"id\":1,\"subject\":\"player_1\",\"attribute\":\"promise\",\"value\":{\"beneficiary\":\"companion\",\"task\":\"Return the borrowed lamp.\"},\"status\":\"reported\",\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}],\"progress\":[{\"id\":1,\"state\":\"accepted\",\"revision\":1,\"source\":{\"id\":\"open_promise\",\"speaker\":\"player_1\",\"text\":\"I will return the borrowed lamp.\"}}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[companion -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: Your promise to return the borrowed lamp is still open."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhat should I take care of first?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Your promise to return the borrowed lamp is still open.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    },
+    {
+      "actor": "companion",
+      "player": "player_2",
+      "family": "other_player",
+      "required_tokens": [
+        5
+      ],
+      "selected": [
+        {
+          "token": 5,
+          "at": 5,
+          "kind": "direct",
+          "tag": "preference",
+          "subject": "player_2",
+          "source": {
+            "id": "campaign_receipt_5",
+            "speaker": "player_2",
+            "text": "player_2 said: I prefer blue wicks."
+          },
+          "audience": [
+            "player_1",
+            "player_2",
+            "guard",
+            "merchant",
+            "keeper",
+            "companion"
+          ],
+          "text": "player_2 said: I prefer blue wicks.",
+          "causes": [],
+          "retain": true
+        }
+      ],
+      "promise_notes": [],
+      "needle": "blue",
+      "answers": {
+        "version": 1,
+        "scope": "campaign_save",
+        "revision": 1000,
+        "unknown": "I don't know.",
+        "cards": [
+          {
+            "id": "selected",
+            "subject": "player_2",
+            "topic": "other_player",
+            "kind": "state",
+            "source": "archived_campaign",
+            "text": "You told me you prefer blue wicks."
+          }
+        ]
+      },
+      "request": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Reply as companion to the addressing player, in one short sentence. Quoted reports and claims remain attributed. Current correction overrides the old name. Only choose an authorized reply; return speech JSON."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Meral values steady help and asks before taking risks.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},{\"id\":\"old_watch\",\"kind\":\"private\",\"text\":\"The blue watchword is copper sparrow.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"tavern\",\"description\":\"A host-confirmed meeting after the counter and stair chapters.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"campaign_save\",\"revision\":1030,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_2\",\"kind\":\"trust\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":0,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":0,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_2\",\"kind\":\"resentment\",\"subject\":\"player_2\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{\"episodes\":[{\"token\":5,\"at\":5,\"kind\":\"direct\",\"tag\":\"preference\",\"subject\":\"player_2\",\"source\":{\"id\":\"campaign_receipt_5\",\"speaker\":\"player_2\",\"text\":\"player_2 said: I prefer blue wicks.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_2 said: I prefer blue wicks.\",\"causes\":[],\"retain\":true}],\"accepted_notes\":[],\"progress\":[]},\"facts\":{\"question_subject\":\"player_2\",\"utterance_speaker\":\"player_2\",\"fact_subjects\":{}}}}"
+          },
+          {
+            "role": "user",
+            "content": "[keeper -> player_2] player_2 told me they prefer blue wicks."
+          },
+          {
+            "role": "assistant",
+            "content": "[companion -> player_1] I will use what you told me."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_2. First-person I/my in the current request refers to that speaker. Question subject: player_2. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Select the authorized sentence verbatim: You told me you prefer blue wicks."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhich wick matches my taste?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer blue wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 2041,
+          "num_predict": 96
+        }
+      }
+    }
+  ],
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Original deterministic campaign; fixed synthetic chapter noise, not 1000 generated exchanges. Host explicitly enables guard Life for storage tests; its ambient voice remains zero-model. Host filters current validated attitudes by player. Hearing/delivery are simulated host confirmations, not physical audio. This combines previously tested memory facts, so it is integration/regression evidence, not unseen semantic accuracy."
+}

@@ -1347,3 +1347,19 @@ player-switch commands. `test_studio_context.mjs --cap 0` checks six offline bro
 request/poll scenarios; it supplements the frozen five audio lifecycle scenarios.
 The `--semantic` causality fixture corrects the new arithmetic fixture's reused narration
 without rewriting that earlier fixture or any project baseline expectations.
+
+`overnight_campaign_live.py --cap 0 --build --holdout --output NEW.json` creates four
+1,000-event sessions and forty fresh restores. First build the public host adapter with
+`rustc --edition=2021 eval/overnight_campaign_compile.rs -L dependency=target/release/deps
+--extern gamectx=target/release/libgamectx.rlib -o target/overnight-campaign-compile`
+after `cargo build --release --locked` and building the native library (or use `--cli`).
+The default renderer applies PartyScene gates; `--legacy-renderer` is an explicit failed
+harness reproduction, not a recommended host. `--optional-preferences` exercises archived
+lexical preference selection without mandatory preference anchors. Build and tokenize
+before live generation; `--required` selects question-specific required answers.
+`overnight_campaign_audit.py --cap 0 --check eval/overnight-campaign-review.json` audits
+the frozen failed and corrected live cohorts without calling a model.
+`overnight_required_speech_cases.py --cap 0` checks four independent policy workflows.
+The final optional preference trace reproduces all twelve previously live-tested packets;
+it is not counted as another live model cohort. The complete report records 230 local
+calls and the possible single interrupted unrecorded call, with $0 API spend.

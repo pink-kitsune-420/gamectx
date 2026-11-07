@@ -120,11 +120,22 @@ impl Answers {
     /// The model selects wording; host-approved cards supply every character. This
     /// deliberately trades free expression for bounded source validation.
     pub fn speech_schema(&self) -> Result<Value> {
+        self.speech_schema_with_unknown(true)
+    }
+    /// Exclude generic deferral only when the host has supplied question-specific answers.
+    /// At least one authorized sentence is then required. This is a host policy, not an
+    /// assertion that arbitrary retrieved cards answer the current question.
+    pub fn speech_schema_with_unknown(&self, allow_unknown: bool) -> Result<Value> {
         let mut choices = Vec::<Value>::new();
         for card in c::list(c::get(&self.value, "cards")?)? {
             choices.push(Self::spoken_card(card)?.into());
         }
-        choices.push(c::get(&self.value, "unknown")?.clone());
+        if allow_unknown {
+            choices.push(c::get(&self.value, "unknown")?.clone());
+        }
+        if choices.is_empty() {
+            return Err(c::bad());
+        }
         for (i, line) in choices.iter().enumerate() {
             let s = c::text(line)?;
             if s.chars().count() > 240
@@ -146,11 +157,22 @@ impl Answers {
         context: &Value,
         available: impl FnOnce(&Value) -> bool,
     ) -> Result<Value> {
-        self.speech_schema()?;
+        self.resolve_speech_with_unknown(input, context, true, available)
+    }
+    /// Apply the same explicit unknown policy at validation time, including sources for
+    /// host-approved sentences expressing a known absence of information.
+    pub fn resolve_speech_with_unknown(
+        &self,
+        input: &str,
+        context: &Value,
+        allow_unknown: bool,
+        available: impl FnOnce(&Value) -> bool,
+    ) -> Result<Value> {
+        self.speech_schema_with_unknown(allow_unknown)?;
         let reply = crate::json::parse(input, 4096)?;
         c::fields(&reply, &["speech"])?;
         let spoken = text(&reply, "speech")?;
-        let id = if c::get(&self.value, "unknown")?.as_str() == Some(spoken) {
+        let id = if allow_unknown && c::get(&self.value, "unknown")?.as_str() == Some(spoken) {
             "unknown"
         } else {
             let card = c::list(c::get(&self.value, "cards")?)?

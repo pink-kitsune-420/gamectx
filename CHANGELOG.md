@@ -546,3 +546,13 @@ First public release.
   headers; the browser captures intent scope before awaits, coalesces state refreshes and
   restores rejected input. Offline reordered-request holdout changes an unintended
   player_2 purchase into HTTP 409 without a purchase; six browser context scenarios pass.
+- [api] [format] Add explicit optional/required unknown policy to authorized speech;
+  keep the original methods unchanged. Four additive cases close unnecessary generic
+  deferrals and preserve source validation for authored uncertainty. Grounded Web replies
+  use required answers and retain their immediate line when only one variant exists.
+
+- [fix] Normalize the already accepted uppercase model-tier suffix in Web route assembly.
+- [format] Add one archived plural-preference selection case and a bounded trailing-s
+  lexical alias; all prior conformance outputs remain unchanged. Final restored-cast
+  paired evidence reports 3/12→12/12 required replies under host-authored answer policy,
+  with failed evaluation-gate integration retained and corrected using PartyScene APIs.

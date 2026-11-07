@@ -1991,3 +1991,19 @@ host-chosen focus ID. The complete request is at most 65,536 bytes. Output is
 supports polite prefixes, a few explicit verb aliases and scoped pronouns. No fuzzy
 purchase guessing, batch execution or model dispatch occurs. Hosts own focus age/scope.
 26 additive cases include malformed controls, duplicate pairs and invalid focus types.
+
+### Question-specific required speech
+
+`Answers::speech_schema_with_unknown(false)` excludes generic deferral when the host
+has already supplied question-specific authorized answers. At least one card is then
+required. `resolve_speech_with_unknown(..., false, ...)` enforces that same choice set and
+rechecks source availability even when a card expresses known absence of information.
+The original methods delegate with `true`, preserving every existing output. The
+additive `required-speech` adapter has the same `{answers,calls}` shape as `source-speech`.
+Four new cases cover known replies, rejected generic deferral, source-bound known absence,
+and empty/duplicate cards. A single question-specific choice needs no model selection;
+the Studio keeps its immediate authored line in that case.
+
+Selected-episode lexical ranking also includes a simple trailing-`s` alias for words
+longer than three characters (`wicks` / `wick`), with no semantic inference. One additive
+archived-preference case establishes this behavior; existing expected outputs stay fixed.
