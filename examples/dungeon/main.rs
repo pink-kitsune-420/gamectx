@@ -142,6 +142,8 @@ fn run() -> Result<()> {
     let mut web_port = 8787u16;
     let mut web_cap = 0u64;
     let mut web_config = None::<String>;
+    let mut voice_root = None::<String>;
+    let mut lan = None::<String>;
     let mut web_state = "target/lantern-studio".to_owned();
     let mut seed = 7;
     let mut replay_path = None;
@@ -158,8 +160,17 @@ fn run() -> Result<()> {
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --web [--port 8787] [--cap 0] [--web-config FILE] [--web-state DIR]\n                          loopback RPG, assets and voice studio; cap is USD\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --count-cache N        opt-in exact-request token-count reuse, 0..64 entries\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural/natural-scaled (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --life-demo [--life-tools] offline life/continuity demo with size-scaled context\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --web [--port 8787] [--cap 0] [--web-config FILE] [--web-state DIR]\n                          loopback RPG, assets and voice studio; cap is USD\n  --lan PRIVATE_IPV4     optional player-2 LAN invitation; host stays on loopback\n  --configure-voice DIR  register separately installed local-voice pack\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --count-cache N        opt-in exact-request token-count reuse, 0..64 entries\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural/natural-scaled (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --life-demo [--life-tools] offline life/continuity demo with size-scaled context\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
+            }
+            "--lan" => {
+                i += 1;
+                lan = Some(args.get(i).ok_or_else(|| Error::new("missing LAN address"))?.clone());
+            }
+            "--configure-voice" => {
+                i += 1;
+                voice_root =
+                    Some(args.get(i).ok_or_else(|| Error::new("missing voice installation directory"))?.clone());
             }
             "--web" => mode = "web",
             "--port" | "--cap" | "--web-config" | "--web-state" => {
@@ -246,7 +257,13 @@ fn run() -> Result<()> {
         }
         i += 1;
     }
+    if let Some(root) = voice_root {
+        return web::configure_voice(&root, &web_state);
+    }
     if mode == "web" {
+        if let Some(address) = lan {
+            return web::run_lan(seed, web_port, web_cap, web_config.as_deref(), &web_state, &address);
+        }
         return web::run(seed, web_port, web_cap, web_config.as_deref(), &web_state);
     }
     if mode == "life-demo" {

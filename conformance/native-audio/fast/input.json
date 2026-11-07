@@ -1,0 +1,1 @@
+{"kind":"studio-native-audio","args":{"engine":"piper","request":{"model":"piper","input":"Welcome, traveler.","voice":"merchant","speed":2,"response_format":"wav"}}}

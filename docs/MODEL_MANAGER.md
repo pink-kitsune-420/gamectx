@@ -5,7 +5,7 @@ weight residency, starts configured local services, and shows which operation is
 The Rust library remains dependency-free; the model servers are separate applications.
 Existing configurations keep their earlier behavior until model profiles are enabled.
 
-Open **Models & Services**, click **Scan models / services**, configure the profiles and
+Open **Settings → Models**, click **Scan models / services**, configure the profiles and
 click **Apply model policy**. The default normal profiles are Qwen 2.5 3B and SD 1.5 Q8;
 the scanner can bind the normal Qwen profile to the installed 3B alias already used by the
 host. The optional dramatic defaults are Qwen 2.5 7B (8B context class) and SDXL. Larger
@@ -84,7 +84,9 @@ file as the default. Browser requests supply only validated action/profile IDs; 
 cannot submit executable paths, shell commands, environment maps or file-system paths.
 Commands use argv arrays with no shell. `${GAMECTX_SD_SERVER}` and
 `${GAMECTX_IMAGE_MODELS}` can locate the image executable/model root. TTS/STT have empty
-launch commands until the host configures its installed compatible service. Optional
+launch commands until the host configures its installed compatible service. The optional
+[native voice adapter](NATIVE_VOICE.md) instead runs separately installed Piper/whisper.cpp
+CLIs per request without a persistent HTTP server. Optional
 per-service `models` maps model IDs to specific argv arrays, allowing different voice or
 transcription weight files without exposing their paths to the browser. Scan reloads the
 trusted launcher file. API model names do not install an unconfigured service.

@@ -78,7 +78,10 @@ fn read(stream: &mut TcpStream) -> Result<Incoming> {
     Ok(Incoming { method, path, headers, body: raw[split..].into() })
 }
 fn response(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8]) -> Result<()> {
-    write!(stream,"HTTP/1.1 {} {}\r\nContent-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'\r\n\r\n",status,if status==200{"OK"}else{"Rejected"},mime,body.len()).map_err(|_|err())?;
+    response_header(stream, status, mime, body, "")
+}
+fn response_header(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8], extra: &str) -> Result<()> {
+    write!(stream,"HTTP/1.1 {} {}\r\n{}Content-Type: {}\r\nContent-Length: {}\r\nConnection: close\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: no-referrer\r\nContent-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'\r\n\r\n",status,if status==200{"OK"}else{"Rejected"},extra,mime,body.len()).map_err(|_|err())?;
     stream.write_all(body).map_err(|_| err())?;
     Ok(())
 }
@@ -119,12 +122,84 @@ fn worker(app: Arc<Mutex<App>>, rx: std::sync::mpsc::Receiver<Job>, mut transpor
         }
     }
 }
-fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>, port: u16) -> Result<()> {
+fn handle(
+    stream: &mut TcpStream,
+    app: &Arc<Mutex<App>>,
+    queue: &SyncSender<Job>,
+    port: u16,
+    session: &Option<Arc<Mutex<super::session::Session>>>,
+) -> Result<()> {
     let request = read(stream)?;
-    let host = format!("127.0.0.1:{port}");
+    let host = format!("{}:{port}", stream.local_addr().map_err(|_| err())?.ip());
+    let guest = stream.local_addr().map_err(|_| err())?.ip() != std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST);
     let header = |name: &str| request.headers.iter().find(|(k, _)| k == name).map(|(_, v)| v.as_str());
     if header("host") != Some(host.as_str()) || header("origin").is_some_and(|o| o != format!("http://{host}")) {
         return response(stream, 403, "text/plain", b"Loopback origin required.");
+    }
+    if guest {
+        let session = session.as_ref().ok_or_else(err)?;
+        if request.method == "GET" {
+            match request.path.as_str() {
+                "/" | "/join" => return response(stream, 200, "text/html", include_bytes!("guest.html")),
+                "/guest.mjs" => return response(stream, 200, "text/javascript", include_bytes!("guest.mjs")),
+                "/studio.css" => return response(stream, 200, "text/css", include_bytes!("studio.css")),
+                _ => {}
+            }
+        }
+        if request.method == "POST" && request.path == "/api/join" {
+            if header("x-studio-request") != Some("1") || header("content-type") != Some("application/json") {
+                return response(stream, 403, "text/plain", b"JSON join required.");
+            }
+            let args = gamectx::json::parse(std::str::from_utf8(&request.body).map_err(|_| err())?, 256)?;
+            fields(&args, &["code"])?;
+            match session.lock().map_err(|_| err())?.join(text(&args, "code")?) {
+                Ok(token) => {
+                    app.lock().map_err(|_| err())?.share();
+                    return response_header(
+                        stream,
+                        200,
+                        "application/json",
+                        b"{\"ok\":true}",
+                        &format!("Set-Cookie: lantern_guest={token}; HttpOnly; SameSite=Strict; Path=/\r\n"),
+                    );
+                }
+                Err(e) => {
+                    return response(
+                        stream,
+                        403,
+                        "application/json",
+                        obj! {"ok"=>false,"error"=>e.to_string()}.to_json().as_bytes(),
+                    )
+                }
+            }
+        }
+        if !session.lock().map_err(|_| err())?.authorized(header("cookie")) {
+            return response(
+                stream,
+                401,
+                "application/json",
+                b"{\"ok\":false,\"error\":\"Join the host session first.\"}",
+            );
+        }
+        if request.method == "GET" && request.path == "/api/guest" {
+            return response(
+                stream,
+                200,
+                "application/json",
+                app.lock().map_err(|_| err())?.guest_state().to_json().as_bytes(),
+            );
+        }
+        if request.method != "POST" || !["/api/guest_chat", "/api/guest_read"].contains(&request.path.as_str()) {
+            return response(
+                stream,
+                403,
+                "application/json",
+                b"{\"ok\":false,\"error\":\"This control belongs to the host.\"}",
+            );
+        }
+    } else if request.method == "GET" && request.path == "/api/session" {
+        let value = session.as_ref().map_or(obj! {"enabled"=>false}, |s| s.lock().unwrap().info(port));
+        return response(stream, 200, "application/json", value.to_json().as_bytes());
     }
     if request.method == "GET" {
         let static_file = match request.path.as_str() {
@@ -141,7 +216,11 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             return response(stream, 200, mime, body);
         }
         if request.path == "/api/state" {
-            let v = app.lock().map_err(|_| err())?.state()?;
+            let mut current = app.lock().map_err(|_| err())?;
+            if session.is_some() {
+                current.lock_host_player();
+            }
+            let v = current.state()?;
             return response(stream, 200, "application/json", v.to_json().as_bytes());
         }
         if let Some(query) = request.path.strip_prefix("/api/asset/") {
@@ -166,6 +245,14 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
     let op = request.path.strip_prefix("/api/").ok_or_else(err)?;
     let args = gamectx::json::parse(std::str::from_utf8(&request.body).map_err(|_| err())?, providers::MAX_BYTES)?;
     let mut current = app.lock().map_err(|_| err())?;
+    if guest && header("x-studio-generation").is_none() {
+        return response(
+            stream,
+            400,
+            "application/json",
+            b"{\"ok\":false,\"error\":\"Refresh the shared scene before sending.\"}",
+        );
+    }
     if let Some(generation) = header("x-studio-generation") {
         if generation.is_empty()
             || generation.len() > 20
@@ -188,15 +275,54 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             );
         }
     }
-    let (value, jobs) = match current.command(op, &args) {
+    if !guest && session.is_some() {
+        current.lock_host_player();
+        if op == "session_rotate" {
+            fields(&args, &[])?;
+            session.as_ref().unwrap().lock().map_err(|_| err())?.rotate()?;
+            current.release_guest()?;
+            current.share();
+            super::native_voice::cancel();
+            return response(stream, 200, "application/json", b"{\"ok\":true,\"result\":{\"rotated\":true}}");
+        }
+        if op == "select" && args.get("player").and_then(Value::as_str) != Some("player_1") {
+            return response(
+                stream,
+                403,
+                "application/json",
+                b"{\"ok\":false,\"error\":\"Player 2 belongs to the joined guest.\"}",
+            );
+        }
+        if (["chat", "act", "select", "mic", "promise"].contains(&op) && current.floor() == Some("player_2"))
+            || (["delivery", "synthesize"].contains(&op) && !current.host_delivery())
+        {
+            return response(
+                stream,
+                409,
+                "application/json",
+                b"{\"ok\":false,\"error\":\"Player 2 holds the conversation turn.\"}",
+            );
+        }
+    }
+    let (value, jobs) = match if guest { current.guest_command(op, &args) } else { current.command(op, &args) } {
         Ok(result) => result,
         Err(_) => {
             let epoch = current.epoch;
             drop(current);
-            return response(stream,400,"application/json",obj! {"ok"=>false,"error"=>if op=="settings"{"Settings were not applied. Check the model name, voice values and authorized spending cap."}else{"That request could not be applied to the current game. Refresh and try again."},"generation"=>epoch}.to_json().as_bytes());
+            return response(stream,400,"application/json",obj! {"ok"=>false,"error"=>if op=="settings"{"Settings were not applied. Check the model name, voice values and authorized spending cap."}else if guest {"The turn is busy, the character is elsewhere, or this is a world action. Send conversation to a present character after the current reply."}else{"That request could not be applied to the current game. Refresh and try again."},"generation"=>epoch}.to_json().as_bytes());
         }
     };
+    if !guest && session.is_some() {
+        current.lock_host_player();
+    }
     let generation = current.epoch;
+    if (op == "delivery" && args.get("event").and_then(Value::as_str) == Some("interrupted"))
+        || op == "recognition"
+        || op == "reset"
+        || (op == "manager_action" && args.get("action").and_then(Value::as_str) == Some("stop"))
+    {
+        super::native_voice::cancel();
+    }
     drop(current);
     for job in jobs {
         if let Err(error) = queue.try_send(job) {
@@ -214,9 +340,25 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
     )
 }
 pub fn serve(seed: u32, port: u16, cap: u64, config: Config, dir: PathBuf) -> Result<()> {
+    serve_lan(seed, port, cap, config, dir, None)
+}
+pub fn serve_lan(
+    seed: u32,
+    port: u16,
+    cap: u64,
+    config: Config,
+    dir: PathBuf,
+    address: Option<std::net::Ipv4Addr>,
+) -> Result<()> {
+    let session = address.map(super::session::Session::new).transpose()?.map(|s| Arc::new(Mutex::new(s)));
     let app = Arc::new(Mutex::new(App::new(seed, cap, config, dir.clone())?));
     let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, port)).map_err(|_| err())?;
     let port = listener.local_addr().map_err(|_| err())?.port();
+    let lan_listener = if let Some(address) = address {
+        Some(TcpListener::bind((address, port)).map_err(|_| Error::new("Could not bind that LAN address/port."))?)
+    } else {
+        None
+    };
     let (tx, rx) = sync_channel(8);
     let state = app.clone();
     let manager = super::manager_runtime::Runtime::new(&dir)?;
@@ -231,7 +373,27 @@ pub fn serve(seed: u32, port: u16, cap: u64, config: Config, dir: PathBuf) -> Re
         }
     }
     println!("Lantern Vault studio: http://127.0.0.1:{port}/ (authorized cap: {cap} microdollars)");
+    if let Some(s) = &session {
+        println!("LAN invite: {}", s.lock().map_err(|_| err())?.info(port).to_json());
+    }
     let active = Arc::new(AtomicUsize::new(0));
+    if let Some(lan_listener) = lan_listener {
+        let app = app.clone();
+        let tx = tx.clone();
+        let active = active.clone();
+        let session = session.clone();
+        std::thread::spawn(move || accept(lan_listener, app, tx, port, active, session));
+    }
+    accept(listener, app, tx, port, active, session)
+}
+fn accept(
+    listener: TcpListener,
+    app: Arc<Mutex<App>>,
+    tx: SyncSender<Job>,
+    port: u16,
+    active: Arc<AtomicUsize>,
+    session: Option<Arc<Mutex<super::session::Session>>>,
+) -> Result<()> {
     for connection in listener.incoming() {
         let mut stream = connection.map_err(|_| err())?;
         if active.load(Ordering::SeqCst) >= 8 {
@@ -242,8 +404,9 @@ pub fn serve(seed: u32, port: u16, cap: u64, config: Config, dir: PathBuf) -> Re
         let active = active.clone();
         let app = app.clone();
         let queue = tx.clone();
+        let session = session.clone();
         std::thread::spawn(move || {
-            if handle(&mut stream, &app, &queue, port).is_err() {
+            if handle(&mut stream, &app, &queue, port, &session).is_err() {
                 let _ = response(
                     &mut stream,
                     400,

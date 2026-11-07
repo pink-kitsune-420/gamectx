@@ -798,3 +798,7 @@ Use **Models & Services** to choose normal/dramatic text and image profiles, aud
 residency and predictive warming. Configure what counts as dramatic or force a scene mode.
 Only installed/configured profiles are eligible; online calls remain under the launch cap.
 The [manager guide](MODEL_MANAGER.md) explains server ownership, art approval and limits.
+
+Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+
+Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.

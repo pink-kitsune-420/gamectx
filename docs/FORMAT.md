@@ -2036,3 +2036,17 @@ profile IDs and validated policy/bible data cross the browser boundary. Its `/ap
 adds `model_manager`, and visual selection adds a distinct `preview_asset` for labeled
 previous approved art. This is not approval or exact reuse for the newly requested key.
 Host launchers and executable arguments remain outside this protocol. See MODEL_MANAGER.md.
+
+Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+
+Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+
+`studio-native-audio` local requests contain exact `engine`/`request` fields. Piper requests
+contain `model,input,voice,speed,response_format`; Whisper requests contain `model`.
+Plans resolve aliases and fixed CPU/output controls only, never executable or weight paths.
+The private `native-voice.json` format has exact `version,tts,stt` fields; each channel has
+`executable` plus `voices` (TTS) or `models` (STT), bounded alias→path maps.
+LAN guest APIs are separate from existing host APIs: `POST /api/join {code}`,
+`GET /api/guest`, `POST /api/guest_chat {text,npc}`, `POST /api/guest_read {id}`.
+Authenticated cookies bind player 2; guest writes also carry scene generation headers.
+Only loopback hosts can read `/api/session` or `POST /api/session_rotate {}`.

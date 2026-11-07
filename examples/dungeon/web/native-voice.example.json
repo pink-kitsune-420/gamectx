@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "tts": {"executable": "", "voices": {}},
+  "stt": {"executable": "", "models": {}}
+}

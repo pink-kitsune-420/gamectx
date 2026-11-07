@@ -178,6 +178,9 @@ pub fn definite_failure(e: &Error) -> bool {
         || matches!(e.to_string().as_str(), "provider_connection" | "provider_http_404" | "provider_http_400")
 }
 pub fn failure_detail(e: &Error, backend: &str) -> &'static str {
+    if e.to_string().starts_with("manager:") {
+        return "Model/voice manager rejected or cancelled this request. Check Settings and the host log; fallback remains available.";
+    }
     match e.to_string().as_str() {
         "provider_connection" => {
             "Server connection failed. Start the local service or choose an offline/browser provider."

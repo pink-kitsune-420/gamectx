@@ -1,0 +1,28 @@
+{
+  "http_checks": 49,
+  "workflows": 10,
+  "shared_speakers": [
+    "host",
+    "merchant",
+    "player_1",
+    "player_2"
+  ],
+  "guest_identity": "player_2",
+  "host_identity": "player_1",
+  "guest_model_calls": 0,
+  "api_spend_usd": 0,
+  "actual_provider_calls": 0,
+  "cases": [
+    "join required",
+    "code validation",
+    "host-only state and controls",
+    "cross-origin rejection",
+    "fixed guest identity",
+    "host and guest floor isolation",
+    "guest world actions denied",
+    "attributed shared NPC dialogue",
+    "token rotation and floor recovery",
+    "new guest excludes previous transcript"
+  ],
+  "limits": "Real host HTTP on isolated loopback interfaces with 0B replies. Does not measure real Wi-Fi reliability, TLS, NAT traversal, physical microphones or live model quality."
+}

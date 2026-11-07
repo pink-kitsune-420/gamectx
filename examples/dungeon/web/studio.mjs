@@ -133,6 +133,8 @@ async function loadState(){
       $('transcript').scrollTop=$('transcript').scrollHeight;
     }
     if(s.speech){
+      $('play').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
+      $('interrupt').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
       $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated'})[s.speech.origin]||'Offline reply';
       $('speaker').textContent=s.speech.actor+' → '+s.speech.player;
       if(s.speech.id!==lastSpeech){
@@ -152,11 +154,11 @@ async function loadState(){
     $('current-reply').hidden=!s.speech;
     $('current-reply').classList.toggle('text-only',s.effective_backends.tts==='off');
     $('play').textContent=s.effective_backends.tts==='off'?'Read reply':'Play reply';
-    $('play').disabled=!s.speech||s.speech.delivery.done;
+    $('play').disabled=!s.speech||s.speech.delivery.done||Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
     $('stock').disabled=$('promise').disabled=!s.npc_present;
     const micUnsupported=s.effective_backends.stt==='browser_speech_recognition'&&!globalThis.SpeechRecognition&&!globalThis.webkitSpeechRecognition;
     $('mic').disabled=s.effective_backends.stt==='off'||micUnsupported;
-    $('mic').title=micUnsupported?'This browser does not support speech recognition. Type instead or use a local server.':s.effective_backends.stt==='off'?'Choose a microphone provider in Model setup.':'';
+    $('mic').title=micUnsupported?'This browser does not support speech recognition. Type instead or use a local server.':s.effective_backends.stt==='off'?'Choose a microphone provider in Settings → Voice.':'';
     $('interrupt').disabled=!s.speech||s.speech.delivery.done;
     image('scene-image',s.scene_asset.selection.asset||s.scene_asset.preview_asset);
     if(!s.scene_asset.selection.asset&&s.scene_asset.preview_asset)$('room-label').textContent+=' · previous approved art';
@@ -298,7 +300,24 @@ for(const id of ['text-backend','size'])$(id).addEventListener('change',()=>{$('
 for(const id of ['text-backend','image-backend','tts-backend','stt-backend','size','speech-mode','model','cap','voice-id','pitch','rate'])$(id).addEventListener('input',()=>renderSetup(state));
 $('installed-choice').onchange=()=>{if($('installed-choice').value){$('text-backend').value='local_ollama';$('model').value=$('installed-choice').value;renderSetup(state);}};
 $('check-providers').onclick=()=>invoke('check_providers').catch(()=>{});
-$('show-setup').onclick=()=>{$('models-panel').open=true;$('models-panel').scrollIntoView({behavior:'smooth',block:'start'});$('manager-enabled').focus({preventScroll:true});};
+function settingsTab(name){
+ for(const e of document.querySelectorAll('[data-settings-tab]'))e.setAttribute('aria-selected',String(e.dataset.settingsTab===name));
+ for(const e of document.querySelectorAll('.settings-page'))e.hidden=e.id!=='settings-'+name;
+ if(name==='connections')$('provider-panel').open=true;
+}
+for(const e of document.querySelectorAll('[data-settings-tab]'))e.onclick=()=>settingsTab(e.dataset.settingsTab);
+let sessionInfo={enabled:false};
+async function sessionSettings(){
+ try {sessionInfo=await(await fetch('/api/session')).json();
+  $('session-info').textContent=sessionInfo.enabled?`Share ${sessionInfo.url} and this session code with your friend: ${sessionInfo.code}`:'Local play. To invite a friend, start the host with --lan followed by its private IPv4 address.';
+  $('session-controls').replaceChildren();
+  if(sessionInfo.enabled){$('player').value='player_1';$('player').disabled=true;const b=document.createElement('button');b.textContent='Disconnect guest / New invitation';b.onclick=async()=>{await invoke('session_rotate');await sessionSettings();};$('session-controls').append(b);}
+ }catch{$('session-info').textContent='Session status unavailable.';}
+}
+$('show-setup').onclick=()=>{$('settings-dialog').showModal();settingsTab('models');sessionSettings();};
+$('voice-character-apply').onclick=()=>$('settings').click();
+$('settings-close').onclick=()=>$('settings-dialog').close();
+$('settings-dialog').addEventListener('click',e=>{if(e.target===$('settings-dialog')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
 let resetGeneration=0;
 $('new-game').onclick=()=>{resetGeneration=state.generation;$('reset-dialog').showModal();};
 $('cancel-reset').onclick=()=>$('reset-dialog').close();
@@ -497,7 +516,7 @@ $('mic').onclick=async()=>{
   }
 }
 ;
-await refresh();
+await refresh();await sessionSettings();
 setInterval(()=>refresh().catch(e=>$('notice').textContent=e.message),600);
 
 $('resume-local').onclick=()=>invoke('resume_local',{});

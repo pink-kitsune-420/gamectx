@@ -68,6 +68,10 @@ jobs:
       - run: python3 -I eval/model_manager_cases.py --cap 0
       - run: python3 -I eval/model_manager_host.py --cap 0
       - run: python3 -I eval/model_manager_owned.py --cap 0
+      - run: python3 -I eval/native_audio_cases.py --cap 0
+      - run: python3 -I eval/native_voice_host.py --cap 0
+      - run: python3 -I eval/lan_session_host.py --cap 0
+      - run: python3 -I eval/lan_model_host.py --cap 0
       - run: python3 -I eval/overnight_causality_cases.py --cap 0 --semantic
       - run: python3 -I eval/overnight_required_speech_cases.py --cap 0
       - run: python3 -I eval/overnight_campaign_audit.py --cap 0 --check eval/overnight-campaign-review.json
@@ -194,6 +198,8 @@ jobs:
       - run: node eval/overnight_bindings_check.mjs --cap 0
       - run: python3 -I eval/model_manager_bindings.py --cap 0
       - run: node eval/model_manager_bindings.mjs --cap 0
+      - run: python3 -I eval/native_audio_bindings.py --cap 0
+      - run: node eval/native_audio_bindings.mjs --cap 0
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
@@ -215,6 +221,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/studio-csharp/requests.txt target/studio-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/overnight-bindings/requests.txt target/overnight-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/model-manager-bindings/requests.txt target/model-manager-bindings/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/native-audio-bindings/requests.txt target/native-audio-bindings/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

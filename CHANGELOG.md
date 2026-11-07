@@ -573,3 +573,7 @@ First public release.
   profile routing. No model download or paid call occurs automatically.
 - [api] Add a detailed dramatic art bible, model-bound normalized asset identity and
   scoped previous-approved previews, retaining repair and candidate-approval constraints.
+
+- [api] [format] Add opt-in native Piper/whisper.cpp CLI audio plans (13 additive cases), host-only executable/weight registration, bounded one-shot execution and Unix process-tree cancellation. Engines and weights remain separately installed. Move model, voice, connection and art setup into an accessible Settings dialog.
+
+- [api] Add opt-in two-player private-LAN sessions with a host-only control plane, random join credentials, fixed guest identity, bounded shared transcript, participant-scoped AI requests, delivery ownership and deterministic turn floor. Add Settings tabs and an independent browser guest view; all inference stays on the host.

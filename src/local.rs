@@ -14,6 +14,7 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "studio-native-audio" => crate::studio::native_audio_plan(a),
         "model-manager" => crate::studio::manager_fixture(a),
         "life-speech-v2" => crate::life::speech_fixture(a),
         "sentence-boundary" => {

@@ -31,7 +31,7 @@ export function attachModels({$,post,refresh,current,interrupt=async()=>{}}){
    for(const [action,label]of [['start','Start / Connect'],['prewarm','Load now'],['unload','Unload weights'],['stop','Stop owned server']]){const b=document.createElement('button');b.id='mm-'+id+'-'+action;b.textContent=label;b.type='button';b.onclick=()=>act(action,id);controls.append(b);}
    d.append(controls);cards.push(d);
   }
-  $('manager-profiles').replaceChildren(...cards);
+  $('manager-profiles').replaceChildren(...cards.slice(0,4));$('voice-profiles').replaceChildren(...cards.slice(4));
  }
  function write(c){
   $('manager-enabled').checked=c.enabled;$('manager-mode').value=c.mode;$('manager-text-dramatic').checked=c.text_escalation;$('manager-image-dramatic').checked=c.image_escalation;$('manager-residency').value=c.residency;$('manager-idle').value=c.idle_seconds;$('manager-prewarm').checked=c.prewarm;$('manager-ram').value=c.ram_limit_mib;$('manager-reserve').value=c.reserve_mib;
@@ -52,10 +52,17 @@ export function attachModels({$,post,refresh,current,interrupt=async()=>{}}){
   try{const config=read();await interrupt();const result=await post('manager_settings',{config});await refresh(result.generation||0);if(result.result?.configured){write(current().model_manager.config);$('manager-message').textContent='Applied. Models load when requested; larger missing profiles fall back.';}}
   catch(e){$('manager-message').textContent=e.message;}
  };
+ $('voice-native-preset').onclick=()=>{
+  for(const [id,backend,model,ram]of [['tts','local_tts_http','piper',300],['stt','local_stt_http','whisper-tiny',300]]){
+   $('mm-'+id+'-backend').value=backend;$('mm-'+id+'-model').value=model;$('mm-'+id+'-ram_mib').value=ram;
+  }
+  $('manager-enabled').checked=true;draft=true;$('manager-draft').textContent='Not applied';$('voice-message').textContent='Piper and Whisper selected. Apply, then check the installation. Requires the host native-voice.json configuration.';
+ };
+ $('voice-apply').onclick=()=>$('manager-apply').click();
  $('manager-art-apply').onclick=async()=>{try{await post('manager_art',{bible:JSON.parse($('manager-art').value)});await refresh();$('manager-message').textContent='Art bible validated. Changed art direction receives a new asset key.';}catch(e){$('manager-message').textContent=e.message;}};
  for(const e of document.querySelectorAll('#manager-settings input,#manager-settings select'))e.addEventListener('input',()=>{draft=true;$('manager-draft').textContent='Not applied';});
  return s=>{
-  const m=s.model_manager;if(!m)return;
+  const m=s.model_manager;if(!m)return; $('voice-message').textContent=$('manager-message').textContent||$('voice-message').textContent;
   if(!loaded){loaded=true;write(m.config);$('manager-art').value=JSON.stringify(m.dramatic_art,null,2);}
   else if(!draft&&key!==JSON.stringify(m.config))write(m.config);
   const r=m.runtime||{},route=m.route||{},eligible=r.eligible||r.available||[];
@@ -67,8 +74,8 @@ export function attachModels({$,post,refresh,current,interrupt=async()=>{}}){
   $('manager-files').textContent=(r.image_files||[]).join('\n')||'No image catalog yet. Scan or start the local image server.';
   for(const id of ids){
    const p=m.config.profiles[id],channel=ch(id),local=p.backend.startsWith('local_')||p.backend==='inherit'&&s.effective_backends[channel]?.startsWith('local_'),service=(r.services||[]).find(v=>v.channel===channel);
-   $('mm-'+id+'-status').textContent=p.backend.startsWith('online_')?(eligible.includes(id)?'API configured · request allowed under cap':'API credentials, price ceiling or spending allowance unavailable'):(eligible.includes(id)?'Available for requests':'Model files or service unavailable · scan after installing/configuring');
-   for(const action of ['start','prewarm','unload','stop']){$('mm-'+id+'-'+action).disabled=!local||s.pending_jobs>0||draft&&['start','prewarm'].includes(action)||action==='stop'&&service?.ownership!=='managed';}
+   $('mm-'+id+'-status').textContent=service?.native?'Native CLI · '+(eligible.includes(id)?'ready on demand · unloaded between requests':'stopped or installation missing'):p.backend.startsWith('online_')?(eligible.includes(id)?'API configured · request allowed under cap':'API credentials, price ceiling or spending allowance unavailable'):(eligible.includes(id)?'Available for requests':'Model files or service unavailable · scan after installing/configuring');
+   for(const action of ['start','prewarm','unload','stop']){$('mm-'+id+'-'+action).disabled=!local||(s.pending_jobs>0&&!(service?.native&&action==='stop'))||draft&&['start','prewarm'].includes(action)||action==='stop'&&service?.ownership!=='managed'&&!service?.native;}
   }
  };
 }

@@ -53,6 +53,8 @@ pub struct App {
     interactions: Vec<(String, InteractionTools)>,
     speech: Option<Speech>,
     transcript: Vec<Value>,
+    shared_log: Vec<Value>,
+    sharing: bool,
     pending: Vec<(u64, u64, String)>,
     notice: String,
     mic: u64,
@@ -156,6 +158,8 @@ impl App {
             interactions,
             speech: None,
             transcript: Vec::new(),
+            shared_log: Vec::new(),
+            sharing: false,
             pending: Vec::new(),
             notice: "Offline studio ready. Text, art and voice providers are independent.".into(),
             mic: 0,
@@ -208,6 +212,12 @@ impl App {
             self.transcript.remove(0);
         }
         self.transcript.push(obj! {"speaker"=>speaker,"text"=>line,"kind"=>kind});
+        if self.sharing {
+            if self.shared_log.len() >= 128 {
+                self.shared_log.remove(0);
+            }
+            self.shared_log.push(obj! {"speaker"=>speaker,"recipient"=>if speaker.starts_with("player_"){self.npc.clone()}else{self.speech.as_ref().map_or_else(||"room".to_owned(),|s|s.player.clone())},"text"=>line,"kind"=>kind});
+        }
     }
     fn apply_world(&mut self, op: &str, v: Value) -> Result<Value> {
         if self.world_ops.len() >= 8192 {
@@ -505,12 +515,38 @@ impl App {
         messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
         Ok(obj! {"messages"=>messages,"max_tokens"=>hints.output_tokens.min(256)})
     }
+    fn native_status(&mut self, report: &Value) {
+        for ch in ["tts", "stt"] {
+            let native = report.get("services").and_then(Value::as_array).unwrap_or(&[]).iter().any(|r| {
+                r.get("channel").and_then(Value::as_str) == Some(ch) && r.get("native") == Some(&Value::Bool(true))
+            });
+            if native {
+                let available = report
+                    .get("available")
+                    .and_then(Value::as_array)
+                    .unwrap_or(&[])
+                    .iter()
+                    .any(|v| v.as_str() == Some(ch));
+                self.monitor.problem(
+                    ch,
+                    if ch == "tts" { "local_tts_http" } else { "local_stt_http" },
+                    if available { "ready" } else { "unavailable" },
+                    if available {
+                        "Installed native engine; starts on request and exits afterward. No HTTP server required."
+                    } else {
+                        "Native adapter stopped or installation unavailable. Start it in Settings → Voice."
+                    },
+                );
+            }
+        }
+    }
     pub fn manager_observe(&mut self, report: Value) -> Result<()> {
         if let Some(names) = report.get("text_models").and_then(Value::as_array) {
             let models = names.iter().map(|v| obj! {"name"=>v.clone()}).collect::<Vec<_>>();
             let _ =
                 self.monitor.finish_check("text", "local_ollama", Ok(obj! {"models"=>models}.to_json().into_bytes()));
         }
+        self.native_status(&report);
         self.manager.observe(report, &self.config, &self.dir)?;
         self.manager_update(Vec::new())
     }
@@ -1079,6 +1115,84 @@ impl App {
         )
     }
 
+    pub fn lock_host_player(&mut self) {
+        if self.player != "player_1" {
+            self.player = "player_1".into();
+            self.focus = None;
+        }
+    }
+    pub fn release_guest(&mut self) -> Result<()> {
+        if self.floor() == Some("player_2") {
+            self.stop(None)?;
+            self.epoch += 1;
+        }
+        Ok(())
+    }
+    pub fn share(&mut self) {
+        self.sharing = true;
+        self.shared_log.clear();
+    }
+    pub fn floor(&self) -> Option<&str> {
+        self.speech
+            .as_ref()
+            .filter(|s| s.voice.snapshot().get("done") != Some(&Value::Bool(true)))
+            .map(|s| s.player.as_str())
+    }
+    pub fn host_delivery(&self) -> bool {
+        self.speech.as_ref().is_none_or(|s| s.player == "player_1")
+    }
+    pub fn guest_state(&self) -> Value {
+        let reply=self.speech.as_ref().filter(|s|s.player=="player_2").map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending});
+        obj! {"player"=>"player_2","game"=>self.game.public(),"generation"=>self.epoch,"transcript"=>self.shared_log.clone(),"reply"=>reply,"floor"=>self.floor().map_or(Value::Null,Value::str)}
+    }
+    pub fn guest_command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
+        if op == "guest_read" {
+            fields(v, &["id"])?;
+            let id = num(v, "id", u32::MAX as u64)?;
+            let s = self.speech.as_ref().filter(|s| s.player == "player_2" && s.id == id).ok_or_else(err)?;
+            if text(&s.voice.snapshot(), "stage")? != "validated" {
+                return Err(err());
+            }
+            let through = s.voice.text().chars().count() as u64;
+            self.command("delivery", &obj! {"id"=>id,"event"=>"queued","through"=>0,"heard"=>0})?;
+            return self.command("delivery", &obj! {"id"=>id,"event"=>"finished","through"=>through,"heard"=>through});
+        }
+        if op != "guest_chat"
+            || self.floor().is_some()
+            || self.pending.iter().any(|j| ["text", "tts", "stt"].contains(&j.2.as_str()))
+        {
+            return Err(err());
+        }
+        fields(v, &["text", "npc"])?;
+        let npc = text(v, "npc")?;
+        if !(npc == "merchant" && self.game.room == "workshop" || npc == "keeper" && self.game.room == "cistern") {
+            return Err(err());
+        }
+        // Guest messages are conversation only. World commands remain host-owned.
+        let choices = self.game.choices();
+        let labels = self
+            .game
+            .visible_items()
+            .iter()
+            .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
+            .collect::<Vec<_>>();
+        let resolved = gamectx::studio::resolve_command(
+            &obj! {"input"=>text(v,"text")?,"choices"=>choices,"labels"=>labels,"focus"=>Value::Null},
+        )?;
+        if text(&resolved, "status")? == "resolved"
+            && resolved.get("decision").and_then(|d| d.get("action")).and_then(Value::as_str) != Some("talk")
+        {
+            return Err(Error::new("The host controls world actions; send conversation instead."));
+        }
+        let old_player = std::mem::replace(&mut self.player, "player_2".into());
+        let old_npc = std::mem::replace(&mut self.npc, npc.into());
+        let focus = self.focus.take();
+        let result = self.command("chat", &obj! {"text"=>get(v,"text")?.clone()});
+        self.player = old_player;
+        self.npc = old_npc;
+        self.focus = focus;
+        result
+    }
     pub fn state(&mut self) -> Result<Value> {
         self.manager_update(Vec::new())?;
         let active_config = self.manager.effective(&self.config)?;
@@ -1161,6 +1275,13 @@ impl App {
                     ("tts", "local_tts_http"),
                     ("stt", "local_stt_http"),
                 ] {
+                    if self.manager.report.get("services").and_then(Value::as_array).unwrap_or(&[]).iter().any(|r| {
+                        r.get("channel").and_then(Value::as_str) == Some(channel)
+                            && r.get("native") == Some(&Value::Bool(true))
+                    }) {
+                        self.native_status(&self.manager.report.clone());
+                        continue;
+                    }
                     let id = self.next();
                     self.monitor.checking(channel, backend);
                     self.monitor.queued(id, channel, backend, "", true);
@@ -1201,6 +1322,7 @@ impl App {
                 self.world_ops.clear();
                 self.receipts.clear();
                 self.transcript.clear();
+                self.shared_log.clear();
                 self.speech = None;
                 self.previews.clear();
                 self.tick = 0;

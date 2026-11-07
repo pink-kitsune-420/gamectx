@@ -1395,3 +1395,12 @@ isolated offline host on 8788 and Firefox BiDi on 9223. Manual installed-provide
 smoke: `python3 -I eval/model_manager_live.py --cap 0 --model INSTALLED_ID`; it uses existing
 loopback servers, loads/unloads only normal profiles, and leaves normal SD restored.
 Neither is an automated CI prerequisite. Retained browser/live JSON records the limits.
+
+Native audio: `python3 -I eval/native_audio_cases.py --cap 0` (13 pure cases),
+`python3 -I eval/native_voice_host.py --cap 0` (original CLI fixtures), and
+`python3 -I eval/native_audio_bindings.py --cap 0` / `node eval/native_audio_bindings.mjs --cap 0`.
+LAN: `python3 -I eval/lan_session_host.py --cap 0` and `python3 -I eval/lan_model_host.py --cap 0`.
+Manual Firefox: `python3 -I eval/voice_lan_browser.py --cap 0` against an isolated host on
+8788 with `--lan 127.0.0.2` and Firefox BiDi 9223. Manual installed voice smoke:
+`python3 -I eval/native_voice_live.py --cap 0 --installation INSTALL_DIR`.
+The latter two are not automated CI prerequisites; retained JSON states their limits.

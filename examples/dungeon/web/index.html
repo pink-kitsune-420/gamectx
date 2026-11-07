@@ -13,7 +13,7 @@
 <strong>LANTERN VAULT</strong>
 <small>LOCAL PLAY &amp; CHARACTER STUDIO</small>
 </div>
-<div class="header-actions"><span id="spend" role="status">Local · $0 cap</span><button id="show-setup">Model setup</button><button id="new-game">New game</button></div>
+<div class="header-actions"><span id="spend" role="status">Local · $0 cap</span><button id="show-setup">Settings</button><button id="new-game">New game</button></div>
 </header>
 <section class="setup-banner" aria-label="Provider status"><div><strong id="setup-title">Play now, add models whenever you like.</strong><p id="setup-help">Offline play needs no setup. Settings affect the next message, not your current location.</p></div><div id="channel-status" aria-live="polite"></div></section>
 <main>
@@ -38,30 +38,6 @@
 </svg>
 <span class="art-label" id="npc-label">Merchant</span>
 </div>
-<details id="asset-drawer">
-<summary>Asset Debug &amp; Repair <span>⌄</span>
-</summary>
-<label>Inspect / generate<select id="asset-target">
-<option value="portrait">Active NPC portrait</option>
-<option value="scene">Current room scene</option>
-</select>
-</label>
-<div class="button-row">
-<button id="generate">Generate</button>
-<button id="approve">Approve &amp; Cache</button>
-<button id="reroll">Re-roll Seed</button>
-</div>
-<label class="check">
-<input type="checkbox" id="preview-candidate">Preview unapproved candidate in drawer</label>
-<img id="candidate" alt="Unapproved candidate preview" hidden>
-<pre id="asset-inspection">
-</pre>
-<label>Repair patch JSON<textarea id="patch" rows="6" spellcheck="false">{"replace_tokens":[],"add_tokens":[],"negative_tokens":[],"forbid_props":[],"seed_delta":1,"asset":null}</textarea>
-</label>
-<label>Optional reviewed hand edit (PNG)<input type="file" accept="image/png" id="pin-file">
-</label>
-<button id="repair">Apply Repair / Pin Hand Edit</button>
-</details>
 </aside>
 <section class="play">
 <div class="eyebrow">A SHARED PURSE. TWO PERSPECTIVES.</div>
@@ -134,53 +110,6 @@
 </section>
 <aside class="inspector">
 <div class="eyebrow">LIVE INSPECTOR</div>
-<details id="models-panel" open><summary>Models &amp; Services</summary>
-<p id="manager-state" role="status">Model manager is off.</p><p id="manager-memory" class="muted"></p><p id="manager-reason" class="muted"></p>
-<div class="button-row"><button id="manager-scan">Scan models / services</button><button id="manager-apply" class="primary">Apply model policy</button><span id="manager-draft">Applied</span></div>
-<div id="manager-settings">
-<label class="check"><input id="manager-enabled" type="checkbox">Enable model profiles &amp; automatic loading</label>
-<label>Scene mode<select id="manager-mode"><option value="auto">Auto · use scene rules</option><option value="normal">Everyday · force normal profiles</option><option value="dramatic">Dramatic · manual override</option></select></label>
-<div class="button-row"><label class="check"><input id="manager-text-dramatic" type="checkbox">Escalate text</label><label class="check"><input id="manager-image-dramatic" type="checkbox">Escalate images</label></div>
-<label>Keep models in RAM<select id="manager-residency"><option value="on_demand">Only while needed · free text/images after use</option><option value="warm">Keep briefly for reuse · unload when idle</option></select></label>
-<div class="button-row"><label>Idle seconds<input id="manager-idle" type="number" min="1" max="3600"></label><label>Model RAM allowance (MiB)<input id="manager-ram" type="number" min="256" max="65536"></label><label>Leave free (MiB)<input id="manager-reserve" type="number" min="128" max="8192"></label></div>
-<label class="check"><input id="manager-prewarm" type="checkbox">Prewarm likely upcoming conversations / microphone use</label>
-<p class="muted">Local models share one worker. Prewarming loads weights without generating a reply. Online APIs run only for real requests under the spending cap.</p>
-<details><summary>What counts as dramatic?</summary>
-<div class="button-row"><label class="check"><input id="mr-combat" type="checkbox">Combat</label><label class="check"><input id="mr-emergency" type="checkbox">Emergency</label><label class="check"><input id="mr-conflict" type="checkbox">Participant conflict</label></div>
-<div class="button-row"><label>Health at or below<input id="mr-low_health" type="number" min="0" max="100"></label><label>Event significance at least<input id="mr-significance" type="number" min="0" max="100"></label><label>Attitude change at least<input id="mr-attitude_change" type="number" min="0" max="200"></label></div>
-<div class="button-row"><label>Hold for turns<input id="mr-hold_turns" type="number" min="0" max="100"></label><label>Cooldown turns<input id="mr-cooldown_turns" type="number" min="0" max="100"></label></div><p class="muted">Zero disables a numeric trigger. Rules use host-confirmed signals, not dramatic words in a player's message. Emergency can bypass cooldown.</p>
-</details></div>
-<div id="manager-profiles"></div><datalist id="manager-text-list"></datalist>
-<details><summary>Image weight catalog</summary><pre id="manager-files"></pre></details>
-<details><summary>Dramatic art bible</summary><p class="muted">Detailed art uses its own model and richer art direction while keeping character anchors and perceived facts. Approved everyday art stays visible during generation.</p><textarea id="manager-art" rows="12" spellcheck="false"></textarea><button id="manager-art-apply">Validate &amp; apply art bible</button></details>
-<details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
-<p id="manager-message" role="status"></p></details>
-<details id="provider-panel">
-<summary>Connections, voices &amp; spending</summary>
-<p class="muted">You can explore and trade offline. For AI replies, choose a backend and an actual installed model.</p>
-<label>Text replies<select id="text-backend"><option value="0b_fallback">Offline · no model needed</option><option value="local_ollama">Ollama · local model</option><option value="online_openai_compatible">Online · configured API</option></select></label>
-<div class="button-row"><label>Model tier<select id="size"><option>1</option><option>1.5</option><option selected>3</option><option>8</option><option>30</option><option>70</option></select></label><label class="model-field">Model name<input id="model" list="installed-models" maxlength="128" placeholder="Choose or enter a model ID"><datalist id="installed-models"></datalist></label></div>
-<div class="setup-actions"><button id="settings" class="primary">Apply changes</button><button id="resume-local" hidden>Resume local requests</button><span id="settings-state" role="status">Settings applied</span></div>
-<button id="check-providers">Check local servers / Find models</button>
-<label id="installed-label" hidden>Installed models<select id="installed-choice"><option value="">Choose an installed model…</option></select></label>
-<p id="model-detail" class="muted" role="status"></p><p class="muted">Match the tier to your model. Choosing a tier does not download a model.</p>
-
-<details><summary>Pictures &amp; voice (optional)</summary>
-<label>Pictures<select id="image-backend"><option value="cached_only">Cached / placeholders</option><option value="local_sd_cpp">Local Stable Diffusion</option><option value="online_image_api">Online image API</option></select></label>
-<label>Voice playback<select id="tts-backend"><option value="off">Off · text only</option><option value="browser_web_speech">Browser voices</option><option value="local_tts_http">Local voice server</option><option value="online_tts_api">Online voice API</option></select></label>
-<label>Microphone transcription<select id="stt-backend"><option value="off">Off · type instead</option><option value="browser_speech_recognition">Browser recognition (browser dependent)</option><option value="local_stt_http">Local transcription server</option><option value="online_stt_api">Online transcription API</option></select></label>
-<div id="audio-checks" class="muted"></div>
-<label>Voice ID<input id="voice-id" maxlength="128"></label>
-<div class="button-row"><label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label><label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label></div>
-<p class="muted">Local voice and transcription need separate servers; choosing them does not install one. Browser features depend on your browser. Pictures generate only when you click Generate.</p>
-</details>
-<details><summary>Reply policy &amp; spending</summary>
-<label>Reply policy<select id="speech-mode"><option value="grounded">Safe replies · host-approved facts</option><option value="dialogue">Free dialogue · experimental</option></select></label>
-<p class="muted">Safe replies let the model choose approved wording. Free dialogue allows original phrasing and can invent details. Models never execute game actions.</p>
-<label>Spending limit (USD)<input id="cap" type="number" min="0" step="0.000001" value="0"></label>
-<p class="muted">The launch-time cap is the maximum. Local models work at $0.</p>
-</details>
-</details>
 <details id="activity-panel" open><summary>What is running?</summary><p class="muted">One shared worker handles local requests in order. Checks do not generate text, pictures or audio.</p><div id="activity" role="log" aria-live="polite">No model requests yet.</div></details>
 <details open>
 <summary>Attitudes toward this player</summary>
@@ -204,6 +133,88 @@
 </details>
 </aside>
 </main>
+<dialog id="settings-dialog" aria-labelledby="settings-title">
+<div class="settings-heading"><div><h2 id="settings-title">Game settings</h2><p class="muted">Choose how your host creates replies, pictures and voices.</p></div><button id="settings-close" aria-label="Close settings">Done</button></div>
+<nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+<button data-settings-tab="models" role="tab" aria-selected="true">Models</button><button data-settings-tab="voice" role="tab" aria-selected="false">Voice</button><button data-settings-tab="connections" role="tab" aria-selected="false">Connections &amp; spending</button><button data-settings-tab="art" role="tab" aria-selected="false">Artwork</button><button data-settings-tab="session" role="tab" aria-selected="false">Play together</button>
+</nav>
+<section id="settings-models" class="settings-page"><details id="models-panel" open><summary>Models &amp; Services</summary>
+<p id="manager-state" role="status">Model manager is off.</p><p id="manager-memory" class="muted"></p><p id="manager-reason" class="muted"></p>
+<div class="button-row"><button id="manager-scan">Scan models / services</button><button id="manager-apply" class="primary">Apply model policy</button><span id="manager-draft">Applied</span></div>
+<div id="manager-settings">
+<label class="check"><input id="manager-enabled" type="checkbox">Enable model profiles &amp; automatic loading</label>
+<label>Scene mode<select id="manager-mode"><option value="auto">Auto · use scene rules</option><option value="normal">Everyday · force normal profiles</option><option value="dramatic">Dramatic · manual override</option></select></label>
+<div class="button-row"><label class="check"><input id="manager-text-dramatic" type="checkbox">Escalate text</label><label class="check"><input id="manager-image-dramatic" type="checkbox">Escalate images</label></div>
+<label>Keep models in RAM<select id="manager-residency"><option value="on_demand">Only while needed · free text/images after use</option><option value="warm">Keep briefly for reuse · unload when idle</option></select></label>
+<div class="button-row"><label>Idle seconds<input id="manager-idle" type="number" min="1" max="3600"></label><label>Model RAM allowance (MiB)<input id="manager-ram" type="number" min="256" max="65536"></label><label>Leave free (MiB)<input id="manager-reserve" type="number" min="128" max="8192"></label></div>
+<label class="check"><input id="manager-prewarm" type="checkbox">Prewarm likely upcoming conversations / microphone use</label>
+<p class="muted">Local models share one worker. Prewarming loads weights without generating a reply. Online APIs run only for real requests under the spending cap.</p>
+<details><summary>What counts as dramatic?</summary>
+<div class="button-row"><label class="check"><input id="mr-combat" type="checkbox">Combat</label><label class="check"><input id="mr-emergency" type="checkbox">Emergency</label><label class="check"><input id="mr-conflict" type="checkbox">Participant conflict</label></div>
+<div class="button-row"><label>Health at or below<input id="mr-low_health" type="number" min="0" max="100"></label><label>Event significance at least<input id="mr-significance" type="number" min="0" max="100"></label><label>Attitude change at least<input id="mr-attitude_change" type="number" min="0" max="200"></label></div>
+<div class="button-row"><label>Hold for turns<input id="mr-hold_turns" type="number" min="0" max="100"></label><label>Cooldown turns<input id="mr-cooldown_turns" type="number" min="0" max="100"></label></div><p class="muted">Zero disables a numeric trigger. Rules use host-confirmed signals, not dramatic words in a player's message. Emergency can bypass cooldown.</p>
+</details></div>
+<div id="manager-profiles"></div><datalist id="manager-text-list"></datalist>
+<details><summary>Image weight catalog</summary><pre id="manager-files"></pre></details>
+<details><summary>Dramatic art bible</summary><p class="muted">Detailed art uses its own model and richer art direction while keeping character anchors and perceived facts. Approved everyday art stays visible during generation.</p><textarea id="manager-art" rows="12" spellcheck="false"></textarea><button id="manager-art-apply">Validate &amp; apply art bible</button></details>
+<details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
+<p id="manager-message" role="status"></p></details>
+</section>
+<section id="settings-voice" class="settings-page" hidden><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
+<div class="button-row"><label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label><label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label></div>
+<button id="voice-character-apply">Save character voice</button></details><p id="native-voice-help" class="muted"></p></section>
+<section id="settings-connections" class="settings-page" hidden><details id="provider-panel">
+<summary>Connections, voices &amp; spending</summary>
+<p class="muted">You can explore and trade offline. For AI replies, choose a backend and an actual installed model.</p>
+<label>Text replies<select id="text-backend"><option value="0b_fallback">Offline · no model needed</option><option value="local_ollama">Ollama · local model</option><option value="online_openai_compatible">Online · configured API</option></select></label>
+<div class="button-row"><label>Model tier<select id="size"><option>1</option><option>1.5</option><option selected>3</option><option>8</option><option>30</option><option>70</option></select></label><label class="model-field">Model name<input id="model" list="installed-models" maxlength="128" placeholder="Choose or enter a model ID"><datalist id="installed-models"></datalist></label></div>
+<div class="setup-actions"><button id="settings" class="primary">Apply changes</button><button id="resume-local" hidden>Resume local requests</button><span id="settings-state" role="status">Settings applied</span></div>
+<button id="check-providers">Check local servers / Find models</button>
+<label id="installed-label" hidden>Installed models<select id="installed-choice"><option value="">Choose an installed model…</option></select></label>
+<p id="model-detail" class="muted" role="status"></p><p class="muted">Match the tier to your model. Choosing a tier does not download a model.</p>
+
+<details><summary>Fallback pictures &amp; browser voice</summary><p class="muted">These defaults apply when model profiles are off, or a profile inherits its connection settings.</p>
+<label>Pictures<select id="image-backend"><option value="cached_only">Cached / placeholders</option><option value="local_sd_cpp">Local Stable Diffusion</option><option value="online_image_api">Online image API</option></select></label>
+<label>Voice playback<select id="tts-backend"><option value="off">Off · text only</option><option value="browser_web_speech">Browser voices</option><option value="local_tts_http">Local voice server</option><option value="online_tts_api">Online voice API</option></select></label>
+<label>Microphone transcription<select id="stt-backend"><option value="off">Off · type instead</option><option value="browser_speech_recognition">Browser recognition (browser dependent)</option><option value="local_stt_http">Local transcription server</option><option value="online_stt_api">Online transcription API</option></select></label>
+<div id="audio-checks" class="muted"></div>
+<p class="muted">Local voice uses separately installed native engines or compatible HTTP servers; choosing a model does not install it. Browser features depend on your browser. Pictures generate only when you click Generate.</p>
+</details>
+<details><summary>Reply policy &amp; spending</summary>
+<label>Reply policy<select id="speech-mode"><option value="grounded">Safe replies · host-approved facts</option><option value="dialogue">Free dialogue · experimental</option></select></label>
+<p class="muted">Safe replies let the model choose approved wording. Free dialogue allows original phrasing and can invent details. Models never execute game actions.</p>
+<label>Spending limit (USD)<input id="cap" type="number" min="0" step="0.000001" value="0"></label>
+<p class="muted">The launch-time cap is the maximum. Local models work at $0.</p>
+</details>
+</details>
+</section>
+<section id="settings-art" class="settings-page" hidden><details id="asset-drawer">
+<summary>Asset Debug &amp; Repair <span>⌄</span>
+</summary>
+<label>Inspect / generate<select id="asset-target">
+<option value="portrait">Active NPC portrait</option>
+<option value="scene">Current room scene</option>
+</select>
+</label>
+<div class="button-row">
+<button id="generate">Generate</button>
+<button id="approve">Approve &amp; Cache</button>
+<button id="reroll">Re-roll Seed</button>
+</div>
+<label class="check">
+<input type="checkbox" id="preview-candidate">Preview unapproved candidate in drawer</label>
+<img id="candidate" alt="Unapproved candidate preview" hidden>
+<pre id="asset-inspection">
+</pre>
+<label>Repair patch JSON<textarea id="patch" rows="6" spellcheck="false">{"replace_tokens":[],"add_tokens":[],"negative_tokens":[],"forbid_props":[],"seed_delta":1,"asset":null}</textarea>
+</label>
+<label>Optional reviewed hand edit (PNG)<input type="file" accept="image/png" id="pin-file">
+</label>
+<button id="repair">Apply Repair / Pin Hand Edit</button>
+</details>
+</section>
+<section id="settings-session" class="settings-page" hidden><h3>Play together</h3><p id="session-info">Local play. Start the host with an explicit LAN address to invite another player.</p><div id="session-controls"></div></section>
+</dialog>
 <dialog id="reset-dialog"><h2>Start a new game?</h2><p>This resets the current room, inventory, conversations and character memories.</p><p>Model settings, saved branches, approved pictures and spending receipts are kept.</p><div class="button-row"><button id="cancel-reset">Keep playing</button><button id="confirm-reset" class="primary">Start new game</button></div></dialog>
 <footer>Original Lantern Vault · Host rules own truth · One model worker · No paid calls at cap zero</footer>
 <script type="module" src="/studio.mjs">

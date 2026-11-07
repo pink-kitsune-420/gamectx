@@ -1323,3 +1323,15 @@ fn model_manager_policy_mutations_are_bounded_and_never_execute_services() {
         }
     }
 }
+
+#[test]
+fn native_audio_plans_never_execute_or_accept_paths() {
+    let seed = r#"{"kind":"studio-native-audio","args":{"engine":"piper","request":{"model":"piper","input":"Welcome, Vela.","voice":"merchant","speed":1,"response_format":"wav"}}}"#;
+    let mut rng = Rng(0x61756469);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = gamectx::json::parse(&text, 4096) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

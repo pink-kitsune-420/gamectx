@@ -531,3 +531,16 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   previous-approved previews and unchanged candidate approval/repair enforcement.
 - Evidence: 32 Python/Rust cases, shared bindings, 2,000 mutations, offline host routing
   and owned-process cohorts; no larger-model or image-quality claim. See MODEL_MANAGER.md.
+
+Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+
+Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+
+- Voice/Settings/LAN verification: 13 Python/Rust audio plan fixtures, 2,000 parser mutations,
+  seven offline CLI-host workflows, ten LAN authorization workflows, four host mock AI calls
+  alternating player subjects, and ten real Firefox Settings/two-origin workflows. Manual
+  installed Piper/Whisper smoke used one host job each plus one reference synthesis at $0.
+  Physical Wi-Fi, microphone accuracy and broad live-model quality remain unmeasured.
+
+- Follow-up: evaluate native TTS phrase batching with trustworthy alignment so repeated
+  CLI startup does not introduce word gaps while preserving conservative heard offsets.

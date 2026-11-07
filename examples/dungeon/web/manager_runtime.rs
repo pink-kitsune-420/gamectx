@@ -60,6 +60,7 @@ struct Lease {
     ttl: u64,
 }
 pub struct Runtime {
+    native: super::native_voice::Native,
     children: BTreeMap<String, Child>,
     lease: Option<Lease>,
     roots: Value,
@@ -131,6 +132,7 @@ impl Runtime {
             }
         }
         Ok(Self {
+            native: super::native_voice::Native::load(dir)?,
             children: BTreeMap::new(),
             lease: None,
             roots: obj! {},
@@ -338,7 +340,9 @@ impl Runtime {
             if backend.starts_with("online_") {
                 continue;
             }
-            let yes = if id.contains("text") {
+            let yes = if self.native.handles(channel(id), text(p, "model").unwrap()) {
+                self.native.available(channel(id), text(p, "model").unwrap())
+            } else if id.contains("text") {
                 names.iter().any(|s| Some(s.as_str()) == p.get("model").and_then(Value::as_str))
             } else if id.contains("image") {
                 get(p, "selection").ok().and_then(Value::as_object).is_some_and(|s| {
@@ -353,7 +357,7 @@ impl Runtime {
         }
         let services = ["text", "image", "tts", "stt"].into_iter().map(|ch| {
             let owned = self.children.get_mut(ch).is_some_and(|c| c.try_wait().ok().flatten().is_none());
-            obj! {"channel"=>ch,"ownership"=>if owned {"managed"} else if self.reachable(ch) {"external"} else {"stopped"},"start_configured"=>self.start_configured(ch, text(policy.profile(ch).unwrap(), "model").unwrap())}
+            obj! {"channel"=>ch,"ownership"=>if self.native.handles(ch,text(policy.profile(ch).unwrap(),"model").unwrap()) {"on_demand"} else if owned {"managed"} else if self.reachable(ch) {"external"} else {"stopped"},"start_configured"=>self.native.available(ch,text(policy.profile(ch).unwrap(),"model").unwrap()) || self.start_configured(ch, text(policy.profile(ch).unwrap(), "model").unwrap()),"native"=>self.native.handles(ch,text(policy.profile(ch).unwrap(),"model").unwrap())}
         }).collect::<Vec<_>>();
         let report = obj! {"observed_text"=>observed_text,"observed_image"=>observed_image,"available"=>available,"text_models"=>names,"image_files"=>ids,"services"=>services,"free_mib"=>available_memory().map_or(Value::Null,Value::from),"loaded"=>self.lease.as_ref().map_or(Value::Null,|l|obj!{"profile"=>l.profile.clone(),"channel"=>l.channel.clone(),"model"=>l.model.clone()}),"error"=>self.last_error.clone()};
         self.last_catalog = report.clone();
@@ -478,10 +482,46 @@ impl Runtime {
                 return Err(issue("Online/browser profiles have no local weights to load."));
             }
         }
+        let ch = channel(id);
+        let native_model = policy.profile(id).ok().and_then(|p| text(p, "model").ok()).unwrap_or("");
+        if self.native.handles(ch, native_model) && action != "refresh" {
+            let model = native_model.to_owned();
+            let result = (|| -> Result<Vec<u8>> {
+                match action {
+                    "start" | "prewarm" => {
+                        self.release()?;
+                        self.native.start(ch, &model)?;
+                    }
+                    "stop" => {
+                        self.native.stop(ch);
+                    }
+                    "unload" | "release" => {}
+                    "demand" => {
+                        self.release()?;
+                        let p = policy.profile(id)?;
+                        let required = num(p, "ram_mib", 65536)?;
+                        if required > num(&policy.to_value(), "ram_limit_mib", 65536)?
+                            || available_memory().is_some_and(|free| {
+                                free < required + num(&policy.to_value(), "reserve_mib", 8192).unwrap_or(8192)
+                            })
+                        {
+                            return Err(issue("Not enough free memory for native voice."));
+                        }
+                        return self.native.run(ch, &model, r, dir);
+                    }
+                    _ => return Err(err()),
+                }
+                Ok(self.scan(&policy).to_json().into_bytes())
+            })();
+            self.last_error = result.as_ref().err().map_or(String::new(), ToString::to_string);
+            return result;
+        }
         let outcome = (|| -> Result<Vec<u8>> {
             match action {
                 "refresh" => {
                     self.launchers = Runtime::new(dir)?.launchers.clone();
+                    // Explicit scans reload host-owned installation paths, never browser argv.
+                    self.native = super::native_voice::Native::load(dir)?;
                     if let Ok(base) = self.base("image") {
                         let _ = json(req(&base, "/sdcpp/v1/models/refresh", Some(obj! {})));
                     }
@@ -654,7 +694,8 @@ pub fn service_guard() -> Result<()> {
         return Err(err());
     }
     let v = gamectx::json::parse(line.trim_end(), 65536)?;
-    fields(&v, &["argv", "env"])?;
+    let voice = v.get("input").is_some();
+    fields(&v, if voice { &["argv", "env", "input", "process_group"] } else { &["argv", "env"] })?;
     let args = get(&v, "argv")?.as_array().ok_or_else(err)?;
     if args.is_empty() || args.len() > 32 {
         return Err(err());
@@ -666,7 +707,13 @@ pub fn service_guard() -> Result<()> {
         })
         .collect::<Result<Vec<_>>>()?;
     let mut cmd = Command::new(args[0]);
-    cmd.args(&args[1..]).stdin(Stdio::null());
+    cmd.args(&args[1..]).stdin(if voice { Stdio::piped() } else { Stdio::null() });
+    let group = voice && get(&v, "process_group")? == &Value::Bool(true);
+    #[cfg(unix)]
+    if group {
+        use std::os::unix::process::CommandExt;
+        cmd.process_group(0);
+    }
     let env = get(&v, "env")?.as_object().ok_or_else(err)?;
     if env.len() > 16 {
         return Err(err());
@@ -683,6 +730,18 @@ pub fn service_guard() -> Result<()> {
         cmd.env(k, value);
     }
     let mut child = cmd.spawn().map_err(|_| issue("Configured service executable could not start."))?;
+    if voice {
+        let data = text(&v, "input")?;
+        if data.len() > 4096 {
+            let _ = child.kill();
+            let _ = child.wait();
+            return Err(err());
+        }
+        use std::io::Write;
+        if let Some(mut pipe) = child.stdin.take() {
+            pipe.write_all(data.as_bytes()).map_err(|_| err())?;
+        }
+    }
     let (tx, rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || {
         let mut byte = [0];
@@ -690,10 +749,21 @@ pub fn service_guard() -> Result<()> {
         let _ = tx.send(());
     });
     loop {
-        if child.try_wait().map_err(|_| err())?.is_some() {
-            return Ok(());
+        if let Some(status) = child.try_wait().map_err(|_| err())? {
+            if status.success() {
+                return Ok(());
+            } else {
+                return Err(issue("Voice/service process exited unsuccessfully."));
+            }
         }
         if rx.recv_timeout(Duration::from_millis(100)).is_ok() {
+            #[cfg(unix)]
+            if group {
+                let pid = format!("-{}", child.id());
+                let _ = Command::new("/bin/kill").args(["-TERM", "--", &pid]).status();
+                std::thread::sleep(Duration::from_millis(100));
+                let _ = Command::new("/bin/kill").args(["-KILL", "--", &pid]).status();
+            }
             let _ = child.kill();
             let _ = child.wait();
             return Ok(());

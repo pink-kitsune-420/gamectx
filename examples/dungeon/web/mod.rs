@@ -3,7 +3,12 @@ mod app;
 mod http;
 mod manager_runtime;
 mod manager_view;
+mod native_voice;
+pub fn configure_voice(root: &str, dir: &str) -> Result<()> {
+    native_voice::configure(std::path::Path::new(root), std::path::Path::new(dir))
+}
 mod providers;
+mod session;
 mod setup;
 #[cfg(test)]
 mod tests;
@@ -84,4 +89,14 @@ pub fn parse_cap(s: &str) -> Result<u64> {
         fraction.parse::<u64>().map_err(|_| err())? * 10u64.pow(6 - fraction.len() as u32)
     };
     a.checked_mul(1_000_000).and_then(|x| x.checked_add(b)).filter(|n| *n <= 1_000_000_000_000).ok_or_else(err)
+}
+
+pub fn run_lan(seed: u32, port: u16, cap: u64, config: Option<&str>, dir: &str, address: &str) -> Result<()> {
+    let config = if let Some(file) = config {
+        providers::Config::parse(&read_file(std::path::Path::new(file), 65536)?)?
+    } else {
+        providers::Config::parse(include_str!("providers.json"))?
+    };
+    let address = address.parse().map_err(|_| Error::new("Expected a private IPv4 LAN address."))?;
+    http::serve_lan(seed, port, cap, config, std::path::PathBuf::from(dir), Some(address))
 }
