@@ -103,6 +103,7 @@ pub mod temporal;
 pub mod tune;
 pub mod turn;
 pub mod view;
+pub mod visual;
 pub mod world;
 
 pub use context::{Context, Table, Turn};

@@ -710,3 +710,18 @@ initiative work before issuing an immediate authored fallback. Keep optional mod
 outside the frame callback; validate a completion and freeze before actual caption/audio
 delivery. Use the world compiler/tool dispatcher so group influence participates in gates.
 [Living-world contracts, retention limits and timing evidence](LIVING_WORLD.md).
+
+## Compile and repair visual assets without model calls
+
+Use [the visual compiler](VISUAL.md) to keep an authored style, silhouette, camera and
+palette consistent while host-confirmed trust/emotion, active activity and perceived facts
+select discrete expression/pose/environment cues. Start with `cargo run --example visual`
+and edit `examples/visual/chime-art.json`; the example runs as a test. Closed shutters and
+sunlight share an authored conflict group. Unobserved/global fact text never reaches the
+rendered tokens. Queue the returned job externally and display only the selected approved
+fallback (or your placeholder). Submission alone does not approve an image.
+
+Inspect a key, then apply bounded token/negative/prop/seed repairs or pin reviewed hand edits.
+[Persistent binding operations](KIT.md#persistent-visual-asset-sessions) use the same Rust
+registry as the CLI/native ABI. The 64-workflow offline artifact measures zero model calls;
+no provider, image-quality, latency or frame-rate claim is made.

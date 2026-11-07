@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "id": "chime_art",
+  "revision": 1,
+  "style": "Original flat-color ink illustration",
+  "format": "portrait",
+  "width": 512,
+  "height": 512,
+  "aspect": {
+    "width": 1,
+    "height": 1
+  },
+  "camera_angle": "eye level three-quarter view",
+  "framing": "waist-up with clear silhouette",
+  "palette": [
+    "copper",
+    "deep blue",
+    "warm gray"
+  ],
+  "negative_tokens": [
+    "watermark",
+    "extra limbs"
+  ],
+  "anchors": [
+    {
+      "entity": "merchant",
+      "kind": "character",
+      "silhouette": "slender figure with swept-back hair",
+      "attire": "deep blue work coat with copper stitching",
+      "props": [
+        "lamp",
+        "chime"
+      ],
+      "seed": 37
+    },
+    {
+      "entity": "counter",
+      "kind": "scene",
+      "silhouette": "arched lamp counter with a narrow shuttered window",
+      "attire": "copper-edged shelves",
+      "props": [
+        "lamp",
+        "chime"
+      ],
+      "seed": 11
+    }
+  ],
+  "expressions": [
+    {
+      "id": "cautious",
+      "slot": "guarded",
+      "kind": "trust",
+      "subject": "listener",
+      "min": -100,
+      "max": -1,
+      "priority": 10,
+      "tokens": [
+        "guarded expression"
+      ]
+    },
+    {
+      "id": "friendly",
+      "slot": "warm",
+      "kind": "trust",
+      "subject": "listener",
+      "min": 15,
+      "max": 100,
+      "priority": 10,
+      "tokens": [
+        "warm expression"
+      ]
+    },
+    {
+      "id": "strained",
+      "slot": "tense",
+      "kind": "emotion",
+      "subject": "self",
+      "min": 40,
+      "max": 100,
+      "priority": 20,
+      "tokens": [
+        "tense expression"
+      ]
+    }
+  ],
+  "poses": [
+    {
+      "activity": "work",
+      "tokens": [
+        "hands resting at the work counter"
+      ]
+    },
+    {
+      "activity": "walk",
+      "tokens": [
+        "walking with a steady stride"
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "id": "shutters_closed",
+      "group": "window_view",
+      "priority": 100,
+      "tokens": [
+        "closed wooden shutters"
+      ],
+      "props": []
+    },
+    {
+      "id": "visible_sun",
+      "group": "window_view",
+      "priority": 10,
+      "tokens": [
+        "sunlight through the open window"
+      ],
+      "props": []
+    },
+    {
+      "id": "visible_lamp",
+      "group": null,
+      "priority": 0,
+      "tokens": [
+        "repaired lamp visible on the counter"
+      ],
+      "props": [
+        "lamp"
+      ]
+    }
+  ],
+  "max_fact_age": 2
+}

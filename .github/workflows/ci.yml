@@ -54,6 +54,8 @@ jobs:
       - run: python3 -I eval/archetype_cases.py --cap 0 --check eval/archetype-party-results.json
       - run: python3 -I eval/living_cases.py --cap 0 --check eval/living-world-results.json
       - run: python3 -I eval/living_measure_check.py --cap 0 --check eval/living-world-timing.json
+      - run: python3 -I eval/visual_cases.py --cap 0 --check eval/visual-results.json
+      - run: cargo +stable test --example visual --locked
       - run: cargo +stable test --example living-world --locked
       - run: cargo +stable test --example party --locked
       - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-tokens.json
@@ -165,6 +167,8 @@ jobs:
       - run: python3 -I eval/life_speech_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/archetype_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/living_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/visual_cases.py --cap 0 --check-bindings
+      - run: node eval/visual_bindings_check.mjs
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
@@ -180,6 +184,8 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/life-csharp/requests.txt target/life-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/archetype-party-csharp/requests.txt target/archetype-party-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/living-world-csharp/requests.txt target/living-world-csharp/expected.txt
+
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/visual-csharp/requests.txt target/visual-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

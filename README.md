@@ -20,6 +20,19 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 The [dynamic character guide](docs/LIFE.md) records the five implementation stages from
 [the agent brief](docs/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
 
+## Optional visual specs and approved art (unreleased v0.3.1a)
+
+[Visual compiler and registry](docs/VISUAL.md) lock an editable art bible, map live Life
+attitudes/emotions and active routine/initiative poses, and include only perceived scene
+cues. Content keys reuse approved/pinned assets; pending work returns compatible approved
+fallbacks. Host inspection, repair constraints, seed rotation and hand-edited pins invalidate
+stale candidates. Python, Node and native/C# sessions share the host controls.
+
+Run `cargo run --example visual`; edit [the art bible](examples/visual/chime-art.json).
+**64 Python/Rust workflows**, including **13 malformed cases**, match with **0 model calls**
+and **$0 API spend**. All **1,026** prior conformance cases remain unchanged. Generation is
+external; this measures metadata behavior, not image quality or image-model performance.
+
 ## Optional dynamic character continuity (unreleased v0.3.1a)
 
 [Life APIs](docs/LIFE.md) add approved character definitions, source-attributed experiences,

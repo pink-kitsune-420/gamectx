@@ -1277,3 +1277,22 @@ target/living-measure`. Run to a fresh JSON path, then `living_measure_check.py 
 with `--check eval/living-world-timing.json`; CI does not rerun or enforce timing thresholds.
 These are library host-work measurements, excluding engine rendering/physics, real worker
 latency and external callbacks. [Results and responsibilities](../docs/LIVING_WORLD.md).
+
+## Visual compiler and approved asset metadata (offline)
+
+`visual_reference.py` independently prototypes bounded art contracts, live expression/pose
+selection, perceived-only fact cues, SHA-256 content keys and approval/fallback/repair.
+`python3 -I eval/visual_cases.py --cap 0 --prototype-only --tokens-only` checks predeclared
+expectations before Rust comparison. Build the CLI then run `--cap 0 --check
+ eval/visual-results.json` for 64 byte-identical workflows (13 malformed). The artifact
+records 37 queued metadata jobs, 5 exact reuses, 2 approved fallbacks and frozen hashes of
+all six life-model artifacts. Jobs are not dispatched: 0 model calls / $0 spend; image
+quality, provider tokens, latency and frame rate unmeasured. `--write-conformance` only
+writes the additive visual family. Each accepted expected output was reviewed for selected
+rules/cues, withheld facts, state transitions, fallback refs and stale-work rejection.
+
+`--check-bindings` exercises Python CLI/native persistent operations and emits Node/C#
+fixtures to target/visual-csharp. Run `node eval/visual_bindings_check.mjs` and the existing
+C# fixture driver. Tests include original SHA-256 known answers, typed live appraisal and
+routine/started-initiative adapters, repair-cycle nonce recovery and 9,000 deterministic
+input mutations. [Full contract and limits](../docs/VISUAL.md).

@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds opt-in zero-dependency visual specs and asset registry: locked art bibles,
+  live attitude/emotion and active-pose slots, perceived-only cues, original SHA-256 content
+  keys, approved fallback reuse, bounded worker tickets, inspection, atomic repair and
+  hand-edited pins. Persistent host operations work through existing bindings; no generator.
+- **[format]** Adds 64 visual compiler/registry conformance cases, including 13 malformed
+  inputs. All 1,026 earlier cases and native ABI remain unchanged.
+- **[docs]** Adds a tested editable visual example and 64 independent Python/Rust workflows:
+  37 queued metadata jobs, 5 exact reuses, 2 approved fallbacks, 0 model calls / $0 API.
+  Image quality, provider tokens, latency and frame rate are unmeasured.
+
+
 - **[api]** Adds optional CastPack validation and a deterministic LivingWorld over existing
   archetypes, Life, routines, lore and initiative: bounded attributed rumors, chronological
   fractional group effects, host-confirmed habit badges and scene atmosphere. Adds opaque

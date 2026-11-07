@@ -8,6 +8,14 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Optional visual compiler/registry: locked art contract, live expression/activity slots,
+  perceived-only cues with authored occlusion, SHA-256 keys, approved/pinned reuse,
+  safe approved fallbacks, inspect/repair and stale-worker fences. Python/Rust parity:
+  64 workflows, 13 malformed; 1,026 previous cases unchanged. Zero model calls / $0 API;
+  37 queued metadata jobs, 5 exact reuses, 2 fallbacks. Image quality and timing unmeasured.
+  [Contract, editable example and limits](VISUAL.md).
+
+
 - Probe validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
   82 offline CI commands, 21 binding CI commands, all C# fixture groups, package
   verification and reference/credential sweep pass. Core total 842, prior 827 unchanged.

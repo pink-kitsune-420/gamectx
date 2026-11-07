@@ -1210,3 +1210,21 @@ fn cast_world_and_async_speech_inputs_never_panic_or_wait_for_model_work() {
         }
     }
 }
+
+#[test]
+fn visual_contract_worker_and_repair_mutations_are_bounded() {
+    let seeds = [
+        include_str!("../conformance/visual/occlusion_wins/input.json"),
+        include_str!("../conformance/visual/candidate_never_default_art/input.json"),
+        include_str!("../conformance/visual/repair_forbids_prop_and_cue/input.json"),
+    ];
+    let mut rng = Rng(0x515855);
+    for seed in seeds {
+        for _ in 0..3000 {
+            let text = mutate(&mut rng, seed);
+            if let Ok(v) = parse(&text, 1_572_864) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

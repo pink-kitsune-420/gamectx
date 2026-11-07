@@ -1922,3 +1922,13 @@ operations); living-compile takes `world,scene,receipts,actor,request,selection`
 replays at most 256 issue/complete/freeze/cancel/retire operations. The speech fixture's
 approved boolean stands in for a host validator, not model approval. These adapters are
 never model tools and use the unchanged version-1 bridge/native ABI.
+
+## Optional visual specs and asset registry
+
+The additive `visual-spec` / `visual-assets` local formats and persistent `visual_*`
+host operations are specified in [VISUAL](VISUAL.md). They add 64 conformance cases,
+including 13 malformed inputs; all 1,026 existing cases retain their bytes. Bible/spec
+objects use canonical lexical keys for SHA-256 identity (other formats retain their
+existing ordering). Inspection is outside the key. Registry outputs have stable
+`key,state,asset,exact,pending,generation,reason` order; submitted candidates remain
+unapproved. Repair outputs `key,state,invalidated`. No model-call schema is added.

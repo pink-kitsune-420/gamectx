@@ -5,10 +5,12 @@ use crate::character::{CharacterTools, CharacterView, TurnPlan};
 use crate::request::Composition;
 use std::sync::Mutex;
 mod life;
+mod visual;
 #[derive(Debug)]
 pub struct Session {
     project: Project,
     characters: Mutex<Vec<(String, Resident)>>,
+    visuals: Mutex<Vec<(String, visual::VisualResident)>>,
 }
 #[derive(Debug)]
 struct Resident {
@@ -29,7 +31,7 @@ fn planning_state(plan: &Composition) -> Result<Value> {
 }
 impl Session {
     pub fn new(project: Project) -> Self {
-        Self { project, characters: Mutex::new(Vec::new()) }
+        Self { project, characters: Mutex::new(Vec::new()), visuals: Mutex::new(Vec::new()) }
     }
     pub fn parse(input: &str) -> Result<Self> {
         Ok(Self::new(Project::parse(input)?))
@@ -38,6 +40,9 @@ impl Session {
         super::bridge::request(input, |op, args| self.execute(op, args))
     }
     fn execute(&self, op: &str, args: &Value) -> Result<Value> {
+        if op.starts_with("visual_") {
+            return visual::execute(self, op, args);
+        }
         if !op.starts_with("character_") {
             return self.project.execute(op, args);
         }

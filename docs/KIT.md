@@ -300,3 +300,35 @@ stay unchanged; the bounded workflow adapters are stateless replay/testing inter
 hosts own LivingWorld/SpeechQueue instances directly. Other hosts retain authenticated world
 state/journals and presentation ownership. Never expose configuration, counter receipts,
 approved flags or host fixture adapters as model tools. [Contracts](LIVING_WORLD.md).
+
+## Persistent visual asset sessions
+
+All operations below are host-only, share `kit::Session`, JSON-lines `characters`, and the
+existing native ABI, and never appear in model tool schemas. The Python `Client` and
+`NativeClient` and Node `GamectxClient` use `request(op,args)`; C# sends the existing
+`{version:1,id,op,args}` envelope to `Request`. Each session allows at most 32 visual
+registries. Per-registry bounds and exact schemas are in [VISUAL](VISUAL.md).
+
+| Operation | Exact args | Result |
+|---|---|---|
+| `visual_create` | `{id,bible,config}` | `{created}`; duplicate ID fails |
+| `visual_prepare` | `{id,frame,character,activity}` | `{compiled:{key,spec,inspection},selection}` |
+| `visual_submit` | `{id,key,ticket,asset_uri,digest}` | `{key,state}`; candidate only |
+| `visual_approve` | `{id,key,asset_uri,digest}` | `{key,state}` |
+| `visual_reject` | `{id,key,reason}` | `{key,state,reason}` |
+| `visual_repair` | `{id,key,patch}` | `{key,state,invalidated}` |
+| `visual_inspect` | `{id,key}` | keyed record; null key returns `{bible,registry}` summary |
+| `visual_drop` | `{id}` | `{dropped}` |
+
+`character` is a resident character session ID with configured Life, or null for a scene/
+static portrait. Prepare uses actual resident Life and checks the frame's expected revision;
+it does not accept an invented Life snapshot. `activity` is an explicit privileged host
+snapshot or null. Typed Rust hosts can instead use `Activity::from_routine` and
+`Activity::from_initiative` to derive that state from their runtimes/started receipts.
+`config.epoch` must be fresh after registry recreation; outstanding work is not serialized.
+
+`eval/visual_cases.py --cap 0 --check-bindings` checks Python CLI/native parity and emits
+shared Node/C# fixtures. Use `node eval/visual_bindings_check.mjs` and the existing C# Check
+driver with `target/visual-csharp/requests.txt` / `expected.txt`. Bindings need no provider
+or new binary ABI entry point. Inspect/approve/repair are available in the persistent CLI
+by sending the same operation envelopes to `gamectx characters`.
