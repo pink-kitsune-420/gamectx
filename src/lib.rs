@@ -60,6 +60,7 @@
 pub mod archetype;
 pub mod brain;
 pub mod budget;
+pub mod cast;
 pub mod catalog;
 pub mod character;
 mod checked;
@@ -75,6 +76,7 @@ pub mod inventory;
 pub mod json;
 pub mod kit;
 pub mod life;
+pub mod living;
 pub mod local;
 pub mod location;
 pub mod lore;

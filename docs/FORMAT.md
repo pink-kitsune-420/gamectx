@@ -1869,3 +1869,56 @@ dispatch/cancel/revision); `party-compile` takes `life,blueprint,gates,scene,rec
 request`; `attitude-gates` is an offline fixture with `rules,actor,speaker,listeners,
 participants,revision,expected_revision,attitudes,kind,items`. Its compact attitude rows
 are kind/subject/level. These adapters are host/testing operations, never model tools.
+
+## Living world / cast pack v1
+
+[Full contracts, bounds and host responsibilities](LIVING_WORLD.md). CastPack is exactly
+`version:1,id,revision,setting,players,locations,groups,characters,lore,features,propagation,
+ripple,habits`, at most 1 MiB. Setting, Locations, Lore, Blueprint, Definition, Routine and
+AttitudeGates reuse existing formats. Up to 12 characters plus up to 8 players must fit
+16 total participants. Group records are `id,members`; places/groups must be approved
+setting entities, with unique role IDs. Each character is `id,blueprint,definition,routine,
+gates,affordances,home,fallbacks`. Routine presence matches the blueprint. Fallbacks contain
+exactly calm/busy/tense/emergency/unknown single-line terminal-punctuation strings, at most
+240 characters. All structured cross-cast references are checked before acceptance.
+
+Features are exactly rumors/ripples/habits/atmosphere booleans. Propagation is exactly
+`significance,trust,max_hops,per_tick,checks`, bounded to 0..100, -100..100, 0..4, 0..16,
+0..1024. Ripple is exactly `numerator,denominator,max_delta,kind,groups,reason`; denominator
+1..100, numerator 0..denominator, max_delta 0..5. Habit rules are exactly
+`id,counter,threshold,text,tags` for fulfilled/broken/interrupted counters and thresholds
+1..1,000,000. At most 16 group/habit records are permitted.
+
+World observe is exactly `id,actor,event,significance,share_with,appraise`; it uses an
+existing actual Life event (direct/outcome only), an optional authored rule ID and explicit
+NPC sharing allowlist. World tick is exactly `now,windows,routines`. At most 16 windows
+are `id,location,start,end,participants,kind`, kind scene/routine. Up to 12 routine updates
+are `actor,frame` using existing Frame. Tick output is `routines,reports,blocked,
+checked_pairs,revision,model_calls`. Scanning uses a rotating cursor, not unbounded closure
+propagation. Reports include root/sender/actor/hops/path/original_source/event; recipient
+Life events always have kind report. Group effects and effective levels remain separate
+from unchanged base Life checkpoint formats. Capacities: 64 roots, at most roots×NPC
+known holders, 128 influence records, existing per-actor Life limits.
+
+Counter receipts are exactly `token,player,at,fulfilled,broken,interrupted,source`; counts
+are monotonic cumulative integers 0..1,000,000, with existing source structure. Exact last
+receipt replay is idempotent. Atmosphere updates are `location,revision,tag,source`, tag
+calm/busy/tense/emergency, with strictly increasing per-location revisions. Selection is
+`actor,players,tags,location,limit`, limit 0..4. Context returns badges/atmosphere/rumors/
+group_influences; focused compiler selection further caps each extra list at two.
+
+SpeechQueue uses existing RequestContext fields with an empty facts list; other dependencies
+require current host revisions. Opaque capabilities are instance-bound, never serialized.
+Issue accepts context/now/ttl/fallback; ttl 1..1,000,000, at most 32 retained entries. Complete
+accepts at most 4,096 bytes of strict JSON with exactly speech (1..240 characters), checks
+freshness/terminal punctuation and requires host semantic/permission validation. Invalid or
+stale completions consume their attempt, retain raw text and fallback. Freeze seals the
+chosen line before delivery; cancel/retire control lifecycle and storage. No hearing is
+implied. IDs/clocks remain u32-bounded; model/tool/proposal authority does not change.
+
+New host-only `local` kinds: cast-pack returns a validated summary; living-world replays
+`pack,scope,operations` (at most 256 observe/tick/counters/atmosphere/context/inspect/initiative
+operations); living-compile takes `world,scene,receipts,actor,request,selection`; speech-tickets
+replays at most 256 issue/complete/freeze/cancel/retire operations. The speech fixture's
+approved boolean stands in for a host validator, not model approval. These adapters are
+never model tools and use the unchanged version-1 bridge/native ABI.

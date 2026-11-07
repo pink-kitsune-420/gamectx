@@ -1192,3 +1192,21 @@ fn archetype_and_party_frames_reject_mutations_with_bounded_work() {
         }
     }
 }
+
+#[test]
+fn cast_world_and_async_speech_inputs_never_panic_or_wait_for_model_work() {
+    let seeds = [
+        include_str!("../conformance/living-world/pack_valid/input.json"),
+        include_str!("../conformance/living-world/rumor_chain_and_ripple/input.json"),
+        include_str!("../conformance/living-world/upgrade_before_delivery/input.json"),
+    ];
+    let mut rng = Rng(0x642753);
+    for seed in seeds {
+        for _ in 0..3000 {
+            let text = mutate(&mut rng, seed);
+            if let Ok(v) = parse(&text, 1_572_864) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

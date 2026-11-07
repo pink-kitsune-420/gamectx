@@ -25,6 +25,10 @@ pub fn process(v: &Value) -> Result<Value> {
         }
         "character-context" => crate::life::context_fixture(a),
         "archetype" => crate::archetype::Blueprint::from_value(a).map(|b| b.to_value()),
+        "cast-pack" => crate::cast::CastPack::from_value(a).map(|p| p.summary()),
+        "living-world" => crate::living::workflow(a),
+        "speech-tickets" => crate::living::speech_workflow(a),
+        "living-compile" => crate::living::compile_fixture(a),
         "attitude-gates" => crate::party::select_gates_fixture(a),
         "party" => crate::party::workflow(a),
         "party-compile" => crate::party::compile_fixture(a),

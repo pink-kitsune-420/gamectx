@@ -1254,3 +1254,26 @@ The retained report measures 3,210/2,708 trusted/untrusted provider-neutral requ
 zero gated payloads in the untrusted request and zero ambient reserved model calls.
 These are structural host checks, not a conversational or model-tier benchmark. Existing
 v1/v2 life-model artifacts stay frozen. [Method, limits and runnable example](../docs/ARCHETYPES.md).
+
+## Living world and cast packs
+
+`living_reference.py` and `living_compile_reference.py` independently specify the one-file
+cast, bounded attributed reports, chronological group influence, relevant badges/atmosphere
+and speech lifecycle. Run `python3 -I eval/living_cases.py --cap 0 --prototype-only
+--tokens-only` first. No provider is contacted; tokenizer counts remain unknown. After
+building the CLI, `--check eval/living-world-results.json` checks 54 workflows and frozen
+life-model artifact hashes. `--write-conformance` writes only the new living-world family.
+`--check-bindings` checks 108 Python CLI/native replies and creates Node/C# fixtures under
+target/living-world-csharp; run `node eval/living_bindings_check.mjs` and the existing C#
+Check driver with that directory's requests.txt/expected.txt.
+
+`living_measure.rs` measures 1,000 unpaced release frames, four existing routine runtimes,
+initiative, 64 roots, 128 delivered reports, bounded pair scans and one fallback lifecycle
+per frame. It uses 200 fixed JSON strings as simulated completions, not actual model outputs.
+Build the release library, then `rustc --edition=2021 -O eval/living_measure.rs -L
+dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o
+target/living-measure`. Run to a fresh JSON path, then `living_measure_check.py --cap 0
+--capture RAW_PATH --output FRESH_PATH` records source hashes/hardware/method limits. Audit
+with `--check eval/living-world-timing.json`; CI does not rerun or enforce timing thresholds.
+These are library host-work measurements, excluding engine rendering/physics, real worker
+latency and external callbacks. [Results and responsibilities](../docs/LIVING_WORLD.md).

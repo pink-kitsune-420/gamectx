@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"id":1,"stage":"pending","line":"I am listening."}},{"ok":true,"result":{"id":1,"stage":"pending","line":"I am listening.","reason":"stale","raw":"{\"speech\":\"Your lamp is ready.\"}"}},{"ok":true,"result":{"id":1,"stage":"frozen","line":"I am listening."}}],"model_calls":0}

@@ -703,3 +703,10 @@ different replies for two players. Feed only host-confirmed hearing to `PartySce
 sidecar `AttitudeGates` before selection, and dispatch any exposed Life tools through
 `PartyScene::call_life` so recall cannot bypass gates. Recount the actual provider request
 before dispatching a one-use floor grant. [Contracts, limits and offline evidence](ARCHETYPES.md).
+
+For one-file towns, load `cast::CastPack` and explicitly accept it with `LivingWorld::new`.
+The [tested example](../examples/living-world.rs) performs deterministic routine/rumor/
+initiative work before issuing an immediate authored fallback. Keep optional model work
+outside the frame callback; validate a completion and freeze before actual caption/audio
+delivery. Use the world compiler/tool dispatcher so group influence participates in gates.
+[Living-world contracts, retention limits and timing evidence](LIVING_WORLD.md).

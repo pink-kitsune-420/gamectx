@@ -942,3 +942,13 @@ For code changes:
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Living world and one-file cast packs
+
+The opt-in [living-world layer](docs/LIVING_WORLD.md) loads a shared setting, locations,
+groups and multiple archetypes from one validated file. It propagates attributed reports
+and bounded group influence without model calls, selects relevant habit/atmosphere context,
+and provides immediate authored speech with an optional validated upgrade before delivery.
+Run `cargo run --example living-world` and edit [the town pack](examples/cast/chime-town.json).
+Evidence covers 54 independent Python/Rust workflows and a retained 1,000-frame host-work
+trace. Existing outputs stay unchanged; this adds no model dependency or whole-game FPS claim.

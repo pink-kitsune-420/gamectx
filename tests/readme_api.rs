@@ -294,3 +294,7 @@ mod character_speech_example;
 #[allow(dead_code)]
 #[path = "../examples/party.rs"]
 mod party_example;
+
+#[allow(dead_code)]
+#[path = "../examples/living-world.rs"]
+mod living_world_example;

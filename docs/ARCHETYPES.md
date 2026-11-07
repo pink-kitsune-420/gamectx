@@ -169,3 +169,8 @@ Run the prototype/token preflight first:
 After building the CLI, `--check eval/archetype-party-results.json` audits byte parity and
 measurements; `--check-bindings` also checks the existing CLI/native bridge and writes
 Node/C# fixtures under target. These checks do not assess conversational quality.
+
+For a shared setting, locations, groups and multiple archetypes in one file, use the
+opt-in [CastPack/LivingWorld layer](LIVING_WORLD.md). It adds no model calls and leaves these
+blueprint and party formats unchanged. World compilation/dispatch projects effective group
+levels through these same gates, while immediate authored speech works without any model.

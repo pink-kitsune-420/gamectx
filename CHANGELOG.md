@@ -13,6 +13,17 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds optional CastPack validation and a deterministic LivingWorld over existing
+  archetypes, Life, routines, lore and initiative: bounded attributed rumors, chronological
+  fractional group effects, host-confirmed habit badges and scene atmosphere. Adds opaque
+  async speech tickets with immediate authored fallback and one-use validated upgrades
+  before delivery. No provider/executor dependency or additional model calls.
+- **[format]** Adds 54 living-world/pack/speech conformance cases and host-only local adapters;
+  all 972 prior cases and the native ABI remain unchanged.
+- **[docs]** Adds an editable one-file cast, tested frame/lifecycle example, 54 Python/Rust
+  workflows and a retained 1,000-frame host-work trace. 0 model calls / $0 API; no claim
+  about semantic model quality or whole-game 60 FPS.
+
 - **[api]** Adds opt-in composable ambient/service/quest/companion blueprints over existing
   modules, current-attitude gates, heard-only multi-party perspectives, shared floor quotas,
   one-use spending-backed grants and explicit spotlight routing. No automatic model/tool work.

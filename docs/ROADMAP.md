@@ -423,3 +423,31 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   complete provider counting, actual model loading/call limits, game dispatch, persistent
   scene/floor state, spending settlement and independent live/human evaluation. Existing
   failed speech artifacts remain unchanged. [Full contract/evidence](ARCHETYPES.md).
+
+## Living world and cast pack layer
+
+- Implemented one-file validated CastPack with shared setting/history, locations, groups,
+  archetype characters, relationship/gate checks, routines, lore and authored fallback lines.
+- Added zero-call rumor updates from host-confirmed co-location, with explicit significance/
+  trust/sharing rules, original source/relay/path/hops, per-root learner deduplication and
+  bounded rotating pair scans. Reports never become direct observations.
+- Added optional fractional group effects for actual learners; effective levels preserve
+  chronological saturation/neutral crossing alongside unchanged valid base Life checkpoints.
+  The world compiler/tool dispatcher applies them to existing attitude gates.
+- Added sourced monotonic host habit counters, relevant bounded badges, current-location
+  atmosphere/urgency, and cache-prefix-preserving extra context.
+- Added non-blocking opaque speech tickets: immediate authored fallback, one-use bounded
+  response validation, deadline/revision checks, raw retention, freeze-before-delivery,
+  cancellation and retirement. Model calls, actual delivery/hearing and game actions remain
+  host-controlled; no provider, executor or reflection work is introduced.
+- Evidence: 54 Python/Rust workflows and 54 additive cases; 972 prior cases and six frozen
+  life-model artifacts unchanged. Same fixtures run through Python/native/Node/C# bridges.
+  Includes one-file example, mutation checks and a source-bound 1,000-frame release trace
+  of four routines/initiative, 64 roots, 128 reports and 200 simulated completions.
+- 0 actual model calls / $0 API. No semantic accuracy or whole-game 60 FPS claim. Host work
+  remains authenticated co-location/counters/signals, correct scene/dependency revisions,
+  foreground budgeting, bounded validation callbacks, real execution/delivery and durable
+  journal/ledger retention/compaction/erasure. Root/influence capacities are explicit; no
+  automatic archival or unlimited-world claim. [Method and limits](LIVING_WORLD.md).
+
+- Retained host trace: 272 µs median, 348 µs p95, 2248 µs maximum; 1000/1,000 measured host frames below 16,667 µs, with the documented exclusions.

@@ -293,3 +293,10 @@ party workflow adapter replays up to 256 host operations in one request; it does
 new persistent native scene between calls. Rust integrations own `PartyScene` directly;
 other hosts retain authenticated replay/state and reservations. Do not expose these host
 configuration or fixture operations to models. No new native entry point is required.
+
+Cast/living-world functionality uses the existing `local` bridge operation with kinds
+cast-pack, living-world, living-compile and speech-tickets. Native/Python/Node/C# signatures
+stay unchanged; the bounded workflow adapters are stateless replay/testing interfaces. Rust
+hosts own LivingWorld/SpeechQueue instances directly. Other hosts retain authenticated world
+state/journals and presentation ownership. Never expose configuration, counter receipts,
+approved flags or host fixture adapters as model tools. [Contracts](LIVING_WORLD.md).

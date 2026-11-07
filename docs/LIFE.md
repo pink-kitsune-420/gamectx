@@ -296,3 +296,12 @@ and existing SpeechTurn policy. It preserves the fixed participant scope: an att
 cannot override a facet's audience. `PartyScene::call_life` rechecks those restrictions for
 exposed recall tools; changes remain proposals. Existing Life context/call contracts stay
 unchanged. Authoritative hearing, storage, permissions and accepted experiences are host-owned.
+
+## Living-world reports and group influence
+
+[Cast packs and living worlds](LIVING_WORLD.md) optionally reuse Life experiences while
+preserving origin/relay provenance and bounding hops. Learned events stay reports and cannot
+pass ordinary direct/outcome appraisal. Chronological effective group levels and their
+reasons live beside the base Life state; old checkpoints remain unchanged. Use the world
+compiler and gate-aware dispatcher for these effective levels. Retention, save replay and
+erasure must cover provenance/influence ledgers together, not restore a base checkpoint alone.
