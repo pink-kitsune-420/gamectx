@@ -523,3 +523,8 @@ First public release.
 - **[docs]** 51 shared conformance cases defining every format, for ports in other languages.
 - **[docs]** Model evaluation script (`eval/`), measured results in the README, and
   `docs/GUIDE.md` with practical rules drawn from them.
+
+- [api] Add opt-in transient Life compaction and non-shareable LivingWorld dialogue
+  recording; prevent routine Web conversations exhausting the rumor ledger at turn 65.
+  Fresh 600-chat trace rejects 0 turns (previously 536); 1,000 delivered turns exercise
+  five branch restores. Three additive cases preserve all 1,122 prior cases.

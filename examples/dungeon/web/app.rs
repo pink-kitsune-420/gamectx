@@ -193,11 +193,12 @@ impl App {
         self.transcript.push(obj! {"speaker"=>speaker,"text"=>line,"kind"=>kind});
     }
     fn apply_world(&mut self, op: &str, v: Value) -> Result<Value> {
-        if self.world_ops.len() >= 1024 {
+        if self.world_ops.len() >= 8192 {
             return Err(err());
         }
         let result = match op {
             "observe" => self.world.observe(&v)?,
+            "record" => self.world.record(text(&v, "actor")?, get(&v, "event")?)?,
             "tick" => self.world.tick(&v)?,
             "counters" => self.world.update_counters(&v)?,
             _ => return Err(err()),
@@ -231,6 +232,10 @@ impl App {
         let l = self.world.base_life(actor)?.inspect();
         let token = num(&l, "watermark", u32::MAX as u64)? + 1;
         let id = format!("event_{}", self.next());
+        if significance < 70 && appraisal.is_none() {
+            self.apply_world("record", obj! {"actor"=>actor,"event"=>obj!{"token"=>token,"at"=>self.tick,"kind"=>"direct","tag"=>tag,"subject"=>subject,"source"=>source(&id,actor,line),"audience"=>self.people.clone(),"text"=>line,"causes"=>Vec::<Value>::new(),"retain"=>false}})?;
+            return Ok(());
+        }
         self.apply_world("observe",obj!{"id"=>id.clone(),"actor"=>actor,"event"=>obj!{"token"=>token,"at"=>self.tick,"kind"=>"direct","tag"=>tag,"subject"=>subject,"source"=>source(&id,actor,line),"audience"=>self.people.clone(),"text"=>line,"causes"=>Vec::<Value>::new(),"retain"=>true},"significance"=>significance,"share_with"=>if significance>=70 {vec![if actor=="merchant" {"keeper"} else {"merchant"}]} else {Vec::new()},"appraise"=>appraisal.map_or(Value::Null,Value::str)})?;
         Ok(())
     }
@@ -1135,7 +1140,7 @@ impl App {
             }
         }
         let world_ops = array(get(v, "world_ops")?)?.to_vec();
-        if world_ops.len() > 1024 {
+        if world_ops.len() > 8192 {
             return Err(err());
         }
         let mut world = LivingWorld::new(self.pack.clone(), "studio_save")?;
@@ -1144,6 +1149,9 @@ impl App {
             match text(o, "op")? {
                 "observe" => {
                     world.observe(a)?;
+                }
+                "record" => {
+                    world.record(text(a, "actor")?, get(a, "event")?)?;
                 }
                 "tick" => {
                     world.tick(a)?;

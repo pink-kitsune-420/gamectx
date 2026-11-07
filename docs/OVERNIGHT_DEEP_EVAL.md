@@ -72,3 +72,25 @@ stair evacuation instruction (0/2 urgency compliance by assistant review). The d
 also has independently running local services; this assignment never stops or changes
 those services. Serial four-thread requests limit this evaluator's work, not global CPU
 ownership. Absolute latency/RSS figures therefore have substantial environmental limits.
+
+## Repair 1: transient dialogue availability
+
+The Web host now records low-significance dialogue as non-retained experiences outside
+rumor roots. At the working bound, complete unprotected transient groups are removed;
+retained events, appraisal evidence and their causal groups cannot be silently dropped.
+The replay journal explicitly accommodates 8,192 operations, with the existing 8 MiB file
+bound. It is not unlimited storage or automatic permanent archival.
+
+Fresh repeated 600-chat trace: **0/600 rejected**, versus **536/600** in the frozen
+baseline. Median HTTP response is 3,066 microseconds, p95 4,551 microseconds. The baseline
+mostly measured rejected requests, so these timings are not a speedup comparison.
+A separate Rust test completes **1,000 fully delivered turns**, five save/load restores,
+zero rumor roots, at most 128 active events, no pending jobs and $0 API. Three independent
+Python/Rust workflows establish record/overflow/rejection parity. Pure working-memory
+compaction tests protect retained causal ancestors and atomic rejection on insufficient
+capacity. Archive recall remains the next repair; this fix does not change legacy recall.
+
+The historical living-world timing artifact's source fingerprint was stale after earlier
+runtime additions. It stays frozen. CI now audits a fresh source-bound replay retained as
+`eval/overnight-living-timing.json`, with the same declared 1,000-frame workload and its
+original exclusions. Python CLI/native, Node and C# all match the three new workflows.

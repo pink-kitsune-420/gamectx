@@ -150,6 +150,24 @@ impl LivingWorld {
         let i = self.index(actor)?;
         Ok(obj! {"base"=>self.actors[i].life.inspect(),"effective_attitudes"=>self.projected(i).attitudes})
     }
+    /// Non-shareable, non-retained host-confirmed dialogue. Transient compaction cannot
+    /// remove retained roots or appraisal/causal evidence. No rumor slot is consumed.
+    pub fn record(&mut self, actor: &str, event: &Value) -> Result<Value> {
+        self.can_bump()?;
+        let i = self.index(actor)?;
+        if event.get("retain") != Some(&Value::Bool(false)) || num(event, "at")? < self.clock {
+            return Err(c::bad());
+        }
+        let mut next = self.actors[i].life.clone();
+        if next.events.len() >= 128 {
+            next.trim_transient(64)?;
+        }
+        next.experience(event)?;
+        self.clock = num(event, "at")?;
+        self.actors[i].life = next;
+        self.revision += 1;
+        Ok(obj! {"revision"=>self.revision,"life_revision"=>self.actors[i].life.revision()})
+    }
     /// A privileged host experience, with explicit sharing permission. An optional
     /// original appraisal must concern this event's subject. Reports cannot be origins.
     pub fn observe(&mut self, a: &Value) -> Result<Value> {
@@ -475,6 +493,10 @@ pub fn replay(a: &Value) -> Result<(LivingWorld, Vec<Value>)> {
             let v = get(op, "args")?;
             match text(op, "op")? {
                 "observe" => w.observe(v),
+                "record" => {
+                    c::fields(v, &["actor", "event"])?;
+                    w.record(text(v, "actor")?, get(v, "event")?)
+                }
                 "tick" => w.tick(v),
                 "counters" => w.update_counters(v),
                 "atmosphere" => w.set_atmosphere(v),

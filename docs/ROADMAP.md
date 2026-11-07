@@ -475,3 +475,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   recall does not search it; 600-chat Web trace rejects 536 turns starting at turn 65
   because routine dialogue fills rumor capacity. Ranked additive repairs and live
   cohort methodology: [overnight evaluation](OVERNIGHT_DEEP_EVAL.md).
+- First runtime repair: transient `LivingWorld::record` plus causal/appraisal-safe
+  `Life::trim_transient`, used by the Web host. Fresh 600-chat trace: 0 rejected turns
+  versus 536/600 in the retained baseline. A separate 1,000 fully delivered turn test
+  includes five save/load restores, at most 128 active events and zero rumor roots.

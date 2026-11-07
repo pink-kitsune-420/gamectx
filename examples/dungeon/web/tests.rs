@@ -442,3 +442,30 @@ fn invalid_provider_output_preserves_fallback_and_never_confirms_audio_tail() {
     assert!(jobs.is_empty());
     command(&mut a, "resume_local", obj! {});
 }
+
+#[test]
+fn thousand_delivered_turns_keep_transient_dialogue_out_of_rumor_capacity() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    for turn in 0..1000 {
+        command(&mut a, "chat", obj! {"text"=>format!("Please listen to counter thought {turn}.")});
+        let state = a.state().unwrap();
+        let speech = get(&state, "speech").unwrap();
+        let id = get(speech, "id").unwrap().clone();
+        let through = text(speech, "text").unwrap().chars().count();
+        command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+        command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"played","through"=>through,"heard"=>through});
+        command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>through,"heard"=>through});
+        if turn % 200 == 199 {
+            command(&mut a, "save", obj! {"slot"=>0});
+            command(&mut a, "load", obj! {"slot"=>0});
+        }
+    }
+    let state = a.state().unwrap();
+    assert_eq!(get(&state, "pending_jobs").unwrap(), &0.into());
+    assert!(get(&state, "rumors").unwrap().as_array().unwrap().is_empty());
+    let life = get(&get(&state, "characters").unwrap().as_array().unwrap()[0], "life").unwrap();
+    assert!(get(get(life, "base").unwrap(), "events").unwrap().as_array().unwrap().len() <= 128);
+    assert_eq!(get(get(&state, "spending").unwrap(), "charged_or_reserved_micros").unwrap(), &0.into());
+}

@@ -740,3 +740,10 @@ explicitly. Paid reservations survive failures/restarts and cannot roll back wit
 All automated studio checks use offline/fake devices and `--cap 0`; actual voice and image
 quality are unmeasured. Provider configuration and the tested example are editable in
 `examples/dungeon/web/`.
+
+For ordinary heard dialogue, `LivingWorld::record(actor, event)` accepts a host-validated
+non-retained event without reserving a rumor slot. `Life::trim_transient(keep)` preserves
+retained/appraisal evidence and its complete active causal groups. Use `observe` for
+consequential shareable experiences; it retains its explicit bounded-root contract.
+The loopback studio journals up to 8,192 world operations for branch replay; this is a
+bounded demonstration, not unlimited durable world storage.

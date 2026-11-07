@@ -53,8 +53,9 @@ jobs:
       - run: python3 -I eval/life_speech_cases.py --cap 0
       - run: python3 -I eval/archetype_cases.py --cap 0 --check eval/archetype-party-results.json
       - run: python3 -I eval/living_cases.py --cap 0 --check eval/living-world-results.json
-      - run: python3 -I eval/living_measure_check.py --cap 0 --check eval/living-world-timing.json
+      - run: python3 -I eval/living_measure_check.py --cap 0 --check eval/overnight-living-timing.json
       - run: python3 -I eval/visual_cases.py --cap 0 --check eval/visual-results.json
+      - run: python3 -I eval/overnight_transient_cases.py --cap 0
       - run: cargo +stable test --example visual --locked
       - run: python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json
       - run: cargo +stable test --example living-world --locked

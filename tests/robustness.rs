@@ -1245,3 +1245,15 @@ fn studio_provider_and_voice_inputs_never_dispatch_during_mutation_checks() {
         }
     }
 }
+
+#[test]
+fn transient_dialogue_mutations_are_bounded_and_never_become_rumor_origins() {
+    let seed = include_str!("../conformance/deep-transient/one/input.json");
+    let mut rng = Rng(0x7472616e);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 1_572_864) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

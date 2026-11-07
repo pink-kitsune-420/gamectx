@@ -1944,3 +1944,12 @@ An operation is wrapped as `{op,args}`; success is `{ok:true,result}`, failure `
 Top-level shape/bounds errors reject the workflow. These deterministic adapters dispatch
 nothing. [STUDIO](STUDIO.md) specifies provider names, receipts, cumulative caps and limits.
 32 additive cases leave all previous 1,090 cases byte-identical.
+
+### Transient world dialogue
+
+`living-world` adds `record` with `{actor,event}`. The event must have `retain:false`,
+pass normal Life validation, and respect the world clock. It creates no rumor root,
+appraisal or social ripple. At 128 active events it atomically trims to at most 64 before
+recording. Retained events, appraisal evidence and complete active causal groups are
+protected; exceeding that mandatory bound fails explicitly. Three new cases preserve
+all 1,122 prior conformance outputs.

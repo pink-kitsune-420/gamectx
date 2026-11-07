@@ -979,3 +979,7 @@ and provides immediate authored speech with an optional validated upgrade before
 Run `cargo run --example living-world` and edit [the town pack](examples/cast/chime-town.json).
 Evidence covers 54 independent Python/Rust workflows and a retained 1,000-frame host-work
 trace. Existing outputs stay unchanged; this adds no model dependency or whole-game FPS claim.
+
+Long-session diagnostics and opt-in transient dialogue retention are documented in
+[the overnight evaluation](docs/OVERNIGHT_DEEP_EVAL.md). Routine Web chat no longer
+consumes rumor roots; the retained 600-turn offline trace completes with zero rejections.

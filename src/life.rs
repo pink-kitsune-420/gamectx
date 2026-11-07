@@ -7,6 +7,7 @@ mod continuity;
 pub use context::{render_character_chat, ContextCaps};
 mod initiative;
 mod party;
+mod selection;
 mod speech;
 mod storage;
 pub use continuity::{Coordinator, SpeechTransport};
