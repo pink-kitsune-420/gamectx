@@ -1371,3 +1371,15 @@ fn viewpoint_text_and_checkpoints_are_bounded_under_mutation() {
         }
     }
 }
+
+#[test]
+fn reaction_gate_mutations_never_execute_world_actions() {
+    let seed = include_str!("../conformance/reactions/eligible/input.json");
+    let mut rng = Rng(0x72656163);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

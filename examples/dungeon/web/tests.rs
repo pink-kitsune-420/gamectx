@@ -860,3 +860,71 @@ fn native_piper_prepares_complete_line_and_refuses_false_buffer_metadata() {
         }
     }
 }
+
+#[test]
+fn reaction_prompts_contain_only_currently_eligible_capabilities() {
+    let dir = Dir::new();
+    let mut rules = parse(include_str!("reactions.json")).unwrap();
+    set(&mut rules, "enabled", true.into());
+    std::fs::write(dir.0.join("reactions.json"), rules.to_json()).unwrap();
+    let mut a = app(&dir);
+    travel(&mut a);
+    backend(&mut a, "text", "local_ollama");
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"How are things?"});
+    let body = String::from_utf8(jobs[0].request.body.clone()).unwrap();
+    for forbidden in ["small_loan", "coin_gift", "item_gift", "withheld"] {
+        assert!(!body.contains(forbidden), "{forbidden}");
+    }
+    let revision = a.game.revision;
+    command(&mut a, "act", obj! {"revision"=>revision,"decision"=>game::pair("buy",Some("item:chalk"))});
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"How are things?"});
+    let body = String::from_utf8(jobs[0].request.body.clone()).unwrap();
+    assert!(body.contains("small_loan"));
+    for forbidden in ["coin_gift", "item_gift", "withheld"] {
+        assert!(!body.contains(forbidden), "{forbidden}");
+    }
+}
+
+#[test]
+fn reaction_transaction_rechecks_actual_wallet_after_a_forged_balance() {
+    let dir = Dir::new();
+    let mut config = parse(include_str!("reactions.json")).unwrap();
+    set(&mut config, "enabled", true.into());
+    if let Value::Array(chars) = config.as_object().unwrap().iter().find(|(k, _)| k == "characters").unwrap().1.clone()
+    {
+        let mut chars = chars;
+        set(&mut chars[0], "coins", 1.into());
+        set(&mut config, "characters", chars.into());
+    }
+    std::fs::write(dir.0.join("reactions.json"), config.to_json()).unwrap();
+    let mut reactions = super::reactions::Reactions::new(&dir.0).unwrap();
+    let mut game = game::Game::new(7).unwrap();
+    for room in ["gallery", "workshop"] {
+        game.act(&Value::from(game.revision), &game::pair("go", Some(&format!("room:{room}"))));
+    }
+    let frame = obj! {"actor"=>"merchant","listener"=>"player_1","revision"=>4,"trigger"=>"loan","resource"=>obj!{"kind"=>"coins","id"=>"coin","amount"=>2},"levels"=>obj!{"trust"=>30,"affinity"=>0,"resentment"=>0,"generosity"=>40,"prudence"=>75,"courage"=>25},"resources"=>vec![obj!{"kind"=>"coins","id"=>"coin","amount"=>999}],"reasons"=>vec!["request"],"threat"=>Value::Null,"handlers"=>vec!["loan"],"used"=>Vec::<Value>::new(),"social_left"=>1};
+    let before = game.public();
+    let prior = reactions.snapshot(Vec::new());
+    assert!(reactions.grant(&mut game, &frame, "small_loan", 2).is_err());
+    assert_eq!(game.public(), before);
+    assert_eq!(reactions.snapshot(Vec::new()), prior);
+}
+
+#[test]
+fn reaction_intent_does_not_shrink_quantities_or_execute_future_repayments() {
+    for q in ["I will repay you tomorrow.", "I will pay you back later."] {
+        assert!(super::reactions::intent(q).is_none());
+    }
+    let (_, r, _) = super::reactions::intent("Give me 300 coins.").unwrap();
+    assert_eq!(r.get("amount"), Some(&300.into()));
+    let (_, r, _) = super::reactions::intent("Give me three coins.").unwrap();
+    assert_eq!(r.get("amount"), Some(&3.into()));
+    for q in [
+        "Give me oil and chalk.",
+        "Give me all your money.",
+        "Give me two chalk.",
+        "Give me 999999999999999999999999 coins.",
+    ] {
+        assert_eq!(super::reactions::intent(q).unwrap().1, Value::Null);
+    }
+}

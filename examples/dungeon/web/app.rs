@@ -65,6 +65,7 @@ pub struct App {
     pub manager: super::manager_view::State,
     voice_history: super::voice_history::History,
     mind: super::personality::Mind,
+    reactions: super::reactions::Reactions,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -142,6 +143,7 @@ impl App {
         let manager = super::manager_view::State::new(&dir)?;
         let voice_history = super::voice_history::History::new(&dir)?;
         let mind = super::personality::Mind::new(&dir)?;
+        let reactions = super::reactions::Reactions::new(&dir)?;
         let out = Self {
             config,
             budget,
@@ -174,6 +176,7 @@ impl App {
             manager,
             voice_history,
             mind,
+            reactions,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -376,6 +379,142 @@ impl App {
         });
         Ok(())
     }
+    fn reaction_frame(&self, trigger: &str, resource: &Value, hostile: bool) -> Result<Value> {
+        let inspected = self.world.inspect_actor(&self.npc)?;
+        let level = |kind: &str| {
+            inspected
+                .get("effective_attitudes")
+                .and_then(Value::as_array)
+                .unwrap_or(&[])
+                .iter()
+                .find(|a| {
+                    a.get("definition").is_some_and(|d| {
+                        d.get("kind").and_then(Value::as_str) == Some(kind)
+                            && d.get("subject").and_then(Value::as_str) == Some(self.player.as_str())
+                    })
+                })
+                .and_then(|a| a.get("level"))
+                .map(Value::to_json)
+                .and_then(|s| s.parse::<i64>().ok())
+                .unwrap_or(0)
+        };
+        let profile = self.mind.profile(&self.npc)?;
+        let mut reasons = if hostile { vec!["threat"] } else { vec!["request"] };
+        if !hostile
+            && self.world_ops.iter().any(|o| {
+                o.get("op").and_then(Value::as_str) == Some("observe")
+                    && o.get("args").is_some_and(|a| {
+                        a.get("actor").and_then(Value::as_str) == Some(self.npc.as_str())
+                            && a.get("event").is_some_and(|e| {
+                                e.get("tag").and_then(Value::as_str) == Some("fulfilled")
+                                    && e.get("subject").and_then(Value::as_str) == Some(self.player.as_str())
+                            })
+                    })
+            })
+        {
+            reasons.push("gratitude");
+        }
+        Ok(
+            obj! {"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"revision"=>self.epoch,"trigger"=>trigger,"resource"=>resource.clone(),"levels"=>obj!{"trust"=>level("trust"),"affinity"=>level("affection"),"resentment"=>level("resentment"),"generosity"=>get(profile,"generosity")?.clone(),"prudence"=>get(profile,"prudence")?.clone(),"courage"=>100-num(profile,"prudence",100)?},"resources"=>self.reactions.resources(&self.npc,&self.game)?,"reasons"=>reasons,"threat"=>Value::Null,"handlers"=>["gift","loan","support"].iter().filter(|h|self.reactions.can_grant(h)).copied().collect::<Vec<_>>(),"used"=>self.reactions.used(&self.npc,&self.player),"social_left"=>if self.active()&&self.game.hp>0&&!self.game.won&&self.actions.len()<256&&self.reactions.records.len()<128{1}else{0}},
+        )
+    }
+    fn reaction_offers(&self) -> Result<Vec<Value>> {
+        if !self.reactions.enabled() || !self.active() {
+            return Ok(Vec::new());
+        }
+        let policy = self.reactions.policy(&self.npc)?;
+        let mut out = Vec::new();
+        let mut frame = self.reaction_frame("help", &Value::Null, false)?;
+        for rule in array(get(&policy.to_value(), "rules")?)? {
+            set(&mut frame, "trigger", get(rule, "trigger")?.clone());
+            set(&mut frame, "resource", get(rule, "resource")?.clone());
+            for cap in array(get(&policy.select(&frame)?, "allowed")?)? {
+                if !out.iter().any(|v: &Value| v.get("id") == cap.get("id")) {
+                    out.push(cap.clone());
+                }
+            }
+        }
+        Ok(out)
+    }
+    fn reaction_chat(&mut self, input: &str, selected: Option<&str>) -> Result<Value> {
+        let (trigger, resource, hostile) = super::reactions::intent(input).ok_or_else(err)?;
+        self.stop(None)?;
+        self.epoch += 1;
+        self.mic_open = false;
+        self.advance()?;
+        let player = self.player.clone();
+        let actor = self.npc.clone();
+        self.log(&player, input, "player");
+        let token = self.next();
+        self.receipt(obj!{"token"=>token,"speaker"=>player.clone(),"recipients"=>vec![actor.clone()],"heard"=>vec![player.clone(),actor.clone()],"text"=>input,"parent"=>Value::Null})?;
+        self.observe(&actor, &player, &format!("{player} said: {input}"), "conversation", 10, None)?;
+        self.fulfill_promises()?;
+        if trigger == "debt" {
+            let line = if let Some(debt) = self.reactions.debt(&actor, &player) {
+                format!("Your loan of {} is still open.", Self::reaction_resource(get(debt, "resource")?)?)
+            } else {
+                "I have no open loan recorded for you.".into()
+            };
+            self.say(&line)?;
+            return Ok(obj! {"addressed"=>true,"direct"=>true,"debt_query"=>true});
+        }
+        let record = if trigger == "repay" {
+            self.reactions.repay(&mut self.game, &actor, &player, self.actions.len()).ok()
+        } else {
+            let frame = self.reaction_frame(trigger, &resource, hostile)?;
+            let choices = self.reactions.policy(&actor)?.select(&frame)?;
+            let allowed = array(get(&choices, "allowed")?)?;
+            let candidate = if let Some(id) = selected {
+                allowed.iter().find(|r| r.get("id").and_then(Value::as_str) == Some(id))
+            } else {
+                allowed.first()
+            };
+            if let Some(cap) = candidate {
+                Some(self.reactions.grant(&mut self.game, &frame, text(cap, "id")?, self.actions.len())?)
+            } else {
+                None
+            }
+        };
+        let (line, accepted) = if let Some(record) = record {
+            let name = Self::reaction_resource(get(&record, "resource")?)?;
+            let line = if text(&record, "op")? == "repay" {
+                format!("Thank you; your loan of {name} is repaid.")
+            } else {
+                match text(&record, "handler")? {
+                    "gift" => format!("I can spare {name}; it is yours."),
+                    "loan" => format!("I can lend you {name}; please return it when you can."),
+                    _ => "Take a breath; tell me which part is troubling you.".into(),
+                }
+            };
+            // Resource transaction is already host-confirmed; a model never reports success.
+            let proof = format!(
+                "Host confirms {} {} for {}: {}.",
+                text(&record, "op")?,
+                text(&record, "handler")?,
+                player,
+                name
+            );
+            if self.observe(&actor, &player, &proof, "conversation", 70, None).is_err() {
+                self.notice = "Action completed; its Life event could not be retained.".into();
+            }
+            (line, true)
+        } else {
+            (if trigger=="repay"{"I cannot record a repayment: there is no matching open loan or the borrowed resource is unavailable."}else if hostile{"Threatening words do not persuade me to hand things over."}else{"I am not willing or able to offer that right now."}.into(),false)
+        };
+        self.say(&line)?;
+        Ok(obj! {"addressed"=>true,"direct"=>true,"reaction"=>accepted})
+    }
+    fn reaction_resource(v: &Value) -> Result<String> {
+        if v == &Value::Null {
+            return Ok("support".into());
+        }
+        Ok(if text(v, "kind")? == "coins" {
+            let n = num(v, "amount", 1_000_000)?;
+            format!("{n} {}", if n == 1 { "coin" } else { "coins" })
+        } else {
+            text(v, "id")?.trim_start_matches("item:").replace('_', " ")
+        })
+    }
     fn attitude_level(&self, kind: &str) -> Result<i64> {
         let v = self.world.inspect_actor(&self.npc)?;
         Ok(v.get("effective_attitudes")
@@ -516,6 +655,19 @@ impl App {
         let episodes=life.recall_selected(&obj!{"input"=>input,"tags"=>vec!["trade","conversation"],"subjects"=>vec![self.player.clone()],"required"=>Vec::<Value>::new(),"count"=>hints.recall,"archive"=>true})?;
         let mut state = parse(text(&messages[2], "content")?)?;
         set(&mut state, "episodes", episodes);
+        if self.reactions.enabled() {
+            if let Some(debt) = self.reactions.debt(&self.npc, &self.player) {
+                set(
+                    &mut state,
+                    "open_loan",
+                    obj! {"lender"=>self.npc.clone(),"borrower"=>self.player.clone(),"resource"=>get(debt,"resource")?.clone(),"status"=>"open"},
+                );
+            }
+        }
+        let offers = self.reaction_offers()?;
+        if !offers.is_empty() {
+            set(&mut state, "host_reaction_capabilities", offers.into());
+        }
         let promises = self
             .interactions
             .iter()
@@ -1343,7 +1495,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1353,6 +1505,26 @@ impl App {
         self.manager_update(Vec::new())?;
         let mut jobs = Vec::new();
         let result = match op {
+            "reaction_settings" => {
+                self.reactions.configure(v, &self.actions, self.game.seed, &self.dir)?;
+                self.stop(None)?;
+                self.epoch += 1;
+                obj! {"configured"=>true}
+            }
+            "reaction" => {
+                fields(v, &["id", "revision"])?;
+                if !self.reactions.enabled() || !self.active() || num(v, "revision", u32::MAX as u64)? != self.epoch {
+                    return Err(err());
+                }
+                let offers = self.reaction_offers()?;
+                let cap = offers.iter().find(|c| c.get("id") == v.get("id")).ok_or_else(err)?;
+                let request = match text(cap, "handler")? {
+                    "gift" => format!("Could you give me {}?", Self::reaction_resource(get(cap, "resource")?)?),
+                    "loan" => format!("Could you lend me {}?", Self::reaction_resource(get(cap, "resource")?)?),
+                    _ => "Could you help me?".into(),
+                };
+                self.reaction_chat(&request, Some(text(v, "id")?))?
+            }
             "personality_settings" => {
                 self.mind.configure(v, &self.dir)?;
                 self.stop(None)?;
@@ -1487,6 +1659,7 @@ impl App {
                 self.manager_significance = 0;
                 self.manager_delta = 0;
                 self.game = game;
+                self.reactions = self.reactions.fresh()?;
                 self.world = world;
                 self.party = party;
                 self.interactions = interactions;
@@ -1516,9 +1689,11 @@ impl App {
             "act" => {
                 fields(v, &["revision", "decision"])?;
                 self.stop(None)?;
+                let prior = self.game.clone();
                 let before = self.game.revision;
                 let result = self.game.act(get(v, "revision")?, get(v, "decision")?);
                 if self.game.revision != before {
+                    self.reactions.trade(&prior, get(v, "decision")?)?;
                     self.epoch += 1;
                     self.mic_open = false;
                     self.actions.push(v.clone());
@@ -1574,6 +1749,9 @@ impl App {
                 let line = text(v, "text")?;
                 if line.is_empty() || line.len() > 1024 || line.chars().any(char::is_control) {
                     return Err(err());
+                }
+                if self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
+                    return Ok((self.reaction_chat(line, None)?, jobs));
                 }
                 let choices = self.game.choices();
                 let items = self.game.visible_items();
@@ -2031,6 +2209,9 @@ impl App {
                 let slot = num(v, "slot", 3)?;
                 self.stop(None)?;
                 let mut saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
+                if self.reactions.enabled() || !self.reactions.records.is_empty() {
+                    set(&mut saved, "npc_reactions", self.reactions.checkpoint()?);
+                }
                 if self.mind.enabled() || !array(get(&self.mind.views.checkpoint(), "entries")?)?.is_empty() {
                     set(&mut saved, "viewpoints", self.mind.views.checkpoint());
                 }
@@ -2088,7 +2269,7 @@ impl App {
         }
         let mut base = v.clone();
         if let Value::Object(rows) = &mut base {
-            rows.retain(|(k, _)| k != "viewpoints");
+            rows.retain(|(k, _)| k != "viewpoints" && k != "npc_reactions");
         }
         fields(
             &base,
@@ -2116,18 +2297,12 @@ impl App {
         if text(v, "pack_digest")? != gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())? {
             return Err(err());
         }
-        let mut game = game::Game::new(num(v, "seed", 65535)? as u32)?;
         let actions = array(get(v, "actions")?)?.to_vec();
         if actions.len() > 256 {
             return Err(err());
         }
-        for a in &actions {
-            let before = game.revision;
-            game.act(get(a, "revision")?, get(a, "decision")?);
-            if game.revision != before + 1 {
-                return Err(err());
-            }
-        }
+        let (reactions, game) =
+            self.reactions.replay(v.get("npc_reactions"), num(v, "seed", 65535)? as u32, &actions)?;
         let world_ops = array(get(v, "world_ops")?)?.to_vec();
         if world_ops.len() > 8192 {
             return Err(err());
@@ -2210,6 +2385,7 @@ impl App {
         self.manager_significance = 0;
         self.manager_delta = 0;
         self.game = game;
+        self.reactions = reactions;
         self.mind.replace(views, &self.dir)?;
         self.world = world;
         self.actions = actions;

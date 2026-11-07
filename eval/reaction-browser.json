@@ -1,0 +1,14 @@
+{
+  "browser": "Firefox headless",
+  "workflows": 6,
+  "gated_options_hidden": true,
+  "settings_editable": true,
+  "actual_loan_and_repayment": true,
+  "gift_reuse_blocked": true,
+  "unowned_offer_withheld": true,
+  "debug_stays_minimized": true,
+  "page_console_errors": 0,
+  "api_spend_usd": 0,
+  "actual_provider_calls": 0,
+  "limits": "Real example host and browser DOM, no AI calls or physical media."
+}

@@ -1423,3 +1423,5 @@ BiDi 9223 and creates its own isolated mock host. Media playback is stubbed; no 
 physical audio or paid API is invoked. Retained voice-history JSON records its limits.
 
 Character viewpoints: `python3 -I eval/viewpoint_cases.py --cap 0` and `eval/personality_host.py --cap 0` run offline. `eval/personality_browser.py --cap 0` uses an explicitly started Firefox BiDi instance on 9223. Frozen `personality-model-*` and fresh `personality-model-v2-*` retain token-first packets, raw local 3B replies and lexical reviews; [interpretation](../docs/CHARACTER_VIEWPOINTS.md). Bindings use `viewpoint_bindings.py` / `.mjs`.
+
+Reactions: `reaction_cases.py --cap 0` checks 22 independent Python/Rust fixtures; `reaction_host.py --cap 0` checks transfers/debts/replay with no AI. `reaction_browser.py --cap 0` uses Firefox BiDi 9223. Frozen `reaction-host.json` and `reaction-browser.json` record counts/limits. `reaction_bindings.py` / `.mjs` cover all bindings.

@@ -315,7 +315,8 @@ fn handle(
                 b"{\"ok\":false,\"error\":\"Player 2 belongs to the joined guest.\"}",
             );
         }
-        if (["chat", "act", "select", "mic", "promise"].contains(&op) && current.floor() == Some("player_2"))
+        if (["chat", "act", "select", "mic", "promise", "reaction"].contains(&op)
+            && current.floor() == Some("player_2"))
             || (["delivery", "synthesize", "use_fallback"].contains(&op) && !current.host_delivery())
         {
             return response(

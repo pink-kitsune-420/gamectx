@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "enabled": false,
+  "characters": [
+    {
+      "actor": "merchant",
+      "coins": 12,
+      "policy": {
+        "version": 1,
+        "enabled": true,
+        "rules": [
+          {
+            "id": "small_loan",
+            "trigger": "loan",
+            "handler": "loan",
+            "reason": "request",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 17,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 30,
+                "max": 100
+              },
+              {
+                "key": "prudence",
+                "min": 50,
+                "max": 90
+              }
+            ],
+            "resource": {
+              "kind": "coins",
+              "id": "coin",
+              "amount": 2
+            },
+            "priority": 50
+          },
+          {
+            "id": "coin_gift",
+            "trigger": "gift",
+            "handler": "gift",
+            "reason": "gratitude",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 17,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 40,
+                "max": 100
+              }
+            ],
+            "resource": {
+              "kind": "coins",
+              "id": "coin",
+              "amount": 1
+            },
+            "priority": 50
+          },
+          {
+            "id": "item_gift",
+            "trigger": "gift",
+            "handler": "gift",
+            "reason": "gratitude",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 17,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 40,
+                "max": 100
+              }
+            ],
+            "resource": {
+              "kind": "item",
+              "id": "item:chalk",
+              "amount": 1
+            },
+            "priority": 50
+          },
+          {
+            "id": "support",
+            "trigger": "help",
+            "handler": "support",
+            "reason": "request",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 5,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 50,
+                "max": 100
+              }
+            ],
+            "resource": null,
+            "priority": 50
+          }
+        ]
+      }
+    },
+    {
+      "actor": "keeper",
+      "coins": 3,
+      "policy": {
+        "version": 1,
+        "enabled": true,
+        "rules": [
+          {
+            "id": "small_loan",
+            "trigger": "loan",
+            "handler": "loan",
+            "reason": "request",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 15,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 30,
+                "max": 100
+              },
+              {
+                "key": "prudence",
+                "min": 50,
+                "max": 90
+              }
+            ],
+            "resource": {
+              "kind": "coins",
+              "id": "coin",
+              "amount": 1
+            },
+            "priority": 50
+          },
+          {
+            "id": "coin_gift",
+            "trigger": "gift",
+            "handler": "gift",
+            "reason": "gratitude",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 15,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 40,
+                "max": 100
+              }
+            ],
+            "resource": {
+              "kind": "coins",
+              "id": "coin",
+              "amount": 1
+            },
+            "priority": 50
+          },
+          {
+            "id": "item_gift",
+            "trigger": "gift",
+            "handler": "gift",
+            "reason": "gratitude",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 15,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 40,
+                "max": 100
+              }
+            ],
+            "resource": {
+              "kind": "item",
+              "id": "item:keeper_seal",
+              "amount": 1
+            },
+            "priority": 50
+          },
+          {
+            "id": "support",
+            "trigger": "help",
+            "handler": "support",
+            "reason": "request",
+            "gates": [
+              {
+                "key": "trust",
+                "min": 5,
+                "max": 100
+              },
+              {
+                "key": "resentment",
+                "min": -100,
+                "max": 10
+              },
+              {
+                "key": "generosity",
+                "min": 50,
+                "max": 100
+              }
+            ],
+            "resource": null,
+            "priority": 50
+          }
+        ]
+      }
+    }
+  ]
+}

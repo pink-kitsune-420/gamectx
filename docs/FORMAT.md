@@ -2065,3 +2065,5 @@ Voice recording history, cancellable local replies and the floating context/exec
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 
 `studio-viewpoints` adds bounded `{state,ops}` delivery-confirmed mental stances; see [character viewpoints](CHARACTER_VIEWPOINTS.md). Existing fixture outputs and checkpoints without this optional extension remain unchanged.
+
+`studio-reactions` adds `{policy,frame,proposal}` selection/authorization with 22 additive cases. Only selected `allowed` capabilities belong in model context; see [reaction contract](CHARACTER_REACTIONS.md). Optional example transfer checkpoint records preserve old saves.

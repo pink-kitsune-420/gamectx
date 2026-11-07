@@ -1,0 +1,18 @@
+{
+  "workflows": 12,
+  "http_checks": 80,
+  "conserved_coins": 20,
+  "coin_loans": true,
+  "item_loans": true,
+  "actual_item_gift": true,
+  "player_scoped_debt": true,
+  "real_threat_from_chat": false,
+  "repeated_grant_blocked": true,
+  "stale_proposal_rejected": true,
+  "branch_replay": true,
+  "disabled_replay": true,
+  "personality_gate": true,
+  "api_spend_usd": 0,
+  "actual_provider_calls": 0,
+  "limits": "Deterministic example host with original editable policies and no model requests. Shared party purse/inventory, individually attributed debts. Physical threats require a host adapter; this demo does not infer them from speech."
+}

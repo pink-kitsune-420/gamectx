@@ -266,3 +266,22 @@ fn experimental_natural_dialogue_uses_structured_authorized_facts_and_atomic_bud
     h.request(&obj!{"op"=>"speech_finish","args"=>obj!{"ticket"=>"chat_1","text"=>r#"{"speech":"I do not know its purpose.","tone":"neutral","fact_ids":[],"memory_ids":[]}"#}}).unwrap();
     assert_eq!(h.game.public(), before);
 }
+
+#[test]
+fn npc_item_transfers_check_actual_owner_scene_and_return_custody() {
+    let mut game = game::Game::new(7).unwrap();
+    assert!(game.npc_transfer("keeper", "item:keeper_seal", true).is_err());
+    for room in ["gallery", "cistern"] {
+        game.act(&Value::from(game.revision), &game::pair("go", Some(&format!("room:{room}"))));
+    }
+    let before = game.public();
+    assert!(game.npc_transfer("merchant", "item:keeper_seal", true).is_err());
+    assert_eq!(game.public(), before);
+    game.npc_transfer("keeper", "item:keeper_seal", true).unwrap();
+    assert!(game.owns("item:keeper_seal"));
+    assert!(game.npc_transfer("keeper", "item:keeper_seal", true).is_err());
+    game.npc_transfer("keeper", "item:keeper_seal", false).unwrap();
+    assert!(!game.owns("item:keeper_seal"));
+    assert!(game.npc_transfer("keeper", "item:keeper_seal", false).is_err());
+    assert_eq!(game.public(), before);
+}

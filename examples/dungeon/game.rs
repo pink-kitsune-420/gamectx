@@ -117,6 +117,34 @@ impl Game {
     pub fn owns(&self, id: &str) -> bool {
         self.items.iter().any(|x| x.id == id && x.owner == "player")
     }
+    /// Explicit host adapter for optional NPC transfer policies. Player actions are
+    /// still revised by `act`; the caller owns the enclosing scene revision/receipt.
+    pub fn npc_transfer(&mut self, actor: &str, id: &str, to_player: bool) -> Result<()> {
+        let actor = match actor {
+            "merchant" => "merchant",
+            "keeper" => "keeper",
+            _ => return Err(err()),
+        };
+        let room = if actor == "merchant" { "workshop" } else { "cistern" };
+        if self.room != room || self.hp == 0 || self.won {
+            return Err(err());
+        }
+        let item = self.items.iter_mut().find(|i| i.id == id).ok_or_else(err)?;
+        if to_player {
+            if item.owner != actor || item.location != room {
+                return Err(err());
+            }
+            item.owner = "player";
+            item.location = "inventory".into();
+        } else {
+            if item.owner != "player" || item.location != "inventory" {
+                return Err(err());
+            }
+            item.owner = actor;
+            item.location = room.into();
+        }
+        Ok(())
+    }
     pub fn visible_items(&self) -> Vec<Value> {
         self.items.iter().filter(|x|x.location==self.room||x.location=="inventory").map(|x|
             obj! {"id"=>x.id,"label"=>x.label,"kind"=>x.kind,"owner"=>x.owner,"price"=>x.price,"affordable"=>x.owner=="merchant"&&x.price<=self.coins}).collect()

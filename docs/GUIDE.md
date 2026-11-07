@@ -809,3 +809,5 @@ Voice recording history, cancellable local replies and the floating context/exec
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 
 Use Settings → Characters in the local studio to enable editable dispositions and listener-scoped saved opinions. [Character viewpoints](CHARACTER_VIEWPOINTS.md) explains complete-heard confirmation, branch persistence, bounds and model limitations. Thinking hides the previous reply until the new line is ready; Use instant reply keeps the 0B path available.
+
+Settings → Characters → Optional world reactions enables host-approved gifts, loans and support. Only currently eligible offers appear in play. See [rules, host evidence and replay boundaries](CHARACTER_REACTIONS.md); other world actions require registered engine handlers.

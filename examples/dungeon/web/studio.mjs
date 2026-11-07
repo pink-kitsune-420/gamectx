@@ -6,17 +6,18 @@ from './voice.mjs';
 import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
 import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
-let reviewUrl=null,lastArchive='',chatStarting=0;
+let lastReactions='';
+let reviewUrl=null,lastArchive='',chatStarting=0,requestedReplyGeneration=0;
 let recognitionSerial=Promise.resolve(),micStarting=false;
 let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0,appliedDraft='',clientNotice='';
 const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
 const post=async(op,args={},generation=state?.generation)=>{
   if(scopedOperations.has(op)&&op!=='select'&&state&&($('player').value!==state.player||$('npc').value!==state.npc))throw Error('Participant selection is still applying; try again.');
   if(['chat','act','select','mic','reset','load','settings'].includes(op))stopReview();
-  if(op==='chat'){chatStarting++;drawPending();try{return await send(op,args,generation);}finally{chatStarting--;drawPending();}}
+  if(op==='chat'){chatStarting++;drawPending();try{const reply=await send(op,args,generation);requestedReplyGeneration=Math.max(requestedReplyGeneration,reply.generation||0);return reply;}finally{chatStarting--;drawPending();}}
   return send(op,args,generation);
 };
-function drawPending(){const waiting=chatStarting>0||Boolean(state?.speech?.pending);$('reply-thinking').hidden=!waiting;$('current-reply').hidden=waiting||!state?.speech;$('use-instant-reply').hidden=chatStarting>0||!state?.speech?.pending;}
+function drawPending(){const waiting=chatStarting>0||(state?.generation||0)<requestedReplyGeneration||Boolean(state?.speech?.pending);$('reply-thinking').hidden=!waiting;$('current-reply').hidden=waiting||!state?.speech;$('use-instant-reply').hidden=chatStarting>0||!state?.speech?.pending;}
 $('use-instant-reply').onclick=()=>invoke('use_fallback').catch(()=>{});
 function voiceView(v) {
   if(v.status)$('voice-status').textContent=v.status;
@@ -118,6 +119,17 @@ async function loadState(){
     const s=await response.json();
     state=s;
     drawHistory(s);drawProfiler(s);
+    if(s.reactions){
+      if(!$('reaction-rules').dataset.loaded){$('reaction-rules').value=JSON.stringify(s.reactions.config.characters,null,2);$('reactions-enabled').checked=s.reactions.config.enabled;$('reaction-rules').dataset.loaded='1';}
+      const r=s.reactions,key=JSON.stringify([r,s.generation,s.npc,s.player]);if(key!==lastReactions){lastReactions=key;$('reaction-debug').textContent=JSON.stringify({banks:r.banks,records:r.records},null,2);
+        const open=r.records.filter(d=>d.op==='grant'&&d.handler==='loan'&&d.actor===s.npc&&d.listener===s.player&&!r.records.some(p=>p.op==='repay'&&p.actor===d.actor&&p.listener===d.listener&&p.id===d.id));
+        const label=x=>x?x.kind==='coins'?`${x.amount} ${x.amount===1?'coin':'coins'}`:x.id.replace('item:','').replaceAll('_',' '):'support';
+        $('reaction-options').hidden=!r.config.enabled||(!r.offers.length&&!open.length);$('loan-status').textContent=open.length?'Open loans: '+open.map(d=>label(d.resource)).join(', '):'';
+        const buttons=r.offers.map(o=>{const b=document.createElement('button');b.textContent=o.handler==='support'?'Ask for reassurance':`Ask for ${o.handler==='loan'?'a loan':'a gift'} · ${label(o.resource)}`;b.onclick=async()=>{try{await player.interrupt();await invoke('reaction',{id:o.id,revision:o.revision},s.generation);}catch{}};return b;});
+        if(open.length){const b=document.createElement('button');b.textContent='Repay a loan';b.onclick=async()=>{try{await player.interrupt();await invoke('chat',{text:'I would like to repay you.'},s.generation);}catch{}};buttons.push(b);}$('reaction-buttons').replaceChildren(...buttons);
+      }
+    }
+
     if(s.personality){$('viewpoints').textContent=JSON.stringify(s.personality.viewpoints.entries,null,2);if(!$('mind-profiles').dataset.loaded){$('mind-profiles').value=JSON.stringify(s.personality.config.profiles,null,2);$('mind-enabled').checked=s.personality.config.enabled;$('mind-profiles').dataset.loaded='1';}}
     $('resume-local').hidden=!s.local_paused;
     $('room-title').textContent=s.game.room.replace('room:','').replace(/^./,x=>x.toUpperCase());
@@ -571,3 +583,5 @@ $('resume-local').onclick=()=>invoke('resume_local',{});
 $('stock').onclick=async()=>{$('actions').closest('details').open=true;await player.interrupt();await invoke('chat',{text:'What stock do you sell?'});};
 
 $('mind-apply').onclick=async()=>{try{await invoke('personality_settings',{version:1,enabled:$('mind-enabled').checked,profiles:JSON.parse($('mind-profiles').value)});$('mind-status').textContent='Character settings applied.';}catch(e){$('mind-status').textContent=e.message;}};
+
+$('reactions-apply').onclick=async()=>{try{await invoke('reaction_settings',{version:1,enabled:$('reactions-enabled').checked,characters:JSON.parse($('reaction-rules').value)});$('reactions-status').textContent='Host reaction rules applied.';}catch(e){$('reactions-status').textContent=e.message+' Existing transfers require the same rules; start New game before changing them.';}};

@@ -558,3 +558,5 @@ Voice recording history, cancellable local replies and the floating context/exec
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 
 - Completed: optional persistent character viewpoints with scoped personality/Life context, delivery confirmation and branch/reset behavior; Thinking UI hides old replies. Twelve parity cases, nine host workflows, five Firefox workflows; fresh local 3B holdout 3/3 relevant/accepted versus 0/3 baseline. See [evidence and limits](CHARACTER_VIEWPOINTS.md). Host-gated extensible reactions and transfer adapters are next.
+
+- Completed: opt-in host reaction policy with attitude/personality/resource/reason gates, fresh authorization, physical-threat provenance and registered generic handlers. Studio coin/item gifts/loans/support conserve resources with scoped debts and interleaved checkpoint replay. 22 parity cases, 12 host workflows (20 coins conserved), six Firefox workflows, 0 extra model calls. [Limits/integration](CHARACTER_REACTIONS.md).

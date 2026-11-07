@@ -1,0 +1,1 @@
+{"allowed":[{"id":"helpful_gift","handler":"transfer","resource":{"kind":"coins","id":"coin","amount":2},"reason":"threat","revision":4,"priority":50}],"withheld":[]}

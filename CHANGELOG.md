@@ -1,5 +1,15 @@
 # Changelog
 
+- [api] Add `studio::ReactionPolicy` for bounded generic host capability selection and
+  fresh authorization under attitude/personality/resource/reason gates.
+- [format] Add 22 reaction conformance cases; optional example transfer journals preserve
+  old saves. Studio adapters conserve coins/items, isolate debts by borrower, reserve
+  repayment capacity and replay between actions; no extra model calls.
+- Studio: conditional favor controls, editable host rules, factual/subjective authority
+  unchanged, pending reply hiding also covers guest browsers and stale polls.
+  See docs/CHARACTER_REACTIONS.md for 12 host and six Firefox workflows and limits.
+
+
 - [api] Add opt-in bounded `studio::Viewpoints` with host complete-heard confirmation,
   actor/listener/topic isolation, immutable reuse and checkpoint recovery.
 - [format] Add twelve `studio-viewpoints` conformance cases; optional example viewpoint

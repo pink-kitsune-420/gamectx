@@ -1018,3 +1018,5 @@ Piper prepares full lines before playback; see [buffered speech and microphone c
 Saved voice recordings and floating context/execution profilers: [guide](docs/STUDIO_DIAGNOSTICS.md).
 
 The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPOINTS.md) for dreams, hobbies and preferences; confirmed subjective speech stays separate from world authority.
+
+[Host-approved character reactions](docs/CHARACTER_REACTIONS.md) add optional personality/attitude/resource gates, generic handler authorization and playable coin/item loans, gifts and support at zero extra model calls.
