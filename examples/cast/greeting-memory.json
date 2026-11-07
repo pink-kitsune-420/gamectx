@@ -1,0 +1,71 @@
+{
+  "kind": "studio-greetings",
+  "args": {
+    "config": {
+      "version": 1,
+      "long_gap_turns": 12
+    },
+    "state": {
+      "version": 1,
+      "revision": 0,
+      "entries": []
+    },
+    "ops": [
+      {
+        "op": "plan",
+        "args": {
+          "actor": "merchant",
+          "listener": "player_1",
+          "scene": "workshop",
+          "visit": 2,
+          "at": 3,
+          "trust": 15,
+          "atmosphere": "calm",
+          "place": "workplace"
+        }
+      },
+      {
+        "op": "confirm",
+        "args": {
+          "actor": "merchant",
+          "listener": "player_1",
+          "scene": "workshop",
+          "visit": 2,
+          "at": 3,
+          "token": 5,
+          "greeting": true,
+          "introduced": true,
+          "text": "Hello, I am Ilen.",
+          "heard": 17,
+          "expected": null
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "actor": "merchant",
+          "listener": "player_1",
+          "scene": "tavern",
+          "visit": 7,
+          "at": 8,
+          "trust": 15,
+          "atmosphere": "calm",
+          "place": "social"
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "actor": "merchant",
+          "listener": "player_2",
+          "scene": "workshop",
+          "visit": 2,
+          "at": 8,
+          "trust": 15,
+          "atmosphere": "calm",
+          "place": "workplace"
+        }
+      }
+    ]
+  }
+}

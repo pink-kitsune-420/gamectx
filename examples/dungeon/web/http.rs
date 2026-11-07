@@ -315,7 +315,7 @@ fn handle(
                 b"{\"ok\":false,\"error\":\"Player 2 belongs to the joined guest.\"}",
             );
         }
-        if (["chat", "act", "select", "mic", "promise", "reaction"].contains(&op)
+        if (["chat", "act", "select", "mic", "promise", "reaction", "approach"].contains(&op)
             && current.floor() == Some("player_2"))
             || (["delivery", "synthesize", "use_fallback"].contains(&op) && !current.host_delivery())
         {
@@ -339,12 +339,14 @@ fn handle(
         current.lock_host_player();
     }
     let generation = current.epoch;
-    if ["chat", "guest_chat", "guest_read", "act", "select", "mic", "recognition", "reset", "load"].contains(&op)
+    if ["chat", "approach", "guest_chat", "guest_read", "act", "select", "mic", "recognition", "reset", "load"]
+        .contains(&op)
         || op == "delivery" && args.get("event").and_then(Value::as_str) == Some("queued")
     {
         providers::cancel_text();
     }
     if (op == "delivery" && args.get("event").and_then(Value::as_str) == Some("interrupted"))
+        || op == "approach"
         || op == "recognition"
         || op == "reset"
         || (op == "manager_action" && args.get("action").and_then(Value::as_str) == Some("stop"))

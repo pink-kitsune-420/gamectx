@@ -42,8 +42,23 @@ pub fn conversation_route(v: &Value) -> Result<Value> {
         {
             kind = "wellbeing";
             topic = "wellbeing".into();
-        } else if ["hi", "hello", "hey", "greetings", "good morning", "good evening", "hello there", "hi there"]
-            .contains(&q.as_str())
+        } else if [
+            "hi",
+            "hello",
+            "hey",
+            "greetings",
+            "good morning",
+            "good evening",
+            "hello there",
+            "hi there",
+            "hello again",
+            "hi again",
+            "hey again",
+            "nice to see you",
+            "nice to see you again",
+            "good to see you again",
+        ]
+        .contains(&q.as_str())
         {
             kind = "greeting";
         } else if ["thanks", "thank you", "thanks a lot", "thank you very much"].contains(&q.as_str()) {

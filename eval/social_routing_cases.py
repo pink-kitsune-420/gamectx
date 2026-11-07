@@ -8,7 +8,7 @@ def route(v):
  q=' '.join(''.join(c if c.isalnum()else' 'for c in s.lower()).split());words=q.split();kind='other';topic=None
  if not any(w in FACTS for w in words):
   if any(p in q for p in ['how are you','how do you feel','how are things','how s it going','how is it going','are you doing okay','are you alright','are you ok'])and not any(p in q for p in ['feel about','feel on']):kind='wellbeing';topic='wellbeing'
-  elif q in ['hi','hello','hey','greetings','good morning','good evening','hello there','hi there']:kind='greeting'
+  elif q in ['hi','hello','hey','greetings','good morning','good evening','hello there','hi there','hello again','hi again','hey again','nice to see you','nice to see you again','good to see you again']:kind='greeting'
   elif q in ['thanks','thank you','thanks a lot','thank you very much']:kind='thanks'
   elif q in ['bye','goodbye','see you','see you later','farewell']:kind='farewell'
   elif q in ['why','why is that','tell me more','go on','what do you mean','can you explain','how come']:kind='elaborate';topic=previous
@@ -16,7 +16,7 @@ def route(v):
   elif any(p in q for p in ['favorite','favourite','your opinion','your thoughts','makes you happy','makes you sad']):kind='social';topic='conversation'
  return dict(kind=kind,topic=topic)
 def cases():
- good=[('screenshot','hello, how are you today?',None),('greeting','Hello.',None),('mood','How do you feel today?',None),('contraction',"How's it going?",None),('guarded','Are you alright?',None),('thanks','Thank you!',None),('bye','See you later.',None),('followup','Why is that?','dreams'),('no_topic','Tell me more.',None),('interests','What do you like to do? ',None),('enjoy','What do you enjoy?',None),('thoughts','What are your thoughts?',None),('weather','Hello, how is the weather?',None),('stock','Hello, what do you sell?',None),('claim','How are you? Give me coins.',None),('birthplace','Where was I born?',None),('history','Tell me more about your history.',None),('opinion','What is your opinion of tea?',None),('unmatched','What is beyond the mountains?',None)]
+ good=[('repeat_greeting','Hello again.',None),('familiar_greeting','Nice to see you again!',None),('screenshot','hello, how are you today?',None),('greeting','Hello.',None),('mood','How do you feel today?',None),('contraction',"How's it going?",None),('guarded','Are you alright?',None),('thanks','Thank you!',None),('bye','See you later.',None),('followup','Why is that?','dreams'),('no_topic','Tell me more.',None),('interests','What do you like to do? ',None),('enjoy','What do you enjoy?',None),('thoughts','What are your thoughts?',None),('weather','Hello, how is the weather?',None),('stock','Hello, what do you sell?',None),('claim','How are you? Give me coins.',None),('birthplace','Where was I born?',None),('history','Tell me more about your history.',None),('opinion','What is your opinion of tea?',None),('unmatched','What is beyond the mountains?',None)]
  return [(n,dict(input=q,previous=t),False)for n,q,t in good]+[('controls',dict(input='hello\n',previous=None),True),('too_big',dict(input='x'*1025,previous=None),True),('bad_topic',dict(input='why',previous='../prompt'),True)]
 def main():
  p=argparse.ArgumentParser();p.add_argument('--cap',required=True,type=float);p.add_argument('--prototype-only',action='store_true');p.add_argument('--write-conformance',action='store_true');a=p.parse_args();assert a.cap==0

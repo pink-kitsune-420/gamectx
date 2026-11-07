@@ -18,7 +18,7 @@ def main():
   assert js("document.getElementById('installed-label').hidden&&getComputedStyle(document.getElementById('installed-label')).display==='none'");cases.append('offline start and hidden empty model list')
   for room in ['gallery','workshop']:
    js("[...document.querySelectorAll('#quick-actions button')].find(b=>b.textContent==='Go to "+room+"').click();true");wait("document.getElementById('room-title').textContent.toLowerCase()==='"+room+"'")
-  js("[...document.querySelectorAll('#quick-actions button')].find(b=>b.textContent==='Talk to merchant').click();true");wait("!document.getElementById('current-reply').hidden");assert 'Offline reply' in js("document.getElementById('reply-origin').textContent");cases.append('talk button produces an explicit offline reply')
+  js("[...document.querySelectorAll('#quick-actions button')].find(b=>b.textContent==='Approach merchant').click();true");wait("!document.getElementById('current-reply').hidden");assert 'no LLM' in js("document.getElementById('reply-origin').textContent");cases.append('approach button produces a host greeting without fabricated player speech')
   input_bottom=js("document.getElementById('input').getBoundingClientRect().bottom");assert input_bottom<=630,(input_bottom,'composer below desktop fold');cases.append('reply and composer visible at 1366 by 630')
   click('play');wait("document.getElementById('play').disabled");assert js("(await (await fetch('/api/state')).json()).speech.delivery.done");cases.append('single click acknowledges text reply')
   click('save');wait("document.getElementById('notice').textContent.includes('saved')")

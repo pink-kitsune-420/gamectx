@@ -1,6 +1,7 @@
 //! Opt-in loopback studio. Game rules remain in the original deterministic host.
 mod app;
 mod followup;
+mod greetings;
 mod http;
 mod manager_runtime;
 mod manager_view;

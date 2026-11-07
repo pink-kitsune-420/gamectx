@@ -1,6 +1,9 @@
 //! Opt-in host policies for the local example studio. No network, audio device or
 //! world executor: external transports acknowledge only confirmed character offsets.
 mod archive;
+mod greetings;
+pub(crate) use greetings::fixture as greetings_fixture;
+pub use greetings::GreetingMemory;
 mod conversation;
 pub use conversation::conversation_route;
 mod reactions;

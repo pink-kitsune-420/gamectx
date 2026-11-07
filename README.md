@@ -1022,3 +1022,5 @@ The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPO
 [Host-approved character reactions](docs/CHARACTER_REACTIONS.md) add optional personality/attitude/resource gates, generic handler authorization and playable coin/item loans, gifts and support at zero extra model calls.
 
 [Studio social turns](docs/STUDIO_CONVERSATION.md) route greetings, wellbeing and heard-topic follow-ups separately from factual shop answers when personality turns are enabled.
+
+[Contextual greetings](docs/CONTEXTUAL_GREETINGS.md) remember confirmed introductions per NPC/player and adapt to encounters and places. Entering a room or using Approach can open conversation through a stage direction, with zero model calls.

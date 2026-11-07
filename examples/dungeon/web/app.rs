@@ -32,6 +32,7 @@ struct Speech {
     audio: Option<Value>,
     origin: String,
     viewpoint: Option<Value>,
+    encounter: Option<Value>,
 }
 pub struct App {
     pub config: Config,
@@ -66,6 +67,7 @@ pub struct App {
     voice_history: super::voice_history::History,
     mind: super::personality::Mind,
     reactions: super::reactions::Reactions,
+    greetings: gamectx::studio::GreetingMemory,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -144,6 +146,11 @@ impl App {
         let voice_history = super::voice_history::History::new(&dir)?;
         let mind = super::personality::Mind::new(&dir)?;
         let reactions = super::reactions::Reactions::new(&dir)?;
+        let mut greetings = super::greetings::new(&dir)?;
+        let mut initial_seq = 0;
+        if mind.enabled() {
+            super::greetings::seed_legacy(&mut greetings, &[], &mind.views.checkpoint(), 0, &mut initial_seq)?;
+        }
         let out = Self {
             config,
             budget,
@@ -152,7 +159,7 @@ impl App {
             epoch: 1,
             branch: 1,
             tick: 0,
-            seq: 0,
+            seq: initial_seq,
             world,
             pack,
             people,
@@ -177,6 +184,7 @@ impl App {
             voice_history,
             mind,
             reactions,
+            greetings,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -314,6 +322,17 @@ impl App {
             let actor = s.actor.clone();
             let player = s.player.clone();
             let viewpoint = s.viewpoint.clone().filter(|_| heard == s.voice.text());
+            let encounter = s.encounter.clone().map(|mut e| {
+                set(&mut e, "text", s.voice.text().into());
+                set(&mut e, "heard", heard.chars().count().into());
+                e
+            });
+            if let Some(encounter) = encounter {
+                if self.greetings.confirm(&encounter).is_err() {
+                    self.notice =
+                        "Reply heard, but its encounter receipt was stale or the encounter store is full.".into();
+                }
+            }
             if let Some(view) = viewpoint {
                 // Only the host's complete heard receipt can publish the mental stance.
                 if self.mind.confirm(&view, &heard, &self.dir).is_err() {
@@ -367,6 +386,13 @@ impl App {
         self.stop(None)?;
         let id = self.next();
         let voice = VoiceTurn::new("studio_save", &self.npc, &self.player, &self.people, line)?;
+        let encounter = if self.mind.enabled() || !self.greetings.is_empty() {
+            Some(
+                obj! {"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"scene"=>self.game.room.clone(),"visit"=>super::greetings::visit(&self.actions)?,"at"=>self.tick,"token"=>id,"greeting"=>false,"introduced"=>false,"text"=>line,"heard"=>0,"expected"=>self.greetings.contact(&self.npc,&self.player).and_then(|c|c.get("token")).cloned().unwrap_or(Value::Null)},
+            )
+        } else {
+            None
+        };
         self.speech = Some(Speech {
             id,
             actor: self.npc.clone(),
@@ -376,6 +402,7 @@ impl App {
             audio: None,
             origin: "offline".into(),
             viewpoint: None,
+            encounter,
         });
         Ok(())
     }
@@ -547,6 +574,79 @@ impl App {
         } else {
             None
         }
+    }
+    fn greeting_plan(&self) -> Result<Value> {
+        let context=self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>"counter","limit"=>1})?;
+        let atmosphere = context
+            .get("atmosphere")
+            .and_then(|v| v.get("state").or_else(|| v.get("tag")))
+            .and_then(Value::as_str)
+            .unwrap_or("calm");
+        self.greetings.plan(&obj!{"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"scene"=>self.game.room.clone(),"visit"=>super::greetings::visit(&self.actions)?,"at"=>self.tick,"trust"=>self.attitude_level("trust")?,"atmosphere"=>atmosphere,"place"=>if self.active(){"workplace"}else{"other"}})
+    }
+    fn greet(&mut self) -> Result<Value> {
+        let plan = self.greeting_plan()?;
+        let label = format!("the {}", self.game.room.replace('_', " "));
+        let rendered =
+            super::greetings::render(&plan, super::greetings::name(&self.npc)?, &label, &self.recent_replies())?;
+        self.say(text(&rendered, "text")?)?;
+        let id = self.speech.as_ref().unwrap().id;
+        let encounter = obj! {"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"scene"=>self.game.room.clone(),"visit"=>super::greetings::visit(&self.actions)?,"at"=>self.tick,"token"=>id,"greeting"=>true,"introduced"=>get(&rendered,"introduced")?.clone(),"text"=>get(&rendered,"text")?.clone(),"heard"=>0,"expected"=>get(&plan,"expected")?.clone()};
+        let s = self.speech.as_mut().unwrap();
+        s.origin = "authored_social".into();
+        s.encounter = Some(encounter);
+        Ok(obj! {"addressed"=>true,"direct"=>true,"social"=>"greeting","greeting"=>plan})
+    }
+    fn approach(&mut self, npc: &str) -> Result<Value> {
+        if !["merchant", "keeper"].contains(&npc)
+            || !self.game.choices().iter().any(|c| {
+                c.get("action").and_then(Value::as_str) == Some("talk")
+                    && c.get("target").and_then(Value::as_str) == Some(format!("npc:{npc}").as_str())
+            })
+        {
+            return Err(err());
+        }
+        if self.speech.as_ref().is_some_and(|s| {
+            s.actor == npc
+                && s.player == self.player
+                && s.voice.snapshot().get("stage").and_then(Value::as_str) == Some("validated")
+                && s.encounter.as_ref().is_some_and(|e| {
+                    e.get("greeting") == Some(&Value::Bool(true))
+                        && e.get("scene").and_then(Value::as_str) == Some(self.game.room.as_str())
+                })
+        }) {
+            return Ok(obj! {"addressed"=>true,"direct"=>true,"stage"=>"approach","already_presented"=>true});
+        }
+        self.stop(None)?;
+        self.epoch += 1;
+        self.mic_open = false;
+        self.npc = npc.into();
+        self.advance()?;
+        let player = self.player.clone();
+        self.log(&player, &format!("*approaches the {npc}*"), "action");
+        self.observe(
+            npc,
+            &player,
+            &format!("{player} approaches {npc} in {}.", self.game.room),
+            "approached",
+            10,
+            None,
+        )?;
+        let mut result = self.greet()?;
+        set(&mut result, "stage", "approach".into());
+        Ok(result)
+    }
+    fn import_greeting_contacts(&mut self) -> Result<()> {
+        if self.mind.enabled() {
+            super::greetings::seed_legacy(
+                &mut self.greetings,
+                &self.receipts,
+                &self.mind.views.checkpoint(),
+                self.tick,
+                &mut self.seq,
+            )?;
+        }
+        Ok(())
     }
     fn social_fallback(&self, kind: &str, trust: i64) -> Result<String> {
         let context=self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>"counter","limit"=>1})?;
@@ -1522,6 +1622,11 @@ impl App {
         if !(npc == "merchant" && self.game.room == "workshop" || npc == "keeper" && self.game.room == "cistern") {
             return Err(err());
         }
+        if let Some(direction) = super::greetings::direction(text(v, "text")?) {
+            if !matches!(direction, super::greetings::Direction::Approach(_)) {
+                return Err(Error::new("The host controls travel and world actions."));
+            }
+        }
         // Guest messages are conversation only. World commands remain host-owned.
         let choices = self.game.choices();
         let labels = self
@@ -1565,7 +1670,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1574,6 +1679,7 @@ impl App {
         }
         self.manager_update(Vec::new())?;
         let mut jobs = Vec::new();
+        let mut immediate_greeting = false;
         let result = match op {
             "reaction_settings" => {
                 self.reactions.configure(v, &self.actions, self.game.seed, &self.dir)?;
@@ -1595,9 +1701,18 @@ impl App {
                 };
                 self.reaction_chat(&request, Some(text(v, "id")?))?
             }
+            "approach" => {
+                fields(v, &["npc"])?;
+                return Ok((self.approach(text(v, "npc")?)?, jobs));
+            }
+            "greeting_settings" => {
+                super::greetings::configure(&mut self.greetings, &self.dir, v)?;
+                obj! {"configured"=>true}
+            }
             "personality_settings" => {
-                self.mind.configure(v, &self.dir)?;
                 self.stop(None)?;
+                self.mind.configure(v, &self.dir)?;
+                self.import_greeting_contacts()?;
                 self.epoch += 1;
                 obj! {"configured"=>true}
             }
@@ -1739,6 +1854,7 @@ impl App {
                 self.transcript.clear();
                 self.voice_history.clear()?;
                 self.mind.replace(gamectx::studio::Viewpoints::new(), &self.dir)?;
+                self.greetings = gamectx::studio::GreetingMemory::new(&self.greetings.config())?;
                 self.shared_log.clear();
                 self.speech = None;
                 self.previews.clear();
@@ -1779,6 +1895,11 @@ impl App {
                     if self.game.room == "cistern" {
                         self.npc = "keeper".into();
                     }
+                    let entered = get(v, "decision")?.get("action") == Some(&Value::str("go"));
+                    if entered && self.mind.enabled() {
+                        let player = self.player.clone();
+                        self.log(&player, &format!("*enters the {}*", self.game.room.replace('_', " ")), "action");
+                    }
                     let message = result.get("message").and_then(Value::as_str).unwrap_or("Action completed.");
                     self.log("host", message, "world");
                     if get(v, "decision")?.get("action") == Some(&Value::str("buy")) {
@@ -1792,6 +1913,20 @@ impl App {
                             80,
                             Some(&format!("purchase_{player}")),
                         )?;
+                    }
+                    if entered && self.mind.enabled() && self.active() {
+                        let actor = self.npc.clone();
+                        let player = self.player.clone();
+                        self.observe(
+                            &actor,
+                            &player,
+                            &format!("{player} enters {} within {actor}'s sight.", self.game.room),
+                            "arrived",
+                            10,
+                            None,
+                        )?;
+                        self.greet()?;
+                        immediate_greeting = true;
                     }
                 }
                 self.fulfill_promises()?;
@@ -1819,6 +1954,13 @@ impl App {
                 let line = text(v, "text")?;
                 if line.is_empty() || line.len() > 1024 || line.chars().any(char::is_control) {
                     return Err(err());
+                }
+                if let Some(direction) = super::greetings::direction(line) {
+                    match direction{
+                    super::greetings::Direction::Approach(npc)=>return self.command("approach",&obj!{"npc"=>npc}),
+                    super::greetings::Direction::Enter(room)=>return self.command("act",&obj!{"revision"=>self.game.revision,"decision"=>game::pair("go",Some(&format!("room:{room}")))}),
+                    super::greetings::Direction::Unsupported=>{self.notice="Choose a destination with a travel button, or use *enters the workshop* or *approaches the merchant*.".into();return Ok((obj!{"stage"=>"unsupported","message"=>self.notice.clone()},jobs));}
+                }
                 }
                 if self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
                     return Ok((self.reaction_chat(line, None)?, jobs));
@@ -1892,10 +2034,13 @@ impl App {
                     let trust = self.attitude_level("trust")?;
                     let previous = if self.mind.enabled() { self.previous_topic() } else { None };
                     let route = gamectx::studio::conversation_route(
-                        &obj! {"input"=>line,"previous"=>previous.clone().map_or(Value::Null,Value::from)},
+                        &obj! {"input"=>if self.mind.enabled(){super::greetings::addressed(line,&self.npc)}else{line.into()},"previous"=>previous.clone().map_or(Value::Null,Value::from)},
                     )?;
                     let kind = if self.mind.enabled() { text(&route, "kind")? } else { "other" };
-                    if ["greeting", "thanks", "farewell"].contains(&kind) {
+                    if kind == "greeting" {
+                        return Ok((self.greet()?, jobs));
+                    }
+                    if ["thanks", "farewell"].contains(&kind) {
                         let response = self.social_fallback(kind, trust)?;
                         self.say(&response)?;
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
@@ -2341,6 +2486,9 @@ impl App {
                 let slot = num(v, "slot", 3)?;
                 self.stop(None)?;
                 let mut saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
+                if self.mind.enabled() || !self.greetings.is_empty() {
+                    set(&mut saved, "encounters", self.greetings.checkpoint());
+                }
                 if self.reactions.enabled() || !self.reactions.records.is_empty() {
                     set(&mut saved, "npc_reactions", self.reactions.checkpoint()?);
                 }
@@ -2368,8 +2516,11 @@ impl App {
         {
             jobs.push(self.manager_job("release", "tts", false)?);
         }
-        let next =
-            if op == "act" && (self.active() || self.game.room == "gallery") { vec!["text"] } else { Vec::new() };
+        let next = if op == "act" && !immediate_greeting && (self.active() || self.game.room == "gallery") {
+            vec!["text"]
+        } else {
+            Vec::new()
+        };
         self.manager_update(next)?;
         if jobs.is_empty() && self.pending.is_empty() && !self.local_paused && self.manager.policy.enabled() {
             if let Some(id) = self
@@ -2401,7 +2552,7 @@ impl App {
         }
         let mut base = v.clone();
         if let Value::Object(rows) = &mut base {
-            rows.retain(|(k, _)| k != "viewpoints" && k != "npc_reactions");
+            rows.retain(|(k, _)| k != "viewpoints" && k != "npc_reactions" && k != "encounters");
         }
         fields(
             &base,
@@ -2510,7 +2661,26 @@ impl App {
                 }
             }
         }
-        let seq = num(v, "seq", u32::MAX as u64)?;
+        let mut seq = self.seq.max(num(v, "seq", u32::MAX as u64)?);
+        let mut greetings = if let Some(data) = v.get("encounters") {
+            gamectx::studio::GreetingMemory::recover(&self.greetings.config(), data)?
+        } else {
+            gamectx::studio::GreetingMemory::new(&self.greetings.config())?
+        };
+        if v.get("encounters").is_none() && self.mind.enabled() {
+            super::greetings::seed_legacy(&mut greetings, &receipts, &views.checkpoint(), tick, &mut seq)?;
+        }
+        for e in array(get(&greetings.checkpoint(), "entries")?)? {
+            if !["merchant", "keeper"].contains(&text(e, "actor")?)
+                || !["player_1", "player_2"].contains(&text(e, "listener")?)
+                || num(e, "last_at", u32::MAX as u64)? > tick
+                || num(e, "token", u32::MAX as u64)? > seq
+                || e.get("visit") != Some(&Value::Null)
+                    && num(e, "visit", u32::MAX as u64)? > super::greetings::visit(&actions)?
+            {
+                return Err(err());
+            }
+        }
         self.stop(None)?;
         self.focus = None;
         self.manager.reset_scene()?;
@@ -2518,6 +2688,7 @@ impl App {
         self.manager_delta = 0;
         self.game = game;
         self.reactions = reactions;
+        self.greetings = greetings;
         self.mind.replace(views, &self.dir)?;
         self.world = world;
         self.actions = actions;

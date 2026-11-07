@@ -1,0 +1,17 @@
+{
+  "workflows": 12,
+  "http_checks": 660,
+  "confirmed_first_introduction": "Hello, I'm Ilen; welcome to the workshop.",
+  "partial_introduction_recorded": false,
+  "same_encounter_distinct_replies": 3,
+  "player_and_npc_isolation": true,
+  "return_and_pause_distinct": true,
+  "confirmed_greetings_survive_110_turn_noise": true,
+  "branch_restore": true,
+  "legacy_contact_migration": true,
+  "reset_clears_contacts": true,
+  "actual_provider_calls": 0,
+  "mock_provider_requests": 0,
+  "api_spend_usd": 0,
+  "limits": "Original offline host with a provider endpoint that rejects any generation. Text read/delivery receipts, not physical audio. Demo NPCs stay at their workplaces; general changed-location and private/emergency cases are tested in the pure API and renderer."
+}

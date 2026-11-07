@@ -13,7 +13,7 @@ let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0,app
 const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
 const post=async(op,args={},generation=state?.generation)=>{
   if(scopedOperations.has(op)&&op!=='select'&&state&&($('player').value!==state.player||$('npc').value!==state.npc))throw Error('Participant selection is still applying; try again.');
-  if(['chat','act','select','mic','reset','load','settings'].includes(op))stopReview();
+  if(['chat','approach','act','select','mic','reset','load','settings'].includes(op))stopReview();
   if(op==='chat'){chatStarting++;drawPending();try{const reply=await send(op,args,generation);requestedReplyGeneration=Math.max(requestedReplyGeneration,reply.generation||0);return reply;}finally{chatStarting--;drawPending();}}
   return send(op,args,generation);
 };
@@ -119,6 +119,7 @@ async function loadState(){
     const s=await response.json();
     state=s;
     drawHistory(s);drawProfiler(s);
+    if(s.greetings){if(!$('greeting-gap').dataset.loaded){$('greeting-gap').value=s.greetings.config.long_gap_turns;$('greeting-gap').dataset.loaded='1';}$('greeting-debug').textContent=JSON.stringify(s.greetings,null,2);}
     if(s.reactions){
       if(!$('reaction-rules').dataset.loaded){$('reaction-rules').value=JSON.stringify(s.reactions.config.characters,null,2);$('reactions-enabled').checked=s.reactions.config.enabled;$('reaction-rules').dataset.loaded='1';}
       const r=s.reactions,key=JSON.stringify([r,s.generation,s.npc,s.player]);if(key!==lastReactions){lastReactions=key;$('reaction-debug').textContent=JSON.stringify({banks:r.banks,records:r.records},null,2);
@@ -149,7 +150,7 @@ async function loadState(){
           let generation=s.generation;
           const npc=choice.target.split(':').at(-1);
           if(npc!==s.npc){const receipt=await invoke('select',{player:s.player,npc},generation);generation=receipt.generation;}
-          await invoke('chat',{text:'Hello.'},generation);
+          await invoke('approach',{npc},generation);$('input').focus();
         } else await invoke('act',{revision:s.game.revision,decision:choice},s.generation);
       }catch{}};
       return b;
@@ -161,10 +162,10 @@ async function loadState(){
       lastTranscript=transcript;
       $('transcript').replaceChildren(...s.transcript.map(row=>{
         const p=document.createElement('div');
-        p.className='line'+(row.speaker==='host'?' host':'');
+        p.className='line'+(row.speaker==='host'?' host':'')+(row.kind==='action'?' stage-direction':'');
         const name=document.createElement('strong');
         name.textContent=row.speaker+' · '+row.kind;
-        p.append(name,document.createTextNode(row.text));
+        p.append(name,document.createTextNode(row.kind==='action'?row.text.replace(/^\*(.*)\*$/,'$1'):row.text));
         return p;
       }
       ));
@@ -585,3 +586,5 @@ $('stock').onclick=async()=>{$('actions').closest('details').open=true;await pla
 $('mind-apply').onclick=async()=>{try{await invoke('personality_settings',{version:1,enabled:$('mind-enabled').checked,profiles:JSON.parse($('mind-profiles').value)});$('mind-status').textContent='Character settings applied.';}catch(e){$('mind-status').textContent=e.message;}};
 
 $('reactions-apply').onclick=async()=>{try{await invoke('reaction_settings',{version:1,enabled:$('reactions-enabled').checked,characters:JSON.parse($('reaction-rules').value)});$('reactions-status').textContent='Host reaction rules applied.';}catch(e){$('reactions-status').textContent=e.message+' Existing transfers require the same rules; start New game before changing them.';}};
+
+$('greeting-apply').onclick=async()=>{try{await invoke('greeting_settings',{version:1,long_gap_turns:Number($('greeting-gap').value)});$('greeting-status').textContent='Greeting behavior applied.';}catch(e){$('greeting-status').textContent=e.message;}};

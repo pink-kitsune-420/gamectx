@@ -1,0 +1,17 @@
+{
+  "browser": "Firefox headless",
+  "workflows": 7,
+  "entry_stage_direction": true,
+  "first_name_introduction": true,
+  "approach_does_not_invent_hello": true,
+  "pending_introduction_reused": true,
+  "same_encounter_not_reintroduced": true,
+  "return_welcome": true,
+  "keeper_and_player_isolation": true,
+  "editable_gap": true,
+  "floating_debug": true,
+  "page_console_errors": 0,
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Real host/DOM with text read receipts, no physical audio, LAN device or live AI quality measurement."
+}

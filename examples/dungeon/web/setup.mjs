@@ -17,7 +17,7 @@ export function choiceLabel(choice,items=[]){
   switch(choice.action){
     case 'go':return `Go to ${name}`;
     case 'buy':return `Buy ${name}${item?.price!==undefined?` · ${item.price} coins`:''}`;
-    case 'talk':return `Talk to ${name}`;
+    case 'talk':return `Approach ${name}`;
     case 'look':return 'Look around';
     case 'wait':return 'Wait a moment';
     default:return `${choice.action.replace(/^./,c=>c.toUpperCase())}${name?' '+name:''}`;

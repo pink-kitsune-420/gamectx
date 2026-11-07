@@ -2069,3 +2069,5 @@ profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 `studio-reactions` adds `{policy,frame,proposal}` selection/authorization with 22 additive cases. Only selected `allowed` capabilities belong in model context; see [reaction contract](CHARACTER_REACTIONS.md). Optional example transfer checkpoint records preserve old saves.
 
 `studio-conversation` adds a bounded `{input,previous}` → `{kind,topic}` social routing hint, with 22 additive `social-routing` cases. It grants no actions or facts; [host behavior and limits](STUDIO_CONVERSATION.md). Existing conversation fixtures are unchanged.
+
+`studio-greetings` adds bounded `{config,state,ops}` encounter planning/confirmation, 26 additive cases and an optional example `encounters` checkpoint extension. `approach` and finite wrapped stage directions are validated example host actions. [Contracts and bounds](CONTEXTUAL_GREETINGS.md).

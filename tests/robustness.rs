@@ -1395,3 +1395,15 @@ fn social_routing_mutations_never_promote_text_to_world_actions() {
         }
     }
 }
+
+#[test]
+fn encounter_receipt_mutations_do_not_create_world_actions() {
+    let seed = include_str!("../conformance/greeting-memory/confirmed/input.json");
+    let mut rng = Rng(0x67726565);
+    for _ in 0..2000 {
+        let s = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&s, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

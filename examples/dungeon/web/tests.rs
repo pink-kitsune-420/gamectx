@@ -946,3 +946,98 @@ fn social_mood_fallbacks_follow_host_attitude_and_urgency() {
         }
     }
 }
+
+#[test]
+fn greeting_renderer_uses_only_current_place_and_keeps_urgent_intros_pending() {
+    let cfg = obj! {"version"=>1,"long_gap_turns"=>12};
+    let mut memory = gamectx::studio::GreetingMemory::new(&cfg).unwrap();
+    let mut frame = obj! {"actor"=>"merchant","listener"=>"player_1","scene"=>"workshop","visit"=>2,"at"=>3,"trust"=>15,"atmosphere"=>"emergency","place"=>"workplace"};
+    let plan = memory.plan(&frame).unwrap();
+    let rendered = super::greetings::render(&plan, "Ilen", "the workshop", &[]).unwrap();
+    assert_eq!(rendered.get("introduced"), Some(&false.into()));
+    assert!(!text(&rendered, "text").unwrap().contains("Ilen"));
+    let line = text(&rendered, "text").unwrap();
+    memory.confirm(&obj!{"actor"=>"merchant","listener"=>"player_1","scene"=>"workshop","visit"=>2,"at"=>3,"token"=>1,"greeting"=>true,"introduced"=>false,"text"=>line,"heard"=>line.chars().count(),"expected"=>Value::Null}).unwrap();
+    set(&mut frame, "atmosphere", "calm".into());
+    set(&mut frame, "at", 4.into());
+    let plan = memory.plan(&frame).unwrap();
+    assert_eq!(plan.get("needs_introduction"), Some(&true.into()));
+    let rendered = super::greetings::render(&plan, "Ilen", "the workshop", &[]).unwrap();
+    let line = text(&rendered, "text").unwrap();
+    assert!(line.contains("Ilen"));
+    memory.confirm(&obj!{"actor"=>"merchant","listener"=>"player_1","scene"=>"workshop","visit"=>2,"at"=>4,"token"=>2,"greeting"=>true,"introduced"=>true,"text"=>line,"heard"=>line.chars().count(),"expected"=>1}).unwrap();
+    set(&mut frame, "scene", "tavern".into());
+    set(&mut frame, "visit", 3.into());
+    set(&mut frame, "at", 5.into());
+    set(&mut frame, "place", "social".into());
+    let plan = memory.plan(&frame).unwrap();
+    assert_eq!(plan.get("meeting"), Some(&Value::str("elsewhere")));
+    let rendered = super::greetings::render(&plan, "Ilen", "the tavern", &[]).unwrap();
+    let line = text(&rendered, "text").unwrap();
+    assert!(line.contains("tavern") && !line.contains("workshop") && !line.contains("back"));
+    set(&mut frame, "place", "private".into());
+    let rendered = super::greetings::render(&memory.plan(&frame).unwrap(), "Ilen", "the study", &[]).unwrap();
+    assert!(text(&rendered, "text").unwrap().contains("quietly"));
+    assert!(!text(&rendered, "text").unwrap().contains("alone"));
+}
+
+#[test]
+fn greeting_receipts_reject_stale_replays_without_mutating_encounters() {
+    let mut memory = gamectx::studio::GreetingMemory::new(&obj! {"version"=>1,"long_gap_turns"=>12}).unwrap();
+    let receipt = obj! {"actor"=>"merchant","listener"=>"player_1","scene"=>"workshop","visit"=>1,"at"=>1,"token"=>1,"greeting"=>true,"introduced"=>true,"text"=>"Hello, I'm Ilen.","heard"=>16,"expected"=>Value::Null};
+    // The claimed heard offset cannot exceed the real line; adjust it from Unicode scalars.
+    let mut receipt = receipt;
+    let len = text(&receipt, "text").unwrap().chars().count();
+    set(&mut receipt, "heard", len.into());
+    memory.confirm(&receipt).unwrap();
+    let before = memory.checkpoint();
+    let mut stale = receipt.clone();
+    set(&mut stale, "token", 2.into());
+    assert!(memory.confirm(&stale).is_err());
+    assert_eq!(memory.checkpoint(), before);
+    assert_eq!(memory.confirm(&receipt).unwrap().get("reason"), Some(&Value::str("duplicate")));
+    assert_eq!(memory.checkpoint(), before);
+}
+
+#[test]
+fn stage_directions_follow_the_original_proposal_grammar() {
+    use super::greetings::{direction, Direction};
+    assert_eq!(direction("*approaches the merchant*"), Some(Direction::Approach("merchant")));
+    assert_eq!(direction("*walks over to Ilen*"), Some(Direction::Approach("merchant")));
+    assert_eq!(direction("*enters the workshop*"), Some(Direction::Enter("workshop")));
+    for s in ["*enters the vault and takes the star*", "*enters the room*", "*does not enter the vault*"] {
+        assert_eq!(direction(s), Some(Direction::Unsupported));
+    }
+    assert_eq!(direction("Hello."), None);
+}
+
+#[test]
+fn guest_stage_directions_do_not_bypass_host_world_permissions() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    let before = a.game.public();
+    assert!(a.guest_command("guest_chat", &obj! {"npc"=>"merchant","text"=>"*enters the gallery*"}).is_err());
+    assert_eq!(a.game.public(), before);
+    let (_, jobs) =
+        a.guest_command("guest_chat", &obj! {"npc"=>"merchant","text"=>"*approaches the merchant*"}).unwrap();
+    assert!(jobs.is_empty());
+    let state = a.guest_state();
+    let reply = get(&state, "reply").unwrap();
+    assert!(text(reply, "text").unwrap().contains("Ilen"));
+    let id = get(reply, "id").unwrap().clone();
+    a.guest_command("guest_read", &obj! {"id"=>id}).unwrap();
+    let state = a.state().unwrap();
+    let entries =
+        get(get(get(&state, "greetings").unwrap(), "memory").unwrap(), "entries").unwrap().as_array().unwrap();
+    assert_eq!(entries.len(), 1);
+    assert_eq!(entries[0].get("listener"), Some(&Value::str("player_2")));
+    assert!(!state
+        .get("transcript")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|r| r.get("kind") == Some(&Value::str("player"))));
+    assert_eq!(a.game.public(), before);
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+- [api] Add bounded `studio::GreetingMemory` for confirmed per-NPC/listener encounters,
+  introduction state and contextual first/continuing/return/location/gap greeting plans.
+- [format] Add 26 greeting-memory and two social-routing cases; optional example
+  encounter checkpoints preserve old saves and existing conformance outputs.
+- Studio: arrival/Approach stage directions replace fabricated player greetings; typed
+  roleplay travel obeys game permissions. Greetings use current perceived place, trust
+  and urgency with zero model requests; guest travel remains host controlled.
+  See docs/CONTEXTUAL_GREETINGS.md for receipt, migration, bounds and offline evidence.
+
+
 - [api] Add bounded `studio::conversation_route` hints for optional social speech.
 - [format] Add an optional bounded personality `reason` and 22 `studio-conversation` conformance cases under `social-routing`;
   preserve existing conversation/evaluation outputs.
