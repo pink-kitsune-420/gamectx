@@ -73,6 +73,7 @@ pub mod info;
 pub mod inventory;
 pub mod json;
 pub mod kit;
+pub mod life;
 pub mod local;
 pub mod location;
 pub mod lore;

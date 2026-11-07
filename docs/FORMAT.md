@@ -1744,3 +1744,7 @@ source_preflight,source_generation,status`. Source indices cite complete calls a
 on count. Keys bind the entire request, output, context and model/template/runner.
 These are host telemetry, not a new packed/core format. Invalid neutral transport
 controls, nonpositive output or insufficient whole-turn allowance fail before inference.
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.

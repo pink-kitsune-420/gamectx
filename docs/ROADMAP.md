@@ -363,3 +363,7 @@ noted; "3 models" adds Llama 3.3 70B.
 
 - Evidence validation establishes source availability/provenance, not logical entailment or calibrated confidence. Host evidence collection, consent, clock progression and archival storage remain integration responsibilities.
 - Indexed recall owns a filtered snapshot and must be rebuilt after edits/erasure/privacy changes. Outcome/temporal trackers are transient; hosts supply source IDs, coverage, clocks and any durable history. Runtime ledger persistence/prices and current permission checks remain host responsibilities. Reusable drafts and observed outcomes do not prove causal effectiveness.
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.

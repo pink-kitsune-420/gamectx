@@ -75,6 +75,7 @@ pub struct CharacterTools {
     enabled: Vec<String>,
     world_id: Option<String>,
     routine: Option<Box<crate::routine::Runtime>>,
+    life: Option<Box<crate::life::Life>>,
 }
 impl CharacterTools {
     pub fn new(scope: &str, actor: &str, participants: &Value) -> Result<Self> {
@@ -85,6 +86,7 @@ impl CharacterTools {
             enabled: Vec::new(),
             world_id: None,
             routine: None,
+            life: None,
         })
     }
     /// Bind one fresh actor view; changing a world ID requires clearing the character.
@@ -104,6 +106,7 @@ impl CharacterTools {
     fn schema(&self, name: &str) -> Result<Value> {
         let view = self.view.as_ref().ok_or_else(c::bad)?;
         match name {
+            "life_recall" | "life_change" => self.life.as_ref().ok_or_else(c::bad)?.schema(name),
             "routine_status" | "activity_propose" => {
                 let runtime = self.routine.as_ref().ok_or_else(c::bad)?;
                 if runtime.revision() != Some(view.revision) {
@@ -167,6 +170,9 @@ impl CharacterTools {
             return Err(c::bad());
         }
         let result = match name {
+            "life_recall" | "life_change" => {
+                self.life.as_ref().ok_or_else(c::bad)?.call(name, input, max_bytes, available)?
+            }
             "routine_status" | "activity_propose" => {
                 self.routine.as_ref().ok_or_else(c::bad)?.call(name, input, revision, max_bytes, available)?
             }
@@ -228,7 +234,26 @@ impl CharacterTools {
         self.disable();
         self.routine.as_deref_mut().ok_or_else(c::bad)
     }
+    pub fn with_life(&mut self, life: crate::life::Life) -> Result<()> {
+        let (scope, actor, participants) = self.interactions.identity();
+        if !life.identity_matches(scope, actor, participants) {
+            return Err(c::bad());
+        }
+        self.disable();
+        self.life = Some(Box::new(life));
+        Ok(())
+    }
+    pub fn life(&self) -> Option<&crate::life::Life> {
+        self.life.as_deref()
+    }
+    pub fn life_mut(&mut self) -> Result<&mut crate::life::Life> {
+        self.disable();
+        self.life.as_deref_mut().ok_or_else(c::bad)
+    }
     pub fn clear(&mut self) {
+        if let Some(life) = &mut self.life {
+            life.clear();
+        }
         self.notes.clear();
         self.interactions.clear();
         self.view = None;

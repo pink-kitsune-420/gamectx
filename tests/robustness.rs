@@ -1068,3 +1068,34 @@ fn observation_selection_mutations_are_bounded_and_read_only() {
         assert_eq!(history.to_value(), before);
     }
 }
+
+#[test]
+fn life_model_text_is_bounded_and_atomic() {
+    use gamectx::life::{Config, Definition, Life, Setting};
+    use std::sync::Arc;
+    let setting =
+        Setting::from_value(&parse(include_str!("../examples/characters/setting.json"), 65536).unwrap()).unwrap();
+    let definition = Arc::new(
+        Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json"), 65536).unwrap(), &setting)
+            .unwrap(),
+    );
+    let life = Life::accept(
+        "scope",
+        "merchant",
+        &vec!["merchant", "player"].into(),
+        definition,
+        Config::resolve(&gamectx::obj! {"enabled"=>true}, &gamectx::obj! {}).unwrap(),
+    )
+    .unwrap();
+    let before = life.inspect();
+    let mut rng = Rng(0x545195);
+    for _ in 0..10000 {
+        let text = mutate(&mut rng, r#"{"rule":"returned_lamp","event":1,"reason":"A returned lamp."}"#);
+        let _ = life.propose(&text);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = Definition::draft(&v, &setting);
+            let _ = Setting::from_value(&v);
+        }
+    }
+    assert_eq!(before, life.inspect());
+}

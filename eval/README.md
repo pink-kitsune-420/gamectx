@@ -1178,3 +1178,11 @@ adapter-only pilot and complete diagnostic production timing have different scop
 all requests/scores/count receipts and validates all five retained live artifacts offline.
 Every recorded run spends $0 API; combined 159 local calls. No new model speech correctness
 or general context-size/parameter-capability claim. [Full evidence](../docs/ADVERSARIAL_EVAL.md).
+
+## Dynamic character stages (offline)
+
+`python3 -I eval/life_cases.py --cap 0 --prototype-only` runs independent host
+expectations. Build the CLI, then omit `--prototype-only` for Python/Rust byte parity.
+Stage 1 has 52 workflows and no model calls. `--write-conformance` writes only the
+new life family; it does not bless any historical outputs. All live conversational
+quality and provider latency remain unmeasured by this deterministic suite.

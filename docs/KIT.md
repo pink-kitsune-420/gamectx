@@ -236,3 +236,7 @@ knowledge as unknown, approximate, exact reading, reported or conflicting. Pytho
 helpers and C#/C session transport share the same bounded revision-checked operation.
 It adds no model schema or permission, and preserves the immutable project/native ABI.
 [Measured limits and guards](ADVERSARIAL_EVAL.md).
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.

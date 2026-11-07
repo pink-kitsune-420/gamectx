@@ -662,3 +662,7 @@ redundant preflights while preserving verified full-request counts. Tool results
 corrections, budgets or identity changes require a fresh count. The measured benefit
 applies to exact repeats; dynamic game turns often miss. Shorter context did not improve
 accuracy in the fresh 16-state probe, and free-form speech remains experimental.
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.

@@ -1,0 +1,19 @@
+{
+  "id": "lantern_vault",
+  "calendar": "cycle:37",
+  "entities": [
+    "merchant",
+    "player",
+    "colony"
+  ],
+  "history": [
+    {
+      "id": "market_opened",
+      "at": 0,
+      "participants": [
+        "merchant"
+      ],
+      "text": "The lantern counter opened beside the vault stair."
+    }
+  ]
+}

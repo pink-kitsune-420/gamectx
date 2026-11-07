@@ -890,3 +890,7 @@ For code changes:
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [docs/LIFE.md](docs/LIFE.md). Defaults and existing formats remain unchanged.

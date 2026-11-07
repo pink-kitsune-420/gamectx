@@ -453,3 +453,7 @@ First public release.
 - **[docs]** 51 shared conformance cases defining every format, for ports in other languages.
 - **[docs]** Model evaluation script (`eval/`), measured results in the README, and
   `docs/GUIDE.md` with practical rules drawn from them.
+
+
+Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
+and host-applied appraisal rules; see [docs/LIFE.md](docs/LIFE.md). Defaults and existing formats remain unchanged.
