@@ -386,3 +386,18 @@ renderer. Small unknown answers omit distractor lore; dialogue hints govern actu
 recall and whole exchanges. Earlier `natural`, `sources` and `legacy` modes retain their
 recorded behavior. Valid JSON still permits factual invention; source-selected answers
 remain the default. No voice service or extra model is required by any offline example.
+
+## Optional loopback studio
+
+Run `cargo run --example dungeon -- --web --cap 0`, then open the printed 127.0.0.1 URL.
+Use travel/trade buttons or exact listed text commands. Player and NPC selectors control
+perspective; only present NPCs hear chat. The default is 0B text, cached art, TTS off and
+STT off. The voice panel explicitly plays/acknowledges a line and immediately interrupts
+on button/voice input, preserving only confirmed heard prefixes. Asset generation never
+approves art automatically.
+
+[Full guide, protocols and measured limits](../../docs/STUDIO.md). Edit
+`web/providers.json` and `web/art.json`; `--web-config FILE`, `--web-state DIR`, `--port N`
+and exact decimal USD `--cap` are supported. Online models are unconfigured placeholders;
+all paid modalities share the startup-authorized cap. Local services are optional; HTTPS
+requires system curl. The tested server and editable UI use no third-party Rust/JS package.

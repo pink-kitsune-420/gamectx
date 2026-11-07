@@ -56,6 +56,7 @@ jobs:
       - run: python3 -I eval/living_measure_check.py --cap 0 --check eval/living-world-timing.json
       - run: python3 -I eval/visual_cases.py --cap 0 --check eval/visual-results.json
       - run: cargo +stable test --example visual --locked
+      - run: python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json
       - run: cargo +stable test --example living-world --locked
       - run: cargo +stable test --example party --locked
       - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-tokens.json
@@ -169,6 +170,8 @@ jobs:
       - run: python3 -I eval/living_cases.py --cap 0 --check-bindings
       - run: python3 -I eval/visual_cases.py --cap 0 --check-bindings
       - run: node eval/visual_bindings_check.mjs
+      - run: python3 -I eval/studio_cases.py --cap 0 --check-bindings
+      - run: node eval/studio_bindings_check.mjs --cap 0
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
@@ -187,10 +190,13 @@ jobs:
 
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/visual-csharp/requests.txt target/visual-csharp/expected.txt
 
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/studio-csharp/requests.txt target/studio-csharp/expected.txt
+
   msrv:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: rustup toolchain install 1.82 --profile minimal
       - run: cargo +1.82 test --locked
+      - run: cargo +1.82 test --example dungeon --locked
       - run: cargo +1.82 test --manifest-path bindings/native/Cargo.toml --locked

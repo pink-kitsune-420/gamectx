@@ -20,6 +20,20 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 The [dynamic character guide](docs/LIFE.md) records the five implementation stages from
 [the agent brief](docs/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
 
+## Optional local RPG, voice and art studio (unreleased v0.3.1a)
+
+Run `cargo run --example dungeon -- --web --cap 0` and open the printed loopback URL.
+The [Lantern Vault studio](docs/STUDIO.md) combines text RPG/party controls, approved art
+and repair, live character inspection, TTS/STT and receipt-based barge-in. Text, image,
+TTS and STT backends switch independently; all paid requests share a durable spending cap.
+Default play needs no model or provider account. The Rust host uses only `std`; optional
+HTTPS providers use system curl. Browser voice support varies.
+
+**32 Python/Rust workflows**, **85 HTTP checks** and **5 fake-browser scenarios** run with
+zero real provider calls / $0 API spend. All **1,090** prior conformance cases remain
+unchanged. [Editable provider profiles](examples/dungeon/web/providers.json) select actual
+model IDs per tier; unconfigured profiles retain deterministic fallbacks.
+
 ## Optional visual specs and approved art (unreleased v0.3.1a)
 
 [Visual compiler and registry](docs/VISUAL.md) lock an editable art bible, map live Life

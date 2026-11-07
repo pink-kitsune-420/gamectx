@@ -8,6 +8,15 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Optional loopback Lantern Vault studio: RPG/party controls, live cast inspection,
+  approved art/repair, independent text/image/TTS/STT channels, actual model-tier maps,
+  durable shared spending cap and receipt-driven interruption. Single bounded model worker;
+  default std-only UI, optional system curl for HTTPS. 32 policy workflows, 85 HTTP checks,
+  five fake-browser scenarios, eleven Rust studio tests; 1,090 older cases unchanged.
+  Zero real provider calls / $0; physical voice/image quality and FPS unmeasured.
+  [Setup, protocols and limits](STUDIO.md).
+
+
 - Optional visual compiler/registry: locked art contract, live expression/activity slots,
   perceived-only cues with authored occlusion, SHA-256 keys, approved/pinned reuse,
   safe approved fallbacks, inspect/repair and stale-worker fences. Python/Rust parity:

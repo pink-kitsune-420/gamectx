@@ -1932,3 +1932,15 @@ objects use canonical lexical keys for SHA-256 identity (other formats retain th
 existing ordering). Inspection is outside the key. Registry outputs have stable
 `key,state,asset,exact,pending,generation,reason` order; submitted candidates remain
 unapproved. Repair outputs `key,state,invalidated`. No model-call schema is added.
+
+## Optional studio policies
+
+`studio-routing` accepts `{cap,operations}` with integer microdollars; `studio-voice`
+accepts `{text,operations}`. Each returns `{results,actual_provider_calls:0}`. Routing
+operations are reserve (`modality,backend,ceiling,local_fallback`), dispatch/finish/cancel
+(`id`), limit (`cap`) and inspect (`{}`). Voice operations are queue/inspect (`{}`),
+progress/interrupt/finish (`through,heard`) and recognition (`text,final,uncertainty`).
+An operation is wrapped as `{op,args}`; success is `{ok:true,result}`, failure `{ok:false}`.
+Top-level shape/bounds errors reject the workflow. These deterministic adapters dispatch
+nothing. [STUDIO](STUDIO.md) specifies provider names, receipts, cumulative caps and limits.
+32 additive cases leave all previous 1,090 cases byte-identical.

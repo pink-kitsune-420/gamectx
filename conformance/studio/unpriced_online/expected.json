@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"backend":"0b_fallback","reservation":null,"reason":"cap_or_unpriced"}},{"ok":true,"result":{"cap_micros":20,"authorized_cap_micros":20,"charged_or_reserved_micros":0,"pending":0}}],"actual_provider_calls":0}

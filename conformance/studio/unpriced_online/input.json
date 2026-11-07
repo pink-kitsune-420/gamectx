@@ -1,0 +1,1 @@
+{"kind":"studio-routing","args":{"cap":20,"operations":[{"op":"reserve","args":{"modality":"text","backend":"online_openai_compatible","ceiling":0,"local_fallback":false}},{"op":"inspect","args":{}}]}}

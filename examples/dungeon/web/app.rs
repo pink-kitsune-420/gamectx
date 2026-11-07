@@ -1,0 +1,1260 @@
+//! Authoritative studio state. Only explicit player choices execute game rules.
+use super::*;
+use gamectx::{
+    cast::CastPack,
+    dialogue::InteractionTools,
+    living::LivingWorld,
+    obj,
+    party::{ModelRoute, PartyScene},
+    studio::{ProviderBudget, VoiceTurn},
+    visual::{Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec},
+};
+use providers::{Config, Request};
+use std::{path::PathBuf, sync::Arc};
+#[derive(Debug)]
+pub struct Job {
+    pub id: u64,
+    pub epoch: u64,
+    pub modality: String,
+    pub backend: String,
+    pub reservation: Option<u64>,
+    pub request: Request,
+    pub binding: Value,
+}
+#[derive(Debug)]
+struct Speech {
+    id: u64,
+    actor: String,
+    player: String,
+    voice: VoiceTurn,
+    pending: bool,
+    audio: Option<Value>,
+}
+pub struct App {
+    pub config: Config,
+    pub budget: ProviderBudget,
+    pub dir: PathBuf,
+    pub game: game::Game,
+    pub epoch: u64,
+    branch: u64,
+    tick: u64,
+    seq: u64,
+    world: LivingWorld,
+    pack: Arc<CastPack>,
+    people: Value,
+    player: String,
+    npc: String,
+    actions: Vec<Value>,
+    world_ops: Vec<Value>,
+    receipts: Vec<Value>,
+    party: PartyScene,
+    interactions: Vec<(String, InteractionTools)>,
+    speech: Option<Speech>,
+    transcript: Vec<Value>,
+    pending: Vec<(u64, u64, String)>,
+    notice: String,
+    mic: u64,
+    mic_open: bool,
+    local_paused: bool,
+    recognition: Value,
+    counters: [u64; 2],
+    fulfilled: [u64; 2],
+    counter_seq: u64,
+    bible: ArtBible,
+    assets: AssetRegistry,
+    specs: Vec<VisualSpec>,
+    approvals: Vec<Value>,
+    repairs: Vec<Value>,
+    applied_repairs: Vec<String>,
+}
+fn array(v: &Value) -> Result<&[Value]> {
+    v.as_array().ok_or_else(err)
+}
+fn source(id: &str, speaker: &str, line: &str) -> Value {
+    obj! {"id"=>id,"speaker"=>speaker,"text"=>line}
+}
+impl App {
+    pub fn new(seed: u32, cap: u64, config: Config, dir: PathBuf) -> Result<Self> {
+        std::fs::create_dir_all(dir.join("assets")).map_err(|_| err())?;
+        let mut pack_value = parse(include_str!("../../cast/chime-town.json"))?;
+        let mut characters = array(get(&pack_value, "characters")?)?.to_vec();
+        for ch in &mut characters {
+            if ["merchant", "keeper"].contains(&text(ch, "id")?) {
+                let mut d = get(ch, "definition")?.clone();
+                let mut rules = array(get(&d, "rules")?)?.to_vec();
+                for player in ["player_1", "player_2"] {
+                    rules.push(obj!{"id"=>format!("purchase_{player}"),"attitude"=>format!("trust_{player}"),"event"=>"purchased","delta"=>2,"cooldown"=>1,"reason"=>"Host-confirmed fair trade supports trust."});
+                }
+                set(&mut d, "rules", rules.into());
+                set(ch, "definition", d);
+            }
+        }
+        set(&mut pack_value, "characters", characters.into());
+        let pack = Arc::new(CastPack::from_value(&pack_value)?);
+        let people = get(&pack.summary(), "participants")?.clone();
+        let world = LivingWorld::new(pack.clone(), "studio_save")?;
+        let party = Self::party(&people, 0)?;
+        let interactions = ["merchant", "keeper"]
+            .into_iter()
+            .map(|id| Ok((id.into(), InteractionTools::new("studio_save", id, &people)?)))
+            .collect::<Result<Vec<_>>>()?;
+        let budget_path = dir.join("spending.json");
+        let budget = if budget_path.exists() {
+            ProviderBudget::recover(&parse(&read_file(&budget_path, 65536)?)?, cap)?
+        } else {
+            ProviderBudget::new(cap)?
+        };
+        let registry_epoch = format!(
+            "run_{}_{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_err(|_| err())?.as_nanos()
+        );
+        let assets = AssetRegistry::new(RegistryConfig::from_value(
+            &obj! {"enabled"=>true,"capacity"=>128,"queue_limit"=>16,"epoch"=>registry_epoch},
+        )?);
+        let cache = dir.join("assets/index.json");
+        let (approvals, repairs) = if cache.exists() {
+            let c = parse(&read_file(&cache, 8 * 1024 * 1024)?)?;
+            fields(&c, &["approvals", "repairs"])?;
+            let a = array(get(&c, "approvals")?)?.to_vec();
+            let r = array(get(&c, "repairs")?)?.to_vec();
+            if a.len() > 128 || r.len() > 128 {
+                return Err(err());
+            }
+            (a, r)
+        } else {
+            (Vec::new(), Vec::new())
+        };
+        let out = Self {
+            config,
+            budget,
+            dir,
+            game: game::Game::new(seed)?,
+            epoch: 1,
+            branch: 1,
+            tick: 0,
+            seq: 0,
+            world,
+            pack,
+            people,
+            player: "player_1".into(),
+            npc: "merchant".into(),
+            actions: Vec::new(),
+            world_ops: Vec::new(),
+            receipts: Vec::new(),
+            party,
+            interactions,
+            speech: None,
+            transcript: Vec::new(),
+            pending: Vec::new(),
+            notice: "Offline studio ready. Text, art and voice providers are independent.".into(),
+            mic: 0,
+            mic_open: false,
+            local_paused: false,
+            recognition: Value::Null,
+            counters: [0, 0],
+            fulfilled: [0, 0],
+            counter_seq: 0,
+            bible: ArtBible::parse(include_str!("art.json"))?,
+            assets,
+            specs: Vec::new(),
+            approvals,
+            repairs,
+            applied_repairs: Vec::new(),
+        };
+        out.persist_budget()?;
+        Ok(out)
+    }
+    fn party(people: &Value, revision: u64) -> Result<PartyScene> {
+        PartyScene::from_value(
+            &obj! {"version"=>1,"id"=>"studio_save","epoch"=>1,"revision"=>revision,"participants"=>array(people)?.iter().map(|p|obj!{"id"=>p.clone(),"kind"=>if p.as_str().unwrap().starts_with("player_"){"player"}else{"ai"}}).collect::<Vec<_>>()},
+        )
+    }
+    pub fn persist_budget(&self) -> Result<()> {
+        atomic(&self.dir.join("spending.json"), self.budget.checkpoint().to_json().as_bytes())
+    }
+    fn cache(&self) -> Result<()> {
+        atomic(
+            &self.dir.join("assets/index.json"),
+            obj! {"approvals"=>self.approvals.clone(),"repairs"=>self.repairs.clone()}.to_json().as_bytes(),
+        )
+    }
+    fn next(&mut self) -> u64 {
+        self.seq += 1;
+        self.seq
+    }
+    fn active(&self) -> bool {
+        self.npc == "merchant" && self.game.room == "workshop" || self.npc == "keeper" && self.game.room == "cistern"
+    }
+    fn log(&mut self, speaker: &str, line: &str, kind: &str) {
+        if self.transcript.len() >= 128 {
+            self.transcript.remove(0);
+        }
+        self.transcript.push(obj! {"speaker"=>speaker,"text"=>line,"kind"=>kind});
+    }
+    fn apply_world(&mut self, op: &str, v: Value) -> Result<Value> {
+        if self.world_ops.len() >= 1024 {
+            return Err(err());
+        }
+        let result = match op {
+            "observe" => self.world.observe(&v)?,
+            "tick" => self.world.tick(&v)?,
+            "counters" => self.world.update_counters(&v)?,
+            _ => return Err(err()),
+        };
+        self.world_ops.push(obj! {"op"=>op,"args"=>v});
+        Ok(result)
+    }
+    fn advance(&mut self) -> Result<()> {
+        self.tick += 1;
+        let offscreen = !matches!(self.game.room.as_str(), "workshop" | "cistern");
+        let windows = if offscreen {
+            vec![
+                obj! {"id"=>"guild_pause","location"=>"tavern","start"=>self.tick,"end"=>self.tick+1,"participants"=>vec!["merchant","keeper"],"kind"=>"routine"},
+            ]
+        } else {
+            Vec::new()
+        };
+        self.apply_world("tick",obj!{"now"=>self.tick,"windows"=>windows,"routines"=>vec![obj!{"actor"=>"guard","frame"=>obj!{"revision"=>self.tick,"now"=>self.tick,"conditions"=>Vec::<Value>::new(),"allowed"=>vec!["work"],"emergency"=>false}}]})?;
+        self.party.advance_revision(self.tick)?;
+        Ok(())
+    }
+    fn observe(
+        &mut self,
+        actor: &str,
+        subject: &str,
+        line: &str,
+        tag: &str,
+        significance: u64,
+        appraisal: Option<&str>,
+    ) -> Result<()> {
+        let l = self.world.base_life(actor)?.inspect();
+        let token = num(&l, "watermark", u32::MAX as u64)? + 1;
+        let id = format!("event_{}", self.next());
+        self.apply_world("observe",obj!{"id"=>id.clone(),"actor"=>actor,"event"=>obj!{"token"=>token,"at"=>self.tick,"kind"=>"direct","tag"=>tag,"subject"=>subject,"source"=>source(&id,actor,line),"audience"=>self.people.clone(),"text"=>line,"causes"=>Vec::<Value>::new(),"retain"=>true},"significance"=>significance,"share_with"=>if significance>=70 {vec![if actor=="merchant" {"keeper"} else {"merchant"}]} else {Vec::new()},"appraise"=>appraisal.map_or(Value::Null,Value::str)})?;
+        Ok(())
+    }
+    fn receipt(&mut self, r: Value) -> Result<()> {
+        if self.receipts.len() >= 96 {
+            self.receipts.drain(..48);
+            self.party = Self::party(&self.people, self.tick)?;
+            for old in &self.receipts {
+                self.party.receipt(old)?;
+            }
+        }
+        self.party.receipt(&r)?;
+        self.receipts.push(r);
+        Ok(())
+    }
+    fn archive_speech(&mut self, interrupted: bool) -> Result<()> {
+        if let Some(s) = &self.speech {
+            let heard = s.voice.heard_text();
+            let actor = s.actor.clone();
+            let player = s.player.clone();
+            if !heard.is_empty() {
+                self.log(&actor, &heard, if interrupted { "heard interrupted prefix" } else { "heard" });
+                self.observe(
+                    &actor,
+                    &player,
+                    &format!("The host confirms {player} heard {actor} say: {heard}"),
+                    "conversation",
+                    10,
+                    None,
+                )?;
+                let token = self.next();
+                let r = obj! {"token"=>token,"speaker"=>actor.clone(),"recipients"=>vec![player.clone()],"heard"=>vec![player.clone(),actor.clone()],"text"=>heard,"parent"=>Value::Null};
+                self.receipt(r)?;
+            }
+            if interrupted {
+                let i = usize::from(player == "player_2");
+                self.counters[i] += 1;
+                self.counter_seq += 1;
+                self.apply_world("counters",obj!{"token"=>self.counter_seq,"player"=>player,"at"=>self.tick,"fulfilled"=>self.fulfilled[i],"broken"=>0,"interrupted"=>self.counters[i],"source"=>source("delivery_receipt",&actor,"Host-confirmed interrupted audio delivery.")})?;
+            }
+        }
+        Ok(())
+    }
+    fn stop(&mut self, through: Option<(u64, u64)>) -> Result<()> {
+        if let Some(s) = &mut self.speech {
+            if get(&s.voice.snapshot(), "done")? != &Value::Bool(true) {
+                let was_playing = matches!(text(&s.voice.snapshot(), "stage")?, "queued" | "played");
+                let (p, h) = if let Some(x) = through {
+                    x
+                } else {
+                    (num(&s.voice.snapshot(), "played", 240)?, num(&s.voice.snapshot(), "heard", 240)?)
+                };
+                s.voice.interrupt(p, h)?;
+                s.pending = false;
+                s.audio = None;
+                self.archive_speech(was_playing)?;
+            }
+        }
+        Ok(())
+    }
+    fn say(&mut self, line: &str) -> Result<()> {
+        self.stop(None)?;
+        let id = self.next();
+        let voice = VoiceTurn::new("studio_save", &self.npc, &self.player, &self.people, line)?;
+        self.speech = Some(Speech {
+            id,
+            actor: self.npc.clone(),
+            player: self.player.clone(),
+            voice,
+            pending: false,
+            audio: None,
+        });
+        Ok(())
+    }
+    fn fallback_line(&self, input: &str) -> String {
+        if input.to_lowercase().contains("stock") || input.to_lowercase().contains("sell") {
+            let stock = self
+                .game
+                .visible_items()
+                .iter()
+                .filter(|x| x.get("owner") == Some(&Value::str("merchant")))
+                .map(|x| format!("{} for {} coins", text(x, "label").unwrap(), get(x, "price").unwrap().to_json()))
+                .collect::<Vec<_>>();
+            return if stock.is_empty() {
+                "I have no listed stock here.".into()
+            } else {
+                format!("I can offer {}.", stock.join(", "))
+            };
+        }
+        if input.to_lowercase().contains("born") || input.to_lowercase().contains("weather") {
+            return "I do not know that; I can only speak from what the host has shown me.".into();
+        }
+        if self.npc == "merchant" {
+            "I tend this counter; choose an item or tell me what you need.".into()
+        } else {
+            "I tend the dry fountain; the host can confirm what is visible here.".into()
+        }
+    }
+    fn compile_text(&self, input: &str, trigger: u64) -> Result<Value> {
+        let size = gamectx::deployment::ModelSize::parse(text(&self.config.value, "size")?)?;
+        let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
+        let expanded = hints.exchanges > 1;
+        let route = ModelRoute::from_value(
+            &obj! {"name"=>"studio","size"=>format!("{}b",text(&self.config.value,"size")?.trim_end_matches('b')),"calls"=>1,"cost_micros"=>0},
+        )?;
+        let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
+        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>self.game.current_description()},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
+        let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
+        let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
+        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else{self.game.public()},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
+        Ok(obj! {"messages"=>messages,"max_tokens"=>hints.output_tokens.min(256)})
+    }
+    fn effective_backend(&self, modality: &str) -> Result<String> {
+        let selected = text(&self.config.value, modality)?;
+        if selected.starts_with("online_") {
+            let ceiling = num(self.config.endpoint(selected)?, "ceiling_micros", 1_000_000_000_000)?;
+            let spent = num(&self.budget.summary(), "charged_or_reserved_micros", 1_000_000_000_000)?;
+            let cap = num(&self.budget.summary(), "cap_micros", 1_000_000_000_000)?;
+            if ceiling == 0 || spent.saturating_add(ceiling) > cap || !self.config.has_credentials(selected) {
+                return Ok(if !self.local_paused && get(&self.config.value, "local_fallback")? == &Value::Bool(true) {
+                    gamectx::studio::backends(modality)?
+                        .iter()
+                        .find(|b| b.starts_with("local_"))
+                        .ok_or_else(err)?
+                        .to_string()
+                } else {
+                    gamectx::studio::fallback(modality)?.into()
+                });
+            }
+        }
+        if self.local_paused && selected.starts_with("local_") {
+            return Ok(gamectx::studio::fallback(modality)?.into());
+        }
+        Ok(selected.into())
+    }
+    fn fulfill_promises(&mut self) -> Result<()> {
+        if !self.active() || !self.game.owns("item:chalk") {
+            return Ok(());
+        }
+        let actor = self.npc.clone();
+        let player = self.player.clone();
+        let i = self.interactions.iter().position(|(id, _)| id == &actor).ok_or_else(err)?;
+        let accepted = self.interactions[i].1.accepted_promises();
+        for note in accepted.iter().filter(|n| n.get("promisor") == Some(&Value::str(&player))) {
+            self.interactions[i].1.set_progress(&obj!{"id"=>get(note,"id")?.clone(),"expected"=>get(note,"revision")?.clone(),"state"=>"fulfilled","source"=>source("chalk_delivery",&actor,"Host confirms the promised purchased chalk is at this counter.")})?;
+            self.observe(
+                &actor,
+                &player,
+                "The host confirms the chalk commitment was fulfilled.",
+                "fulfilled",
+                80,
+                None,
+            )?;
+            let index = usize::from(player == "player_2");
+            self.fulfilled[index] += 1;
+            self.counter_seq += 1;
+            self.apply_world("counters",obj!{"token"=>self.counter_seq,"player"=>player.clone(),"at"=>self.tick,"fulfilled"=>self.fulfilled[index],"broken"=>0,"interrupted"=>self.counters[index],"source"=>source("promise_delivery",&actor,"Host-confirmed completed commitment.")})?;
+        }
+        Ok(())
+    }
+    fn plan(&mut self, modality: &str, payload: &Value, binding: Value) -> Result<Option<Job>> {
+        if self.pending.len() >= 8 {
+            self.notice = "Worker queue is full; using the immediate fallback.".into();
+            return Ok(None);
+        }
+        let selected = text(&self.config.value, modality)?.to_string();
+        let ceiling =
+            if let Ok(e) = self.config.endpoint(&selected) { num(e, "ceiling_micros", 1_000_000_000_000)? } else { 0 };
+        let usable = if selected.starts_with("online_") && !self.config.has_credentials(&selected) {
+            if get(&self.config.value, "local_fallback")? == &Value::Bool(true) {
+                gamectx::studio::backends(modality)?
+                    .iter()
+                    .copied()
+                    .find(|b| b.starts_with("local_"))
+                    .ok_or_else(err)?
+            } else {
+                gamectx::studio::fallback(modality)?
+            }
+        } else {
+            &selected
+        };
+        let route = self.budget.reserve(
+            modality,
+            usable,
+            ceiling,
+            get(&self.config.value, "local_fallback")? == &Value::Bool(true),
+        )?;
+        let backend = text(&route, "backend")?.to_owned();
+        let reservation = get(&route, "reservation")?.as_usize().map(|x| x as u64);
+        if self.local_paused && backend.starts_with("local_") {
+            if let Some(id) = reservation {
+                self.budget.cancel(id)?;
+            }
+            self.notice =
+                "Local dispatch paused after an ambiguous failure; confirm server idle before resuming.".into();
+            return Ok(None);
+        }
+
+        if matches!(
+            backend.as_str(),
+            "0b_fallback" | "cached_only" | "off" | "browser_web_speech" | "browser_speech_recognition"
+        ) {
+            self.notice = format!("{modality}: {} ({})", backend, text(&route, "reason")?);
+            return Ok(None);
+        }
+        let request = match providers::prepare(&self.config, &backend, modality, payload) {
+            Ok(r) => r,
+            Err(e) => {
+                if let Some(id) = reservation {
+                    self.budget.cancel(id)?;
+                }
+                self.notice = format!("{modality} profile is not configured; fallback retained.");
+                let _ = e;
+                return Ok(None);
+            }
+        };
+        let id = self.next();
+        self.pending.push((id, self.epoch, modality.into()));
+        if let Err(e) = if reservation.is_some() { self.persist_budget() } else { Ok(()) } {
+            if let Some(r) = reservation {
+                self.budget.cancel(r)?;
+            }
+            self.pending.retain(|x| x.0 != id);
+            return Err(e);
+        }
+        Ok(Some(Job { id, epoch: self.epoch, modality: modality.into(), backend, reservation, request, binding }))
+    }
+    fn owns_image_ticket(&self, job: &Job) -> bool {
+        job.modality == "image"
+            && job.binding.get("key").and_then(Value::as_str).and_then(|key| self.assets.inspect(key).ok()).is_some_and(
+                |r| {
+                    r.get("ticket") == job.binding.get("ticket")
+                        && r.get("ticket") != Some(&Value::Null)
+                        && r.get("state") == Some(&Value::str("candidate"))
+                },
+            )
+    }
+    pub fn valid_job(&self, job: &Job) -> bool {
+        (job.modality != "image" || self.owns_image_ticket(job))
+            && (job.modality != "text"
+                || self
+                    .speech
+                    .as_ref()
+                    .is_some_and(|s| s.voice.snapshot().get("stage") == Some(&Value::str("validated"))))
+            && (job.modality != "text"
+                || job
+                    .binding
+                    .get("actor")
+                    .and_then(Value::as_str)
+                    .and_then(|actor| self.world.base_life(actor).ok())
+                    .is_some_and(|l| {
+                        Some(l.revision() as usize) == job.binding.get("life_revision").and_then(Value::as_usize)
+                    }))
+            && job.epoch == self.epoch
+            && self.pending.iter().any(|x| x.0 == job.id)
+            && (job.modality == "image"
+                || job.modality == "stt"
+                || self.speech.as_ref().is_some_and(|s| {
+                    Some(s.id) == job.binding.get("speech").and_then(Value::as_usize).map(|x| x as u64)
+                        && get(&s.voice.snapshot(), "done").ok() != Some(&Value::Bool(true))
+                }))
+    }
+    pub fn before_dispatch(&mut self, job: &Job) -> Result<bool> {
+        if !self.valid_job(job) || self.local_paused && job.backend.starts_with("local_") {
+            self.cancel_job(job)?;
+            return Ok(false);
+        }
+        if let Some(id) = job.reservation {
+            self.budget.dispatch(id)?;
+            self.persist_budget()?;
+        }
+        Ok(true)
+    }
+    pub fn cancel_job(&mut self, job: &Job) -> Result<()> {
+        if self.owns_image_ticket(job) {
+            let _ = self.assets.reject(text(&job.binding, "key")?, "Cancelled stale worker.");
+        }
+        self.pending.retain(|x| x.0 != job.id);
+        if let Some(id) = job.reservation {
+            self.budget.cancel(id)?;
+            self.persist_budget()?;
+        }
+        if let Some(s) = &mut self.speech {
+            if Some(s.id) == job.binding.get("speech").and_then(Value::as_usize).map(|x| x as u64) {
+                s.pending = false;
+            }
+        }
+        Ok(())
+    }
+    pub fn complete(&mut self, job: &Job, response: Result<Vec<u8>>) -> Result<Vec<Job>> {
+        let mut followups = Vec::new();
+        if response.is_err() && job.backend.starts_with("local_") {
+            self.local_paused = true;
+        }
+
+        if let Some(id) = job.reservation {
+            self.budget.finish(id)?;
+            self.persist_budget()?;
+        }
+        let valid = self.valid_job(job);
+        self.pending.retain(|x| x.0 != job.id);
+        if !valid {
+            if self.owns_image_ticket(job) {
+                let _ = self.assets.reject(text(&job.binding, "key")?, "Stale worker result.");
+            }
+            return Ok(followups);
+        }
+        let apply = (|| -> Result<()> {
+            let bytes = response?;
+            match job.modality.as_str() {
+                "text" => {
+                    let r = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
+                    let line = if job.backend == "local_ollama" {
+                        text(get(&r, "message")?, "content")?
+                    } else {
+                        text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
+                    };
+                    if line.chars().count() > 240
+                        || gamectx::life::assess_sentence(line, 240)?.to_value().get("boundary_complete")
+                            != Some(&Value::Bool(true))
+                    {
+                        return Err(err());
+                    }
+                    let s = self.speech.as_mut().ok_or_else(err)?;
+                    s.pending = false;
+                    if text(&s.voice.snapshot(), "stage")? == "validated" {
+                        s.voice = VoiceTurn::new("studio_save", &s.actor, &s.player, &self.people, line)?;
+                    }
+                }
+                "image" => {
+                    let v = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
+                    let b64 = if job.backend == "local_sd_cpp" {
+                        array(get(&v, "images")?)?.first().and_then(Value::as_str).ok_or_else(err)?
+                    } else {
+                        text(array(get(&v, "data")?)?.first().ok_or_else(err)?, "b64_json")?
+                    };
+                    let image = providers::decode64(b64)?;
+                    let key = text(&job.binding, "key")?;
+                    let spec = self.assets.inspect(key)?;
+                    let spec = get(&spec, "spec")?;
+                    providers::image(&image, num(spec, "width", 4096)? as u32, num(spec, "height", 4096)? as u32)?;
+                    let digest = gamectx::visual::content_digest(&image)?;
+                    atomic(&self.dir.join("assets").join(format!("{digest}.png")), &image)?;
+                    self.assets.submit(key, get(&job.binding, "ticket")?, &format!("asset://{digest}.png"), &digest)?;
+                }
+                "tts" => {
+                    if bytes.len() < 12 || !bytes.starts_with(b"RIFF") || &bytes[8..12] != b"WAVE" {
+                        return Err(err());
+                    }
+                    let s = self.speech.as_mut().ok_or_else(err)?;
+                    s.audio = Some(
+                        obj! {"audio"=>providers::encode64(&bytes),"mime"=>"audio/wav","start"=>get(&job.binding,"start")?.clone(),"through"=>get(&job.binding,"through")?.clone()},
+                    );
+                }
+                "stt" => {
+                    if !self.mic_open || num(&job.binding, "mic", u32::MAX as u64)? != self.mic {
+                        return Ok(());
+                    }
+                    let v = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
+                    let line = text(&v, "text")?;
+                    self.recognition=gamectx::life::Coordinator::new("studio_save",&self.npc,&self.people)?.recognition(&obj!{"text"=>line,"final"=>true,"uncertainty"=>"Provider transcript; host-selected speaker."})?;
+                    self.mic_open = false;
+                    let (_, next) = self.command("chat", &obj! {"text"=>line})?;
+                    followups.extend(next);
+                }
+                _ => return Err(err()),
+            }
+            Ok(())
+        })();
+        if apply.is_err() {
+            self.notice = format!("{} provider failed validation or was unavailable; fallback retained.", job.modality);
+            if let Some(s) = &mut self.speech {
+                if job.modality == "text" {
+                    s.pending = false;
+                }
+                if job.modality == "tts" {
+                    s.audio = Some(obj! {"fallback"=>"browser_web_speech"});
+                }
+                if job.modality == "tts" {
+                    s.audio = Some(obj! {"fallback"=>"browser_web_speech"});
+                }
+            }
+            if self.owns_image_ticket(job) {
+                let _ = self.assets.reject(text(&job.binding, "key")?, "Provider failed or candidate invalid.");
+            }
+        } else {
+            self.notice = format!("{} worker completed; images still require approval.", job.modality);
+        }
+        Ok(followups)
+    }
+    fn visual(&mut self, target: &str) -> Result<Value> {
+        let portrait = target == "portrait";
+        let entity = if portrait { self.npc.as_str() } else { self.game.room.as_str() };
+        let mut b = self.bible.to_value();
+        if !portrait {
+            set(&mut b, "format", "scene".into());
+            set(&mut b, "framing", "wide room card".into());
+        }
+        let b = ArtBible::from_value(&b)?;
+        let mut facts = Vec::new();
+        let mut fact_ids = Vec::new();
+        if self.game.room == "workshop" {
+            fact_ids.push("shutters_closed");
+            for item in self.game.visible_items() {
+                if item.get("owner") == Some(&Value::str("merchant")) {
+                    match text(&item, "id")? {
+                        "item:oil" => fact_ids.push("visible_oil"),
+                        "item:chalk" => fact_ids.push("visible_chalk"),
+                        _ => {}
+                    }
+                }
+            }
+        }
+        if self.game.room == "gallery" {
+            fact_ids.push(if self.game.gate_open { "gate_open" } else { "gate_closed" });
+        }
+        for id in fact_ids {
+            facts.push(obj!{"id"=>id,"revision"=>self.game.revision,"observed_at"=>self.tick,"source"=>source("studio_sight",&self.player,"Host-confirmed current view."),"kind"=>"perceived","audience"=>self.people.clone(),"text"=>"Current visible state."});
+        }
+        let scene = obj! {"id"=>self.game.room.clone(),"revision"=>self.game.revision,"epoch"=>self.branch,"at"=>self.tick,"participants"=>self.people.clone(),"facts"=>facts,"affordances"=>Vec::<Value>::new()};
+        let life = if portrait { Some(self.world.effective_life(&self.npc)?) } else { None };
+        let spec = VisualSpec::compile(
+            &b,
+            &obj! {"scope"=>"studio_save","observer"=>self.player.clone(),"entity"=>entity,"listener"=>self.player.clone(),"scene"=>scene,"audience"=>vec![self.player.clone()],"life_revision"=>life.as_ref().map_or(Value::Null,|l|l.revision().into()),"activity_revision"=>Value::Null},
+            life.as_ref(),
+            &Activity::idle(),
+        )?;
+        if !self.specs.iter().any(|s| s.key() == spec.key()) && self.specs.len() < 128 {
+            self.specs.push(spec.clone());
+        }
+        let mut selection = self.assets.lookup(&spec)?;
+        for r in self.repairs.clone() {
+            if r.get("base") == Some(&Value::str(spec.key())) && !self.applied_repairs.iter().any(|k| k == spec.key()) {
+                for patch in array(get(&r, "patches")?)? {
+                    let result = self.assets.repair(text(&selection, "key")?, patch)?;
+                    set(&mut selection, "key", get(&result, "key")?.clone());
+                }
+                selection = self.assets.lookup(&spec)?;
+                self.applied_repairs.push(spec.key().into());
+            }
+        }
+        let key = text(&selection, "key")?.to_owned();
+        if let Some(a) = self.approvals.iter().find(|a| a.get("key") == Some(&Value::str(&key))).cloned() {
+            let resident = self.assets.inspect(&key)?;
+            let already_verified = resident
+                .get("asset")
+                .is_some_and(|r| r.get("asset_uri") == a.get("asset_uri") && r.get("digest") == a.get("digest"));
+            let valid = already_verified
+                || self
+                    .asset_bytes(text(&a, "asset_uri")?)
+                    .ok()
+                    .filter(|data| {
+                        gamectx::visual::content_digest(data).ok().as_deref() == a.get("digest").and_then(Value::as_str)
+                    })
+                    .is_some();
+            if valid {
+                self.assets.approve(&key, text(&a, "asset_uri")?, text(&a, "digest")?)?;
+                selection = self.assets.lookup(&spec)?;
+            } else {
+                self.approvals.retain(|r| r.get("key") != Some(&Value::str(&key)));
+                self.notice = "Cached image unavailable; approved fallback or placeholder retained.".into();
+            }
+        }
+        let inspection = self.assets.inspect(&key).unwrap_or_else(|_| {
+            let mut row = spec.to_value();
+            set(&mut row, "state", "missing".into());
+            set(&mut row, "asset", Value::Null);
+            set(&mut row, "candidate", Value::Null);
+            row
+        });
+        Ok(
+            obj! {"base_key"=>spec.key(),"selection"=>selection,"inspection"=>inspection,"visible"=>!portrait||self.active()},
+        )
+    }
+
+    pub fn state(&mut self) -> Result<Value> {
+        let portrait = self.visual("portrait")?;
+        let scene = self.visual("scene")?;
+        let mut characters = Vec::new();
+        for actor in ["merchant", "keeper"] {
+            let life = self.world.effective_life(actor)?;
+            characters.push(obj!{"id"=>actor,"life"=>self.world.inspect_actor(actor)?,"episodes"=>life.recall_episodes("conversation returned",&vec!["conversation","trade"].into(),gamectx::deployment::ModelSize::parse(text(&self.config.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).recall)?});
+        }
+        let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
+        Ok(
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+        )
+    }
+    pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
+        if !v.is_valid(providers::MAX_BYTES) {
+            return Err(err());
+        }
+        let mut jobs = Vec::new();
+        let result = match op {
+            "act" => {
+                fields(v, &["revision", "decision"])?;
+                self.stop(None)?;
+                let before = self.game.revision;
+                let result = self.game.act(get(v, "revision")?, get(v, "decision")?);
+                if self.game.revision != before {
+                    self.epoch += 1;
+                    self.mic_open = false;
+                    self.actions.push(v.clone());
+                    self.advance()?;
+                    if self.game.room == "workshop" {
+                        self.npc = "merchant".into();
+                    }
+                    if self.game.room == "cistern" {
+                        self.npc = "keeper".into();
+                    }
+                    let message = result.get("message").and_then(Value::as_str).unwrap_or("Action completed.");
+                    self.log("host", message, "world");
+                    if get(v, "decision")?.get("action") == Some(&Value::str("buy")) {
+                        let actor = "merchant";
+                        let player = self.player.clone();
+                        self.observe(
+                            actor,
+                            &player,
+                            "The host confirms a paid purchase at the counter.",
+                            "purchased",
+                            80,
+                            Some(&format!("purchase_{player}")),
+                        )?;
+                    }
+                }
+                self.fulfill_promises()?;
+                result
+            }
+            "select" => {
+                fields(v, &["player", "npc"])?;
+                let player = text(v, "player")?;
+                let npc = text(v, "npc")?;
+                if !["player_1", "player_2"].contains(&player) || !["merchant", "keeper"].contains(&npc) {
+                    return Err(err());
+                }
+                self.stop(None)?;
+                self.player = player.into();
+                self.npc = npc.into();
+                self.epoch += 1;
+                self.mic_open = false;
+                obj! {"selected"=>true}
+            }
+            "chat" => {
+                fields(v, &["text"])?;
+                let line = text(v, "text")?;
+                if line.is_empty() || line.len() > 1024 || line.chars().any(char::is_control) {
+                    return Err(err());
+                }
+                let normalized = line
+                    .trim()
+                    .trim_end_matches(['.', '!'])
+                    .to_ascii_lowercase()
+                    .split_whitespace()
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                if let Some(decision) = self.game.choices().into_iter().find(|c| {
+                    let action = text(c, "action").unwrap_or("");
+                    if normalized == action && (c.get("target") == Some(&Value::Null) || action == "look") {
+                        return true;
+                    }
+                    let Some(mut argument) = normalized.strip_prefix(action).and_then(|tail| tail.strip_prefix(' '))
+                    else {
+                        return false;
+                    };
+                    if action == "go" {
+                        argument = argument.strip_prefix("to ").unwrap_or(argument);
+                    }
+                    argument = argument.strip_prefix("the ").unwrap_or(argument);
+                    let Some(target) = c.get("target").and_then(Value::as_str) else {
+                        return false;
+                    };
+                    argument == target.rsplit(':').next().unwrap_or(target).replace('_', " ")
+                        || self.game.visible_items().iter().any(|item| {
+                            item.get("id") == Some(&Value::str(target))
+                                && item.get("label").and_then(Value::as_str) == Some(argument)
+                        })
+                        || target == "door:vault" && argument == "gate"
+                }) {
+                    return self.command("act", &obj! {"revision"=>self.game.revision,"decision"=>decision});
+                }
+                self.stop(None)?;
+                self.epoch += 1;
+                self.mic_open = false;
+                self.advance()?;
+                let player = self.player.clone();
+                self.log(&player, line, "player");
+                if !self.active() {
+                    self.notice = "Travel to the workshop for the merchant, or the cistern for the keeper.".into();
+                    obj! {"addressed"=>false}
+                } else {
+                    let token = self.next();
+                    let receipt = obj! {"token"=>token,"speaker"=>self.player.clone(),"recipients"=>vec![self.npc.clone()],"heard"=>vec![self.player.clone(),self.npc.clone()],"text"=>line,"parent"=>Value::Null};
+                    self.receipt(receipt)?;
+                    let actor = self.npc.clone();
+                    let subject = self.player.clone();
+                    self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
+                    self.fulfill_promises()?;
+                    let fallback = self.fallback_line(line);
+                    self.say(&fallback)?;
+                    let payload = self.compile_text(line, token)?;
+                    let speech = self.speech.as_ref().unwrap().id;
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision()})? {
+                        self.speech.as_mut().unwrap().pending = true;
+                        jobs.push(job);
+                    }
+                    obj! {"addressed"=>true}
+                }
+            }
+            "delivery" => {
+                fields(v, &["id", "event", "through", "heard"])?;
+                let id = num(v, "id", u32::MAX as u64)?;
+                let event = text(v, "event")?;
+                let n = num(v, "through", 240)?;
+                let h = num(v, "heard", 240)?;
+                let s = self.speech.as_mut().filter(|s| s.id == id).ok_or_else(err)?;
+                match event {
+                    "queued" => {
+                        if n != 0 || h != 0 {
+                            return Err(err());
+                        }
+                        s.voice.queue()?;
+                        s.pending = false;
+                    }
+                    "played" => s.voice.progress(n, h)?,
+                    "interrupted" => {
+                        self.stop(Some((n, h)))?;
+                    }
+                    "finished" => {
+                        s.voice.finish(n, h)?;
+                        self.archive_speech(false)?;
+                    }
+                    _ => return Err(err()),
+                };
+                obj! {"accepted"=>true}
+            }
+            "mic" => {
+                fields(v, &[])?;
+                self.stop(None)?;
+                self.mic += 1;
+                self.mic_open = true;
+                let c = gamectx::life::Coordinator::new("studio_save", &self.npc, &self.people)?;
+                self.recognition = c.recognition(
+                    &obj! {"text"=>"[speech detected]","final"=>false,"uncertainty"=>"Transcript pending."},
+                )?;
+                obj! {"session"=>self.mic}
+            }
+            "recognition" => {
+                fields(v, &["session", "text", "final", "uncertainty"])?;
+                if num(v, "session", u32::MAX as u64)? != self.mic || !self.mic_open {
+                    return Err(err());
+                }
+                let c = gamectx::life::Coordinator::new("studio_save", &self.npc, &self.people)?;
+                let result=c.recognition(&obj!{"text"=>get(v,"text")?.clone(),"final"=>get(v,"final")?.clone(),"uncertainty"=>get(v,"uncertainty")?.clone()})?;
+                if get(v, "final")? == &Value::Bool(false) {
+                    self.stop(None)?;
+                } else {
+                    self.mic_open = false;
+                }
+                self.recognition = result.clone();
+                if get(v, "final")? == &Value::Bool(true) {
+                    let (_, next) = self.command("chat", &obj! {"text"=>get(v,"text")?.clone()})?;
+                    jobs.extend(next);
+                }
+                result
+            }
+            "transcribe" => {
+                fields(v, &["session", "audio", "mime"])?;
+                if !self.mic_open || num(v, "session", u32::MAX as u64)? != self.mic {
+                    return Err(err());
+                }
+                let mic = self.mic;
+                if let Some(job) = self.plan("stt", v, obj! {"mic"=>mic})? {
+                    jobs.push(job);
+                }
+                obj! {"queued"=>!jobs.is_empty()}
+            }
+            "synthesize" => {
+                fields(v, &["id"])?;
+                let id = num(v, "id", u32::MAX as u64)?;
+                let s = self.speech.as_ref().filter(|s| s.id == id).ok_or_else(err)?;
+                if get(&s.voice.snapshot(), "done")? == &Value::Bool(true) || self.pending.iter().any(|x| x.2 == "tts")
+                {
+                    return Err(err());
+                }
+                let start = num(&s.voice.snapshot(), "played", 240)?;
+                let remaining = s.voice.text().chars().skip(start as usize).collect::<String>();
+                let chunk = remaining.split_inclusive(char::is_whitespace).next().ok_or_else(err)?.to_owned();
+                let through = start + chunk.chars().count() as u64;
+                let voice = self.config.voice(&s.actor)?.clone();
+                if let Some(job) = self.plan(
+                    "tts",
+                    &obj! {"text"=>chunk,"voice"=>voice},
+                    obj! {"speech"=>id,"start"=>start,"through"=>through},
+                )? {
+                    self.speech.as_mut().unwrap().audio = None;
+                    jobs.push(job);
+                }
+                obj! {"queued"=>!jobs.is_empty()}
+            }
+            "resume_local" => {
+                fields(v, &[])?;
+                if self.pending.iter().any(|x| x.1 == self.epoch) {
+                    return Err(err());
+                }
+                self.local_paused = false;
+                self.notice = "Local dispatch resumed by the host after confirming server idle.".into();
+                obj! {"resumed"=>true}
+            }
+            "settings" => {
+                fields(v, &["text", "image", "tts", "stt", "size", "cap_micros", "voices"])?;
+                let mut value = self.config.value.clone();
+                for k in ["text", "image", "tts", "stt", "size", "voices"] {
+                    set(&mut value, k, get(v, k)?.clone());
+                }
+                let config = Config::parse(&value.to_json())?;
+                self.budget.limit(num(v, "cap_micros", 1_000_000_000_000)?)?;
+                self.persist_budget()?;
+                self.stop(None)?;
+                self.epoch += 1;
+                self.mic_open = false;
+                self.config = config;
+                obj! {"configured"=>true}
+            }
+            "generate" => {
+                fields(v, &["target"])?;
+                let target = text(v, "target")?;
+                if !["portrait", "scene"].contains(&target) {
+                    return Err(err());
+                }
+                let visual = self.visual(target)?;
+                let base_key = text(&visual, "base_key")?;
+                let selected = get(&visual, "selection")?;
+                let key = text(selected, "key")?.to_owned();
+                if selected.get("reason") == Some(&Value::str("capacity")) {
+                    return Ok((obj! {"queued"=>false,"reason"=>"capacity"}, jobs));
+                }
+                if get(selected, "exact")? == &Value::Bool(true) {
+                    return Ok((obj! {"cached"=>true}, jobs));
+                }
+                if matches!(text(selected, "state")?, "candidate" | "rejected") {
+                    return Ok((obj! {"queued"=>false,"reason"=>text(selected,"state")?}, jobs));
+                }
+                let rendered = self.assets.render(&key)?;
+                let prompt = array(get(&rendered, "positive_tokens")?)?
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let palette = array(get(&rendered, "palette")?)?
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let prompt = format!("{prompt}. Palette: {palette}.");
+                let negative = array(get(&rendered, "negative_tokens")?)?
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                if let Some(mut job)=self.plan("image",&obj!{"prompt"=>prompt,"negative_prompt"=>negative,"width"=>get(&rendered,"width")?.clone(),"height"=>get(&rendered,"height")?.clone(),"seed"=>get(&rendered,"seed")?.clone()},obj!{"key"=>key.clone()})? {let spec=self.specs.iter().find(|s|s.key()==base_key).ok_or_else(err)?;let r=self.assets.request(spec)?;if get(&r,"generation")?==&Value::Null {self.cancel_job(&job)?;}else {set(&mut job.binding,"ticket",get(get(&r,"generation")?,"ticket")?.clone());jobs.push(job);}}
+                obj! {"queued"=>!jobs.is_empty()}
+            }
+            "approve" => {
+                fields(v, &["key"])?;
+                let key = text(v, "key")?;
+                let record = self.assets.inspect(key)?;
+                let candidate = get(&record, "candidate")?;
+                let uri = text(candidate, "asset_uri")?;
+                let digest = text(candidate, "digest")?;
+                let data = self.asset_bytes(uri)?;
+                if gamectx::visual::content_digest(&data)? != digest {
+                    return Err(err());
+                }
+                self.assets.approve(key, uri, digest)?;
+                self.approvals.retain(|a| a.get("key") != Some(&Value::str(key)));
+                if self.approvals.len() >= 128 {
+                    self.approvals.remove(0);
+                }
+                self.approvals.push(obj! {"key"=>key,"asset_uri"=>uri,"digest"=>digest});
+                self.cache()?;
+                obj! {"approved"=>true}
+            }
+            "repair" => {
+                fields(v, &["target", "key", "patch", "image"])?;
+                let visual = self.visual(text(v, "target")?)?;
+                let key = text(get(&visual, "selection")?, "key")?.to_owned();
+                let base = text(&visual, "base_key")?.to_owned();
+                if text(v, "key")? != key {
+                    return Err(err());
+                }
+                let mut patch = get(v, "patch")?.clone();
+                if get(&patch, "asset")? != &Value::Null {
+                    return Err(err());
+                }
+                if let Some(b64) = get(v, "image")?.as_str() {
+                    let bytes = providers::decode64(b64)?;
+                    let record = self.assets.inspect(&key)?;
+                    let spec = get(&record, "spec")?;
+                    providers::image(&bytes, num(spec, "width", 4096)? as u32, num(spec, "height", 4096)? as u32)?;
+                    let digest = gamectx::visual::content_digest(&bytes)?;
+                    atomic(&self.dir.join("assets").join(format!("{digest}.png")), &bytes)?;
+                    set(&mut patch, "asset", obj! {"asset_uri"=>format!("asset://{digest}.png"),"digest"=>digest});
+                } else if get(v, "image")? != &Value::Null {
+                    return Err(err());
+                }
+                let result = self.assets.repair(&key, &patch)?;
+                if !self.applied_repairs.contains(&base) {
+                    self.applied_repairs.push(base.clone());
+                }
+                if let Some(asset) = patch.get("asset").filter(|a| *a != &Value::Null) {
+                    let repaired_key = text(&result, "key")?;
+                    self.approvals.retain(|a| a.get("key") != Some(&Value::str(repaired_key)));
+                    if self.approvals.len() >= 128 {
+                        self.approvals.remove(0);
+                    }
+                    self.approvals.push(obj!{"key"=>repaired_key,"asset_uri"=>get(asset,"asset_uri")?.clone(),"digest"=>get(asset,"digest")?.clone()});
+                }
+
+                let r = self.repairs.iter_mut().find(|r| r.get("base") == Some(&Value::str(&base)));
+                if let Some(r) = r {
+                    let mut patches = array(get(r, "patches")?)?.to_vec();
+                    patches.push(patch.clone());
+                    set(r, "patches", patches.into());
+                } else {
+                    if self.repairs.len() >= 128 {
+                        self.repairs.remove(0);
+                    }
+                    self.repairs.push(obj! {"base"=>base,"patches"=>vec![patch.clone()]});
+                }
+                self.cache()?;
+                result
+            }
+            "promise" => {
+                fields(v, &[])?;
+                if !self.active() {
+                    return Err(err());
+                }
+                let id = format!("promise_{}", self.next());
+                let proof = source(&id, &self.player, "I will bring purchased chalk to this counter.");
+                let interactions = &mut self.interactions.iter_mut().find(|(a, _)| *a == self.npc).unwrap().1;
+                let r=interactions.call("promise_remember",&obj!{"promisor"=>self.player.clone(),"beneficiary"=>self.npc.clone(),"task"=>"Bring purchased chalk to the counter.","source"=>id}.to_json(),&vec![proof.clone()].into(),self.tick as u32,8192,|_|false)?;
+                let note = get(&r, "id")?.clone();
+                interactions.set_progress(&obj! {"id"=>note,"expected"=>0,"state"=>"accepted","source"=>proof})?;
+                r
+            }
+            "save" => {
+                fields(v, &["slot"])?;
+                let slot = num(v, "slot", 3)?;
+                self.stop(None)?;
+                let saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
+                atomic(&self.dir.join(format!("branch-{slot}.json")), saved.to_json().as_bytes())?;
+                obj! {"saved"=>slot}
+            }
+            "load" => {
+                fields(v, &["slot"])?;
+                let slot = num(v, "slot", 3)?;
+                let saved = parse(&read_file(&self.dir.join(format!("branch-{slot}.json")), 8 * 1024 * 1024)?)?;
+                self.restore(&saved)?;
+                obj! {"loaded"=>slot}
+            }
+            _ => return Err(err()),
+        };
+        Ok((result, jobs))
+    }
+    fn restore(&mut self, v: &Value) -> Result<()> {
+        fields(
+            v,
+            &[
+                "version",
+                "pack_digest",
+                "seed",
+                "actions",
+                "world_ops",
+                "receipts",
+                "interactions",
+                "player",
+                "npc",
+                "tick",
+                "seq",
+                "counters",
+                "fulfilled",
+                "counter_seq",
+                "transcript",
+            ],
+        )?;
+        if num(v, "version", 1)? != 1 {
+            return Err(err());
+        }
+        if text(v, "pack_digest")? != gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())? {
+            return Err(err());
+        }
+        let mut game = game::Game::new(num(v, "seed", 65535)? as u32)?;
+        let actions = array(get(v, "actions")?)?.to_vec();
+        if actions.len() > 256 {
+            return Err(err());
+        }
+        for a in &actions {
+            let before = game.revision;
+            game.act(get(a, "revision")?, get(a, "decision")?);
+            if game.revision != before + 1 {
+                return Err(err());
+            }
+        }
+        let world_ops = array(get(v, "world_ops")?)?.to_vec();
+        if world_ops.len() > 1024 {
+            return Err(err());
+        }
+        let mut world = LivingWorld::new(self.pack.clone(), "studio_save")?;
+        for o in &world_ops {
+            let a = get(o, "args")?;
+            match text(o, "op")? {
+                "observe" => {
+                    world.observe(a)?;
+                }
+                "tick" => {
+                    world.tick(a)?;
+                }
+                "counters" => {
+                    world.update_counters(a)?;
+                }
+                _ => return Err(err()),
+            }
+        }
+        let tick = num(v, "tick", u32::MAX as u64)?;
+        let mut party = Self::party(&self.people, tick)?;
+        let receipts = array(get(v, "receipts")?)?.to_vec();
+        if receipts.len() > 128 {
+            return Err(err());
+        }
+        for r in &receipts {
+            party.receipt(r)?;
+        }
+        let interactions = array(get(v, "interactions")?)?
+            .iter()
+            .map(|r| Ok((text(r, "actor")?.to_owned(), InteractionTools::recover(r, 0, tick as u32)?)))
+            .collect::<Result<Vec<_>>>()?;
+        if interactions.len() != 2
+            || !interactions.iter().any(|(a, _)| a == "merchant")
+            || !interactions.iter().any(|(a, _)| a == "keeper")
+        {
+            return Err(err());
+        }
+        for (_, i) in &interactions {
+            let state = i.to_value();
+            if text(&state, "scope")? != "studio_save" || get(&state, "participants")? != &self.people {
+                return Err(err());
+            }
+        }
+        let player = text(v, "player")?;
+        let npc = text(v, "npc")?;
+        if !["player_1", "player_2"].contains(&player) || !["merchant", "keeper"].contains(&npc) {
+            return Err(err());
+        }
+        let counts = |k| -> Result<[u64; 2]> {
+            let rows = array(get(v, k)?)?;
+            if rows.len() != 2 {
+                return Err(err());
+            }
+            Ok([game::uint(&rows[0], 1_000_000)? as u64, game::uint(&rows[1], 1_000_000)? as u64])
+        };
+        let counters = counts("counters")?;
+        let fulfilled = counts("fulfilled")?;
+        let counter_seq = num(v, "counter_seq", u32::MAX as u64)?;
+        let transcript = array(get(v, "transcript")?)?.to_vec();
+        if transcript.len() > 128 {
+            return Err(err());
+        }
+        for row in &transcript {
+            fields(row, &["speaker", "text", "kind"])?;
+            for k in ["speaker", "text", "kind"] {
+                if text(row, k)?.len() > 4096 {
+                    return Err(err());
+                }
+            }
+        }
+        let seq = num(v, "seq", u32::MAX as u64)?;
+        self.stop(None)?;
+        self.game = game;
+        self.world = world;
+        self.actions = actions;
+        self.world_ops = world_ops;
+        self.receipts = receipts;
+        self.party = party;
+        self.interactions = interactions;
+        self.tick = tick;
+        self.seq = self.seq.max(seq);
+        self.player = player.into();
+        self.npc = npc.into();
+        self.counters = counters;
+        self.fulfilled = fulfilled;
+        self.counter_seq = counter_seq;
+        self.transcript = transcript;
+        self.speech = None;
+        self.mic_open = false;
+        self.epoch += 1;
+        self.mic_open = false;
+        self.branch += 1;
+        self.notice = "Branch loaded. Spending and asset approval were not rolled back.".into();
+        Ok(())
+    }
+    pub fn asset_bytes(&self, uri: &str) -> Result<Vec<u8>> {
+        let name = uri.strip_prefix("asset://").ok_or_else(err)?;
+        let sha = name.strip_suffix(".png").ok_or_else(err)?;
+        if sha.len() != 64 || !sha.bytes().all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c)) {
+            return Err(err());
+        }
+        use std::io::Read;
+        let mut bytes = Vec::new();
+        std::fs::File::open(self.dir.join("assets").join(name))
+            .map_err(|_| err())?
+            .take(4 * 1024 * 1024 + 1)
+            .read_to_end(&mut bytes)
+            .map_err(|_| err())?;
+        if bytes.len() > 4 * 1024 * 1024 {
+            return Err(err());
+        }
+        if gamectx::visual::content_digest(&bytes)? != sha {
+            return Err(err());
+        }
+        Ok(bytes)
+    }
+    pub fn asset(&self, key: &str, candidate: bool) -> Result<Vec<u8>> {
+        let entry = self.assets.inspect(key)?;
+        let reference = if candidate { get(&entry, "candidate")? } else { get(&entry, "asset")? };
+        self.asset_bytes(text(reference, "asset_uri")?)
+    }
+}

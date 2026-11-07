@@ -97,6 +97,7 @@ pub mod schema;
 pub mod selection;
 pub mod signatures;
 pub mod spending;
+pub mod studio;
 pub mod sync;
 pub mod table;
 pub mod temporal;

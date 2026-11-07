@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"accepted":true}},{"ok":true,"result":{"status":"interim","text":"buy oil","uncertainty":"still listening","actions":[]}},{"ok":true,"result":{"status":"final_text","text":"buy oil","uncertainty":null,"actions":[]}},{"ok":true,"result":{"stage":"queued","played":0,"heard":0,"done":false,"heard_text":""}}],"actual_provider_calls":0}

@@ -1228,3 +1228,20 @@ fn visual_contract_worker_and_repair_mutations_are_bounded() {
         }
     }
 }
+
+#[test]
+fn studio_provider_and_voice_inputs_never_dispatch_during_mutation_checks() {
+    let seeds = [
+        include_str!("../conformance/studio/shared_cap/input.json"),
+        include_str!("../conformance/studio/barge_in/input.json"),
+    ];
+    let mut rng = Rng(0x53545544);
+    for seed in seeds {
+        for _ in 0..3000 {
+            let text = mutate(&mut rng, seed);
+            if let Ok(v) = parse(&text, 65536) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

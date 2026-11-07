@@ -1,0 +1,1 @@
+{"kind":"studio-voice","args":{"text":"A😀 lamp is ready. The hidden tail.","operations":[{"op":"queue","args":{}},{"op":"recognition","args":{"text":"buy oil","final":false,"uncertainty":"still listening"}},{"op":"recognition","args":{"text":"buy oil","final":true,"uncertainty":null}},{"op":"inspect","args":{}}]}}

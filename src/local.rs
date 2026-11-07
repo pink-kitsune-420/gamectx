@@ -25,6 +25,8 @@ pub fn process(v: &Value) -> Result<Value> {
         }
         "character-context" => crate::life::context_fixture(a),
         "archetype" => crate::archetype::Blueprint::from_value(a).map(|b| b.to_value()),
+        "studio-routing" => crate::studio::routing_workflow(a),
+        "studio-voice" => crate::studio::voice_workflow(a),
         "visual-spec" => crate::visual::compile_fixture(a).map(|s| s.to_value()),
         "visual-assets" => crate::visual::assets_workflow(a),
         "cast-pack" => crate::cast::CastPack::from_value(a).map(|p| p.summary()),

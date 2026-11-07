@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "policy": {
+    "version": 1,
+    "workflows": 32,
+    "actual_provider_calls": 0,
+    "api_spend_usd": 0,
+    "provider_tokens": null,
+    "barge_in_heard_text": "A😀 la",
+    "limits": "Offline routing and receipt metadata only. No installed provider/browser audio quality, physical heard-character accuracy or frame-rate measurement."
+  },
+  "http": {
+    "http_checks": 85,
+    "actual_provider_calls": 0,
+    "api_spend_usd": 0,
+    "limits": "Loopback endpoints and deterministic browser/provider fixtures; no real microphone or installed-model quality evaluation."
+  },
+  "browser": {
+    "browser_lifecycle_checks": 5,
+    "actual_provider_calls": 0,
+    "api_spend_usd": 0,
+    "limits": "Fake browser event/device harness; physical playback and microphone accuracy unmeasured."
+  },
+  "frozen_life_model_sha256": {
+    "eval/life-model-results.json": "6dd25a39455677fffa83fbd4f489852284c4091bfae5e6261fa63f9f3f837af8",
+    "eval/life-model-review.json": "3b4d4a8fe973b483a8fe9de51ca35b5e4a59fdbe8dcf7ac9a9dc8c82acffa8b3",
+    "eval/life-model-tokens.json": "825992e7f5c6667e6e2a4c78ca21b56d98e074846e87b9d78a66f31b368ffa86",
+    "eval/life-model-v2-results.json": "925c59109a423f1d60adf06478919010fca408ecb934e65d5c6a364fe5889e6e",
+    "eval/life-model-v2-review.json": "65a8241cdb5d2d68b14cc8ba09d390a5d7b20b9b8ab36f0156dddfa1ce6a6882",
+    "eval/life-model-v2-tokens.json": "4ee4bf9676f9d3da8fae2040517f89be9b7298270c24ff22a81f3cf97c524b07"
+  },
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "provider_tokens": null,
+  "limits": "Offline deterministic metadata, loopback mock transport and fake browser events. No physical microphone/voice accuracy, image quality, installed runner latency, TLS-provider integration or whole-game frame-rate measurement."
+}

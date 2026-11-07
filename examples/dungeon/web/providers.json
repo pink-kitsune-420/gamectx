@@ -1,0 +1,87 @@
+{
+  "text": "0b_fallback",
+  "image": "cached_only",
+  "tts": "off",
+  "stt": "off",
+  "size": "3",
+  "local_fallback": false,
+  "cpu_threads": 2,
+  "endpoints": {
+    "local_ollama": {
+      "url": "http://127.0.0.1:11434/api/chat",
+      "key_env": null,
+      "ceiling_micros": 0
+    },
+    "local_sd_cpp": {
+      "url": "http://127.0.0.1:7860/sdapi/v1/txt2img",
+      "model": "sd-cpp-local",
+      "key_env": null,
+      "ceiling_micros": 0
+    },
+    "local_tts_http": {
+      "url": "http://127.0.0.1:8880/v1/audio/speech",
+      "model": "local",
+      "key_env": null,
+      "ceiling_micros": 0
+    },
+    "local_stt_http": {
+      "url": "http://127.0.0.1:8080/v1/audio/transcriptions",
+      "model": "local",
+      "key_env": null,
+      "ceiling_micros": 0
+    },
+    "online_openai_compatible": {
+      "url": "https://example.invalid/v1/chat/completions",
+      "key_env": "STUDIO_TEXT_API_KEY",
+      "ceiling_micros": 0
+    },
+    "online_image_api": {
+      "url": "https://example.invalid/v1/images/generations",
+      "model": "configure-image-model",
+      "key_env": "STUDIO_IMAGE_API_KEY",
+      "ceiling_micros": 0
+    },
+    "online_tts_api": {
+      "url": "https://example.invalid/v1/audio/speech",
+      "model": "configure-speech-model",
+      "key_env": "STUDIO_TTS_API_KEY",
+      "ceiling_micros": 0
+    },
+    "online_stt_api": {
+      "url": "https://example.invalid/v1/audio/transcriptions",
+      "model": "configure-transcription-model",
+      "key_env": "STUDIO_STT_API_KEY",
+      "ceiling_micros": 0
+    }
+  },
+  "voices": {
+    "merchant": {
+      "voice_id": "alloy",
+      "pitch": 1.0,
+      "rate": 1.0
+    },
+    "keeper": {
+      "voice_id": "onyx",
+      "pitch": 0.9,
+      "rate": 0.95
+    }
+  },
+  "text_models": {
+    "local_ollama": {
+      "1": "",
+      "1.5": "",
+      "3": "qwen2.5:3b",
+      "8": "",
+      "30": "",
+      "70": ""
+    },
+    "online_openai_compatible": {
+      "1": "",
+      "1.5": "",
+      "3": "",
+      "8": "",
+      "30": "",
+      "70": ""
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"backend":"local_tts_http","reservation":null,"reason":"selected"}},{"ok":true,"result":{"cap_micros":0,"authorized_cap_micros":0,"charged_or_reserved_micros":0,"pending":0}}],"actual_provider_calls":0}

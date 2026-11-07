@@ -153,6 +153,18 @@ impl AssetRegistry {
     /// Non-blocking selection. A generation value queues work only; no request is
     /// dispatched. Candidate URIs are never returned as the default reusable asset.
     pub fn request(&mut self, spec: &VisualSpec) -> Result<Value> {
+        self.select(spec, true)
+    }
+    /// Inspect/reuse/register a missing spec without enqueueing generation. This is
+    /// the passive display path for an explicit Generate button.
+    pub fn lookup(&mut self, spec: &VisualSpec) -> Result<Value> {
+        self.select(spec, false)
+    }
+    /// Render the exact stored variant, including developer repairs.
+    pub fn render(&self, key: &str) -> Result<Value> {
+        self.rows[self.index(key)?].spec.render()
+    }
+    fn select(&mut self, spec: &VisualSpec, enqueue: bool) -> Result<Value> {
         let key = self.resolve(spec.key());
         let existing = self.rows.iter().position(|r| r.spec.key() == key);
         let i = if let Some(i) = existing {
@@ -184,10 +196,13 @@ impl AssetRegistry {
             "rejected"
         } else if !self.config.enabled {
             "disabled"
+        } else if !enqueue {
+            "not_requested"
         } else {
             "queue_limit"
         };
-        if state == "missing"
+        if enqueue
+            && state == "missing"
             && self.config.enabled
             && self.rows.iter().filter(|r| r.ticket.is_some()).count() < self.config.queue_limit
         {

@@ -13,6 +13,19 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds opt-in Lantern Vault loopback studio: RPG/party controls, live Life,
+  promises/rumors/habits, approved art/debug repairs, independent text/image/TTS/STT
+  providers, actual tier/model maps, bounded single-worker scheduling and Unicode
+  delivery/recognition barge-in. Paid requests share durable microdollar reservations;
+  cap defaults to zero. Core/default host remain std-only; optional HTTPS uses system curl.
+- **[format]** Adds 32 studio policy conformance cases. All 1,090 prior cases and native
+  ABI remain unchanged; passive visual lookup/render and effective Life projection are additive.
+- **[docs]** Adds editable profiles/art/UI and retained offline checks: 32 Python/Rust
+  workflows, 85 HTTP checks, five fake-browser scenarios, eleven new Rust studio tests and
+  6,000 policy mutations. Zero real provider calls / $0 API; physical voice accuracy,
+  image quality, online integration, model latency and FPS remain unmeasured.
+
+
 - **[api]** Adds opt-in zero-dependency visual specs and asset registry: locked art bibles,
   live attitude/emotion and active-pose slots, perceived-only cues, original SHA-256 content
   keys, approved fallback reuse, bounded worker tickets, inspection, atomic repair and

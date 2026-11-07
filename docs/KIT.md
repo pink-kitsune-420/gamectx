@@ -332,3 +332,14 @@ shared Node/C# fixtures. Use `node eval/visual_bindings_check.mjs` and the exist
 driver with `target/visual-csharp/requests.txt` / `expected.txt`. Bindings need no provider
 or new binary ABI entry point. Inspect/approve/repair are available in the persistent CLI
 by sending the same operation envelopes to `gamectx characters`.
+
+## Optional local studio example
+
+[Lantern Vault studio](STUDIO.md) is an example HTTP host over the same Rust policies,
+not a new provider requirement for the kit. The pure `studio-routing` and `studio-voice`
+local adapters work through the existing `local` bridge. `studio::ProviderBudget` wraps
+cumulative spending and `studio::VoiceTurn` calls Coordinator delivery/recognition; neither
+executes provider I/O. `AssetRegistry::lookup` / `render` support passive approved display
+and rendering exact repaired variants; existing `request` behavior remains unchanged.
+`LivingWorld::effective_life` exposes an owned current projection for visual selection.
+Existing binding/native ABI signatures and conformance outputs are unchanged.

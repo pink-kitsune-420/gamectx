@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lantern Vault · Local Studio</title>
+<link rel="stylesheet" href="/studio.css">
+</head>
+<body>
+<header>
+<div>
+<span class="sigil">◈</span>
+<strong>LANTERN VAULT</strong>
+<small>LOCAL PLAY &amp; CHARACTER STUDIO</small>
+</div>
+<div id="spend" role="status">Cap $0 · offline</div>
+</header>
+<main>
+<aside class="stage">
+<div class="eyebrow">THE VISIBLE WORLD</div>
+<div class="art scene">
+<img id="scene-image" alt="Approved room scene" hidden>
+<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored scene placeholder">
+<path d="M0 245V125L200 15l200 110v120"/>
+<path d="M65 245V140l135-75 135 75v105M150 245V150q50-65 100 0v95"/>
+<circle cx="200" cy="123" r="13"/>
+<path d="M200 136v55M180 175h40"/>
+</svg>
+<span class="art-label" id="room-label">The descending stair</span>
+</div>
+<div class="art portrait">
+<img id="portrait-image" alt="Approved NPC portrait" hidden>
+<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored character placeholder">
+<circle cx="200" cy="74" r="35"/>
+<path d="M119 230v-63q81-70 162 0v63M167 127l33 38 33-38M200 165v65"/>
+<path d="M154 59q50-55 86 10M135 200h130"/>
+</svg>
+<span class="art-label" id="npc-label">Merchant</span>
+</div>
+<details id="asset-drawer">
+<summary>Asset Debug &amp; Repair <span>⌄</span>
+</summary>
+<label>Inspect / generate<select id="asset-target">
+<option value="portrait">Active NPC portrait</option>
+<option value="scene">Current room scene</option>
+</select>
+</label>
+<div class="button-row">
+<button id="generate">Generate</button>
+<button id="approve">Approve &amp; Cache</button>
+<button id="reroll">Re-roll Seed</button>
+</div>
+<label class="check">
+<input type="checkbox" id="preview-candidate">Preview unapproved candidate in drawer</label>
+<img id="candidate" alt="Unapproved candidate preview" hidden>
+<pre id="asset-inspection">
+</pre>
+<label>Repair patch JSON<textarea id="patch" rows="6" spellcheck="false">{"replace_tokens":[],"add_tokens":[],"negative_tokens":[],"forbid_props":[],"seed_delta":1,"asset":null}</textarea>
+</label>
+<label>Optional reviewed hand edit (PNG)<input type="file" accept="image/png" id="pin-file">
+</label>
+<button id="repair">Apply Repair / Pin Hand Edit</button>
+</details>
+</aside>
+<section class="play">
+<div class="eyebrow">A SHARED PURSE. TWO PERSPECTIVES.</div>
+<div class="party">
+<label>Playing as<select id="player">
+<option>player_1</option>
+<option>player_2</option>
+</select>
+</label>
+<label>Addressing<select id="npc">
+<option>merchant</option>
+<option>keeper</option>
+</select>
+</label>
+<label>Branch<select id="slot">
+<option value="0">A</option>
+<option value="1">B</option>
+<option value="2">C</option>
+<option value="3">D</option>
+</select>
+</label>
+<button id="save">Save</button>
+<button id="load">Load</button>
+</div>
+<div class="room-copy">
+<h1 id="room-title">Lantern Vault</h1>
+<p id="description">Loading the host's current view…</p>
+<div id="stats">
+</div>
+</div>
+<div class="actions" id="actions" aria-label="Host-validated actions">
+</div>
+<div id="transcript" role="log" aria-live="polite">
+</div>
+<section class="speech">
+<div class="speech-heading">
+<span id="speaker">CHARACTER VOICE</span>
+<span id="voice-status">Ready</span>
+</div>
+<p id="speech-text">
+</p>
+<progress id="voice-progress" max="1" value="0">
+</progress>
+<div class="button-row">
+<button id="play">Play / Read Current Line</button>
+<button id="interrupt" class="danger">■ Interrupt</button>
+</div>
+<small>Highlight = confirmed playback prefix. Unplayed trailing text stays unheard.</small>
+</section>
+<form id="chat">
+<label for="input">Your words</label>
+<div class="compose">
+<input id="input" maxlength="1024" autocomplete="off" placeholder="Ask about stock, or speak in character…">
+<button type="submit">Send ↗</button>
+<button type="button" id="mic">🎙 Mic</button>
+</div>
+</form>
+<div id="interim" role="status">
+</div>
+<div class="button-row">
+<button id="stock">Stock &amp; Trade</button>
+<button id="promise">Promise to bring chalk</button>
+<span id="presence">
+</span>
+</div>
+<div id="notice" role="status">
+</div>
+</section>
+<aside class="inspector">
+<div class="eyebrow">LIVE INSPECTOR</div>
+<details open>
+<summary>Providers &amp; Model Tier</summary>
+<p class="muted">Each channel routes independently. Paid calls require a host-authorized cap and configured credentials.</p>
+<label>Text<select id="text-backend">
+<option>0b_fallback</option>
+<option>local_ollama</option>
+<option>online_openai_compatible</option>
+</select>
+</label>
+<label>Images<select id="image-backend">
+<option>cached_only</option>
+<option>local_sd_cpp</option>
+<option>online_image_api</option>
+</select>
+</label>
+<label>TTS<select id="tts-backend">
+<option>off</option>
+<option>browser_web_speech</option>
+<option>local_tts_http</option>
+<option>online_tts_api</option>
+</select>
+</label>
+<label>STT<select id="stt-backend">
+<option>off</option>
+<option>browser_speech_recognition</option>
+<option>local_stt_http</option>
+<option>online_stt_api</option>
+</select>
+</label>
+<div class="button-row">
+<label>Model tier<select id="size">
+<option>1</option>
+<option>1.5</option>
+<option selected>3</option>
+<option>8</option>
+<option>30</option>
+<option>70</option>
+</select>
+</label>
+<label>Cap (USD)<input id="cap" type="number" min="0" step="0.000001" value="0">
+</label>
+</div>
+<label>Voice ID<input id="voice-id" maxlength="128">
+</label>
+<div class="button-row">
+<label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1">
+</label>
+<label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1">
+</label>
+</div>
+<button id="settings">Apply Providers / Voice</button>
+<button id="resume-local" hidden>Resume Local · Confirm Servers Idle</button>
+<p class="muted">Browser speech availability and offline behavior depend on the browser and installed voices. Voice capture starts only with Mic.</p>
+</details>
+<details open>
+<summary>Attitudes toward this player</summary>
+<div id="attitudes">
+</div>
+</details>
+<details>
+<summary>Promises &amp; Recalled Episodes</summary>
+<pre id="memories">
+</pre>
+</details>
+<details>
+<summary>Rumors, Habits &amp; Atmosphere</summary>
+<pre id="living">
+</pre>
+</details>
+<details>
+<summary>Spending Receipts</summary>
+<pre id="receipts">
+</pre>
+</details>
+</aside>
+</main>
+<footer>Original Lantern Vault · Host rules own truth · One model worker · No paid calls at cap zero</footer>
+<script type="module" src="/studio.mjs">
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"kind":"studio-voice","args":{"text":"A😀 lamp is ready. The hidden tail.","operations":[{"op":"queue","args":{}},{"op":"finish","args":{"through":34,"heard":34}},{"op":"inspect","args":{}}]}}

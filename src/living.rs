@@ -124,6 +124,11 @@ impl LivingWorld {
     pub fn base_life(&self, actor: &str) -> Result<&Life> {
         Ok(&self.actors[self.index(actor)?].life)
     }
+    /// Current host-approved Life plus learned group influence, for optional visual
+    /// selection. The owned projection cannot mutate the world's base checkpoint.
+    pub fn effective_life(&self, actor: &str) -> Result<Life> {
+        Ok(self.projected(self.index(actor)?))
+    }
     fn effective_level(&self, i: usize, a: &Value) -> i64 {
         let id = get(a, "definition").expect("definition").get("id");
         let n = self.actors[i]

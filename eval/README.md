@@ -1296,3 +1296,23 @@ fixtures to target/visual-csharp. Run `node eval/visual_bindings_check.mjs` and 
 C# fixture driver. Tests include original SHA-256 known answers, typed live appraisal and
 routine/started-initiative adapters, repair-cycle nonce recovery and 9,000 deterministic
 input mutations. [Full contract and limits](../docs/VISUAL.md).
+
+## Loopback RPG / provider / voice studio (offline)
+
+`studio_reference.py` independently prototypes cumulative multi-modality reservation and
+Unicode voice receipt policies. `studio_cases.py --cap 0 --prototype-only --tokens-only`
+predeclares 32 workflows before comparison. Build the CLI/example, then run
+`python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json` to reproduce
+32 byte-identical Python/Rust policies, 85 real loopback HTTP endpoint checks and five
+fake-browser device/event scenarios. `--write-conformance` on the policy script writes
+only the additive studio family; selected routes, reservation errors, heard prefixes and
+terminal failures were reviewed individually. All six life-model artifact hashes stay frozen.
+
+`cargo test --example dungeon --locked` includes eleven original studio tests with bounded
+fake transports, a blocked worker, local mock HTTP, actual tier IDs, partial hearing,
+final-only STT dispatch, post-restart pinning and registry exhaustion. Robustness adds 6,000
+policy mutations. All fixtures use cap-zero transports; positive accounting amounts are
+synthetic ledger exercises. No installed provider, actual microphone or browser service is
+contacted. The retained artifact reports zero real provider calls / $0 spend, with physical
+voice offsets/quality, image quality, installed-runner latency and FPS explicitly unmeasured.
+See [the complete integration guide](../docs/STUDIO.md).

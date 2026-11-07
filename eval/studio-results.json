@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "workflows": 32,
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "provider_tokens": null,
+  "barge_in_heard_text": "A😀 la",
+  "limits": "Offline routing and receipt metadata only. No installed provider/browser audio quality, physical heard-character accuracy or frame-rate measurement."
+}

@@ -725,3 +725,18 @@ Inspect a key, then apply bounded token/negative/prop/seed repairs or pin review
 [Persistent binding operations](KIT.md#persistent-visual-asset-sessions) use the same Rust
 registry as the CLI/native ABI. The 64-workflow offline artifact measures zero model calls;
 no provider, image-quality, latency or frame-rate claim is made.
+
+## Play Lantern Vault in a local browser
+
+`cargo run --example dungeon -- --web --cap 0` starts the opt-in standard-library host
+on loopback. [The studio guide](STUDIO.md) covers party controls, text/voice gameplay,
+provider/tier maps, the asset debug drawer, and save/load slots. Models never execute
+world actions. Interim STT only previews/interrupts; final input enters the validated
+host command path. Only confirmed playback prefixes become heard memories.
+
+Text, images, TTS and STT have independent backends; the default 0B/cached/off configuration
+works without installed models. Online ceilings and a positive startup cap must be supplied
+explicitly. Paid reservations survive failures/restarts and cannot roll back with a branch.
+All automated studio checks use offline/fake devices and `--cap 0`; actual voice and image
+quality are unmeasured. Provider configuration and the tested example are editable in
+`examples/dungeon/web/`.
