@@ -98,6 +98,7 @@
 </form>
 <details class="history"><summary>Recent events &amp; conversation</summary><div id="transcript" role="log" aria-live="polite"></div></details>
 
+<div id="mic-monitor" hidden><meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="mic-feedback" role="status"></span></div>
 <div id="interim" role="status">
 </div>
 <div class="button-row">
@@ -160,7 +161,7 @@
 <details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
 <p id="manager-message" role="status"></p></details>
 </section>
-<section id="settings-voice" class="settings-page" hidden><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
+<section id="settings-voice" class="settings-page" hidden><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><label>Microphone input<select id="mic-device"><option value="">System default microphone</option></select></label><button id="mic-find">Find microphones</button><p class="muted">Allow microphone access when you press Mic. The input meter shows whether this browser receives your voice; recordings are transcribed on the host.</p><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
 <div class="button-row"><label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label><label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label></div>
 <button id="voice-character-apply">Save character voice</button></details><p id="native-voice-help" class="muted"></p></section>
 <section id="settings-connections" class="settings-page" hidden><details id="provider-panel">

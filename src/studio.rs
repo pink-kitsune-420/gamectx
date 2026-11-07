@@ -3,11 +3,13 @@
 mod commands;
 mod manager;
 mod native_audio;
+mod speech_buffer;
 use crate::{checked as c, life::Coordinator, obj, spending::SpendingLedger, Result, Value};
 pub use commands::resolve_command;
 pub(crate) use manager::fixture as manager_fixture;
 pub use manager::ModelPolicy;
 pub use native_audio::native_audio_plan;
+pub use speech_buffer::speech_buffer;
 pub fn backends(modality: &str) -> Result<&'static [&'static str]> {
     match modality {
         "text" => Ok(&["0b_fallback", "local_ollama", "online_openai_compatible"]),

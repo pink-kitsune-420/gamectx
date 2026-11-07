@@ -1,0 +1,13 @@
+{
+  "text": "Briefly: I can offer hinge oil for 3 coins, chalk for 1 coins, tonic for 9 coins.",
+  "characters": 81,
+  "synthesis_jobs": 1,
+  "synthesis_seconds": 2.0684,
+  "per_job_seconds": [
+    2.0684
+  ],
+  "audio_seconds": 7.2034,
+  "prepared_checkpoints": 2,
+  "api_spend_usd": 0,
+  "limits": "Fresh installed-Piper holdout: one host job prepares multiple bounded phrases and one joined WAV. Simulated completed-delivery receipts; no physical audio or broad quality/RSS measurement."
+}

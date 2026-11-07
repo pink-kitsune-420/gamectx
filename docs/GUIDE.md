@@ -802,3 +802,5 @@ The [manager guide](MODEL_MANAGER.md) explains server ownership, art approval an
 Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
 
 Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+
+Buffered Piper playback and microphone recovery are documented in [buffered speech](BUFFERED_SPEECH.md).

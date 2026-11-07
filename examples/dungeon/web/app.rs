@@ -936,13 +936,50 @@ impl App {
                     self.assets.submit(key, get(&job.binding, "ticket")?, &format!("asset://{digest}.png"), &digest)?;
                 }
                 "tts" => {
-                    if bytes.len() < 12 || !bytes.starts_with(b"RIFF") || &bytes[8..12] != b"WAVE" {
-                        return Err(err());
+                    let mut audio =
+                        if job.binding.get("buffered") == Some(&Value::Bool(true)) && !bytes.starts_with(b"RIFF") {
+                            let mut value = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
+                            fields(&value, &["audio", "sample_rate", "boundaries"])?;
+                            let wav = providers::decode64(text(&value, "audio")?)?;
+                            let pcm = super::speech_wav::pcm(&wav)?;
+                            if num(&value, "sample_rate", 96000)? != pcm.rate as u64 {
+                                return Err(err());
+                            }
+                            let start = num(&job.binding, "start", 240)?;
+                            let through = num(&job.binding, "through", 240)?;
+                            let mut frame = 0;
+                            let mut prefix = 0;
+                            let mut bounds = Vec::new();
+                            for r in array(get(&value, "boundaries")?)? {
+                                fields(r, &["frame", "through"])?;
+                                let f = num(r, "frame", (pcm.data.len() / 2) as u64)?;
+                                let t = num(r, "through", through - start)?;
+                                if f <= frame || t <= prefix {
+                                    return Err(err());
+                                }
+                                frame = f;
+                                prefix = t;
+                                bounds.push(obj! {"frame"=>f,"through"=>t+start});
+                            }
+                            if frame != (pcm.data.len() / 2) as u64 || prefix != through - start {
+                                return Err(err());
+                            }
+                            set(&mut value, "boundaries", bounds.into());
+                            set(&mut value, "unit", "buffered".into());
+                            value
+                        } else {
+                            if bytes.len() < 12 || !bytes.starts_with(b"RIFF") || &bytes[8..12] != b"WAVE" {
+                                return Err(err());
+                            }
+                            obj! {"audio"=>providers::encode64(&bytes)}
+                        };
+                    if job.binding.get("buffered") == Some(&Value::Bool(true)) {
+                        set(&mut audio, "unit", "buffered".into());
                     }
-                    let s = self.speech.as_mut().ok_or_else(err)?;
-                    s.audio = Some(
-                        obj! {"audio"=>providers::encode64(&bytes),"mime"=>"audio/wav","start"=>get(&job.binding,"start")?.clone(),"through"=>get(&job.binding,"through")?.clone()},
-                    );
+                    set(&mut audio, "mime", "audio/wav".into());
+                    set(&mut audio, "start", get(&job.binding, "start")?.clone());
+                    set(&mut audio, "through", get(&job.binding, "through")?.clone());
+                    self.speech.as_mut().ok_or_else(err)?.audio = Some(audio);
                 }
                 "stt" => {
                     if !self.mic_open || num(&job.binding, "mic", u32::MAX as u64)? != self.mic {
@@ -950,6 +987,11 @@ impl App {
                     }
                     let v = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
                     let line = text(&v, "text")?;
+                    if line.trim().is_empty() {
+                        self.mic_open = false;
+                        self.recognition = obj! {"status"=>"no_speech","text"=>"","uncertainty"=>"No speech detected. Check the selected microphone and input level, then try again.","actions"=>Vec::<Value>::new()};
+                        return Ok(());
+                    }
                     self.recognition=gamectx::life::Coordinator::new("studio_save",&self.npc,&self.people)?.recognition(&obj!{"text"=>line,"final"=>true,"uncertainty"=>"Provider transcript; host-selected speaker."})?;
                     self.mic_open = false;
                     let (_, next) = self.command("chat", &obj! {"text"=>line})?;
@@ -967,6 +1009,11 @@ impl App {
                 self.monitor.problem(&job.modality, &job.backend, status, detail);
             }
             self.notice = format!("{}: {detail}", job.modality);
+            if job.modality == "stt" {
+                self.mic_open = false;
+                self.recognition =
+                    obj! {"status"=>"failed","text"=>"","uncertainty"=>detail,"actions"=>Vec::<Value>::new()};
+            }
             if let Some(s) = &mut self.speech {
                 if job.modality == "text" {
                     s.pending = false;
@@ -986,6 +1033,9 @@ impl App {
                 "text" => "Model reply validated. Play/read the line to confirm delivery.",
                 "image" => "Image candidate received. Review and approve it before use.",
                 "tts" => "Audio chunk ready for playback.",
+                _ if self.recognition.get("status").and_then(Value::as_str) == Some("no_speech") => {
+                    "No speech detected. Check the microphone input level and try again."
+                }
                 _ => "Transcript validated; only final recognition may act.",
             };
             self.monitor.update(job.id, "completed", detail);
@@ -1584,14 +1634,21 @@ impl App {
                 }
                 let start = num(&s.voice.snapshot(), "played", 240)?;
                 let remaining = s.voice.text().chars().skip(start as usize).collect::<String>();
-                let chunk = remaining.split_inclusive(char::is_whitespace).next().ok_or_else(err)?.to_owned();
+                let buffered = self.manager.policy.enabled()
+                    && self.manager.policy.profile("tts")?.get("model").and_then(Value::as_str) == Some("piper")
+                    && self.effective_backend("tts")? == "local_tts_http";
+                let chunk = if buffered {
+                    remaining
+                } else {
+                    remaining.split_inclusive(char::is_whitespace).next().ok_or_else(err)?.to_owned()
+                };
                 let through = start + chunk.chars().count() as u64;
                 let voice = self.config.voice(&s.actor)?.clone();
-                if let Some(job) = self.plan(
-                    "tts",
-                    &obj! {"text"=>chunk,"voice"=>voice},
-                    obj! {"speech"=>id,"start"=>start,"through"=>through},
-                )? {
+                let mut binding = obj! {"speech"=>id,"start"=>start,"through"=>through};
+                if buffered {
+                    set(&mut binding, "buffered", true.into());
+                }
+                if let Some(job) = self.plan("tts", &obj! {"text"=>chunk,"voice"=>voice}, binding)? {
                     self.speech.as_mut().unwrap().audio = None;
                     jobs.push(job);
                 }

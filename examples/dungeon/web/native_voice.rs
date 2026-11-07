@@ -89,20 +89,25 @@ impl Native {
             return Err(issue());
         }
         let serial = CANCEL.load(Ordering::SeqCst);
-        let folder = dir.join("voice-job");
+        let folder = dir.canonicalize().map_err(|_| err())?.join("voice-job");
         let _ = std::fs::remove_dir_all(&folder);
         std::fs::create_dir_all(&folder).map_err(|_| err())?;
         let result = (|| {
             let input_path = folder.join("capture.wav");
             let output = folder.join("result");
             let engine = get(&self.config, ch)?;
-            let mut argv = vec![Value::str(text(engine, "executable")?)];
+            let absolute = |s: &str| -> Result<String> {
+                Ok(std::env::current_dir().map_err(|_| err())?.join(s).to_str().ok_or_else(err)?.to_owned())
+            };
+            let mut argv = vec![Value::str(&absolute(text(engine, "executable")?)?)];
             let expected;
+            let mut buffered = Vec::new();
             let stdin = if ch == "tts" {
                 let request = gamectx::json::parse(std::str::from_utf8(&r.body).map_err(|_| err())?, 4096)?;
                 let plan = gamectx::studio::native_audio_plan(&gamectx::obj! {"engine"=>"piper","request"=>request})?;
                 let voice = text(&plan, "voice")?;
-                let path = text(get(engine, "voices")?, voice).map_err(|_| issue())?;
+                let model = absolute(text(get(engine, "voices")?, voice).map_err(|_| issue())?)?;
+                let path = model.as_str();
                 if !Path::new(path).is_file() {
                     return Err(issue());
                 }
@@ -114,11 +119,21 @@ impl Native {
                     expected.to_str().ok_or_else(err)?,
                     "--length_scale",
                     text(&plan, "length_scale")?,
+                    "--json-input",
                 ] {
                     argv.push(a.into());
                 }
-                // Patched/user launchers can enforce their own four-thread and RSS policy.
-                format!("{}\n", text(&plan, "text")?)
+                // One engine session, bounded phrases, then one continuous PCM buffer.
+                let parts = gamectx::studio::speech_buffer(&gamectx::obj! {"text"=>text(&plan,"text")?,"start"=>0})?;
+                let mut lines = String::new();
+                for (i, part) in get(&parts, "parts")?.as_array().ok_or_else(err)?.iter().enumerate() {
+                    let path =
+                        std::env::current_dir().map_err(|_| err())?.join(&folder).join(format!("part-{i:03}.wav"));
+                    lines.push_str(&gamectx::obj!{"text"=>get(part,"text")?.clone(),"output_file"=>path.to_str().ok_or_else(err)?}.to_json());
+                    lines.push('\n');
+                    buffered.push((path, num(part, "through", 240)?));
+                }
+                lines
             } else {
                 let (alias, audio) = capture(r)?;
                 if alias != model {
@@ -127,7 +142,8 @@ impl Native {
                 gamectx::studio::native_audio_plan(
                     &gamectx::obj! {"engine"=>"whisper","request"=>gamectx::obj!{"model"=>alias.clone()}},
                 )?;
-                let path = text(get(engine, "models")?, &alias)?;
+                let model = absolute(text(get(engine, "models")?, &alias)?)?;
+                let path = model.as_str();
                 std::fs::write(&input_path, audio).map_err(|_| err())?;
                 expected = output.with_extension("txt");
                 for a in [
@@ -146,13 +162,16 @@ impl Native {
                 }
                 String::new()
             };
+            if stdin.len() > 16384 {
+                return Err(err());
+            }
             let log = std::fs::OpenOptions::new()
                 .create(true)
                 .truncate(true)
                 .write(true)
                 .open(dir.join("native-voice.log"))
                 .map_err(|_| err())?;
-            let mut child = Command::new(std::env::current_exe().map_err(|_| err())?)
+            let mut child = Command::new(super::executable()?)
                 .arg("--managed-service")
                 .stdin(Stdio::piped())
                 .stdout(log.try_clone().map_err(|_| err())?)
@@ -171,6 +190,9 @@ impl Native {
                     if Instant::now() > deadline
                         || std::fs::metadata(dir.join("native-voice.log")).is_ok_and(|m| m.len() > 1_048_576)
                         || std::fs::metadata(&expected).is_ok_and(|m| m.len() > providers::MAX_BYTES as u64)
+                        || buffered
+                            .iter()
+                            .any(|(p, _)| std::fs::metadata(p).is_ok_and(|m| m.len() > providers::MAX_BYTES as u64))
                     {
                         return Err(issue());
                     }
@@ -182,13 +204,20 @@ impl Native {
                     }
                     std::thread::sleep(Duration::from_millis(20));
                 }
-                let bytes = bounded_bytes(&expected, if ch == "tts" { providers::MAX_BYTES } else { 4096 })?;
                 if ch == "tts" {
-                    if bytes.len() < 44 || &bytes[..4] != b"RIFF" || &bytes[8..12] != b"WAVE" {
-                        return Err(issue());
+                    let mut parts = Vec::new();
+                    let mut total = 0;
+                    for (path, through) in &buffered {
+                        let bytes = bounded_bytes(path, providers::MAX_BYTES)?;
+                        total += bytes.len();
+                        if total > providers::MAX_BYTES {
+                            return Err(err());
+                        }
+                        parts.push((bytes, *through));
                     }
-                    Ok(bytes)
+                    Ok(super::speech_wav::join(&parts)?.to_json().into_bytes())
                 } else {
+                    let bytes = bounded_bytes(&expected, 4096)?;
                     let text = std::str::from_utf8(&bytes)
                         .map_err(|_| err())?
                         .split_whitespace()

@@ -1,0 +1,11 @@
+{
+  "http_checks": 44,
+  "workflows": 7,
+  "native_mock_jobs": 4,
+  "parent_exit_process_tree_cleanup": true,
+  "cancelled_process_tree": true,
+  "temporary_capture_removed": true,
+  "api_spend_usd": 0,
+  "actual_provider_calls": 0,
+  "limits": "Original CLI fixtures through the real supervisor and host. Tests WAV/text transport, one-shot cleanup, stop/start and cancellation; not installed engine quality or physical audio."
+}

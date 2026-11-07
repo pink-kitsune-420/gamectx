@@ -542,5 +542,14 @@ Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN
   installed Piper/Whisper smoke used one host job each plus one reference synthesis at $0.
   Physical Wi-Fi, microphone accuracy and broad live-model quality remain unmeasured.
 
-- Follow-up: evaluate native TTS phrase batching with trustworthy alignment so repeated
-  CLI startup does not introduce word gaps while preserving conservative heard offsets.
+- Implemented Piper utterance buffering: one engine session per line, bounded phrase
+  preparation, strict PCM joining, measured frame checkpoints and conservative barge-in.
+  One installed 61-character comparison: 13 jobs/11.0014 seconds → 1 job/1.2949 seconds
+  of synthesis turnaround (8.5× in that single sample; excludes physical playback).
+- Fixed native worker launch after Linux hot rebuilds and relative capture/model paths
+  for wrappers that change directory. Added microphone device selection, input meter,
+  recording/transcribing status and ordered interim completion before STT dispatch.
+- Evidence: 14 Python/Rust buffer cases, 2,000 policy mutations, 2,000 WAV mutations,
+  seven player callback workflows, nine native-host recovery workflows and a real
+  Firefox synthetic-speech capture/resample/Whisper check. Physical mic accuracy remains
+  unmeasured. Earlier evaluation/conformance outputs remain frozen.

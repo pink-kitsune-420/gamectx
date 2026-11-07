@@ -814,3 +814,49 @@ fn generator_binding_ignores_ram_and_key_order_but_tracks_model_identity() {
     set(&mut changed, "model", "another-model".into());
     assert_ne!(first, super::manager_view::generation_identity(&bible, &changed).unwrap());
 }
+
+#[test]
+fn native_piper_prepares_complete_line_and_refuses_false_buffer_metadata() {
+    let d = Dir::new();
+    let mut a = app(&d);
+    travel(&mut a);
+    backend(&mut a, "tts", "local_tts_http");
+    let mut policy = parse(include_str!("models.json")).unwrap();
+    set(&mut policy, "enabled", true.into());
+    let mut profiles = get(&policy, "profiles").unwrap().clone();
+    let mut tts = get(&profiles, "tts").unwrap().clone();
+    set(&mut tts, "model", "piper".into());
+    set(&mut tts, "backend", "local_tts_http".into());
+    set(&mut profiles, "tts", tts);
+    set(&mut policy, "profiles", profiles);
+    a.manager.policy = gamectx::studio::ModelPolicy::from_value(&policy).unwrap();
+    for invalid in [false, true] {
+        command(&mut a, "chat", obj! {"text"=>"Hello."});
+        let state = a.state().unwrap();
+        let speech = get(&state, "speech").unwrap();
+        let id = get(speech, "id").unwrap().clone();
+        let line = text(speech, "text").unwrap().to_owned();
+        command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+        let (_, mut jobs) = command(&mut a, "synthesize", obj! {"id"=>id.clone()});
+        assert_eq!(jobs.len(), 1);
+        let job = jobs.remove(0);
+        let request = parse(std::str::from_utf8(&job.request.body).unwrap()).unwrap();
+        assert_eq!(text(&request, "input").unwrap(), line);
+        assert_eq!(job.binding.get("buffered"), Some(&true.into()));
+        let mut response = super::speech_wav::join(&[(capture(), line.chars().count() as u64)]).unwrap();
+        if invalid {
+            set(&mut response, "sample_rate", 22050.into());
+        }
+        assert!(a.before_dispatch(&job).unwrap());
+        a.complete(&job, Ok(response.to_json().into_bytes())).unwrap();
+        let state = a.state().unwrap();
+        let speech = get(&state, "speech").unwrap();
+        assert_eq!(num(get(speech, "delivery").unwrap(), "heard", 240).unwrap(), 0);
+        if invalid {
+            assert_eq!(get(speech, "audio").unwrap().get("fallback"), Some(&"browser_web_speech".into()));
+        } else {
+            assert_eq!(num(get(speech, "audio").unwrap(), "through", 240).unwrap(), line.chars().count() as u64);
+            assert_eq!(text(get(speech, "audio").unwrap(), "unit").unwrap(), "buffered");
+        }
+    }
+}

@@ -1404,3 +1404,13 @@ Manual Firefox: `python3 -I eval/voice_lan_browser.py --cap 0` against an isolat
 8788 with `--lan 127.0.0.2` and Firefox BiDi 9223. Manual installed voice smoke:
 `python3 -I eval/native_voice_live.py --cap 0 --installation INSTALL_DIR`.
 The latter two are not automated CI prerequisites; retained JSON states their limits.
+
+Buffered speech checks: `python3 -I eval/speech_buffer_cases.py --cap 0`,
+`node eval/test_speech_buffer.mjs --cap 0`, plus the native-host recovery cohort.
+Bindings use `eval/speech_buffer_bindings.py` / `.mjs`. Manual installed timing:
+`python3 -I eval/speech_buffer_live.py --cap 0 --installation INSTALL_DIR --baseline BASELINE_BINARY`;
+`--holdout-only` tests a fresh multi-part line. Manual Firefox capture uses
+`eval/speech_mic_browser.py --cap 0 --reference ORIGINAL_WAV`; `--delay-interim` forces
+an interim/final ordering race. It requires an isolated native-STT host on 8788 and
+Firefox BiDi 9223. These manual installed/browser checks are not CI prerequisites.
+Retained speech-buffer/mic JSON records the measurement limits; old artifacts stay frozen.

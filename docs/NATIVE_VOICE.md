@@ -77,8 +77,7 @@ The fresh seven-workflow `eval/native-voice-host-v2.json` also verifies that an 
 wrapper and child exit when the game host is terminated; the earlier six-workflow artifact
 is retained unchanged. This is process plumbing, not installed-engine quality evidence.
 
-Playback currently retains the earlier conservative word-chunk HTTP delivery protocol;
-separate CLI startup per chunk can produce audible pauses. No smooth-playback or exact
-physical heard-character claim is made. Browser voices remain an alternative. Larger
-phrase batching needs trustworthy alignment/receipt handling before it can preserve the
-same interruption semantics.
+Piper now prepares a complete bounded line in one engine session. It sends JSON input
+for phrases of at most 80 Unicode scalars to the separately installed CLI, joins their
+compatible PCM WAV files, and returns one playback buffer. See [buffered speech](BUFFERED_SPEECH.md)
+for measured synthesis savings and the conservative interruption boundaries.

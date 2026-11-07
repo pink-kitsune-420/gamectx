@@ -1,0 +1,12 @@
+{
+  "browser": "Firefox headless",
+  "recording_started": true,
+  "input_meter_visible": true,
+  "real_media_recorder_and_wav_resampling": true,
+  "installed_host_whisper_transcript": "final_text: Hello merchant, I would like some chalk. \u00b7 Provider transcript; host-selected speaker.",
+  "late_interim_before_transcribe": true,
+  "page_console_errors": 0,
+  "actual_text_llm_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Synthetic speech streamed inside WebAudio through real Firefox MediaRecorder, decode/resample/upload and installed host Whisper. No physical microphone, device permissions, broad accuracy or Wi-Fi measurement."
+}

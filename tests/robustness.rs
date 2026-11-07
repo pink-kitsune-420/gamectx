@@ -1335,3 +1335,15 @@ fn native_audio_plans_never_execute_or_accept_paths() {
         }
     }
 }
+
+#[test]
+fn speech_buffer_plans_are_bounded_under_mutation() {
+    let seed = r#"{"kind":"studio-speech-buffer","args":{"text":"Welcome, Vela. The lamp is ready.","start":0}}"#;
+    let mut rng = Rng(0x62756666);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 4096) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

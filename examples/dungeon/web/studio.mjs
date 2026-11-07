@@ -5,7 +5,7 @@ from './voice.mjs';
 import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
 import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
-let recognitionSerial=Promise.resolve();
+let recognitionSerial=Promise.resolve(),micStarting=false;
 let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0,appliedDraft='',clientNotice='';
 const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
 const post=async(op,args={},generation=state?.generation)=>{
@@ -21,6 +21,10 @@ function voiceView(v) {
     $('speech-text').replaceChildren(mark,document.createTextNode(Array.from(v.text).slice(through).join('')));
     $('voice-progress').max=Math.max(1,Array.from(v.text).length);
     $('voice-progress').value=through;
+  }
+  if(Number.isFinite(v.audio_time)&&Number.isFinite(v.audio_duration)&&v.audio_duration>0){
+    $('voice-progress').max=v.audio_duration;$('voice-progress').value=Math.min(v.audio_time,v.audio_duration);
+    $('voice-status').textContent=`Playing buffered speech · ${v.audio_time.toFixed(1)} / ${v.audio_duration.toFixed(1)}s`;
   }
 }
 const player=new VoicePlayer({
@@ -157,7 +161,7 @@ async function loadState(){
     $('play').disabled=!s.speech||s.speech.delivery.done||Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
     $('stock').disabled=$('promise').disabled=!s.npc_present;
     const micUnsupported=s.effective_backends.stt==='browser_speech_recognition'&&!globalThis.SpeechRecognition&&!globalThis.webkitSpeechRecognition;
-    $('mic').disabled=s.effective_backends.stt==='off'||micUnsupported;
+    $('mic').disabled=micStarting||s.effective_backends.stt==='off'||micUnsupported;
     $('mic').title=micUnsupported?'This browser does not support speech recognition. Type instead or use a local server.':s.effective_backends.stt==='off'?'Choose a microphone provider in Settings → Voice.':'';
     $('interrupt').disabled=!s.speech||s.speech.delivery.done;
     image('scene-image',s.scene_asset.selection.asset||s.scene_asset.preview_asset);
@@ -192,6 +196,9 @@ async function loadState(){
     const money=n=>n===0?'$0':'$'+(n/1e6).toFixed(6);
     $('spend').textContent=`${money(s.spending.charged_or_reserved_micros)} / ${money(s.spending.cap_micros)} cap · ${s.pending_jobs} queued`;
     $('notice').textContent=clientNotice||s.notice;
+    if(!mic&&['final_text','no_speech','failed'].includes(s.recognition?.status)){
+      $('mic-monitor').hidden=false;$('mic-feedback').textContent=s.recognition.status==='final_text'?'Transcript received: '+s.recognition.text:(s.recognition.uncertainty||s.recognition.status);
+    }
     if(s.recognition&&s.recognition.text!=='[speech detected]'){
       $('interim').textContent=`${s.recognition.status}: ${s.recognition.text}${s.recognition.uncertainty?' · '+s.recognition.uncertainty:''}`;
     }
@@ -429,12 +436,20 @@ async function captureWav(blob){
     return new Blob([bytes],{type:'audio/wav'});
   }finally{await decoder.close();}
 }
+async function findMicrophones(){
+  if(!navigator.mediaDevices?.enumerateDevices)return;
+  const selected=$('mic-device').value,devices=await navigator.mediaDevices.enumerateDevices();
+  const options=[new Option('System default microphone',''),...devices.filter(d=>d.kind==='audioinput').map((d,i)=>new Option(d.label||`Microphone ${i+1}`,d.deviceId))];
+  $('mic-device').replaceChildren(...options);if(options.some(o=>o.value===selected))$('mic-device').value=selected;
+}
+$('mic-find').onclick=()=>findMicrophones().catch(e=>$('voice-message').textContent=e.message);
 async function httpMic(){
   if(!navigator.mediaDevices?.getUserMedia)throw Error('Microphone capture is unavailable.');
   const capture=await beginMic();
-  const stream=await navigator.mediaDevices.getUserMedia({
-    audio:true}
-  );
+  const device=$('mic-device').value;
+  const stream=await navigator.mediaDevices.getUserMedia({audio:device?{deviceId:{exact:device}}:true});
+  await findMicrophones();
+  $('mic-monitor').hidden=false;$('mic-level').value=0;$('mic-feedback').textContent='Recording · speak, then click Send recording';
   const type=['audio/webm','audio/ogg','audio/mp4'].find(x=>MediaRecorder.isTypeSupported(x));
   if(!type){
     stream.getTracks().forEach(t=>t.stop());
@@ -452,11 +467,13 @@ async function httpMic(){
   source.connect(analyser);
   analyser.fftSize=512;
   const data=new Float32Array(512);
-  let detected=false;
+  let detected=false,peak=0;
   const vad=()=>{
     if(!capturing)return;
     analyser.getFloatTimeDomainData(data);
     const rms=Math.sqrt(data.reduce((n,x)=>n+x*x,0)/data.length);
+    peak=Math.max(peak,rms);$('mic-level').value=Math.min(1,rms*4);
+    $('mic-feedback').textContent=`Recording · input ${Math.round(rms*100)}% · click Send recording when finished`;
     if(rms>.04&&!detected){
       detected=true;
       recognize('[speech detected]',false,'Transcript pending.',capture).catch(()=>{
@@ -480,6 +497,7 @@ async function httpMic(){
   }
   ;
   recorder.onstop=async()=>{
+   try{
     capturing=false;
     clearTimeout(timeout);
     source.disconnect();
@@ -490,18 +508,25 @@ async function httpMic(){
       $('interim').textContent='Recording exceeded the 2 MiB limit.';
       return;
     }
-    const blob=new Blob(chunks,{
-      type}
-    );
-    await invoke('transcribe',{
-      session:capture,audio:await file64(await captureWav(blob)),mime:'audio/wav'}
-    );
+    $('mic-feedback').textContent=peak<.005?'Very little microphone input · checking transcription…':'Preparing recording…';
+    const blob=new Blob(chunks,{type});
+    const wav=await captureWav(blob);
+    await recognitionSerial; // Late speech-start receipts must not cancel active Whisper.
+    if(capture!==session)return;
+    $('mic-feedback').textContent='Transcribing on host…';
+    await invoke('transcribe',{session:capture,audio:await file64(wav),mime:'audio/wav'});
+   }catch(e){
+    capturing=false;clearTimeout(timeout);stream.getTracks().forEach(t=>t.stop());
+    if(mic===recorder){mic=null;$('mic').textContent='🎙 Mic';}
+    $('mic-feedback').textContent='Recording/transcription failed: '+e.message;$('notice').textContent=e.message;
+   }
   }
   ;
   recorder.start(250);
   $('mic').textContent='■ Send Recording';
 }
 $('mic').onclick=async()=>{
+  if(micStarting)return;micStarting=true;$('mic').disabled=true;
   try{
     if(mic){
       mic.stop();
@@ -512,8 +537,8 @@ $('mic').onclick=async()=>{
     else await httpMic();
   }
   catch(e){
-    $('notice').textContent=e.message;
-  }
+    $('notice').textContent=e.message;$('mic-monitor').hidden=false;$('mic-feedback').textContent=e.message;
+  }finally{micStarting=false;$('mic').disabled=state.effective_backends.stt==='off';}
 }
 ;
 await refresh();await sessionSettings();

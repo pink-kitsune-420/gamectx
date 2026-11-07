@@ -47,6 +47,7 @@ export class VoicePlayer {
   }
   async interrupt() {
     const c=this.current;
+    this.audio?.ontimeupdate?.();
     this.generation++;
     this.synth?.cancel();
     if(this.audio){
@@ -81,6 +82,7 @@ export class VoicePlayer {
       return;
     }
     if(backend==='browser_web_speech')return this.browser(generation);
+    this.emit({id:speech.id,text:speech.text,through:0,status:'Preparing speech audio…'});
     return this.nextChunk(generation);
   }
   browser(generation) {
@@ -147,6 +149,16 @@ export class VoicePlayer {
       return;
     }
     if(a.start!==c.through)return;
+    const bounds=a.boundaries||[],rate=a.sample_rate;
+    if(a.unit==='buffered'){
+      if(!Array.isArray(bounds)||bounds.length>240||!Number.isSafeInteger(a.through)||a.through<=a.start||a.through>Array.from(c.text).length)throw Error('Invalid buffered audio span.');
+      let lastFrame=0,lastThrough=a.start;
+      for(const b of bounds){
+        if(!Number.isSafeInteger(b.frame)||b.frame<=lastFrame||!Number.isSafeInteger(b.through)||b.through<=lastThrough||b.through>a.through)throw Error('Invalid buffered audio boundaries.');
+        lastFrame=b.frame;lastThrough=b.through;
+      }
+      if(bounds.length&&(!Number.isSafeInteger(rate)||rate<8000||rate>96000||lastThrough!==a.through))throw Error('Invalid buffered audio format.');
+    }
     const generation=this.generation;
     const bytes=Uint8Array.from(atob(a.audio),x=>x.charCodeAt(0));
     const url=URL.createObjectURL(new Blob([bytes],{
@@ -159,6 +171,17 @@ export class VoicePlayer {
     // without time-stretch DSP this also changes duration, never receipt offsets.
     audio.preservesPitch=false;
     audio.playbackRate=Number(c.voice.pitch);
+    if(a.unit==='buffered'){
+      audio.ontimeupdate=()=>{
+        if(generation!==this.generation||c.closed||!Number.isFinite(audio.currentTime)||audio.currentTime<0)return;
+        const frame=Number.isFinite(rate)?Math.floor(audio.currentTime*rate):0;
+        let through=c.through;
+        for(const b of bounds){if(b.frame<=frame)through=Math.max(through,b.through);else break;}
+        if(through>c.through)this.update(through);
+        this.emit({id:c.id,text:c.text,through:c.through,status:'Playing buffered speech',audio_time:audio.currentTime,audio_duration:audio.duration});
+      };
+      this.emit({id:c.id,text:c.text,through:c.through,status:'Sentence buffered · playing'});
+    }
     audio.onended=async()=>{
       URL.revokeObjectURL(url);
       if(generation!==this.generation||c.closed)return;

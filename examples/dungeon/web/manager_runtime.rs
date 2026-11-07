@@ -194,7 +194,7 @@ impl Runtime {
             .open(dir.join(format!("managed-{ch}.log")))
             .map_err(|_| err())?;
         let spec = obj! {"argv"=>args,"env"=>get(launcher,"env")?.clone()};
-        let mut command = Command::new(std::env::current_exe().map_err(|_| err())?);
+        let mut command = Command::new(super::executable()?);
         command
             .arg("--managed-service")
             .stdin(Stdio::piped())
@@ -732,7 +732,7 @@ pub fn service_guard() -> Result<()> {
     let mut child = cmd.spawn().map_err(|_| issue("Configured service executable could not start."))?;
     if voice {
         let data = text(&v, "input")?;
-        if data.len() > 4096 {
+        if data.len() > 16384 {
             let _ = child.kill();
             let _ = child.wait();
             return Err(err());

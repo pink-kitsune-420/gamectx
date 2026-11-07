@@ -577,3 +577,10 @@ First public release.
 - [api] [format] Add opt-in native Piper/whisper.cpp CLI audio plans (13 additive cases), host-only executable/weight registration, bounded one-shot execution and Unix process-tree cancellation. Engines and weights remain separately installed. Move model, voice, connection and art setup into an accessible Settings dialog.
 
 - [api] Add opt-in two-player private-LAN sessions with a host-only control plane, random join credentials, fixed guest identity, bounded shared transcript, participant-scoped AI requests, delivery ownership and deterministic turn floor. Add Settings tabs and an independent browser guest view; all inference stays on the host.
+
+- [api] [format] Add bounded speech-buffer plans (14 additive cases) and optional native
+  Piper PCM frame checkpoints. Prepare complete lines in one engine session, validate/join
+  phrase WAVs and play one buffer; existing unmanaged HTTP word delivery stays compatible.
+- [fix] Keep native subprocess launch working across Linux hot rebuilds; pass absolute
+  capture/model paths to installed wrappers. Order microphone interims before transcription,
+  show input/recording status and handle empty/failed STT with safe retry.

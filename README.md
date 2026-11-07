@@ -1012,3 +1012,5 @@ the existing spending ledger. [Configuration and evidence](docs/MODEL_MANAGER.md
 Native Piper/whisper.cpp support uses separately installed engines and weights. See [setup](docs/NATIVE_VOICE.md); model and voice controls live in Settings.
 
 Two-player LAN chat keeps AI and world processing on the host; see [LAN play](docs/LAN_PLAY.md).
+
+Piper prepares full lines before playback; see [buffered speech and microphone checks](docs/BUFFERED_SPEECH.md).

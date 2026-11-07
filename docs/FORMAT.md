@@ -2050,3 +2050,13 @@ LAN guest APIs are separate from existing host APIs: `POST /api/join {code}`,
 `GET /api/guest`, `POST /api/guest_chat {text,npc}`, `POST /api/guest_read {id}`.
 Authenticated cookies bind player 2; guest writes also carry scene generation headers.
 Only loopback hosts can read `/api/session` or `POST /api/session_rotate {}`.
+
+Buffered Piper playback and microphone recovery are documented in [buffered speech](BUFFERED_SPEECH.md).
+
+`studio-speech-buffer` is additive: exact args `text,start` produce `parts` with
+`text,start,through` and a final `through`. Text is 1–240 Unicode scalars without controls;
+start is a scalar index inside the line. Parts preserve the exact suffix and contain at
+most 80 scalars each. No executable paths or inference occurs in this local adapter.
+Native Piper results can add `unit:"buffered",sample_rate,boundaries:[{frame,through}]`
+to existing Studio audio packets. Checkpoints describe completed PCM parts, not guessed
+word alignment. Existing generic HTTP voice formats and conformance outputs are unchanged.

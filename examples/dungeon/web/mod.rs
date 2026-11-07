@@ -10,6 +10,7 @@ pub fn configure_voice(root: &str, dir: &str) -> Result<()> {
 mod providers;
 mod session;
 mod setup;
+mod speech_wav;
 #[cfg(test)]
 mod tests;
 use super::game;
@@ -17,6 +18,17 @@ use game::{fields, get, text};
 use gamectx::{Error, Result, Value};
 pub fn service_guard() -> Result<()> {
     manager_runtime::service_guard()
+}
+// Linux keeps this executable handle valid even after a development rebuild unlinks it.
+fn executable() -> Result<std::path::PathBuf> {
+    #[cfg(target_os = "linux")]
+    {
+        Ok(std::path::PathBuf::from("/proc/self/exe"))
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        std::env::current_exe().map_err(|_| err())
+    }
 }
 fn err() -> Error {
     Error::new("invalid studio request")

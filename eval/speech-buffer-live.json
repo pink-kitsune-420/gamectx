@@ -1,0 +1,43 @@
+{
+  "baseline_commit": "758dcf2",
+  "baseline": {
+    "text": "I tend this counter; choose an item or tell me what you need.",
+    "characters": 61,
+    "synthesis_jobs": 13,
+    "synthesis_seconds": 11.0014,
+    "per_job_seconds": [
+      0.8525,
+      0.8473,
+      0.8513,
+      0.8408,
+      0.8572,
+      0.8277,
+      0.8416,
+      0.8291,
+      0.8561,
+      0.8523,
+      0.8451,
+      0.8605,
+      0.8399
+    ],
+    "audio_seconds": 8.6024,
+    "prepared_checkpoints": 0,
+    "api_spend_usd": 0
+  },
+  "buffered": {
+    "text": "I tend this counter; choose an item or tell me what you need.",
+    "characters": 61,
+    "synthesis_jobs": 1,
+    "synthesis_seconds": 1.2949,
+    "per_job_seconds": [
+      1.2949
+    ],
+    "audio_seconds": 4.0081,
+    "prepared_checkpoints": 1,
+    "api_spend_usd": 0
+  },
+  "synthesis_turnaround_speedup": 8.5,
+  "actual_text_llm_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Manual sequential installed-Piper host requests, four-thread user launcher. One paired line; synthesis turnaround excludes physical playback, subjective quality and network jitter. Host delivery receipts are simulated completed playback. Not a broad latency/RSS or heard-character benchmark."
+}
