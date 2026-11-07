@@ -1,0 +1,84 @@
+{
+  "scores": [
+    {
+      "case": "merchant_dream",
+      "mode": "baseline",
+      "mental": false,
+      "complete": true,
+      "relevant": false,
+      "chars": 61,
+      "speech": "I tend this counter; choose an item or tell me what you need.",
+      "prompt_tokens": 710,
+      "output_tokens": 20
+    },
+    {
+      "case": "merchant_dream",
+      "mode": "candidate",
+      "mental": true,
+      "complete": true,
+      "relevant": true,
+      "chars": 69,
+      "speech": "I hope to make this counter a place where people feel fairly treated.",
+      "prompt_tokens": 814,
+      "output_tokens": 19
+    },
+    {
+      "case": "merchant_preference",
+      "mode": "baseline",
+      "mental": false,
+      "complete": true,
+      "relevant": false,
+      "chars": 61,
+      "speech": "I tend this counter; choose an item or tell me what you need.",
+      "prompt_tokens": 707,
+      "output_tokens": 20
+    },
+    {
+      "case": "merchant_preference",
+      "mode": "candidate",
+      "mental": false,
+      "complete": true,
+      "relevant": false,
+      "chars": 137,
+      "speech": "I do, but I prefer simple things that are useful and honestly made. I hope to make this counter a place where people feel fairly treated.",
+      "prompt_tokens": 811,
+      "output_tokens": 34
+    },
+    {
+      "case": "keeper_hope",
+      "mode": "baseline",
+      "mental": false,
+      "complete": true,
+      "relevant": false,
+      "chars": 67,
+      "speech": "I tend the dry fountain; the host can confirm what is visible here.",
+      "prompt_tokens": 713,
+      "output_tokens": 20
+    },
+    {
+      "case": "keeper_hope",
+      "mode": "candidate",
+      "mental": true,
+      "complete": true,
+      "relevant": true,
+      "chars": 104,
+      "speech": "I hope to see more care and trust in our interactions, especially from those who seek to learn and grow.",
+      "prompt_tokens": 816,
+      "output_tokens": 27
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "relevant": 0,
+      "complete": 3,
+      "n": 3
+    },
+    "candidate": {
+      "relevant": 2,
+      "complete": 3,
+      "n": 3
+    }
+  },
+  "api_spend_usd": 0,
+  "limits": "Small original three-question paired cohort; deterministic lexical relevance scoring, raw outputs retained. No claim of general hallucination prevention."
+}

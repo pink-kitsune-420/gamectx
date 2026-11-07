@@ -1016,3 +1016,5 @@ Two-player LAN chat keeps AI and world processing on the host; see [LAN play](do
 Piper prepares full lines before playback; see [buffered speech and microphone checks](docs/BUFFERED_SPEECH.md).
 
 Saved voice recordings and floating context/execution profilers: [guide](docs/STUDIO_DIAGNOSTICS.md).
+
+The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPOINTS.md) for dreams, hobbies and preferences; confirmed subjective speech stays separate from world authority.

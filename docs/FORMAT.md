@@ -2063,3 +2063,5 @@ word alignment. Existing generic HTTP voice formats and conformance outputs are 
 
 Voice recording history, cancellable local replies and the floating context/execution
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+
+`studio-viewpoints` adds bounded `{state,ops}` delivery-confirmed mental stances; see [character viewpoints](CHARACTER_VIEWPOINTS.md). Existing fixture outputs and checkpoints without this optional extension remain unchanged.

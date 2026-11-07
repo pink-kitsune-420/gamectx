@@ -1359,3 +1359,15 @@ fn voice_archive_retention_mutations_never_access_files() {
         }
     }
 }
+
+#[test]
+fn viewpoint_text_and_checkpoints_are_bounded_under_mutation() {
+    let seed = include_str!("../conformance/viewpoints/confirmed/input.json");
+    let mut rng = Rng(0x76696577);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

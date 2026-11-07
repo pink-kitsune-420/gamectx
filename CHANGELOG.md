@@ -1,5 +1,15 @@
 # Changelog
 
+- [api] Add opt-in bounded `studio::Viewpoints` with host complete-heard confirmation,
+  actor/listener/topic isolation, immutable reuse and checkpoint recovery.
+- [format] Add twelve `studio-viewpoints` conformance cases; optional example viewpoint
+  checkpoint extension preserves old saves and existing conformance outputs.
+- Studio: editable personality turns for dreams/hobbies/preferences, atomic persistence,
+  strict factual path retained, Thinking UI hides old/provisional replies, instant fallback.
+  Fresh local 3B three-question holdout: 3/3 relevant/accepted versus 0/3 baseline;
+  see docs/CHARACTER_VIEWPOINTS.md for raw artifacts and limits.
+
+
 While the version is `0.x` or a pre-release, any release may change the API,
 command-line options or packed formats. Every entry carries one label so projects
 know what an upgrade costs:

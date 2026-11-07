@@ -1,0 +1,152 @@
+{
+  "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+  "threads": 4,
+  "rows": [
+    {
+      "case": "merchant_dream",
+      "mode": "baseline",
+      "question": "Do you have any dreams?",
+      "expected": "dream",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:01:16.564784456Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I tend this counter; choose an item or tell me what you need.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 18310657589,
+        "load_duration": 5063310614,
+        "prompt_eval_count": 710,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 10869370000,
+        "eval_count": 20,
+        "eval_duration": 2369332000
+      },
+      "wall_seconds": 18.3117
+    },
+    {
+      "case": "merchant_dream",
+      "mode": "candidate",
+      "question": "Do you have any dreams?",
+      "expected": "dream",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:01:37.348007784Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I hope to make this counter a place where people feel fairly treated.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 20781883203,
+        "load_duration": 4940574730,
+        "prompt_eval_count": 814,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 13471604000,
+        "eval_count": 19,
+        "eval_duration": 2361527000
+      },
+      "wall_seconds": 20.783
+    },
+    {
+      "case": "merchant_preference",
+      "mode": "baseline",
+      "question": "Do you like tea?",
+      "expected": "tea",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:02:02.428680985Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I tend this counter; choose an item or tell me what you need.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 25079418670,
+        "load_duration": 5510354395,
+        "prompt_eval_count": 707,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 17030526000,
+        "eval_count": 20,
+        "eval_duration": 2526888000
+      },
+      "wall_seconds": 25.0805
+    },
+    {
+      "case": "merchant_preference",
+      "mode": "candidate",
+      "question": "Do you like tea?",
+      "expected": "tea",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:02:37.322336317Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I do, but I prefer simple things that are useful and honestly made. I hope to make this counter a place where people feel fairly treated.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 34892502065,
+        "load_duration": 5494044460,
+        "prompt_eval_count": 811,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 24147925000,
+        "eval_count": 34,
+        "eval_duration": 5236207000
+      },
+      "wall_seconds": 34.8943
+    },
+    {
+      "case": "keeper_hope",
+      "mode": "baseline",
+      "question": "What do you hope for?",
+      "expected": "hope",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:03:07.545368308Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I tend the dry fountain; the host can confirm what is visible here.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 30221009743,
+        "load_duration": 7033195295,
+        "prompt_eval_count": 713,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 20409305000,
+        "eval_count": 20,
+        "eval_duration": 2764980000
+      },
+      "wall_seconds": 30.2233
+    },
+    {
+      "case": "keeper_hope",
+      "mode": "candidate",
+      "question": "What do you hope for?",
+      "expected": "hope",
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T17:03:42.049197051Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\"speech\":\"I hope to see more care and trust in our interactions, especially from those who seek to learn and grow.\"}"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 34501300894,
+        "load_duration": 7139979708,
+        "prompt_eval_count": 816,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 23284619000,
+        "eval_count": 27,
+        "eval_duration": 4058356000
+      },
+      "wall_seconds": 34.5033
+    }
+  ],
+  "api_spend_usd": 0,
+  "actual_local_calls": 6
+}

@@ -31,6 +31,7 @@ struct Speech {
     pending: bool,
     audio: Option<Value>,
     origin: String,
+    viewpoint: Option<Value>,
 }
 pub struct App {
     pub config: Config,
@@ -63,6 +64,7 @@ pub struct App {
     monitor: super::setup::Monitor,
     pub manager: super::manager_view::State,
     voice_history: super::voice_history::History,
+    mind: super::personality::Mind,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -139,6 +141,7 @@ impl App {
         };
         let manager = super::manager_view::State::new(&dir)?;
         let voice_history = super::voice_history::History::new(&dir)?;
+        let mind = super::personality::Mind::new(&dir)?;
         let out = Self {
             config,
             budget,
@@ -170,6 +173,7 @@ impl App {
             monitor: super::setup::Monitor::default(),
             manager,
             voice_history,
+            mind,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -306,6 +310,13 @@ impl App {
             let heard = s.voice.heard_text();
             let actor = s.actor.clone();
             let player = s.player.clone();
+            let viewpoint = s.viewpoint.clone().filter(|_| heard == s.voice.text());
+            if let Some(view) = viewpoint {
+                // Only the host's complete heard receipt can publish the mental stance.
+                if self.mind.confirm(&view, &heard, &self.dir).is_err() {
+                    self.notice="Reply heard, but this new viewpoint could not be saved; inspect storage or the 128-viewpoint bound.".into();
+                }
+            }
             if !heard.is_empty() {
                 self.log(&actor, &heard, if interrupted { "heard interrupted prefix" } else { "heard" });
                 self.observe(
@@ -361,8 +372,26 @@ impl App {
             pending: false,
             audio: None,
             origin: "offline".into(),
+            viewpoint: None,
         });
         Ok(())
+    }
+    fn attitude_level(&self, kind: &str) -> Result<i64> {
+        let v = self.world.inspect_actor(&self.npc)?;
+        Ok(v.get("effective_attitudes")
+            .and_then(Value::as_array)
+            .unwrap_or(&[])
+            .iter()
+            .find(|a| {
+                a.get("definition").is_some_and(|d| {
+                    d.get("kind").and_then(Value::as_str) == Some(kind)
+                        && d.get("subject").and_then(Value::as_str) == Some(self.player.as_str())
+                })
+            })
+            .and_then(|a| a.get("level"))
+            .map(Value::to_json)
+            .and_then(|x| x.parse().ok())
+            .unwrap_or(0))
     }
     fn fallback_line(&self, input: &str) -> String {
         let lowered = input.to_lowercase();
@@ -471,7 +500,7 @@ impl App {
         Answers::from_value(&answers)?.speech_schema_with_unknown(false)?;
         Ok(answers)
     }
-    fn compile_text(&self, input: &str, trigger: u64) -> Result<Value> {
+    fn compile_text(&self, input: &str, trigger: u64, subjective: bool) -> Result<Value> {
         let call_config = self.manager.provider(&self.config, "text")?;
         let size = gamectx::deployment::ModelSize::parse(text(&call_config.value, "size")?)?;
         let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
@@ -480,7 +509,7 @@ impl App {
             &obj! {"name"=>"studio","size"=>format!("{}b",text(&call_config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
-        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
+        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
         let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
         let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
         let life = self.world.effective_life(&self.npc)?;
@@ -516,7 +545,10 @@ impl App {
         set(&mut state, "accepted_promises", promises.into());
         messages[2] = obj! {"role"=>"user","content"=>state.to_json()};
         messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
-        Ok(obj! {"messages"=>messages,"max_tokens"=>hints.output_tokens.min(256)})
+        if subjective {
+            messages.insert(2,obj!{"role"=>"system","content"=>obj!{"personality"=>obj!{"actor"=>self.npc.clone(),"disposition"=>text(self.mind.profile(&self.npc)?,"traits")?},"subjective_turn"=>"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request, not your job or counter. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce past biography, promises, resources, stock, weather or secret lore. No tools."}.to_json()});
+        }
+        Ok(obj! {"messages"=>messages,"max_tokens"=>if subjective{64}else{hints.output_tokens.min(256)}})
     }
     fn native_status(&mut self, report: &Value) {
         for ch in ["tts", "stt"] {
@@ -756,7 +788,7 @@ impl App {
                 || self
                     .speech
                     .as_ref()
-                    .is_some_and(|s| s.voice.snapshot().get("stage") == Some(&Value::str("validated"))))
+                    .is_some_and(|s| s.pending && s.voice.snapshot().get("stage") == Some(&Value::str("validated"))))
             && (job.modality != "text"
                 || job
                     .binding
@@ -908,6 +940,17 @@ impl App {
                     } else {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
                     };
+                    let subjective = job.binding.get("viewpoint").filter(|v| **v != Value::Null);
+                    let mental = if subjective.is_some() {
+                        let reply = parse(line)?;
+                        fields(&reply, &["speech"])?;
+                        let mental = text(&reply, "speech")?.to_owned();
+                        gamectx::studio::validate_viewpoint_line(&mental)?;
+                        Some(mental)
+                    } else {
+                        None
+                    };
+                    let line = mental.as_deref().unwrap_or(line);
                     let grounded = job.binding.get("answers").filter(|v| **v != Value::Null);
                     let resolved = if let Some(a) = grounded {
                         Some(Answers::from_value(a)?.resolve_speech_with_unknown(
@@ -928,7 +971,20 @@ impl App {
                     }
                     let s = self.speech.as_mut().ok_or_else(err)?;
                     s.pending = false;
-                    s.origin = if grounded.is_some() { "authorized_model" } else { "model" }.into();
+                    s.origin = if grounded.is_some() {
+                        "authorized_model"
+                    } else if subjective.is_some() {
+                        "subjective_model"
+                    } else {
+                        "model"
+                    }
+                    .into();
+                    if let Some(proposal) = subjective {
+                        let mut entry = proposal.clone();
+                        set(&mut entry, "stance", line.into());
+                        set(&mut entry, "source", "model".into());
+                        s.viewpoint = Some(entry);
+                    }
                     if text(&s.voice.snapshot(), "stage")? == "validated" {
                         s.voice = VoiceTurn::new("studio_save", &s.actor, &s.player, &self.people, line)?;
                     }
@@ -1287,7 +1343,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1297,11 +1353,27 @@ impl App {
         self.manager_update(Vec::new())?;
         let mut jobs = Vec::new();
         let result = match op {
+            "personality_settings" => {
+                self.mind.configure(v, &self.dir)?;
+                self.stop(None)?;
+                self.epoch += 1;
+                obj! {"configured"=>true}
+            }
             "profiler_settings" => {
                 fields(v, &["capture_prompts"])?;
                 let value = get(v, "capture_prompts")?.as_bool().ok_or_else(err)?;
                 self.monitor.capture(value);
                 obj! {"configured"=>true}
+            }
+            "use_fallback" => {
+                fields(v, &[])?;
+                if self.speech.as_ref().is_some_and(|s| s.pending) {
+                    providers::cancel_text();
+                    let s = self.speech.as_mut().unwrap();
+                    s.pending = false;
+                    s.origin = "offline".into();
+                }
+                obj! {"ready"=>true}
             }
             "cancel_text" => {
                 fields(v, &[])?;
@@ -1423,6 +1495,7 @@ impl App {
                 self.receipts.clear();
                 self.transcript.clear();
                 self.voice_history.clear()?;
+                self.mind.replace(gamectx::studio::Viewpoints::new(), &self.dir)?;
                 self.shared_log.clear();
                 self.speech = None;
                 self.previews.clear();
@@ -1568,7 +1641,16 @@ impl App {
                     let subject = self.player.clone();
                     self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
                     self.fulfill_promises()?;
-                    let authored = if self.config.speech_mode() == "grounded" {
+                    let trust = self.attitude_level("trust")?;
+                    let topic = self.mind.topic(line, trust);
+                    if let Some(saved) =
+                        topic.as_ref().and_then(|t| self.mind.views.find(&self.npc, &self.player, t)).cloned()
+                    {
+                        self.say(text(&saved, "stance")?)?;
+                        self.notice = "Reply ready from this character's saved viewpoint toward this listener.".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"saved_viewpoint"=>true}, jobs));
+                    }
+                    let authored = if topic.is_none() && self.config.speech_mode() == "grounded" {
                         super::followup::replies(&self.npc, &self.game.room, line)
                     } else {
                         None
@@ -1597,8 +1679,14 @@ impl App {
                             .or_else(|| options.first())
                             .copied()
                     });
-                    let mut fallback = chosen.map_or_else(|| self.fallback_line(line), str::to_owned);
-                    if self.counters[usize::from(self.player == "player_2")] >= 3 && fallback.chars().count() + 9 <= 240
+                    let mut fallback = if let Some(t) = &topic {
+                        self.mind.fallback(&self.npc, t, trust)?
+                    } else {
+                        chosen.map_or_else(|| self.fallback_line(line), str::to_owned)
+                    };
+                    if topic.is_none()
+                        && self.counters[usize::from(self.player == "player_2")] >= 3
+                        && fallback.chars().count() + 9 <= 240
                     {
                         fallback = format!("Briefly: {fallback}");
                     }
@@ -1607,8 +1695,24 @@ impl App {
                         self.notice = "Reply ready from the character's current role and visible scene.".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
                     }
-                    let mut payload = self.compile_text(line, token)?;
-                    let answers = if self.config.speech_mode() == "grounded" {
+                    let viewpoint = if let Some(t) = &topic {
+                        let basis = obj! {"profile"=>self.mind.profile(&self.npc)?.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"heard_token"=>token,"listener"=>self.player.clone()};
+                        Some(
+                            obj! {"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"topic"=>t.clone(),"stance"=>fallback.clone(),"basis"=>gamectx::visual::content_digest(basis.to_json().as_bytes())?,"source"=>"profile","at"=>self.tick},
+                        )
+                    } else {
+                        None
+                    };
+                    self.speech.as_mut().unwrap().viewpoint = viewpoint.clone();
+                    let mut payload = self.compile_text(line, token, topic.is_some())?;
+                    if topic.is_some() {
+                        set(
+                            &mut payload,
+                            "speech_schema",
+                            obj! {"type"=>"object","properties"=>obj!{"speech"=>obj!{"type"=>"string","maxLength"=>240,"pattern"=>"^I (hope|dream|wish|prefer|feel|value|think|believe|would like) [^.!?]{1,180}[.!]$"}},"required"=>vec!["speech"],"additionalProperties"=>false},
+                        );
+                    }
+                    let answers = if topic.is_none() && self.config.speech_mode() == "grounded" {
                         Some(self.reply_answers(&fallback)?)
                     } else {
                         None
@@ -1629,7 +1733,7 @@ impl App {
                         set(&mut payload, "speech_schema", schema);
                     }
                     let speech = self.speech.as_ref().unwrap().id;
-                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null)})? {
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null)})? {
                         self.speech.as_mut().unwrap().pending = true;
                         self.speech.as_mut().unwrap().origin = "pending".into();
                         jobs.push(job);
@@ -1926,7 +2030,10 @@ impl App {
                 fields(v, &["slot"])?;
                 let slot = num(v, "slot", 3)?;
                 self.stop(None)?;
-                let saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
+                let mut saved = obj! {"version"=>1,"pack_digest"=>gamectx::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
+                if self.mind.enabled() || !array(get(&self.mind.views.checkpoint(), "entries")?)?.is_empty() {
+                    set(&mut saved, "viewpoints", self.mind.views.checkpoint());
+                }
                 atomic(&self.dir.join(format!("branch-{slot}.json")), saved.to_json().as_bytes())?;
                 self.notice = format!("Branch {} saved.", char::from(b'A' + slot as u8));
                 obj! {"saved"=>slot}
@@ -1967,8 +2074,24 @@ impl App {
         Ok((result, jobs))
     }
     fn restore(&mut self, v: &Value) -> Result<()> {
+        let views = if let Some(x) = v.get("viewpoints") {
+            gamectx::studio::Viewpoints::recover(x)?
+        } else {
+            gamectx::studio::Viewpoints::new()
+        };
+        for e in array(get(&views.checkpoint(), "entries")?)? {
+            if !["merchant", "keeper"].contains(&text(e, "actor")?)
+                || !["player_1", "player_2"].contains(&text(e, "listener")?)
+            {
+                return Err(err());
+            }
+        }
+        let mut base = v.clone();
+        if let Value::Object(rows) = &mut base {
+            rows.retain(|(k, _)| k != "viewpoints");
+        }
         fields(
-            v,
+            &base,
             &[
                 "version",
                 "pack_digest",
@@ -2087,6 +2210,7 @@ impl App {
         self.manager_significance = 0;
         self.manager_delta = 0;
         self.game = game;
+        self.mind.replace(views, &self.dir)?;
         self.world = world;
         self.actions = actions;
         self.world_ops = world_ops;

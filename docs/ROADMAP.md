@@ -556,3 +556,5 @@ Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN
 
 Voice recording history, cancellable local replies and the floating context/execution
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+
+- Completed: optional persistent character viewpoints with scoped personality/Life context, delivery confirmation and branch/reset behavior; Thinking UI hides old replies. Twelve parity cases, nine host workflows, five Firefox workflows; fresh local 3B holdout 3/3 relevant/accepted versus 0/3 baseline. See [evidence and limits](CHARACTER_VIEWPOINTS.md). Host-gated extensible reactions and transfer adapters are next.

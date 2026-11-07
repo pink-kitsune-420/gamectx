@@ -807,3 +807,5 @@ Buffered Piper playback and microphone recovery are documented in [buffered spee
 
 Voice recording history, cancellable local replies and the floating context/execution
 profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+
+Use Settings → Characters in the local studio to enable editable dispositions and listener-scoped saved opinions. [Character viewpoints](CHARACTER_VIEWPOINTS.md) explains complete-heard confirmation, branch persistence, bounds and model limitations. Thinking hides the previous reply until the new line is ready; Use instant reply keeps the 0B path available.

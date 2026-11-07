@@ -316,7 +316,7 @@ fn handle(
             );
         }
         if (["chat", "act", "select", "mic", "promise"].contains(&op) && current.floor() == Some("player_2"))
-            || (["delivery", "synthesize"].contains(&op) && !current.host_delivery())
+            || (["delivery", "synthesize", "use_fallback"].contains(&op) && !current.host_delivery())
         {
             return response(
                 stream,

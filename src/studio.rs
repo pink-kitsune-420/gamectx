@@ -1,6 +1,9 @@
 //! Opt-in host policies for the local example studio. No network, audio device or
 //! world executor: external transports acknowledge only confirmed character offsets.
 mod archive;
+mod viewpoints;
+pub(crate) use viewpoints::fixture as viewpoints_fixture;
+pub use viewpoints::{validate_viewpoint_line, Viewpoints};
 mod commands;
 pub(crate) use archive::fixture as archive_fixture;
 pub use archive::VoiceArchive;
