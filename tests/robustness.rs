@@ -1281,3 +1281,21 @@ fn source_speech_rejects_mutated_unapproved_text_and_stale_sources() {
         }
     }
 }
+
+#[test]
+fn human_command_mutations_never_execute_or_escape_current_choices() {
+    let seed = include_str!("../conformance/deep-command/phrase_7/input.json");
+    let mut rng = Rng(0x636f6d6d);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            if let Ok(answer) = gamectx::local::process(&v) {
+                if answer.get("status") == Some(&"resolved".into()) {
+                    let args = v.get("args").unwrap();
+                    let choices = args.get("choices").unwrap().as_array().unwrap();
+                    assert!(choices.iter().any(|c| Some(c) == answer.get("decision")));
+                }
+            }
+        }
+    }
+}

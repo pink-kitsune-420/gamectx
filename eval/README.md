@@ -1339,3 +1339,11 @@ retained. `overnight_audit.py --cap 0 --check eval/overnight-grounded-review.jso
 48 recorded generations and revalidates all authorized replies in Rust without models.
 `overnight_ui_tokens.py --cap 0 --output NEW.json` measures the actual focused GUI body;
 `overnight-tier-requests.json` retains actual mock provider requests for all six tiers.
+
+`overnight_input_cases.py --cap 0` compares the command grammar with the independent
+prototype. `overnight_input_holdout.py --cap 0` exercises 41 real loopback requests;
+`overnight_scope_holdout.py --cap 0 --expect-rejection --output NEW.json` tests delayed
+player-switch commands. `test_studio_context.mjs --cap 0` checks six offline browser
+request/poll scenarios; it supplements the frozen five audio lifecycle scenarios.
+The `--semantic` causality fixture corrects the new arithmetic fixture's reused narration
+without rewriting that earlier fixture or any project baseline expectations.

@@ -487,3 +487,8 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   the bundled Studio uses it, while older config files retain free dialogue. Focused
   Web context filters episode/promise subjects and unrelated item/choice noise. A fresh
   paired local cohort and actual provider-body tier audit are retained separately.
+- Implemented the remaining ranked input repair: bounded polite forms/pronouns, explicit
+  clarification, current item prices and context-limited focus. Fresh 41-request holdout
+  covers 14 phrases with no unintended purchases or interim STT actions. A separate
+  delayed-player-switch race reproduced a purchase for the wrong player; optional
+  generation receipts and browser scope capture now reject it before mutation.

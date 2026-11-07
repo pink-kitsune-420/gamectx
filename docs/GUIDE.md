@@ -765,3 +765,10 @@ use ordinary dialogue when that tradeoff is inappropriate. Source presence is no
 that a host-authored sentence is correct. Supply current validated cards and honest
 attribution for reports and claims. The Web studio exposes grounded/dialogue policies;
 old configurations without `speech_mode` preserve dialogue behavior.
+
+`studio::resolve_command` can route a small explicit English grammar without a model.
+Supply only current legal pairs, visible labels and a recent focus already scoped to the
+player/scene. The Web example expires focus after four ticks and clears it on player/NPC
+switches, travel and branch loads. A typo or multi-item instruction asks the player to
+choose a listed action; questions and negation stay dialogue. The helper never executes
+its proposal. The host still applies the current game revision and rules.

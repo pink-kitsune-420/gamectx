@@ -1979,3 +1979,15 @@ facts or actions. The additive `source-speech` local adapter accepts `{answers,c
 where each call is `{text,context,available}`; returns `{schema,results}` with the usual
 per-call `ok` wrappers. Fifteen independent cases cover authorized selection, invented
 text, stale revision, unavailable source and invalid/duplicate sentence variants.
+
+### Studio command proposals
+
+The opt-in `studio-command` adapter / `studio::resolve_command` accepts
+`{input,choices,labels,focus}`: 1,024 input bytes, at most 128 unique `{action,target}`
+pairs, 128 label records `{id,aliases}` with at most eight aliases each, and a nullable
+host-chosen focus ID. The complete request is at most 65,536 bytes. Output is
+`{status,decision}`: `resolved` contains exactly a current supplied pair; `dialogue` or
+`clarify` contains null. Questions/negation cannot execute. The bounded English grammar
+supports polite prefixes, a few explicit verb aliases and scoped pronouns. No fuzzy
+purchase guessing, batch execution or model dispatch occurs. Hosts own focus age/scope.
+26 additive cases include malformed controls, duplicate pairs and invalid focus types.

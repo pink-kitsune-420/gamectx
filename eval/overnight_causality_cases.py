@@ -18,8 +18,13 @@ def case():
  for actor in ['keeper','companion']:ops.append(('inspect',dict(actor=actor)))
  return dict(kind='living-world',args=trace(ops,p))
 def main():
- p=argparse.ArgumentParser();p.add_argument('--cap',required=True,type=float);p.add_argument('--prototype-only',action='store_true');p.add_argument('--write-conformance',action='store_true');a=p.parse_args();assert a.cap==0
- req=case();expected=world_workflow(req['args']);rows=expected['results'];assert all(x['ok'] for x in rows)
+ p=argparse.ArgumentParser();p.add_argument('--cap',required=True,type=float);p.add_argument('--prototype-only',action='store_true');p.add_argument('--write-conformance',action='store_true');p.add_argument('--semantic',action='store_true');a=p.parse_args();assert a.cap==0
+ req=case()
+ if a.semantic:
+  for op in req['args']['operations']:
+   if op['op']=='observe':
+    e=op['args']['event'];verb='broke' if e['tag']=='broken' else 'repaired';e['text']='The host confirmed player_1 '+verb+' a lamp-return agreement.';e['source']['text']='I '+verb+' the lamp-return agreement.'
+ expected=world_workflow(req['args']);rows=expected['results'];assert all(x['ok'] for x in rows)
  def level(inspection,player):return next(a['level'] for a in inspection['effective_attitudes'] if a['definition']['subject']==player and a['definition']['kind']=='trust')
  arcs=[level(rows[n*5+4]['result'],'player_1') for n in range(6)];assert arcs==[0,-20,-10,0,10,20],arcs
  assert all(level(rows[n*5+4]['result'],'player_2')==0 for n in range(6))
@@ -31,7 +36,7 @@ def main():
  if not a.prototype_only:
   cp=subprocess.run([str(ROOT/'target/debug/gamectx'),'local','-'],input=enc(req),text=True,capture_output=True);assert cp.returncode==0,cp.stderr;assert cp.stdout.strip()==enc(expected),'Rust/Python causality drift'
  if a.write_conformance:
-  d=ROOT/'conformance/deep-causality/forgiveness_and_rumor_cycles';d.mkdir(parents=True,exist_ok=True)
+  d=ROOT/'conformance/deep-causality'/('semantic_forgiveness_and_rumor_cycles' if a.semantic else 'forgiveness_and_rumor_cycles');d.mkdir(parents=True,exist_ok=True)
   for f,v in [('case',dict(op='local')),('input',req),('expected',expected)]: (d/(f+'.json')).write_text(enc(v)+'\n')
  print(enc(dict(operations=len(rows),arc=arcs,propagated_reports=len(reports),noise_ticks=100,emergency_frames=10,player_2_delta=0,api_spend_usd=0,model_calls=0)))
 if __name__=='__main__':main()

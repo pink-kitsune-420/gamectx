@@ -989,3 +989,6 @@ in [the guide](docs/GUIDE.md).
 The Studio's bundled configuration uses authorized factual speech variants; its Speech
 policy selector also offers free dialogue. Provider output is validated against current
 host cards, and focused requests scope recalled episodes/promises to the active player.
+The Studio also supports bounded polite commands and scoped pronouns, with action-button
+clarification for ambiguity. Scene-generation receipts reject delayed controls after a
+participant switch; delivery/recognition continue using their own speech/session IDs.

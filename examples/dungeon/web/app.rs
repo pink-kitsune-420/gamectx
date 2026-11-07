@@ -57,6 +57,7 @@ pub struct App {
     mic: u64,
     mic_open: bool,
     local_paused: bool,
+    focus: Option<(String, u64)>,
     recognition: Value,
     counters: [u64; 2],
     fulfilled: [u64; 2],
@@ -152,6 +153,7 @@ impl App {
             mic: 0,
             mic_open: false,
             local_paused: false,
+            focus: None,
             recognition: Value::Null,
             counters: [0, 0],
             fulfilled: [0, 0],
@@ -363,6 +365,22 @@ impl App {
             } else {
                 format!("I can offer {}.", stock.join(", "))
             };
+        }
+        for item in self.game.visible_items() {
+            if item.get("owner") == Some(&Value::str("merchant"))
+                && (lowered.contains(text(&item, "label").unwrap_or(""))
+                    || lowered.split_whitespace().any(|w| {
+                        w.trim_matches(|c: char| !c.is_alphanumeric())
+                            == text(&item, "id").unwrap_or("").rsplit(':').next().unwrap_or("")
+                    }))
+            {
+                return format!(
+                    "The {} costs {} coins; you have {}.",
+                    text(&item, "label").unwrap(),
+                    get(&item, "price").unwrap().to_json(),
+                    self.game.coins
+                );
+            }
         }
         if input.to_lowercase().contains("born") || input.to_lowercase().contains("weather") {
             return "I do not know that; I can only speak from what the host has shown me.".into();
@@ -851,6 +869,11 @@ impl App {
                     self.mic_open = false;
                     self.actions.push(v.clone());
                     self.advance()?;
+                    self.focus = if get(v, "decision")?.get("action") == Some(&Value::str("go")) {
+                        None
+                    } else {
+                        get(v, "decision")?.get("target").and_then(Value::as_str).map(|id| (id.into(), self.tick))
+                    };
                     if self.game.room == "workshop" {
                         self.npc = "merchant".into();
                     }
@@ -883,6 +906,7 @@ impl App {
                     return Err(err());
                 }
                 self.stop(None)?;
+                self.focus = None;
                 self.player = player.into();
                 self.npc = npc.into();
                 self.epoch += 1;
@@ -895,37 +919,47 @@ impl App {
                 if line.is_empty() || line.len() > 1024 || line.chars().any(char::is_control) {
                     return Err(err());
                 }
-                let normalized = line
-                    .trim()
-                    .trim_end_matches(['.', '!'])
-                    .to_ascii_lowercase()
-                    .split_whitespace()
-                    .collect::<Vec<_>>()
-                    .join(" ");
-                if let Some(decision) = self.game.choices().into_iter().find(|c| {
-                    let action = text(c, "action").unwrap_or("");
-                    if normalized == action && (c.get("target") == Some(&Value::Null) || action == "look") {
-                        return true;
+                let choices = self.game.choices();
+                let items = self.game.visible_items();
+                let labels = items
+                    .iter()
+                    .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
+                    .collect::<Vec<_>>();
+                let focus = self
+                    .focus
+                    .as_ref()
+                    .filter(|(_, at)| self.tick.saturating_sub(*at) <= 4)
+                    .map_or(Value::Null, |(id, _)| Value::str(id));
+                let resolved = gamectx::studio::resolve_command(
+                    &obj! {"input"=>line,"choices"=>choices.clone(),"labels"=>labels,"focus"=>focus},
+                )?;
+                match text(&resolved, "status")? {
+                    "resolved" => {
+                        return self.command(
+                            "act",
+                            &obj! {"revision"=>self.game.revision,"decision"=>get(&resolved,"decision")?.clone()},
+                        )
                     }
-                    let Some(mut argument) = normalized.strip_prefix(action).and_then(|tail| tail.strip_prefix(' '))
-                    else {
-                        return false;
-                    };
-                    if action == "go" {
-                        argument = argument.strip_prefix("to ").unwrap_or(argument);
+                    "clarify" => {
+                        self.stop(None)?;
+                        self.epoch += 1;
+                        self.mic_open = false;
+                        self.notice = "Choose one listed item or action using the buttons below.".into();
+                        let notice = self.notice.clone();
+                        self.log("host", &notice, "clarification");
+                        if self.active() {
+                            self.say("Choose one listed item or action using the buttons below.")?;
+                        }
+                        return Ok((obj! {"status"=>"clarify","message"=>notice}, jobs));
                     }
-                    argument = argument.strip_prefix("the ").unwrap_or(argument);
-                    let Some(target) = c.get("target").and_then(Value::as_str) else {
-                        return false;
-                    };
-                    argument == target.rsplit(':').next().unwrap_or(target).replace('_', " ")
-                        || self.game.visible_items().iter().any(|item| {
-                            item.get("id") == Some(&Value::str(target))
-                                && item.get("label").and_then(Value::as_str) == Some(argument)
-                        })
-                        || target == "door:vault" && argument == "gate"
-                }) {
-                    return self.command("act", &obj! {"revision"=>self.game.revision,"decision"=>decision});
+                    _ => {}
+                }
+                if let Ok(reference) = crate::intent::resolve(&choices, &items, line, None, None) {
+                    if reference.candidates.len() == 1 {
+                        if let Some(id) = reference.candidates[0].get("id").and_then(Value::as_str) {
+                            self.focus = Some((id.into(), self.tick));
+                        }
+                    }
                 }
                 self.stop(None)?;
                 self.epoch += 1;
@@ -1350,6 +1384,7 @@ impl App {
         }
         let seq = num(v, "seq", u32::MAX as u64)?;
         self.stop(None)?;
+        self.focus = None;
         self.game = game;
         self.world = world;
         self.actions = actions;

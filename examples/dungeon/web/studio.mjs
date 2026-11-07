@@ -1,22 +1,15 @@
 import {
   VoicePlayer,prefix}
 from './voice.mjs';
+import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
 const $=id=>document.getElementById(id);
 let recognitionSerial=Promise.resolve();
 let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0;
-const post=async(op,args={
-}
-)=>{
-  const response=await fetch('/api/'+op,{
-    method:'POST',headers:{
-      'Content-Type':'application/json','X-Studio-Request':'1'}
-    ,body:JSON.stringify(args)}
-  );
-  const reply=await response.json();
-  if(!response.ok||!reply.ok)throw Error(reply.error||'The host rejected a stale request.');
-  return reply;
-}
-;
+const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
+const post=async(op,args={},generation=state?.generation)=>{
+  if(scopedOperations.has(op)&&op!=='select'&&state&&($('player').value!==state.player||$('npc').value!==state.npc))throw Error('Participant selection is still applying; try again.');
+  return send(op,args,generation);
+};
 function voiceView(v) {
   if(v.status)$('voice-status').textContent=v.status;
   if(v.text!==undefined){
@@ -31,15 +24,14 @@ function voiceView(v) {
 const player=new VoicePlayer({
   post,emit:voiceView}
 );
-async function invoke(op,args={
-}
-) {
+async function invoke(op,args={},generation=state?.generation) {
   try {
-    const result=await post(op,args);
-    await refresh();
+    const result=await post(op,args,generation);
+    await refresh(result.generation||0);
     return result;
   }
   catch(e){
+    await refresh(e.generation||0);
     $('notice').textContent=e.message;
     throw e;
   }
@@ -89,11 +81,7 @@ function drawAsset(){
     candidate.removeAttribute('src');
   }
 }
-let refreshing=false;
-async function refresh(){
-  if(refreshing)return;
-  refreshing=true;
-  try{
+async function loadState(){
     const response=await fetch('/api/state');
     if(!response.ok)throw Error('Host state unavailable.');
     const s=await response.json();
@@ -114,7 +102,7 @@ async function refresh(){
         await player.interrupt();
         await invoke('act',{
           revision:s.game.revision,decision:choice}
-        );
+        ,s.generation);
       }
       ;
       return b;
@@ -186,16 +174,12 @@ async function refresh(){
       configured=true;
       settings(s);
     }
-  }
-  finally{
-    refreshing=false;
-  }
 }
+const refresh=coalescedRefresh(loadState,()=>state);
 $('player').onchange=$('npc').onchange=async()=>{
+  const generation=state?.generation,selectedPlayer=$('player').value,selectedNpc=$('npc').value;
   await player.interrupt();
-  await invoke('select',{
-    player:$('player').value,npc:$('npc').value}
-  );
+  await invoke('select',{player:selectedPlayer,npc:selectedNpc},generation);
   voiceSettings();
 }
 ;
@@ -203,11 +187,11 @@ $('chat').onsubmit=async e=>{
   e.preventDefault();
   const text=$('input').value.trim();
   if(!text)return;
+  const generation=state?.generation;
   await player.interrupt();
   $('input').value='';
-  await invoke('chat',{
-    text}
-  );
+  try{await invoke('chat',{text},generation);}
+  catch(e){if(!$('input').value)$('input').value=text;}
 }
 ;
 $('interrupt').onclick=()=>player.interrupt().then(refresh).catch(e=>$('notice').textContent=e.message);
@@ -224,22 +208,21 @@ $('play').onclick=async()=>{
 }
 ;
 $('save').onclick=async()=>{
+  const generation=state?.generation;
   await player.interrupt();
-  await invoke('save',{
-    slot:Number($('slot').value)}
-  );
+  await invoke('save',{slot:Number($('slot').value)},generation);
 }
 ;
 $('load').onclick=async()=>{
+  const generation=state?.generation;
   await player.interrupt();
-  await invoke('load',{
-    slot:Number($('slot').value)}
-  );
+  await invoke('load',{slot:Number($('slot').value)},generation);
   lastSpeech=0;
 }
 ;
 $('promise').onclick=()=>invoke('promise');
 $('settings').onclick=async()=>{
+  const generation=state?.generation;
   await player.interrupt();
   const voices=structuredClone(state.providers.voices);
   voices[state.npc]={
@@ -247,7 +230,7 @@ $('settings').onclick=async()=>{
   ;
   await invoke('settings',{
     speech_mode:$('speech-mode').value,text:$('text-backend').value,image:$('image-backend').value,tts:$('tts-backend').value,stt:$('stt-backend').value,size:$('size').value,cap_micros:Math.round(Number($('cap').value)*1e6),voices}
-  );
+  ,generation);
 }
 ;
 $('asset-target').onchange=$('preview-candidate').onchange=drawAsset;
@@ -286,10 +269,9 @@ $('repair').onclick=async()=>{
 }
 ;
 async function beginMic(){
+  const generation=state?.generation;
   await player.interrupt();
-  const result=await post('mic',{
-  }
-  );
+  const result=await post('mic',{},generation);
   session=result.result.session;
   $('interim').textContent='Listening · speech interrupts playback';
   return session;

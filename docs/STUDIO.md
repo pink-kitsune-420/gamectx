@@ -246,3 +246,26 @@ new facts. Player episodes and accepted promise tasks are scoped before prompt a
 old heard dialogue retains explicit speaker attribution. Focused packets include only
 query-relevant visible items/coins; expanded profiles may include the fuller current view.
 The stable system/character/scene prefix remains ordered ahead of changing state.
+
+## Natural commands and delayed controls
+
+Typed/final voice commands now accept bounded English forms such as “Please buy the oil”,
+“I would like to purchase chalk”, “walk to the gallery” and “examine the tonic please”.
+An explicit item question/inspection establishes a recent focus for “buy it” or “that one”.
+Focus expires after four ticks and clears across participant changes, travel and restores.
+Typos and multi-item commands offer action-button clarification; questions and negation
+never purchase anything. Item questions can return the current price and party coins.
+This is a small transparent grammar, not general natural-language understanding.
+
+The browser captures a scene generation before awaiting interruption or sending a control.
+The host atomically checks `X-Studio-Generation` before mutation, rejects stale commands
+with HTTP 409, and returns the new generation in successful/409 JSON replies. A delayed
+player_1 command therefore cannot purchase for player_2 after selection changes. Delivery
+and STT keep their independent speech/session receipts so interruption remains immediate.
+Polling waits for state at least as new as the command receipt; one additional fetch
+covers an older in-flight poll, and a reset cannot cause infinite retries. Failed text
+submission restores the typed line for correction/retry.
+
+The generation header is optional for compatibility with existing trusted host callers;
+those callers remain responsible for scope. It is optimistic concurrency, not login or
+multi-controller authentication. The UI remains a single-controller example.

@@ -1,0 +1,1 @@
+{"kind":"studio-command","args":{"input":"buy oil","choices":[{"action":"wait","target":null},{"action":"wait","target":null}],"labels":[{"id":"item:oil","aliases":["hinge oil"]}],"focus":"item:oil"}}

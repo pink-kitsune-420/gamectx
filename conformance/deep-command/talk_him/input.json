@@ -1,0 +1,1 @@
+{"kind":"studio-command","args":{"input":"talk him","choices":[{"action":"talk","target":"npc:merchant"}],"labels":[],"focus":"npc:merchant"}}

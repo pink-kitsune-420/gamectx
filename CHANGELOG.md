@@ -539,3 +539,10 @@ First public release.
   filtering; older configurations and existing conformance outputs remain unchanged.
 - [format] The overnight transient-record and selected-episode workflows add conformance
   families without rewriting prior expected outputs; their legacy formats are preserved.
+- [api] [format] Add opt-in bounded Studio command proposals (26 new cases), polite
+  phrases and recent scoped pronouns. Clarify typos/multiple items without executing;
+  keep questions/negation as dialogue and retain legacy look/wait commands.
+- [fix] Reject delayed Web commands after a player/scene switch with optional generation
+  headers; the browser captures intent scope before awaits, coalesces state refreshes and
+  restores rejected input. Offline reordered-request holdout changes an unintended
+  player_2 purchase into HTTP 409 without a purchase; six browser context scenarios pass.

@@ -111,6 +111,7 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             "/" => Some(("text/html; charset=utf-8", include_bytes!("index.html").as_slice())),
             "/studio.css" => Some(("text/css", include_bytes!("studio.css").as_slice())),
             "/studio.mjs" => Some(("text/javascript", include_bytes!("studio.mjs").as_slice())),
+            "/context.mjs" => Some(("text/javascript", include_bytes!("context.mjs").as_slice())),
             "/voice.mjs" => Some(("text/javascript", include_bytes!("voice.mjs").as_slice())),
             _ => None,
         };
@@ -142,7 +143,32 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
     }
     let op = request.path.strip_prefix("/api/").ok_or_else(err)?;
     let args = gamectx::json::parse(std::str::from_utf8(&request.body).map_err(|_| err())?, providers::MAX_BYTES)?;
-    let (value, jobs) = app.lock().map_err(|_| err())?.command(op, &args)?;
+    let mut current = app.lock().map_err(|_| err())?;
+    if let Some(generation) = header("x-studio-generation") {
+        if generation.is_empty()
+            || generation.len() > 20
+            || generation.len() > 1 && generation.starts_with('0')
+            || !generation.bytes().all(|c| c.is_ascii_digit())
+        {
+            return Err(err());
+        }
+        let generation = generation.parse::<u64>().map_err(|_| err())?;
+        if generation != current.epoch {
+            let epoch = current.epoch;
+            drop(current);
+            return response(
+                stream,
+                409,
+                "application/json",
+                obj! {"ok"=>false,"error"=>"Scene changed; try your action again.","generation"=>epoch}
+                    .to_json()
+                    .as_bytes(),
+            );
+        }
+    }
+    let (value, jobs) = current.command(op, &args)?;
+    let generation = current.epoch;
+    drop(current);
     for job in jobs {
         if let Err(error) = queue.try_send(job) {
             let job = match error {
@@ -151,7 +177,12 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             app.lock().map_err(|_| err())?.cancel_job(&job)?;
         }
     }
-    response(stream, 200, "application/json", obj! {"ok"=>true,"result"=>value}.to_json().as_bytes())
+    response(
+        stream,
+        200,
+        "application/json",
+        obj! {"ok"=>true,"result"=>value,"generation"=>generation}.to_json().as_bytes(),
+    )
 }
 pub fn serve(seed: u32, port: u16, cap: u64, config: Config, dir: PathBuf) -> Result<()> {
     let app = Arc::new(Mutex::new(App::new(seed, cap, config, dir.clone())?));

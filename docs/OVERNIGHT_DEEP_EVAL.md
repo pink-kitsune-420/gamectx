@@ -170,3 +170,32 @@ actual configured model IDs, zero-call 0B routing, scoped episodes and accepted 
 tasks. The service UI does not automatically expose Life tools; existing explicit
 companion/spotlight tools and gate policies retain their separate conformance checks.
 No 1B, 1.5B, 8B, 30B, 70B or frontier model was evaluated live.
+
+## Repair 4: command comfort and delayed participant scope
+
+A predeclared **26-case** independent grammar/Rust parity suite covers polite forms,
+purchase/travel/inspect aliases, recent `it`/`that one`/`him`/`her`/`there`, legacy look/wait,
+questions, negation, typos, batches and malformed requests. It returns proposals from
+current legal pairs; ambiguous input gives action-button clarification. The Web host
+expires focus after four ticks and clears it on participant switches, travel and branch
+loads. A fresh **41-request, 14-phrase** HTTP holdout completes with **zero unintended
+purchases and zero interim STT actions**. It also checks price answers, a player_2 switch,
+final voice routing and save/load. This measures a bounded English grammar, not general
+NLU, multilingual coverage or a player accessibility study.
+
+The audit then reproduced a separate race: a delayed player_1 `buy oil` arriving after
+switching to player_2 executed a purchase for player_2 (HTTP 200). The fresh fixed holdout
+returns **409, no purchase**, also rejects stale microphone opening and malformed
+versions, and accepts a current-generation command. The browser now captures generation
+before awaits and the host checks it atomically before mutation. Speech/session receipts
+remain separate, preserving immediate barge-in. **Six fake-browser context lifecycle
+checks** cover delayed headers, no automatic retry, receipt independence, invalid numeric
+versions, an older in-flight poll, bounded restart recovery and recovery after a failed
+fetch. Existing five audio lifecycle cohorts remain unchanged.
+
+The first numerical social-arc fixture reused lamp-return narration while changing host
+appraisal tags. It establishes arithmetic/provenance, not textual entailment. It remains
+frozen. An additional semantic fixture supplies matching broken/repaired agreement text
+and verifies the same 132 operations, twelve two-hop reports, 100 cyclic noise ticks and
+player isolation. Host-authored event tags, rules and prose must be consistent; source
+availability cannot establish that consistency automatically.

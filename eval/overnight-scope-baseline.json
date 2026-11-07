@@ -1,0 +1,9 @@
+{
+  "http_checks": 8,
+  "stale_request_status": 200,
+  "unintended_purchase": true,
+  "active_player": "player_2",
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Deterministic reordered HTTP requests, not a physical browser/device or multi-controller load test. Generation headers are optimistic concurrency, not authentication; legacy hosts remain responsible for scope."
+}

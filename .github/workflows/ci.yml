@@ -58,6 +58,11 @@ jobs:
       - run: python3 -I eval/overnight_transient_cases.py --cap 0
       - run: python3 -I eval/overnight_memory_cases.py --cap 0
       - run: python3 -I eval/overnight_causality_cases.py --cap 0
+      - run: python3 -I eval/overnight_input_cases.py --cap 0
+      - run: python3 -I eval/overnight_input_holdout.py --cap 0
+      - run: python3 -I eval/overnight_scope_holdout.py --cap 0 --expect-rejection --output target/overnight-scope-ci.json
+      - run: node eval/test_studio_context.mjs --cap 0
+      - run: python3 -I eval/overnight_causality_cases.py --cap 0 --semantic
       - run: python3 -I eval/overnight_speech_cases.py --cap 0
       - run: python3 -I eval/overnight_audit.py --cap 0 --check eval/overnight-grounded-review.json
       - run: cargo +stable test --example visual --locked

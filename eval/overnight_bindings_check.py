@@ -19,7 +19,7 @@ def main():
     except ValueError:assert error,name
     assert npc.life('inspect')==before,name;npc.close();count+=1
  fixtures=[]
- for family in ['deep-memory','deep-transient','deep-causality','deep-speech']:
+ for family in ['deep-memory','deep-transient','deep-causality','deep-speech','deep-command']:
   for f in sorted((ROOT/'conformance'/family).glob('*/input.json')):
    i=str(len(fixtures));request=dict(version=1,id=i,op='local',args=json.loads(f.read_text()));error=json.loads(f.with_name('case.json').read_text()).get('error',False);expected=None if error else dict(version=1,id=i,ok=True,result=json.loads(f.with_name('expected.json').read_text()));fixtures.append(dict(request=request,expected=expected,error=error))
  out=ROOT/'target/overnight-bindings';out.mkdir(exist_ok=True)

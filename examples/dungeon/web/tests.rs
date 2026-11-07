@@ -568,3 +568,23 @@ fn tier_context_audit_uses_actual_models_attention_and_stable_prefixes() {
         obj! {"profiles"=>rows,"zero_b_jobs"=>jobs.len(),"actual_provider_calls"=>0,"api_spend_usd"=>0}.to_json()
     );
 }
+
+#[test]
+fn command_focus_expires_and_legacy_look_still_executes() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    command(&mut a, "chat", obj! {"text"=>"How much is chalk?"});
+    for _ in 0..5 {
+        command(&mut a, "chat", obj! {"text"=>"We can pause briefly."});
+    }
+    let revision = a.game.revision;
+    let coins = a.game.coins;
+    let (result, jobs) = command(&mut a, "chat", obj! {"text"=>"buy it"});
+    assert_eq!(result.get("status"), Some(&"clarify".into()));
+    assert!(jobs.is_empty());
+    assert_eq!(a.game.revision, revision);
+    assert_eq!(a.game.coins, coins);
+    command(&mut a, "chat", obj! {"text"=>"look"});
+    assert_eq!(a.game.revision, revision + 1);
+}

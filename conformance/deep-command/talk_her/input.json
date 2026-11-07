@@ -1,0 +1,1 @@
+{"kind":"studio-command","args":{"input":"talk her","choices":[{"action":"talk","target":"npc:keeper"}],"labels":[],"focus":"npc:keeper"}}
