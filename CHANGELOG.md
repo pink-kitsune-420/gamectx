@@ -13,6 +13,23 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds optional life definitions, evidence-based appraisals, topic/scene continuity,
+  partial delivery acknowledgements, durable scoped state/erasure, and routine-linked
+  initiative driven by attitudes, accepted promises and event tokens. Persistent host
+  controls and composite checkpoints support Python, Node/TypeScript and native/C#.
+- **[api]** Adds bounded focused/expanded character context from dialogue workload hints,
+  stable-prefix rendering, an original dungeon `--life-demo`, explicit `--life-tools`,
+  and opt-in `--dialogue natural-scaled`. Existing defaults/native ABI are preserved.
+- **[internal]** Replaces serialize/parse runtime validation with allocation-free in-memory
+  checks and preallocates JSON output. Life updates preflight exact size without cloning
+  whole history. Seven paired 128-event/appraisal trials: 176,881,587→7,338,259 ns median;
+  2,517,745→22,025 allocator calls. Same final bytes; synthetic CPU workload only.
+- **[format]** Adds 47 conformance cases; all 842 prior cases remain unchanged.
+  New contracts are versioned separately. No existing model request is silently rewritten.
+- **[docs]** Records 221 independent workflows and a retained failed 24-call local speech
+  diagnostic: 8/8 valid shapes do not establish grounding or conversational usefulness.
+  New API spend $0. See `docs/LIFE.md` and `docs/LIFE_EVAL.md`.
+
 - **[api]** Fixes conversation shortcuts executing negated/conditional/quoted commands,
   capped time summaries hiding older conflicts, and restore accepting pre-window
   lifecycle states or changed same-revision frames. Targeted probes 15/57→57/57;
@@ -453,20 +470,3 @@ First public release.
 - **[docs]** 51 shared conformance cases defining every format, for ports in other languages.
 - **[docs]** Model evaluation script (`eval/`), measured results in the README, and
   `docs/GUIDE.md` with practical rules drawn from them.
-
-
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [docs/LIFE.md](docs/LIFE.md). Defaults and existing formats remain unchanged.
-
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
-
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
-
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.

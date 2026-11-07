@@ -358,3 +358,149 @@ fn completed_promise_invalidates_initiative_before_dispatch() {
     tools.set_progress(&obj! {"id"=>1,"expected"=>1,"state"=>"fulfilled","source"=>source}).unwrap();
     assert!(i.dispatch(1, &f, &l, &tools, |_| true).is_err());
 }
+#[test]
+fn context_caps_use_real_size_hints_and_stable_prefix() {
+    use gamectx::{
+        deployment::{ModelSize, Workload},
+        dialogue::Thread,
+        life::{render_character_chat, ContextCaps},
+    };
+    for (size, recall, exchanges) in [
+        (ModelSize::B1, 1, 1),
+        (ModelSize::B1_5, 1, 1),
+        (ModelSize::B3, 2, 1),
+        (ModelSize::B8, 3, 2),
+        (ModelSize::B30, 4, 3),
+        (ModelSize::B70, 6, 3),
+    ] {
+        let caps = ContextCaps::from_hints(size.workload_hints(Workload::Dialogue)).unwrap();
+        assert_eq!((caps.episodes, caps.exchanges), (recall, exchanges));
+    }
+    let mut l = life();
+    l.experience(&event(1, 1, "direct")).unwrap();
+    let c = coordinator();
+    let history=Thread::from_value(&obj!{"version"=>1,"scene"=>"counter","conversation"=>"trade","participants"=>vec!["merchant","player"],"exchanges"=>vec![obj!{"id"=>"1","turn"=>1,"user"=>"Which wick?","assistant"=>"A quiet one."},obj!{"id"=>"2","turn"=>2,"user"=>"Can you repair it?","assistant"=>"I can discuss a repair."}]}).unwrap();
+    let selection =
+        obj! {"required"=>vec!["sun"],"optional"=>Vec::<Value>::new(),"tags"=>vec!["trade"],"input"=>"lamp"};
+    let selected = c.select_context("trade", &l, &selection, ContextCaps::focused(), &history).unwrap();
+    let packet = selected.get("packet").unwrap();
+    assert_eq!(packet.get("dialogue").unwrap().as_array().unwrap().len(), 1);
+    assert!(!packet.to_json().contains("omitted"));
+    assert!(c.select_context("trade", &l, &selection, ContextCaps::new(0, 2, 2, 2, 1).unwrap(), &history).is_err());
+    let make = |l: &Life, input: &str| {
+        render_character_chat(&obj!{"version"=>1,"rules"=>"Speak from host data and distinguish opinions.","character"=>l.context_capped(&vec!["trade"].into(),ContextCaps::focused()).unwrap(),"stable_scene"=>obj!{"id"=>"counter"},"state"=>obj!{"revision"=>l.revision()},"dialogue"=>Vec::<Value>::new(),"input"=>input,"tools"=>Vec::<Value>::new()}).unwrap()
+    };
+    let first = make(&l, "Hello.");
+    l.appraise("returned_lamp", 1, l.revision()).unwrap();
+    let second = make(&l, "What next?");
+    let a = first.get("messages").unwrap().as_array().unwrap();
+    let b = second.get("messages").unwrap().as_array().unwrap();
+    assert_eq!(&a[..2], &b[..2]);
+    assert_ne!(a[2], b[2]);
+}
+#[test]
+fn life_size_projection_is_exact_and_overflow_is_atomic() {
+    let mut l = life();
+    for n in 1..=128 {
+        let mut e = event(n, n * 3, "outcome");
+        if let Value::Object(fields) = &mut e {
+            for (k, v) in fields {
+                if k == "text" {
+                    *v = Value::str("🪔".repeat(512));
+                } else if k == "source" {
+                    *v = obj! {"id"=>format!("source:{n}"),"speaker"=>"merchant","text"=>"🪔".repeat(512)};
+                }
+            }
+        }
+        let before = l.inspect();
+        let size = l.inspection_len();
+        assert_eq!(size, before.json_len());
+        if l.experience(&e).is_err() {
+            assert_eq!(before, l.inspect());
+            return;
+        }
+        l.appraise("returned_lamp", n, l.revision()).unwrap();
+        assert_eq!(l.inspection_len(), l.inspect().json_len());
+    }
+    panic!("large retained originals should reach the byte cap");
+}
+#[test]
+fn optional_episode_caps_keep_corrections_whole() {
+    let mut l = life();
+    l.experience(&event(1, 1, "report")).unwrap();
+    let mut corrected = event(2, 2, "correction");
+    if let Value::Object(fields) = &mut corrected {
+        fields.iter_mut().find(|(k, _)| k == "causes").unwrap().1 = vec![1].into();
+    }
+    l.experience(&corrected).unwrap();
+    assert!(l.recall_capped("lamp", &Vec::<Value>::new().into(), 1).unwrap().as_array().unwrap().is_empty());
+    assert_eq!(l.recall_capped("lamp", &Vec::<Value>::new().into(), 2).unwrap().as_array().unwrap().len(), 2);
+}
+#[test]
+fn author_edits_are_separate_from_player_reports() {
+    let mut l = life();
+    let original = l.context(&vec!["trade"].into(), 2).unwrap();
+    l.experience(&event(1, 1, "correction")).unwrap();
+    let reported = l.context(&vec!["trade"].into(), 2).unwrap();
+    assert_eq!(original.get("facets"), reported.get("facets"));
+    let setting = Setting::from_value(&parse(include_str!("../examples/characters/setting.json"))).unwrap();
+    let mut d = parse(include_str!("../examples/characters/merchant-life.json"));
+    let old = Arc::new(Definition::draft(&d, &setting).unwrap());
+    assert!(l.author_edit(old, l.revision()).is_err());
+    if let Value::Object(fields) = &mut d {
+        fields.iter_mut().find(|(k, _)| k == "revision").unwrap().1 = 2.into();
+    }
+    let new = Arc::new(Definition::draft(&d, &setting).unwrap());
+    l.author_edit(new, l.revision()).unwrap();
+    assert!(l.experience(&event(1, 2, "direct")).is_err());
+    assert_eq!(l.inspection_len(), l.inspect().json_len());
+}
+#[test]
+fn initiative_recovery_preserves_greeting_and_call_watermarks() {
+    let l = life();
+    let tools = interactions();
+    let mut i = initiative(1);
+    let candidates: Value = vec![candidate("greet", Value::str("player"))].into();
+    i.consider(&initiative_frame(1, 1), &candidates, &l, &tools).unwrap();
+    i.reserve_call(1).unwrap();
+    let saved = i.checkpoint();
+    let mut loaded = gamectx::life::Initiative::recover(&saved, &l, 1, 0, 10).unwrap();
+    assert!(loaded.dispatch(1, &initiative_frame(1, 1), &l, &tools, |_| true).is_err());
+    assert!(loaded.reserve_call(1).is_err());
+    assert_eq!(
+        loaded
+            .consider(&initiative_frame(5, 2), &candidates, &l, &tools)
+            .unwrap()
+            .get("status")
+            .and_then(Value::as_str),
+        Some("quiet")
+    );
+}
+#[test]
+fn durable_promises_and_erased_note_sequences_survive_recovery() {
+    use gamectx::dialogue::InteractionTools;
+    let mut tools = interactions();
+    let source = obj! {"id"=>"promise:1","speaker"=>"merchant","text"=>"I will repair the lamp."};
+    let args = r#"{"promisor":"merchant","beneficiary":"player","task":"Repair the lamp.","source":"promise:1"}"#;
+    tools.call("promise_remember", args, &vec![source.clone()].into(), 1, 8192, |_| false).unwrap();
+    tools.set_progress(&obj! {"id"=>1,"expected"=>0,"state"=>"accepted","source"=>source.clone()}).unwrap();
+    let saved = tools.checkpoint();
+    let mut loaded = InteractionTools::recover(&saved, 1, 10).unwrap();
+    assert_eq!(tools.to_value(), loaded.to_value());
+    assert_eq!(loaded.accepted_promises().len(), 1);
+    assert!(InteractionTools::recover(&saved, 2, 10).is_err());
+    loaded.clear();
+    let mut again = InteractionTools::recover(&loaded.checkpoint(), 1, 10).unwrap();
+    let note = again.call("promise_remember", args, &vec![source].into(), 1, 8192, |_| false).unwrap();
+    assert_eq!(note.get("id"), Some(&Value::from(2)));
+}
+#[test]
+fn permission_epochs_cannot_roll_back_and_revive_old_speech() {
+    let mut c = coordinator();
+    c.generate("trade", "A reply.", &vec!["sun"].into(), 0).unwrap();
+    c.bind_scene(&scene(2, 2)).unwrap();
+    let before = c.inspect();
+    assert!(c.bind_scene(&scene(3, 1)).is_err());
+    assert_eq!(before, c.inspect());
+    assert_eq!(c.validate(1, 0).unwrap().get("stage").and_then(Value::as_str), Some("cancelled"));
+}

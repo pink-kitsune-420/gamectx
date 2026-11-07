@@ -266,3 +266,10 @@ source allowance still withholds numeric evidence; task filters still restrict t
 Restore rejects non-planned lifecycle timestamps before occurrence start and altered
 host frames under the same revision. Host authorization and authenticated storage remain
 necessary. [Probe results, limits and optional count reuse](ADVERSARIAL_EVAL.md).
+
+`Runtime::activity_menu` is a host-only current eligible menu for optional
+[life initiative](LIFE.md#purposeful-initiative). `consider_routine`/`dispatch_routine`
+recheck it alongside goals, accepted notebook promises, opinions and actual source tokens.
+They use the existing scheduler and make no model calls unless the host explicitly reserves
+an allowed escalation. Plans, proposed activities and off-screen stories remain intent;
+only fresh engine outcome receipts become experiences.

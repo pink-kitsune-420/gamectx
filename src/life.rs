@@ -2,7 +2,9 @@
 //! experiences are separate. All mutation and canonical acceptance belong to hosts.
 use crate::{checked as c, obj, request::bounded, Result, Value};
 use std::sync::Arc;
+mod context;
 mod continuity;
+pub use context::{render_character_chat, ContextCaps};
 mod initiative;
 mod storage;
 pub use continuity::{Coordinator, SpeechTransport};
@@ -338,6 +340,47 @@ impl Life {
         }
         Ok(())
     }
+    fn next_revision(&self) -> Result<u64> {
+        self.revision.checked_add(1).filter(|n| *n <= u32::MAX as u64).ok_or_else(c::bad)
+    }
+    /// Exact serialized inspection size without cloning or materializing inspection.
+    pub fn inspection_len(&self) -> usize {
+        let fields = [
+            ("revision", digits(self.revision)),
+            ("watermark", digits(self.watermark)),
+            ("clock", digits(self.clock)),
+            ("attitudes", array_len(&self.attitudes)),
+            ("events", array_len(&self.events)),
+            ("changes", array_len(&self.changes)),
+        ];
+        2 + fields.len() - 1 + fields.iter().map(|(k, n)| k.len() + 3 + n).sum::<usize>()
+    }
+    // Includes immutable definition/config and worst-case permitted campaign IDs,
+    // so an accepted update remains checkpointable without serializing a candidate.
+    pub(crate) fn checkpoint_len_bound(&self, state: usize, ack: u64) -> usize {
+        let strings = |rows: &[String]| {
+            2 + rows.len().saturating_sub(1) + rows.iter().map(|s| crate::json::string_len(s)).sum::<usize>()
+        };
+        let config = object_len(&[
+            ("enabled", if self.config.enabled { 4 } else { 5 }),
+            ("balanced", if self.config.balanced { 4 } else { 5 }),
+            ("deception", if self.config.deception { 4 } else { 5 }),
+            ("mistaken", if self.config.mistaken { 4 } else { 5 }),
+            ("tools", strings(&self.config.tools)),
+        ]);
+        object_len(&[
+            ("version", 1),
+            ("identity", 1024),
+            ("scope", crate::json::string_len(&self.scope)),
+            ("actor", crate::json::string_len(&self.actor)),
+            ("participants", strings(&self.participants)),
+            ("definition", self.definition.value.json_len()),
+            ("config", config),
+            ("state", state),
+            ("archive_ack", digits(ack)),
+            ("summaries", array_len(&self.summaries)),
+        ])
+    }
     pub(crate) fn bump(&mut self) -> Result<()> {
         self.revision = self.revision.checked_add(1).filter(|n| *n <= u32::MAX as u64).ok_or_else(c::bad)?;
         Ok(())
@@ -356,13 +399,20 @@ impl Life {
         if token <= self.watermark || at < self.clock || self.events.len() >= 128 {
             return Err(c::bad());
         }
-        let mut next = self.clone();
-        next.bump()?;
-        next.watermark = token;
-        next.clock = at;
-        next.events.push(event.clone());
-        bounded(&next.inspect(), MAX_BYTES)?;
-        *self = next;
+        let revision = self.next_revision()?;
+        let projected = self.inspection_len() - digits(self.revision) - digits(self.watermark) - digits(self.clock)
+            + digits(revision)
+            + digits(token)
+            + digits(at)
+            + event.json_len()
+            + usize::from(!self.events.is_empty());
+        if self.checkpoint_len_bound(projected, self.archive_ack) > MAX_BYTES {
+            return Err(c::bad());
+        }
+        self.events.push(event.clone());
+        self.revision = revision;
+        self.watermark = token;
+        self.clock = at;
         Ok(())
     }
     /// Model changes are bounded proposals. Only host `appraise` applies authored rules.
@@ -416,36 +466,28 @@ impl Life {
         // Each lasting reversal must pass through neutral over multiple experiences.
         let after = if before * after < 0 { 0 } else { after };
         let change = obj! {"rule"=>rule,"event"=>token,"at"=>num(&e,"at")?,"before"=>before,"after"=>after,"reason"=>get(&r,"reason")?.clone()};
-        let mut next = self.clone();
-        next.bump()?;
-        if let Value::Object(a) = &mut next.attitudes[i] {
-            for (k, v) in a {
-                match k.as_str() {
-                    "level" => *v = Value::from(after),
-                    "last" => *v = get(&e, "at")?.clone(),
-                    "supports" | "contradicts" => {
-                        let key = if signed(get(&r, "delta")?, 20)? >= 0 { "supports" } else { "contradicts" };
-                        if k == key {
-                            let rows = if k == "supports" {
-                                get(&self.attitudes[i], "supports")?
-                            } else {
-                                get(&self.attitudes[i], "contradicts")?
-                            };
-                            let mut rows = c::list(rows)?.to_vec();
-                            if rows.len() == 16 {
-                                rows.remove(0);
-                            }
-                            rows.push(Value::from(token));
-                            *v = rows.into();
-                        }
-                    }
-                    _ => {}
-                }
-            }
+        let revision = self.next_revision()?;
+        let mut updated = self.attitudes[i].clone();
+        super_set(&mut updated, "level", Value::from(after));
+        super_set(&mut updated, "last", get(&e, "at")?.clone());
+        let key = if signed(get(&r, "delta")?, 20)? >= 0 { "supports" } else { "contradicts" };
+        let mut refs = c::list(get(&updated, key)?)?.to_vec();
+        if refs.len() == 16 {
+            refs.remove(0);
         }
-        next.changes.push(change.clone());
-        bounded(&next.inspect(), MAX_BYTES)?;
-        *self = next;
+        refs.push(Value::from(token));
+        super_set(&mut updated, key, refs.into());
+        let projected = self.inspection_len() - digits(self.revision) - self.attitudes[i].json_len()
+            + digits(revision)
+            + updated.json_len()
+            + change.json_len()
+            + usize::from(!self.changes.is_empty());
+        if self.checkpoint_len_bound(projected, self.archive_ack) > MAX_BYTES {
+            return Err(c::bad());
+        }
+        self.attitudes[i] = updated;
+        self.changes.push(change.clone());
+        self.revision = revision;
         Ok(change)
     }
     /// Relevant subjective context. Audience must equal the fixed scope; values outside
@@ -648,4 +690,63 @@ pub fn episodes_fixture(a: &Value) -> Result<Value> {
 /// Offline initiative adapter.
 pub fn initiative_fixture(a: &Value) -> Result<Value> {
     initiative::fixture(a)
+}
+
+fn digits(n: u64) -> usize {
+    if n == 0 {
+        1
+    } else {
+        n.ilog10() as usize + 1
+    }
+}
+fn array_len(rows: &[Value]) -> usize {
+    2 + rows.len().saturating_sub(1) + rows.iter().map(Value::json_len).sum::<usize>()
+}
+fn super_set(v: &mut Value, key: &str, value: Value) {
+    continuity::set(v, key, value)
+}
+
+pub(crate) fn set_value(v: &mut Value, key: &str, value: Value) {
+    continuity::set(v, key, value)
+}
+impl Life {
+    /// Privileged author revision, separate from attributed player corrections.
+    pub fn author_edit(&mut self, d: Arc<Definition>, expected: u64) -> Result<()> {
+        if expected != self.revision
+            || d.value.get("id") != self.definition.value.get("id")
+            || num(&d.value, "revision")? <= num(&self.definition.value, "revision")?
+            || d.value.get("setting") != self.definition.value.get("setting")
+            || d.value.get("calendar") != self.definition.value.get("calendar")
+        {
+            return Err(c::bad());
+        }
+        if self
+            .events
+            .iter()
+            .any(|e| !d.entities.iter().any(|id| Some(id.as_str()) == e.get("subject").and_then(Value::as_str)))
+        {
+            return Err(c::bad());
+        }
+        let mut next =
+            Self::accept(&self.scope, &self.actor, &Value::strings(&self.participants), d, self.config.clone())?;
+        next.revision = self.next_revision()?;
+        next.clock = self.clock;
+        next.watermark = self.watermark;
+        next.events = self.events.clone();
+        next.archive_ack = self.archive_ack;
+        if next.checkpoint_len_bound(next.inspection_len(), next.archive_ack) > MAX_BYTES {
+            return Err(c::bad());
+        }
+        *self = next;
+        Ok(())
+    }
+}
+
+/// Offline context selection adapter.
+pub fn context_fixture(a: &Value) -> Result<Value> {
+    context::fixture(a)
+}
+
+fn object_len(fields: &[(&str, usize)]) -> usize {
+    2 + fields.len().saturating_sub(1) + fields.iter().map(|(k, n)| k.len() + 3 + n).sum::<usize>()
 }

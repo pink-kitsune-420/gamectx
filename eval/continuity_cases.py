@@ -18,6 +18,7 @@ def cases():
   b['operations'].insert(3,s);out.append(('freshness_'+str(i),b))
  for name,fn in [('unheard',lambda b:b['operations'].__setitem__(slice(4,None),[dict(op='inspect',args={})])),('replay',lambda b:b['operations'].insert(4,copy.deepcopy(b['operations'][3]))),('private',lambda b:b['operations'][0]['args']['facts'][0].update(audience=['merchant'])),('global_is_not_perceived',lambda b:b['operations'][0]['args']['facts'][0].update(kind='global')),('overheard',lambda b:b['operations'][0]['args']['facts'][0].update(kind='report')),('missing_dependency',lambda b:b['operations'][2]['args'].update(dependencies=['missing'])),('heard_too_much',lambda b:b['operations'][7]['args'].update(through=10)),('stale_personality',lambda b:b['operations'][3]['args'].update(life_revision=2))]:
   b=base();fn(b);out.append((name,b))
+ b=base();revoked=copy.deepcopy(b['operations'][0]);revoked['args'].update(revision=2,epoch=2,at=2);rollback=copy.deepcopy(revoked);rollback['args'].update(revision=3,epoch=1,at=3);b['operations'][3:3]=[revoked,rollback];out.append(('permission_rollback',b))
  return out
 def main():
  p=argparse.ArgumentParser();p.add_argument('--cap',type=float,required=True);p.add_argument('--prototype-only',action='store_true');p.add_argument('--write-conformance',action='store_true');a=p.parse_args();assert a.cap==0

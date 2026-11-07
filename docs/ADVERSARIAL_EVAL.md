@@ -173,3 +173,9 @@ Validation completed: root/native formatting, strict Clippy, tests/rustdoc, Rust
 82 offline CI commands, 21 binding CI commands, all earlier and 61 expanded C# fixtures,
 package verification and the reference/credential sweep. All 827 previous conformance
 cases remain byte-identical; 15 additions bring the total to 842. No push/tag/publication.
+
+The later [dynamic-character diagnostic](LIFE_EVAL.md) retains four new speech families,
+24 local calls and $0 API spend. All eight replies have valid shapes; both arms invent
+birthplace details, and character context also invents weather and yields unfinished
+replies. This does not replace or repair the historical diagnostics above. Stable prefix
+ordering and deterministic state checks establish no semantic grounding guarantee.

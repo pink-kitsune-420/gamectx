@@ -56,7 +56,10 @@ impl Coordinator {
         }
         names(get(v, "affordances")?, 16)?;
         if let Some(old) = &self.scene {
-            if num(v, "revision")? < num(old, "revision")? || num(v, "at")? < num(old, "at")? {
+            if num(v, "revision")? < num(old, "revision")?
+                || num(v, "at")? < num(old, "at")?
+                || num(v, "epoch")? < num(old, "epoch")?
+            {
                 return Err(c::bad());
             }
         }
@@ -280,6 +283,75 @@ impl Coordinator {
             obj! {"scene"=>text(scene,"id")?,"at"=>num(scene,"at")?,"facts"=>facts,"affordances"=>get(scene,"affordances")?.clone(),"thread"=>t.clone(),"character"=>life.context(tags,4)?},
         )
     }
+    /// Versioned focused/expanded context. Required fact IDs are protected; optional
+    /// candidates are explicit host relevance selections. No unrelated fallback facts.
+    pub fn select_context(
+        &self,
+        thread: &str,
+        life: &Life,
+        selection: &Value,
+        caps: ContextCaps,
+        dialogue: &crate::dialogue::Thread,
+    ) -> Result<Value> {
+        ContextCaps::new(caps.facts, caps.facets, caps.attitudes, caps.episodes, caps.exchanges)?;
+        c::fields(selection, &["required", "optional", "tags", "input"])?;
+        let required = names(get(selection, "required")?, 32)?;
+        let optional = names(get(selection, "optional")?, 32)?;
+        let tags = get(selection, "tags")?;
+        line(text(selection, "input")?)?;
+        if required.len() > caps.facts
+            || optional.iter().any(|id| required.contains(id))
+            || !life.identity_matches(&self.scope, &self.actor, &self.participants)
+        {
+            return Err(c::bad());
+        }
+        let scene = self.scene.as_ref().ok_or_else(c::bad)?;
+        let metadata =
+            self.threads.iter().find(|t| t.get("id").and_then(Value::as_str) == Some(thread)).ok_or_else(c::bad)?;
+        let mut selected = Vec::new();
+        let mut omitted = Vec::new();
+        for (needed, ids) in [(true, &required), (false, &optional)] {
+            for id in ids {
+                let fact =
+                    c::list(get(scene, "facts")?)?.iter().find(|f| f.get("id").and_then(Value::as_str) == Some(id));
+                let usable = fact.filter(|f| {
+                    text(f, "kind").ok() != Some("global")
+                        && subset(&self.participants, &names(get(f, "audience").unwrap(), 16).unwrap())
+                });
+                if let Some(f) = usable {
+                    if selected.len() < caps.facts {
+                        selected.push(f.clone());
+                    } else if needed {
+                        return Err(c::bad());
+                    } else {
+                        omitted.push(id.clone());
+                    }
+                } else if needed {
+                    return Err(c::bad());
+                }
+            }
+        }
+        let character = life.context_capped(tags, caps)?;
+        let episodes = life.recall_capped(text(selection, "input")?, tags, caps.episodes)?;
+        let d = dialogue.to_value();
+        if d.get("conversation").and_then(Value::as_str) != Some(thread)
+            || d.get("scene") != scene.get("id")
+            || names(get(&d, "participants")?, 16)? != self.participants
+        {
+            return Err(c::bad());
+        }
+        let history = c::list(get(&d, "exchanges")?)?;
+        let exchanges = history
+            .iter()
+            .skip(history.len().saturating_sub(caps.exchanges))
+            .map(|e| obj! {"user"=>get(e,"user").unwrap().clone(),"assistant"=>get(e,"assistant").unwrap().clone()})
+            .collect::<Vec<_>>();
+        let packet = obj! {"version"=>1,"scene"=>text(scene,"id")?,"facts"=>selected,"thread"=>metadata.clone(),"character"=>character,"episodes"=>episodes,"dialogue"=>exchanges};
+        // Omission diagnostics are host-only, never part of the model packet.
+        Ok(
+            obj! {"packet"=>packet,"inspection"=>obj!{"omitted_facts"=>omitted,"omitted_exchanges"=>history.len().saturating_sub(caps.exchanges),"caps"=>obj!{"facts"=>caps.facts,"facets"=>caps.facets,"attitudes"=>caps.attitudes,"episodes"=>caps.episodes,"exchanges"=>caps.exchanges}}},
+        )
+    }
     pub fn inspect(&self) -> Value {
         obj! {"scene"=>self.scene.clone().unwrap_or(Value::Null),"threads"=>self.threads.clone(),"speech"=>self.speech.clone()}
     }
@@ -440,6 +512,23 @@ impl Coordinator {
                 set(s, "stage", Value::str("cancelled"));
             }
         }
+        self.approved.clear();
+        Ok(())
+    }
+}
+
+impl Coordinator {
+    pub fn identity_matches_life(&self, life: &Life) -> bool {
+        life.identity_matches(&self.scope, &self.actor, &self.participants)
+    }
+}
+impl Coordinator {
+    /// Forget content but preserve the one-use request sequence across privacy changes.
+    pub fn erase(&mut self) -> Result<()> {
+        self.invalidate()?;
+        self.scene = None;
+        self.threads.clear();
+        self.speech.clear();
         self.approved.clear();
         Ok(())
     }

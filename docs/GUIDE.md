@@ -663,19 +663,28 @@ corrections, budgets or identity changes require a fresh count. The measured ben
 applies to exact repeats; dynamic game turns often miss. Shorter context did not improve
 accuracy in the fresh 16-state probe, and free-form speech remains experimental.
 
+## Opt-in character continuity
 
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.
+Start with `cargo run --example character-life`, then the original dungeon `--life-demo`.
+Load a host-approved definition under an explicit setting/calendar and fixed audience.
+Bind only actor-visible facts; ingest actual experiences with original sources. Use
+`ContextCaps::from_hints(size.workload_hints(Workload::Dialogue))` or explicit bounded caps
+with `Coordinator::select_context`; feed its packet into protected `TurnPlan` facts.
+Count the entire provider rendering through the existing budget/count handshake, including
+selected tools, template, history, results, retries and output/safety reservation. Required
+facts fail overflow. Render stable system/character/scene context before changing state and
+whole dialogue exchanges using `render_character_chat`.
 
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
+Small dialogue hints retain one whole exchange and one or two episodes; larger hints
+retain two or three exchanges and three to six episodes. These are editable policies,
+not measured capability limits. Spare context does not enable tools. Register requested
+`life_recall`/`life_change` only when appropriate, then expose relevant schemas and recheck
+live permissions. Small integrations can appraise entirely in host code with no model.
+Balanced expression is an explicit policy, not a grounding guarantee.
 
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
-
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.
+Validate proposed text/actions, execute only through host rules, and acknowledge actual
+played/heard portions and results. A generated reply never confirms delivery or an event.
+Persist consequential events during conversation; archive acknowledged originals before
+eviction. Load an earlier save into a fresh instance with branch-specific fences. Host
+storage authenticates IDs, transactions, replay floors and scoped erasure across archives,
+snapshots, indices and external speech queues. [Contracts and host operation table](LIFE.md).

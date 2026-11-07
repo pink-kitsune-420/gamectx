@@ -8,7 +8,7 @@ def run(a):
   try:
    if kind=='scene':
     assert x['participants']==a['participants'] and len(x['facts'])<=32
-    if scene:assert x['revision']>=scene['revision'] and x['at']>=scene['at']
+    if scene:assert x['revision']>=scene['revision'] and x['at']>=scene['at'] and x['epoch']>=scene['epoch']
     scene=copy.deepcopy(x);v=dict(bound=True)
    elif kind=='thread':
     assert x['listener'] in a['participants'] and x['participants']==a['participants']

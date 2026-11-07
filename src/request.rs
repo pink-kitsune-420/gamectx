@@ -77,10 +77,11 @@ impl BudgetedRequest {
     }
 }
 pub(crate) fn bounded(v: &Value, cap: usize) -> Result<()> {
-    if v.json_len() > cap {
-        return Err(c::bad());
+    if v.is_valid(cap) {
+        Ok(())
+    } else {
+        Err(c::bad())
     }
-    crate::json::parse(&v.to_json(), cap).map(|_| ())
 }
 impl RequestBudget {
     pub fn new(context: usize, output: usize, safety: usize) -> Result<Self> {

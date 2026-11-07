@@ -110,7 +110,7 @@ impl Value {
 
     /// Compact serialization with no insignificant whitespace.
     pub fn to_json(&self) -> String {
-        let mut out = String::new();
+        let mut out = String::with_capacity(self.json_len());
         self.write(&mut out);
         out
     }
@@ -128,6 +128,47 @@ impl Value {
                     + entries.iter().map(|(key, value)| string_len(key) + 1 + value.json_len()).sum::<usize>()
             }
         }
+    }
+
+    /// Check compact byte size, number grammar, key uniqueness and parser-equivalent
+    /// depth in memory. No heap allocations, including on rejection. The wide-object
+    /// path uses bounded stack sorting instead of quadratic pairwise key checks.
+    pub fn is_valid(&self, cap: usize) -> bool {
+        fn add(left: &mut usize, n: usize) -> bool {
+            if n > *left {
+                return false;
+            }
+            *left -= n;
+            true
+        }
+        fn visit(v: &Value, depth: usize, left: &mut usize) -> bool {
+            if depth > MAX_DEPTH {
+                return false;
+            }
+            match v {
+                Value::Null | Value::Bool(true) => add(left, 4),
+                Value::Bool(false) => add(left, 5),
+                Value::Number(s) => add(left, s.len()) && valid_number(s),
+                Value::String(s) => add(left, string_len(s)),
+                Value::Array(rows) => {
+                    add(left, 2)
+                        && add(left, rows.len().saturating_sub(1))
+                        && rows.iter().all(|v| visit(v, depth + 1, left))
+                }
+                Value::Object(rows) => {
+                    if !add(left, 2) || !add(left, rows.len().saturating_sub(1)) {
+                        return false;
+                    }
+                    // Charge keys before sorting, rejecting excessive work early.
+                    if !rows.iter().all(|(k, _)| add(left, string_len(k)) && add(left, 1)) || !unique_keys(rows) {
+                        return false;
+                    }
+                    rows.iter().all(|(_, v)| visit(v, depth + 1, left))
+                }
+            }
+        }
+        let mut left = cap;
+        visit(self, 0, &mut left)
     }
 
     pub(crate) fn write(&self, out: &mut String) {
@@ -244,6 +285,85 @@ pub(crate) fn string_len(s: &str) -> usize {
             _ => 1,
         })
         .sum::<usize>()
+}
+
+fn valid_number(s: &str) -> bool {
+    let b = s.as_bytes();
+    let mut i = 0;
+    if b.first() == Some(&b'-') {
+        i += 1;
+    }
+    match b.get(i) {
+        Some(b'0') => i += 1,
+        Some(b'1'..=b'9') => {
+            while matches!(b.get(i), Some(b'0'..=b'9')) {
+                i += 1;
+            }
+        }
+        _ => return false,
+    }
+    if b.get(i) == Some(&b'.') {
+        i += 1;
+        let begin = i;
+        while matches!(b.get(i), Some(b'0'..=b'9')) {
+            i += 1;
+        }
+        if begin == i {
+            return false;
+        }
+    }
+    if matches!(b.get(i), Some(b'e' | b'E')) {
+        i += 1;
+        if matches!(b.get(i), Some(b'+' | b'-')) {
+            i += 1;
+        }
+        let begin = i;
+        while matches!(b.get(i), Some(b'0'..=b'9')) {
+            i += 1;
+        }
+        if begin == i {
+            return false;
+        }
+    }
+    i == b.len()
+}
+fn unique_keys(rows: &[(String, Value)]) -> bool {
+    if rows.len() <= 32 {
+        return rows.iter().enumerate().all(|(i, (k, _))| !rows[..i].iter().any(|(old, _)| old == k));
+    }
+    wide_unique_keys(rows)
+}
+#[inline(never)] // Keep the fixed stack workspace off the common small-object path.
+fn wide_unique_keys(rows: &[(String, Value)]) -> bool {
+    const BLOCK: usize = 4096;
+    let mut a = [0usize; BLOCK];
+    let mut b = [0usize; BLOCK];
+    for start in (0..rows.len()).step_by(BLOCK) {
+        let n = (rows.len() - start).min(BLOCK);
+        for (i, x) in a[..n].iter_mut().enumerate() {
+            *x = start + i;
+        }
+        a[..n].sort_unstable_by(|i, j| rows[*i].0.cmp(&rows[*j].0));
+        if a[..n].windows(2).any(|p| rows[p[0]].0 == rows[p[1]].0) {
+            return false;
+        }
+        for prior in (0..start).step_by(BLOCK) {
+            let m = (start - prior).min(BLOCK);
+            for (i, x) in b[..m].iter_mut().enumerate() {
+                *x = prior + i;
+            }
+            b[..m].sort_unstable_by(|i, j| rows[*i].0.cmp(&rows[*j].0));
+            let (mut i, mut j) = (0, 0);
+            while i < n && j < m {
+                match rows[a[i]].0.cmp(&rows[b[j]].0) {
+                    std::cmp::Ordering::Equal => return false,
+                    std::cmp::Ordering::Less => i += 1,
+                    std::cmp::Ordering::Greater => j += 1,
+                }
+            }
+        }
+    }
+    true
 }
 
 pub fn write_string(s: &str, out: &mut String) {

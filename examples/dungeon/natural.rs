@@ -74,3 +74,31 @@ pub fn render(ticket: &Value, context: u32, size: gamectx::deployment::ModelSize
     .check(&request, |v| Ok(Count { input: v.json_len().div_ceil(3) + 64, method: CountMethod::Estimate }))?;
     Ok(obj! {"ticket"=>get(ticket,"id")?.clone(),"speaker"=>speaker,"request"=>request,"budget"=>budget.to_value()})
 }
+/// Opt-in tiered rendering. The legacy request remains reproducible for frozen evaluations.
+pub fn render_scaled(ticket: &Value, context: u32, size: gamectx::deployment::ModelSize) -> Result<Value> {
+    let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
+    let mut ticket = ticket.clone();
+    let history = get(&ticket, "history")?.as_array().expect("history");
+    let history = history.iter().skip(history.len().saturating_sub(hints.exchanges)).cloned().collect::<Vec<_>>();
+    let memories =
+        get(&ticket, "memories")?.as_array().expect("memories").iter().take(hints.recall).cloned().collect::<Vec<_>>();
+    let small = matches!(
+        size,
+        gamectx::deployment::ModelSize::B1 | gamectx::deployment::ModelSize::B1_5 | gamectx::deployment::ModelSize::B3
+    );
+    if let Value::Object(fields) = &mut ticket {
+        for (k, v) in fields {
+            match k.as_str() {
+                "history" => *v = history.clone().into(),
+                "memories" => *v = memories.clone().into(),
+                "facts" if small && v.get("known") == Some(&Value::Bool(false)) => {
+                    if let Value::Object(f) = v {
+                        f.retain(|(k, _)| k != "lore");
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+    render(&ticket, context, size)
+}

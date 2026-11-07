@@ -1179,23 +1179,40 @@ all requests/scores/count receipts and validates all five retained live artifact
 Every recorded run spends $0 API; combined 159 local calls. No new model speech correctness
 or general context-size/parameter-capability claim. [Full evidence](../docs/ADVERSARIAL_EVAL.md).
 
-## Dynamic character stages (offline)
+## Dynamic character implementation stages
 
-`python3 -I eval/life_cases.py --cap 0 --prototype-only` runs independent host
-expectations. Build the CLI, then omit `--prototype-only` for Python/Rust byte parity.
-Stage 1 has 52 workflows and no model calls. `--write-conformance` writes only the
-new life family; it does not bless any historical outputs. All live conversational
-quality and provider latency remain unmeasured by this deterministic suite.
+All independent contracts run offline, without credentials or models:
 
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
+```sh
+cargo build --bin gamectx --example dungeon --locked
+python3 -I eval/life_cases.py --cap 0
+python3 -I eval/continuity_cases.py --cap 0
+python3 -I eval/episodic_cases.py --cap 0
+python3 -I eval/initiative_cases.py --cap 0
+python3 -I eval/continuity_context_cases.py --cap 0
+python3 -I eval/natural_scaled_check.py --cap 0
+cargo build --manifest-path bindings/native/Cargo.toml --locked
+python3 -I eval/life_bindings_check.py --cap 0
+node eval/life_bindings_check.mjs
+```
 
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
+The first five scripts accept `--prototype-only` and total 221 independent workflows;
+`--write-conformance` writes only their new families, never historical expectations.
+The 1,000-event archive workload is offline. C# uses the generated `target/life-csharp`
+requests/expected fixture files through the existing driver. New schemas/defaults and
+benchmarks are described in [LIFE](../docs/LIFE.md) and [LIFE_EVAL](../docs/LIFE_EVAL.md).
 
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.
+For the structural validator, run `validation_reference.py` into
+`target/validation-oracle.json`, build the release library, then compile/run
+`validation_check.rs` and `validation_alloc.rs` as the CI workflow shows. `life_bench.rs`
+can be compiled against an isolated `fedab27` release library and the current release
+library; `life-performance.json` records seven alternating pairs and exact final-state
+identity. No benchmark invokes a model. These are CPU/allocator measurements only.
+
+`life_model_eval.py` accepts only the installed local model, loopback transport and
+`--cap 0`; it never pulls/unloads models or changes service settings. A token-only run
+must precede generation with matching identity/fixtures; generation has eight turns,
+one preflight plus generation each. Use fresh output paths: retained outputs cannot be
+overwritten. Audit frozen `life-model-{tokens,results}.json` with `--check`; failed prose
+and assistant review remain in `life-model-review.json`, with human review unknown.
+A complete new pair makes 24 local calls, $0 API; no hosted budget is inferred.

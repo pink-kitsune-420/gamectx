@@ -427,7 +427,9 @@ impl Initiative {
         Ok(())
     }
     pub fn next_wake(&self) -> Option<u64> {
-        self.last.map(|t| t.saturating_add(num(&self.policy.value, "cooldown").unwrap()).min(u32::MAX as u64))
+        self.last
+            .map(|t| t.saturating_add(num(&self.policy.value, "cooldown").unwrap()).min(u32::MAX as u64))
+            .filter(|t| *t > self.clock)
     }
     pub fn inspect(&self) -> Value {
         obj! {"clock"=>self.clock,"turn"=>self.turn.map_or(Value::Null,Value::from),"model_calls"=>self.calls,"social"=>self.social,"replans"=>self.replans,"pending"=>self.pending.clone().unwrap_or(Value::Null),"inflight"=>self.inflight.clone(),"next_wake"=>self.next_wake().map_or(Value::Null,Value::from)}
@@ -564,5 +566,113 @@ impl Initiative {
                 || c::list(get(&menu, "activities").unwrap()).unwrap().iter().any(|a| a.get("id") == p.get("target")))
                 && allowed(p)
         })
+    }
+}
+impl Initiative {
+    pub fn erase(&mut self) {
+        self.pending = None;
+        self.inflight.clear();
+        self.failures.clear();
+        self.social_seen.clear();
+        self.promises.clear();
+        self.chosen = None;
+    }
+    pub fn set_policy(&mut self, policy: InitiativePolicy) {
+        self.policy = policy;
+        self.pending = None;
+    }
+    pub fn checkpoint(&self) -> Value {
+        obj! {"version"=>1,"scope"=>self.scope.clone(),"actor"=>self.actor.clone(),"participants"=>self.participants.clone(),"policy"=>self.policy.value.clone(),"clock"=>self.clock,"turn"=>self.turn.map_or(Value::Null,Value::from),"calls"=>self.calls,"social"=>self.social,"replans"=>self.replans,"last"=>self.last.map_or(Value::Null,Value::from),"chosen"=>self.chosen.clone().map_or(Value::Null,Value::str),"next"=>self.next,"receipt"=>self.receipt,"social_seen"=>self.social_seen.clone(),"failures"=>self.failures.iter().map(|f|obj!{"id"=>f.id.clone(),"count"=>f.count,"until"=>f.until,"event"=>f.event}).collect::<Vec<_>>()}
+    }
+    pub fn recover(v: &Value, life: &Life, min_proposal: u64, min_receipt: u64, max_tick: u64) -> Result<Self> {
+        bounded(v, 65536)?;
+        c::fields(
+            v,
+            &[
+                "version",
+                "scope",
+                "actor",
+                "participants",
+                "policy",
+                "clock",
+                "turn",
+                "calls",
+                "social",
+                "replans",
+                "last",
+                "chosen",
+                "next",
+                "receipt",
+                "social_seen",
+                "failures",
+            ],
+        )?;
+        c::uint(get(v, "version")?, 1, 1)?;
+        let policy = InitiativePolicy::resolve(get(v, "policy")?, &obj! {})?;
+        let mut out = Self::new(text(v, "scope")?, text(v, "actor")?, get(v, "participants")?, policy)?;
+        if !life.identity_matches(&out.scope, &out.actor, &out.participants) {
+            return Err(c::bad());
+        }
+        out.clock = num(v, "clock")?;
+        out.next = c::uint(get(v, "next")?, min_proposal, u32::MAX as u64)?;
+        out.receipt = c::uint(get(v, "receipt")?, min_receipt, life.watermark)?;
+        if out.clock > max_tick {
+            return Err(c::bad());
+        }
+        out.turn = if get(v, "turn")? == &Value::Null { None } else { Some(num(v, "turn")?) };
+        out.calls = c::uint(get(v, "calls")?, 0, 8)?;
+        out.social = c::uint(get(v, "social")?, 0, 16)?;
+        out.replans = c::uint(get(v, "replans")?, 0, 16)?;
+        out.last = if get(v, "last")? == &Value::Null { None } else { Some(c::uint(get(v, "last")?, 0, out.clock)?) };
+        out.chosen = if get(v, "chosen")? == &Value::Null {
+            None
+        } else {
+            let s = text(v, "chosen")?;
+            c::scope(s)?;
+            Some(s.into())
+        };
+        if out.turn.is_none() && (out.calls != 0 || out.social != 0 || out.replans != 0) {
+            return Err(c::bad());
+        }
+        let seen = c::list(get(v, "social_seen")?)?;
+        if seen.len() > 64 {
+            return Err(c::bad());
+        }
+        for (i, s) in seen.iter().enumerate() {
+            c::fields(s, &["id", "recipient", "events"])?;
+            c::scope(text(s, "id")?)?;
+            if !out.participants.iter().any(|p| Some(p.as_str()) == s.get("recipient").and_then(Value::as_str))
+                || seen[..i].contains(s)
+            {
+                return Err(c::bad());
+            }
+            let refs = c::list(get(s, "events")?)?;
+            if refs.len() > 8 {
+                return Err(c::bad());
+            }
+            for n in refs {
+                c::uint(n, 1, life.watermark)?;
+            }
+        }
+        out.social_seen = seen.to_vec();
+        let failures = c::list(get(v, "failures")?)?;
+        if failures.len() > 64 {
+            return Err(c::bad());
+        }
+        for f in failures {
+            c::fields(f, &["id", "count", "until", "event"])?;
+            let id = text(f, "id")?;
+            c::scope(id)?;
+            if out.failures.iter().any(|x| x.id == id) {
+                return Err(c::bad());
+            }
+            out.failures.push(Failure {
+                id: id.into(),
+                count: c::uint(get(f, "count")?, 1, 3)?,
+                until: num(f, "until")?,
+                event: c::uint(get(f, "event")?, 1, life.watermark)?,
+            });
+        }
+        Ok(out)
     }
 }

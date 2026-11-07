@@ -180,3 +180,10 @@ keeps an instrument's exact reading distinct from true simulation time, and a re
 from direct observation. Capped output no longer hides a live contradictory source's
 conflict flag. [Fresh probes](ADVERSARIAL_EVAL.md) show valid JSON and smaller contexts
 still fail some source judgments on the installed model. No new tools are auto-enabled.
+
+Optional [dynamic life and continuity](LIFE.md) builds on these same views/tools. Bounded
+context caps select relevant facts, facets/attitudes, original episodes and whole exchanges
+using actual `WorkloadHints`; more context never registers tools or widens permissions.
+Life appraisals are host-controlled, delivery is acknowledged by portion/audience, and
+persistent controls preserve replay metadata. Stable-prefix ordering and host efficiency
+are tested separately from the [retained failed speech diagnostic](LIFE_EVAL.md).

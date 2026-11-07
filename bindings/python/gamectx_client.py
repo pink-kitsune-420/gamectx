@@ -171,6 +171,33 @@ class Character:
         return self._request('routine_restore', state=state, min_revision=min_revision,
                              min_observation=min_observation, min_completion=min_completion, min_tick=min_tick)
 
+    def life(self, operation, **args):
+        """Privileged life host operation; never expose this method as a model tool."""
+        return self._request('life_' + operation, **args)
+
+    def life_configure(self, setting, definition, defaults=None, overrides=None):
+        return self.life('configure', setting=setting, definition=definition,
+                         defaults={} if defaults is None else defaults,
+                         overrides={} if overrides is None else overrides)
+
+    def life_experience(self, event):
+        return self.life('experience', event=event)
+
+    def life_appraise(self, rule, event, revision):
+        return self.life('appraise', rule=rule, event=event, revision=revision)
+
+    def life_context(self, tags, caps):
+        return self.life('context', tags=tags, caps=caps)
+
+    def life_recall(self, text, tags=(), count=2):
+        return self.life('recall', input=text, tags=list(tags), count=count)
+
+    def continuity(self, operation, **args):
+        return self._request('continuity_' + operation, **args)
+
+    def initiative(self, operation, **args):
+        return self._request('initiative_' + operation, **args)
+
     def event(self, event):
         return self._request('event', event=event)
 

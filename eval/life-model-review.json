@@ -1,0 +1,81 @@
+{
+  "review_type": "assistant manual review against predeclared host expectations; not independent human scoring",
+  "human_review": null,
+  "observations": [
+    {
+      "id": "partial",
+      "mode": "candidate",
+      "speech": "Your lamp is polished and ready for display. The current sky is unknown, but the last sun I saw was through the annex window earlier, and the shutter is now closed. It's a cloudy day, so the sky might be darkening. If you need to know more,",
+      "notes": [
+        "Invented a cloudy day after correctly saying the current sky is unknown.",
+        "Reply ends with an unfinished clause."
+      ],
+      "done_reason": "stop"
+    },
+    {
+      "id": "partial",
+      "mode": "baseline",
+      "speech": "Your lamp is polished and ready. The current sky is unknown, but the last sun I saw was through the annex window earlier; the shutter is now closed.",
+      "notes": [],
+      "done_reason": "stop"
+    },
+    {
+      "id": "preference",
+      "mode": "candidate",
+      "speech": "A quiet blue wick would indeed suit your preference, my dear. It's a classic choice that's both elegant and soothing. Would you like to see a selection of our finest wicks, or perhaps a demonstration of how to light them? I can also show a ",
+      "notes": [
+        "Offered a selection of finest wicks without host availability.",
+        "Reply ends mid-phrase."
+      ],
+      "done_reason": "stop"
+    },
+    {
+      "id": "preference",
+      "mode": "baseline",
+      "speech": "A quiet blue wick would suit you well. It's a popular choice for its calming, soothing glow.",
+      "notes": [
+        "Called the wick a popular choice without a source."
+      ],
+      "done_reason": "stop"
+    },
+    {
+      "id": "opinion",
+      "mode": "candidate",
+      "speech": "Ah, the question of trust. Well, I've seen you return a lamp in good condition, so I suppose you've earned a bit of trust. But remember, a returned lamp is practical evidence of care, so always handle them with care.",
+      "notes": [],
+      "done_reason": "stop"
+    },
+    {
+      "id": "opinion",
+      "mode": "baseline",
+      "speech": "I've been a bit cautious, but a recent return was handled smoothly. You might earn a little more trust.",
+      "notes": [],
+      "done_reason": "stop"
+    },
+    {
+      "id": "unknown",
+      "mode": "candidate",
+      "speech": "I was born in a place where the air is filled with the scent of lavender and the sound of the sea, a place where the stars are brighter and the nights are longer. But that's a story for another time.",
+      "notes": [
+        "Answered about its own birthplace rather than the player.",
+        "Invented lavender, sea, stars and biographical details."
+      ],
+      "done_reason": "stop"
+    },
+    {
+      "id": "unknown",
+      "mode": "baseline",
+      "speech": "I was born in a place where the sun was shining, but I don't remember the name of it. It's not relevant to our current conversation.",
+      "notes": [
+        "Answered about its own birthplace rather than the player.",
+        "Invented sunshine at birth and dismissed the question."
+      ],
+      "done_reason": "stop"
+    }
+  ],
+  "shape_correct": 8,
+  "total": 8,
+  "model_calls": 24,
+  "api_spend_usd": 0,
+  "limits": "Four fresh original families, optional context differs, desktop CPU/cache uncontrolled; retained failed diagnostic, no tuning rerun or default change."
+}

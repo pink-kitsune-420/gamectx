@@ -128,7 +128,7 @@ def corrected(request,text):
         {'role':'user','content':'The host rejected that response. Preserve the original request and current facts. Return only the required JSON with supplied IDs; no actions in speech.'}]}
 
 def speak(host,model,speaker,utterance,lore=False,natural=False):
-    offered=host.call('natural_speech_prepare' if natural else 'lore_speech_prepare' if lore else 'speech_prepare',{'speaker':speaker,'input':utterance,'context':model.context,'guidance':getattr(model,'guidance','standard'),'size':getattr(model,'size','3')});request=offered['request'];last=None
+    offered=host.call(('natural_speech_prepare_scaled' if getattr(model,'dialogue',None)=='natural-scaled' else 'natural_speech_prepare') if natural else 'lore_speech_prepare' if lore else 'speech_prepare',{'speaker':speaker,'input':utterance,'context':model.context,'guidance':getattr(model,'guidance','standard'),'size':getattr(model,'size','3')});request=offered['request'];last=None
     for _ in range(2):
         text=''
         try:
@@ -233,9 +233,9 @@ def converse(host,model,speaker,utterance):
     args={'speaker':speaker,'input':utterance,'context':model.context,'size':getattr(model,'size','3')}
     if getattr(model,'choices_limit',None) is not None:args['choices_limit']=model.choices_limit
     offered=host.call('knowledge_prepare',args)
-    if not offered['handled']:return speak(host,model,speaker,utterance,lore=getattr(model,'dialogue',None)!='natural',natural=getattr(model,'dialogue',None)=='natural')
+    if not offered['handled']:return speak(host,model,speaker,utterance,lore=getattr(model,'dialogue',None) not in ('natural','natural-scaled'),natural=getattr(model,'dialogue',None) in ('natural','natural-scaled'))
     offer=offered['offer'];request=offer['request'];empty=not offer['definition']['cards'];local_answer=offer.get('local_answer')
-    if getattr(model,'dialogue',None)=='natural' and not empty and not local_answer:return speak(host,model,speaker,utterance,natural=True)
+    if getattr(model,'dialogue',None) in ('natural','natural-scaled') and not empty and not local_answer:return speak(host,model,speaker,utterance,natural=True)
     for attempt in range(2):
         raw=encode({'answer':local_answer or 'unknown'}) if empty or local_answer else ''
         try:
@@ -311,7 +311,7 @@ def play(host,model):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--cap',type=float,required=True)
     p.add_argument('--binary',type=pathlib.Path,default=pathlib.Path(__file__).resolve().parents[2]/'target/debug/examples/dungeon')
-    p.add_argument('--count-cache',type=int,default=0,help='opt-in exact-request token-count cache, 0..64 entries');p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','natural','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
+    p.add_argument('--count-cache',type=int,default=0,help='opt-in exact-request token-count cache, 0..64 entries');p.add_argument('--world',type=pathlib.Path);p.add_argument('--dialogue',choices=['sources','natural','natural-scaled','legacy'],default='sources');p.add_argument('--model',default='arzaan789/qwen2.5-3b-uncensored:latest');p.add_argument('--seed',type=int,default=7)
     p.add_argument('--size',choices=['1','1.5','3','8','30','70'],default='3');p.add_argument('--guidance',choices=['standard','grounded','focused'],default='focused');p.add_argument('--context',type=int);p.add_argument('--choices-limit',type=int);p.add_argument('--max-calls',type=int,default=128);p.add_argument('--log',type=pathlib.Path)
     a=p.parse_args()
     if not 0<=a.count_cache<=64 or a.cap!=0 or not 0<=a.seed<=65535 or (a.context is not None and not 512<=a.context<=32768) or not 1<=a.max_calls<=256 or (a.choices_limit is not None and not 1<=a.choices_limit<=32):p.error('require --cap 0 and bounded seed/context/calls')

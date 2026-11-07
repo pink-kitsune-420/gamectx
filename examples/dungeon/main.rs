@@ -4,6 +4,7 @@ mod game;
 mod host;
 mod intent;
 mod knowledge;
+mod life;
 mod natural;
 mod place;
 mod routines;
@@ -133,6 +134,7 @@ fn play(host: &mut host::Host) -> Result<()> {
 fn run() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     let mut mode = "play";
+    let mut life_tools = false;
     let mut seed = 7;
     let mut replay_path = None;
     let mut model = "arzaan789/qwen2.5-3b-uncensored:latest".to_owned();
@@ -148,9 +150,11 @@ fn run() -> Result<()> {
     while i < args.len() {
         match args[i].as_str() {
             "--help" => {
-                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --count-cache N        opt-in exact-request token-count reuse, 0..64 entries\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
+                println!("Lantern Vault\n  --play [--seed N]       interactive game (default)\n  --serve [--seed N]      bounded version-1 JSON-lines host\n  --replay FILE|-         deterministic JSON replay\n  --ai [--model NAME]     human player with local AI characters\n  --size CLASS           editable task hints: 1, 1.5, 3 (default), 8, 30, 70\n  --guidance PROFILE     focused (default), standard, grounded\n  --count-cache N        opt-in exact-request token-count reuse, 0..64 entries\n  --context TOKENS       override size-class context starting budget\n  --world FILE           validated authored lore file\n  --dialogue MODE        sources (default), natural/natural-scaled (experimental), or legacy\n  --social-replay FILE|-  conversation regression replay\n  --life-demo [--life-tools] offline life/continuity demo with size-scaled context\n  --routines-demo         offline optional surface-annex routine/sensor demo\n  --routine-file FILE     editable demo routine\n  --routine-config FILE   editable demo defaults/overrides\nSeeds: 0..65535. Basic play needs no model or network.");
                 return Ok(());
             }
+            "--life-demo" => mode = "life-demo",
+            "--life-tools" => life_tools = true,
             "--routines-demo" => mode = "routines-demo",
             "--routine-file" | "--routine-config" => {
                 let option = args[i].clone();
@@ -221,6 +225,10 @@ fn run() -> Result<()> {
             _ => return Err(Error::new("unknown option; use --help")),
         }
         i += 1;
+    }
+    if mode == "life-demo" {
+        println!("{}", life::demo(gamectx::deployment::ModelSize::parse(&size)?, life_tools)?.to_json());
+        return Ok(());
     }
     if mode == "routines-demo" {
         println!("{}", routines::demo(routine_path.as_deref(), routine_config.as_deref())?.to_json());

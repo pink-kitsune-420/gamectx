@@ -364,3 +364,25 @@ messages, tool results, corrections, grammar, output/context or model identity r
 responses are never cached. Whole-turn allowance, pinned model settings and returned
 counts are checked. This saves calls for exact repeats, not general dynamic prompts.
 [Measured results and limits](../../docs/ADVERSARIAL_EVAL.md).
+
+## Optional dynamic-character demonstration
+
+Run `cargo run --example dungeon -- --life-demo --size 3` for a deterministic merchant
+session. `--size 70 --life-tools` expands bounded recall/exchanges/traits and explicitly
+selects optional life tools, without loading any model. The scene includes a customer
+interruption, partial hearing, preference, opinion change, name correction, postponed
+promise, save/load reunion and actual/blocked/remembered sun fixtures. Speech is authored
+for the demo; generated prose quality is separately experimental.
+
+Edit `../characters/setting.json`, `../characters/merchant-life.json` and
+`life-config.json`, then rebuild, or load those JSON values through the persistent host
+life configuration API. Default library features/tools remain off. Player reports and
+corrections are attributed; author edits use a privileged revisioned operation. Engine
+execution, receipt confirmation, visibility, calendars and storage authentication stay
+in host code. [Smallest integration and bindings](../../docs/LIFE.md).
+
+For human play, `--ai --dialogue natural-scaled --size 3` opts into the new tiered natural
+renderer. Small unknown answers omit distractor lore; dialogue hints govern actual quote
+recall and whole exchanges. Earlier `natural`, `sources` and `legacy` modes retain their
+recorded behavior. Valid JSON still permits factual invention; source-selected answers
+remain the default. No voice service or extra model is required by any offline example.

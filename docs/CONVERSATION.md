@@ -175,3 +175,9 @@ new factual entry points store host-rendered answers with a 512-character bound 
 240-character player quotes retain attribution. Existing generated-speech entry points
 still enforce their original 240-character reply limit. Earlier model and replay artifacts
 remain unchanged. Free-form reply validation continues to check sources rather than entailment.
+
+The optional [life coordinator](LIFE.md) separately tracks generated, validated, queued,
+played, heard, interrupted and cancelled speech. Use confirmed prefixes/audiences when
+recording actual experiences; the legacy `Conversation::finish` validation does not prove
+hearing. Parallel topic metadata, source dependencies and bounded workload caps feed the
+existing Thread/Scene/full-request APIs. No universal utterance parser executes actions.

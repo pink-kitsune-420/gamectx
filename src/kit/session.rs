@@ -4,6 +4,7 @@ use super::*;
 use crate::character::{CharacterTools, CharacterView, TurnPlan};
 use crate::request::Composition;
 use std::sync::Mutex;
+mod life;
 #[derive(Debug)]
 pub struct Session {
     project: Project,
@@ -13,6 +14,9 @@ pub struct Session {
 struct Resident {
     character: CharacterTools,
     plan: Option<(Composition, Vec<String>, u32)>,
+    coordinator: Option<crate::life::Coordinator>,
+    initiative: Option<crate::life::Initiative>,
+    retention: bool,
 }
 fn planning_state(plan: &Composition) -> Result<Value> {
     let mut state = plan.state();
@@ -47,7 +51,10 @@ impl Session {
             }
             let character =
                 CharacterTools::new(text(args, "scope")?, text(args, "actor")?, c::get(args, "participants")?)?;
-            slots.push((id.into(), Resident { character, plan: None }));
+            slots.push((
+                id.into(),
+                Resident { character, plan: None, coordinator: None, initiative: None, retention: true },
+            ));
             return Ok(obj! {"created"=>id});
         }
         let index = slots.iter().position(|(old, _)| old == id).ok_or_else(bad)?;
@@ -57,6 +64,12 @@ impl Session {
             return Ok(obj! {"dropped"=>id});
         }
         let resident = &mut slots[index].1;
+        if op.starts_with("character_life_")
+            || op.starts_with("character_continuity_")
+            || op.starts_with("character_initiative_")
+        {
+            return life::execute(resident, op, args);
+        }
         let character = &mut resident.character;
         match op {
             "character_bind" => {
@@ -248,6 +261,12 @@ impl Session {
             "character_clear" => {
                 c::fields(args, &["id"])?;
                 character.clear();
+                if let Some(co) = &mut resident.coordinator {
+                    co.erase()?;
+                }
+                if let Some(i) = &mut resident.initiative {
+                    i.erase();
+                }
                 resident.plan = None;
                 Ok(obj! {"cleared"=>id})
             }

@@ -17,9 +17,38 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
-The [dynamic character implementation agent brief](docs/ROLEPLAY_AGENT.md) specifies
-the planned five-stage work on life definitions, opinions, continuity, durable memory,
-initiative and player controls. It preserves the existing optional APIs and evaluation rules.
+The [dynamic character guide](docs/LIFE.md) records the five implementation stages from
+[the agent brief](docs/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
+
+## Optional dynamic character continuity (unreleased v0.3.1a)
+
+[Life APIs](docs/LIFE.md) add approved character definitions, source-attributed experiences,
+bounded appraisals, parallel conversation topics, acknowledged partial speech, durable
+checkpoints, archive backpressure, causal recall/forgetting and purposeful initiative.
+Opinions, accepted promises and actual event tokens drive initiative; routine work makes
+zero model calls. Existing character sessions carry Python, Node/TypeScript and native/C#
+host controls. All features and model tools remain opt-in; immutable project ABI is unchanged.
+
+Run `cargo run --example dungeon -- --life-demo --size 3` for an original merchant's
+interrupted repair, remembered preference, corrected name, changed opinion and reunion
+following save/load. `--size 70 --life-tools` demonstrates expanded context and explicit
+tool selection without loading a model. Editable definitions/configuration are included.
+The [minimal Rust example](examples/character-life.rs) runs as a test. New
+`--dialogue natural-scaled` optionally applies actual dialogue recall/exchange hints and
+removes distractor lore for unknown small-model answers; earlier modes retain their bytes.
+
+Independent Python/Rust checks cover **221 workflows**, including a **1,000-event** trace;
+**47 additive conformance cases** preserve all **842** earlier cases. The host benchmark
+for 128 experiences plus 128 appraisals measured median **176,881,587 → 7,338,259 ns** and
+**2,517,745 → 22,025 allocator calls**, with identical final state. In-memory structural
+validation makes zero heap allocations; these are synthetic host measurements, not model
+speed or accuracy. [Evidence, method and limits](docs/LIFE_EVAL.md).
+
+A retained local speech diagnostic made **24 calls**, **$0 API**: all **8/8** replies had
+valid shapes, yet both variants invented birthplace details and the character-context
+variant invented weather and produced unfinished replies. Balanced free-form prose remains
+experimental; no model correctness or cache-hit improvement is claimed. Source-selected
+answers remain the default. Human social-quality evaluation is still needed.
 
 ## Adversarial probes and measured limits (unreleased v0.3.1a)
 
@@ -890,20 +919,3 @@ For code changes:
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [docs/LIFE.md](docs/LIFE.md). Defaults and existing formats remain unchanged.
-
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
-
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
-
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.

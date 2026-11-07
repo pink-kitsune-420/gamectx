@@ -517,7 +517,7 @@ impl Host {
                     },
                 )
             }
-            "natural_speech_prepare" => {
+            "natural_speech_prepare" | "natural_speech_prepare_scaled" => {
                 let (_, size) = Self::settings(a, &["speaker", "input", "context"])?;
                 let speaker = text(a, "speaker")?;
                 let input = text(a, "input")?;
@@ -532,7 +532,11 @@ impl Host {
                 let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
                 let mut draft = self.social.clone();
                 let ticket = draft.prepare_facts(&self.game, speaker, input, hints.recall, hints.exchanges, facts)?;
-                let rendered = super::natural::render(&ticket, uint(get(a, "context")?, 32768)?, size)?;
+                let rendered = if text(v, "op")? == "natural_speech_prepare_scaled" {
+                    super::natural::render_scaled(&ticket, uint(get(a, "context")?, 32768)?, size)?
+                } else {
+                    super::natural::render(&ticket, uint(get(a, "context")?, 32768)?, size)?
+                };
                 self.social = draft;
                 self.knowledge = None;
                 Ok(rendered)

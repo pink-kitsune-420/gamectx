@@ -1,0 +1,5 @@
+{
+  "defaults": {"enabled": true, "balanced": true, "tools": []},
+  "overrides": {},
+  "initiative": {"enabled": true, "cooldown": 3, "margin": 2, "social_limit": 2, "attention": 4, "model_calls": 0, "replans": 2}
+}

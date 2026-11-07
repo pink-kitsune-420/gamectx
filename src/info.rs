@@ -130,3 +130,39 @@ pub fn workflow(a: &Value) -> Result<Value> {
     }
     Ok(obj! {"scope"=>notes.scope,"notes"=>notes.notes,"results"=>results})
 }
+impl Notes {
+    /// Host-only durable notebook; unlike inspection it preserves erased-note IDs.
+    pub fn checkpoint(&self) -> Value {
+        obj! {"version"=>1,"scope"=>self.scope.clone(),"sequence"=>self.sequence,"notes"=>self.notes.clone()}
+    }
+    pub fn recover(scope: &str, v: &Value, min_sequence: u32) -> Result<Self> {
+        bounded(v, 131072)?;
+        c::fields(v, &["version", "scope", "sequence", "notes"])?;
+        c::uint(c::get(v, "version")?, 1, 1)?;
+        if text(v, "scope")? != scope {
+            return Err(c::bad());
+        }
+        let sequence = c::uint(c::get(v, "sequence")?, u64::from(min_sequence), u32::MAX as u64)? as u32;
+        let rows = c::list(c::get(v, "notes")?)?;
+        if rows.len() > 64 {
+            return Err(c::bad());
+        }
+        let mut out = Self::new(scope)?;
+        let mut last = 0;
+        for n in rows {
+            c::fields(n, &["id", "subject", "attribute", "value", "status", "source"])?;
+            let id = c::uint(c::get(n, "id")?, last + 1, u64::from(sequence))?;
+            last = id;
+            if text(n, "status")? != "reported" {
+                return Err(c::bad());
+            }
+            let source = c::get(n, "source")?;
+            let args = obj! {"subject"=>c::get(n,"subject")?.clone(),"attribute"=>c::get(n,"attribute")?.clone(),"value"=>c::get(n,"value")?.clone(),"source"=>c::get(source,"id")?.clone()};
+            out.call("info_remember", &args.to_json(), &vec![source.clone()].into())?;
+            *out.notes.last_mut().unwrap() = n.clone();
+            out.sequence = id as u32;
+        }
+        out.sequence = sequence;
+        Ok(out)
+    }
+}

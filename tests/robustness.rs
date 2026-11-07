@@ -55,6 +55,7 @@ fn mutate(rng: &mut Rng, seed: &str) -> String {
 }
 
 fn exercise(value: &Value) {
+    assert!(value.is_valid(value.json_len()));
     assert_eq!(value.json_len(), value.to_json().len());
     assert_eq!(parse(&value.to_json(), usize::MAX).as_ref(), Ok(value), "serialization must round-trip");
     let mut session = gamectx::query::Session::new();

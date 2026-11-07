@@ -1,5 +1,5 @@
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
-export type Operation = 'build' | 'query' | 'validate' | 'doctor' | 'tools' | 'features' | 'evaluate' | 'local' | 'character_create' | 'character_bind' | 'character_enable' | 'character_call' | 'character_prepare' | 'character_observe' | 'character_event' | 'character_progress' | 'character_references' | 'character_offers' | 'character_respond' | 'character_clear' | 'character_drop' | 'character_routine_configure' | 'character_routine_update' | 'character_routine_observation' | 'character_routine_complete' | 'character_routine_reserve' | 'character_routine_save' | 'character_routine_restore' | 'character_routine_context' | 'character_routine_wake' | 'character_routine_affected' | 'character_routine_assess_time';
+export type Operation = 'build' | 'query' | 'validate' | 'doctor' | 'tools' | 'features' | 'evaluate' | 'local' | 'character_create' | 'character_bind' | 'character_enable' | 'character_call' | 'character_prepare' | 'character_observe' | 'character_event' | 'character_progress' | 'character_references' | 'character_offers' | 'character_respond' | 'character_clear' | 'character_drop' | 'character_routine_configure' | 'character_routine_update' | 'character_routine_observation' | 'character_routine_complete' | 'character_routine_reserve' | 'character_routine_save' | 'character_routine_restore' | 'character_routine_context' | 'character_routine_wake' | 'character_routine_affected' | 'character_routine_assess_time' | `character_life_${string}` | `character_continuity_${string}` | `character_initiative_${string}`;
 export declare class GamectxClient {
   constructor(project?: string | null, binary?: string);
   request(op: Operation, args: Json): Promise<Json>;
@@ -24,6 +24,14 @@ export declare class Character {
   routineAffected(conditions?: string[], activities?: string[]): Promise<Json>;
   routineSave(): Promise<Json>;
   routineRestore(state: Json, minRevision: number, minObservation: number, minCompletion: number, minTick: number): Promise<Json>;
+  life(operation: string, args?: Json): Promise<Json>;
+  lifeConfigure(setting: Json, definition: Json, defaults?: Json, overrides?: Json): Promise<Json>;
+  lifeExperience(event: Json): Promise<Json>;
+  lifeAppraise(rule: string, event: number, revision: number): Promise<Json>;
+  lifeContext(tags: string[], caps: Json): Promise<Json>;
+  lifeRecall(input: string, tags?: string[], count?: number): Promise<Json>;
+  continuity(operation: string, args?: Json): Promise<Json>;
+  initiative(operation: string, args?: Json): Promise<Json>;
   event(event: Json): Promise<Json>;
   progress(progress: Json): Promise<Json>;
   references(context: Json): Promise<Json>;

@@ -14,6 +14,7 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "character-context" => crate::life::context_fixture(a),
         "initiative" => crate::life::initiative_fixture(a),
         "episodes" => crate::life::episodes_fixture(a),
         "continuity" => crate::life::continuity_fixture(a),

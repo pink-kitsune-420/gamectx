@@ -237,19 +237,44 @@ helpers and C#/C session transport share the same bounded revision-checked opera
 It adds no model schema or permission, and preserves the immutable project/native ABI.
 [Measured limits and guards](ADVERSARIAL_EVAL.md).
 
+## Dynamic character session operations
 
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.
+The same persistent `kit::Session` and additive native session ABI support life, continuity
+and initiative. Python `Character.life/continuity/initiative` and Node equivalents issue
+privileged host operations; never expose these generic bridge methods as model tools.
+Models see only individually requested/exposed `life_recall` and `life_change` schemas.
+All arguments below also include the character `id`.
 
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
+| Operation suffix after `character_` | Additional arguments |
+|---|---|
+| life_configure | setting,definition,defaults,overrides; once per host instance |
+| life_experience / appraise | event / rule,event,revision |
+| life_context / recall | tags,caps / input,tags,count |
+| life_forget / retention | tokens,revision / retain |
+| life_ack / evict / consolidate | through / through / start,end |
+| life_author_edit | setting,definition,revision; new approved definition revision |
+| life_inspect / save | none / identity |
+| life_restore | identity,state,fence,min_ticket,min_proposal,min_receipt,min_note,max_tick |
+| continuity_configure / scene / thread | none / scene / thread |
+| continuity_context | thread,selection,caps,dialogue (existing Thread format) |
+| continuity_generate / validate | thread,text,dependencies / ticket |
+| continuity_delivery / recognition / retire | delivery / recognition / ticket |
+| initiative_configure / policy | defaults,overrides; policy edits preserve replay/call counters |
+| initiative_consider / dispatch | frame,candidates / proposal,frame,allowed |
+| initiative_outcome / reserve | proposal,token,success / turn |
 
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
+Combined checkpoint version 2 includes life, interaction notebook/progress/consumed offer
+IDs, continuity, initiative replay metadata and retention policy. Maximum combined size is
+`MAX_REQUEST_BYTES - 65,536`; standalone life snapshots remain at most 524,288 bytes.
+Recovery creates no live reply, offer or activity capability; actual receipts remain host
+transactions. Notebook sequences survive erasure. Restore into a fresh instance for an
+older save; existing live counters/state cannot silently roll backward. Persist any routine
+runtime with its existing configure/save/restore operations and authenticated floors, along
+with the engine world/save transaction. No model schema, visibility grant or permission
+expands from a save file. Session inspection is host-only.
 
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.
+`life_retention(false)` disables archival election for subsequent working experiences;
+it does not erase existing data. `life_forget` returns archive/cache/checkpoint invalidation
+instructions and clears volatile dialogue to prevent removed text from leaking. Apply the
+returned tombstones in host stores. Authored corrections use `life_author_edit`; player
+corrections are attributed experiences. C#/C keep using `Request` over the unchanged ABI.

@@ -40,3 +40,13 @@ same three `character_routine_*` host operation names over C#/C session requests
 `character_routine_assess_time` over the existing C#/C session return a host-derived
 `kind,knowledge` answer. This read is not a model function; no ABI symbols changed.
 The expanded adversarial binding suite contains 61 fixtures.
+
+Optional [dynamic characters](../docs/LIFE.md) use the same persistent ABI. Python and Node
+`Character` add life configure/experience/appraisal/context/recall helpers and generic
+`life`, `continuity`, `initiative` host methods; TypeScript declarations cover them. C#/C
+continue through versioned session requests. The combined v2 checkpoint preserves life,
+notebook/progress/consumed IDs, continuity/initiative replay metadata and retention policy;
+restore cancels executable pending work. Routines/world storage retain their existing host
+transactions. `eval/life_bindings_check.py`/`.mjs` exercise 39 independent fixture replies;
+the existing C# driver consumes `target/life-csharp` files. Host operations are never model
+tools. Authenticate participant scopes, permissions and save/erasure watermarks externally.

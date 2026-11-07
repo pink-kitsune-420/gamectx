@@ -154,6 +154,17 @@ impl CharacterTools {
     pub fn enabled(&self) -> &[String] {
         &self.enabled
     }
+    pub fn interactions(&self) -> &InteractionTools {
+        &self.interactions
+    }
+    pub(crate) fn restore_interactions(&mut self, tools: InteractionTools) -> Result<()> {
+        if tools.identity() != self.interactions.identity() {
+            return Err(c::bad());
+        }
+        self.disable();
+        self.interactions = tools;
+        Ok(())
+    }
     pub fn interactions_mut(&mut self) -> &mut InteractionTools {
         &mut self.interactions
     }

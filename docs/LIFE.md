@@ -46,9 +46,11 @@ answers still use validated host data. Prior speech failures remain unchanged.
 
 1. Definitions/appraisals: implemented bounded Rust and independent Python parity, original
    editable files, disabled/private/nonhuman/replay/stale tests and additive fixtures.
-   Conversational usefulness is unmeasured; no model call or accuracy claim.
+   No model calls or conversational-accuracy claim at that stage; later speech diagnostics
+   remain experimental and separate from host correctness.
 2. Scene/conversation continuity: implemented source-dependent one-use validation, parallel
-   thread metadata and acknowledged partial delivery; 41 independent Python/Rust workflows.
+   thread metadata and acknowledged partial delivery; 42 independent Python/Rust workflows
+   including the final permission-epoch rollback guard.
    Free-form speech quality remains experimental.
 3. Durable episodic memory: implemented identity/fence-checked checkpoints, archival
    backpressure, extractive ranges, causal recall/erasure and crash-safe request recovery.
@@ -56,7 +58,10 @@ answers still use validated host data. Prior speech failures remain unchanged.
 4. Initiative: implemented routine-menu integration, opinions/accepted promises/event
    dependencies, per-turn call quotas, social guards, failure receipts and backoff.
    Eighty independent workflows and a 96-scope scheduler test; social quality unmeasured.
-5. Controls, bindings and integrated demonstration: pending.
+5. Controls, persistent Python/Node/C#/native bridges, focused/expanded workload hints,
+   stable prefix rendering and integrated merchant demo: implemented. 27 context workflows,
+   39 persistent fixtures and 24 scaled natural requests; retained 24-call local failures.
+   Human social-quality evaluation remains unproven.
 
 ## Conversation and delivery coordinator
 
@@ -138,9 +143,9 @@ responsibilities. Removed data must not survive in generated text or external vo
 
 Coordinator checkpoints preserve topics, referents, partial deliveries and request high
 watermarks. Recovery cancels unplayed work, marks previously playing lines interrupted and
-creates no live tickets; old asynchronous results cannot execute after a crash. Existing
-interaction notebooks/routine checkpoints must also be saved through their own contracts
-when used; the life checkpoint does not silently serialize an entire game engine.
+creates no live tickets; old asynchronous results cannot execute after a crash. The persistent composite checkpoint also stores notebook sequences, promise progress and
+consumed offer IDs. Save routine checkpoints separately through their existing contracts;
+this does not serialize an entire game engine.
 
 ## Purposeful initiative
 
@@ -183,3 +188,77 @@ zero model calls. This is deterministic host-work verification, not model latenc
 quality. Eighty independent Python/Rust workflows include opinion/commitment scores, accepted
 versus reported/fulfilled promises, token filtering, duplicate greetings, circular depth,
 call reservations and confirmed failure/recovery.
+
+## Player controls, binding workflow and tiered requests
+
+`cargo run --example dungeon -- --life-demo --size 3` exercises an original surface-annex
+merchant, Ilen: a remembered quiet-wick preference, customer interruption, a partially heard
+line, an intact return that changes trust, a corrected name, a postponed accepted repair
+resumed in another scene, and a reunion after save/load. Host sensor fixtures show visible
+sun through a window, blocked indoor/cloudy view, aging sunlight and expired/unknown time.
+Two ambiguous lamps use the existing resolver for targeted clarification. Authored example
+speech demonstrates host flow; it is not a live roleplay benchmark. Source-selected gameplay
+and the normal underground scene remain unchanged.
+
+Definitions are editable in `examples/characters`; `examples/dungeon/life-config.json`
+contains explicit demo policy. Edit and rebuild the Rust example, or load JSON at runtime
+through the persistent host `life_configure`. The minimal tested `character-life` example
+loads a draft, approves it in the host, binds current actor-visible data, registers requested
+read tools and dispatches with a current permission predicate. New [session operations](KIT.md#dynamic-character-session-operations)
+add conversation correction (attributed event), privileged author edits, scoped forgetting,
+retention election, text recognition fallback, partial speech interruption and adjustable
+initiative policy. Erasure preserves request/note/proposal watermarks. Only host acknowledgements
+record actual hearing/outcomes. External speech queues and archives must honor tombstones.
+
+`ContextCaps::focused()` permits four scene facts, two facets, two attitudes, two original
+episodes and one whole exchange. `expanded()` explicitly permits 16/8/8/8/4. `from_hints`
+uses actual dialogue recall/exchange hints: 1B/1.5B use 1/1, 3B uses 2/1, 8B uses 3/2,
+30B uses 4/3, 70B uses 6/3 (episodes/exchanges). Larger sizes select expanded trait/fact
+caps; any provider/frontier model may choose explicit caps independently of parameter count.
+These are advisory policies, not capability measurements or automatic default changes.
+The earlier `focused` helper retains its output contract; `select_context` is the versioned
+bounded path used by the demonstration and persistent context operation.
+
+Only host-selected required/optional fact IDs enter the packet. Required context fits or
+fails; optional recall uses fewer episodes when a full causal/correction group will not fit.
+`Life::context_capped` separates facet/attitude caps; `recall_capped` reuses existing lexical
+recall. Inspection stays outside model/player context. Stable system rules, character facets
+and explicitly stable scene context precede changing attitude/state and whole dialogue tails
+in `render_character_chat`. The demo starts focused profiles at 2,048 context tokens and expanded profiles at 8,192,
+using a disclosed heuristic count; real hosts must recount the complete runner rendering.
+Counts must cover the final provider request; stable ordering is
+not a measured KV-cache hit guarantee. Unknown small-model turns in opt-in dungeon
+`--dialogue natural-scaled` omit distractor lore. Earlier natural/source modes retain their
+recorded request bytes. No universal language parser or mandatory topic menu is introduced.
+
+`--life-demo --size 70 --life-tools` demonstrates expanded context with explicitly requested
+`life_recall`/`life_change` schemas, without loading a 70B model. A small demo exposes only
+recall when asked; appraisal stays deterministic host work. Core APIs allow independent
+configuration: size hints never register tools or grant data visibility/execution permission.
+An exposed change still produces a proposal; only the host validates/applies an authored
+rule. Real provider selection, hosted budgets and tokenizers remain external integrations.
+
+Combined session checkpoint version 2 includes life, interaction notebook/progress/consumed
+IDs, coordinator and initiative replay metadata plus retention policy. Recovery cancels live
+capabilities. Persist routines and the actual game save in the same authenticated host
+transaction using their existing APIs. Changing an audience requires a newly authorized
+scope; do not grant private sources by merely changing a participants array. State inspection
+contains host-only sources, omissions, reasons and cancelled work and is not a model packet.
+
+## Host efficiency and experimental limits
+
+In-memory `Value::is_valid` is allocation-free on both success and rejection, validates
+number grammar, key uniqueness and parser-equivalent depth, and safely stops before walking
+an over-deep tree. `request::bounded` uses it instead of allocating/serializing/reparsing a
+second tree. Error construction still allocates its existing message. JSON serialization
+reserves its exact output capacity and retains every byte. Life ingestion/appraisal preflight
+projected sizes before mutation, without cloning history or materializing inspection. The
+budget includes definition/configuration and space for permitted campaign identity fields,
+so accepted hot-path updates remain checkpointable. Overflow is atomic.
+
+[Evaluation evidence](LIFE_EVAL.md) separates deterministic contracts, host benchmarks,
+model speech and human judgment. The installed model's valid JSON still invents facts;
+balanced speech, source tokens and prefixes cannot guarantee grounding. The library enforces
+host authority and available actions; free-form conversational usefulness and real speech
+quality remain experimental. No model-size, RAM, cache-hit or gameplay-quality improvement
+is inferred from synthetic host checks.

@@ -107,6 +107,14 @@ export class Character {
   routineRestore(state, minRevision, minObservation, minCompletion, minTick) {
     return this.request('routine_restore', { state, min_revision: minRevision, min_observation: minObservation, min_completion: minCompletion, min_tick: minTick });
   }
+  life(operation, args = {}) { return this.request('life_' + operation, args); }
+  lifeConfigure(setting, definition, defaults = {}, overrides = {}) { return this.life('configure', { setting, definition, defaults, overrides }); }
+  lifeExperience(event) { return this.life('experience', { event }); }
+  lifeAppraise(rule, event, revision) { return this.life('appraise', { rule, event, revision }); }
+  lifeContext(tags, caps) { return this.life('context', { tags, caps }); }
+  lifeRecall(input, tags = [], count = 2) { return this.life('recall', { input, tags, count }); }
+  continuity(operation, args = {}) { return this.request('continuity_' + operation, args); }
+  initiative(operation, args = {}) { return this.request('initiative_' + operation, args); }
   event(event) { return this.request('event', { event }); }
   progress(progress) { return this.request('progress', { progress }); }
   references(context) { return this.request('references', { context }); }

@@ -43,12 +43,24 @@ jobs:
       - run: python3 -I eval/adversarial_probe.py --cap 0 --require-fixed
       - run: python3 -I eval/adversarial_cases.py --cap 0
       - run: python3 -I eval/time_assessment_cases.py --cap 0
+      - run: python3 -I eval/life_cases.py --cap 0
+      - run: python3 -I eval/continuity_cases.py --cap 0
+      - run: python3 -I eval/episodic_cases.py --cap 0
+      - run: python3 -I eval/initiative_cases.py --cap 0
+      - run: python3 -I eval/continuity_context_cases.py --cap 0
+      - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-tokens.json
+      - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-results.json
+      - run: python3 -I eval/validation_reference.py > target/validation-oracle.json
+      - run: rustc --edition=2021 -O eval/validation_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/validation-check
+      - run: ./target/validation-check
+      - run: cargo +stable test --example character-life --locked
       - run: python3 -I eval/check_character_limits.py --cap 0 --check eval/character-limit-summary.json
       - run: cargo +stable test --example dungeon --locked
       - run: python3 -I eval/info_inventory_cases.py --cap 0
       - run: python3 -I eval/interaction_cases.py --cap 0
       - run: python3 -I eval/interaction_measure.py --cap 0 --check eval/interaction-results.json
       - run: python3 -I eval/dungeon_natural_cases.py --cap 0
+      - run: python3 -I eval/natural_scaled_check.py --cap 0
       - run: python3 -I eval/check_natural_model.py --cap 0 eval/natural-tokens.json eval/natural-results.json eval/natural-v2-tokens.json eval/natural-v2-results.json
       - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-stock-tokens.json eval/lore-stock-results.json
       - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
@@ -139,6 +151,8 @@ jobs:
       - run: node eval/routine_detail_bindings_check.mjs
       - run: python3 -I eval/adversarial_bindings_check.py --cap 0
       - run: node eval/adversarial_bindings_check.mjs
+      - run: python3 -I eval/life_bindings_check.py --cap 0
+      - run: node eval/life_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
@@ -148,6 +162,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/routine-csharp/requests.txt target/routine-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/routine-detail-csharp/requests.txt target/routine-detail-csharp/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/adversarial-csharp/requests.txt target/adversarial-csharp/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/life-csharp/requests.txt target/life-csharp/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

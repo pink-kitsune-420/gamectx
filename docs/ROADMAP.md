@@ -338,15 +338,32 @@ noted; "3 models" adds Llama 3.3 70B.
   accuracy remains unmeasured. Source-classification/adapter diagnostics are recorded
   separately above; keep historical pilots frozen.
 
-## Planned dynamic character implementation
+## Dynamic character stages
 
-- [Implementation agent brief](ROLEPLAY_AGENT.md): complete life definitions/opinions/
-  relationships, conversation and scene continuity, durable episodic memory, purposeful
-  initiative, then player/developer controls and integrated evaluation, in that order.
-- Preserve optional configuration, free-form expression with explicit knowledge limits,
-  host authority, existing APIs/ABI and historical evaluations. The brief is a handoff;
-  these five stages are not implemented by this documentation change. No new model calls
-  or API spend. Measure usefulness and unnecessary refusals alongside factual correctness.
+See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md).
+
+- Stage 1: `f863b45`, approved life definitions, subjective attitudes and attributed
+  experiences; 52 independent workflows, bounded host appraisal, original editable files.
+- Stage 2: `65a8367`, dependency-sensitive scenes/topics and partial delivery; 41 workflows,
+  one-use request tickets, concurrent threads and fake speech transport checks.
+- Stage 3: `e25b9ef`, branch/identity-bound checkpoints, archive backpressure, deterministic
+  ranges and causal recall/erasure; 20 workflows including 1,000 events.
+- Stage 4: `fedab27`, actual attitudes/commitments, accepted notebook promises and event
+  tokens drive priority; 80 workflows, zero-call routine operation, per-turn reservations,
+  greeting/depth guards, failed receipts/backoff, and 96-scope scheduler checks.
+- Stage 5: implemented persistent player/author controls, notebook/continuity/initiative
+  recovery, 27 context-scaling workflows, 39 cross-language fixtures, 24 scaled natural
+  requests and a tested original merchant demonstration. Tool registration remains explicit.
+- Host optimization evidence: zero-allocation structural checks; 128 experiences/appraisals
+  median 176,881,587→7,338,259 ns over seven pairs, allocator calls 2,517,745→22,025,
+  final bytes identical. No full-turn latency or cache-hit claim follows.
+- Retain failed local speech artifacts `life-model-{tokens,results,review}.json`: four new
+  scenario families, 24 calls, $0 API. Both variants invent birthplace details; the candidate
+  invents clouds and has two unfinished replies despite 8/8 valid shapes. Do not tune these
+  examples and relabel a rerun as unseen accuracy. Earlier speech failures remain frozen.
+- Next evidence: independent human review and fresh continuous model sessions, privacy and
+  speech integrations in actual hosts, controlled cache/latency/RAM comparisons. Generic
+  size profiles and stable prefix ordering establish no model capability or cache benefit.
 
 ## Known gaps
 
@@ -363,20 +380,3 @@ noted; "3 models" adds Llama 3.3 70B.
 
 - Evidence validation establishes source availability/provenance, not logical entailment or calibrated confidence. Host evidence collection, consent, clock progression and archival storage remain integration responsibilities.
 - Indexed recall owns a filtered snapshot and must be rebuilt after edits/erasure/privacy changes. Outcome/temporal trackers are transient; hosts supply source IDs, coverage, clocks and any durable history. Runtime ledger persistence/prices and current permission checks remain host responsibilities. Reusable drafts and observed outcomes do not prove causal effectiveness.
-
-
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.
-
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
-
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
-
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.

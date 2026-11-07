@@ -493,3 +493,50 @@ pub fn interaction_workflow(a: &Value) -> Result<Value> {
     }
     Ok(obj! {"state"=>tools.to_value(),"results"=>results})
 }
+impl InteractionTools {
+    /// Host-only checkpoint. Offers/reference inputs and executable pending actions
+    /// expire on recovery; consumed IDs, accepted promise states and sources survive.
+    pub fn checkpoint(&self) -> Value {
+        obj! {"version"=>1,"scope"=>self.scope.clone(),"actor"=>self.actor.clone(),"participants"=>self.participants.clone(),"notes"=>self.notes.checkpoint(),"events"=>self.events.clone(),"progress"=>self.progress.clone(),"used"=>self.used.clone()}
+    }
+    pub fn recover(v: &Value, min_note: u32, max_turn: u32) -> Result<Self> {
+        bounded(v, 524288)?;
+        c::fields(v, &["version", "scope", "actor", "participants", "notes", "events", "progress", "used"])?;
+        c::uint(c::get(v, "version")?, 1, 1)?;
+        let mut out = Self::new(text(v, "scope")?, text(v, "actor")?, c::get(v, "participants")?)?;
+        out.notes = Notes::recover(&out.scope, c::get(v, "notes")?, min_note)?;
+        let events = c::list(c::get(v, "events")?)?;
+        if events.len() > 128 {
+            return Err(c::bad());
+        }
+        for e in events {
+            if c::uint(c::get(e, "turn")?, 0, u32::MAX as u64)? > u64::from(max_turn) {
+                return Err(c::bad());
+            }
+            out.publish(e)?;
+        }
+        let progress = c::list(c::get(v, "progress")?)?;
+        if progress.len() > 64 {
+            return Err(c::bad());
+        }
+        for p in progress {
+            c::fields(p, &["id", "state", "revision", "source"])?;
+            if out.progress.iter().any(|o| o.get("id") == p.get("id")) {
+                return Err(c::bad());
+            }
+            let state = text(p, "state")?;
+            let revision = c::uint(c::get(p, "revision")?, 1, 2)?;
+            if !matches!((state, revision), ("accepted", 1) | ("fulfilled", 2) | ("cancelled", 1 | 2)) {
+                return Err(c::bad());
+            }
+            let source = c::get(p, "source")?.clone();
+            let id = c::get(p, "id")?.clone();
+            if revision == 2 {
+                out.set_progress(&obj! {"id"=>id.clone(),"expected"=>0,"state"=>"accepted","source"=>source.clone()})?;
+            }
+            out.set_progress(&obj! {"id"=>id,"expected"=>revision-1,"state"=>state,"source"=>source})?;
+        }
+        out.used = names(c::get(v, "used")?, 256)?;
+        Ok(out)
+    }
+}

@@ -220,7 +220,12 @@ impl Life {
         if through == self.archive_ack {
             return Ok(());
         }
-        self.bump()?;
+        let rev = self.next_revision()?;
+        let projected = self.inspection_len() - digits(self.revision) + digits(rev);
+        if self.checkpoint_len_bound(projected, through) > MAX_BYTES {
+            return Err(c::bad());
+        }
+        self.revision = rev;
         self.archive_ack = through;
         Ok(())
     }
@@ -272,7 +277,9 @@ impl Life {
         let mut next = self.clone();
         next.bump()?;
         next.summaries.push(value.clone());
-        bounded(&next.checkpoint(&obj! {"campaign"=>"check","branch"=>"check","instance"=>"check"})?, MAX_BYTES)?;
+        if next.checkpoint_len_bound(next.inspection_len(), next.archive_ack) > MAX_BYTES {
+            return Err(c::bad());
+        }
         *self = next;
         Ok(value)
     }

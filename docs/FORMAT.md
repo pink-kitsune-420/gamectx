@@ -1745,19 +1745,56 @@ on count. Keys bind the entire request, output, context and model/template/runne
 These are host telemetry, not a new packed/core format. Invalid neutral transport
 controls, nonpositive output or insufficient whole-turn allowance fail before inference.
 
+## Optional dynamic characters
 
-Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
-and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.
+Existing formats remain unchanged. Definitions, source/subjective views, standalone
+checkpoints and context packets use new version 1 contracts; the persistent combined
+checkpoint is version 2. [LIFE](LIFE.md) describes host authority and recovery.
 
-Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
-partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
-offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
+- `Setting`: exactly `id,calendar,entities,history`. Up to 128 entities/history records;
+  each history record is `id,at,participants,text`. Drafts reference only approved history.
+- `Definition`: exactly `version,id,revision,setting,calendar,facets,attitudes,rules,history,
+  improvisation`; at most 65,536 bytes. See editable `examples/characters/merchant-life.json`
+  for every nested field. Maximum 64 facets/attitudes/rules, 32 history IDs; texts are
+  1..512 non-control characters and at most 2,048 UTF-8 bytes. IDs use existing scope bounds.
+- Life config: optional `enabled,balanced,deception,mistaken,tools`, all features false and
+  tools empty by default. Resolve shared defaults then partial overrides. Requested tool
+  names are only `life_recall` and `life_change`; they still require exposure/live permission.
+- An experience is exactly `token,at,kind,tag,subject,source,audience,text,causes,retain`.
+  Kind is direct/report/intended/outcome/correction; source uses original `id,speaker,text`.
+  Tokens strictly increase, ticks never go backward, audience equals the fixed scope.
+  Up to eight earlier causal tokens. Working history/change log each hold at most 128 rows.
+- `life_recall({tags,limit})`: up to eight tags and limit 0..16. `life_change({rule,event,
+  reason})`: bounded proposal only. Host applies an authored rule against actual direct/
+  outcome evidence with current life revision; delta -20..20, nonzero, levels -100..100,
+  cooldown 1..1,000,000 ticks and reversal through zero. Result cap 64..8,192 bytes.
+- Scene: `id,revision,epoch,at,participants,facts,affordances`; up to 32 facts/16 affordances.
+  Facts: `id,revision,observed_at,source,kind,audience,text`. Kinds global/perceived/mutual/
+  report remain distinct; global facts never enter character context. Epoch is monotonic and changes when
+  permissions/audience/emergency invalidates pending work. Selected source records match
+  exactly; unrelated global revisions need not cancel dialogue.
+- Thread metadata: `id,topic,questions,promises,unfinished,listener,participants,shared,
+  referents`; at most eight threads/open questions, 16 IDs per metadata list. Existing
+  `dialogue::Thread` supplies up to 128 whole exchanges for bounded tail selection.
+- `ContextCaps`: `facts,facets,attitudes,episodes,exchanges`, maxima 32/16/16/16/16.
+  Focused defaults 4/2/2/2/1; explicit expanded defaults 16/8/8/8/4. Selection is exactly
+  `required,optional,tags,input`: required facts must fit; only named authorized facts
+  qualify. Optional causal recall groups remain whole. Packet and host inspection are separate.
+- Delivery: `id,event,through,recipient`; through is a cumulative Unicode character
+  offset. Generated/validated/queued/played/heard/interrupted/cancelled are distinct.
+  Heard cannot exceed played. Maximum 32 live lines/eight pending tickets, TTL 20 ticks.
+- Life checkpoint: `version,identity,scope,actor,participants,definition,config,state,
+  archive_ack,summaries`; identity `campaign,branch,instance`, maximum 524,288 bytes.
+  Restore fence: `min_revision,max_revision,min_token,max_token,max_tick`. Up to 16
+  complete nonoverlapping extractive ranges, 128 originals per range, idempotent by range.
+- Initiative candidates: `id,kind,priority,reason,requires,resource,recipient,attitudes,
+  events,promises`. Up to 16 candidates, eight attitude/event references, four accepted
+  promise IDs; kind activity/ask/followup/decline/gesture/silence. Frames:
+  `revision,now,turn,conditions,allowed,resources,audience,emergency,depth,social_remaining`.
+  See LIFE for bounded policy defaults, one-use dispatch and confirmed outcome receipts.
 
-Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
-recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
-20 offline workflows including 1,000 events. No model quality claim or API spend.
-
-Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
-scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
-`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
-16 jobs per tick and no model. Host execution/receipts remain authoritative.
+`Value::is_valid(cap)` checks exact compact size, parser-equivalent depth, JSON number
+syntax and key uniqueness directly, with no heap allocation even on rejection. It uses
+small-object comparisons and fixed-stack sorted blocks for wide objects. `request::bounded`
+uses it; error construction still creates the existing owned error message. Serialization
+bytes and all earlier expected files remain unchanged.
