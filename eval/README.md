@@ -1331,3 +1331,11 @@ legacy/selected/optimized artifacts and review distinguish deterministic retriev
 model recall. `overnight_causality_cases.py --cap 0` checks a fresh 132-operation social
 arc/rumor cycle against the independent oracle. `overnight_bindings_check.py --cap 0`
 checks stateful Python CLI/native selection and prepares Node/C# fixtures in target/.
+
+`overnight_grounded_eval.py --cap 0` predeclares separate paired free/source-bound packets,
+requires a token-first artifact, reserves before subsequent requests, and can continue an
+interrupted artifact into a new file using `--resume`. The original incomplete run is
+retained. `overnight_audit.py --cap 0 --check eval/overnight-grounded-review.json` audits
+48 recorded generations and revalidates all authorized replies in Rust without models.
+`overnight_ui_tokens.py --cap 0 --output NEW.json` measures the actual focused GUI body;
+`overnight-tier-requests.json` retains actual mock provider requests for all six tiers.

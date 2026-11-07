@@ -5,6 +5,6 @@ assert(process.argv.includes('--cap')&&process.argv[process.argv.indexOf('--cap'
 const fixtures=JSON.parse(readFileSync('target/overnight-bindings/cases.json','utf8'));
 const client=new GamectxClient(null,'target/debug/gamectx');
 try {
- for(const f of fixtures)assert.deepEqual(await client.request(f.request.op,f.request.args),f.expected.result);
+ for(const f of fixtures){let got,error;try{got=await client.request(f.request.op,f.request.args);}catch(e){error=e;}if(f.error)assert(error,'expected rejection');else{if(error)throw error;assert.deepEqual(got,f.expected.result);}}
  console.log(JSON.stringify({node_fixtures:fixtures.length,actual_provider_calls:0,api_spend_usd:0}));
 }finally{client.close();}

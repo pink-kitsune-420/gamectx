@@ -756,3 +756,12 @@ evidence is an error, rather than a plausible but incomplete memory. Python and 
 Character adapters provide `life_recall_selected` / `lifeRecallSelected`; generic host
 life operations expose the same selection in other bindings. Disk archives remain
 host-owned. Never share private participant scopes merely to improve recall.
+
+For focused service replies that need deterministic factual bounds, construct existing
+`dialogue::Answers` from authorized host sentences, use `speech_schema()` as a provider
+schema, and validate with `resolve_speech()`. A provider ignoring the schema still cannot
+introduce a new sentence. This selects host-authored wording, so it limits expression;
+use ordinary dialogue when that tradeoff is inappropriate. Source presence is not proof
+that a host-authored sentence is correct. Supply current validated cards and honest
+attribution for reports and claims. The Web studio exposes grounded/dialogue policies;
+old configurations without `speech_mode` preserve dialogue behavior.

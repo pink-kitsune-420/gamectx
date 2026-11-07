@@ -107,3 +107,58 @@ impl Answers {
         Ok(obj! {"status"=>"answered","text"=>text,"sources"=>vec![source]})
     }
 }
+
+impl Answers {
+    fn spoken_card(card: &Value) -> Result<String> {
+        Ok(if text(card, "kind")? == "quote" {
+            format!("You told me: \"{}\"", text(card, "text")?)
+        } else {
+            text(card, "text")?.to_owned()
+        })
+    }
+    /// Opt-in exact authorized speech variants for focused factual/service turns.
+    /// The model selects wording; host-approved cards supply every character. This
+    /// deliberately trades free expression for bounded source validation.
+    pub fn speech_schema(&self) -> Result<Value> {
+        let mut choices = Vec::<Value>::new();
+        for card in c::list(c::get(&self.value, "cards")?)? {
+            choices.push(Self::spoken_card(card)?.into());
+        }
+        choices.push(c::get(&self.value, "unknown")?.clone());
+        for (i, line) in choices.iter().enumerate() {
+            let s = c::text(line)?;
+            if s.chars().count() > 240
+                || choices[..i].contains(line)
+                || crate::life::assess_sentence(s, 240)?.to_value().get("boundary_complete") != Some(&Value::Bool(true))
+            {
+                return Err(c::bad());
+            }
+        }
+        Ok(
+            obj! {"type"=>"object","properties"=>obj!{"speech"=>obj!{"type"=>"string","enum"=>choices}},"required"=>vec!["speech"],"additionalProperties"=>false},
+        )
+    }
+    /// Resolve exact speech against current scope/revision and source availability.
+    /// Providers that ignore enum/schema constraints still cannot introduce prose.
+    pub fn resolve_speech(
+        &self,
+        input: &str,
+        context: &Value,
+        available: impl FnOnce(&Value) -> bool,
+    ) -> Result<Value> {
+        self.speech_schema()?;
+        let reply = crate::json::parse(input, 4096)?;
+        c::fields(&reply, &["speech"])?;
+        let spoken = text(&reply, "speech")?;
+        let id = if c::get(&self.value, "unknown")?.as_str() == Some(spoken) {
+            "unknown"
+        } else {
+            let card = c::list(c::get(&self.value, "cards")?)?
+                .iter()
+                .find(|card| Self::spoken_card(card).is_ok_and(|s| s == spoken))
+                .ok_or_else(c::bad)?;
+            text(card, "id")?
+        };
+        self.resolve(&obj! {"answer"=>id}.to_json(), context, available)
+    }
+}

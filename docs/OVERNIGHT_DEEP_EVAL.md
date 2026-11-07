@@ -127,3 +127,46 @@ and a separately authored **132-operation** causality holdout. That holdout veri
 trust arc **0→−20→−10→0→10→20**, twelve attributed reports with at most two hops, no new
 reports in **100 cyclic noise ticks**, ten emergency guard frames and **zero player_2
 attitude delta**. Existing initiative, living-world and attitude-gate suites remain green.
+
+## Repair 3: authorized factual speech and a fresh paired cohort
+
+The fresh suite predeclares twelve different question families and host facts (Sera,
+copper/violet preferences, an unresolved measuring-string promise, unknown snow, an
+attributed crash, an unverified race claim, warm/guarded trust, emergency evacuation,
+interruption habits and denied code invention). Each arm has two exchanges: **24 free
+and 24 source-bound generations**, preceded by **24 token-only calls**, using the same
+installed CPU-only Qwen 3B with four threads. The source-bound arm offers host-authored
+variants; it is not an unconstrained model-intelligence improvement.
+
+Predeclared required-word checks pass **12/24→24/24**; all 48 replies have valid shape.
+Exact authorized-variant validation passes **24/24** in the bounded arm and revalidates
+against Rust's current-source/revision path. Assistant semantic review identifies explicit
+unsupported effects/history/unlisted stock/invented codes in **10/24 free replies versus
+0/24 host-authored replies**. This is not blinded or independent human evaluation.
+Both free player_2 replies choose violet correctly but promise a ready unlisted lamp;
+both free corrected-name replies use Sera but invent repair/borrowing history. Free
+emergency replies both include the west-stair instruction. Other task/tone failures and
+all raw outputs remain visible in the retained review and generation artifacts.
+
+The original forbidden-word heuristic passes **24/24 in both arms**, missing the invented
+entry code `123456`; it must not be reported as a hallucination-rate measurement. Unknown
+sky paraphrases also fail its narrow `know` requirement despite correct uncertainty.
+We preserve those diagnostics rather than changing the gold after observing replies.
+
+The first harness exited 143 after 33 recorded generations, with cause unverified.
+`overnight-grounded-live.json` remains incomplete and frozen. The completed artifact
+links its SHA-256, reuses those 33 responses without rerunning them, and reserves each
+subsequent request before dispatch. At most **one additional in-flight generation** was
+unrecorded; the completed cohort has 48 recorded responses plus that uncertainty. No
+API spend occurred. This is operational recovery, not a new unseen accuracy cohort.
+
+The actual grounded Studio provider body for 3B uses **704 prompt tokens**, reserves
+128 output and 256 guard tokens, and fits the 2,048-token runner context. Actual request
+bodies for 1/1.5/3B are **3,730/3,732/3,731 bytes**; 8/30/70B are
+**5,113/5,114/5,114 bytes**. Byte counts are not larger-model tokenizer counts. Focused
+caps are 1/1/2 episodes and one exchange; expanded caps are 3/4/6 episodes and 2/3/3
+exchanges. The audit asserts stable first-two-message prefixes across consecutive turns,
+actual configured model IDs, zero-call 0B routing, scoped episodes and accepted promise
+tasks. The service UI does not automatically expose Life tools; existing explicit
+companion/spotlight tools and gate policies retain their separate conformance checks.
+No 1B, 1.5B, 8B, 30B, 70B or frontier model was evaluated live.

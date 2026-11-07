@@ -19,11 +19,11 @@ def main():
     except ValueError:assert error,name
     assert npc.life('inspect')==before,name;npc.close();count+=1
  fixtures=[]
- for family in ['deep-memory','deep-transient','deep-causality']:
+ for family in ['deep-memory','deep-transient','deep-causality','deep-speech']:
   for f in sorted((ROOT/'conformance'/family).glob('*/input.json')):
-   i=str(len(fixtures));request=dict(version=1,id=i,op='local',args=json.loads(f.read_text()));expected=dict(version=1,id=i,ok=True,result=json.loads(f.with_name('expected.json').read_text()));fixtures.append(dict(request=request,expected=expected))
+   i=str(len(fixtures));request=dict(version=1,id=i,op='local',args=json.loads(f.read_text()));error=json.loads(f.with_name('case.json').read_text()).get('error',False);expected=None if error else dict(version=1,id=i,ok=True,result=json.loads(f.with_name('expected.json').read_text()));fixtures.append(dict(request=request,expected=expected,error=error))
  out=ROOT/'target/overnight-bindings';out.mkdir(exist_ok=True)
  def enc(v):return json.dumps(v,ensure_ascii=False,separators=(',',':'))
- (out/'cases.json').write_text(enc(fixtures)+'\n');(out/'requests.txt').write_text(''.join(enc(f['request'])+'\n' for f in fixtures));(out/'expected.txt').write_text(''.join(enc(f['expected'])+'\n' for f in fixtures))
+ (out/'cases.json').write_text(enc(fixtures)+'\n');(out/'requests.txt').write_text(''.join(enc(f['request'])+'\n' for f in fixtures));(out/'expected.txt').write_text(''.join(('ERROR' if f['error'] else enc(f['expected']))+'\n' for f in fixtures))
  print(enc(dict(python_stateful_checks=count,shared_fixtures=len(fixtures),actual_provider_calls=0,api_spend_usd=0)))
 if __name__=='__main__':main()

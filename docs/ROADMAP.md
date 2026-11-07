@@ -483,3 +483,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   characters, 4,000 events and 40 restores (legacy working-only recall: 0/80). Complete
   correction groups and required attention bounds are explicit. Archived erasure now
   includes causal descendants in tombstones. Host disk archival remains separate.
+- Source-bound factual speech is an explicit optional Answers contract and Web policy;
+  the bundled Studio uses it, while older config files retain free dialogue. Focused
+  Web context filters episode/promise subjects and unrelated item/choice noise. A fresh
+  paired local cohort and actual provider-body tier audit are retained separately.

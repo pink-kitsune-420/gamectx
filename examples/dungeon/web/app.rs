@@ -2,6 +2,7 @@
 use super::*;
 use gamectx::{
     cast::CastPack,
+    dialogue::Answers,
     dialogue::InteractionTools,
     living::LivingWorld,
     obj,
@@ -311,6 +312,44 @@ impl App {
         Ok(())
     }
     fn fallback_line(&self, input: &str) -> String {
+        let lowered = input.to_lowercase();
+        if ["promise", "owe", "next"].iter().any(|w| lowered.contains(w))
+            && self.interactions.iter().filter(|(actor, _)| actor == &self.npc).any(|(_, i)| {
+                i.accepted_promises().iter().any(|p| p.get("promisor") == Some(&Value::str(&self.player)))
+            })
+        {
+            return "Your promise to bring purchased chalk to this counter is still open.".into();
+        }
+        if lowered.contains("trust") {
+            let level = self
+                .world
+                .inspect_actor(&self.npc)
+                .ok()
+                .and_then(|v| {
+                    v.get("effective_attitudes")
+                        .and_then(Value::as_array)
+                        .and_then(|xs| {
+                            xs.iter().find(|a| {
+                                a.get("definition").is_some_and(|d| {
+                                    d.get("kind") == Some(&Value::str("trust"))
+                                        && d.get("subject") == Some(&Value::str(&self.player))
+                                })
+                            })
+                        })
+                        .and_then(|a| a.get("level"))
+                        .map(Value::to_json)
+                })
+                .and_then(|s| s.parse::<i64>().ok())
+                .unwrap_or(0);
+            return if level < 0 {
+                "I am still cautious with you."
+            } else if level >= 20 {
+                "You have earned a warmer hearing."
+            } else {
+                "I can hear you out, though trust takes time."
+            }
+            .into();
+        }
         if input.to_lowercase().contains("stock") || input.to_lowercase().contains("sell") {
             let stock = self
                 .game
@@ -334,6 +373,35 @@ impl App {
             "I tend the dry fountain; the host can confirm what is visible here.".into()
         }
     }
+    fn focused_visible(&self, input: &str) -> Value {
+        let query = input.to_lowercase();
+        let stock = ["stock", "sell", "offer"].iter().any(|w| query.contains(w));
+        let items = self
+            .game
+            .visible_items()
+            .into_iter()
+            .filter(|i| {
+                stock && i.get("owner") == Some(&Value::str("merchant"))
+                    || text(i, "label").is_ok_and(|label| query.contains(label))
+                    || text(i, "id")
+                        .is_ok_and(|id| query.contains(&id.rsplit(':').next().unwrap_or(id).replace('_', " ")))
+            })
+            .collect::<Vec<_>>();
+        obj! {"room"=>self.game.room.clone(),"items"=>items,"coins"=>if stock{Value::from(self.game.coins)}else{Value::Null}}
+    }
+    fn reply_answers(&self, line: &str) -> Result<Value> {
+        let mut cards = vec![
+            obj! {"id"=>"direct","subject"=>self.player.clone(),"topic"=>"reply","kind"=>"state","source"=>"current_host_reply","text"=>line},
+        ];
+        let brief = format!("To be clear: {line}");
+        if brief.chars().count() <= 240 {
+            cards.push(obj!{"id"=>"clear","subject"=>self.player.clone(),"topic"=>"reply","kind"=>"state","source"=>"current_host_reply","text"=>brief});
+        }
+        let answers =
+            obj! {"version"=>1,"scope"=>"studio_save","revision"=>self.epoch,"unknown"=>"I don't know.","cards"=>cards};
+        Answers::from_value(&answers)?.speech_schema()?;
+        Ok(answers)
+    }
     fn compile_text(&self, input: &str, trigger: u64) -> Result<Value> {
         let size = gamectx::deployment::ModelSize::parse(text(&self.config.value, "size")?)?;
         let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
@@ -342,10 +410,42 @@ impl App {
             &obj! {"name"=>"studio","size"=>format!("{}b",text(&self.config.value,"size")?.trim_end_matches('b')),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
-        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>self.game.current_description()},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
+        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
         let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
         let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
-        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else{self.game.public()},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
+        let life = self.world.effective_life(&self.npc)?;
+        let episodes=life.recall_selected(&obj!{"input"=>input,"tags"=>vec!["trade","conversation"],"subjects"=>vec![self.player.clone()],"required"=>Vec::<Value>::new(),"count"=>hints.recall,"archive"=>true})?;
+        let mut state = parse(text(&messages[2], "content")?)?;
+        set(&mut state, "episodes", episodes);
+        let promises = self
+            .interactions
+            .iter()
+            .filter(|(actor, _)| actor == &self.npc)
+            .flat_map(|(_, i)| i.accepted_promises())
+            .filter(|p| p.get("promisor") == Some(&Value::str(&self.player)))
+            .collect::<Vec<_>>();
+        let promises = promises
+            .into_iter()
+            .map(|mut p| {
+                if let Some((_, i)) = self.interactions.iter().find(|(a, _)| a == &self.npc) {
+                    if let Some(note) = i
+                        .to_value()
+                        .get("notes")
+                        .and_then(Value::as_array)
+                        .and_then(|notes| notes.iter().find(|n| n.get("id") == p.get("id")))
+                        .cloned()
+                    {
+                        if let Some(task) = note.get("value").and_then(|v| v.get("task")) {
+                            set(&mut p, "task", task.clone());
+                        }
+                    }
+                }
+                p
+            })
+            .collect::<Vec<_>>();
+        set(&mut state, "accepted_promises", promises.into());
+        messages[2] = obj! {"role"=>"user","content"=>state.to_json()};
+        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
         Ok(obj! {"messages"=>messages,"max_tokens"=>hints.output_tokens.min(256)})
     }
     fn effective_backend(&self, modality: &str) -> Result<String> {
@@ -553,6 +653,17 @@ impl App {
                     } else {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
                     };
+                    let grounded = job.binding.get("answers").filter(|v| **v != Value::Null);
+                    let resolved = if let Some(a) = grounded {
+                        Some(Answers::from_value(a)?.resolve_speech(
+                            line,
+                            &obj! {"scope"=>"studio_save","revision"=>self.epoch},
+                            |source| source.get("id") == Some(&Value::str("current_host_reply")),
+                        )?)
+                    } else {
+                        None
+                    };
+                    let line = resolved.as_ref().map_or(Ok(line), |v| text(v, "text"))?;
                     if line.chars().count() > 240
                         || gamectx::life::assess_sentence(line, 240)?.to_value().get("boundary_complete")
                             != Some(&Value::Bool(true))
@@ -833,11 +944,27 @@ impl App {
                     let subject = self.player.clone();
                     self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
                     self.fulfill_promises()?;
-                    let fallback = self.fallback_line(line);
+                    let mut fallback = self.fallback_line(line);
+                    if self.counters[usize::from(self.player == "player_2")] >= 3 && fallback.chars().count() + 9 <= 240
+                    {
+                        fallback = format!("Briefly: {fallback}");
+                    }
                     self.say(&fallback)?;
-                    let payload = self.compile_text(line, token)?;
+                    let mut payload = self.compile_text(line, token)?;
+                    let answers = if self.config.speech_mode() == "grounded" {
+                        Some(self.reply_answers(&fallback)?)
+                    } else {
+                        None
+                    };
+                    if let Some(a) = &answers {
+                        let schema = Answers::from_value(a)?.speech_schema()?;
+                        let mut messages = array(get(&payload, "messages")?)?.to_vec();
+                        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>format!("Select an authorized speech variant verbatim and return only speech JSON: {}",get(get(&schema,"properties")?,"speech")?.to_json())});
+                        set(&mut payload, "messages", messages.into());
+                        set(&mut payload, "speech_schema", schema);
+                    }
                     let speech = self.speech.as_ref().unwrap().id;
-                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision()})? {
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null)})? {
                         self.speech.as_mut().unwrap().pending = true;
                         jobs.push(job);
                     }
@@ -945,10 +1072,17 @@ impl App {
                 obj! {"resumed"=>true}
             }
             "settings" => {
-                fields(v, &["text", "image", "tts", "stt", "size", "cap_micros", "voices"])?;
+                let mut keys = vec!["text", "image", "tts", "stt", "size", "cap_micros", "voices"];
+                if v.get("speech_mode").is_some() {
+                    keys.push("speech_mode");
+                }
+                fields(v, &keys)?;
                 let mut value = self.config.value.clone();
                 for k in ["text", "image", "tts", "stt", "size", "voices"] {
                     set(&mut value, k, get(v, k)?.clone());
+                }
+                if let Some(mode) = v.get("speech_mode") {
+                    set(&mut value, "speech_mode", mode.clone());
                 }
                 let config = Config::parse(&value.to_json())?;
                 self.budget.limit(num(v, "cap_micros", 1_000_000_000_000)?)?;

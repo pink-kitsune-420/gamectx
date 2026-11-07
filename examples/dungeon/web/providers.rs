@@ -16,21 +16,25 @@ pub struct Config {
 impl Config {
     pub fn parse(s: &str) -> Result<Self> {
         let v = gamectx::json::parse(s, 65536)?;
-        fields(
-            &v,
-            &[
-                "text",
-                "image",
-                "tts",
-                "stt",
-                "size",
-                "local_fallback",
-                "cpu_threads",
-                "endpoints",
-                "voices",
-                "text_models",
-            ],
-        )?;
+        let mut config_keys = vec![
+            "text",
+            "image",
+            "tts",
+            "stt",
+            "size",
+            "local_fallback",
+            "cpu_threads",
+            "endpoints",
+            "voices",
+            "text_models",
+        ];
+        if v.get("speech_mode").is_some() {
+            config_keys.push("speech_mode");
+            if !["grounded", "dialogue"].contains(&text(&v, "speech_mode")?) {
+                return Err(err());
+            }
+        }
+        fields(&v, &config_keys)?;
         for m in ["text", "image", "tts", "stt"] {
             if !gamectx::studio::backends(m)?.contains(&text(&v, m)?) {
                 return Err(err());
@@ -104,8 +108,11 @@ impl Config {
         }
         Ok(Self { value: v })
     }
+    pub fn speech_mode(&self) -> &str {
+        self.value.get("speech_mode").and_then(Value::as_str).unwrap_or("dialogue")
+    }
     pub fn public(&self) -> Value {
-        obj! {"text"=>get(&self.value,"text").unwrap().clone(),"image"=>get(&self.value,"image").unwrap().clone(),"tts"=>get(&self.value,"tts").unwrap().clone(),"stt"=>get(&self.value,"stt").unwrap().clone(),"size"=>get(&self.value,"size").unwrap().clone(),"local_fallback"=>get(&self.value,"local_fallback").unwrap().clone(),"voices"=>get(&self.value,"voices").unwrap().clone(),"text_models"=>get(&self.value,"text_models").unwrap().clone()}
+        obj! {"speech_mode"=>self.speech_mode(),"text"=>get(&self.value,"text").unwrap().clone(),"image"=>get(&self.value,"image").unwrap().clone(),"tts"=>get(&self.value,"tts").unwrap().clone(),"stt"=>get(&self.value,"stt").unwrap().clone(),"size"=>get(&self.value,"size").unwrap().clone(),"local_fallback"=>get(&self.value,"local_fallback").unwrap().clone(),"voices"=>get(&self.value,"voices").unwrap().clone(),"text_models"=>get(&self.value,"text_models").unwrap().clone()}
     }
     pub fn endpoint(&self, b: &str) -> Result<&Value> {
         get(get(&self.value, "endpoints")?, b)
@@ -179,13 +186,23 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
         "text" => {
             let messages = get(payload, "messages")?.clone();
             let limit = num(payload, "max_tokens", 512)?;
-            if backend == "local_ollama" {
-                obj!{"model"=>model,"messages"=>messages,"stream"=>false,"keep_alive"=>0,"options"=>obj!{"num_predict"=>limit,"num_thread"=>num(&c.value,"cpu_threads",4)?,"num_ctx"=>if gamectx::deployment::ModelSize::parse(text(&c.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).exchanges<=1 {2048}else{8192},"temperature"=>0}}.to_json().into_bytes()
+            let mut request = if backend == "local_ollama" {
+                obj! {"model"=>model,"messages"=>messages,"stream"=>false,"keep_alive"=>0,"options"=>obj!{"num_predict"=>limit,"num_thread"=>num(&c.value,"cpu_threads",4)?,"num_ctx"=>if gamectx::deployment::ModelSize::parse(text(&c.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).exchanges<=1 {2048}else{8192},"temperature"=>0}}
             } else {
                 obj! {"model"=>model,"messages"=>messages,"stream"=>false,"max_completion_tokens"=>limit}
-                    .to_json()
-                    .into_bytes()
+            };
+            if let Some(schema) = payload.get("speech_schema") {
+                if backend == "local_ollama" {
+                    set(&mut request, "format", schema.clone());
+                } else {
+                    set(
+                        &mut request,
+                        "response_format",
+                        obj! {"type"=>"json_schema","json_schema"=>obj!{"name"=>"grounded_speech","strict"=>true,"schema"=>schema.clone()}},
+                    );
+                }
             }
+            request.to_json().into_bytes()
         }
         "image" => {
             let width = num(payload, "width", 4096)?;

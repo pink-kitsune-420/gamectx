@@ -533,3 +533,9 @@ First public release.
   Four-character 4,000-event trace: 80/80 required-anchor probes versus 0/80 legacy.
   Eleven additive cases preserve legacy outputs; archived erasure returns causal-child
   tombstones previously omitted after working-set eviction.
+- [api] [format] Add authorized `speech` enum projection/resolution for existing answer
+  cards and fifteen additive source-speech cases. The Studio adds an optional speech
+  policy selector, current-player episode/promise context and focused visible-state
+  filtering; older configurations and existing conformance outputs remain unchanged.
+- [format] The overnight transient-record and selected-episode workflows add conformance
+  families without rewriting prior expected outputs; their legacy formats are preserved.

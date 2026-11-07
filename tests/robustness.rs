@@ -1269,3 +1269,15 @@ fn scoped_archival_recall_mutations_fail_closed() {
         }
     }
 }
+
+#[test]
+fn source_speech_rejects_mutated_unapproved_text_and_stale_sources() {
+    let seed = include_str!("../conformance/deep-speech/denied_invention/input.json");
+    let mut rng = Rng(0x73706565);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

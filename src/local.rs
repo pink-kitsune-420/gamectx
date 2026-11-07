@@ -23,6 +23,32 @@ pub fn process(v: &Value) -> Result<Value> {
             )?
             .to_value())
         }
+        "source-speech" => {
+            c::fields(a, &["answers", "calls"])?;
+            let answers = crate::dialogue::Answers::from_value(c::get(a, "answers")?)?;
+            let schema = answers.speech_schema()?;
+            let calls = c::list(c::get(a, "calls")?)?;
+            if calls.len() > 32 {
+                return Err(c::bad());
+            }
+            let mut results = Vec::new();
+            for call in calls {
+                c::fields(call, &["text", "context", "available"])?;
+                let available = c::list(c::get(call, "available")?)?;
+                if available.len() > 32 {
+                    return Err(c::bad());
+                }
+                results.push(
+                    match answers.resolve_speech(c::text(c::get(call, "text")?)?, c::get(call, "context")?, |s| {
+                        available.iter().any(|x| x.same(s))
+                    }) {
+                        Ok(v) => obj! {"ok"=>true,"result"=>v},
+                        Err(_) => obj! {"ok"=>false},
+                    },
+                );
+            }
+            Ok(obj! {"schema"=>schema,"results"=>results})
+        }
         "character-context" => crate::life::context_fixture(a),
         "archetype" => crate::archetype::Blueprint::from_value(a).map(|b| b.to_value()),
         "studio-routing" => crate::studio::routing_workflow(a),

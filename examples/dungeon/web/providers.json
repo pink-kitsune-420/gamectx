@@ -4,6 +4,7 @@
   "tts": "off",
   "stt": "off",
   "size": "3",
+  "speech_mode": "grounded",
   "local_fallback": false,
   "cpu_threads": 2,
   "endpoints": {

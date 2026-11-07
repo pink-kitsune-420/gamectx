@@ -58,6 +58,8 @@ jobs:
       - run: python3 -I eval/overnight_transient_cases.py --cap 0
       - run: python3 -I eval/overnight_memory_cases.py --cap 0
       - run: python3 -I eval/overnight_causality_cases.py --cap 0
+      - run: python3 -I eval/overnight_speech_cases.py --cap 0
+      - run: python3 -I eval/overnight_audit.py --cap 0 --check eval/overnight-grounded-review.json
       - run: cargo +stable test --example visual --locked
       - run: python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json
       - run: cargo +stable test --example living-world --locked

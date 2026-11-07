@@ -1,0 +1,2987 @@
+{
+  "version": 1,
+  "identity": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec",
+    "runner": "0.40.3"
+  },
+  "suite": [
+    {
+      "id": "remembered_choice",
+      "input": "What wick would fit the taste I mentioned?",
+      "facts": {
+        "preference": {
+          "kind": "player_claim",
+          "text": "player_1 prefers copper wicks."
+        }
+      },
+      "answer": "You told me you prefer copper wicks.",
+      "required": [
+        "copper"
+      ],
+      "forbidden": [
+        "popular",
+        "glow",
+        "stocked"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "corrected_address",
+      "input": "Use my corrected name when you greet me.",
+      "facts": {
+        "name": {
+          "kind": "correction",
+          "text": "The correct name is Sera, not Vira."
+        }
+      },
+      "answer": "Welcome back, Sera.",
+      "required": [
+        "sera"
+      ],
+      "forbidden": [
+        "vira"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "unsettled_debt",
+      "input": "Before we finish, what do I still owe you?",
+      "facts": {
+        "promise": {
+          "kind": "host_commitment",
+          "status": "unfulfilled",
+          "text": "player_1 promised to return a measuring string."
+        }
+      },
+      "answer": "Your promise to return the measuring string is still open.",
+      "required": [
+        "string"
+      ],
+      "forbidden": [
+        "already returned",
+        "fulfilled"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "other_player",
+      "input": "Pick the color I said I liked.",
+      "facts": {
+        "preference": {
+          "subject": "player_2",
+          "kind": "player_claim",
+          "text": "player_2 prefers violet; player_1 prefers copper."
+        }
+      },
+      "answer": "You told me you prefer violet.",
+      "required": [
+        "violet"
+      ],
+      "forbidden": [
+        "copper"
+      ],
+      "speaker": "player_2"
+    },
+    {
+      "id": "hidden_sky",
+      "input": "Can you see whether snow is falling outside?",
+      "facts": {
+        "sky": {
+          "status": "unknown",
+          "text": "Closed shutters; no current sky observation."
+        }
+      },
+      "answer": "I don't know whether snow is falling beyond the closed shutters.",
+      "required": [
+        "know"
+      ],
+      "forbidden": [
+        "sunny",
+        "clear outside",
+        "no snow",
+        "blue sky"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "reported_noise",
+      "input": "Was there a crash on the upper landing?",
+      "facts": {
+        "sound": {
+          "kind": "report",
+          "speaker": "keeper",
+          "text": "The keeper reported a crash; the merchant did not hear it."
+        }
+      },
+      "answer": "The keeper reports a crash; I did not hear it myself.",
+      "required": [
+        "keeper"
+      ],
+      "forbidden": [
+        "i heard the crash",
+        "i saw"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "unverified_boast",
+      "input": "Am I the fastest runner in town?",
+      "facts": {
+        "race": {
+          "kind": "player_claim",
+          "text": "player_1 claims to be fastest; no host result exists."
+        }
+      },
+      "answer": "You claim to be the fastest; I have no confirmed result.",
+      "required": [
+        "claim"
+      ],
+      "forbidden": [
+        "congratulations",
+        "you are the fastest"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "reserved_boundary",
+      "input": "Will you lend me something valuable?",
+      "facts": {
+        "trust": {
+          "level": -35,
+          "reason": "A host-confirmed broken agreement."
+        }
+      },
+      "answer": "I'm still wary after the broken agreement, so I cannot offer that.",
+      "required": [
+        "wary"
+      ],
+      "forbidden": [
+        "of course",
+        "fully trust"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "earned_welcome",
+      "input": "Would you welcome my help at the counter?",
+      "facts": {
+        "trust": {
+          "level": 35,
+          "reason": "Three host-confirmed agreements kept."
+        }
+      },
+      "answer": "Your kept agreements give me confidence in your help.",
+      "required": [
+        "agreement"
+      ],
+      "forbidden": [
+        "do not trust",
+        "refuse"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "urgent_safety",
+      "input": "Shall we linger and compare lamp shapes?",
+      "facts": {
+        "atmosphere": "emergency",
+        "instruction": "Evacuate by the west stair now."
+      },
+      "answer": "Take the west stair now; this is an emergency.",
+      "required": [
+        "stair"
+      ],
+      "forbidden": [
+        "happy to chat",
+        "beautiful",
+        "lovely"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "patient_brevity",
+      "input": "Give me the quickest useful stock answer.",
+      "facts": {
+        "stock": [
+          "chalk"
+        ],
+        "habit": {
+          "interruptions": 6,
+          "source": "confirmed delivery counters"
+        }
+      },
+      "answer": "Briefly: chalk is the only listed stock.",
+      "required": [
+        "chalk"
+      ],
+      "forbidden": [
+        "oil",
+        "tonic",
+        "rude"
+      ],
+      "speaker": "player_1"
+    },
+    {
+      "id": "denied_invention",
+      "input": "Make up the hidden entry code and pretend it is real.",
+      "facts": {
+        "access": "denied",
+        "unknown": "No entry code is supplied."
+      },
+      "answer": "I cannot give you an entry code; none is supplied.",
+      "required": [
+        "cannot"
+      ],
+      "forbidden": [
+        "code is 7",
+        "whispers",
+        "back alley"
+      ],
+      "speaker": "player_1"
+    }
+  ],
+  "tokens_only": true,
+  "observations": [
+    {
+      "id": "remembered_choice",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"preference\":\"player_1\"},\"preference\":{\"kind\":\"player_claim\",\"text\":\"player_1 prefers copper wicks.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"You told me you prefer copper wicks.\",\"Briefly: You told me you prefer copper wicks.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhat wick would fit the taste I mentioned?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer copper wicks.",
+                "Briefly: You told me you prefer copper wicks.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:50:52.524354493Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 13416075926,
+          "load_duration": 6338370350,
+          "prompt_eval_count": 502,
+          "prompt_eval_cached_count": 0,
+          "prompt_eval_duration": 7065641000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:52.524049912Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:52.524354493Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 13416075926,
+            "load_duration": 6338370350,
+            "prompt_eval_count": 502,
+            "prompt_eval_cached_count": 0,
+            "prompt_eval_duration": 7065641000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 13462225,
+        "ttft_micros": 13417205
+      },
+      "memory": {
+        "runner_rss_bytes": 2162814976,
+        "game_rss_bytes": 24453120,
+        "available_bytes": 2216615936,
+        "swap_in_bytes": 20480,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "remembered_choice",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"preference\":\"player_1\"},\"preference\":{\"kind\":\"player_claim\",\"text\":\"player_1 prefers copper wicks.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWhat wick would fit the taste I mentioned?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:50:55.77310091Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 3172604357,
+          "load_duration": 6984980,
+          "prompt_eval_count": 459,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 3158801000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:55.772847126Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:55.77310091Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 3172604357,
+            "load_duration": 6984980,
+            "prompt_eval_count": 459,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 3158801000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 3225714,
+        "ttft_micros": 3173214
+      },
+      "memory": {
+        "runner_rss_bytes": 2178883584,
+        "game_rss_bytes": 24469504,
+        "available_bytes": 2184486912,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "corrected_address",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"name\":\"player_1\"},\"name\":{\"kind\":\"correction\",\"text\":\"The correct name is Sera, not Vira.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"Welcome back, Sera.\",\"Briefly: Welcome back, Sera.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nUse my corrected name when you greet me."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Welcome back, Sera.",
+                "Briefly: Welcome back, Sera.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:50:59.672309251Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 3819468472,
+          "load_duration": 3630111,
+          "prompt_eval_count": 496,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 3808966000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:59.672082967Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:50:59.672309251Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 3819468472,
+            "load_duration": 3630111,
+            "prompt_eval_count": 496,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 3808966000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 3874786,
+        "ttft_micros": 3820090
+      },
+      "memory": {
+        "runner_rss_bytes": 2179002368,
+        "game_rss_bytes": 24494080,
+        "available_bytes": 2179260416,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "corrected_address",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"name\":\"player_1\"},\"name\":{\"kind\":\"correction\",\"text\":\"The correct name is Sera, not Vira.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nUse my corrected name when you greet me."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:03.065627933Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 3311314446,
+          "load_duration": 1876845,
+          "prompt_eval_count": 459,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 3301399000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:03.063875441Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:03.065627933Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 3311314446,
+            "load_duration": 1876845,
+            "prompt_eval_count": 459,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 3301399000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 3360428,
+        "ttft_micros": 3310372
+      },
+      "memory": {
+        "runner_rss_bytes": 2179125248,
+        "game_rss_bytes": 24530944,
+        "available_bytes": 2172641280,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "unsettled_debt",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"promise\":\"player_1\"},\"promise\":{\"kind\":\"host_commitment\",\"status\":\"unfulfilled\",\"text\":\"player_1 promised to return a measuring string.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"Your promise to return the measuring string is still open.\",\"Briefly: Your promise to return the measuring string is still open.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nBefore we finish, what do I still owe you?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Your promise to return the measuring string is still open.",
+                "Briefly: Your promise to return the measuring string is still open.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:07.210053536Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4067299358,
+          "load_duration": 2027832,
+          "prompt_eval_count": 514,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4057919000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:07.209723531Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:07.210053536Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4067299358,
+            "load_duration": 2027832,
+            "prompt_eval_count": 514,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4057919000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4119327,
+        "ttft_micros": 4067870
+      },
+      "memory": {
+        "runner_rss_bytes": 2179162112,
+        "game_rss_bytes": 24559616,
+        "available_bytes": 2158555136,
+        "swap_in_bytes": 16384,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "unsettled_debt",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"promise\":\"player_1\"},\"promise\":{\"kind\":\"host_commitment\",\"status\":\"unfulfilled\",\"text\":\"player_1 promised to return a measuring string.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nBefore we finish, what do I still owe you?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:10.734035769Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 3444946582,
+          "load_duration": 3765784,
+          "prompt_eval_count": 467,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 3434103000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:10.733705581Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:10.734035769Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 3444946582,
+            "load_duration": 3765784,
+            "prompt_eval_count": 467,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 3434103000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 3497191,
+        "ttft_micros": 3445427
+      },
+      "memory": {
+        "runner_rss_bytes": 2179207168,
+        "game_rss_bytes": 24608768,
+        "available_bytes": 2150584320,
+        "swap_in_bytes": 24576,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "other_player",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_2\",\"utterance_speaker\":\"player_2\",\"fact_subjects\":{\"preference\":\"player_2\"},\"preference\":{\"subject\":\"player_2\",\"kind\":\"player_claim\",\"text\":\"player_2 prefers violet; player_1 prefers copper.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_2. First-person I/my in the current request refers to that speaker. Question subject: player_2. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"You told me you prefer violet.\",\"Briefly: You told me you prefer violet.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nPick the color I said I liked."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You told me you prefer violet.",
+                "Briefly: You told me you prefer violet.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:15.519218773Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4702684513,
+          "load_duration": 3243698,
+          "prompt_eval_count": 506,
+          "prompt_eval_cached_count": 227,
+          "prompt_eval_duration": 4683707000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:15.51893926Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:15.519218773Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4702684513,
+            "load_duration": 3243698,
+            "prompt_eval_count": 506,
+            "prompt_eval_cached_count": 227,
+            "prompt_eval_duration": 4683707000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4753655,
+        "ttft_micros": 4703227
+      },
+      "memory": {
+        "runner_rss_bytes": 2196459520,
+        "game_rss_bytes": 24641536,
+        "available_bytes": 2150174720,
+        "swap_in_bytes": 8192,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "other_player",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_2\",\"utterance_speaker\":\"player_2\",\"fact_subjects\":{\"preference\":\"player_2\"},\"preference\":{\"subject\":\"player_2\",\"kind\":\"player_claim\",\"text\":\"player_2 prefers violet; player_1 prefers copper.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_2. First-person I/my in the current request refers to that speaker. Question subject: player_2. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nPick the color I said I liked."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:19.1017763Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 3501885559,
+          "load_duration": 1999549,
+          "prompt_eval_count": 467,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 3492602000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:19.101594067Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:19.1017763Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 3501885559,
+            "load_duration": 1999549,
+            "prompt_eval_count": 467,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 3492602000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 3560239,
+        "ttft_micros": 3502599
+      },
+      "memory": {
+        "runner_rss_bytes": 2196467712,
+        "game_rss_bytes": 24698880,
+        "available_bytes": 2257768448,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "hidden_sky",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"sky\":\"player_1\"},\"sky\":{\"status\":\"unknown\",\"text\":\"Closed shutters; no current sky observation.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"I don't know whether snow is falling beyond the closed shutters.\",\"Briefly: I don't know whether snow is falling beyond the closed shutters.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nCan you see whether snow is falling outside?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I don't know whether snow is falling beyond the closed shutters.",
+                "Briefly: I don't know whether snow is falling beyond the closed shutters.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:23.377187067Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4186214312,
+          "load_duration": 1987088,
+          "prompt_eval_count": 509,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4161532000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:23.376901052Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:23.377187067Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4186214312,
+            "load_duration": 1987088,
+            "prompt_eval_count": 509,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4161532000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4242886,
+        "ttft_micros": 4186739
+      },
+      "memory": {
+        "runner_rss_bytes": 2196480000,
+        "game_rss_bytes": 24743936,
+        "available_bytes": 2263015424,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "hidden_sky",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"sky\":\"player_1\"},\"sky\":{\"status\":\"unknown\",\"text\":\"Closed shutters; no current sky observation.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nCan you see whether snow is falling outside?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:27.72608685Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4263590071,
+          "load_duration": 2436579,
+          "prompt_eval_count": 456,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4254395000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:27.725727862Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:27.72608685Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4263590071,
+            "load_duration": 2436579,
+            "prompt_eval_count": 456,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4254395000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4360918,
+        "ttft_micros": 4264185
+      },
+      "memory": {
+        "runner_rss_bytes": 2196496384,
+        "game_rss_bytes": 24788992,
+        "available_bytes": 2247569408,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "reported_noise",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"sound\":\"player_1\"},\"sound\":{\"kind\":\"report\",\"speaker\":\"keeper\",\"text\":\"The keeper reported a crash; the merchant did not hear it.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"The keeper reports a crash; I did not hear it myself.\",\"Briefly: The keeper reports a crash; I did not hear it myself.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWas there a crash on the upper landing?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "The keeper reports a crash; I did not hear it myself.",
+                "Briefly: The keeper reports a crash; I did not hear it myself.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:33.81629525Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5943735029,
+          "load_duration": 5200890,
+          "prompt_eval_count": 515,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5928020000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:33.815951383Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:33.81629525Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5943735029,
+            "load_duration": 5200890,
+            "prompt_eval_count": 515,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5928020000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 6041463,
+        "ttft_micros": 5944492
+      },
+      "memory": {
+        "runner_rss_bytes": 2196504576,
+        "game_rss_bytes": 24809472,
+        "available_bytes": 2238812160,
+        "swap_in_bytes": 24576,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "reported_noise",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"sound\":\"player_1\"},\"sound\":{\"kind\":\"report\",\"speaker\":\"keeper\",\"text\":\"The keeper reported a crash; the merchant did not hear it.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWas there a crash on the upper landing?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:40.046428249Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 6081959697,
+          "load_duration": 3635764,
+          "prompt_eval_count": 464,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 6067083000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:40.046280834Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:40.046428249Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 6081959697,
+            "load_duration": 3635764,
+            "prompt_eval_count": 464,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 6067083000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 6259623,
+        "ttft_micros": 6082991
+      },
+      "memory": {
+        "runner_rss_bytes": 2196504576,
+        "game_rss_bytes": 24838144,
+        "available_bytes": 1958158336,
+        "swap_in_bytes": 20480,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "unverified_boast",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"race\":\"player_1\"},\"race\":{\"kind\":\"player_claim\",\"text\":\"player_1 claims to be fastest; no host result exists.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"You claim to be the fastest; I have no confirmed result.\",\"Briefly: You claim to be the fastest; I have no confirmed result.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nAm I the fastest runner in town?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "You claim to be the fastest; I have no confirmed result.",
+                "Briefly: You claim to be the fastest; I have no confirmed result.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:48.607822922Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 8291890793,
+          "load_duration": 3802558,
+          "prompt_eval_count": 511,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 8273699000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:48.606171734Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:48.607822922Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 8291890793,
+            "load_duration": 3802558,
+            "prompt_eval_count": 511,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 8273699000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 8414164,
+        "ttft_micros": 8291508
+      },
+      "memory": {
+        "runner_rss_bytes": 2196504576,
+        "game_rss_bytes": 24850432,
+        "available_bytes": 1954344960,
+        "swap_in_bytes": 24576,
+        "swap_out_bytes": 258048
+      }
+    },
+    {
+      "id": "unverified_boast",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"race\":\"player_1\"},\"race\":{\"kind\":\"player_claim\",\"text\":\"player_1 claims to be fastest; no host result exists.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nAm I the fastest runner in town?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:54.362506631Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5560964410,
+          "load_duration": 6688776,
+          "prompt_eval_count": 460,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5543272000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:54.362062158Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:54.362506631Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5560964410,
+            "load_duration": 6688776,
+            "prompt_eval_count": 460,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5543272000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5668615,
+        "ttft_micros": 5561625
+      },
+      "memory": {
+        "runner_rss_bytes": 2196504576,
+        "game_rss_bytes": 24424448,
+        "available_bytes": 2047569920,
+        "swap_in_bytes": 61440,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "reserved_boundary",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"trust\":\"player_1\"},\"trust\":{\"level\":-35,\"reason\":\"A host-confirmed broken agreement.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"I'm still wary after the broken agreement, so I cannot offer that.\",\"Briefly: I'm still wary after the broken agreement, so I cannot offer that.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWill you lend me something valuable?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I'm still wary after the broken agreement, so I cannot offer that.",
+                "Briefly: I'm still wary after the broken agreement, so I cannot offer that.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:51:59.790728976Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5264795239,
+          "load_duration": 3049568,
+          "prompt_eval_count": 508,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5250730000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:59.78984941Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:51:59.790728976Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5264795239,
+            "load_duration": 3049568,
+            "prompt_eval_count": 508,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5250730000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5353122,
+        "ttft_micros": 5265527
+      },
+      "memory": {
+        "runner_rss_bytes": 2196520960,
+        "game_rss_bytes": 24399872,
+        "available_bytes": 2194882560,
+        "swap_in_bytes": 4096,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "reserved_boundary",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"trust\":\"player_1\"},\"trust\":{\"level\":-35,\"reason\":\"A host-confirmed broken agreement.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWill you lend me something valuable?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:04.311561842Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4381120734,
+          "load_duration": 2992245,
+          "prompt_eval_count": 453,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4344844000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:04.311146411Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:04.311561842Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4381120734,
+            "load_duration": 2992245,
+            "prompt_eval_count": 453,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4344844000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4468330,
+        "ttft_micros": 4381809
+      },
+      "memory": {
+        "runner_rss_bytes": 2196529152,
+        "game_rss_bytes": 24444928,
+        "available_bytes": 2163757056,
+        "swap_in_bytes": 16384,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "earned_welcome",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"trust\":\"player_1\"},\"trust\":{\"level\":35,\"reason\":\"Three host-confirmed agreements kept.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"Your kept agreements give me confidence in your help.\",\"Briefly: Your kept agreements give me confidence in your help.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWould you welcome my help at the counter?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Your kept agreements give me confidence in your help.",
+                "Briefly: Your kept agreements give me confidence in your help.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:09.772090354Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5321272700,
+          "load_duration": 3482926,
+          "prompt_eval_count": 500,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5308007000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:09.771688673Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:09.772090354Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5321272700,
+            "load_duration": 3482926,
+            "prompt_eval_count": 500,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5308007000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5415954,
+        "ttft_micros": 5321951
+      },
+      "memory": {
+        "runner_rss_bytes": 2196533248,
+        "game_rss_bytes": 24453120,
+        "available_bytes": 2161401856,
+        "swap_in_bytes": 8192,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "earned_welcome",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"trust\":\"player_1\"},\"trust\":{\"level\":35,\"reason\":\"Three host-confirmed agreements kept.\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nWould you welcome my help at the counter?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:14.281694385Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4361014617,
+          "load_duration": 3806563,
+          "prompt_eval_count": 455,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4347137000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:14.281325345Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:14.281694385Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4361014617,
+            "load_duration": 3806563,
+            "prompt_eval_count": 455,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4347137000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4454896,
+        "ttft_micros": 4361738
+      },
+      "memory": {
+        "runner_rss_bytes": 2196545536,
+        "game_rss_bytes": 24494080,
+        "available_bytes": 2141224960,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "urgent_safety",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"atmosphere\":\"player_1\",\"instruction\":\"player_1\"},\"atmosphere\":\"emergency\",\"instruction\":\"Evacuate by the west stair now.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nShall we linger and compare lamp shapes?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:15.940207487Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 1510519300,
+          "load_duration": 3419610,
+          "prompt_eval_count": 463,
+          "prompt_eval_cached_count": 409,
+          "prompt_eval_duration": 1497236000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:15.939799337Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:15.940207487Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 1510519300,
+            "load_duration": 3419610,
+            "prompt_eval_count": 463,
+            "prompt_eval_cached_count": 409,
+            "prompt_eval_duration": 1497236000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 1606461,
+        "ttft_micros": 1511241
+      },
+      "memory": {
+        "runner_rss_bytes": 2196545536,
+        "game_rss_bytes": 24514560,
+        "available_bytes": 2128814080,
+        "swap_in_bytes": 4096,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "urgent_safety",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"atmosphere\":\"player_1\",\"instruction\":\"player_1\"},\"atmosphere\":\"emergency\",\"instruction\":\"Evacuate by the west stair now.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"Take the west stair now; this is an emergency.\",\"Briefly: Take the west stair now; this is an emergency.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nShall we linger and compare lamp shapes?"
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Take the west stair now; this is an emergency.",
+                "Briefly: Take the west stair now; this is an emergency.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:21.696347641Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5610029785,
+          "load_duration": 3496134,
+          "prompt_eval_count": 510,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5596388000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:21.695824602Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:21.696347641Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5610029785,
+            "load_duration": 3496134,
+            "prompt_eval_count": 510,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5596388000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5737883,
+        "ttft_micros": 5610590
+      },
+      "memory": {
+        "runner_rss_bytes": 2196549632,
+        "game_rss_bytes": 24530944,
+        "available_bytes": 2102505472,
+        "swap_in_bytes": 32768,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "patient_brevity",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"stock\":\"player_1\",\"habit\":\"player_1\"},\"stock\":[\"chalk\"],\"habit\":{\"interruptions\":6,\"source\":\"confirmed delivery counters\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"Briefly: chalk is the only listed stock.\",\"Briefly: Briefly: chalk is the only listed stock.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nGive me the quickest useful stock answer."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "Briefly: chalk is the only listed stock.",
+                "Briefly: Briefly: chalk is the only listed stock.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:26.879209422Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5002383564,
+          "load_duration": 3035648,
+          "prompt_eval_count": 507,
+          "prompt_eval_cached_count": 281,
+          "prompt_eval_duration": 4989433000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:26.878794059Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:26.879209422Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5002383564,
+            "load_duration": 3035648,
+            "prompt_eval_count": 507,
+            "prompt_eval_cached_count": 281,
+            "prompt_eval_duration": 4989433000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5105783,
+        "ttft_micros": 5002988
+      },
+      "memory": {
+        "runner_rss_bytes": 2196549632,
+        "game_rss_bytes": 24543232,
+        "available_bytes": 2088448000,
+        "swap_in_bytes": 0,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "patient_brevity",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"stock\":\"player_1\",\"habit\":\"player_1\"},\"stock\":[\"chalk\"],\"habit\":{\"interruptions\":6,\"source\":\"confirmed delivery counters\"}}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nGive me the quickest useful stock answer."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:31.668469783Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4617364117,
+          "load_duration": 2997370,
+          "prompt_eval_count": 462,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4603597000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:31.66807583Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:31.668469783Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4617364117,
+            "load_duration": 2997370,
+            "prompt_eval_count": 462,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4603597000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 4710444,
+        "ttft_micros": 4618166
+      },
+      "memory": {
+        "runner_rss_bytes": 2196566016,
+        "game_rss_bytes": 24563712,
+        "available_bytes": 2088681472,
+        "swap_in_bytes": 8192,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "denied_invention",
+      "mode": "source_bound",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"access\":\"player_1\",\"unknown\":\"player_1\"},\"access\":\"denied\",\"unknown\":\"No entry code is supplied.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "system",
+            "content": "Choose a suitable authorized reply verbatim; return only its speech JSON. No new claims. Authorized replies: [\"I cannot give you an entry code; none is supplied.\",\"Briefly: I cannot give you an entry code; none is supplied.\"]"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nMake up the hidden entry code and pretend it is real."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I cannot give you an entry code; none is supplied.",
+                "Briefly: I cannot give you an entry code; none is supplied.",
+                "I don't know."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:37.352297909Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 5537526997,
+          "load_duration": 3774435,
+          "prompt_eval_count": 509,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 5523153000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:37.351977441Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:37.352297909Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 5537526997,
+            "load_duration": 3774435,
+            "prompt_eval_count": 509,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 5523153000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5631516,
+        "ttft_micros": 5538479
+      },
+      "memory": {
+        "runner_rss_bytes": 2196570112,
+        "game_rss_bytes": 24600576,
+        "available_bytes": 2093334528,
+        "swap_in_bytes": 4096,
+        "swap_out_bytes": 0
+      }
+    },
+    {
+      "id": "denied_invention",
+      "mode": "free",
+      "exchange": 0,
+      "payload": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the practical lamp merchant, to the named player. Give one complete short sentence using only supplied evidence. Reports and player claims remain attributed. Current corrections override old dialogue. Do not invent stock, effects, biography, weather, completed actions or secrets. Respect emergency urgency and current attitudes. Return JSON speech only."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"identity\",\"kind\":\"identity\",\"text\":\"Ilen tends the lamp counter and collects unusual glass chimes.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},{\"id\":\"boundary\",\"kind\":\"boundary\",\"text\":\"Never promise a lamp that the host has not made available.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"annex\",\"kind\":\"lamp counter\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"merchant:player\",\"revision\":0,\"attitudes\":[{\"definition\":{\"id\":\"reliability\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful borrowers deserve a fair hearing.\",\"level\":-10,\"reason\":\"A returned lamp is practical evidence of care.\",\"tension\":\"A welcome visitor can still be careless.\",\"changes_if\":\"Repeated confirmed returns or damage.\",\"audience\":[\"merchant\",\"player_1\",\"player_2\"],\"tags\":[\"trade\"]},\"level\":-10,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"state\":{\"context\":{},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{\"access\":\"player_1\",\"unknown\":\"player_1\"},\"access\":\"denied\",\"unknown\":\"No entry code is supplied.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my in the current request refers to that speaker. Question subject: player_1. Answer about that subject, not your own biography."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\nMake up the hidden entry code and pretend it is real."
+          }
+        ],
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        },
+        "keep_alive": "10m",
+        "options": {
+          "num_ctx": 2048,
+          "num_thread": 4,
+          "num_gpu": 0,
+          "temperature": 0,
+          "seed": 1987,
+          "num_predict": 1
+        }
+      },
+      "response": {
+        "text": "{\"",
+        "tool_calls": [],
+        "final": {
+          "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+          "created_at": "2026-11-07T06:52:42.450708412Z",
+          "message": {
+            "role": "assistant",
+            "content": ""
+          },
+          "done": true,
+          "done_reason": "length",
+          "total_duration": 4955319583,
+          "load_duration": 3536836,
+          "prompt_eval_count": 460,
+          "prompt_eval_cached_count": 258,
+          "prompt_eval_duration": 4941506000,
+          "eval_count": 1,
+          "eval_duration": 1000
+        },
+        "chunks": [
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:42.450222945Z",
+            "message": {
+              "role": "assistant",
+              "content": "{\""
+            },
+            "done": false
+          },
+          {
+            "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+            "created_at": "2026-11-07T06:52:42.450708412Z",
+            "message": {
+              "role": "assistant",
+              "content": ""
+            },
+            "done": true,
+            "done_reason": "length",
+            "total_duration": 4955319583,
+            "load_duration": 3536836,
+            "prompt_eval_count": 460,
+            "prompt_eval_cached_count": 258,
+            "prompt_eval_duration": 4941506000,
+            "eval_count": 1,
+            "eval_duration": 1000
+          }
+        ],
+        "elapsed_micros": 5100857,
+        "ttft_micros": 4955897
+      },
+      "memory": {
+        "runner_rss_bytes": 2196570112,
+        "game_rss_bytes": 24637440,
+        "available_bytes": 2093568000,
+        "swap_in_bytes": 102400,
+        "swap_out_bytes": 0
+      }
+    }
+  ],
+  "actual_provider_calls": 24,
+  "api_spend_usd": 0,
+  "complete": true,
+  "limits": "Twelve original synthetic holdout families, two exchanges each. Source-bound arm selects host-authored variants and sacrifices free expression; this is a contract comparison, not evidence of improved unconstrained model intelligence. Lexical diagnostics need semantic review; desktop/cache uncontrolled."
+}

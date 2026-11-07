@@ -229,3 +229,20 @@ The 32 policy fixtures also run through Python CLI/native, Node and the existing
 bridge: `python3 -I eval/studio_cases.py --cap 0 --check-bindings` emits the shared files
 under `target/studio-csharp`; `node eval/studio_bindings_check.mjs --cap 0` checks Node.
 The C# Check driver accepts that directory's requests.txt/expected.txt files as usual.
+
+## Focused factual speech policy
+
+The bundled configuration now sets `speech_mode: "grounded"`. The Speech policy selector
+also offers `dialogue`; configurations omitting this optional field retain legacy free
+speech. Grounded mode sends a bounded enum of host-authored sentence variants and rejects
+any unlisted reply even if the provider ignores its schema. Ollama receives `format`;
+compatible online adapters receive strict `response_format`. Unsupported providers retain
+the immediate fallback. No paid provider has been tested by this offline evaluation.
+
+This is a deliberate expression tradeoff, not a claim that 3B free prose became reliable.
+Current stock/unknown/trust and the accepted chalk promise have deterministic replies;
+confirmed interruption counters shorten fallback phrasing. Model selection cannot add
+new facts. Player episodes and accepted promise tasks are scoped before prompt assembly;
+old heard dialogue retains explicit speaker attribution. Focused packets include only
+query-relevant visible items/coins; expanded profiles may include the fuller current view.
+The stable system/character/scene prefix remains ordered ahead of changing state.

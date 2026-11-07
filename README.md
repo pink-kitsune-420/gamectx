@@ -986,3 +986,6 @@ consumes rumor roots; the retained 600-turn offline trace completes with zero re
 Archive-aware `Life::recall_selected` adds explicit subject filters and required causal
 anchors while preserving legacy recall. Its bounded, host-selected policy is explained
 in [the guide](docs/GUIDE.md).
+The Studio's bundled configuration uses authorized factual speech variants; its Speech
+policy selector also offers free dialogue. Provider output is validated against current
+host cards, and focused requests scope recalled episodes/promises to the active player.

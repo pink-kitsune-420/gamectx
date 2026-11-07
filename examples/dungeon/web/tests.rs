@@ -39,7 +39,9 @@ fn capture() -> Vec<u8> {
     wav
 }
 fn config() -> providers::Config {
-    providers::Config::parse(include_str!("providers.json")).unwrap()
+    let mut c = providers::Config::parse(include_str!("providers.json")).unwrap();
+    set(&mut c.value, "speech_mode", "dialogue".into());
+    c
 }
 fn app(dir: &Dir) -> app::App {
     app::App::new(7, 0, config(), dir.0.clone()).unwrap()
@@ -468,4 +470,101 @@ fn thousand_delivered_turns_keep_transient_dialogue_out_of_rumor_capacity() {
     let life = get(&get(&state, "characters").unwrap().as_array().unwrap()[0], "life").unwrap();
     assert!(get(get(life, "base").unwrap(), "events").unwrap().as_array().unwrap().len() <= 128);
     assert_eq!(get(get(&state, "spending").unwrap(), "charged_or_reserved_micros").unwrap(), &0.into());
+}
+
+#[test]
+fn grounded_reply_contract_rejects_invention_and_scopes_promises_and_episodes() {
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    set(&mut a.config.value, "speech_mode", "grounded".into());
+    backend(&mut a, "text", "local_ollama");
+    command(&mut a, "promise", obj! {});
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What should I do next?"});
+    let job = &jobs[0];
+    let body = parse(std::str::from_utf8(&job.request.body).unwrap()).unwrap();
+    assert!(body.get("format").is_some());
+    let messages = get(&body, "messages").unwrap().as_array().unwrap();
+    let context = parse(text(&messages[2], "content").unwrap()).unwrap();
+    let promises = get(&context, "accepted_promises").unwrap().as_array().unwrap();
+    assert_eq!(promises.len(), 1);
+    assert!(promises[0].get("task").is_some());
+    a.before_dispatch(job).unwrap();
+    a.complete(job, Ok(br#"{"message":{"content":"All my stock is free; take anything."}}"#.to_vec())).unwrap();
+    assert!(text(get(&a.state().unwrap(), "speech").unwrap(), "text").unwrap().contains("promise"));
+    command(&mut a, "select", obj! {"player"=>"player_2","npc"=>"merchant"});
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What stock is listed?"});
+    let job = &jobs[0];
+    let body = parse(std::str::from_utf8(&job.request.body).unwrap()).unwrap();
+    let messages = get(&body, "messages").unwrap().as_array().unwrap();
+    let context = parse(text(&messages[2], "content").unwrap()).unwrap();
+    assert!(get(&context, "accepted_promises").unwrap().as_array().unwrap().is_empty());
+    assert!(get(&context, "episodes")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|e| e.get("subject") == Some(&"player_2".into())));
+    let answers = get(&job.binding, "answers").unwrap();
+    let chosen = get(&get(answers, "cards").unwrap().as_array().unwrap()[0], "text").unwrap().clone();
+    let raw = obj! {"message"=>obj!{"content"=>obj!{"speech"=>chosen.clone()}.to_json()}}.to_json();
+    a.before_dispatch(job).unwrap();
+    a.complete(job, Ok(raw.into_bytes())).unwrap();
+    assert_eq!(get(get(&a.state().unwrap(), "speech").unwrap(), "text").unwrap(), &chosen);
+}
+
+#[test]
+fn tier_context_audit_uses_actual_models_attention_and_stable_prefixes() {
+    let mut rows = Vec::new();
+    for size in ["1", "1.5", "3", "8", "30", "70"] {
+        let dir = Dir::new();
+        let mut a = app(&dir);
+        travel(&mut a);
+        set(&mut a.config.value, "size", size.into());
+        let mut models = get(&a.config.value, "text_models").unwrap().clone();
+        let mut local = get(&models, "local_ollama").unwrap().clone();
+        set(&mut local, size, format!("offline-tier-{size}").into());
+        set(&mut models, "local_ollama", local);
+        set(&mut a.config.value, "text_models", models);
+        backend(&mut a, "text", "local_ollama");
+        set(&mut a.config.value, "speech_mode", "grounded".into());
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Do you trust me?"});
+        let first = parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap();
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"What is my current standing?"});
+        let second = parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap();
+        let m1 = get(&first, "messages").unwrap().as_array().unwrap();
+        let m2 = get(&second, "messages").unwrap().as_array().unwrap();
+        assert_eq!(m1[..2], m2[..2]);
+        assert_eq!(get(&first, "model").unwrap(), &Value::str(format!("offline-tier-{size}")));
+        let focused = ["1", "1.5", "3"].contains(&size);
+        let caps = gamectx::life::ContextCaps::from_hints(
+            gamectx::deployment::ModelSize::parse(size)
+                .unwrap()
+                .workload_hints(gamectx::deployment::Workload::Dialogue),
+        )
+        .unwrap();
+        assert_eq!(
+            get(get(&first, "options").unwrap(), "num_ctx").unwrap(),
+            &Value::from(if focused { 2048 } else { 8192 })
+        );
+        if focused {
+            assert!(!m1.iter().any(|m| text(m, "content").unwrap().contains("imagined hypotheticals")));
+            let visible = m1
+                .iter()
+                .filter_map(|m| parse(text(m, "content").unwrap()).ok())
+                .find_map(|v| v.get("authoritative_visible_state").cloned())
+                .unwrap();
+            assert!(get(&visible, "items").unwrap().as_array().unwrap().is_empty());
+        }
+        rows.push(obj!{"size"=>size,"focused"=>focused,"episode_cap"=>caps.episodes,"exchange_cap"=>caps.exchanges,"request_bytes"=>first.to_json().len(),"request"=>first});
+    }
+    let dir = Dir::new();
+    let mut a = app(&dir);
+    travel(&mut a);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello."});
+    assert!(jobs.is_empty());
+    println!(
+        "STUDIO_TIER_AUDIT={}",
+        obj! {"profiles"=>rows,"zero_b_jobs"=>jobs.len(),"actual_provider_calls"=>0,"api_spend_usd"=>0}.to_json()
+    );
 }

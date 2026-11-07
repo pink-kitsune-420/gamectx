@@ -1968,3 +1968,14 @@ time and token, and complete groups that cannot fit are skipped. No-match return
 The `episodes` adapter adds `recall_selected` and `trim_transient` operations. Legacy
 recall/context/checkpoint formats are unchanged. Archival erasure now includes causal
 children in returned tombstones; no existing expected output changes.
+
+### Authorized speech variants
+
+`Answers::speech_schema` projects approved answer cards and the unknown line to a
+`speech` string enum. Every rendered line must be complete, at most 240 Unicode scalars,
+and unique, including quote attribution. `resolve_speech` accepts only exact authorized
+strings, then reuses existing scope/revision/source checks. It introduces no generated
+facts or actions. The additive `source-speech` local adapter accepts `{answers,calls}`,
+where each call is `{text,context,available}`; returns `{schema,results}` with the usual
+per-call `ok` wrappers. Fifteen independent cases cover authorized selection, invented
+text, stale revision, unavailable source and invalid/duplicate sentence variants.

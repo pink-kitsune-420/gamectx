@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "identity": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "digest": "cce688317ea57f96a468e018ed6fe340163484d88ee732410f2ce9f1431f13ec"
+  },
+  "payload": {
+    "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+    "messages": [
+      {
+        "role": "system",
+        "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+      },
+      {
+        "role": "system",
+        "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+      },
+      {
+        "role": "user",
+        "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":1,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":1,\"at\":3,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_2\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Do you trust me?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Do you trust me?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+      },
+      {
+        "role": "user",
+        "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"coins\":null},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+      },
+      {
+        "role": "user",
+        "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+      },
+      {
+        "role": "system",
+        "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+      },
+      {
+        "role": "system",
+        "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I can hear you out, though trust takes time.\",\"To be clear: I can hear you out, though trust takes time.\",\"I don't know.\"]}"
+      },
+      {
+        "role": "user",
+        "content": "Current request:\n[player_1 -> merchant] Do you trust me?"
+      }
+    ],
+    "stream": false,
+    "keep_alive": "10m",
+    "options": {
+      "num_predict": 1,
+      "num_thread": 4,
+      "num_ctx": 2048,
+      "temperature": 0,
+      "num_gpu": 0
+    },
+    "format": {
+      "type": "object",
+      "properties": {
+        "speech": {
+          "type": "string",
+          "enum": [
+            "I can hear you out, though trust takes time.",
+            "To be clear: I can hear you out, though trust takes time.",
+            "I don't know."
+          ]
+        }
+      },
+      "required": [
+        "speech"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "status": "complete",
+  "actual_provider_calls": 1,
+  "api_spend_usd": 0,
+  "limits": "One token-only call of the actual focused Studio body. Not a GUI end-to-end model-quality or larger-tier capability measurement.",
+  "response": {
+    "text": "{\"",
+    "tool_calls": [],
+    "final": {
+      "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+      "created_at": "2026-11-07T07:02:51.808357659Z",
+      "message": {
+        "role": "assistant",
+        "content": ""
+      },
+      "done": true,
+      "done_reason": "length",
+      "total_duration": 16889325881,
+      "load_duration": 3492544,
+      "prompt_eval_count": 704,
+      "prompt_eval_cached_count": 4,
+      "prompt_eval_duration": 16868396000,
+      "eval_count": 1,
+      "eval_duration": 1000
+    },
+    "chunks": [
+      {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T07:02:51.807608557Z",
+        "message": {
+          "role": "assistant",
+          "content": "{\""
+        },
+        "done": false
+      },
+      {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T07:02:51.808357659Z",
+        "message": {
+          "role": "assistant",
+          "content": ""
+        },
+        "done": true,
+        "done_reason": "length",
+        "total_duration": 16889325881,
+        "load_duration": 3492544,
+        "prompt_eval_count": 704,
+        "prompt_eval_cached_count": 4,
+        "prompt_eval_duration": 16868396000,
+        "eval_count": 1,
+        "eval_duration": 1000
+      }
+    ],
+    "elapsed_micros": 16890386,
+    "ttft_micros": 16890159
+  },
+  "input_tokens": 704,
+  "reserved_output_tokens": 128,
+  "context": 2048,
+  "guard_tokens": 256,
+  "fits": true
+}

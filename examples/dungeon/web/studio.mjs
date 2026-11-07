@@ -63,6 +63,7 @@ function image(id,reference) {
 function settings(s) {
   for(const m of ['text','image','tts','stt'])$(m+'-backend').value=s.providers[m];
   $('size').value=s.providers.size;
+  $('speech-mode').value=s.providers.speech_mode;
   $('cap').value=s.spending.cap_micros/1e6;
   $('cap').max=s.spending.authorized_cap_micros/1e6;
   voiceSettings();
@@ -245,7 +246,7 @@ $('settings').onclick=async()=>{
     voice_id:$('voice-id').value,pitch:Number($('pitch').value),rate:Number($('rate').value)}
   ;
   await invoke('settings',{
-    text:$('text-backend').value,image:$('image-backend').value,tts:$('tts-backend').value,stt:$('stt-backend').value,size:$('size').value,cap_micros:Math.round(Number($('cap').value)*1e6),voices}
+    speech_mode:$('speech-mode').value,text:$('text-backend').value,image:$('image-backend').value,tts:$('tts-backend').value,stt:$('stt-backend').value,size:$('size').value,cap_micros:Math.round(Number($('cap').value)*1e6),voices}
   );
 }
 ;
