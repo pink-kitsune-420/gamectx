@@ -88,7 +88,7 @@ fn response_header(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8],
 fn worker(app: Arc<Mutex<App>>, rx: std::sync::mpsc::Receiver<Job>, mut transport: impl Transport) {
     let mut followups = std::collections::VecDeque::new();
     loop {
-        let job = if let Some(j) = followups.pop_front() {
+        let mut job = if let Some(j) = followups.pop_front() {
             j
         } else {
             match rx.recv_timeout(Duration::from_secs(1)) {
@@ -104,21 +104,36 @@ fn worker(app: Arc<Mutex<App>>, rx: std::sync::mpsc::Receiver<Job>, mut transpor
                 Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
             }
         };
-        let ready = app.lock().ok().and_then(|mut a| a.before_dispatch(&job).ok()).unwrap_or(false);
+        let ready = app
+            .lock()
+            .ok()
+            .and_then(|mut a| {
+                let ready = a.before_dispatch(&job).ok()?;
+                if ready && job.modality == "text" {
+                    job.request.text_token = Some(providers::text_token());
+                }
+                Some(ready)
+            })
+            .unwrap_or(false);
         if !ready {
             continue;
         }
         // The only provider execution lane: local text, diffusion and audio never overlap.
+        let began = Instant::now();
         let result = transport.send(&job.request);
+        let provider_ms = began.elapsed().as_millis().min(u64::MAX as u128) as u64;
         let manager_status = transport.manager_status();
         if let Ok(mut a) = app.lock() {
+            a.profile_stage(job.id, "provider_ms", provider_ms);
             if let Some(report) = manager_status {
                 let _ = a.manager_observe(report);
             }
+            let complete = Instant::now();
             match a.complete(&job, result) {
                 Ok(next) => followups.extend(next),
                 Err(_) => eprintln!("Studio completion rejected; spending remains reserved."),
             }
+            a.profile_stage(job.id, "completion_ms", complete.elapsed().as_millis().min(u64::MAX as u128) as u64);
         }
     }
 }
@@ -209,6 +224,7 @@ fn handle(
             "/context.mjs" => Some(("text/javascript", include_bytes!("context.mjs").as_slice())),
             "/models.mjs" => Some(("text/javascript", include_bytes!("models.mjs").as_slice())),
             "/setup.mjs" => Some(("text/javascript", include_bytes!("setup.mjs").as_slice())),
+            "/profiler.mjs" => Some(("text/javascript", include_bytes!("profiler.mjs").as_slice())),
             "/voice.mjs" => Some(("text/javascript", include_bytes!("voice.mjs").as_slice())),
             _ => None,
         };
@@ -222,6 +238,12 @@ fn handle(
             }
             let v = current.state()?;
             return response(stream, 200, "application/json", v.to_json().as_bytes());
+        }
+        if let Some(key) = request.path.strip_prefix("/api/voice/") {
+            return match app.lock().map_err(|_| err())?.voice_recording(key) {
+                Ok(bytes) => response(stream, 200, "audio/wav", &bytes),
+                Err(_) => response(stream, 404, "text/plain", b"Recording is no longer in this session's backlog."),
+            };
         }
         if let Some(query) = request.path.strip_prefix("/api/asset/") {
             let (key, params) = query.split_once('?').unwrap_or((query, ""));
@@ -316,6 +338,11 @@ fn handle(
         current.lock_host_player();
     }
     let generation = current.epoch;
+    if ["chat", "guest_chat", "guest_read", "act", "select", "mic", "recognition", "reset", "load"].contains(&op)
+        || op == "delivery" && args.get("event").and_then(Value::as_str) == Some("queued")
+    {
+        providers::cancel_text();
+    }
     if (op == "delivery" && args.get("event").and_then(Value::as_str) == Some("interrupted"))
         || op == "recognition"
         || op == "reset"

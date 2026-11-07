@@ -1347,3 +1347,15 @@ fn speech_buffer_plans_are_bounded_under_mutation() {
         }
     }
 }
+
+#[test]
+fn voice_archive_retention_mutations_never_access_files() {
+    let seed = include_str!("../conformance/voice-archive/fifo/input.json");
+    let mut rng = Rng(0x61726368);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

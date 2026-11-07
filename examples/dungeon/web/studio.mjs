@@ -1,3 +1,4 @@
+import {attachProfiler} from './profiler.mjs';
 import {attachModels} from './models.mjs';
 import {
   VoicePlayer,prefix}
@@ -5,11 +6,13 @@ from './voice.mjs';
 import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
 import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
+let reviewUrl=null,lastArchive='';
 let recognitionSerial=Promise.resolve(),micStarting=false;
 let state,configured=false,lastTranscript='',lastSpeech=0,mic=null,session=0,appliedDraft='',clientNotice='';
 const send=makePost(globalThis.fetch.bind(globalThis),()=>state);
 const post=async(op,args={},generation=state?.generation)=>{
   if(scopedOperations.has(op)&&op!=='select'&&state&&($('player').value!==state.player||$('npc').value!==state.npc))throw Error('Participant selection is still applying; try again.');
+  if(['chat','act','select','mic','reset','load','settings'].includes(op))stopReview();
   return send(op,args,generation);
 };
 function voiceView(v) {
@@ -27,6 +30,7 @@ function voiceView(v) {
     $('voice-status').textContent=`Playing buffered speech · ${v.audio_time.toFixed(1)} / ${v.audio_duration.toFixed(1)}s`;
   }
 }
+const drawProfiler=attachProfiler({$,post,refresh:()=>refresh()});
 const player=new VoicePlayer({
   post,emit:voiceView}
 );
@@ -44,6 +48,19 @@ async function invoke(op,args={},generation=state?.generation) {
     throw e;
   }
 }
+function stopReview(){const a=$('review-audio');a.pause();a.removeAttribute('src');a.load();a.hidden=true;if(reviewUrl){URL.revokeObjectURL(reviewUrl);reviewUrl=null;}}
+async function replayAudio(reference,voice){await player.interrupt();stopReview();const a=$('review-audio');
+ if(reference.key)a.src='/api/voice/'+reference.key;else{const bytes=Uint8Array.from(atob(reference.audio),x=>x.charCodeAt(0));reviewUrl=URL.createObjectURL(new Blob([bytes],{type:'audio/wav'}));a.src=reviewUrl;}
+ a.preservesPitch=false;a.playbackRate=Number(voice?.pitch||1);a.hidden=false;await a.play();
+}
+function drawHistory(s){const h=s.voice_history;if(!h)return;
+ if(!$('archive-enabled').dataset.initialized){$('archive-enabled').checked=h.config.enabled;$('archive-limit').value=h.config.limit;$('archive-enabled').dataset.initialized='1';}
+ const key=JSON.stringify(h);if(key!==lastArchive){lastArchive=key;$('voice-history-count').textContent=h.records.length?String(h.records.length):'';$('voice-history-warning').textContent=h.warning||(!h.config.enabled?'Archiving is off. Enable it in Settings → Voice.':'');
+ $('voice-history-list').replaceChildren(...[...h.records].reverse().map(row=>{const d=document.createElement('div'),b=document.createElement('button'),t=document.createElement('span');d.className='recording-row';b.textContent='Replay';b.onclick=()=>replayAudio(row,row.voice).catch(e=>$('notice').textContent=e.message);t.textContent=`${row.speaker} → ${row.player}: ${row.text}`;d.append(b,t);return d;}));}
+ $('replay-current').hidden=!s.speech?.audio?.audio;
+}
+$('replay-current').onclick=()=>{if(state?.speech?.audio?.audio)replayAudio(state.speech.audio,state.speech.voice).catch(e=>$('notice').textContent=e.message);};
+$('archive-apply').onclick=async()=>{try{await invoke('audio_settings',{enabled:$('archive-enabled').checked,limit:Number($('archive-limit').value)});$('archive-state').textContent=state.voice_history.config.enabled?'Archive enabled.':'Archive off; saved recordings cleared.';if(!state.voice_history.config.enabled)stopReview();}catch(e){$('archive-state').textContent=e.message;}};
 function image(id,reference) {
   const img=$(id);
   if(reference){
@@ -97,6 +114,7 @@ async function loadState(){
     if(!response.ok)throw Error('Host state unavailable.');
     const s=await response.json();
     state=s;
+    drawHistory(s);drawProfiler(s);
     $('resume-local').hidden=!s.local_paused;
     $('room-title').textContent=s.game.room.replace('room:','').replace(/^./,x=>x.toUpperCase());
     $('room-label').textContent=s.game.room.replace('room:','');
@@ -293,10 +311,10 @@ function renderSetup(s){
   const activity=s.setup?.activity||[];
   const current=activity.find(r=>r.status==='running')||activity.find(r=>r.status==='queued')||activity[0];
   $('work-status').hidden=!current;
-  $('work-status').textContent=current?`${channelNames[current.channel]||current.channel}: ${current.status} · ${current.model||current.backend} · ${(current.elapsed_ms/1000).toFixed(1)}s`:'No model requests yet. You can explore, trade and get offline replies.';
+  $('work-status').textContent=current?`${channelNames[current.channel]||current.channel}: ${current.status} · ${current.model||current.backend} · ${(current.run_ms/1000).toFixed(1)}s running · ${(current.queue_ms/1000).toFixed(1)}s queued`:'No model requests yet. You can explore, trade and get offline replies.';
   if(!activity.length)$('activity').textContent='No model requests yet. Movement, purchases and offline replies use game rules.';
   else $('activity').replaceChildren(...activity.slice(0,10).map(row=>{
-    const div=document.createElement('div');div.className='activity-row';const heading=document.createElement('strong');heading.textContent=`${channelNames[row.channel]||row.channel} · ${row.status} · ${(row.elapsed_ms/1000).toFixed(1)}s`;const small=document.createElement('small');small.textContent=[row.backend,row.model].filter(Boolean).join(' · ');div.append(heading,document.createTextNode(row.detail),small);return div;
+    const div=document.createElement('div');div.className='activity-row';const heading=document.createElement('strong');heading.textContent=`${channelNames[row.channel]||row.channel} · ${row.status} · ${(row.run_ms/1000).toFixed(1)}s running · ${(row.queue_ms/1000).toFixed(1)}s queued`;const small=document.createElement('small');small.textContent=[row.backend,row.model].filter(Boolean).join(' · ');div.append(heading,document.createTextNode(row.detail),small);return div;
   }));
 }
 $('settings').onclick=async()=>{

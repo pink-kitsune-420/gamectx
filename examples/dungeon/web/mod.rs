@@ -1,5 +1,6 @@
 //! Opt-in loopback studio. Game rules remain in the original deterministic host.
 mod app;
+mod followup;
 mod http;
 mod manager_runtime;
 mod manager_view;
@@ -13,6 +14,7 @@ mod setup;
 mod speech_wav;
 #[cfg(test)]
 mod tests;
+mod voice_history;
 use super::game;
 use game::{fields, get, text};
 use gamectx::{Error, Result, Value};

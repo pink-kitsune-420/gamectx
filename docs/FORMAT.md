@@ -2060,3 +2060,6 @@ most 80 scalars each. No executable paths or inference occurs in this local adap
 Native Piper results can add `unit:"buffered",sample_rate,boundaries:[{frame,through}]`
 to existing Studio audio packets. Checkpoints describe completed PCM parts, not guessed
 word alignment. Existing generic HTTP voice formats and conformance outputs are unchanged.
+
+Voice recording history, cancellable local replies and the floating context/execution
+profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).

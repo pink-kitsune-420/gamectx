@@ -1014,3 +1014,5 @@ Native Piper/whisper.cpp support uses separately installed engines and weights. 
 Two-player LAN chat keeps AI and world processing on the host; see [LAN play](docs/LAN_PLAY.md).
 
 Piper prepares full lines before playback; see [buffered speech and microphone checks](docs/BUFFERED_SPEECH.md).
+
+Saved voice recordings and floating context/execution profilers: [guide](docs/STUDIO_DIAGNOSTICS.md).

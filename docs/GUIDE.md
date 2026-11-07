@@ -804,3 +804,6 @@ Native voice integration and the Settings menu are documented in [Native voice](
 Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
 
 Buffered Piper playback and microphone recovery are documented in [buffered speech](BUFFERED_SPEECH.md).
+
+Voice recording history, cancellable local replies and the floating context/execution
+profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).

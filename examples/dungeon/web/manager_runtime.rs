@@ -27,6 +27,7 @@ fn req(base: &str, path: &str, body: Option<Value>) -> Request {
         body: body.map_or_else(Vec::new, |v| v.to_json().into_bytes()),
         key_env: None,
         management: None,
+        text_token: None,
     }
 }
 fn json(r: Request) -> Result<Value> {
@@ -155,6 +156,7 @@ impl Runtime {
                 body: Vec::new(),
                 key_env: None,
                 management: None,
+                text_token: None,
             })
             .is_ok()
         })
@@ -605,7 +607,15 @@ impl Runtime {
                         );
                         request.body = v.to_json().into_bytes();
                     }
-                    let result = providers::local_http(&request);
+                    let result = if channel(id) == "text" {
+                        providers::local_http_text(&request)
+                    } else {
+                        providers::local_http(&request)
+                    };
+                    if result.as_ref().err().is_some_and(|e| e.to_string() == "provider_cancelled") {
+                        self.release()?;
+                        return result;
+                    }
                     if result.is_ok()
                         && text(&policy.to_value(), "residency")? == "on_demand"
                         && ["text", "image", "stt"].contains(&channel(id))

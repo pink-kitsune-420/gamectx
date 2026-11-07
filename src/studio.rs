@@ -1,6 +1,9 @@
 //! Opt-in host policies for the local example studio. No network, audio device or
 //! world executor: external transports acknowledge only confirmed character offsets.
+mod archive;
 mod commands;
+pub(crate) use archive::fixture as archive_fixture;
+pub use archive::VoiceArchive;
 mod manager;
 mod native_audio;
 mod speech_buffer;

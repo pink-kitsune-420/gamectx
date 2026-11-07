@@ -1414,3 +1414,10 @@ Bindings use `eval/speech_buffer_bindings.py` / `.mjs`. Manual installed timing:
 an interim/final ordering race. It requires an isolated native-STT host on 8788 and
 Firefox BiDi 9223. These manual installed/browser checks are not CI prerequisites.
 Retained speech-buffer/mic JSON records the measurement limits; old artifacts stay frozen.
+
+Voice history: `python3 -I eval/voice_archive_cases.py --cap 0` (12 pure cases),
+`python3 -I eval/voice_history_host.py --cap 0` (original delayed Ollama/CLI mocks),
+and the corresponding `voice_archive_bindings.py` / `.mjs` fixtures.
+Manual browser: `python3 -I eval/voice_history_browser.py --cap 0` requires Firefox
+BiDi 9223 and creates its own isolated mock host. Media playback is stubbed; no model,
+physical audio or paid API is invoked. Retained voice-history JSON records its limits.

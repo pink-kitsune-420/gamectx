@@ -62,6 +62,7 @@ pub struct App {
     local_paused: bool,
     monitor: super::setup::Monitor,
     pub manager: super::manager_view::State,
+    voice_history: super::voice_history::History,
     manager_significance: u64,
     manager_delta: u64,
     manager_event_tick: u64,
@@ -137,6 +138,7 @@ impl App {
             (Vec::new(), Vec::new())
         };
         let manager = super::manager_view::State::new(&dir)?;
+        let voice_history = super::voice_history::History::new(&dir)?;
         let out = Self {
             config,
             budget,
@@ -167,6 +169,7 @@ impl App {
             local_paused: false,
             monitor: super::setup::Monitor::default(),
             manager,
+            voice_history,
             manager_significance: 0,
             manager_delta: 0,
             manager_event_tick: 0,
@@ -584,6 +587,7 @@ impl App {
                 body: Vec::new(),
                 key_env: None,
                 management: Some(control),
+                text_token: None,
             },
             binding: obj! {"action"=>action,"profile"=>profile,"predictive"=>predictive},
         })
@@ -724,6 +728,9 @@ impl App {
                 .into()
         };
         self.monitor.queued(id, modality, &backend, &model, false);
+        if modality == "text" {
+            self.monitor.context(id, &payload, &request, &call_config);
+        }
         if let Err(e) = if reservation.is_some() { self.persist_budget() } else { Ok(()) } {
             if let Some(r) = reservation {
                 self.budget.cancel(r)?;
@@ -769,6 +776,8 @@ impl App {
                 || self.speech.as_ref().is_some_and(|s| {
                     Some(s.id) == job.binding.get("speech").and_then(Value::as_usize).map(|x| x as u64)
                         && get(&s.voice.snapshot(), "done").ok() != Some(&Value::Bool(true))
+                        && (job.modality != "text"
+                            || s.voice.snapshot().get("stage").and_then(Value::as_str) == Some("validated"))
                 }))
     }
     pub fn before_dispatch(&mut self, job: &Job) -> Result<bool> {
@@ -820,6 +829,10 @@ impl App {
     }
     pub fn complete(&mut self, job: &Job, response: Result<Vec<u8>>) -> Result<Vec<Job>> {
         let mut followups = Vec::new();
+        if response.as_ref().err().is_some_and(|e| e.to_string() == "provider_cancelled") {
+            self.cancel_job(job)?;
+            return Ok(followups);
+        }
         let failure = response.as_ref().err().map(|e| super::setup::failure_detail(e, &job.backend));
         let problem_status = response.as_ref().err().map(|e| {
             if e.to_string() == "provider_http_404" && job.backend == "local_ollama" {
@@ -889,6 +902,7 @@ impl App {
             match job.modality.as_str() {
                 "text" => {
                     let r = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
+                    self.monitor.usage(job.id, &r);
                     let line = if job.backend == "local_ollama" {
                         text(get(&r, "message")?, "content")?
                     } else {
@@ -979,6 +993,18 @@ impl App {
                     set(&mut audio, "mime", "audio/wav".into());
                     set(&mut audio, "start", get(&job.binding, "start")?.clone());
                     set(&mut audio, "through", get(&job.binding, "through")?.clone());
+                    if let Some(key) = job.binding.get("archive_key").and_then(Value::as_str) {
+                        let s = self.speech.as_ref().ok_or_else(err)?;
+                        let voice = self.config.voice(&s.actor)?.clone();
+                        if self.voice_history.remember(key, &s.actor, &s.player, s.voice.text(), &voice, &audio).is_ok()
+                        {
+                            if self.voice_history.enabled() {
+                                set(&mut audio, "archive_key", key.into());
+                            }
+                        } else {
+                            self.voice_history.problem();
+                        }
+                    }
                     self.speech.as_mut().ok_or_else(err)?.audio = Some(audio);
                 }
                 "stt" => {
@@ -1243,6 +1269,12 @@ impl App {
         self.focus = focus;
         result
     }
+    pub fn profile_stage(&mut self, id: u64, key: &str, ms: u64) {
+        self.monitor.stage(id, key, ms);
+    }
+    pub fn voice_recording(&self, key: &str) -> Result<Vec<u8>> {
+        self.voice_history.bytes(key)
+    }
     pub fn state(&mut self) -> Result<Value> {
         self.manager_update(Vec::new())?;
         let active_config = self.manager.effective(&self.config)?;
@@ -1255,7 +1287,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -1265,6 +1297,24 @@ impl App {
         self.manager_update(Vec::new())?;
         let mut jobs = Vec::new();
         let result = match op {
+            "profiler_settings" => {
+                fields(v, &["capture_prompts"])?;
+                let value = get(v, "capture_prompts")?.as_bool().ok_or_else(err)?;
+                self.monitor.capture(value);
+                obj! {"configured"=>true}
+            }
+            "cancel_text" => {
+                fields(v, &[])?;
+                providers::cancel_text();
+                obj! {"cancelled"=>true}
+            }
+            "audio_settings" => {
+                fields(v, &["enabled", "limit"])?;
+                self.voice_history.configure(
+                    &obj! {"version"=>1,"enabled"=>get(v,"enabled")?.clone(),"limit"=>get(v,"limit")?.clone()},
+                )?;
+                obj! {"configured"=>true}
+            }
             "manager_settings" => {
                 fields(v, &["config"])?;
                 if !self.pending.is_empty() {
@@ -1372,6 +1422,7 @@ impl App {
                 self.world_ops.clear();
                 self.receipts.clear();
                 self.transcript.clear();
+                self.voice_history.clear()?;
                 self.shared_log.clear();
                 self.speech = None;
                 self.previews.clear();
@@ -1517,12 +1568,45 @@ impl App {
                     let subject = self.player.clone();
                     self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
                     self.fulfill_promises()?;
-                    let mut fallback = self.fallback_line(line);
+                    let authored = if self.config.speech_mode() == "grounded" {
+                        super::followup::replies(&self.npc, &self.game.room, line)
+                    } else {
+                        None
+                    };
+                    let chosen = authored.as_ref().and_then(|options| {
+                        let recent = self
+                            .receipts
+                            .iter()
+                            .rev()
+                            .filter(|r| {
+                                r.get("speaker").and_then(Value::as_str) == Some(self.npc.as_str())
+                                    && r.get("recipients")
+                                        .and_then(Value::as_array)
+                                        .unwrap_or(&[])
+                                        .iter()
+                                        .any(|p| p.as_str() == Some(self.player.as_str()))
+                            })
+                            .take(2)
+                            .filter_map(|r| r.get("text").and_then(Value::as_str))
+                            .collect::<Vec<_>>();
+                        options
+                            .iter()
+                            .find(|candidate| {
+                                !recent.iter().any(|heard| heard.trim_start_matches("Briefly: ") == **candidate)
+                            })
+                            .or_else(|| options.first())
+                            .copied()
+                    });
+                    let mut fallback = chosen.map_or_else(|| self.fallback_line(line), str::to_owned);
                     if self.counters[usize::from(self.player == "player_2")] >= 3 && fallback.chars().count() + 9 <= 240
                     {
                         fallback = format!("Briefly: {fallback}");
                     }
                     self.say(&fallback)?;
+                    if chosen.is_some() {
+                        self.notice = "Reply ready from the character's current role and visible scene.".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
+                    }
                     let mut payload = self.compile_text(line, token)?;
                     let answers = if self.config.speech_mode() == "grounded" {
                         Some(self.reply_answers(&fallback)?)
@@ -1644,9 +1728,24 @@ impl App {
                 };
                 let through = start + chunk.chars().count() as u64;
                 let voice = self.config.voice(&s.actor)?.clone();
+                let archive_key = if buffered && start == 0 && self.voice_history.enabled() {
+                    let config = self.manager.provider(&self.config, "tts")?;
+                    Some(self.voice_history.key(&s.actor, &s.player, s.voice.text(), &voice, &config.value)?)
+                } else {
+                    None
+                };
+                if let Some(key) = &archive_key {
+                    if let Some(audio) = self.voice_history.cached(key) {
+                        self.speech.as_mut().unwrap().audio = Some(audio);
+                        return Ok((obj! {"queued"=>false,"cached"=>true}, jobs));
+                    }
+                }
                 let mut binding = obj! {"speech"=>id,"start"=>start,"through"=>through};
                 if buffered {
                     set(&mut binding, "buffered", true.into());
+                }
+                if let Some(key) = archive_key {
+                    set(&mut binding, "archive_key", key.into());
                 }
                 if let Some(job) = self.plan("tts", &obj! {"text"=>chunk,"voice"=>voice}, binding)? {
                     self.speech.as_mut().unwrap().audio = None;

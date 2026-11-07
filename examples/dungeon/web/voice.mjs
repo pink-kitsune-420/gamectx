@@ -123,6 +123,7 @@ export class VoicePlayer {
         id:this.current.id}
       );
       if(generation!==this.generation)return;
+      if(r.result.cached)return;
       if(!r.result.queued){
         this.emit({
           status:'HTTP voice unavailable / cap reached · using browser voice'}

@@ -584,3 +584,11 @@ First public release.
 - [fix] Keep native subprocess launch working across Linux hot rebuilds; pass absolute
   capture/model paths to installed wrappers. Order microphone interims before transcription,
   show input/recording status and handle empty/failed STT with safe retry.
+
+- [api] [format] Add an optional voice recording FIFO/cache (12 additive pure policy cases),
+  configurable backlog/off, read-only replay and New game clearing. Repeated native speech
+  can reuse exact validated audio without a provider call or duplicate heard memory.
+- [fix] Cancel skipped local Ollama replies, acknowledge controlled unload before voice,
+  and display queue/run timing separately. Add scoped role/room follow-up replies.
+- [api] Move inspection into a movable/resizable/minimizable Debug window with context
+  byte breakdown, optional prompt capture, provider token counters and execution timelines.

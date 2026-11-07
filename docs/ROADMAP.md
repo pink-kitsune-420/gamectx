@@ -553,3 +553,6 @@ Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN
   seven player callback workflows, nine native-host recovery workflows and a real
   Firefox synthetic-speech capture/resample/Whisper check. Physical mic accuracy remains
   unmeasured. Earlier evaluation/conformance outputs remain frozen.
+
+Voice recording history, cancellable local replies and the floating context/execution
+profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).

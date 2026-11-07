@@ -174,6 +174,7 @@ pub enum Method {
 pub struct Request {
     pub method: Method,
     pub management: Option<Value>,
+    pub text_token: Option<u64>,
     pub url: String,
     pub content_type: String,
     pub body: Vec<u8>,
@@ -262,6 +263,7 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
     Ok(Request {
         method: Method::Post,
         management: None,
+        text_token: None,
         url: text(e, "url")?.into(),
         content_type,
         body,
@@ -293,13 +295,34 @@ impl Transport for Network {
             return self.manager.execute(r, &self.dir);
         }
         if r.url.starts_with("http://127.0.0.1:") {
-            local_http(r)
+            if r.url.ends_with("/api/chat") {
+                local_http_text(r)
+            } else {
+                local_http(r)
+            }
         } else {
             https(r, &self.dir)
         }
     }
 }
+static TEXT_CANCEL: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+pub fn cancel_text() {
+    TEXT_CANCEL.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+}
+pub fn text_token() -> u64 {
+    TEXT_CANCEL.load(std::sync::atomic::Ordering::SeqCst)
+}
+pub(super) fn local_http_text(r: &Request) -> Result<Vec<u8>> {
+    local_http_inner(r, Some(r.text_token.unwrap_or_else(text_token)))
+}
 pub(super) fn local_http(r: &Request) -> Result<Vec<u8>> {
+    local_http_inner(r, None)
+}
+fn local_http_inner(r: &Request, cancel: Option<u64>) -> Result<Vec<u8>> {
+    let cancelled = || cancel.is_some_and(|n| n != TEXT_CANCEL.load(std::sync::atomic::Ordering::SeqCst));
+    if cancelled() {
+        return Err(Error::new("provider_cancelled"));
+    }
     endpoint(&r.url, false)?;
     let tail = &r.url["http://127.0.0.1:".len()..];
     let (port, path) = tail.split_once('/').ok_or_else(err)?;
@@ -308,6 +331,9 @@ pub(super) fn local_http(r: &Request) -> Result<Vec<u8>> {
             .map_err(|_| Error::new("provider_connection"))?;
     if matches!(r.method, Method::ConnectOnly) {
         return Ok(obj! {"reachable"=>true}.to_json().into_bytes());
+    }
+    if cancelled() {
+        return Err(Error::new("provider_cancelled"));
     }
     stream.set_write_timeout(Some(Duration::from_secs(10))).map_err(|_| err())?;
     let method = if matches!(r.method, Method::Get) { "GET" } else { "POST" };
@@ -318,8 +344,29 @@ pub(super) fn local_http(r: &Request) -> Result<Vec<u8>> {
     let mut chunk = [0u8; 8192];
     loop {
         let remaining = deadline.checked_duration_since(Instant::now()).ok_or_else(err)?;
-        stream.set_read_timeout(Some(remaining)).map_err(|_| err())?;
-        let n = stream.read(&mut chunk).map_err(|_| err())?;
+        if cancelled() {
+            return Err(Error::new("provider_cancelled"));
+        }
+        stream
+            .set_read_timeout(Some(if cancel.is_some() {
+                remaining.min(Duration::from_millis(100))
+            } else {
+                remaining
+            }))
+            .map_err(|_| err())?;
+        let n = match stream.read(&mut chunk) {
+            Ok(n) => n,
+            Err(e)
+                if cancel.is_some()
+                    && matches!(e.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) =>
+            {
+                continue
+            }
+            Err(_) => return Err(if cancelled() { Error::new("provider_cancelled") } else { err() }),
+        };
+        if cancelled() {
+            return Err(Error::new("provider_cancelled"));
+        }
         if n == 0 {
             break;
         }

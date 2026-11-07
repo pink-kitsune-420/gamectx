@@ -13,7 +13,7 @@
 <strong>LANTERN VAULT</strong>
 <small>LOCAL PLAY &amp; CHARACTER STUDIO</small>
 </div>
-<div class="header-actions"><span id="spend" role="status">Local · $0 cap</span><button id="show-setup">Settings</button><button id="new-game">New game</button></div>
+<div class="header-actions"><span id="spend" role="status">Local · $0 cap</span><button id="show-debug">Debug</button><button id="show-setup">Settings</button><button id="new-game">New game</button></div>
 </header>
 <section class="setup-banner" aria-label="Provider status"><div><strong id="setup-title">Play now, add models whenever you like.</strong><p id="setup-help">Offline play needs no setup. Settings affect the next message, not your current location.</p></div><div id="channel-status" aria-live="polite"></div></section>
 <main>
@@ -84,6 +84,7 @@
 </progress>
 <div class="button-row">
 <button id="play">Read / Play reply</button>
+<button id="replay-current" type="button" hidden>Replay recording</button>
 <button id="interrupt" class="danger">■ Interrupt</button>
 </div>
 <small>Replies remain visible without audio. Read / Play acknowledges this reply.</small>
@@ -99,6 +100,7 @@
 <details class="history"><summary>Recent events &amp; conversation</summary><div id="transcript" role="log" aria-live="polite"></div></details>
 
 <div id="mic-monitor" hidden><meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="mic-feedback" role="status"></span></div>
+<details id="voice-history-panel"><summary>Voice recordings <span id="voice-history-count"></span></summary><p class="muted">Replay for review; it does not add heard memories.</p><audio id="review-audio" controls hidden></audio><div id="voice-history-list"></div><p id="voice-history-warning" role="status"></p></details>
 <div id="interim" role="status">
 </div>
 <div class="button-row">
@@ -109,7 +111,9 @@
 </div>
 
 </section>
-<aside class="inspector">
+
+</main>
+<section id="debug-window" class="debug-window" aria-labelledby="debug-title" hidden><div id="debug-titlebar"><strong id="debug-title">Diagnostics &amp; profiler</strong><button id="debug-minimize" aria-label="Minimize diagnostics">Minimize</button></div><nav class="settings-tabs" aria-label="Diagnostic views"><button data-debug-tab="state">State</button><button data-debug-tab="context">Context</button><button data-debug-tab="execution">Execution</button></nav><div id="debug-state" class="debug-page"><aside class="inspector">
 <div class="eyebrow">LIVE INSPECTOR</div>
 <details id="activity-panel" open><summary>What is running?</summary><p class="muted">One shared worker handles local requests in order. Checks do not generate text, pictures or audio.</p><div id="activity" role="log" aria-live="polite">No model requests yet.</div></details>
 <details open>
@@ -132,8 +136,7 @@
 <pre id="receipts">
 </pre>
 </details>
-</aside>
-</main>
+</aside></div><div id="debug-context" class="debug-page" hidden><h3>Compiled context</h3><label class="check"><input id="capture-prompts" type="checkbox">Capture prompt text for subsequent requests</label><div id="context-profiler"></div></div><div id="debug-execution" class="debug-page" hidden><h3>Execution</h3><p>One provider worker. A skipped local text reply is cancelled and its controlled model is released before voice runs.</p><button id="cancel-local-text">Cancel active local reply</button><div id="execution-profiler"></div></div></section>
 <dialog id="settings-dialog" aria-labelledby="settings-title">
 <div class="settings-heading"><div><h2 id="settings-title">Game settings</h2><p class="muted">Choose how your host creates replies, pictures and voices.</p></div><button id="settings-close" aria-label="Close settings">Done</button></div>
 <nav class="settings-tabs" role="tablist" aria-label="Settings sections">
@@ -161,7 +164,7 @@
 <details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
 <p id="manager-message" role="status"></p></details>
 </section>
-<section id="settings-voice" class="settings-page" hidden><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><label>Microphone input<select id="mic-device"><option value="">System default microphone</option></select></label><button id="mic-find">Find microphones</button><p class="muted">Allow microphone access when you press Mic. The input meter shows whether this browser receives your voice; recordings are transcribed on the host.</p><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
+<section id="settings-voice" class="settings-page" hidden><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><label>Microphone input<select id="mic-device"><option value="">System default microphone</option></select></label><button id="mic-find">Find microphones</button><p class="muted">Allow microphone access when you press Mic. The input meter shows whether this browser receives your voice; recordings are transcribed on the host.</p><details open><summary>Voice archive</summary><label class="check"><input id="archive-enabled" type="checkbox">Keep generated replies until New game</label><label>Keep the last N recordings<input id="archive-limit" type="number" min="1" max="128" value="32"></label><p class="muted">Optional, up to 32 MiB. Older entries are removed when the backlog fills. Turning this off clears saved recordings.</p><button id="archive-apply">Apply archive settings</button><p id="archive-state" role="status"></p></details><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
 <div class="button-row"><label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label><label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label></div>
 <button id="voice-character-apply">Save character voice</button></details><p id="native-voice-help" class="muted"></p></section>
 <section id="settings-connections" class="settings-page" hidden><details id="provider-panel">
