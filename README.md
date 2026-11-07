@@ -1020,3 +1020,5 @@ Saved voice recordings and floating context/execution profilers: [guide](docs/ST
 The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPOINTS.md) for dreams, hobbies and preferences; confirmed subjective speech stays separate from world authority.
 
 [Host-approved character reactions](docs/CHARACTER_REACTIONS.md) add optional personality/attitude/resource gates, generic handler authorization and playable coin/item loans, gifts and support at zero extra model calls.
+
+[Studio social turns](docs/STUDIO_CONVERSATION.md) route greetings, wellbeing and heard-topic follow-ups separately from factual shop answers when personality turns are enabled.

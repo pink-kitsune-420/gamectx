@@ -91,6 +91,8 @@ impl Mind {
             "feel about ",
             "do you like ",
             "do you prefer ",
+            "your favorite ",
+            "your favourite ",
         ]
         .iter()
         .find_map(|p| q.split_once(p).map(|(_, s)| s));
@@ -101,6 +103,18 @@ impl Mind {
             }
         }
         None
+    }
+    pub fn reason(&self, actor: &str) -> Result<String> {
+        Ok(self
+            .profile(actor)?
+            .get("reason")
+            .and_then(Value::as_str)
+            .unwrap_or(if actor == "merchant" {
+                "I value fair treatment because useful work means less to me without honesty."
+            } else {
+                "I value patience because people and places deserve careful attention."
+            })
+            .into())
     }
     pub fn fallback(&self, actor: &str, topic: &str, trust: i64) -> Result<String> {
         Ok(if topic == "hobbies" {
@@ -148,7 +162,16 @@ fn validate(v: &Value) -> Result<()> {
         return Err(err());
     }
     for (index, p) in profiles.iter().enumerate() {
-        fields(p, &["actor", "traits", "dream", "preference", "generosity", "prudence"])?;
+        let mut keys = vec!["actor", "traits", "dream", "preference", "generosity", "prudence"];
+        if p.get("reason").is_some() {
+            keys.push("reason");
+            let r = text(p, "reason")?;
+            if r.chars().count() > 180 {
+                return Err(err());
+            }
+            validate_viewpoint_line(r)?;
+        }
+        fields(p, &keys)?;
         let actor = text(p, "actor")?;
         if !["merchant", "keeper"].contains(&actor)
             || profiles[..index].iter().any(|old| old.get("actor") == p.get("actor"))

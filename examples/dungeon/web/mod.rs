@@ -13,6 +13,7 @@ pub fn configure_voice(root: &str, dir: &str) -> Result<()> {
 mod providers;
 mod session;
 mod setup;
+mod social;
 mod speech_wav;
 #[cfg(test)]
 mod tests;

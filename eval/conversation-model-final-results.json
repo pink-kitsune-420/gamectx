@@ -1,0 +1,428 @@
+{
+  "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+  "threads": 4,
+  "rows": [
+    {
+      "mode": "baseline",
+      "question": "Are you doing okay?",
+      "greeting": "I tend this counter; choose an item or tell me what you need.",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":3,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":2,\"at\":3,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_4\",\"speaker\":\"merchant\",\"text\":\"The host confirms player_1 heard merchant say: I tend this counter; choose an item or tell me what you need.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"The host confirms player_1 heard merchant say: I tend this counter; choose an item or tell me what you need.\",\"causes\":[],\"retain\":false},{\"token\":3,\"at\":4,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_7\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Are you doing okay?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Are you doing okay?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"coins\":null},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Hello."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I tend this counter; choose an item or tell me what you need."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I tend this counter; choose an item or tell me what you need.\",\"To be clear: I tend this counter; choose an item or tell me what you need.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] Are you doing okay?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I tend this counter; choose an item or tell me what you need.",
+                "To be clear: I tend this counter; choose an item or tell me what you need."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T20:13:57.302523484Z",
+        "message": {
+          "role": "assistant",
+          "content": "{ \"speech\": \"I tend this counter; choose an item or tell me what you need.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 35867687107,
+        "load_duration": 13270928053,
+        "prompt_eval_count": 859,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 19237450000,
+        "eval_count": 22,
+        "eval_duration": 3114022000
+      },
+      "wall_seconds": 35.9232,
+      "delivered": "I tend this counter; choose an item or tell me what you need.",
+      "origin": "authorized_model",
+      "permanent_views": [],
+      "confirmed_views": []
+    },
+    {
+      "mode": "baseline",
+      "question": "Tell me more.",
+      "greeting": "I tend this counter; choose an item or tell me what you need.",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":5,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":4,\"at\":4,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_10\",\"speaker\":\"merchant\",\"text\":\"The host confirms player_1 heard merchant say: I tend this counter; choose an item or tell me what you need.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"The host confirms player_1 heard merchant say: I tend this counter; choose an item or tell me what you need.\",\"causes\":[],\"retain\":false},{\"token\":5,\"at\":5,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_13\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Tell me more.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Tell me more.\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"coins\":null},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Are you doing okay?"
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I tend this counter; choose an item or tell me what you need."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I tend this counter; choose an item or tell me what you need.\",\"To be clear: I tend this counter; choose an item or tell me what you need.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] Tell me more."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I tend this counter; choose an item or tell me what you need.",
+                "To be clear: I tend this counter; choose an item or tell me what you need."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T20:14:27.667676806Z",
+        "message": {
+          "role": "assistant",
+          "content": "{ \"speech\": \"To be clear: I tend this counter; choose an item or tell me what you need.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 30294796999,
+        "load_duration": 6991114925,
+        "prompt_eval_count": 860,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 19690627000,
+        "eval_count": 26,
+        "eval_duration": 3599032000
+      },
+      "wall_seconds": 30.3239,
+      "delivered": "To be clear: I tend this counter; choose an item or tell me what you need.",
+      "origin": "authorized_model",
+      "permanent_views": [],
+      "confirmed_views": []
+    },
+    {
+      "mode": "baseline",
+      "question": "What do you enjoy?",
+      "greeting": "I tend this counter; choose an item or tell me what you need.",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":7,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"player_1\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":6,\"at\":5,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_16\",\"speaker\":\"merchant\",\"text\":\"The host confirms player_1 heard merchant say: To be clear: I tend this counter; choose an item or tell me what you need.\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"The host confirms player_1 heard merchant say: To be clear: I tend this counter; choose an item or tell me what you need.\",\"causes\":[],\"retain\":false},{\"token\":7,\"at\":6,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_19\",\"speaker\":\"merchant\",\"text\":\"player_1 said: What do you enjoy?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: What do you enjoy?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"coins\":null},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"player_1\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Tell me more."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] To be clear: I tend this counter; choose an item or tell me what you need."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: player_1."
+          },
+          {
+            "role": "system",
+            "content": "Select an authorized speech variant verbatim and return only speech JSON: {\"type\":\"string\",\"enum\":[\"I tend this counter; choose an item or tell me what you need.\",\"To be clear: I tend this counter; choose an item or tell me what you need.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] What do you enjoy?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "enum": [
+                "I tend this counter; choose an item or tell me what you need.",
+                "To be clear: I tend this counter; choose an item or tell me what you need."
+              ]
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T20:14:57.286277184Z",
+        "message": {
+          "role": "assistant",
+          "content": "{ \"speech\": \"I tend this counter; choose an item or tell me what you need.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 29569736288,
+        "load_duration": 6464367562,
+        "prompt_eval_count": 875,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 20013071000,
+        "eval_count": 22,
+        "eval_duration": 3078605000
+      },
+      "wall_seconds": 29.584,
+      "delivered": "I tend this counter; choose an item or tell me what you need.",
+      "origin": "authorized_model",
+      "permanent_views": [],
+      "confirmed_views": []
+    },
+    {
+      "mode": "candidate",
+      "question": "Are you doing okay?",
+      "greeting": "Hello; it is good to have someone to talk to.",
+      "request": null,
+      "raw": null,
+      "wall_seconds": 0,
+      "delivered": "I feel fairly settled and happy to listen.",
+      "origin": "authored_social",
+      "permanent_views": [],
+      "confirmed_views": []
+    },
+    {
+      "mode": "candidate",
+      "question": "Tell me more.",
+      "greeting": "Hello; it is good to have someone to talk to.",
+      "request": null,
+      "raw": null,
+      "wall_seconds": 0,
+      "delivered": "I prefer to take things calmly because trust grows better with patience.",
+      "origin": "authored_social",
+      "permanent_views": [],
+      "confirmed_views": []
+    },
+    {
+      "mode": "candidate",
+      "question": "What do you enjoy?",
+      "greeting": "Hello; it is good to have someone to talk to.",
+      "request": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."
+          },
+          {
+            "role": "system",
+            "content": "{\"character\":{\"facets\":[{\"id\":\"voice\",\"kind\":\"voice\",\"text\":\"Ilen speaks plainly about lamps and chimes.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]}],\"policy\":{\"balanced\":false,\"deception\":false,\"mistaken\":false,\"improvisation\":\"\",\"expression\":\"State only the supplied facts, attitude, and unknown status in one short sentence; do not offer unlisted stock or speculate about unknown weather/history.\"}},\"scene\":{\"id\":\"workshop\",\"description\":\"An indoor merchant counter.\"}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"personality\":{\"actor\":\"merchant\",\"disposition\":\"Practical, reserved, fair-minded; values useful work and kindness without recklessness.\"},\"subjective_turn\":\"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request, not your job or counter. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce past biography, promises, resources, stock, weather or secret lore. No tools.\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"character\":{\"scope\":\"studio_save\",\"revision\":7,\"attitudes\":[{\"definition\":{\"id\":\"trust_player_1\",\"kind\":\"trust\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":15,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":15,\"supports\":[],\"contradicts\":[],\"last\":null},{\"definition\":{\"id\":\"resentment_player_1\",\"kind\":\"resentment\",\"subject\":\"player_1\",\"text\":\"Careful help matters more than a fine title.\",\"level\":5,\"reason\":\"The host approved this starting attitude.\",\"tension\":\"Warmth does not remove caution.\",\"changes_if\":\"Confirmed care or harm.\",\"audience\":[\"player_1\",\"player_2\",\"merchant\",\"guard\",\"keeper\",\"companion\"],\"tags\":[\"trade\"]},\"level\":5,\"supports\":[],\"contradicts\":[],\"last\":null}]},\"facts\":{\"question_subject\":\"merchant\",\"utterance_speaker\":\"player_1\",\"fact_subjects\":{}},\"lore\":[],\"affordances\":[],\"episodes\":[{\"token\":3,\"at\":4,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_7\",\"speaker\":\"merchant\",\"text\":\"player_1 said: Are you doing okay?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: Are you doing okay?\",\"causes\":[],\"retain\":false},{\"token\":7,\"at\":6,\"kind\":\"direct\",\"tag\":\"conversation\",\"subject\":\"player_1\",\"source\":{\"id\":\"event_17\",\"speaker\":\"merchant\",\"text\":\"player_1 said: What do you enjoy?\"},\"audience\":[\"player_1\",\"player_2\",\"guard\",\"merchant\",\"keeper\",\"companion\"],\"text\":\"player_1 said: What do you enjoy?\",\"causes\":[],\"retain\":false}],\"accepted_promises\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "{\"authoritative_visible_state\":{\"room\":\"workshop\",\"items\":[],\"coins\":null},\"player_birthplace\":\"unknown_to_npc\",\"question_subject\":\"merchant\"}"
+          },
+          {
+            "role": "user",
+            "content": "{\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]}}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> merchant] Tell me more."
+          },
+          {
+            "role": "assistant",
+            "content": "[merchant -> player_1] I prefer to take things calmly because trust grows better with patience."
+          },
+          {
+            "role": "system",
+            "content": "Current utterance speaker: player_1. First-person I/my refers to that speaker. Question subject: merchant."
+          },
+          {
+            "role": "system",
+            "content": "{\"turn_kind\":\"viewpoint\",\"reply_speaker\":\"merchant\",\"addressed_listener\":\"player_1\",\"npc_trust_toward_listener\":15,\"perspective\":\"In your reply I means the named NPC, and you means the addressed listener. Host/engine/source labels are application metadata, not people in this world. Never mention them or invent their personalities. A reason should come from your disposition or supplied heard experience.\",\"established_viewpoint\":null,\"recent_confirmed_replies\":[\"I prefer to take things calmly because trust grows better with patience.\",\"I feel fairly settled and happy to listen.\"],\"direction\":\"Answer the current personal question; do not repeat an earlier reply or invent a past event, weather or world action.\"}"
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> merchant] What do you enjoy?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 64,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^I (hope|dream|wish|prefer|feel|value|think|believe|would like) [^.!?]{1,180}[.!]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "raw": {
+        "model": "arzaan789/qwen2.5-3b-uncensored:latest",
+        "created_at": "2026-11-07T20:15:31.241330344Z",
+        "message": {
+          "role": "assistant",
+          "content": "{ \"speech\": \"I value the simple pleasures, like a well-made lamp or a soothing chime.\" }"
+        },
+        "done": true,
+        "done_reason": "stop",
+        "total_duration": 33309426158,
+        "load_duration": 5146689465,
+        "prompt_eval_count": 1060,
+        "prompt_eval_cached_count": 0,
+        "prompt_eval_duration": 24588108000,
+        "eval_count": 25,
+        "eval_duration": 3553768000
+      },
+      "wall_seconds": 33.3282,
+      "delivered": "I value the simple pleasures, like a well-made lamp or a soothing chime.",
+      "origin": "subjective_model",
+      "permanent_views": [],
+      "confirmed_views": [
+        {
+          "actor": "merchant",
+          "listener": "player_1",
+          "topic": "hobbies",
+          "stance": "I value the simple pleasures, like a well-made lamp or a soothing chime.",
+          "basis": "b9299a1b71616eb25dc7633791db1947b6808d72ddeb9ee3c0fb7e9e6f01d799",
+          "source": "model",
+          "at": 6
+        }
+      ]
+    }
+  ],
+  "local_calls": 4,
+  "api_spend_usd": 0
+}

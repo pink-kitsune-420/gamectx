@@ -1,0 +1,62 @@
+{
+  "scores": [
+    {
+      "meta_free": true,
+      "mode": "baseline",
+      "question": "Hey, how are you feeling?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 865,
+      "output_tokens": 22
+    },
+    {
+      "meta_free": true,
+      "mode": "baseline",
+      "question": "What do you mean?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 866,
+      "output_tokens": 26
+    },
+    {
+      "meta_free": true,
+      "mode": "candidate",
+      "question": "Hey, how are you feeling?",
+      "relevant": true,
+      "model_accepted": true,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1083,
+      "output_tokens": 25
+    },
+    {
+      "meta_free": true,
+      "mode": "candidate",
+      "question": "What do you mean?",
+      "relevant": true,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1082,
+      "output_tokens": 25
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "relevant": 0,
+      "n": 2,
+      "duplicate_followups": 0
+    },
+    "candidate": {
+      "relevant": 2,
+      "n": 2,
+      "duplicate_followups": 0
+    }
+  },
+  "api_spend_usd": 0,
+  "limits": "One original two-question paired merchant conversation; lexical relevance and mechanical acceptance, not general conversational intelligence or semantic grounding proof. Raw provider and delivered outputs retained."
+}

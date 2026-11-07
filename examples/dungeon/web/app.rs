@@ -515,6 +515,50 @@ impl App {
             text(v, "id")?.trim_start_matches("item:").replace('_', " ")
         })
     }
+    fn recent_replies(&self) -> Vec<String> {
+        self.receipts
+            .iter()
+            .rev()
+            .filter(|r| {
+                r.get("speaker").and_then(Value::as_str) == Some(self.npc.as_str())
+                    && r.get("recipients")
+                        .and_then(Value::as_array)
+                        .unwrap_or(&[])
+                        .iter()
+                        .any(|p| p.as_str() == Some(self.player.as_str()))
+            })
+            .take(2)
+            .filter_map(|r| r.get("text").and_then(Value::as_str).map(str::to_owned))
+            .collect()
+    }
+    fn previous_topic(&self) -> Option<String> {
+        let recent = self.recent_replies();
+        let heard = recent.first()?;
+        let checkpoint = self.mind.views.checkpoint();
+        if let Some(e) = checkpoint.get("entries")?.as_array()?.iter().rev().find(|e| {
+            e.get("actor").and_then(Value::as_str) == Some(self.npc.as_str())
+                && e.get("listener").and_then(Value::as_str) == Some(self.player.as_str())
+                && e.get("stance").and_then(Value::as_str) == Some(heard.as_str())
+        }) {
+            return e.get("topic").and_then(Value::as_str).map(str::to_owned);
+        }
+        if heard.starts_with("I feel ") {
+            Some("wellbeing".into())
+        } else {
+            None
+        }
+    }
+    fn social_fallback(&self, kind: &str, trust: i64) -> Result<String> {
+        let context=self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>"counter","limit"=>1})?;
+        let atmosphere = context
+            .get("atmosphere")
+            .and_then(|v| v.get("state").or_else(|| v.get("tag")))
+            .and_then(Value::as_str)
+            .unwrap_or("calm");
+        let recent = self.recent_replies();
+        let options = super::social::replies(kind, trust, atmosphere);
+        Ok(options.iter().find(|line| !recent.iter().any(|heard| heard == **line)).unwrap_or(&options[0]).to_string())
+    }
     fn attitude_level(&self, kind: &str) -> Result<i64> {
         let v = self.world.inspect_actor(&self.npc)?;
         Ok(v.get("effective_attitudes")
@@ -602,7 +646,15 @@ impl App {
             }
         }
         if input.to_lowercase().contains("born") || input.to_lowercase().contains("weather") {
-            return "I do not know that; I can only speak from what the host has shown me.".into();
+            return if self.mind.enabled() {
+                "I do not know that; I only have the information shared with me."
+            } else {
+                "I do not know that; I can only speak from what the host has shown me."
+            }
+            .into();
+        }
+        if self.mind.enabled() {
+            return "I do not have a specific answer to that; could you ask about one thing?".into();
         }
         if self.npc == "merchant" {
             "I tend this counter; choose an item or tell me what you need.".into()
@@ -648,7 +700,7 @@ impl App {
             &obj! {"name"=>"studio","size"=>format!("{}b",text(&call_config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
-        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
+        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()},"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
         let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
         let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
         let life = self.world.effective_life(&self.npc)?;
@@ -696,7 +748,7 @@ impl App {
             .collect::<Vec<_>>();
         set(&mut state, "accepted_promises", promises.into());
         messages[2] = obj! {"role"=>"user","content"=>state.to_json()};
-        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
+        messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()}}.to_json()});
         if subjective {
             messages.insert(2,obj!{"role"=>"system","content"=>obj!{"personality"=>obj!{"actor"=>self.npc.clone(),"disposition"=>text(self.mind.profile(&self.npc)?,"traits")?},"subjective_turn"=>"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request, not your job or counter. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce past biography, promises, resources, stock, weather or secret lore. No tools."}.to_json()});
         }
@@ -1093,11 +1145,23 @@ impl App {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
                     };
                     let subjective = job.binding.get("viewpoint").filter(|v| **v != Value::Null);
-                    let mental = if subjective.is_some() {
+                    let is_subjective =
+                        subjective.is_some() || job.binding.get("subjective") == Some(&Value::Bool(true));
+                    let mental = if is_subjective {
                         let reply = parse(line)?;
                         fields(&reply, &["speech"])?;
                         let mental = text(&reply, "speech")?.to_owned();
                         gamectx::studio::validate_viewpoint_line(&mental)?;
+                        if mental
+                            .to_lowercase()
+                            .split(|c: char| !c.is_alphanumeric() && c != '_')
+                            .any(|w| ["host", "engine", "localhost", "player_1", "player_2", "npc"].contains(&w))
+                        {
+                            return Err(Error::new("out_of_character_reply"));
+                        }
+                        if self.recent_replies().iter().any(|old| old.to_lowercase() == mental.to_lowercase()) {
+                            return Err(Error::new("repeated_reply"));
+                        }
                         Some(mental)
                     } else {
                         None
@@ -1125,7 +1189,7 @@ impl App {
                     s.pending = false;
                     s.origin = if grounded.is_some() {
                         "authorized_model"
-                    } else if subjective.is_some() {
+                    } else if is_subjective {
                         "subjective_model"
                     } else {
                         "model"
@@ -1236,8 +1300,14 @@ impl App {
             Ok(())
         })();
         if apply.is_err() {
-            let detail = failure
-                .unwrap_or("Provider output failed validation. The host kept the offline reply or approved asset.");
+            let detail = if apply.as_ref().err().is_some_and(|e| e.to_string() == "out_of_character_reply") {
+                "Model confused engine metadata with a character; the host kept an in-character fallback."
+            } else if apply.as_ref().err().is_some_and(|e| e.to_string() == "repeated_reply") {
+                "Model repeated a recent heard reply; the host kept a fresh character fallback."
+            } else {
+                failure
+                    .unwrap_or("Provider output failed validation. The host kept the offline reply or approved asset.")
+            };
             self.monitor.update(job.id, "failed", detail);
             if let Some(status) = problem_status {
                 self.monitor.problem(&job.modality, &job.backend, status, detail);
@@ -1820,9 +1890,60 @@ impl App {
                     self.observe(&actor, &subject, &format!("{subject} said: {line}"), "conversation", 10, None)?;
                     self.fulfill_promises()?;
                     let trust = self.attitude_level("trust")?;
-                    let topic = self.mind.topic(line, trust);
-                    if let Some(saved) =
-                        topic.as_ref().and_then(|t| self.mind.views.find(&self.npc, &self.player, t)).cloned()
+                    let previous = if self.mind.enabled() { self.previous_topic() } else { None };
+                    let route = gamectx::studio::conversation_route(
+                        &obj! {"input"=>line,"previous"=>previous.clone().map_or(Value::Null,Value::from)},
+                    )?;
+                    let kind = if self.mind.enabled() { text(&route, "kind")? } else { "other" };
+                    if ["greeting", "thanks", "farewell"].contains(&kind) {
+                        let response = self.social_fallback(kind, trust)?;
+                        self.say(&response)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>kind}, jobs));
+                    }
+                    if kind == "wellbeing" {
+                        let response = self.social_fallback("wellbeing", trust)?;
+                        self.say(&response)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>"wellbeing"}, jobs));
+                    }
+                    if kind == "elaborate" && previous.is_none() {
+                        self.say("Which part would you like me to explain?")?;
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>"clarify_topic"}, jobs));
+                    }
+                    if kind == "elaborate" {
+                        let response = if previous.as_deref() == Some("wellbeing") {
+                            self.social_fallback("mood_reason", trust)?
+                        } else {
+                            let reason = self.mind.reason(&self.npc)?;
+                            let recent = self.recent_replies();
+                            [
+                                reason.clone(),
+                                format!("Put another way, {reason}"),
+                                format!("That is how I see it: {reason}"),
+                            ]
+                            .into_iter()
+                            .find(|s| !recent.contains(s))
+                            .unwrap_or(reason)
+                        };
+                        self.say(&response)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>"elaborate"}, jobs));
+                    }
+                    let ephemeral = kind == "social";
+                    let topic = self.mind.topic(line, trust).or_else(|| {
+                        if self.mind.enabled() {
+                            route.get("topic").and_then(Value::as_str).map(str::to_owned)
+                        } else {
+                            None
+                        }
+                    });
+                    let ephemeral = ephemeral && (kind != "social" || topic.as_deref() == Some("conversation"));
+                    if let Some(saved) = topic
+                        .as_ref()
+                        .filter(|_| !ephemeral)
+                        .and_then(|t| self.mind.views.find(&self.npc, &self.player, t))
+                        .cloned()
                     {
                         self.say(text(&saved, "stance")?)?;
                         self.notice = "Reply ready from this character's saved viewpoint toward this listener.".into();
@@ -1857,7 +1978,9 @@ impl App {
                             .or_else(|| options.first())
                             .copied()
                     });
-                    let mut fallback = if let Some(t) = &topic {
+                    let mut fallback = if ephemeral {
+                        self.social_fallback(kind, trust)?
+                    } else if let Some(t) = &topic {
                         self.mind.fallback(&self.npc, t, trust)?
                     } else {
                         chosen.map_or_else(|| self.fallback_line(line), str::to_owned)
@@ -1873,7 +1996,7 @@ impl App {
                         self.notice = "Reply ready from the character's current role and visible scene.".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
                     }
-                    let viewpoint = if let Some(t) = &topic {
+                    let viewpoint = if let Some(t) = topic.as_ref().filter(|_| !ephemeral) {
                         let basis = obj! {"profile"=>self.mind.profile(&self.npc)?.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"heard_token"=>token,"listener"=>self.player.clone()};
                         Some(
                             obj! {"actor"=>self.npc.clone(),"listener"=>self.player.clone(),"topic"=>t.clone(),"stance"=>fallback.clone(),"basis"=>gamectx::visual::content_digest(basis.to_json().as_bytes())?,"source"=>"profile","at"=>self.tick},
@@ -1884,6 +2007,15 @@ impl App {
                     self.speech.as_mut().unwrap().viewpoint = viewpoint.clone();
                     let mut payload = self.compile_text(line, token, topic.is_some())?;
                     if topic.is_some() {
+                        let mut messages = array(get(&payload, "messages")?)?.to_vec();
+                        let established = topic
+                            .as_ref()
+                            .and_then(|t| self.mind.views.find(&self.npc, &self.player, t))
+                            .map(|v| get(v, "stance").cloned())
+                            .transpose()?
+                            .unwrap_or(Value::Null);
+                        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>obj!{"turn_kind"=>if ephemeral{kind}else{"viewpoint"},"reply_speaker"=>self.npc.clone(),"addressed_listener"=>self.player.clone(),"npc_trust_toward_listener"=>trust,"perspective"=>"In your reply I means the named NPC, and you means the addressed listener. Host/engine/source labels are application metadata, not people in this world. Never mention them or invent their personalities. A reason should come from your disposition or supplied heard experience.","established_viewpoint"=>established,"recent_confirmed_replies"=>self.recent_replies(),"direction"=>"Answer the current personal question; do not repeat an earlier reply or invent a past event, weather or world action."}.to_json()});
+                        set(&mut payload, "messages", messages.into());
                         set(
                             &mut payload,
                             "speech_schema",
@@ -1911,7 +2043,7 @@ impl App {
                         set(&mut payload, "speech_schema", schema);
                     }
                     let speech = self.speech.as_ref().unwrap().id;
-                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null)})? {
+                    if let Some(job) = self.plan("text", &payload, obj! {"speech"=>speech,"actor"=>self.npc.clone(),"life_revision"=>self.world.base_life(&self.npc)?.revision(),"answers"=>answers.unwrap_or(Value::Null),"viewpoint"=>viewpoint.unwrap_or(Value::Null),"subjective"=>topic.is_some(),"speech_act"=>kind})? {
                         self.speech.as_mut().unwrap().pending = true;
                         self.speech.as_mut().unwrap().origin = "pending".into();
                         jobs.push(job);

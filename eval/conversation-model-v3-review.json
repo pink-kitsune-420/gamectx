@@ -1,0 +1,62 @@
+{
+  "scores": [
+    {
+      "meta_free": true,
+      "mode": "baseline",
+      "question": "How's it going?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 859,
+      "output_tokens": 22
+    },
+    {
+      "meta_free": true,
+      "mode": "baseline",
+      "question": "Can you explain?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 861,
+      "output_tokens": 26
+    },
+    {
+      "meta_free": true,
+      "mode": "candidate",
+      "question": "How's it going?",
+      "relevant": true,
+      "model_accepted": true,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1077,
+      "output_tokens": 19
+    },
+    {
+      "meta_free": true,
+      "mode": "candidate",
+      "question": "Can you explain?",
+      "relevant": true,
+      "model_accepted": true,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1103,
+      "output_tokens": 30
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "relevant": 0,
+      "n": 2,
+      "duplicate_followups": 0
+    },
+    "candidate": {
+      "relevant": 2,
+      "n": 2,
+      "duplicate_followups": 0
+    }
+  },
+  "api_spend_usd": 0,
+  "limits": "One original two-question paired merchant conversation; lexical relevance and mechanical acceptance, not general conversational intelligence or semantic grounding proof. Raw provider and delivered outputs retained."
+}

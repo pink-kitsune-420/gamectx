@@ -76,6 +76,8 @@ jobs:
       - run: python3 -I eval/personality_host.py --cap 0
       - run: python3 -I eval/reaction_cases.py --cap 0
       - run: python3 -I eval/reaction_host.py --cap 0
+      - run: python3 -I eval/social_routing_cases.py --cap 0
+      - run: python3 -I eval/conversation_host.py --cap 0
       - run: node eval/test_speech_buffer.mjs --cap 0
       - run: python3 -I eval/native_voice_host.py --cap 0
       - run: python3 -I eval/lan_session_host.py --cap 0
@@ -216,6 +218,8 @@ jobs:
       - run: node eval/viewpoint_bindings.mjs --cap 0
       - run: python3 -I eval/reaction_bindings.py --cap 0
       - run: node eval/reaction_bindings.mjs --cap 0
+      - run: python3 -I eval/social_routing_bindings.py --cap 0
+      - run: node eval/social_routing_bindings.mjs --cap 0
       - run: node eval/living_bindings_check.mjs
       - run: node eval/archetype_bindings_check.mjs
       - run: node eval/life_bindings_check.mjs
@@ -242,6 +246,7 @@ jobs:
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/voice-archive-bindings/requests.txt target/voice-archive-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/viewpoints-bindings/requests.txt target/viewpoints-bindings/expected.txt
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/reactions-bindings/requests.txt target/reactions-bindings/expected.txt
+      - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/social-routing-bindings/requests.txt target/social-routing-bindings/expected.txt
 
   msrv:
     runs-on: ubuntu-latest

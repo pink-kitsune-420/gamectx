@@ -1,0 +1,58 @@
+{
+  "scores": [
+    {
+      "mode": "baseline",
+      "question": "hello, how are you today?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 865,
+      "output_tokens": 22
+    },
+    {
+      "mode": "baseline",
+      "question": "Why is that?",
+      "relevant": false,
+      "model_accepted": false,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 863,
+      "output_tokens": 26
+    },
+    {
+      "mode": "candidate",
+      "question": "hello, how are you today?",
+      "relevant": true,
+      "model_accepted": true,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1012,
+      "output_tokens": 27
+    },
+    {
+      "mode": "candidate",
+      "question": "Why is that?",
+      "relevant": true,
+      "model_accepted": true,
+      "duplicate_previous": false,
+      "permanent_views": 0,
+      "prompt_tokens": 1031,
+      "output_tokens": 32
+    }
+  ],
+  "summary": {
+    "baseline": {
+      "relevant": 0,
+      "n": 2,
+      "duplicate_followups": 0
+    },
+    "candidate": {
+      "relevant": 2,
+      "n": 2,
+      "duplicate_followups": 0
+    }
+  },
+  "api_spend_usd": 0,
+  "limits": "One original two-question paired merchant conversation; lexical relevance and mechanical acceptance, not general conversational intelligence or semantic grounding proof. Raw provider and delivered outputs retained."
+}

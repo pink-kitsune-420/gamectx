@@ -1,5 +1,14 @@
 # Changelog
 
+- [api] Add bounded `studio::conversation_route` hints for optional social speech.
+- [format] Add an optional bounded personality `reason` and 22 `studio-conversation` conformance cases under `social-routing`;
+  preserve existing conversation/evaluation outputs.
+- Fix personality-enabled greetings/wellbeing/follow-ups falling into shop speech enums.
+  Use NPC/player perspective, transient moods, heard-topic context and rejection of
+  repeated or engine-metadata replies; retain strict factual paths and 0B fallbacks.
+  See docs/STUDIO_CONVERSATION.md for host/browser and paired local 3B evidence.
+
+
 - [api] Add `studio::ReactionPolicy` for bounded generic host capability selection and
   fresh authorization under attitude/personality/resource/reason gates.
 - [format] Add 22 reaction conformance cases; optional example transfer journals preserve

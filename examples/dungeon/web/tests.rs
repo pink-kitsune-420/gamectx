@@ -928,3 +928,21 @@ fn reaction_intent_does_not_shrink_quantities_or_execute_future_repayments() {
         assert_eq!(super::reactions::intent(q).unwrap().1, Value::Null);
     }
 }
+
+#[test]
+fn social_mood_fallbacks_follow_host_attitude_and_urgency() {
+    for (trust, atmosphere, word) in [
+        (-10, "calm", "wary"),
+        (30, "calm", "ease"),
+        (30, "emergency", "urgency"),
+        (15, "busy", "busy"),
+        (30, "tense", "tense"),
+    ] {
+        let replies = super::social::replies("wellbeing", trust, atmosphere);
+        assert!(replies[0].contains(word));
+        for line in replies {
+            gamectx::studio::validate_viewpoint_line(line).unwrap();
+            assert!(!line.contains("counter"));
+        }
+    }
+}

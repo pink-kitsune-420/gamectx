@@ -811,3 +811,5 @@ profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
 Use Settings → Characters in the local studio to enable editable dispositions and listener-scoped saved opinions. [Character viewpoints](CHARACTER_VIEWPOINTS.md) explains complete-heard confirmation, branch persistence, bounds and model limitations. Thinking hides the previous reply until the new line is ready; Use instant reply keeps the 0B path available.
 
 Settings → Characters → Optional world reactions enables host-approved gifts, loans and support. Only currently eligible offers appear in play. See [rules, host evidence and replay boundaries](CHARACTER_REACTIONS.md); other world actions require registered engine handlers.
+
+With personality turns enabled, try “Hello”, “How are you today?” and, after reading/hearing the reply, “Why is that?” Greetings need no LLM; mood and explanation turns are immediate and temporary and do not replace saved opinions. [Routing and evidence](STUDIO_CONVERSATION.md).

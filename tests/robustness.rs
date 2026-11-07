@@ -1383,3 +1383,15 @@ fn reaction_gate_mutations_never_execute_world_actions() {
         }
     }
 }
+
+#[test]
+fn social_routing_mutations_never_promote_text_to_world_actions() {
+    let seed = include_str!("../conformance/social-routing/screenshot/input.json");
+    let mut rng = Rng(0x736f6369);
+    for _ in 0..2000 {
+        let s = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&s, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

@@ -173,7 +173,7 @@ async function loadState(){
     if(s.speech){
       $('play').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
       $('interrupt').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
-      $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated',subjective_model:'Personal viewpoint · validated'})[s.speech.origin]||'Offline reply';
+      $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated',subjective_model:'Personal reply · validated',authored_social:'Character reply · no LLM'})[s.speech.origin]||'Offline reply';
       $('speaker').textContent=s.speech.actor+' → '+s.speech.player;
       if(s.speech.id!==lastSpeech){
         lastSpeech=s.speech.id;
