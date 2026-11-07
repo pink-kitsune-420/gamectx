@@ -1145,3 +1145,15 @@ fn character_checkpoints_reject_mutations_without_partial_restore() {
         assert_eq!(life.inspect(), before);
     }
 }
+
+#[test]
+fn initiative_candidate_mutations_are_bounded() {
+    let mut rng = Rng(0x990154);
+    let seed = include_str!("../conformance/initiative/attitude_priority/input.json");
+    for _ in 0..10000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

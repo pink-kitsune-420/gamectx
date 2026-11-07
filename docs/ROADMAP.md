@@ -375,3 +375,8 @@ offline workflows; generated prose quality remains unmeasured. See the dynamic c
 Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
 recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
 20 offline workflows including 1,000 events. No model quality claim or API spend.
+
+Stage 4 adds deterministic purpose-driven initiative with live attitude/accepted-promise
+scores, source dependencies, social guards and whole-turn model-call quotas (default zero).
+`eval/initiative_cases.py --cap 0` checks 80 workflows; the 96-scope scheduler test uses
+16 jobs per tick and no model. Host execution/receipts remain authoritative.

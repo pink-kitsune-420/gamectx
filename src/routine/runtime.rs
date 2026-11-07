@@ -197,6 +197,15 @@ impl Runtime {
             Choices::from_value(&obj! {"version"=>1,"revision"=>f.revision,"choices"=>pairs,"fallback"=>Value::Null})?;
         Ok((choices, selected))
     }
+    /// Host-only currently eligible menu for deterministic initiative. This does not
+    /// register or expose a model tool or confirm any experience.
+    pub fn activity_menu(&self) -> Result<Value> {
+        let (_, indices) = self.choices()?;
+        let timeline = self.timeline.as_ref().ok_or_else(c::bad)?;
+        Ok(
+            obj! {"revision"=>self.revision().map_or(Value::Null,Value::from),"activities"=>indices.into_iter().map(|i|obj!{"id"=>timeline.rows[i].id.clone(),"start"=>timeline.rows[i].start}).collect::<Vec<_>>()},
+        )
+    }
     pub(crate) fn schema(&self, name: &str) -> Result<Value> {
         if !self.config.tools.iter().any(|s| s == name) || self.timeline.is_none() || self.frame.is_none() {
             return Err(c::bad());

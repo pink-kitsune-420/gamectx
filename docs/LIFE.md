@@ -53,7 +53,9 @@ answers still use validated host data. Prior speech failures remain unchanged.
 3. Durable episodic memory: implemented identity/fence-checked checkpoints, archival
    backpressure, extractive ranges, causal recall/erasure and crash-safe request recovery.
    Twenty independent workflows include 1,000 events; production storage is host-owned.
-4. Initiative: pending.
+4. Initiative: implemented routine-menu integration, opinions/accepted promises/event
+   dependencies, per-turn call quotas, social guards, failure receipts and backoff.
+   Eighty independent workflows and a 96-scope scheduler test; social quality unmeasured.
 5. Controls, bindings and integrated demonstration: pending.
 
 ## Conversation and delivery coordinator
@@ -139,3 +141,45 @@ watermarks. Recovery cancels unplayed work, marks previously playing lines inter
 creates no live tickets; old asynchronous results cannot execute after a crash. Existing
 interaction notebooks/routine checkpoints must also be saved through their own contracts
 when used; the life checkpoint does not silently serialize an entire game engine.
+
+## Purposeful initiative
+
+`Initiative` ranks a host menu of at most 16 activities, questions, promise follow-ups,
+declines, gestures or silence. It creates no model request or experience. Shared defaults
+and overrides separately configure `enabled` (false), `cooldown` (3), `margin` (2),
+`social_limit` (2), `attention` (4), `model_calls` (0), and `replans` (2). Counts are
+bounded policy controls. `reserve_call` enforces the whole-turn allowance, including
+preflight and retries; same-turn polling cannot reset it. Routine initiative uses zero calls.
+
+Candidate IDs, prerequisites, resources, intended recipients, reason, authored priority,
+attitude IDs, promise IDs and actual event tokens come from the host. Attitudes (including
+commitments) contribute their current signed level divided by ten; each unresolved accepted
+promise adds twenty. These are explicit design weights. Promise state comes from the existing
+`InteractionTools` notebook: reported, fulfilled, cancelled and another actor's promises
+cannot drive a promised activity. Missing event dependencies exclude the candidate. Proposals
+retain actual life revision and selected promise revisions, rechecked at dispatch. A fulfilled
+promise or an erased source cannot remain executable through an old proposal.
+
+Use `consider_routine` and `dispatch_routine` to join the existing runtime's currently
+eligible activity menu, including blocked travel, deadlines and interruptions. Run these
+host jobs through `schedule::Scheduler`, driven by relevant events and `next_wake` hints.
+Recheck live prerequisites, resources, audience and permission before atomic engine dispatch.
+The core does not lock resources or execute movement. Host resource leases remain necessary.
+
+Cooldowns, score hysteresis, per-turn social/replan quotas and retained recipient/candidate/
+event signatures suppress repeated greetings. New scene arrival tokens can distinguish a
+later reunion. Social candidates at nonzero NPC response depth are suppressed, preventing
+circular automatic conversations when the host carries that depth. Inflight activities
+cannot be proposed twice. Failure receipts trigger bounded backoff; three repeated failures
+require a relevant new candidate event dependency. A successful engine receipt clears the
+failure. Host `outcome` requires a fresh actual `outcome` event with a matching activity tag;
+a proposal or imagined off-screen narrative cannot record an experience. Silence uses no
+model calls. Emergency can bypass cooldown, never prerequisites, work or social quotas.
+
+Bounds include 64 social signatures/failure entries and 16 inflight actions. Full stores
+reject work; rotate authorized host instances/checkpoints deliberately. The supplied workload
+serves 96 independent character scopes with 16 scheduler jobs per tick over six ticks, with
+zero model calls. This is deterministic host-work verification, not model latency or social
+quality. Eighty independent Python/Rust workflows include opinion/commitment scores, accepted
+versus reported/fulfilled promises, token filtering, duplicate greetings, circular depth,
+call reservations and confirmed failure/recovery.

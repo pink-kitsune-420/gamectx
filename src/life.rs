@@ -3,8 +3,10 @@
 use crate::{checked as c, obj, request::bounded, Result, Value};
 use std::sync::Arc;
 mod continuity;
+mod initiative;
 mod storage;
 pub use continuity::{Coordinator, SpeechTransport};
+pub use initiative::{Initiative, InitiativePolicy};
 pub use storage::{FileStore, Storage};
 pub const MAX_BYTES: usize = 524_288;
 pub(crate) fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
@@ -641,4 +643,9 @@ pub fn continuity_fixture(a: &Value) -> Result<Value> {
 /// Offline episodic adapter.
 pub fn episodes_fixture(a: &Value) -> Result<Value> {
     storage::fixture(a)
+}
+
+/// Offline initiative adapter.
+pub fn initiative_fixture(a: &Value) -> Result<Value> {
+    initiative::fixture(a)
 }

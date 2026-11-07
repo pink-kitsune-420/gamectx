@@ -396,6 +396,14 @@ impl InteractionTools {
     }
 }
 impl InteractionTools {
+    /// Host-only accepted unresolved promises for deterministic initiative. Reported,
+    /// fulfilled and cancelled promises are excluded; original notebook remains authoritative.
+    pub fn accepted_promises(&self) -> Vec<Value> {
+        self.notes.records().iter().filter(|n|n.get("attribute").and_then(Value::as_str)==Some("promise")).filter_map(|n|{
+            let progress=self.progress.iter().find(|p|p.get("id")==n.get("id")&&p.get("state").and_then(Value::as_str)==Some("accepted"))?;
+            Some(obj!{"id"=>n.get("id").unwrap().clone(),"promisor"=>n.get("subject").unwrap().clone(),"beneficiary"=>n.get("value").unwrap().get("beneficiary").unwrap().clone(),"revision"=>progress.get("revision").unwrap().clone()})
+        }).collect()
+    }
     /// Choose individual schemas; eight tools are never enabled automatically.
     pub fn tools(&self, names: &[&str]) -> Result<Value> {
         if names.len() > 8 {
