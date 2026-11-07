@@ -17,6 +17,10 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
 [conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
 
+The [dynamic character implementation agent brief](docs/ROLEPLAY_AGENT.md) specifies
+the planned five-stage work on life definitions, opinions, continuity, durable memory,
+initiative and player controls. It preserves the existing optional APIs and evaluation rules.
+
 ## Adversarial probes and measured limits (unreleased v0.3.1a)
 
 [Fresh probes](docs/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,

@@ -338,6 +338,16 @@ noted; "3 models" adds Llama 3.3 70B.
   accuracy remains unmeasured. Source-classification/adapter diagnostics are recorded
   separately above; keep historical pilots frozen.
 
+## Planned dynamic character implementation
+
+- [Implementation agent brief](ROLEPLAY_AGENT.md): complete life definitions/opinions/
+  relationships, conversation and scene continuity, durable episodic memory, purposeful
+  initiative, then player/developer controls and integrated evaluation, in that order.
+- Preserve optional configuration, free-form expression with explicit knowledge limits,
+  host authority, existing APIs/ABI and historical evaluations. The brief is a handoff;
+  these five stages are not implemented by this documentation change. No new model calls
+  or API spend. Measure usefulness and unnecessary refusals alongside factual correctness.
+
 ## Known gaps
 
 - Table/catalog word matching recognizes namespace/dotted/path components and optional plural `s`, while memory recall/index tokenization retains its prior contract. Optional `RecallIndex` adds simple English suffix normalization/host aliases, not semantic embeddings or a multilingual stemmer.
