@@ -1316,3 +1316,11 @@ synthetic ledger exercises. No installed provider, actual microphone or browser 
 contacted. The retained artifact reports zero real provider calls / $0 spend, with physical
 voice offsets/quality, image quality, installed-runner latency and FPS explicitly unmeasured.
 See [the complete integration guide](../docs/STUDIO.md).
+
+Overnight investigation: `overnight_deep.py --cap 0 --offline --output NEW.json`
+exercises 1,000 archival events and 600 loopback chat turns. Token-first installed-Qwen
+cohorts use `--tokens-only`, then `--tokens FILE`, with separate never-overwritten
+artifacts; `--holdout` selects separately authored names/preferences. Prototype-only
+`overnight_memory_cases.py --cap 0 --prototype-only` and `overnight_input_cases.py`
+record repair expectations before Rust changes. See `docs/OVERNIGHT_DEEP_EVAL.md` for
+ranked failures, raw observations and diagnostic false negatives.

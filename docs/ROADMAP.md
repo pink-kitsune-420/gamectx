@@ -468,3 +468,10 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   automatic archival or unlimited-world claim. [Method and limits](LIVING_WORLD.md).
 
 - Retained host trace: 272 µs median, 348 µs p95, 2248 µs maximum; 1000/1,000 measured host frames below 16,667 µs, with the documented exclusions.
+
+## Overnight deep testing
+
+- Initial 1,000-event archival trace preserves original evidence but legacy active-set
+  recall does not search it; 600-chat Web trace rejects 536 turns starting at turn 65
+  because routine dialogue fills rumor capacity. Ranked additive repairs and live
+  cohort methodology: [overnight evaluation](OVERNIGHT_DEEP_EVAL.md).
