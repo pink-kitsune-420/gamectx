@@ -1,0 +1,18 @@
+{
+  "browser": "Firefox headless",
+  "browser_workflows": 8,
+  "cases": [
+    "six editable profiles, manager initially opt-in",
+    "draft loading rejected until policy applied",
+    "manual drama and custom trigger persist through apply",
+    "online profiles expose no local load/start controls",
+    "invalid weight selection shows actionable parse error",
+    "detailed dramatic art bible validated and applied",
+    "reload preserves profile policy and art direction",
+    "model controls fit mobile without horizontal overflow"
+  ],
+  "page_console_errors": 0,
+  "actual_provider_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Real DOM controls and layout against an isolated cap-zero host with unbound provider roots. No installed-model inference, physical voice or paid API calls. Manual Firefox prerequisite; not a product dependency."
+}

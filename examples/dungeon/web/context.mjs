@@ -1,5 +1,5 @@
 // Optimistic scene scope, captured at intent time. Receipts use their own one-use IDs.
-export const scopedOperations=new Set(['chat','act','select','mic','promise','save','load','settings','generate','approve','repair','reset','check_providers']);
+export const scopedOperations=new Set(['chat','act','select','mic','promise','save','load','settings','generate','approve','repair','reset','check_providers','manager_settings','manager_action','manager_art']);
 export function makePost(fetch,current){
  return async(op,args={},generation=current()?.generation)=>{
   const headers={'Content-Type':'application/json','X-Studio-Request':'1'};

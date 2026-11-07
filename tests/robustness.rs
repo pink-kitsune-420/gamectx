@@ -1311,3 +1311,15 @@ fn required_speech_never_uses_generic_unknown_to_skip_source_validation() {
         }
     }
 }
+
+#[test]
+fn model_manager_policy_mutations_are_bounded_and_never_execute_services() {
+    let seed = include_str!("../conformance/model-manager/combat/input.json");
+    let mut rng = Rng(0x6d6f646c);
+    for _ in 0..2000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}

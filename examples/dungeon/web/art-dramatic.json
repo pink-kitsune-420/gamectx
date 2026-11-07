@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "id": "lantern_studio_art",
+  "revision": 2,
+  "style": "Original lantern-lit ink illustration with carefully layered flat color and fine material texture",
+  "format": "portrait",
+  "width": 1024,
+  "height": 1024,
+  "aspect": {
+    "width": 1,
+    "height": 1
+  },
+  "camera_angle": "eye level three-quarter cinematic composition",
+  "framing": "clear silhouette, readable hands, foreground and background separation",
+  "palette": [
+    "copper",
+    "deep blue",
+    "warm gray",
+    "muted ivory",
+    "oxidized bronze"
+  ],
+  "negative_tokens": [
+    "watermark",
+    "extra limbs",
+    "blurred hands",
+    "inconsistent clothing",
+    "unlisted objects",
+    "unobserved weather"
+  ],
+  "anchors": [
+    {
+      "entity": "merchant",
+      "kind": "character",
+      "silhouette": "slender figure with swept-back hair",
+      "attire": "deep blue work coat with copper stitching",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 37
+    },
+    {
+      "entity": "keeper",
+      "kind": "character",
+      "silhouette": "broad-shouldered figure with braided hair",
+      "attire": "gray fountain apron with copper clasps",
+      "props": [
+        "lamp"
+      ],
+      "seed": 71
+    },
+    {
+      "entity": "entry",
+      "kind": "scene",
+      "silhouette": "narrow descending stair with a lantern niche",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 100
+    },
+    {
+      "entity": "gallery",
+      "kind": "scene",
+      "silhouette": "arched gallery facing a bronze gate",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 101
+    },
+    {
+      "entity": "workshop",
+      "kind": "scene",
+      "silhouette": "work counter and closed wooden shutters",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 102
+    },
+    {
+      "entity": "cistern",
+      "kind": "scene",
+      "silhouette": "dry stone fountain beneath a low arch",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 103
+    },
+    {
+      "entity": "vault",
+      "kind": "scene",
+      "silhouette": "chamber with a stone sentinel and glass pedestal",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 104
+    },
+    {
+      "entity": "exit",
+      "kind": "scene",
+      "silhouette": "daylight stair with an open arch",
+      "attire": "original copper and blue stonework",
+      "props": [
+        "oil",
+        "chalk",
+        "lamp"
+      ],
+      "seed": 105
+    }
+  ],
+  "expressions": [
+    {
+      "id": "cautious",
+      "slot": "guarded",
+      "kind": "trust",
+      "subject": "listener",
+      "min": -100,
+      "max": -1,
+      "priority": 10,
+      "tokens": [
+        "guarded expression"
+      ]
+    },
+    {
+      "id": "friendly",
+      "slot": "warm",
+      "kind": "trust",
+      "subject": "listener",
+      "min": 15,
+      "max": 100,
+      "priority": 10,
+      "tokens": [
+        "warm expression"
+      ]
+    },
+    {
+      "id": "strained",
+      "slot": "tense",
+      "kind": "emotion",
+      "subject": "self",
+      "min": 40,
+      "max": 100,
+      "priority": 20,
+      "tokens": [
+        "tense expression"
+      ]
+    }
+  ],
+  "poses": [
+    {
+      "activity": "work",
+      "tokens": [
+        "hands resting at the work counter"
+      ]
+    },
+    {
+      "activity": "walk",
+      "tokens": [
+        "walking with a steady stride"
+      ]
+    }
+  ],
+  "facts": [
+    {
+      "id": "shutters_closed",
+      "group": "window_view",
+      "priority": 100,
+      "tokens": [
+        "closed wooden shutters"
+      ],
+      "props": []
+    },
+    {
+      "id": "visible_oil",
+      "group": null,
+      "priority": 0,
+      "tokens": [
+        "a small bottle of hinge oil on the counter"
+      ],
+      "props": [
+        "oil"
+      ]
+    },
+    {
+      "id": "visible_chalk",
+      "group": null,
+      "priority": 0,
+      "tokens": [
+        "a piece of chalk on the counter"
+      ],
+      "props": [
+        "chalk"
+      ]
+    },
+    {
+      "id": "gate_open",
+      "group": "gate",
+      "priority": 100,
+      "tokens": [
+        "open bronze gate"
+      ],
+      "props": []
+    },
+    {
+      "id": "gate_closed",
+      "group": "gate",
+      "priority": 50,
+      "tokens": [
+        "closed bronze gate"
+      ],
+      "props": []
+    }
+  ],
+  "max_fact_age": 2
+}

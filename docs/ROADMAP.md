@@ -519,3 +519,15 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Add confirmed New game with monotonic stale-result rejection; keep settings, saved
   branches, approved assets and spending intact. Offline setup/recovery holdout passes
   eleven workflows without an installed service or API spend.
+
+## Models, residency and dramatic scenes
+
+- Added pure bounded ModelPolicy routing with editable dramatic signals, hold/cooldown,
+  independent text/image escalation, local RAM admission and online eligibility.
+- Added on-demand/idle residency, predictive preload, native Ollama/SD lifecycle adapters,
+  owned launcher controls and parent-pipe cleanup. Audio engines remain separately
+  installed/configured services; browser/typing alternatives retain zero-model operation.
+- Added detailed dramatic art, model-bound normalized asset identity, labeled scoped
+  previous-approved previews and unchanged candidate approval/repair enforcement.
+- Evidence: 32 Python/Rust cases, shared bindings, 2,000 mutations, offline host routing
+  and owned-process cohorts; no larger-model or image-quality claim. See MODEL_MANAGER.md.

@@ -1,0 +1,41 @@
+{
+  "lifecycle_operations": 5,
+  "states": [
+    {
+      "action": "prewarm",
+      "profile": "text",
+      "text_resident": true,
+      "image_state": "empty"
+    },
+    {
+      "action": "unload",
+      "profile": "text",
+      "text_resident": false,
+      "image_state": "empty"
+    },
+    {
+      "action": "prewarm",
+      "profile": "image",
+      "text_resident": false,
+      "image_state": "ready"
+    },
+    {
+      "action": "unload",
+      "profile": "image",
+      "text_resident": false,
+      "image_state": "empty"
+    },
+    {
+      "action": "prewarm",
+      "profile": "image",
+      "text_resident": false,
+      "image_state": "ready"
+    }
+  ],
+  "external_servers_still_reachable": true,
+  "text_context_threads": 4,
+  "actual_text_generations": 0,
+  "actual_image_generations": 0,
+  "api_spend_usd": 0,
+  "limits": "Manual installed normal Qwen 3B and SD 1.5 lifecycle acknowledgements only; final normal image context restored. No image/text quality, latency/RAM benchmark, larger models or physical audio measurement. Not part of offline automated CI."
+}

@@ -134,8 +134,29 @@
 </section>
 <aside class="inspector">
 <div class="eyebrow">LIVE INSPECTOR</div>
-<details id="provider-panel" open>
-<summary>Model setup</summary>
+<details id="models-panel" open><summary>Models &amp; Services</summary>
+<p id="manager-state" role="status">Model manager is off.</p><p id="manager-memory" class="muted"></p><p id="manager-reason" class="muted"></p>
+<div class="button-row"><button id="manager-scan">Scan models / services</button><button id="manager-apply" class="primary">Apply model policy</button><span id="manager-draft">Applied</span></div>
+<div id="manager-settings">
+<label class="check"><input id="manager-enabled" type="checkbox">Enable model profiles &amp; automatic loading</label>
+<label>Scene mode<select id="manager-mode"><option value="auto">Auto · use scene rules</option><option value="normal">Everyday · force normal profiles</option><option value="dramatic">Dramatic · manual override</option></select></label>
+<div class="button-row"><label class="check"><input id="manager-text-dramatic" type="checkbox">Escalate text</label><label class="check"><input id="manager-image-dramatic" type="checkbox">Escalate images</label></div>
+<label>Keep models in RAM<select id="manager-residency"><option value="on_demand">Only while needed · free text/images after use</option><option value="warm">Keep briefly for reuse · unload when idle</option></select></label>
+<div class="button-row"><label>Idle seconds<input id="manager-idle" type="number" min="1" max="3600"></label><label>Model RAM allowance (MiB)<input id="manager-ram" type="number" min="256" max="65536"></label><label>Leave free (MiB)<input id="manager-reserve" type="number" min="128" max="8192"></label></div>
+<label class="check"><input id="manager-prewarm" type="checkbox">Prewarm likely upcoming conversations / microphone use</label>
+<p class="muted">Local models share one worker. Prewarming loads weights without generating a reply. Online APIs run only for real requests under the spending cap.</p>
+<details><summary>What counts as dramatic?</summary>
+<div class="button-row"><label class="check"><input id="mr-combat" type="checkbox">Combat</label><label class="check"><input id="mr-emergency" type="checkbox">Emergency</label><label class="check"><input id="mr-conflict" type="checkbox">Participant conflict</label></div>
+<div class="button-row"><label>Health at or below<input id="mr-low_health" type="number" min="0" max="100"></label><label>Event significance at least<input id="mr-significance" type="number" min="0" max="100"></label><label>Attitude change at least<input id="mr-attitude_change" type="number" min="0" max="200"></label></div>
+<div class="button-row"><label>Hold for turns<input id="mr-hold_turns" type="number" min="0" max="100"></label><label>Cooldown turns<input id="mr-cooldown_turns" type="number" min="0" max="100"></label></div><p class="muted">Zero disables a numeric trigger. Rules use host-confirmed signals, not dramatic words in a player's message. Emergency can bypass cooldown.</p>
+</details></div>
+<div id="manager-profiles"></div><datalist id="manager-text-list"></datalist>
+<details><summary>Image weight catalog</summary><pre id="manager-files"></pre></details>
+<details><summary>Dramatic art bible</summary><p class="muted">Detailed art uses its own model and richer art direction while keeping character anchors and perceived facts. Approved everyday art stays visible during generation.</p><textarea id="manager-art" rows="12" spellcheck="false"></textarea><button id="manager-art-apply">Validate &amp; apply art bible</button></details>
+<details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
+<p id="manager-message" role="status"></p></details>
+<details id="provider-panel">
+<summary>Connections, voices &amp; spending</summary>
 <p class="muted">You can explore and trade offline. For AI replies, choose a backend and an actual installed model.</p>
 <label>Text replies<select id="text-backend"><option value="0b_fallback">Offline · no model needed</option><option value="local_ollama">Ollama · local model</option><option value="online_openai_compatible">Online · configured API</option></select></label>
 <div class="button-row"><label>Model tier<select id="size"><option>1</option><option>1.5</option><option selected>3</option><option>8</option><option>30</option><option>70</option></select></label><label class="model-field">Model name<input id="model" list="installed-models" maxlength="128" placeholder="Choose or enter a model ID"><datalist id="installed-models"></datalist></label></div>

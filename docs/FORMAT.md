@@ -2020,3 +2020,19 @@ host diagnostics, not inferred model thoughts or core conformance-format changes
 spending. Both browser calls carry the current scene-generation header. Settings optionally
 accept `model`, applying that validated ID only to the selected text backend/tier. Existing
 settings payloads remain valid; endpoint URLs/credentials remain host-owned.
+
+### Model manager policy and example lifecycle
+
+The additive `model-manager` local adapter accepts `{config,signals}` and returns `{turns}`.
+ModelPolicy configuration contains six validated profiles, residency/RAM settings and
+dramatic rules. Signals contain turn, health, combat, atmosphere, significance, attitude
+delta, conflict, predicted channels and eligible profile IDs. At most 64 turns are
+evaluated; all counts/IDs/thresholds are bounded. Each result reports dramatic state,
+reasons, text/image profile, art variant, warm hints, hold/cooldown bounds and fallbacks.
+The conformance family defines the full ordered JSON representation.
+
+The example adds `manager_settings`, `manager_action` and `manager_art` commands. Only
+profile IDs and validated policy/bible data cross the browser boundary. Its `/api/state`
+adds `model_manager`, and visual selection adds a distinct `preview_asset` for labeled
+previous approved art. This is not approval or exact reuse for the newly requested key.
+Host launchers and executable arguments remain outside this protocol. See MODEL_MANAGER.md.

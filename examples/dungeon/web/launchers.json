@@ -1,0 +1,1 @@
+{"version":1,"services":{"text":{"argv":["ollama","serve"],"env":{"OLLAMA_HOST":"127.0.0.1:11434"}},"image":{"argv":["${GAMECTX_SD_SERVER}","--model-dir","${GAMECTX_IMAGE_MODELS}","--listen-ip","127.0.0.1","--listen-port","7860","--threads","4"],"env":{}},"tts":{"argv":[],"env":{}},"stt":{"argv":[],"env":{}}}}

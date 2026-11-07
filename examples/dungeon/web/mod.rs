@@ -1,6 +1,8 @@
 //! Opt-in loopback studio. Game rules remain in the original deterministic host.
 mod app;
 mod http;
+mod manager_runtime;
+mod manager_view;
 mod providers;
 mod setup;
 #[cfg(test)]
@@ -8,6 +10,9 @@ mod tests;
 use super::game;
 use game::{fields, get, text};
 use gamectx::{Error, Result, Value};
+pub fn service_guard() -> Result<()> {
+    manager_runtime::service_guard()
+}
 fn err() -> Error {
     Error::new("invalid studio request")
 }

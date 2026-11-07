@@ -1,3 +1,4 @@
+import {attachModels} from './models.mjs';
 import {
   VoicePlayer,prefix}
 from './voice.mjs';
@@ -157,8 +158,10 @@ async function loadState(){
     $('mic').disabled=s.effective_backends.stt==='off'||micUnsupported;
     $('mic').title=micUnsupported?'This browser does not support speech recognition. Type instead or use a local server.':s.effective_backends.stt==='off'?'Choose a microphone provider in Model setup.':'';
     $('interrupt').disabled=!s.speech||s.speech.delivery.done;
-    image('scene-image',s.scene_asset.selection.asset);
-    image('portrait-image',s.portraits.visible?s.portraits.selection.asset:null);
+    image('scene-image',s.scene_asset.selection.asset||s.scene_asset.preview_asset);
+    if(!s.scene_asset.selection.asset&&s.scene_asset.preview_asset)$('room-label').textContent+=' · previous approved art';
+    image('portrait-image',s.portraits.visible?s.portraits.selection.asset||s.portraits.preview_asset:null);
+    if(s.portraits.visible&&!s.portraits.selection.asset&&s.portraits.preview_asset)$('npc-label').textContent+=' · previous approved art';
     drawAsset();
     $('attitudes').replaceChildren(...s.characters.find(c=>c.id===s.npc).life.effective_attitudes.filter(a=>a.definition.subject===s.player).map(a=>{
       const div=document.createElement('div');
@@ -195,8 +198,10 @@ async function loadState(){
       settings(s);
     }
     renderSetup(s);
+    drawModels(s);
 }
 const refresh=coalescedRefresh(loadState,()=>state);
+const drawModels=attachModels({$,post,refresh,current:()=>state,interrupt:()=>player.interrupt()});
 $('player').onchange=$('npc').onchange=async()=>{
   const generation=state?.generation,selectedPlayer=$('player').value,selectedNpc=$('npc').value;
   await player.interrupt();
@@ -293,7 +298,7 @@ for(const id of ['text-backend','size'])$(id).addEventListener('change',()=>{$('
 for(const id of ['text-backend','image-backend','tts-backend','stt-backend','size','speech-mode','model','cap','voice-id','pitch','rate'])$(id).addEventListener('input',()=>renderSetup(state));
 $('installed-choice').onchange=()=>{if($('installed-choice').value){$('text-backend').value='local_ollama';$('model').value=$('installed-choice').value;renderSetup(state);}};
 $('check-providers').onclick=()=>invoke('check_providers').catch(()=>{});
-$('show-setup').onclick=()=>{$('provider-panel').open=true;$('provider-panel').scrollIntoView({behavior:'smooth',block:'start'});$('text-backend').focus({preventScroll:true});};
+$('show-setup').onclick=()=>{$('models-panel').open=true;$('models-panel').scrollIntoView({behavior:'smooth',block:'start'});$('manager-enabled').focus({preventScroll:true});};
 let resetGeneration=0;
 $('new-game').onclick=()=>{resetGeneration=state.generation;$('reset-dialog').showModal();};
 $('cancel-reset').onclick=()=>$('reset-dialog').close();

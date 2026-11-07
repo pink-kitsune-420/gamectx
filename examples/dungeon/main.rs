@@ -134,6 +134,9 @@ fn play(host: &mut host::Host) -> Result<()> {
 }
 fn run() -> Result<()> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
+    if args.as_slice() == ["--managed-service"] {
+        return web::service_guard();
+    }
     let mut mode = "play";
     let mut life_tools = false;
     let mut web_port = 8787u16;

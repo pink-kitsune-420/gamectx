@@ -1003,3 +1003,8 @@ The local Studio now shows applied model status, installed Ollama names, request
 and offline/model reply labels. Use **Model setup** to check and apply a model, and
 **New game** to reset play while retaining settings, saves, approved art and spending.
 No model setup is required before meeting a character.
+
+Lantern Vault now includes an opt-in **Models & Services** manager for demand loading,
+idle release, predictive warming and owned service controls. Configurable **Dramatic scene**
+rules select separate text/image profiles and a detailed art bible; online profiles use
+the existing spending ledger. [Configuration and evidence](docs/MODEL_MANAGER.md).

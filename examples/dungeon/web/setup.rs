@@ -165,6 +165,7 @@ pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request>
     let url = text(c.endpoint(backend)?, "url")?;
     let (root, _) = url["http://".len()..].split_once('/').ok_or_else(err)?;
     Ok(providers::Request {
+        management: None,
         method: if channel == "text" { providers::Method::Get } else { providers::Method::ConnectOnly },
         url: format!("http://{root}/{}", if channel == "text" { "api/tags" } else { "health" }),
         content_type: "application/json".into(),
@@ -173,7 +174,8 @@ pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request>
     })
 }
 pub fn definite_failure(e: &Error) -> bool {
-    matches!(e.to_string().as_str(), "provider_connection" | "provider_http_404" | "provider_http_400")
+    e.to_string().starts_with("manager:")
+        || matches!(e.to_string().as_str(), "provider_connection" | "provider_http_404" | "provider_http_400")
 }
 pub fn failure_detail(e: &Error, backend: &str) -> &'static str {
     match e.to_string().as_str() {

@@ -564,3 +564,12 @@ First public release.
   failures. Route Talk UI/addressing phrases through dialogue and acknowledge text once.
 - [api] Add confirmed New game with stale-result fencing; keep provider settings, saved
   branches, approved art and cumulative spending. Simplify the main play/setup layout.
+
+- [api] [format] Add optional pure ModelPolicy and 32 additive conformance cases for
+  dramatic scene routing, independent text/image profiles, residency/prewarm hints,
+  hold/cooldown and bounded RAM/availability fallbacks. Existing outputs are unchanged.
+- [api] Add Models & Services controls, local Ollama/SD load/unload, trusted owned-service
+  launchers with parent-exit cleanup, idle leases, TTS/STT controls and capped online
+  profile routing. No model download or paid call occurs automatically.
+- [api] Add a detailed dramatic art bible, model-bound normalized asset identity and
+  scoped previous-approved previews, retaining repair and candidate-approval constraints.

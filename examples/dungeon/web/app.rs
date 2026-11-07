@@ -59,6 +59,10 @@ pub struct App {
     mic_open: bool,
     local_paused: bool,
     monitor: super::setup::Monitor,
+    pub manager: super::manager_view::State,
+    manager_significance: u64,
+    manager_delta: u64,
+    manager_event_tick: u64,
     focus: Option<(String, u64)>,
     recognition: Value,
     counters: [u64; 2],
@@ -67,6 +71,7 @@ pub struct App {
     bible: ArtBible,
     assets: AssetRegistry,
     specs: Vec<VisualSpec>,
+    previews: Vec<(Value, Value)>,
     approvals: Vec<Value>,
     repairs: Vec<Value>,
     applied_repairs: Vec<String>,
@@ -129,6 +134,7 @@ impl App {
         } else {
             (Vec::new(), Vec::new())
         };
+        let manager = super::manager_view::State::new(&dir)?;
         let out = Self {
             config,
             budget,
@@ -156,6 +162,10 @@ impl App {
             mic_open: false,
             local_paused: false,
             monitor: super::setup::Monitor::default(),
+            manager,
+            manager_significance: 0,
+            manager_delta: 0,
+            manager_event_tick: 0,
             focus: None,
             recognition: Value::Null,
             counters: [0, 0],
@@ -164,6 +174,7 @@ impl App {
             bible: ArtBible::parse(include_str!("art.json"))?,
             assets,
             specs: Vec::new(),
+            previews: Vec::new(),
             approvals,
             repairs,
             applied_repairs: Vec::new(),
@@ -235,6 +246,16 @@ impl App {
         significance: u64,
         appraisal: Option<&str>,
     ) -> Result<()> {
+        let levels = |v: &Value| -> Vec<i64> {
+            v.get("effective_attitudes")
+                .and_then(Value::as_array)
+                .unwrap_or(&[])
+                .iter()
+                .filter(|a| a.get("definition").and_then(|d| d.get("subject")).and_then(Value::as_str) == Some(subject))
+                .filter_map(|a| a.get("level").and_then(|n| n.to_json().parse().ok()))
+                .collect()
+        };
+        let before = if appraisal.is_some() { levels(&self.world.inspect_actor(actor)?) } else { Vec::new() };
         let l = self.world.base_life(actor)?.inspect();
         let token = num(&l, "watermark", u32::MAX as u64)? + 1;
         let id = format!("event_{}", self.next());
@@ -243,6 +264,16 @@ impl App {
             return Ok(());
         }
         self.apply_world("observe",obj!{"id"=>id.clone(),"actor"=>actor,"event"=>obj!{"token"=>token,"at"=>self.tick,"kind"=>"direct","tag"=>tag,"subject"=>subject,"source"=>source(&id,actor,line),"audience"=>self.people.clone(),"text"=>line,"causes"=>Vec::<Value>::new(),"retain"=>true},"significance"=>significance,"share_with"=>if significance>=70 {vec![if actor=="merchant" {"keeper"} else {"merchant"}]} else {Vec::new()},"appraise"=>appraisal.map_or(Value::Null,Value::str)})?;
+        if self.manager_event_tick != self.tick {
+            self.manager_significance = 0;
+            self.manager_delta = 0;
+        }
+        self.manager_event_tick = self.tick;
+        self.manager_significance = self.manager_significance.max(significance);
+        if appraisal.is_some() {
+            let after = levels(&self.world.inspect_actor(actor)?);
+            self.manager_delta = before.iter().zip(after).map(|(a, b)| a.abs_diff(b)).max().unwrap_or(0).min(200);
+        }
         Ok(())
     }
     fn receipt(&mut self, r: Value) -> Result<()> {
@@ -428,11 +459,12 @@ impl App {
         Ok(answers)
     }
     fn compile_text(&self, input: &str, trigger: u64) -> Result<Value> {
-        let size = gamectx::deployment::ModelSize::parse(text(&self.config.value, "size")?)?;
+        let call_config = self.manager.provider(&self.config, "text")?;
+        let size = gamectx::deployment::ModelSize::parse(text(&call_config.value, "size")?)?;
         let hints = size.workload_hints(gamectx::deployment::Workload::Dialogue);
         let expanded = hints.exchanges > 1;
         let route = ModelRoute::from_value(
-            &obj! {"name"=>"studio","size"=>format!("{}b",text(&self.config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
+            &obj! {"name"=>"studio","size"=>format!("{}b",text(&call_config.value,"size")?.trim_end_matches(['b','B'])),"calls"=>1,"cost_micros"=>0},
         )?;
         let unknown = input.to_lowercase().contains("born") || input.to_lowercase().contains("weather");
         let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>false,"speaker"=>self.player.clone(),"question_subject"=>self.player.clone(),"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory.","stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{self.game.current_description()}else if self.npc=="merchant"{"An indoor merchant counter."}else{"An indoor fountain chamber."}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
@@ -473,14 +505,62 @@ impl App {
         messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {self.game.public()}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>self.player.clone()}.to_json()});
         Ok(obj! {"messages"=>messages,"max_tokens"=>hints.output_tokens.min(256)})
     }
+    pub fn manager_observe(&mut self, report: Value) -> Result<()> {
+        if let Some(names) = report.get("text_models").and_then(Value::as_array) {
+            let models = names.iter().map(|v| obj! {"name"=>v.clone()}).collect::<Vec<_>>();
+            let _ =
+                self.monitor.finish_check("text", "local_ollama", Ok(obj! {"models"=>models}.to_json().into_bytes()));
+        }
+        self.manager.observe(report, &self.config, &self.dir)?;
+        self.manager_update(Vec::new())
+    }
+    fn manager_update(&mut self, next: Vec<&str>) -> Result<()> {
+        let context=self.world.context(&obj! {"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>"counter","limit"=>1})?;
+        let atmosphere = context
+            .get("atmosphere")
+            .and_then(|v| v.get("state").or_else(|| v.get("tag")))
+            .and_then(Value::as_str)
+            .filter(|s| ["calm", "busy", "tense", "emergency"].contains(s))
+            .unwrap_or("calm");
+        self.manager.evaluate(obj!{"turn"=>self.tick+1,"health"=>self.game.hp as u64,"combat"=>self.game.room=="vault"&&self.game.enemy_hp>0,"atmosphere"=>atmosphere,"significance"=>if self.manager_event_tick==self.tick{self.manager_significance}else{0},"attitude_delta"=>if self.manager_event_tick==self.tick{self.manager_delta}else{0},"conflict"=>false,"next"=>next,"available"=>Vec::<Value>::new()},&self.config,&self.budget)
+    }
+    fn manager_job(&mut self, action: &str, profile: &str, predictive: bool) -> Result<Job> {
+        if self.pending.len() >= 8 {
+            return Err(err());
+        }
+        if action != "refresh" {
+            self.manager.policy.profile(profile)?;
+        }
+        let control = self.manager.control(&self.config, action, profile)?;
+        let id = self.next();
+        self.pending.push((id, self.epoch, "manager".into()));
+        self.monitor.queued(id, "manager", "local_manager", profile, false);
+        Ok(Job {
+            id,
+            epoch: self.epoch,
+            modality: "manager".into(),
+            backend: "local_manager".into(),
+            reservation: None,
+            request: providers::Request {
+                method: providers::Method::Post,
+                url: "http://127.0.0.1:1/manager".into(),
+                content_type: "application/json".into(),
+                body: Vec::new(),
+                key_env: None,
+                management: Some(control),
+            },
+            binding: obj! {"action"=>action,"profile"=>profile,"predictive"=>predictive},
+        })
+    }
     fn effective_backend(&self, modality: &str) -> Result<String> {
-        let selected = text(&self.config.value, modality)?;
+        let call_config = self.manager.provider(&self.config, modality)?;
+        let selected = text(&call_config.value, modality)?;
         if selected.starts_with("online_") {
-            let ceiling = num(self.config.endpoint(selected)?, "ceiling_micros", 1_000_000_000_000)?;
+            let ceiling = num(call_config.endpoint(selected)?, "ceiling_micros", 1_000_000_000_000)?;
             let spent = num(&self.budget.summary(), "charged_or_reserved_micros", 1_000_000_000_000)?;
             let cap = num(&self.budget.summary(), "cap_micros", 1_000_000_000_000)?;
-            if ceiling == 0 || spent.saturating_add(ceiling) > cap || !self.config.has_credentials(selected) {
-                return Ok(if !self.local_paused && get(&self.config.value, "local_fallback")? == &Value::Bool(true) {
+            if ceiling == 0 || spent.saturating_add(ceiling) > cap || !call_config.has_credentials(selected) {
+                return Ok(if !self.local_paused && get(&call_config.value, "local_fallback")? == &Value::Bool(true) {
                     gamectx::studio::backends(modality)?
                         .iter()
                         .find(|b| b.starts_with("local_"))
@@ -522,15 +602,16 @@ impl App {
         Ok(())
     }
     fn plan(&mut self, modality: &str, payload: &Value, binding: Value) -> Result<Option<Job>> {
+        let call_config = self.manager.provider(&self.config, modality)?;
         if self.pending.len() >= 8 {
             self.notice = "Worker queue is full; using the immediate fallback.".into();
             return Ok(None);
         }
-        let selected = text(&self.config.value, modality)?.to_string();
+        let selected = text(&call_config.value, modality)?.to_string();
         let ceiling =
-            if let Ok(e) = self.config.endpoint(&selected) { num(e, "ceiling_micros", 1_000_000_000_000)? } else { 0 };
-        let usable = if selected.starts_with("online_") && !self.config.has_credentials(&selected) {
-            if get(&self.config.value, "local_fallback")? == &Value::Bool(true) {
+            if let Ok(e) = call_config.endpoint(&selected) { num(e, "ceiling_micros", 1_000_000_000_000)? } else { 0 };
+        let usable = if selected.starts_with("online_") && !call_config.has_credentials(&selected) {
+            if get(&call_config.value, "local_fallback")? == &Value::Bool(true) {
                 gamectx::studio::backends(modality)?
                     .iter()
                     .copied()
@@ -546,7 +627,7 @@ impl App {
             modality,
             usable,
             ceiling,
-            get(&self.config.value, "local_fallback")? == &Value::Bool(true),
+            get(&call_config.value, "local_fallback")? == &Value::Bool(true),
         )?;
         let backend = text(&route, "backend")?.to_owned();
         let reservation = get(&route, "reservation")?.as_usize().map(|x| x as u64);
@@ -566,7 +647,13 @@ impl App {
             self.notice = format!("{modality}: {} ({})", backend, text(&route, "reason")?);
             return Ok(None);
         }
-        let request = match providers::prepare(&self.config, &backend, modality, payload) {
+        let mut payload = payload.clone();
+        if self.manager.policy.enabled() && modality == "image" {
+            if let Some(id) = self.manager.selected("image") {
+                set(&mut payload, "steps", get(self.manager.policy.profile(id)?, "steps")?.clone());
+            }
+        }
+        let mut request = match providers::prepare(&call_config, &backend, modality, &payload) {
             Ok(r) => r,
             Err(e) => {
                 if let Some(id) = reservation {
@@ -577,9 +664,29 @@ impl App {
                 return Ok(None);
             }
         };
+        if backend.starts_with("local_") && self.manager.policy.enabled() {
+            if let Some(profile) = self.manager.selected(modality) {
+                let p = self.manager.policy.profile(profile)?;
+                if text(p, "backend")?.starts_with("online_") {
+                    self.notice = "Online allowance exhausted; immediate fallback retained.".into();
+                    return Ok(None);
+                }
+                request.management = Some(self.manager.control(&self.config, "demand", profile)?);
+            }
+        }
         let id = self.next();
         self.pending.push((id, self.epoch, modality.into()));
-        let model = if modality == "text" { super::setup::selected_model(&self.config) } else { String::new() };
+        let model = if modality == "text" {
+            super::setup::selected_model(&call_config)
+        } else {
+            call_config
+                .endpoint(&backend)
+                .ok()
+                .and_then(|v| v.get("model"))
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .into()
+        };
         self.monitor.queued(id, modality, &backend, &model, false);
         if let Err(e) = if reservation.is_some() { self.persist_budget() } else { Ok(()) } {
             if let Some(r) = reservation {
@@ -616,9 +723,11 @@ impl App {
                     .is_some_and(|l| {
                         Some(l.revision() as usize) == job.binding.get("life_revision").and_then(Value::as_usize)
                     }))
-            && job.epoch == self.epoch
+            && (job.epoch == self.epoch
+                || job.modality == "manager" && job.binding.get("predictive") == Some(&Value::Bool(false)))
             && self.pending.iter().any(|x| x.0 == job.id)
-            && (job.modality == "check"
+            && (job.modality == "manager"
+                || job.modality == "check"
                 || job.modality == "image"
                 || job.modality == "stt"
                 || self.speech.as_ref().is_some_and(|s| {
@@ -627,7 +736,11 @@ impl App {
                 }))
     }
     pub fn before_dispatch(&mut self, job: &Job) -> Result<bool> {
-        if !self.valid_job(job) || job.modality != "check" && self.local_paused && job.backend.starts_with("local_") {
+        if !self.valid_job(job)
+            || !matches!(job.modality.as_str(), "check" | "manager")
+                && self.local_paused
+                && job.backend.starts_with("local_")
+        {
             self.cancel_job(job)?;
             return Ok(false);
         }
@@ -710,6 +823,29 @@ impl App {
                 if ok { "checked" } else { "failed" },
                 "Connection check finished; see setup status.",
             );
+            return Ok(followups);
+        }
+        if job.modality == "manager" {
+            match response {
+                Ok(bytes) => {
+                    self.manager_observe(parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?)?;
+                    self.monitor.update(
+                        job.id,
+                        "completed",
+                        "Model manager operation completed; see Models & Services.",
+                    );
+                    self.notice = "Model manager updated.".into();
+                }
+                Err(e) => {
+                    let detail = if e.to_string().starts_with("manager:") {
+                        e.to_string()
+                    } else {
+                        "Model service did not complete reliably. Check its status before resuming.".into()
+                    };
+                    self.monitor.update(job.id, "failed", &detail);
+                    self.notice = detail;
+                }
+            }
             return Ok(followups);
         }
         let apply = (|| -> Result<()> {
@@ -808,7 +944,8 @@ impl App {
                 let _ = self.assets.reject(text(&job.binding, "key")?, "Provider failed or candidate invalid.");
             }
         } else {
-            self.monitor.succeeded(&job.modality, &job.backend, &super::setup::selected_model(&self.config));
+            let succeeded_config = self.manager.provider(&self.config, &job.modality)?;
+            self.monitor.succeeded(&job.modality, &job.backend, &super::setup::selected_model(&succeeded_config));
             let detail = match job.modality.as_str() {
                 "text" => "Model reply validated. Play/read the line to confirm delivery.",
                 "image" => "Image candidate received. Review and approve it before use.",
@@ -823,7 +960,21 @@ impl App {
     fn visual(&mut self, target: &str) -> Result<Value> {
         let portrait = target == "portrait";
         let entity = if portrait { self.npc.as_str() } else { self.game.room.as_str() };
-        let mut b = self.bible.to_value();
+        let mut b = if self.manager.policy.enabled()
+            && self.manager.route.get("art").and_then(Value::as_str) == Some("detailed")
+        {
+            self.manager.art.to_value()
+        } else {
+            self.bible.to_value()
+        };
+        if self.manager.policy.enabled() {
+            if let Some(id) = self.manager.selected("image") {
+                let hash = super::manager_view::generation_identity(&b, self.manager.policy.profile(id)?)?;
+                let rev = u32::from_str_radix(&hash[30..38], 16).map_err(|_| err())?.max(1);
+                set(&mut b, "id", format!("m_{}", &hash[..30]).into());
+                set(&mut b, "revision", rev.into());
+            }
+        }
         if !portrait {
             set(&mut b, "format", "scene".into());
             set(&mut b, "framing", "wide room card".into());
@@ -893,6 +1044,29 @@ impl App {
                 self.notice = "Cached image unavailable; approved fallback or placeholder retained.".into();
             }
         }
+        let data = self
+            .assets
+            .inspect(&key)
+            .ok()
+            .and_then(|v| v.get("spec").cloned())
+            .unwrap_or(get(&spec.to_value(), "spec")?.clone());
+        let mut preview = Value::Null;
+        if let Some(asset) = selection.get("asset").filter(|a| **a != Value::Null) {
+            if let Some(old) = self.assets.inspect(text(asset, "key")?).ok().and_then(|v| v.get("spec").cloned()) {
+                self.previews
+                    .retain(|(d, _)| d.get("entity") != old.get("entity") || d.get("observer") != old.get("observer"));
+                if self.previews.len() == 8 {
+                    self.previews.remove(0);
+                }
+                self.previews.push((old, asset.clone()));
+            }
+        } else if self.manager.policy.enabled() && key == spec.key() {
+            if let Some((_, asset)) =
+                self.previews.iter().rev().find(|(old, _)| super::manager_view::preview_compatible(old, &data))
+            {
+                preview = asset.clone();
+            }
+        }
         let inspection = self.assets.inspect(&key).unwrap_or_else(|_| {
             let mut row = spec.to_value();
             set(&mut row, "state", "missing".into());
@@ -901,29 +1075,80 @@ impl App {
             row
         });
         Ok(
-            obj! {"base_key"=>spec.key(),"selection"=>selection,"inspection"=>inspection,"visible"=>!portrait||self.active()},
+            obj! {"base_key"=>spec.key(),"selection"=>selection,"inspection"=>inspection,"preview_asset"=>preview,"visible"=>!portrait||self.active()},
         )
     }
 
     pub fn state(&mut self) -> Result<Value> {
+        self.manager_update(Vec::new())?;
+        let active_config = self.manager.effective(&self.config)?;
         let portrait = self.visual("portrait")?;
         let scene = self.visual("scene")?;
         let mut characters = Vec::new();
         for actor in ["merchant", "keeper"] {
             let life = self.world.effective_life(actor)?;
-            characters.push(obj!{"id"=>actor,"life"=>self.world.inspect_actor(actor)?,"episodes"=>life.recall_episodes("conversation returned",&vec!["conversation","trade"].into(),gamectx::deployment::ModelSize::parse(text(&self.config.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).recall)?});
+            characters.push(obj!{"id"=>actor,"life"=>self.world.inspect_actor(actor)?,"episodes"=>life.recall_episodes("conversation returned",&vec!["conversation","trade"].into(),gamectx::deployment::ModelSize::parse(text(&active_config.value,"size")?)?.workload_hints(gamectx::deployment::Workload::Dialogue).recall)?});
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&self.config,self.local_paused),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
         if !v.is_valid(providers::MAX_BYTES) {
             return Err(err());
         }
+        self.manager_update(Vec::new())?;
         let mut jobs = Vec::new();
         let result = match op {
+            "manager_settings" => {
+                fields(v, &["config"])?;
+                if !self.pending.is_empty() {
+                    self.notice = "Wait for current requests before changing model configuration.".into();
+                    return Ok((obj! {"configured"=>false,"reason"=>"busy"}, jobs));
+                }
+                let policy = gamectx::studio::ModelPolicy::from_value(get(v, "config")?)?;
+                atomic(&self.dir.join("models.json"), policy.to_value().to_json().as_bytes())?;
+                self.stop(None)?;
+                self.epoch += 1;
+                self.mic_open = false;
+                let loaded = self
+                    .manager
+                    .report
+                    .get("loaded")
+                    .and_then(|v| v.get("profile"))
+                    .and_then(Value::as_str)
+                    .map(str::to_owned);
+                self.manager.policy = policy;
+                self.manager_update(Vec::new())?;
+                if let Some(id) = loaded {
+                    jobs.push(self.manager_job("release", &id, false)?);
+                }
+                jobs.push(self.manager_job("refresh", "text", false)?);
+                self.notice = "Model policy applied. Checking installed models; no download was started.".into();
+                obj! {"configured"=>true}
+            }
+            "manager_action" => {
+                fields(v, &["action", "profile"])?;
+                let action = text(v, "action")?;
+                let profile = text(v, "profile")?;
+                if !["refresh", "start", "stop", "prewarm", "unload"].contains(&action) {
+                    return Err(err());
+                }
+                if self.local_paused && ["prewarm", "start"].contains(&action) {
+                    self.notice = "Confirm local services are idle and resume before loading models.".into();
+                    return Ok((obj! {"queued"=>false,"reason"=>"paused"}, jobs));
+                }
+                jobs.push(self.manager_job(action, profile, false)?);
+                obj! {"queued"=>true}
+            }
+            "manager_art" => {
+                fields(v, &["bible"])?;
+                let bible = ArtBible::from_value(get(v, "bible")?)?;
+                atomic(&self.dir.join("dramatic-art.json"), bible.to_value().to_json().as_bytes())?;
+                self.manager.art = bible;
+                obj! {"configured"=>true}
+            }
             "check_providers" => {
                 fields(v, &[])?;
                 if !self.pending.is_empty() {
@@ -965,6 +1190,9 @@ impl App {
                 self.stop(None)?;
                 self.epoch += 1;
                 self.branch += 1;
+                self.manager.reset_scene()?;
+                self.manager_significance = 0;
+                self.manager_delta = 0;
                 self.game = game;
                 self.world = world;
                 self.party = party;
@@ -974,6 +1202,7 @@ impl App {
                 self.receipts.clear();
                 self.transcript.clear();
                 self.speech = None;
+                self.previews.clear();
                 self.tick = 0;
                 self.player = "player_1".into();
                 self.npc = "merchant".into();
@@ -1433,6 +1662,30 @@ impl App {
             }
             _ => return Err(err()),
         };
+        if op == "delivery"
+            && matches!(v.get("event").and_then(Value::as_str), Some("finished" | "interrupted"))
+            && self.manager.policy.enabled()
+            && self.manager.policy.to_value().get("residency").and_then(Value::as_str) == Some("on_demand")
+            && self.manager.report.get("loaded").and_then(|l| l.get("channel")).and_then(Value::as_str) == Some("tts")
+        {
+            jobs.push(self.manager_job("release", "tts", false)?);
+        }
+        let next =
+            if op == "act" && (self.active() || self.game.room == "gallery") { vec!["text"] } else { Vec::new() };
+        self.manager_update(next)?;
+        if jobs.is_empty() && self.pending.is_empty() && !self.local_paused && self.manager.policy.enabled() {
+            if let Some(id) = self
+                .manager
+                .route
+                .get("prewarm")
+                .and_then(Value::as_array)
+                .and_then(|v| v.first())
+                .and_then(Value::as_str)
+                .map(str::to_owned)
+            {
+                jobs.push(self.manager_job("prewarm", &id, true)?);
+            }
+        }
         Ok((result, jobs))
     }
     fn restore(&mut self, v: &Value) -> Result<()> {
@@ -1552,6 +1805,9 @@ impl App {
         let seq = num(v, "seq", u32::MAX as u64)?;
         self.stop(None)?;
         self.focus = None;
+        self.manager.reset_scene()?;
+        self.manager_significance = 0;
+        self.manager_delta = 0;
         self.game = game;
         self.world = world;
         self.actions = actions;

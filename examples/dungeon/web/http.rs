@@ -84,14 +84,34 @@ fn response(stream: &mut TcpStream, status: u16, mime: &str, body: &[u8]) -> Res
 }
 fn worker(app: Arc<Mutex<App>>, rx: std::sync::mpsc::Receiver<Job>, mut transport: impl Transport) {
     let mut followups = std::collections::VecDeque::new();
-    while let Some(job) = followups.pop_front().or_else(|| rx.recv().ok()) {
+    loop {
+        let job = if let Some(j) = followups.pop_front() {
+            j
+        } else {
+            match rx.recv_timeout(Duration::from_secs(1)) {
+                Ok(j) => j,
+                Err(std::sync::mpsc::RecvTimeoutError::Timeout) => {
+                    if let Ok(Some(report)) = transport.idle() {
+                        if let Ok(mut a) = app.lock() {
+                            let _ = a.manager_observe(report);
+                        }
+                    }
+                    continue;
+                }
+                Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
+            }
+        };
         let ready = app.lock().ok().and_then(|mut a| a.before_dispatch(&job).ok()).unwrap_or(false);
         if !ready {
             continue;
         }
         // The only provider execution lane: local text, diffusion and audio never overlap.
         let result = transport.send(&job.request);
+        let manager_status = transport.manager_status();
         if let Ok(mut a) = app.lock() {
+            if let Some(report) = manager_status {
+                let _ = a.manager_observe(report);
+            }
             match a.complete(&job, result) {
                 Ok(next) => followups.extend(next),
                 Err(_) => eprintln!("Studio completion rejected; spending remains reserved."),
@@ -112,6 +132,7 @@ fn handle(stream: &mut TcpStream, app: &Arc<Mutex<App>>, queue: &SyncSender<Job>
             "/studio.css" => Some(("text/css", include_bytes!("studio.css").as_slice())),
             "/studio.mjs" => Some(("text/javascript", include_bytes!("studio.mjs").as_slice())),
             "/context.mjs" => Some(("text/javascript", include_bytes!("context.mjs").as_slice())),
+            "/models.mjs" => Some(("text/javascript", include_bytes!("models.mjs").as_slice())),
             "/setup.mjs" => Some(("text/javascript", include_bytes!("setup.mjs").as_slice())),
             "/voice.mjs" => Some(("text/javascript", include_bytes!("voice.mjs").as_slice())),
             _ => None,
@@ -198,7 +219,17 @@ pub fn serve(seed: u32, port: u16, cap: u64, config: Config, dir: PathBuf) -> Re
     let port = listener.local_addr().map_err(|_| err())?.port();
     let (tx, rx) = sync_channel(8);
     let state = app.clone();
-    std::thread::spawn(move || worker(state, rx, providers::Network { dir }));
+    let manager = super::manager_runtime::Runtime::new(&dir)?;
+    std::thread::spawn(move || worker(state, rx, providers::Network { dir, manager }));
+    if let Ok(mut a) = app.lock() {
+        if a.manager.policy.enabled() {
+            if let Ok((_, jobs)) = a.command("manager_action", &obj! {"action"=>"refresh","profile"=>"text"}) {
+                for j in jobs {
+                    let _ = tx.try_send(j);
+                }
+            }
+        }
+    }
     println!("Lantern Vault studio: http://127.0.0.1:{port}/ (authorized cap: {cap} microdollars)");
     let active = Arc::new(AtomicUsize::new(0));
     for connection in listener.incoming() {

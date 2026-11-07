@@ -793,3 +793,8 @@ installed model and **Apply changes**. Setting a tier alone does not select inst
 weights. The visible activity log and reply-origin label explain whether an LLM ran or
 the offline line was retained. **New game** resets current play while preserving settings,
 branches, art approvals and spending; see [the Studio guide](STUDIO.md).
+
+Use **Models & Services** to choose normal/dramatic text and image profiles, audio services,
+residency and predictive warming. Configure what counts as dramatic or force a scene mode.
+Only installed/configured profiles are eligible; online calls remain under the launch cap.
+The [manager guide](MODEL_MANAGER.md) explains server ownership, art approval and limits.

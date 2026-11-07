@@ -201,7 +201,7 @@ fn local_http_transport_uses_only_loopback_and_decodes_chunking() {
         providers::prepare(&c, "local_ollama", "text", &obj! {"messages"=>Vec::<Value>::new(),"max_tokens"=>64})
             .unwrap();
     let d = Dir::new();
-    let mut t = providers::Network { dir: d.0.clone() };
+    let mut t = providers::Network { dir: d.0.clone(), manager: super::manager_runtime::Runtime::new(&d.0).unwrap() };
     assert_eq!(providers::Transport::send(&mut t, &request).unwrap(), b"{}");
     join.join().unwrap();
     let mut v = c.value.clone();
@@ -533,6 +533,77 @@ fn missing_model_has_visible_failure_and_does_not_pause_all_local_services() {
 }
 
 #[test]
+fn manager_online_profiles_use_existing_reservations_without_local_lifecycle_calls() {
+    let dir = Dir::new();
+    let mut c = config();
+    let mut endpoints = get(&c.value, "endpoints").unwrap().clone();
+    for backend in ["online_openai_compatible", "online_image_api"] {
+        let mut endpoint = get(&endpoints, backend).unwrap().clone();
+        set(&mut endpoint, "key_env", "GAMECTX_MANAGER_FIXTURE_KEY".into());
+        set(&mut endpoint, "ceiling_micros", 4.into());
+        set(&mut endpoints, backend, endpoint);
+    }
+    set(&mut c.value, "endpoints", endpoints);
+    std::env::set_var("GAMECTX_MANAGER_FIXTURE_KEY", "offline-fixture");
+    let mut a = app::App::new(7, 20, c, dir.0.clone()).unwrap();
+    travel(&mut a);
+    let mut policy = a.manager.policy.to_value();
+    set(&mut policy, "enabled", true.into());
+    set(&mut policy, "mode", "dramatic".into());
+    set(&mut policy, "text_escalation", true.into());
+    set(&mut policy, "image_escalation", true.into());
+    let mut profiles = get(&policy, "profiles").unwrap().clone();
+    for (id, backend, model) in [
+        ("dramatic_text", "online_openai_compatible", "online-dialogue"),
+        ("dramatic_image", "online_image_api", "online-art"),
+    ] {
+        let mut p = get(&profiles, id).unwrap().clone();
+        set(&mut p, "backend", backend.into());
+        set(&mut p, "model", model.into());
+        set(&mut p, "ram_mib", 65536.into());
+        set(&mut profiles, id, p);
+    }
+    set(&mut policy, "profiles", profiles);
+    a.manager.policy = gamectx::studio::ModelPolicy::from_value(&policy).unwrap();
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello."});
+    assert_eq!(jobs.len(), 1);
+    assert!(jobs[0].reservation.is_some());
+    assert!(jobs[0].request.management.is_none());
+    assert!(jobs[0].request.url.starts_with("https://"));
+    let body = parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap();
+    assert_eq!(text(&body, "model").unwrap(), "online-dialogue");
+    a.cancel_job(&jobs[0]).unwrap();
+    let (_, jobs) = command(&mut a, "generate", obj! {"target"=>"portrait"});
+    assert_eq!(jobs.len(), 1);
+    assert!(jobs[0].reservation.is_some());
+    assert!(jobs[0].request.management.is_none());
+    let body = parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap();
+    assert_eq!(text(&body, "model").unwrap(), "online-art");
+    a.cancel_job(&jobs[0]).unwrap();
+    a.budget.limit(0).unwrap();
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Hello again."});
+    assert!(jobs.is_empty());
+    assert_eq!(num(&a.budget.summary(), "charged_or_reserved_micros", 100).unwrap(), 0);
+    std::env::remove_var("GAMECTX_MANAGER_FIXTURE_KEY");
+}
+
+#[test]
+fn previous_art_preview_is_subject_scene_and_hard_prop_scoped() {
+    let base = obj! {"scope"=>"scene","observer"=>"player_1","audience"=>vec!["player_1"],"entity"=>"merchant","scene"=>"workshop","scene_epoch"=>1,"format"=>"portrait","silhouette"=>"original figure","attire"=>"blue coat","visible_props"=>vec!["oil"],"environment"=>Vec::<Value>::new(),"expression"=>obj!{"slot"=>"neutral"},"pose"=>obj!{"id"=>"idle"},"forbidden_props"=>Vec::<Value>::new()};
+    assert!(super::manager_view::preview_compatible(&base, &base));
+    for (key, value) in [
+        ("observer", "player_2".into()),
+        ("scene_epoch", 2.into()),
+        ("attire", "armor".into()),
+        ("forbidden_props", vec!["oil"].into()),
+    ] {
+        let mut changed = base.clone();
+        set(&mut changed, key, value);
+        assert!(!super::manager_view::preview_compatible(&base, &changed));
+    }
+}
+
+#[test]
 fn new_game_preserves_settings_spend_cache_saves_and_invalidates_inflight_speech() {
     let dir = Dir::new();
     let mut a = app::App::new(7, 20, config(), dir.0.clone()).unwrap();
@@ -726,4 +797,20 @@ fn command_focus_expires_and_legacy_look_still_executes() {
     assert_eq!(a.game.coins, coins);
     command(&mut a, "chat", obj! {"text"=>"look"});
     assert_eq!(a.game.revision, revision + 1);
+}
+
+#[test]
+fn generator_binding_ignores_ram_and_key_order_but_tracks_model_identity() {
+    let c = gamectx::studio::ModelPolicy::from_value(&parse(include_str!("models.json")).unwrap()).unwrap();
+    let p = c.profile("image").unwrap();
+    let bible = parse(include_str!("art.json")).unwrap();
+    let first = super::manager_view::generation_identity(&bible, p).unwrap();
+    let mut changed = p.clone();
+    set(&mut changed, "ram_mib", 1234.into());
+    if let Value::Object(rows) = &mut changed {
+        rows.reverse();
+    }
+    assert_eq!(first, super::manager_view::generation_identity(&bible, &changed).unwrap());
+    set(&mut changed, "model", "another-model".into());
+    assert_ne!(first, super::manager_view::generation_identity(&bible, &changed).unwrap());
 }

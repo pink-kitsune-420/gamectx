@@ -173,6 +173,7 @@ pub enum Method {
 #[derive(Clone, Debug)]
 pub struct Request {
     pub method: Method,
+    pub management: Option<Value>,
     pub url: String,
     pub content_type: String,
     pub body: Vec<u8>,
@@ -217,7 +218,7 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
             let positive = text(payload, "prompt")?;
             let negative = text(payload, "negative_prompt")?;
             if backend == "local_sd_cpp" {
-                obj!{"prompt"=>positive,"negative_prompt"=>negative,"width"=>width,"height"=>height,"seed"=>num(payload,"seed",u32::MAX as u64)?,"steps"=>12,"batch_size"=>1}.to_json().into_bytes()
+                obj!{"prompt"=>positive,"negative_prompt"=>negative,"width"=>width,"height"=>height,"seed"=>num(payload,"seed",u32::MAX as u64)?,"steps"=>payload.get("steps").cloned().unwrap_or(12.into()),"batch_size"=>1}.to_json().into_bytes()
             } else {
                 let mut request = obj! {"model"=>model,"prompt"=>format!("{positive}. Avoid: {negative}"),"n"=>1,"size"=>format!("{width}x{height}")};
                 if model.starts_with("dall-e-") {
@@ -260,6 +261,7 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
     }
     Ok(Request {
         method: Method::Post,
+        management: None,
         url: text(e, "url")?.into(),
         content_type,
         body,
@@ -268,12 +270,28 @@ pub fn prepare(c: &Config, backend: &str, modality: &str, payload: &Value) -> Re
 }
 pub trait Transport: Send + 'static {
     fn send(&mut self, request: &Request) -> Result<Vec<u8>>;
+    fn idle(&mut self) -> Result<Option<Value>> {
+        Ok(None)
+    }
+    fn manager_status(&self) -> Option<Value> {
+        None
+    }
 }
 pub struct Network {
     pub dir: std::path::PathBuf,
+    pub manager: super::manager_runtime::Runtime,
 }
 impl Transport for Network {
+    fn manager_status(&self) -> Option<Value> {
+        self.manager.status()
+    }
+    fn idle(&mut self) -> Result<Option<Value>> {
+        self.manager.idle()
+    }
     fn send(&mut self, r: &Request) -> Result<Vec<u8>> {
+        if r.management.is_some() {
+            return self.manager.execute(r, &self.dir);
+        }
         if r.url.starts_with("http://127.0.0.1:") {
             local_http(r)
         } else {
@@ -281,7 +299,7 @@ impl Transport for Network {
         }
     }
 }
-fn local_http(r: &Request) -> Result<Vec<u8>> {
+pub(super) fn local_http(r: &Request) -> Result<Vec<u8>> {
     endpoint(&r.url, false)?;
     let tail = &r.url["http://127.0.0.1:".len()..];
     let (port, path) = tail.split_once('/').ok_or_else(err)?;

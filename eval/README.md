@@ -1380,3 +1380,18 @@ STT accuracy, image quality and general player usability are outside its claims.
 `studio-setup-live.json` is a separate one-call manual installed-Qwen wiring check,
 not part of the offline CI suites or an accuracy benchmark. It records host-validated
 speech and explicitly identifies the absence of retained raw generation wire output.
+
+Model manager: `model_manager_cases.py --cap 0` checks 32 independent Python/Rust policy
+workflows; its `--prototype-only` and `--write-conformance` modes retain the format oracle.
+`model_manager_host.py --cap 0` runs isolated Ollama/SD mocks for routing, local lifecycle,
+cache/approval and online-cap fallback. `model_manager_owned.py --cap 0` tests real
+owned fixture processes, replacement and parent-exit cleanup. Neither contacts installed
+models or online providers. Use `--output NEW.json` to retain a fresh run.
+`model_manager_bindings.py --cap 0` checks Python CLI/native and prepares shared Node/C#
+fixtures; `node eval/model_manager_bindings.mjs --cap 0` checks the Node bridge.
+
+Manual browser coverage: `python3 -I eval/model_manager_browser.py --cap 0` requires an
+isolated offline host on 8788 and Firefox BiDi on 9223. Manual installed-provider lifecycle
+smoke: `python3 -I eval/model_manager_live.py --cap 0 --model INSTALLED_ID`; it uses existing
+loopback servers, loads/unloads only normal profiles, and leaves normal SD restored.
+Neither is an automated CI prerequisite. Retained browser/live JSON records the limits.

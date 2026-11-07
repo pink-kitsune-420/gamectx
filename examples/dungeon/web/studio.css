@@ -132,3 +132,5 @@ main{padding-top:12px}.eyebrow{margin-bottom:7px}
 .speech small{display:none}.speech .button-row button{padding:6px}
 #chat{margin:8px 0}#chat label{margin-bottom:5px}
 }
+
+.model-card{padding:10px 0}.model-card summary{font-size:12px}.model-card small{font-size:10px;color:var(--muted)}#manager-draft,#manager-memory,#manager-reason,#manager-message{font-size:11px;overflow-wrap:anywhere}#manager-art{font:11px/1.5 ui-monospace,monospace}#models-panel>summary{font-size:15px}#manager-settings .check{font-size:11px}#manager-profiles .button-row button{font-size:10px;padding:6px}
