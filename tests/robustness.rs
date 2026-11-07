@@ -1158,3 +1158,19 @@ fn initiative_candidate_mutations_are_bounded() {
         }
     }
 }
+
+#[test]
+fn speech_turns_and_sentence_diagnostics_bound_model_written_text() {
+    let seed = include_str!("../conformance/life-speech-v2/unknown/input.json");
+    let mut rng = Rng(0x125813);
+    for _ in 0..10000 {
+        let text = mutate(&mut rng, seed);
+        if let Ok(value) = parse(&text, 65536) {
+            let _ = gamectx::local::process(&value);
+        }
+        let speech = mutate(&mut rng, "Your lamp is ready. If you need to know more,");
+        let before = speech.clone();
+        let _ = gamectx::life::assess_sentence(&speech, 240);
+        assert_eq!(before, speech);
+    }
+}

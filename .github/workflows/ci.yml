@@ -50,6 +50,11 @@ jobs:
       - run: python3 -I eval/continuity_context_cases.py --cap 0
       - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-tokens.json
       - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-results.json
+      - run: python3 -I eval/life_speech_cases.py --cap 0
+      - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-tokens.json
+      - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-results.json
+      - run: python3 -I eval/life_model_v2_review.py --cap 0 --check
+      - run: cargo +stable test --example character-speech --locked
       - run: python3 -I eval/validation_reference.py > target/validation-oracle.json
       - run: rustc --edition=2021 -O eval/validation_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/validation-check
       - run: ./target/validation-check
@@ -152,6 +157,7 @@ jobs:
       - run: python3 -I eval/adversarial_bindings_check.py --cap 0
       - run: node eval/adversarial_bindings_check.mjs
       - run: python3 -I eval/life_bindings_check.py --cap 0
+      - run: python3 -I eval/life_speech_cases.py --cap 0 --check-bindings
       - run: node eval/life_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs

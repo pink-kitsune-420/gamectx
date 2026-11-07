@@ -1798,3 +1798,26 @@ syntax and key uniqueness directly, with no heap allocation even on rejection. I
 small-object comparisons and fixed-stack sorted blocks for wide objects. `request::bounded`
 uses it; error construction still creates the existing owned error message. Serialization
 bytes and all earlier expected files remain unchanged.
+
+## Turn-aware life speech v2
+
+Legacy context/request outputs stay unchanged. `Life::compile_speech` takes exactly
+`version:2,rules,tags,caps,stable_scene,state,dialogue,input,tools,turn`. Rules and input keep
+the existing 512-character/2,048-byte single-line bound. Tools hold at most 32 schemas;
+selected whole dialogue must fit the declared exchange cap. The complete rendered result
+is bounded and must be recounted for the actual provider.
+
+`turn` is exactly `profile,knowledge,creative,speaker,question_subject,facts`. Profile is
+focused/expanded, knowledge known/partial/unknown, creative is a host boolean. Each of at
+most 32 facts is exactly `key,subject,status,value`, using approved entity IDs. Known values
+are non-null; unknown values are null with status unknown. Each value is at most 1,024 JSON
+bytes. Keys are unique scope strings, excluding question_subject/utterance_speaker/
+fact_subjects. Facts must fit the attention cap, never drop required unknown markers.
+Profile/known-state gating is described in [LIFE](LIFE.md#turn-aware-speech-policy-v2).
+
+The additive `local` kind `life-speech-v2` is an offline adapter with `life,request`; it
+returns `character,request`. It makes no model calls. `sentence-boundary` takes `text,
+max_chars` and returns `characters,boundary_complete,single_sentence,at_schema_wall,
+over_limit,suspected_cutoff`. Bounds are 1..1,024 max_chars and 1,024 Unicode characters /
+4,096 bytes of text. Empty text is diagnosable. This punctuation heuristic preserves raw
+text and does not certify semantic completeness or factual support.

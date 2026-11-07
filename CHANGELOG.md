@@ -13,6 +13,15 @@ know what an upgrade costs:
 
 ## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
+- **[api]** Adds opt-in speech compiler v2: focused/unknown-state grounded policy, explicit
+  speaker/subject factual bindings, direct current utterances and bounded sentence-wall
+  diagnostics. Includes coordinator/session operations and a tested Rust example.
+- **[format]** Adds 15 compiler/sentence conformance cases, including errors; all existing
+  889 cases/expected files remain unchanged. The legacy life context and v1 artifacts stay frozen.
+- **[docs]** Records a fresh v1-style/v2 local speech pair: terminal endings 5/8→8/8,
+  suspected schema-wall cutoffs 3/8→0/8; weather/stock hallucinations remain. 48 local calls,
+  $0 API, four regression and four new holdout families. No universal semantic guarantee.
+
 - **[api]** Adds optional life definitions, evidence-based appraisals, topic/scene continuity,
   partial delivery acknowledgements, durable scoped state/erasure, and routine-linked
   initiative driven by attitudes, accepted promises and event tokens. Persistent host

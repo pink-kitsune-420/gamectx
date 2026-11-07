@@ -352,6 +352,34 @@ impl Coordinator {
             obj! {"packet"=>packet,"inspection"=>obj!{"omitted_facts"=>omitted,"omitted_exchanges"=>history.len().saturating_sub(caps.exchanges),"caps"=>obj!{"facts"=>caps.facts,"facets"=>caps.facets,"attitudes"=>caps.attitudes,"episodes"=>caps.episodes,"exchanges"=>caps.exchanges}}},
         )
     }
+    /// Additive v2 selection with explicit subject facts and gated speech policy.
+    /// Old packets remain byte-identical. Both fact lists share the attention cap.
+    pub fn select_context_for_turn(
+        &self,
+        thread: &str,
+        life: &Life,
+        selection: &Value,
+        caps: ContextCaps,
+        dialogue: &crate::dialogue::Thread,
+        turn: &SpeechTurn,
+    ) -> Result<Value> {
+        let character = life.context_for_turn(get(selection, "tags")?, caps, turn)?;
+        let mut selected = self.select_context(thread, life, selection, caps, dialogue)?;
+        if let Value::Object(fields) = &mut selected {
+            if let Some((_, packet)) = fields.iter_mut().find(|(k, _)| k == "packet") {
+                let facts = c::list(get(packet, "facts")?)?.len() + c::list(get(&turn.to_value(), "facts")?)?.len();
+                if facts > caps.facts {
+                    return Err(c::bad());
+                }
+                super::continuity::set(packet, "version", Value::from(2));
+                super::continuity::set(packet, "character", character);
+                if let Value::Object(fields) = packet {
+                    fields.push(("question_facts".into(), turn.scoped_facts(&life.actor)?));
+                }
+            }
+        }
+        Ok(selected)
+    }
     pub fn inspect(&self) -> Value {
         obj! {"scene"=>self.scene.clone().unwrap_or(Value::Null),"threads"=>self.threads.clone(),"speech"=>self.speech.clone()}
     }

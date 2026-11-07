@@ -380,3 +380,21 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 
 - Evidence validation establishes source availability/provenance, not logical entailment or calibrated confidence. Host evidence collection, consent, clock progression and archival storage remain integration responsibilities.
 - Indexed recall owns a filtered snapshot and must be rebuilt after edits/erasure/privacy changes. Outcome/temporal trackers are transient; hosts supply source IDs, coverage, clocks and any durable history. Runtime ledger persistence/prices and current permission checks remain host responsibilities. Reusable drafts and observed outcomes do not prove causal effectiveness.
+
+
+## Turn-aware speech follow-up
+
+- Implemented v2 profile/known-state policy gating, explicit player/merchant fact subjects,
+  direct utterance rendering and bounded punctuation/schema-wall diagnostics. Legacy
+  outputs and `life-model-{tokens,results,review}.json` remain byte-identical.
+- Independent prototype/Rust parity: 32 compiler workflows, 16 sentence/bound checks,
+  new error/conformance cases, persistent CLI/native checks and model-text mutations.
+- Fresh paired local Qwen follow-up: four regression/four holdout families, 48 calls,
+  $0 API. All four v1 candidate regression raw responses reproduce exactly. Terminal endings
+  5/8→8/8, suspected schema-wall cutoffs 3/8→0/8, single-sentence heuristic 0/8→5/8.
+- Preserve remaining failures: v2 still invents clear weather and a dark blue wick; one
+  reply exceeds the instructed 120 characters. Both v2 origin cases acknowledge unknowns
+  without invented origins. Do not present this as general subject resolution or grounding.
+- Raw v2 token/results/review artifacts and [method/limits](LIFE_SPEECH_V2_EVAL.md) are retained;
+  no tuned rerun, larger model, automatic repair or default source-answer change. Next:
+  independent human review and fresh multi-turn families covering unknown scenes and stock.

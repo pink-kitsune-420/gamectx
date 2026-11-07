@@ -286,3 +286,7 @@ fn documented_routine_context_example() -> gamectx::Result<()> {
 #[allow(dead_code)]
 #[path = "../examples/character-life.rs"]
 mod character_life_example;
+
+#[allow(dead_code)]
+#[path = "../examples/character-speech.rs"]
+mod character_speech_example;

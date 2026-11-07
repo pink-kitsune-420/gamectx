@@ -6,9 +6,11 @@ mod context;
 mod continuity;
 pub use context::{render_character_chat, ContextCaps};
 mod initiative;
+mod speech;
 mod storage;
 pub use continuity::{Coordinator, SpeechTransport};
 pub use initiative::{Initiative, InitiativePolicy};
+pub use speech::{assess_sentence, SentenceAssessment, SpeechTurn};
 pub use storage::{FileStore, Storage};
 pub const MAX_BYTES: usize = 524_288;
 pub(crate) fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
@@ -494,6 +496,15 @@ impl Life {
     /// it stay host-only. Existing relationship notes/promise tools remain reusable.
     pub fn context(&self, tags: &Value, limit: usize) -> Result<Value> {
         self.active()?;
+        self.context_with_policy(tags, limit, self.expression_policy(false)?)
+    }
+    fn expression_policy(&self, grounded: bool) -> Result<Value> {
+        Ok(
+            obj! {"balanced"=>self.config.balanced&&!grounded,"deception"=>self.config.deception,"mistaken"=>self.config.mistaken,"improvisation"=>if grounded{Value::str("")}else{get(&self.definition.value,"improvisation")?.clone()},"expression"=>if grounded{speech::GROUNDED}else{speech::EXPRESSIVE}},
+        )
+    }
+    fn context_with_policy(&self, tags: &Value, limit: usize, policy: Value) -> Result<Value> {
+        self.active()?;
         let tags = names(tags, 8)?;
         if limit > 16 {
             return Err(c::bad());
@@ -525,7 +536,7 @@ impl Life {
             .cloned()
             .collect::<Vec<_>>();
         Ok(
-            obj! {"scope"=>self.scope.clone(),"revision"=>self.revision,"facets"=>facets,"attitudes"=>attitudes,"policy"=>obj!{"balanced"=>self.config.balanced,"deception"=>self.config.deception,"mistaken"=>self.config.mistaken,"improvisation"=>get(&self.definition.value,"improvisation")?.clone(),"expression"=>"Opinions, humor and imagined hypotheticals may be expressed. Separate facts, reports, beliefs, inference and proposals. Answer known parts and relevant uncertainty; invented flavor is not lore or experience."}},
+            obj! {"scope"=>self.scope.clone(),"revision"=>self.revision,"facets"=>facets,"attitudes"=>attitudes,"policy"=>policy},
         )
     }
     /// Erase learned data while retaining replay watermarks and approved definitions.
@@ -749,4 +760,9 @@ pub fn context_fixture(a: &Value) -> Result<Value> {
 
 fn object_len(fields: &[(&str, usize)]) -> usize {
     2 + fields.len().saturating_sub(1) + fields.iter().map(|(k, n)| k.len() + 3 + n).sum::<usize>()
+}
+
+/// Offline v2 speech compiler adapter.
+pub fn speech_fixture(a: &Value) -> Result<Value> {
+    speech::fixture(a)
 }

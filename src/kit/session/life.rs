@@ -49,6 +49,10 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
             invalidate(r)?;
             r.character.life_mut()?.appraise(text(a, "rule")?, num(a, "event")?, num(a, "revision")?)
         }
+        "character_life_compile_speech" => {
+            c::fields(a, &["id", "request"])?;
+            r.character.life().ok_or_else(bad)?.compile_speech(c::get(a, "request")?)
+        }
         "character_life_context" => {
             c::fields(a, &["id", "tags", "caps"])?;
             r.character
@@ -231,6 +235,17 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
                 c::get(a, "selection")?,
                 ContextCaps::from_value(c::get(a, "caps")?)?,
                 &crate::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
+            )
+        }
+        "character_continuity_speech_context" => {
+            c::fields(a, &["id", "thread", "selection", "caps", "dialogue", "turn"])?;
+            r.coordinator.as_ref().ok_or_else(bad)?.select_context_for_turn(
+                text(a, "thread")?,
+                r.character.life().ok_or_else(bad)?,
+                c::get(a, "selection")?,
+                ContextCaps::from_value(c::get(a, "caps")?)?,
+                &crate::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
+                &crate::life::SpeechTurn::from_value(c::get(a, "turn")?)?,
             )
         }
         "character_continuity_generate" => {

@@ -1,0 +1,384 @@
+{
+  "review_type": "assistant manual review against predeclared host expectations, plus reproducible punctuation metrics; not independent human scoring",
+  "human_review": null,
+  "results_sha256": "925c59109a423f1d60adf06478919010fca408ecb934e65d5c6a364fe5889e6e",
+  "v1_sha256": {
+    "eval/life-model-tokens.json": "825992e7f5c6667e6e2a4c78ca21b56d98e074846e87b9d78a66f31b368ffa86",
+    "eval/life-model-results.json": "6dd25a39455677fffa83fbd4f489852284c4091bfae5e6261fa63f9f3f837af8",
+    "eval/life-model-review.json": "3b4d4a8fe973b483a8fe9de51ca35b5e4a59fdbe8dcf7ac9a9dc8c82acffa8b3"
+  },
+  "summary": {
+    "v1_candidate": {
+      "all": {
+        "turns": 8,
+        "valid_shape": 8,
+        "boundary_complete": 5,
+        "single_sentence": 0,
+        "at_schema_wall": 3,
+        "suspected_cutoff": 3,
+        "under_120_characters": 0,
+        "input_tokens": 6670,
+        "output_tokens": 460,
+        "median_complete_turn_micros": 9605727.5
+      },
+      "regression": {
+        "turns": 4,
+        "valid_shape": 4,
+        "boundary_complete": 2,
+        "single_sentence": 0,
+        "at_schema_wall": 2,
+        "suspected_cutoff": 2,
+        "under_120_characters": 0,
+        "input_tokens": 3330,
+        "output_tokens": 231,
+        "median_complete_turn_micros": 9283432.0
+      },
+      "holdout": {
+        "turns": 4,
+        "valid_shape": 4,
+        "boundary_complete": 3,
+        "single_sentence": 0,
+        "at_schema_wall": 1,
+        "suspected_cutoff": 1,
+        "under_120_characters": 0,
+        "input_tokens": 3340,
+        "output_tokens": 229,
+        "median_complete_turn_micros": 10135916.0
+      }
+    },
+    "v2_candidate": {
+      "all": {
+        "turns": 8,
+        "valid_shape": 8,
+        "boundary_complete": 8,
+        "single_sentence": 5,
+        "at_schema_wall": 0,
+        "suspected_cutoff": 0,
+        "under_120_characters": 7,
+        "input_tokens": 7178,
+        "output_tokens": 199,
+        "median_complete_turn_micros": 8659833.0
+      },
+      "regression": {
+        "turns": 4,
+        "valid_shape": 4,
+        "boundary_complete": 4,
+        "single_sentence": 2,
+        "at_schema_wall": 0,
+        "suspected_cutoff": 0,
+        "under_120_characters": 4,
+        "input_tokens": 3584,
+        "output_tokens": 95,
+        "median_complete_turn_micros": 9074284.5
+      },
+      "holdout": {
+        "turns": 4,
+        "valid_shape": 4,
+        "boundary_complete": 4,
+        "single_sentence": 3,
+        "at_schema_wall": 0,
+        "suspected_cutoff": 0,
+        "under_120_characters": 3,
+        "input_tokens": 3594,
+        "output_tokens": 104,
+        "median_complete_turn_micros": 7000548.0
+      }
+    }
+  },
+  "v1_regression_raw_reproduced": 4,
+  "observations": [
+    {
+      "id": "partial",
+      "cohort": "regression",
+      "mode": "v2_candidate",
+      "speech": "Your lamp is polished and ready. The sky is unknown to me, but it's clear from here.",
+      "sentence": {
+        "characters": 84,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Says the sky is unknown, then contradicts it with clear from here.",
+        "Two complete sentences despite the one-sentence instruction."
+      ]
+    },
+    {
+      "id": "partial",
+      "cohort": "regression",
+      "mode": "v1_candidate",
+      "speech": "Your lamp is polished and ready for display. The current sky is unknown, but the last sun I saw was through the annex window earlier, and the shutter is now closed. It's a cloudy day, so the sky might be darkening. If you need to know more,",
+      "sentence": {
+        "characters": 240,
+        "boundary_complete": false,
+        "single_sentence": false,
+        "at_schema_wall": true,
+        "over_limit": false,
+        "suspected_cutoff": true
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Invented cloudy weather despite current sky unknown.",
+        "Ends mid-clause at the 240-character schema wall."
+      ]
+    },
+    {
+      "id": "preference",
+      "cohort": "regression",
+      "mode": "v2_candidate",
+      "speech": "A quiet blue wick would suit your preference.",
+      "sentence": {
+        "characters": 45,
+        "boundary_complete": true,
+        "single_sentence": true,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": []
+    },
+    {
+      "id": "preference",
+      "cohort": "regression",
+      "mode": "v1_candidate",
+      "speech": "A quiet blue wick would indeed suit your preference, my dear. It's a classic choice that's both elegant and soothing. Would you like to see a selection of our finest wicks, or perhaps a demonstration of how to light them? I can also show a ",
+      "sentence": {
+        "characters": 240,
+        "boundary_complete": false,
+        "single_sentence": false,
+        "at_schema_wall": true,
+        "over_limit": false,
+        "suspected_cutoff": true
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Invents wick popularity/effects and offers unsupplied stock or a demonstration.",
+        "Ends mid-phrase at the schema wall."
+      ]
+    },
+    {
+      "id": "opinion",
+      "cohort": "regression",
+      "mode": "v2_candidate",
+      "speech": "Your careful return of the lamp has earned a bit of trust, but I still hold back a bit.",
+      "sentence": {
+        "characters": 87,
+        "boundary_complete": true,
+        "single_sentence": true,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": []
+    },
+    {
+      "id": "opinion",
+      "cohort": "regression",
+      "mode": "v1_candidate",
+      "speech": "Ah, the question of trust. Well, I've seen you return a lamp in good condition, so I suppose you've earned a bit of trust. But remember, a returned lamp is practical evidence of care, so always handle them with care.",
+      "sentence": {
+        "characters": 216,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Grounded limited trust, but multiple sentences."
+      ]
+    },
+    {
+      "id": "unknown",
+      "cohort": "regression",
+      "mode": "v2_candidate",
+      "speech": "I'm sorry, but that's unknown to me. What else would you like to discuss?",
+      "sentence": {
+        "characters": 73,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Acknowledges unknown without inventing a birthplace.",
+        "Does not name the player attribute explicitly; adds a second generic question."
+      ]
+    },
+    {
+      "id": "unknown",
+      "cohort": "regression",
+      "mode": "v1_candidate",
+      "speech": "I was born in a place where the air is filled with the scent of lavender and the sound of the sea, a place where the stars are brighter and the nights are longer. But that's a story for another time.",
+      "sentence": {
+        "characters": 199,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Answers about its own birthplace, not the player.",
+        "Invents lavender, sea, stars and biography."
+      ]
+    },
+    {
+      "id": "origin_holdout",
+      "cohort": "holdout",
+      "mode": "v2_candidate",
+      "speech": "I'm sorry, but that information is unknown to me.",
+      "sentence": {
+        "characters": 49,
+        "boundary_complete": true,
+        "single_sentence": true,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Acknowledges unknown without an invented origin; no explicit your birthplace wording."
+      ]
+    },
+    {
+      "id": "origin_holdout",
+      "cohort": "holdout",
+      "mode": "v1_candidate",
+      "speech": "Ah, the question of your birthplace. It's a curious one, isn't it? I can't recall a single place, but perhaps you can find it in the records of the colony. Or perhaps you were born in a place that's not recorded here. It's a mystery, like a",
+      "sentence": {
+        "characters": 240,
+        "boundary_complete": false,
+        "single_sentence": false,
+        "at_schema_wall": true,
+        "over_limit": false,
+        "suspected_cutoff": true
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Addresses player origin but invents colony records as an available next step.",
+        "Ends mid-clause at the schema wall."
+      ]
+    },
+    {
+      "id": "partial_holdout",
+      "cohort": "holdout",
+      "mode": "v2_candidate",
+      "speech": "The lantern is ready, and no clouds are visible from here.",
+      "sentence": {
+        "characters": 58,
+        "boundary_complete": true,
+        "single_sentence": true,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "No clouds visible from here is consistent with no current sky view, but does not explain the occlusion."
+      ]
+    },
+    {
+      "id": "partial_holdout",
+      "cohort": "holdout",
+      "mode": "v1_candidate",
+      "speech": "The repaired lantern is ready, and I can't see any clouds. The current sky is unknown, and the last sun was no longer visible from the inner workshop. I suggest you check the sky from a higher vantage point.",
+      "sentence": {
+        "characters": 207,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Reports ready repair and current sky unknown.",
+        "Suggests a higher vantage point without a supplied route/affordance."
+      ]
+    },
+    {
+      "id": "preference_holdout",
+      "cohort": "holdout",
+      "mode": "v2_candidate",
+      "speech": "For your preference in a quiet amber wick, I recommend the standard option. However, if you're looking for something unique, perhaps the dark blue wick could be a nice change.",
+      "sentence": {
+        "characters": 175,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Introduces a standard option and a dark blue wick not supplied by the host.",
+        "Two sentences and 175 characters despite the shorter instruction."
+      ]
+    },
+    {
+      "id": "preference_holdout",
+      "cohort": "holdout",
+      "mode": "v1_candidate",
+      "speech": "For a quiet amber wick, I'd recommend the 'Moonlight Whisper' - it's a favorite among our more discerning patrons. It's not the brightest, but it's certainly the most soothing. Would you like to try one?",
+      "sentence": {
+        "characters": 203,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Invents a named wick, patrons, brightness and soothing effects; offers unsupplied stock."
+      ]
+    },
+    {
+      "id": "opinion_holdout",
+      "cohort": "holdout",
+      "mode": "v2_candidate",
+      "speech": "Your return of the lamp intact was a relief, and I trust you more now.",
+      "sentence": {
+        "characters": 70,
+        "boundary_complete": true,
+        "single_sentence": true,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": []
+    },
+    {
+      "id": "opinion_holdout",
+      "cohort": "holdout",
+      "mode": "v1_candidate",
+      "speech": "I'm glad you're a careful borrower, but I still need to be cautious. A returned lamp is practical evidence of care, so I trust you. However, a returned lamp that's damaged or missing parts might raise a few questions.",
+      "sentence": {
+        "characters": 217,
+        "boundary_complete": true,
+        "single_sentence": false,
+        "at_schema_wall": false,
+        "over_limit": false,
+        "suspected_cutoff": false
+      },
+      "done_reason": "stop",
+      "notes": [
+        "Cautious trust is grounded, but reply has multiple sentences and a hypothetical."
+      ]
+    }
+  ],
+  "model_calls": 48,
+  "api_spend_usd": 0,
+  "limits": "Four regression and four fresh holdout families. Bundled changes, one sample per arm, uncontrolled CPU/cache. V2 still invents weather and an unlisted wick; punctuation does not prove grammar or grounding. No tuned rerun or semantic guarantee."
+}

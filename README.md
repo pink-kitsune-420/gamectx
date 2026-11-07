@@ -50,6 +50,19 @@ variant invented weather and produced unfinished replies. Balanced free-form pro
 experimental; no model correctness or cache-hit improvement is claimed. Source-selected
 answers remain the default. Human social-quality evaluation is still needed.
 
+## Turn-aware short speech follow-up
+
+[Speech compiler v2](docs/LIFE_SPEECH_V2_EVAL.md) gates creative policy by host profile and
+known-state, binds facts to explicit subjects, and keeps the current request outside JSON.
+Run `cargo run --example character-speech`; the life dungeon demo also uses it. A bounded
+sentence helper identifies punctuation endings and suspected schema-wall cutoffs without
+rewriting raw speech. Legacy outputs and v1 artifacts stay unchanged.
+
+In eight fresh paired local turns per arm, terminal endings improve **5/8→8/8** and
+suspected 240-character cutoffs **3/8→0/8**. V2 origin replies avoid invented birthplaces,
+but weather and stock invention remain. This is an experimental diagnostic, not a grounding
+guarantee: **48 local calls**, **$0 API**, four regressions and four new holdouts.
+
 ## Adversarial probes and measured limits (unreleased v0.3.1a)
 
 [Fresh probes](docs/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,

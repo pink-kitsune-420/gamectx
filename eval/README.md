@@ -1216,3 +1216,22 @@ one preflight plus generation each. Use fresh output paths: retained outputs can
 overwritten. Audit frozen `life-model-{tokens,results}.json` with `--check`; failed prose
 and assistant review remain in `life-model-review.json`, with human review unknown.
 A complete new pair makes 24 local calls, $0 API; no hosted budget is inferred.
+
+## Life speech v2 follow-up
+
+`life_speech_reference.py` independently specifies turn policy, subject-scoped facts,
+direct current-request rendering and punctuation diagnostics. After building the CLI,
+`python3 -I eval/life_speech_cases.py --cap 0` checks 32 compiler workflows and 16 sentence/
+bound cases; `--prototype-only` runs just the oracle, `--write-conformance` adds only new
+families, and `--check-bindings` additionally checks 64 persistent CLI/native replies.
+No old conformance output or v1 speech artifact is regenerated.
+
+`life_model_v2_eval.py --cap 0 --tokens-only --output FRESH_PATH` must precede generation
+with `--tokens TOKEN_PATH --output FRESH_PATH`. It uses only the installed local Qwen model,
+exact v1 candidate-style baselines, four regression cases and four new paired holdouts.
+A complete pair makes 48 calls including 16 token-only checks and 16 in-turn preflights.
+The output schema stays at 240 characters and output reservation at 96. All raw replies are
+retained; helper diagnostics do not trim, silently repair, retry or replace them. Existing
+v1 files are SHA-256-bound and remain frozen. Audit frozen v2 tokens/results with `--check`.
+`life_model_v2_review.py --cap 0 --check` reproduces separately labeled assistant notes and
+mechanical metrics; it is not independent human scoring. [Results and remaining failures](../docs/LIFE_SPEECH_V2_EVAL.md).

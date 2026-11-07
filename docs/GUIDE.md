@@ -688,3 +688,10 @@ Persist consequential events during conversation; archive acknowledged originals
 eviction. Load an earlier save into a fresh instance with branch-specific fences. Host
 storage authenticates IDs, transactions, replay floors and scoped erasure across archives,
 snapshots, indices and external speech queues. [Contracts and host operation table](LIFE.md).
+
+For short factual speech, opt into `Life::compile_speech` version 2 rather than sending
+legacy balanced policy unchanged. Use `SpeechTurn::from_hints` and host-declared known-state;
+mark player attributes with explicit subject and unknown status. The compiler leaves the
+actual utterance outside JSON and asks focused models for grounded short speech. Diagnose
+sentence endings with `assess_sentence` before queueing; retain raw rejected output.
+[Runnable example](../examples/character-speech.rs) and [paired results with retained failures](LIFE_SPEECH_V2_EVAL.md).

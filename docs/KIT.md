@@ -278,3 +278,10 @@ it does not erase existing data. `life_forget` returns archive/cache/checkpoint 
 instructions and clears volatile dialogue to prevent removed text from leaking. Apply the
 returned tombstones in host stores. Authored corrections use `life_author_edit`; player
 corrections are attributed experiences. C#/C keep using `Request` over the unchanged ABI.
+
+Host-only `character_life_compile_speech` takes `id,request` with the v2 request contract.
+`character_continuity_speech_context` takes `id,thread,selection,caps,dialogue,turn` and returns
+a v2 packet plus host inspection; scene/question facts share the attention cap. Both use
+the same session/native ABI and existing generic Python/Node `life`/`continuity` helpers.
+They register no model tools. The stateless `local` sentence-boundary helper is available
+through the existing bridges. [V2 speech contracts](FORMAT.md#turn-aware-life-speech-v2).

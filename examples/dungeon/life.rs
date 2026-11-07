@@ -5,10 +5,7 @@ use gamectx::{
     deployment::{ModelSize, Workload},
     dialogue::{InteractionTools, Thread},
     json,
-    life::{
-        render_character_chat, Config, ContextCaps, Coordinator, Definition, Initiative, InitiativePolicy, Life,
-        Setting,
-    },
+    life::{Config, ContextCaps, Coordinator, Definition, Initiative, InitiativePolicy, Life, Setting},
     obj, Result, Value,
 };
 use std::sync::Arc;
@@ -118,7 +115,16 @@ pub fn demo(size: ModelSize, tools: bool) -> Result<Value> {
         &obj! {"version"=>1,"scene"=>"annex_reunion","conversation"=>"lamps","participants"=>people.clone(),"exchanges"=>exchanges},
     )?;
     let caps = ContextCaps::from_hints(hints)?;
-    let selected=reunion.select_context("lamps",&loaded,&obj!{"required"=>vec!["view"],"optional"=>Vec::<Value>::new(),"tags"=>vec!["trade"],"input"=>"A quiet blue wick for the lamp?"},caps,&dialogue)?;
+    let turn = gamectx::life::SpeechTurn::from_hints(
+        hints,
+        "known",
+        false,
+        "player",
+        "player",
+        &vec![obj! {"key"=>"player_preferred_wick","subject"=>"player","status"=>"known","value"=>"quiet blue wick"}]
+            .into(),
+    )?;
+    let selected=reunion.select_context_for_turn("lamps",&loaded,&obj!{"required"=>vec!["view"],"optional"=>Vec::<Value>::new(),"tags"=>vec!["trade"],"input"=>"A quiet blue wick for the lamp?"},caps,&dialogue,&turn)?;
     let packet = selected.get("packet").unwrap();
     let mut character = CharacterTools::new("annex:player", "merchant", &people)?;
     character.with_life(loaded)?;
@@ -133,9 +139,7 @@ pub fn demo(size: ModelSize, tools: bool) -> Result<Value> {
         vec![]
     };
     let schemas = character.enable(&selected_tools)?;
-    let rendered = render_character_chat(
-        &obj! {"version"=>1,"rules"=>"Speak naturally using the supplied character policy; confirmed results come from the host.","character"=>packet.get("character").unwrap().clone(),"stable_scene"=>obj!{"id"=>"annex_reunion","place"=>"The lamp counter beside the vault stair."},"state"=>obj!{"facts"=>packet.get("facts").unwrap().clone(),"episodes"=>packet.get("episodes").unwrap().clone()},"dialogue"=>packet.get("dialogue").unwrap().clone(),"input"=>"A quiet blue wick for the lamp?","tools"=>schemas},
-    )?;
+    let rendered=character.life().unwrap().compile_speech(&obj!{"version"=>2,"rules"=>"Speak naturally using supplied facts in one short sentence; confirmed results come from the host.","tags"=>vec!["trade"],"caps"=>obj!{"facts"=>caps.facts,"facets"=>caps.facets,"attitudes"=>caps.attitudes,"episodes"=>caps.episodes,"exchanges"=>caps.exchanges},"stable_scene"=>obj!{"id"=>"annex_reunion","place"=>"The lamp counter beside the vault stair."},"state"=>obj!{"facts"=>packet.get("facts").unwrap().clone(),"episodes"=>packet.get("episodes").unwrap().clone()},"dialogue"=>packet.get("dialogue").unwrap().clone(),"input"=>"A quiet blue wick for the lamp?","tools"=>schemas,"turn"=>turn.to_value()})?;
     // An explicit heuristic demonstrates the accounting API; a real host must recount
     // the complete runner rendering with its tokenizer before sending.
     let counted = gamectx::request::RequestBudget::new(if small { 2048 } else { 8192 }, hints.output_tokens, 256)?

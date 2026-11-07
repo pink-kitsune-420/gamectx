@@ -262,3 +262,26 @@ balanced speech, source tokens and prefixes cannot guarantee grounding. The libr
 host authority and available actions; free-form conversational usefulness and real speech
 quality remain experimental. No model-size, RAM, cache-hit or gameplay-quality improvement
 is inferred from synthetic host checks.
+
+## Turn-aware speech policy (v2)
+
+Use `Life::context_for_turn` or `compile_speech` for new profile-aware replies; `context`
+and `context_capped` remain the legacy format. `SpeechTurn::from_hints` derives focused versus
+expanded policy from dialogue workload hints. The host supplies known/partial/unknown,
+creative intent, speaker, question subject and individually subject-bound facts. Focused
+factual turns and all unknown/partial turns emit a compact grounded directive with empty
+improvisation. Authored balanced expression requires both configuration and a known expanded
+or explicitly creative turn. It does not enable tools or grant world knowledge.
+
+Run `cargo run --example character-speech` for the tested minimal integration. The dungeon
+life demo also uses v2 context and compilation. The current request is a final direct user
+line, with explicit subject metadata and descriptive unknown markers such as
+`player_birthplace:"unknown_to_merchant"`. Full provider counting still applies.
+`assess_sentence` diagnoses punctuation/length/schema-wall cutoffs without rewriting raw
+replies; it is not proof of grammar, completeness of thought or grounding. Keep generated,
+validated and actually delivered portions distinct.
+
+The [fresh paired follow-up](LIFE_SPEECH_V2_EVAL.md) preserves v1 artifacts: 48 local calls,
+$0 API, 16 token-first checks and eight pairs across regressions/holdouts. Terminal endings
+improve 5/8→8/8 and suspected wall cutoffs 3/8→0/8; weather and stock invention still occur.
+Balanced free-form prose remains experimental; independent human quality review is unknown.

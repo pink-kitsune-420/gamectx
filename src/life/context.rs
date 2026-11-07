@@ -43,6 +43,7 @@ impl ContextCaps {
     }
 }
 impl Life {
+    /// Legacy v1 caps only; use `context_for_turn` for tier/known-state policy gating.
     pub fn context_capped(&self, tags: &Value, caps: ContextCaps) -> Result<Value> {
         ContextCaps::new(caps.facts, caps.facets, caps.attitudes, caps.episodes, caps.exchanges)?;
         let mut v = self.context(tags, caps.facets.max(caps.attitudes))?;
@@ -52,6 +53,54 @@ impl Life {
             super::continuity::set(&mut v, k, rows.into());
         }
         Ok(v)
+    }
+}
+impl Life {
+    /// Profile and known-state-aware character context, separate from the frozen legacy
+    /// context format. Focused and unknown/partial factual turns get no creative invitation.
+    pub fn context_for_turn(&self, tags: &Value, caps: ContextCaps, turn: &SpeechTurn) -> Result<Value> {
+        ContextCaps::new(caps.facts, caps.facets, caps.attitudes, caps.episodes, caps.exchanges)?;
+        turn.validate_scope(self, caps)?;
+        let expressive = self.config.balanced && turn.expressive()?;
+        let mut value =
+            self.context_with_policy(tags, caps.facets.max(caps.attitudes), self.expression_policy(!expressive)?)?;
+        for (k, cap) in [("facets", caps.facets), ("attitudes", caps.attitudes)] {
+            let mut rows = c::list(get(&value, k)?)?.to_vec();
+            rows.truncate(cap);
+            super::continuity::set(&mut value, k, rows.into());
+        }
+        Ok(value)
+    }
+    /// Compile a version-2 host request, keeping stable context first and the actual
+    /// utterance outside JSON at the end. Count the entire returned provider request.
+    pub fn compile_speech(&self, a: &Value) -> Result<Value> {
+        self.active()?;
+        bounded(a, crate::request::MAX_REQUEST_BYTES)?;
+        c::fields(
+            a,
+            &["version", "rules", "tags", "caps", "stable_scene", "state", "dialogue", "input", "tools", "turn"],
+        )?;
+        c::uint(get(a, "version")?, 2, 2)?;
+        let caps = ContextCaps::from_value(get(a, "caps")?)?;
+        let turn = SpeechTurn::from_value(get(a, "turn")?)?;
+        let character = self.context_for_turn(get(a, "tags")?, caps, &turn)?;
+        if c::list(get(a, "dialogue")?)?.len() > caps.exchanges || c::list(get(a, "tools")?)?.len() > 32 {
+            return Err(c::bad());
+        }
+        let mut request = render_character_chat(
+            &obj! {"version"=>1,"rules"=>get(a,"rules")?.clone(),"character"=>character,"stable_scene"=>get(a,"stable_scene")?.clone(),"state"=>obj!{"context"=>get(a,"state")?.clone(),"facts"=>turn.scoped_facts(&self.actor)?},"dialogue"=>get(a,"dialogue")?.clone(),"input"=>get(a,"input")?.clone(),"tools"=>get(a,"tools")?.clone()},
+        )?;
+        let subject_rule=format!("Current utterance speaker: {}. First-person I/my in the current request refers to that speaker. Question subject: {}. Answer about that subject, not your own biography.",text(&turn.value,"speaker")?,text(&turn.value,"question_subject")?);
+        if let Value::Object(fields) = &mut request {
+            if let Some((_, Value::Array(messages))) = fields.iter_mut().find(|(k, _)| k == "messages") {
+                let at = messages.len() - 1;
+                messages.insert(at, obj! {"role"=>"system","content"=>subject_rule});
+                let at = messages.len() - 1;
+                messages[at] = obj! {"role"=>"user","content"=>format!("Current request:\n{}",text(a,"input")?)};
+            }
+        }
+        bounded(&request, crate::request::MAX_REQUEST_BYTES)?;
+        Ok(request)
     }
 }
 /// Stable system/character/host-marked scene prefix followed by changing state and whole
