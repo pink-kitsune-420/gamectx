@@ -14,6 +14,7 @@ pub fn process(v: &Value) -> Result<Value> {
     let a = c::get(v, "args")?;
     let counter = |request: &Value| Ok(Count { input: request.to_json().len(), method: CountMethod::Estimate });
     match c::text(c::get(v, "kind")?)? {
+        "continuity" => crate::life::continuity_fixture(a),
         "life" => crate::life::workflow(a),
         "interactions" => crate::dialogue::interaction_workflow(a),
         "info" => crate::info::workflow(a),

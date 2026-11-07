@@ -1748,3 +1748,7 @@ controls, nonpositive output or insufficient whole-turn allowance fail before in
 
 Optional dynamic character stage 1 adds bounded life definitions, attributed experiences
 and host-applied appraisal rules; see [LIFE.md](LIFE.md). Defaults and existing formats remain unchanged.
+
+Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
+partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
+offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.

@@ -2,6 +2,8 @@
 //! experiences are separate. All mutation and canonical acceptance belong to hosts.
 use crate::{checked as c, obj, request::bounded, Result, Value};
 use std::sync::Arc;
+mod continuity;
+pub use continuity::{Coordinator, SpeechTransport};
 pub const MAX_BYTES: usize = 524_288;
 pub(crate) fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
     c::get(v, k)
@@ -622,4 +624,9 @@ impl Life {
         bounded(&result, max_bytes)?;
         Ok(result)
     }
+}
+
+/// Offline continuity adapter.
+pub fn continuity_fixture(a: &Value) -> Result<Value> {
+    continuity::fixture(a)
 }

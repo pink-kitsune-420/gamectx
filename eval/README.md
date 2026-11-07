@@ -1186,3 +1186,7 @@ expectations. Build the CLI, then omit `--prototype-only` for Python/Rust byte p
 Stage 1 has 52 workflows and no model calls. `--write-conformance` writes only the
 new life family; it does not bless any historical outputs. All live conversational
 quality and provider latency remain unmeasured by this deterministic suite.
+
+Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
+partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
+offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.

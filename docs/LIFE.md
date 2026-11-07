@@ -47,7 +47,44 @@ answers still use validated host data. Prior speech failures remain unchanged.
 1. Definitions/appraisals: implemented bounded Rust and independent Python parity, original
    editable files, disabled/private/nonhuman/replay/stale tests and additive fixtures.
    Conversational usefulness is unmeasured; no model call or accuracy claim.
-2. Scene/conversation continuity: pending.
+2. Scene/conversation continuity: implemented source-dependent one-use validation, parallel
+   thread metadata and acknowledged partial delivery; 41 independent Python/Rust workflows.
+   Free-form speech quality remains experimental.
 3. Durable episodic memory: pending.
 4. Initiative: pending.
 5. Controls, bindings and integrated demonstration: pending.
+
+## Conversation and delivery coordinator
+
+`Coordinator` is an optional helper beside `CharacterTools`, using the existing
+`RequestGate`. Bind an actor-visible scene with revision, monotonic tick, permission
+epoch, source-attributed facts and a small affordance list. Each fact carries visibility,
+observation time and kind: global, perceived, mutual or report. Global truth is inspection
+only. A location/window/weather label creates no sensory record. The host must supply
+actual perception and original attributed player reports.
+
+Bind up to eight threads with topic, open questions, existing promise IDs, unfinished
+matters, listener, participants, shared fact IDs and referents from the existing resolver.
+This is host metadata; no English keyword interpreter turns free-form speech into actions.
+Threads survive scene changes and can resume independently. `focused` joins a selected
+thread with current life context and scoped facts. Use it as protected `TurnPlan::facts`,
+then the existing full provider-render count/observe handshake. Changing the frame, tools,
+results, retry or template requires a new count. Required context must fit or fail.
+
+`generate` creates a one-use ticket with exact selected source dependencies. `validate`
+consumes it. Scene ID, permission epoch, dependent source payloads/revisions, that thread's
+metadata and life revision must still match; unrelated revision changes or a second thread
+do not invalidate it. The host increments the epoch for consequential permissions,
+interruptions, emergencies or audience changes and rechecks current affordances before
+engine dispatch. Queue/play additionally recheck scene dependencies after validation.
+Validation checks structure/freshness, never semantic entailment of generated prose.
+
+Speech has distinct generated, validated, queued, played, heard, interrupted and cancelled
+acknowledgements. Host `delivery` uses cumulative Unicode character offsets. A heard prefix
+cannot exceed the played prefix. Each recipient supplies its own acknowledgement; neither
+queueing nor generating creates hearing or a world memory. Archive confirmed portions
+before `retire` frees a terminal line. Bounds: eight pending requests/threads, 32 live speech
+records, 32 scene facts, 16 dependencies and a 20-tick request TTL. Full bounds reject work.
+`SpeechTransport` is a dependency-free queue/cancel interface for text or external audio.
+`recognition` preserves interim/final status and uncertainty and always returns no actions.
+Interim STT cannot dispatch an action. Real streaming/voice integrations remain host code.

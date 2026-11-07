@@ -1099,3 +1099,15 @@ fn life_model_text_is_bounded_and_atomic() {
     }
     assert_eq!(before, life.inspect());
 }
+
+#[test]
+fn continuity_inputs_never_panic() {
+    let mut rng = Rng(0x171912);
+    let seed = include_str!("../conformance/continuity/interrupted/input.json");
+    for _ in 0..10000 {
+        let s = mutate(&mut rng, seed);
+        if let Ok(v) = parse(&s, 65536) {
+            let _ = gamectx::local::process(&v);
+        }
+    }
+}
