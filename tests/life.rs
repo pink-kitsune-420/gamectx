@@ -115,3 +115,88 @@ fn fake_speech_transport_does_not_create_hearing_or_actions() {
     c.retire(1).unwrap();
     assert!(c.validate(1, 0).is_err());
 }
+fn identity() -> Value {
+    obj! {"campaign"=>"vault","branch"=>"save:a","instance"=>"merchant:1"}
+}
+fn fence() -> Value {
+    obj! {"min_revision"=>0,"max_revision"=>10000,"min_token"=>0,"max_token"=>10000,"max_tick"=>10000}
+}
+#[test]
+fn checkpoint_identity_fences_and_corrupt_state_fail_atomically() {
+    let mut l = life();
+    l.experience(&event(1, 1, "direct")).unwrap();
+    l.appraise("returned_lamp", 1, 1).unwrap();
+    let saved = l.checkpoint(&identity()).unwrap();
+    let mut loaded = life();
+    loaded.restore_checkpoint(&identity(), &saved, &fence()).unwrap();
+    assert_eq!(l.inspect(), loaded.inspect());
+    let foreign = obj! {"campaign"=>"vault","branch"=>"save:b","instance"=>"merchant:1"};
+    assert!(life().restore_checkpoint(&foreign, &saved, &fence()).is_err());
+    let before = loaded.inspect();
+    let mut bad = saved.clone();
+    if let Value::Object(fields) = &mut bad {
+        fields.retain(|(k, _)| k != "archive_ack");
+    }
+    assert!(loaded.restore_checkpoint(&identity(), &bad, &fence()).is_err());
+    assert_eq!(before, loaded.inspect());
+    let strict = obj! {"min_revision"=>3,"max_revision"=>10,"min_token"=>0,"max_token"=>10,"max_tick"=>10};
+    assert!(life().restore_checkpoint(&identity(), &saved, &strict).is_err());
+}
+#[test]
+fn archive_failure_retry_and_crash_recovery_are_idempotent() {
+    use gamectx::life::{FileStore, Storage};
+    struct Fail;
+    impl Storage for Fail {
+        fn archive(&mut self, _: &Value, _: &Value) -> gamectx::Result<()> {
+            Err(gamectx::Error::new("offline"))
+        }
+        fn checkpoint(&mut self, _: &Value) -> gamectx::Result<()> {
+            unreachable!()
+        }
+    }
+    let mut l = life();
+    l.experience(&event(1, 1, "outcome")).unwrap();
+    assert!(l.flush(&identity(), &mut Fail).is_err());
+    assert!(l.evict(1).is_err());
+    let root = std::env::temp_dir().join(format!("gamectx-life-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let mut store = FileStore::new(&root).unwrap();
+    l.flush(&identity(), &mut store).unwrap();
+    l.flush(&identity(), &mut store).unwrap();
+    assert_eq!(store.event(&identity(), 1).unwrap(), event(1, 1, "outcome"));
+    let snapshot = store.load(&identity(), l.revision()).unwrap();
+    let mut loaded = life();
+    loaded.restore_checkpoint(&identity(), &snapshot, &fence()).unwrap();
+    assert!(loaded.experience(&event(1, 2, "outcome")).is_err());
+    assert_eq!(loaded.evict(1).unwrap(), 1);
+    std::fs::remove_dir_all(root).unwrap();
+}
+#[test]
+fn saved_conversation_never_resurrects_pending_work() {
+    let mut c = coordinator();
+    c.generate("trade", "Welcome back.", &vec!["sun"].into(), 0).unwrap();
+    let saved = c.checkpoint();
+    let mut recovered = gamectx::life::Coordinator::recover(&saved, 1, 10).unwrap();
+    assert!(recovered.validate(1, 0).is_err());
+    let next = recovered.generate("trade", "Welcome back.", &vec!["sun"].into(), 0).unwrap();
+    assert_eq!(next.get("id"), Some(&Value::from(2)));
+    assert!(gamectx::life::Coordinator::recover(&saved, 2, 10).is_err());
+}
+#[test]
+fn erasure_removes_causal_and_subjective_derivations() {
+    let mut l = life();
+    l.experience(&event(1, 1, "direct")).unwrap();
+    l.appraise("returned_lamp", 1, 1).unwrap();
+    let mut e = event(2, 2, "correction");
+    if let Value::Object(fields) = &mut e {
+        fields.iter_mut().find(|(k, _)| k == "causes").unwrap().1 = vec![1].into();
+    }
+    l.experience(&e).unwrap();
+    l.consolidate(1, 2).unwrap();
+    let r = l.forget_episodes(&vec![1].into(), l.revision()).unwrap();
+    assert_eq!(r.get("forgotten"), Some(&vec![1, 2].into()));
+    assert_eq!(l.memory_stats().get("events"), Some(&Value::from(0)));
+    assert_eq!(l.memory_stats().get("summaries"), Some(&Value::from(0)));
+    assert!(l.experience(&event(1, 3, "direct")).is_err());
+    assert!(l.recall_episodes("lamp", &vec!["trade"].into(), 2).unwrap().as_array().unwrap().is_empty());
+}

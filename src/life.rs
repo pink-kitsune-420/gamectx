@@ -3,7 +3,9 @@
 use crate::{checked as c, obj, request::bounded, Result, Value};
 use std::sync::Arc;
 mod continuity;
+mod storage;
 pub use continuity::{Coordinator, SpeechTransport};
+pub use storage::{FileStore, Storage};
 pub const MAX_BYTES: usize = 524_288;
 pub(crate) fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
     c::get(v, k)
@@ -282,6 +284,8 @@ pub struct Life {
     pub(crate) attitudes: Vec<Value>,
     pub(crate) events: Vec<Value>,
     pub(crate) changes: Vec<Value>,
+    pub(crate) archive_ack: u64,
+    pub(crate) summaries: Vec<Value>,
 }
 impl Life {
     /// Host acceptance of a validated definition. No model-facing constructor exists.
@@ -316,6 +320,8 @@ impl Life {
             attitudes,
             events: Vec::new(),
             changes: Vec::new(),
+            archive_ack: 0,
+            summaries: Vec::new(),
         })
     }
     pub fn identity_matches(&self, scope: &str, actor: &str, participants: &[String]) -> bool {
@@ -480,6 +486,7 @@ impl Life {
     }
     /// Erase learned data while retaining replay watermarks and approved definitions.
     pub fn clear(&mut self) {
+        self.summaries.clear();
         self.events.clear();
         self.changes.clear();
         for a in &mut self.attitudes {
@@ -629,4 +636,9 @@ impl Life {
 /// Offline continuity adapter.
 pub fn continuity_fixture(a: &Value) -> Result<Value> {
     continuity::fixture(a)
+}
+
+/// Offline episodic adapter.
+pub fn episodes_fixture(a: &Value) -> Result<Value> {
+    storage::fixture(a)
 }

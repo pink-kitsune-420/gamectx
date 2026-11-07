@@ -50,7 +50,9 @@ answers still use validated host data. Prior speech failures remain unchanged.
 2. Scene/conversation continuity: implemented source-dependent one-use validation, parallel
    thread metadata and acknowledged partial delivery; 41 independent Python/Rust workflows.
    Free-form speech quality remains experimental.
-3. Durable episodic memory: pending.
+3. Durable episodic memory: implemented identity/fence-checked checkpoints, archival
+   backpressure, extractive ranges, causal recall/erasure and crash-safe request recovery.
+   Twenty independent workflows include 1,000 events; production storage is host-owned.
 4. Initiative: pending.
 5. Controls, bindings and integrated demonstration: pending.
 
@@ -88,3 +90,52 @@ records, 32 scene facts, 16 dependencies and a 20-tick request TTL. Full bounds 
 `SpeechTransport` is a dependency-free queue/cancel interface for text or external audio.
 `recognition` preserves interim/final status and uncertainty and always returns no actions.
 Interim STT cannot dispatch an action. Real streaming/voice integrations remain host code.
+
+## Durable episodic state
+
+`Life::checkpoint(identity)` and `restore_checkpoint(identity,state,fence)` bind campaign,
+save branch, character instance, scope, actor, participants, full definition content and
+revision, schema and configuration. Host fences specify min/max revision/token and maximum
+tick. Authenticate these values in storage. Live instances cannot move backward; restore
+an earlier save into a fresh configured instance using its branch-specific fence. A host
+explicitly forks a loaded state by checkpointing it under a new branch identity. Conflicting
+same-revision payloads, missing fields, future events, identity mismatches and oversized
+snapshots fail atomically. Old replay tokens remain rejected after load, eviction or clear.
+
+The `Storage` trait leaves authentication and transactions to the host. `FileStore` is a
+single-writer standard-library reference, with exact duplicate detection, bounded reads,
+synced temporary writes and atomic rename. Use one host-selected directory per identity.
+An interrupted complete temporary write resumes on retry; partial/corrupt temporary files
+fail explicitly and need host recovery/removal. It does not lock multiple writers. `flush`
+archives retained originals before acknowledging/committing a checkpoint; retrying duplicate
+identity/token records is idempotent. Failure preserves working records. Call this on each
+consequential confirmed event, including while a conversation is active.
+
+Working memory holds at most 128 events and 128 appraisal changes. It rejects overflow.
+`acknowledge_archive` is a host receipt, never a model assertion. `evict` cannot drop elected
+retained events before acknowledgement. Consolidation groups a complete explicit range of
+original events; it is extractive and does not claim compression. At most 16 nonoverlapping
+ranges, 128 original events per range; repeated identical ranges are idempotent. Archive
+old groups through the host before erasing them. Original attribution, kind, corrections,
+uncertainty in source text and causal references survive. No model reflections are required.
+
+`recall_episodes` reuses `memory::Memory` lexical ranking with host tags, recency and retention
+significance, then includes causal neighbors/corrections. Up to 16 selected originals; a
+causal closure exceeding the bound fails. Preferences and commitments are retrieved through
+life context tags without requiring an explicit memory question. Hosts can retrieve bounded
+original archive ranges through their storage/index; the core does not search an unlimited
+archive or install embeddings. Contradictory reports remain separate events.
+
+`forget_episodes` removes selected tokens plus working causal dependents, invalidates affected
+attitudes and consolidated ranges, and returns an invalidation plan for archives, checkpoints,
+recall caches and pending requests. `FileStore::erase` removes archival descendants and all
+old scope checkpoints under a 4,096-file scan cap. Erase other host stores/indices before
+allowing further access. Privacy changes require a newly authorized scope and invalidated
+pending work; never reuse the old audience. Retention and storage authentication stay host
+responsibilities. Removed data must not survive in generated text or external voice queues.
+
+Coordinator checkpoints preserve topics, referents, partial deliveries and request high
+watermarks. Recovery cancels unplayed work, marks previously playing lines interrupted and
+creates no live tickets; old asynchronous results cannot execute after a crash. Existing
+interaction notebooks/routine checkpoints must also be saved through their own contracts
+when used; the life checkpoint does not silently serialize an entire game engine.

@@ -1111,3 +1111,37 @@ fn continuity_inputs_never_panic() {
         }
     }
 }
+
+#[test]
+fn character_checkpoints_reject_mutations_without_partial_restore() {
+    use gamectx::life::{Config, Coordinator, Definition, Life, Setting};
+    use gamectx::obj;
+    use std::sync::Arc;
+    let setting =
+        Setting::from_value(&parse(include_str!("../examples/characters/setting.json"), 65536).unwrap()).unwrap();
+    let d = Arc::new(
+        Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json"), 65536).unwrap(), &setting)
+            .unwrap(),
+    );
+    let mut life = Life::accept(
+        "scope",
+        "merchant",
+        &vec!["merchant", "player"].into(),
+        d,
+        Config::resolve(&obj! {"enabled"=>true}, &obj! {}).unwrap(),
+    )
+    .unwrap();
+    let id = obj! {"campaign"=>"vault","branch"=>"a","instance"=>"merchant"};
+    let checkpoint = life.checkpoint(&id).unwrap().to_json();
+    let before = life.inspect();
+    let fence = obj! {"min_revision"=>0,"max_revision"=>10,"min_token"=>0,"max_token"=>10,"max_tick"=>10};
+    let mut rng = Rng(0x878956);
+    for _ in 0..10000 {
+        let text = mutate(&mut rng, &checkpoint);
+        if let Ok(v) = parse(&text, 524288) {
+            let _ = life.restore_checkpoint(&id, &v, &fence);
+            let _ = Coordinator::recover(&v, 0, 10);
+        }
+        assert_eq!(life.inspect(), before);
+    }
+}

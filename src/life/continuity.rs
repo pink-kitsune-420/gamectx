@@ -345,3 +345,102 @@ pub fn fixture(a: &Value) -> Result<Value> {
     }
     Ok(obj! {"results"=>results})
 }
+impl Coordinator {
+    /// Save topic/referent and delivery history, including a durable request watermark.
+    /// No pending request becomes executable after recovery.
+    pub fn checkpoint(&self) -> Value {
+        let (clock, next) = self.gate.watermarks();
+        obj! {"version"=>1,"scope"=>self.scope.clone(),"actor"=>self.actor.clone(),"participants"=>self.participants.clone(),"clock"=>clock,"next"=>next,"state"=>self.inspect()}
+    }
+    pub fn recover(v: &Value, min_ticket: u64, max_tick: u64) -> Result<Self> {
+        bounded(v, MAX_BYTES)?;
+        c::fields(v, &["version", "scope", "actor", "participants", "clock", "next", "state"])?;
+        c::uint(get(v, "version")?, 1, 1)?;
+        let clock = num(v, "clock")?;
+        let next = num(v, "next")?;
+        if next < min_ticket || clock > max_tick {
+            return Err(c::bad());
+        }
+        let mut out = Self::new(text(v, "scope")?, text(v, "actor")?, get(v, "participants")?)?;
+        let state = get(v, "state")?;
+        c::fields(state, &["scene", "threads", "speech"])?;
+        if get(state, "scene")? != &Value::Null {
+            out.bind_scene(get(state, "scene")?)?;
+            if num(out.scene.as_ref().unwrap(), "at")? > max_tick {
+                return Err(c::bad());
+            }
+        }
+        let threads = c::list(get(state, "threads")?)?;
+        if threads.len() > 8 {
+            return Err(c::bad());
+        }
+        for t in threads {
+            if out.threads.iter().any(|o| o.get("id") == t.get("id")) {
+                return Err(c::bad());
+            }
+            out.thread(t)?;
+        }
+        let rows = c::list(get(state, "speech")?)?;
+        if rows.len() > 32 {
+            return Err(c::bad());
+        }
+        let mut last = 0;
+        for s in rows {
+            c::fields(s, &["id", "thread", "text", "stage", "played", "heard"])?;
+            let id = c::uint(get(s, "id")?, last + 1, next)?;
+            last = id;
+            line(text(s, "text")?)?;
+            if !out.threads.iter().any(|t| t.get("id") == s.get("thread")) {
+                return Err(c::bad());
+            }
+            let n = text(s, "text")?.chars().count() as u64;
+            let played = c::uint(get(s, "played")?, 0, n)?;
+            let stage = text(s, "stage")?;
+            if !matches!(stage, "generated" | "validated" | "queued" | "played" | "interrupted" | "cancelled")
+                || matches!(stage, "generated" | "validated" | "queued" | "cancelled") && played != 0
+            {
+                return Err(c::bad());
+            }
+            let heard = c::list(get(s, "heard")?)?;
+            if heard.len() > 16 {
+                return Err(c::bad());
+            }
+            for (i, h) in heard.iter().enumerate() {
+                c::fields(h, &["recipient", "through"])?;
+                c::uint(get(h, "through")?, 0, played)?;
+                if !out.participants.iter().any(|p| Some(p.as_str()) == h.get("recipient").and_then(Value::as_str))
+                    || heard[..i].iter().any(|o| o.get("recipient") == h.get("recipient"))
+                {
+                    return Err(c::bad());
+                }
+            }
+            if !heard.is_empty() && !matches!(stage, "played" | "interrupted") {
+                return Err(c::bad());
+            }
+            let mut recovered = s.clone();
+            set(
+                &mut recovered,
+                "stage",
+                Value::str(if stage == "played" || stage == "interrupted" { "interrupted" } else { "cancelled" }),
+            );
+            out.speech.push(recovered);
+        }
+        out.gate = RequestGate::resume(clock, next)?;
+        Ok(out)
+    }
+    /// Host privacy/definition changes cancel all outstanding generated/queued work.
+    /// Played prefixes stay available for acknowledgement and archival handling.
+    pub fn invalidate(&mut self) -> Result<()> {
+        let now = self.scene.as_ref().map(|s| num(s, "at")).transpose()?.unwrap_or(self.gate.watermarks().0);
+        for p in self.pending.drain(..) {
+            self.gate.cancel(&p.ticket, now)?;
+        }
+        for s in &mut self.speech {
+            if matches!(text(s, "stage")?, "generated" | "validated" | "queued") {
+                set(s, "stage", Value::str("cancelled"));
+            }
+        }
+        self.approved.clear();
+        Ok(())
+    }
+}

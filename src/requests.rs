@@ -115,3 +115,20 @@ impl RequestGate {
         Ok(())
     }
 }
+impl RequestGate {
+    /// Durable host replay metadata. Pending capabilities are intentionally not serialized.
+    pub fn watermarks(&self) -> (u64, u64) {
+        (self.clock, self.next)
+    }
+    /// Recover with no live tickets. Authenticate branch-specific watermarks in the host.
+    pub fn resume(clock: u64, next: u64) -> Result<Self> {
+        time(clock, 0)?;
+        if next > u32::MAX as u64 {
+            return Err(bad());
+        }
+        let mut gate = Self::new();
+        gate.clock = clock;
+        gate.next = next;
+        Ok(gate)
+    }
+}

@@ -898,3 +898,7 @@ and host-applied appraisal rules; see [docs/LIFE.md](docs/LIFE.md). Defaults and
 Stage 2 adds optional scene/thread coordination, dependency-bound reply validation and
 partial speech delivery acknowledgements. `eval/continuity_cases.py --cap 0` checks 41
 offline workflows; generated prose quality remains unmeasured. See the dynamic character guide.
+
+Stage 3 adds bounded identity-bound checkpoints, host archive acknowledgements, causal
+recall/erasure and deterministic consolidation. `eval/episodic_cases.py --cap 0` checks
+20 offline workflows including 1,000 events. No model quality claim or API spend.
