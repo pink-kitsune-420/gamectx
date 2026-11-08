@@ -1,0 +1,107 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt"
+          },
+          "priority": 80,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ]
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "widow",
+          "kind": "loss",
+          "subject": "dog",
+          "weight": 30,
+          "at": 0
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt"
+          },
+          "priority": 80,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ]
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "widow",
+          "kind": "loss",
+          "subject": "dog",
+          "weight": 30,
+          "at": 0
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt",
+            "target": "litter"
+          },
+          "priority": 80,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ],
+          "at": 7
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt"
+          },
+          "priority": 40,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ]
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "widow"
+        }
+      }
+    ]
+  }
+}

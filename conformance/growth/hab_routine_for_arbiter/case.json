@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "routine lists entries as arbiter candidates by strength, optionally for one slot; an unknown being has none.",
+  "error": false
+}

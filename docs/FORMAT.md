@@ -2865,6 +2865,84 @@ cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
     `over_capacity`. `clarity` is `clear` at 60+, else `vague`. `missed` is in event order; `noticed_by` in
     being order.
 
+## Host limits v1
+
+`gamectx::character::limits`. Modules that take limits accept the envelope `{ops: 1–64 [{op, args?}], limits?:
+{name: 1–ceiling}}`. Unknown names, 0 and values above a ceiling are refused (and nothing is applied). With
+`limits` the output is `{limits: {every name: value, declaration order}, version: 1, results}`; without it the
+output is unchanged. Limits persist on a manager across workflows (`with_limits` sets them up front) and only
+refuse growth: existing entries beyond a lowered limit stay.
+
+| kind | limit (default, ceiling) |
+|---|---|
+| `aspiration` | `beings` (1024, 10⁶), `pressures` per being (64, 4096), `goals` per being (16, 256) |
+| `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
+| `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |
+
+## Goals from experience v1 (pass 2, A4)
+
+`gamectx::character::aspiration` (guide: [Life](characters/LIFE.md#goals-from-experience-pass-2-a4)), local kind
+`aspiration` with [host limits](#host-limits-v1). Its 9 cases (2 malformed, prefix `asp_`) live in
+`conformance/growth/`. Kinds: `admiration`, `loss`, `need`, `opportunity`, `threat`; subjects are ids of at
+most 48 characters. Templates: `need` → `stock_<s>` "Keep a store against <s>" `stock_up`; `threat` →
+`guard_<s>` "Guard against <s>" `secure_home`; `admiration` → `learn_<s>` "Learn <s>" `practice`; `loss` →
+`replace_<s>` "Replace the lost <s>" `seek`; `opportunity` → `pursue_<s>` "Pursue <s>" `pursue`.
+Goal view: `{action, formed_at, id, label, origin "template"|"proposal", priority, reason, target|null}`.
+
+- `experience {being, kind, subject, weight? 1–100 (50), at? (0)}` → `{being, blocked, goal|null, kind,
+  pressure {count, last_at, total}|null, result, subject}`.
+  - If the template goal exists: priority += weight/10 (≤ 90), `result` `reinforced` (or `steady`), `pressure` null.
+  - Otherwise the pressure (new: evicting the lowest total, then oldest `last_at`, then key, when full) is reset
+    when `at − last_at > 200`, then total += weight (≤ 1000), count += 1, last_at = max. Below 100: `building`.
+    At 100+: with no goal room `building` and `blocked: true`; else the pressure is removed and the goal forms
+    (`formed`, priority `min(90, 40 + total/10)`, reason "<count> <kind> experiences about <subject>").
+- `propose {being, goal {id, label 1–80, action, target?}, priority 1–100, cites 1–4 distinct [{kind, subject}],
+  at?}` → `{accepted, being, evidence, goal|null, reason}`. Checks in order: `exists`, `uncited` (a cite with no
+  pressure), `weak_evidence` (cited totals < 50), `no_room`; else accepted with priority `min(priority, 60)` and
+  reason `capped` or `accepted`.
+- `drop {being, goal}` → `{being, dropped, goal}`.
+- `goals {being}` → `{being, goals [{action, id, label, priority}]}` by priority descending then id (the motive
+  arbiter `goals` input).
+- `assess {being}` → `{being, goals, pressures [{count, kind, last_at, subject, total}]}`; refused if unknown.
+
+## Habits v1 (pass 2, A5)
+
+`gamectx::character::habit` (guide: [Life](characters/LIFE.md#habits-and-adapting-routines-pass-2-a5)), local kind
+`habit` with [host limits](#host-limits-v1). Its 7 cases (1 malformed, prefix `hab_`) and the 2 limits cases
+(prefix `lim_`, 1 malformed) live in `conformance/growth/`. Slots are ids of at most 24 characters, actions at
+most 32. A change is `{delta, entry, reason, state, strength}` with state `kept`, `steady`, `weakened`, `faded`,
+`formed` or `blocked`.
+
+- `set_routine {being, entries ≤ entries limit [{id (not habit_*), slot, action, strength? 30–100 (80)}]}` →
+  `{authored, being, entries}`; replaces authored entries and keeps habits; distinct ids and (slot, action).
+- `choose {being, slot, action, at?}` → `{action, being, changes, slot, streak}`. Entries in the slot, by id: the
+  matching one +5 (≤ 100); others weaken (authored −5 to a floor of 30, habits −10, removed at 0 as `faded`;
+  `steady` when unchanged). The slot's streak counts consecutive identical actions (a full slot table evicts the
+  lowest streak, then slot). At streak ≥ 3 with no entry for (slot, action), `habit_<slot>_<action>` forms at 40
+  (`blocked` when entries are full).
+- `skip {being, entry, at?, reason? 1–80 ("skipped")}` → one change; refused for an unknown being or entry.
+- `routine {being, slot?}` → `{being, entries [{action, id, label "<action> (<slot>)", priority: strength,
+  slot}]}` by strength descending then id.
+- `assess {being}` → `{being, entries [{action, history [{at, delta, reason}] (last 8), id, origin, slot,
+  strength}], tallies [{action, slot, streak}]}`.
+
+## Lessons v1 (pass 2, A6)
+
+`gamectx::character::lesson` (guide: [Life](characters/LIFE.md#lessons-pass-2-a6)), local kind `lesson` with
+[host limits](#host-limits-v1). Its 7 cases (1 malformed, prefix `les_`) live in `conformance/growth/`. A topic is
+`(about, activity)`; a full topic table evicts the one with the fewest episodes, then oldest, then key.
+
+- `outcome {being, about, activity, result "good"|"bad", episode (distinct in the topic), at?}` → `{about,
+  activity, being, change, lesson|null, previous}`. The last `episodes` outcomes are kept. With at least 3:
+  `avoid` when `3·bad ≥ 2·total`, else `seek` when `3·good ≥ 2·total`. `change`: `noted` (no lesson before or
+  after), `learned`, `doubted` (lost), `revised` (flipped), else `confirmed` or `contradicted` by the result.
+  Lesson `{about, activity, bad, cites (episodes matching the verdict), confidence: majority·100/total, good,
+  summary "<activity> with <about> went well|badly <majority> of <total> times", verdict}`.
+- `advice {being, about?, activity?}` → `{being, lessons [{about, activity, bias: ±confidence/4 (− for avoid),
+  summary, verdict}]}` for topics with a lesson, sorted by (about, activity).
+- `forget {being, about, activity}` → `{about, activity, being, forgot}`.
+- `assess {being}` → `{being, topics [{about, activity, episodes [{at, episode, result}], lesson}]}`.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

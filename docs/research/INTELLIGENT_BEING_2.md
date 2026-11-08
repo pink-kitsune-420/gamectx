@@ -108,21 +108,24 @@ time. When one is broken, that becomes an appraisal event (surprise, worry, reli
 Without expectations, a missed meeting produces nothing, because nothing *happened*.
 *Implemented (pass 2 stage 5):* `character::expectation::ExpectationBook` (local kind `expectation`). [Evidence](../characters/LIFE.md#expectations-and-surprise-pass-2-a3).
 
-**A4. Goals that arise from experience.** After pass 1 every goal is still authored. Goals
+**A4. Goals that arise from experience.** — **DONE**. After pass 1 every goal is still authored. Goals
 should form from motives: repeated hunger → "keep a food store"; repeated theft → "get a
 lock"; admiration → "learn that skill". Use bounded templates (need, threat, admiration,
 loss, opportunity → goal pattern) with host validation, and a model proposal only for
 cases the templates do not cover.
+*Implemented (pass 2 stage 6):* `character::aspiration::Aspirations` (local kind `aspiration`). [Evidence](../characters/LIFE.md#goals-from-experience-pass-2-a4).
 
-**A5. Habits that form and routines that adapt.** The living world counts habits for
+**A5. Habits that form and routines that adapt.** — **DONE**. The living world counts habits for
 badges, but routines are authored. Repeated choices should become routine entries, and
 routine entries that keep getting skipped should weaken, within limits and with reasons.
+*Implemented (pass 2 stage 6):* `character::habit::Habits` (local kind `habit`). [Evidence](../characters/LIFE.md#habits-and-adapting-routines-pass-2-a5).
 
-**A6. Reflection and lessons.** Consolidation already turns episodes into ranges. Add a
+**A6. Reflection and lessons.** — **DONE**. Consolidation already turns episodes into ranges. Add a
 bounded *lesson* record: a pattern over confirmed outcomes ("deals with the trader went
 badly 3 of 4 times") that the arbiter and appraisal can use. Lessons cite their episodes,
 can be wrong, and are revised by new outcomes. This is how a being explains a change of
 heart.
+*Implemented (pass 2 stage 6):* `character::lesson::Lessons` (local kind `lesson`). [Evidence](../characters/LIFE.md#lessons-pass-2-a6).
 
 **A7. Bounded rationality.** If every being plans perfectly, they all look the same.
 Per-being cognition settings, set from temperament: plan depth, how far ahead it looks,
@@ -267,7 +270,7 @@ packet and budget modules already do.
 3. **A3 expectations** and **A2 attention.** Cheap, deterministic, and they create many
    events from things that do *not* happen. — **DONE** (stage 5).
 4. **A4 goals from experience**, **A5 habits**, **A6 lessons**. This is the step to
-   level 4–5.
+   level 4–5. — **DONE** (stage 6).
 5. **B2/B3 cooperation and conflict**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk**.

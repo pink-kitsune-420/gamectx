@@ -1,0 +1,43 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "miller",
+          "kind": "threat",
+          "subject": "thief",
+          "weight": 60,
+          "at": 3
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "miller",
+          "kind": "threat",
+          "subject": "thief",
+          "weight": 60,
+          "at": 9
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "miller",
+          "kind": "threat",
+          "subject": "thief",
+          "weight": 60,
+          "at": 12
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

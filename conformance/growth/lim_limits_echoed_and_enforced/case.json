@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host limits are echoed with the defaults they leave alone; capacity follows them.",
+  "error": false
+}

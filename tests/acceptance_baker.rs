@@ -23,10 +23,15 @@
 //!     promise whose resentment proposal is applied to the affect engine, then relief when the
 //!     player arrives late. Seeded attention (A2) has the baker on the road notice the crash
 //!     while the apprentice, out of range in the bakery, does not.
+//! 13. Pass 2: experience grows a goal (A4: two thefts → guard against thieves), repeated
+//!     evening walks form a habit (A5), and good barters with the miller become a lesson (A6);
+//!     the goal and the habit go to the motive arbiter as candidates and the lesson's advice
+//!     explains the baker's trust in the mill. Stage 6 modules run with host-set limits.
 //!
 //! Asserts byte-identical replay.
 
 use gamectx::character::affect::AffectManager;
+use gamectx::character::aspiration::Aspirations;
 use gamectx::character::attention::AttentionModel;
 use gamectx::character::body::BodyManager;
 use gamectx::character::creed::CreedManager;
@@ -35,6 +40,8 @@ use gamectx::character::deception::DeceptionLedger;
 use gamectx::character::diet::DietManager;
 use gamectx::character::expectation::ExpectationBook;
 use gamectx::character::explain::ExplainTracer;
+use gamectx::character::habit::Habits;
+use gamectx::character::lesson::Lessons;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::mind::MindManager;
 use gamectx::character::motive::MotiveArbiter;
@@ -802,6 +809,72 @@ fn run_baker_scene() -> String {
     let noticed = &notice_out.get("results").unwrap().as_array().unwrap()[1];
     assert!(noticed.to_json().contains(r#""noticed_by":["baker"]"#), "{}", noticed.to_json());
 
+    // 12. Goals from experience (A4), habits (A5) and lessons (A6), with host-set limits:
+    //     the goal and the habit become motive arbiter candidates; the lesson gives advice.
+    let host_limits = parse(r#"{"beings":5000}"#, 64).unwrap();
+    let mut aspirations = Aspirations::with_limits(&host_limits).unwrap();
+    let mut habits = Habits::with_limits(&host_limits).unwrap();
+    let mut lessons = Lessons::with_limits(&host_limits).unwrap();
+    let grown = aspirations
+        .workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"experience","args":{"being":"baker","kind":"threat","subject":"thief","weight":60,"at":20}},
+                {"op":"experience","args":{"being":"baker","kind":"threat","subject":"thief","weight":60,"at":44}},
+                {"op":"goals","args":{"being":"baker"}}]}"#,
+                4096,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    let grown_goals = grown.get("results").unwrap().as_array().unwrap()[2].get("goals").unwrap().clone();
+    assert!(grown_goals.to_json().contains(r#""id":"guard_thief""#));
+    let walk = r#"{"op":"choose","args":{"being":"baker","slot":"dusk","action":"walk_river","at":18}}"#;
+    let routine_out = habits
+        .workflow(
+            &parse(
+                &format!(
+                    r#"{{"ops":[{walk},{walk},{walk},{{"op":"routine","args":{{"being":"baker","slot":"dusk"}}}}]}}"#
+                ),
+                4096,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    let habit_entry =
+        routine_out.get("results").unwrap().as_array().unwrap()[3].get("entries").unwrap().as_array().unwrap()[0]
+            .clone();
+    assert_eq!(habit_entry.get("id"), Some(&Value::str("habit_dusk_walk_river")));
+    let barter = |e: &str, at: u64| {
+        format!(
+            r#"{{"op":"outcome","args":{{"being":"baker","about":"miller","activity":"barter","result":"good","episode":"{e}","at":{at}}}}}"#
+        )
+    };
+    let lesson_out = lessons
+        .workflow(
+            &parse(
+                &format!(
+                    r#"{{"ops":[{},{},{},{{"op":"advice","args":{{"being":"baker","about":"miller"}}}}]}}"#,
+                    barter("barter_1", 4),
+                    barter("barter_2", 28),
+                    barter("barter_3", 52)
+                ),
+                4096,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+    let advice = &lesson_out.get("results").unwrap().as_array().unwrap()[3];
+    assert!(advice.to_json().contains("barter with miller went well 3 of 3 times"), "{}", advice.to_json());
+    let grown_choice = arbiter
+        .workflow(&obj! { "ops" => Value::Array(vec![obj! {
+            "op" => "arbitrate",
+            "args" => obj! { "goals" => grown_goals, "routine" => habit_entry },
+        }]) })
+        .unwrap();
+    let grown_winner = grown_choice.get("results").unwrap().as_array().unwrap()[0].get("winner").unwrap().clone();
+    assert_eq!(grown_winner.get("id"), Some(&Value::str("goal_guard_thief")), "{}", grown_choice.to_json());
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -846,6 +919,7 @@ fn run_baker_scene() -> String {
         book.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
     let composite_output = obj! {
+        "final_growth" => obj! { "advice" => advice.clone(), "winner" => grown_winner },
         "final_expectations" => final_expect_state,
         "final_attention" => noticed.clone(),
         "final_creed" => final_creed_state,

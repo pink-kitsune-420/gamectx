@@ -1,0 +1,95 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "baker",
+          "entries": [
+            {
+              "id": "bake_bread",
+              "slot": "dawn",
+              "action": "bake"
+            },
+            {
+              "id": "sweep",
+              "slot": "noon",
+              "action": "sweep",
+              "strength": 32
+            }
+          ]
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dawn",
+          "action": "bake",
+          "at": 1
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dawn",
+          "action": "bake",
+          "at": 2
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dawn",
+          "action": "bake",
+          "at": 3
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dawn",
+          "action": "bake",
+          "at": 4
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dawn",
+          "action": "bake",
+          "at": 5
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "noon",
+          "action": "nap",
+          "at": 6
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "noon",
+          "action": "nap",
+          "at": 7
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "guard",
+          "kind": "threat",
+          "subject": "raiders",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "guard",
+          "kind": "need",
+          "subject": "thirst",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "drop",
+        "args": {
+          "being": "guard",
+          "goal": "guard_raiders"
+        }
+      },
+      {
+        "op": "drop",
+        "args": {
+          "being": "guard",
+          "goal": "guard_raiders"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "guard",
+          "kind": "need",
+          "subject": "thirst",
+          "weight": 10,
+          "at": 0
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ],
+    "limits": {
+      "goals": 1
+    }
+  }
+}

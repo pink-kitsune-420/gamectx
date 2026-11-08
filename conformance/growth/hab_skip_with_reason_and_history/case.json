@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An explicit skip weakens an entry and records why; history keeps the last 8 changes.",
+  "error": false
+}

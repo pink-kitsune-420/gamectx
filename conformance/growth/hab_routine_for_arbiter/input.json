@@ -1,0 +1,97 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "baker",
+          "entries": [
+            {
+              "id": "bake_bread",
+              "slot": "dawn",
+              "action": "bake"
+            },
+            {
+              "id": "market",
+              "slot": "noon",
+              "action": "sell",
+              "strength": 90
+            },
+            {
+              "id": "prayers",
+              "slot": "dusk",
+              "action": "tend_hearth",
+              "strength": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 1
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 2
+        }
+      },
+      {
+        "op": "routine",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "routine",
+        "args": {
+          "being": "baker",
+          "slot": "dusk"
+        }
+      },
+      {
+        "op": "routine",
+        "args": {
+          "being": "stranger"
+        }
+      },
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "baker",
+          "entries": [
+            {
+              "id": "bake_bread",
+              "slot": "dawn",
+              "action": "bake"
+            }
+          ]
+        }
+      },
+      {
+        "op": "routine",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

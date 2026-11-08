@@ -1,0 +1,63 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "apprentice",
+          "kind": "need",
+          "subject": "cold",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "apprentice",
+          "kind": "threat",
+          "subject": "wolves",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "apprentice",
+          "kind": "admiration",
+          "subject": "baking",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "apprentice",
+          "kind": "loss",
+          "subject": "knife",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "apprentice",
+          "kind": "opportunity",
+          "subject": "fair",
+          "weight": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "baker",
+          "kind": "need",
+          "subject": "sssssssssssssssssssssssssssssssssssssssssssssssss",
+          "weight": 50,
+          "at": 0
+        }
+      }
+    ]
+  }
+}

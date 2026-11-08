@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A different choice in the slot resets the streak; the habit forms only after three in a row.",
+  "error": false
+}

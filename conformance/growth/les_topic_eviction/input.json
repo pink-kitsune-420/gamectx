@@ -1,0 +1,60 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "smith",
+          "about": "ore",
+          "activity": "buy",
+          "result": "bad",
+          "episode": "o1",
+          "at": 5
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "smith",
+          "about": "ore",
+          "activity": "buy",
+          "result": "bad",
+          "episode": "o2",
+          "at": 6
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "smith",
+          "about": "coal",
+          "activity": "buy",
+          "result": "good",
+          "episode": "c1",
+          "at": 7
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "smith",
+          "about": "tin",
+          "activity": "buy",
+          "result": "good",
+          "episode": "t1",
+          "at": 8
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "smith"
+        }
+      }
+    ],
+    "limits": {
+      "topics": 2
+    }
+  }
+}

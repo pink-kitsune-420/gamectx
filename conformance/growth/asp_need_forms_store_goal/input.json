@@ -1,0 +1,49 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "baker",
+          "kind": "need",
+          "subject": "hunger",
+          "weight": 40,
+          "at": 1
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "baker",
+          "kind": "need",
+          "subject": "hunger",
+          "weight": 40,
+          "at": 25
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "baker",
+          "kind": "need",
+          "subject": "hunger",
+          "weight": 40,
+          "at": 49
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

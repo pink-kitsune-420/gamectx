@@ -1,0 +1,49 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 1
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 2
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 3
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "slot": "dusk",
+          "action": "walk_river",
+          "at": 4
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

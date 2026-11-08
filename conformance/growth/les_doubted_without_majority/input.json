@@ -1,0 +1,71 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "b0",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "b1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "b2",
+          "at": 2
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "good",
+          "episode": "g0",
+          "at": 10
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "good",
+          "episode": "g1",
+          "at": 11
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ],
+    "limits": {
+      "episodes": 4
+    }
+  }
+}

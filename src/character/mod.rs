@@ -2,6 +2,7 @@
 //! loadouts, cast packs, the living world and opt-in roleplay policies.
 pub mod affect;
 pub mod archetype;
+pub mod aspiration;
 pub mod attention;
 pub mod beliefs;
 pub mod body;
@@ -14,7 +15,10 @@ pub mod diet;
 pub mod expectation;
 pub mod explain;
 pub mod fitness;
+pub mod habit;
+pub mod lesson;
 pub mod life;
+pub mod limits;
 pub mod living;
 pub mod mind;
 pub mod motive;

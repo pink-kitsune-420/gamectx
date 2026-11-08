@@ -1,0 +1,115 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "miller",
+          "entries": [
+            {
+              "id": "grind",
+              "slot": "morning",
+              "action": "grind"
+            }
+          ]
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 0,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 1,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 2,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 3,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 4,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 5,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 6,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 7,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 8,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

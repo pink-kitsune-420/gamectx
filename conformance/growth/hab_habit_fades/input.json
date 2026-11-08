@@ -1,0 +1,76 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "tavern",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "tavern",
+          "at": 1
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "tavern",
+          "at": 2
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "whittle",
+          "at": 10
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "whittle",
+          "at": 11
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "whittle",
+          "at": 12
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "smith",
+          "slot": "evening",
+          "action": "whittle",
+          "at": 13
+        }
+      },
+      {
+        "op": "routine",
+        "args": {
+          "being": "smith"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "hunt",
+          "result": "bad",
+          "episode": "w0",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "hunt",
+          "result": "bad",
+          "episode": "w1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "hunt",
+          "result": "bad",
+          "episode": "w2",
+          "at": 2
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt",
+          "result": "good",
+          "episode": "f0",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt",
+          "result": "good",
+          "episode": "f1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt",
+          "result": "good",
+          "episode": "f2",
+          "at": 2
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "trap",
+          "result": "good",
+          "episode": "t0",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "trap",
+          "result": "good",
+          "episode": "t1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "trap",
+          "result": "good",
+          "episode": "t2",
+          "at": 2
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard",
+          "about": "wolves"
+        }
+      },
+      {
+        "op": "forget",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "forget",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "nobody"
+        }
+      }
+    ]
+  }
+}

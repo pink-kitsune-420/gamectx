@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A model-proposed goal is rejected when uncited or weakly evidenced, accepted with priority capped at 60, and refused if it exists.",
+  "error": false
+}

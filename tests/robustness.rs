@@ -2394,3 +2394,89 @@ fn expectation_and_attention_survive_mutation_and_boundaries() {
     assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, profile(64)), 1 << 20).unwrap()).is_err());
     assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, profile(3)), 1 << 20).unwrap()).is_ok());
 }
+
+#[test]
+fn growth_modules_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::aspiration::Aspirations;
+    use gamectx::character::habit::Habits;
+    use gamectx::character::lesson::Lessons;
+    let mut rng = Rng(0x6A0A_15AB_17E5_2026);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+    fn run(f: &mut dyn FnMut(&Value) -> gamectx::Result<Value>, req: &str) -> bool {
+        f(&parse(req, 1 << 20).unwrap()).is_ok()
+    }
+
+    // 24. Aspirations, Habits and Lessons mutation fuzzing (limits included)
+    let samples = [
+        r#"{"limits":{"beings":8,"pressures":4,"goals":2},"ops":[{"op":"experience","args":{"being":"baker","kind":"need","subject":"hunger","weight":60,"at":1}},{"op":"experience","args":{"being":"baker","kind":"need","subject":"hunger","weight":60,"at":9}},{"op":"propose","args":{"being":"baker","goal":{"id":"build_oven","label":"Build an oven","action":"build","target":"oven"},"priority":70,"cites":[{"kind":"need","subject":"hunger"}],"at":10}},{"op":"drop","args":{"being":"baker","goal":"stock_hunger"}},{"op":"goals","args":{"being":"baker"}},{"op":"assess","args":{"being":"baker"}}]}"#,
+        r#"{"limits":{"beings":8,"entries":4,"slots":4},"ops":[{"op":"set_routine","args":{"being":"baker","entries":[{"id":"bake","slot":"dawn","action":"bake","strength":70}]}},{"op":"choose","args":{"being":"baker","slot":"dusk","action":"walk","at":1}},{"op":"choose","args":{"being":"baker","slot":"dawn","action":"nap","at":2}},{"op":"skip","args":{"being":"baker","entry":"bake","at":3,"reason":"tired"}},{"op":"routine","args":{"being":"baker","slot":"dawn"}},{"op":"assess","args":{"being":"baker"}}]}"#,
+        r#"{"limits":{"beings":8,"topics":4,"episodes":4},"ops":[{"op":"outcome","args":{"being":"baker","about":"trader","activity":"deal","result":"bad","episode":"e1","at":1}},{"op":"outcome","args":{"being":"baker","about":"trader","activity":"deal","result":"good","episode":"e2","at":2}},{"op":"advice","args":{"being":"baker","about":"trader","activity":"deal"}},{"op":"forget","args":{"being":"baker","about":"trader","activity":"deal"}},{"op":"assess","args":{"being":"baker"}}]}"#,
+    ];
+    let mut asp = Aspirations::new();
+    let mut hab = Habits::new();
+    let mut les = Lessons::new();
+    for _ in 0..1000 {
+        for (i, s) in samples.iter().enumerate() {
+            if let Ok(v) = parse(&mutate(&mut rng, s), 1 << 20) {
+                let _ = match i {
+                    0 => asp.workflow(&v),
+                    1 => hab.workflow(&v),
+                    _ => les.workflow(&v),
+                };
+            }
+        }
+    }
+
+    // 64/65 ops for each kind.
+    let goals = r#"{"op":"goals","args":{"being":"b"}}"#;
+    let routine = r#"{"op":"routine","args":{"being":"b"}}"#;
+    let advice = r#"{"op":"advice","args":{"being":"b"}}"#;
+    assert!(run(&mut |v| Aspirations::new().workflow(v), &ops(64, goals)));
+    assert!(!run(&mut |v| Aspirations::new().workflow(v), &ops(65, goals)));
+    assert!(run(&mut |v| Habits::new().workflow(v), &ops(64, routine)));
+    assert!(!run(&mut |v| Habits::new().workflow(v), &ops(65, routine)));
+    assert!(run(&mut |v| Lessons::new().workflow(v), &ops(64, advice)));
+    assert!(!run(&mut |v| Lessons::new().workflow(v), &ops(65, advice)));
+
+    // Limits: each ceiling is accepted, ceiling + 1 and 0 are refused.
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"pressures":4096,"goals":256}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"goals":0}"#, false),
+    ] {
+        assert_eq!(Aspirations::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+    for (lim, ok) in
+        [(r#"{"entries":512,"slots":512}"#, true), (r#"{"entries":513}"#, false), (r#"{"other":1}"#, false)]
+    {
+        assert_eq!(Habits::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+    for (lim, ok) in [(r#"{"topics":4096,"episodes":256}"#, true), (r#"{"episodes":257}"#, false)] {
+        assert_eq!(Lessons::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // A host that needs a large cast: 5,000 beings across workflows with beings = 5000; the 5,001st is refused.
+    let mut big = Lessons::with_limits(&parse(r#"{"beings":5000}"#, 64).unwrap()).unwrap();
+    for chunk in 0..79 {
+        let batch: Vec<String> = (0..64)
+            .map(|i| chunk * 64 + i)
+            .filter(|n| *n < 5000)
+            .map(|n| format!(r#"{{"op":"outcome","args":{{"being":"b{n}","about":"t","activity":"a","result":"good","episode":"e"}}}}"#))
+            .collect();
+        if !batch.is_empty() {
+            big.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, batch.join(",")), 1 << 20).unwrap()).unwrap();
+        }
+    }
+    assert_eq!(big.beings.len(), 5000);
+    let extra = r#"{"ops":[{"op":"outcome","args":{"being":"one_more","about":"t","activity":"a","result":"good","episode":"e"}}]}"#;
+    assert!(big.workflow(&parse(extra, 4096).unwrap()).is_err());
+
+    // Lowering a limit below current usage keeps state and blocks growth.
+    let lower = r#"{"limits":{"beings":10},"ops":[{"op":"advice","args":{"being":"b0"}}]}"#;
+    assert!(big.workflow(&parse(lower, 4096).unwrap()).is_ok());
+    assert_eq!(big.beings.len(), 5000);
+    assert!(big.workflow(&parse(extra, 4096).unwrap()).is_err());
+}

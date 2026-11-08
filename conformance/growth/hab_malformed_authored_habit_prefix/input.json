@@ -1,0 +1,20 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "baker",
+          "entries": [
+            {
+              "id": "habit_dawn_bake",
+              "slot": "dawn",
+              "action": "bake"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

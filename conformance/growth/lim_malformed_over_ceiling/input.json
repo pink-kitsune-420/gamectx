@@ -1,0 +1,16 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "routine",
+        "args": {
+          "being": "a"
+        }
+      }
+    ],
+    "limits": {
+      "entries": 513
+    }
+  }
+}

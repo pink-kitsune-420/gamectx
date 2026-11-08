@@ -1,0 +1,29 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "ep1",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "good",
+          "episode": "ep1",
+          "at": 0
+        }
+      }
+    ]
+  }
+}

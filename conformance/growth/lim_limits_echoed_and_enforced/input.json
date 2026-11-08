@@ -1,0 +1,25 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "a",
+          "entries": []
+        }
+      },
+      {
+        "op": "set_routine",
+        "args": {
+          "being": "b",
+          "entries": []
+        }
+      }
+    ],
+    "limits": {
+      "beings": 2,
+      "entries": 500
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An authored entry is kept by choosing it (up to 100) and weakened by other choices, never below 30.",
+  "error": false
+}

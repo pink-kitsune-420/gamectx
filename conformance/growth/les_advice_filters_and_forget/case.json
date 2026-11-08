@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "advice filters by subject or activity; forget removes a topic.",
+  "error": false
+}

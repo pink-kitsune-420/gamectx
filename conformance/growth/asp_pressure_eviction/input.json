@@ -1,0 +1,46 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "trader",
+          "kind": "opportunity",
+          "subject": "fair",
+          "weight": 20,
+          "at": 1
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "trader",
+          "kind": "opportunity",
+          "subject": "port",
+          "weight": 30,
+          "at": 2
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "trader",
+          "kind": "threat",
+          "subject": "bandits",
+          "weight": 40,
+          "at": 3
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "trader"
+        }
+      }
+    ],
+    "limits": {
+      "pressures": 2
+    }
+  }
+}

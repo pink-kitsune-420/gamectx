@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Subjects are at most 48 characters so template goal ids fit.",
+  "error": true
+}

@@ -674,6 +674,59 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 64/65-being, 16/17-event, 64/65-profile and 64/65-subject reliability boundaries
 (`tests/robustness.rs`), acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Host-set limits
+
+The game decides how much it needs. Stage 6 modules (`aspiration`, `habit`, `lesson`) take a
+`limits` object next to `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a
+`with_limits` constructor. Each limit is an integer from 1 to a hard ceiling that keeps work and
+memory bounded (beings up to 1,000,000; per-being tables up to 256–4,096). Limits only refuse
+growth: lowering one below current usage keeps what exists. When supplied, the output echoes the
+effective limits. Limits are host configuration; never pass model output into them. The
+robustness tests fill a lesson book with 5,000 characters and refuse the 5,001st. Earlier modules
+keep their fixed bounds for now; extending limits to all of them, with measured time and memory
+at large casts, is the next stage.
+
+## Goals from experience (pass 2, A4)
+
+`gamectx::character::aspiration` (`Aspirations`, local kind `aspiration`) grows goals from what
+happens to a being. Each `experience` (`need`, `threat`, `admiration`, `loss`, `opportunity`, about a
+subject, weight 1–100) adds pressure; 200 quiet ticks reset it. At 100 a fixed template forms a goal
+(`need` → "Keep a store against <subject>", `threat` → "Guard against <subject>", `admiration` →
+"Learn <subject>", `loss` → "Replace the lost <subject>", `opportunity` → "Pursue <subject>") at
+priority 40 + total/10 (≤ 90); later experiences reinforce it by weight/10. Three hungry days of
+weight 40 form "Keep a store against hunger" at 52 (`conformance/growth/asp_need_forms_store_goal`).
+
+For cases the templates do not cover, a model may `propose` a goal. The host accepts it only if it
+cites recorded pressures totalling at least 50 and there is room, and caps its priority at 60
+(`asp_model_proposals_validated`). `goals` lists goals in the motive arbiter's `goals` shape; in the
+acceptance scene two thefts make "guard against thieves" win the arbiter over a fresh habit.
+
+## Habits and adapting routines (pass 2, A5)
+
+`gamectx::character::habit` (`Habits`, local kind `habit`) lets routines change with use. Entries
+"do `action` in `slot`" have a strength: authored ones (default 80) never drop below 30; habits
+start at 40. Choosing an entry's action keeps it (+5); choosing something else in its slot weakens it
+(authored −5, habit −10); `skip` weakens with a stated reason; a habit at 0 fades. Three identical
+choices in a row in a slot form `habit_<slot>_<action>`. In `hab_habit_fades` a tavern habit fades
+after four evenings of whittling while whittling becomes the new habit. Every change keeps its reason
+(last 8 per entry), and `routine` lists entries as motive arbiter `routine` candidates.
+
+## Lessons (pass 2, A6)
+
+`gamectx::character::lesson` (`Lessons`, local kind `lesson`) turns confirmed outcomes into lessons
+a being can explain. Outcomes are grouped by topic (activity × subject); over the last `episodes`
+(default 16), at least 3 outcomes with a two-thirds majority give `avoid` or `seek`, citing the
+episodes behind it. New outcomes report `learned`, `confirmed`, `contradicted`, `revised` or
+`doubted`: with a three-episode window, three good deals after three bad ones flip "avoid the trader"
+to "seek" (`les_revised_by_new_outcomes`). `advice` gives a motive bias of ±confidence/4 and a
+sentence: "deal with trader went badly 3 of 4 times" (bias −18).
+
+**Evidence (A4–A6):** 25 conformance cases (`conformance/growth/`, 5 malformed), 2,000 differential
+parity workflows (`eval/character/growth_cases.py`, seed 7, 0 mismatches: 1,926 accepted, 74 refused,
+137 goals formed, 62 habits formed, 183 lessons learned or revised), 1,000 mutations of each kind with
+limits, 64/65-op and limit-ceiling boundaries and a 5,000-character cast (`tests/robustness.rs`),
+acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

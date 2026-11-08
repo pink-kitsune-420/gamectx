@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Authored entry ids may not use the habit_ prefix.",
+  "error": true
+}

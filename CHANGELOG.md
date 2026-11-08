@@ -2,6 +2,11 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Host-set limits (`character::limits`): a workflow may carry `limits` next to `ops`, or a manager is built `with_limits`; each limit is 1 to a hard ceiling and only refuses growth. Envelopes without `limits` are unchanged. Used by the stage 6 modules below; other modules follow.
+- Goals from experience (`character::aspiration`, local kind `aspiration`, pass 2 A4): need, threat, admiration, loss and opportunity experiences build pressure that forms template goals (priority 40 + total/10, reinforced later); model-proposed goals are accepted only with cited pressure ≥ 50 and capped at priority 60. `goals` gives motive arbiter candidates. Ops: `experience`, `propose`, `drop`, `goals`, `assess`.
+- Habits (`character::habit`, local kind `habit`, pass 2 A5): three identical choices in a slot form a habit; choices keep or weaken entries (authored floor 30, habits fade at 0), with reasons kept. Ops: `set_routine`, `choose`, `skip`, `routine`, `assess`.
+- Lessons (`character::lesson`, local kind `lesson`, pass 2 A6): two-thirds majorities over recent outcomes per topic become `avoid`/`seek` lessons that cite episodes and are learned, confirmed, contradicted, revised or doubted; `advice` gives a ±confidence/4 bias. Ops: `outcome`, `advice`, `forget`, `assess`.
+- 25 conformance cases (5 malformed) in `conformance/growth/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Expectations and surprise (`character::expectation`, local kind `expectation`, pass 2 A3):
   - Hopes and dreads about a subject's event with a due time, grace, importance, confidence and `relies`. `tick` reports `worried` (past due, once), `disappointed` (past grace; resentment toward a relied-on subject) and `relieved` (a dread that never came); `happen` reports `kept`, `dread_met` and `late`. Strength is surprise = importance × confidence / 100; effects are affect `set_mood`/`appraise` proposals.
   - Per-subject reliability (kept/broken) sets default confidence: 70 + 10 × kept − 15 × broken, within 10–95. Ops: `expect`, `tick`, `happen`, `cancel`, `assess`.

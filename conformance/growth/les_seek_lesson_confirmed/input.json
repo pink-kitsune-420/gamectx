@@ -1,0 +1,69 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "about": "miller",
+          "activity": "trade",
+          "result": "good",
+          "episode": "t0",
+          "at": 0
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "about": "miller",
+          "activity": "trade",
+          "result": "good",
+          "episode": "t1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "about": "miller",
+          "activity": "trade",
+          "result": "good",
+          "episode": "t2",
+          "at": 2
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "about": "miller",
+          "activity": "trade",
+          "result": "good",
+          "episode": "t3",
+          "at": 3
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "about": "miller",
+          "activity": "trade",
+          "result": "bad",
+          "episode": "t4",
+          "at": 4
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "apprentice",
+          "about": "miller"
+        }
+      }
+    ]
+  }
+}

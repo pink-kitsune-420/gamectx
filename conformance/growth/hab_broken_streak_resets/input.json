@@ -1,0 +1,61 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "patrol",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "patrol",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "dice",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "patrol",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "patrol",
+          "at": 0
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "guard",
+          "slot": "night",
+          "action": "patrol",
+          "at": 0
+        }
+      }
+    ]
+  }
+}

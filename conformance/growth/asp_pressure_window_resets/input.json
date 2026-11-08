@@ -1,0 +1,37 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "experience",
+        "args": {
+          "being": "smith",
+          "kind": "admiration",
+          "subject": "carving",
+          "weight": 60,
+          "at": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "smith",
+          "kind": "admiration",
+          "subject": "carving",
+          "weight": 60,
+          "at": 201
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "smith",
+          "kind": "admiration",
+          "subject": "carving",
+          "weight": 60,
+          "at": 300
+        }
+      }
+    ]
+  }
+}

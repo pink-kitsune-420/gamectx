@@ -1,0 +1,57 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "ep1",
+          "at": 10
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "good",
+          "episode": "ep2",
+          "at": 20
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "ep3",
+          "at": 30
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "about": "trader",
+          "activity": "deal",
+          "result": "bad",
+          "episode": "ep4",
+          "at": 40
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}
