@@ -60,8 +60,20 @@ noted; "3 models" adds Llama 3.3 70B.
     secret debt (2), greeting state (23), and `*enters*`/`*approaches*` routing (6).
     The line text is not comparable because the shadow engine starts fresh each turn.
   - Done: world timeline (`knowledge::timeline`, guide `docs/guides/WORLD.md`), 46 cases.
-  - Next: place kinds and containment (city ⊃ house ⊃ room; forest, castle, cave), then
-    the world model and the Lantern Vault migration.
+  - Done: places (`knowledge::places`): 112 built-in kinds plus custom ones, `within`
+    nesting, links with distances and directions, and `Codex::nearby`; 30 cases.
+  - Next, the world model (in this order):
+    - things: materials; kinds of tools, weapons, furniture and containers with in-game
+      functions; carriers (animals and vehicles); stock; creating, destroying (into
+      materials) and removing props;
+    - recipes: crafting, cooking, building (changing the world), repairing and
+      dismantling, using tools, stations and skills;
+    - species: animals, plants and hybrids, temperaments, animal interactions;
+    - communities: relations, markets and bartering;
+    - fitness in `bio`, feeding carry capacity and travel.
+  - Then one combined engine change so characters can answer from all of it (news,
+    nearby places, what's here, what something is made of), so existing engine outputs
+    change only once. After that, the Lantern Vault migration.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.

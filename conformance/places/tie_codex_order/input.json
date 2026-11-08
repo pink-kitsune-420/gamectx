@@ -1,0 +1,1 @@
+{"kind":"places","args":{"codex":{"version":1,"places":[{"id":"a","label":"A"},{"id":"c","label":"C","links":[{"place":"a","distance":1}]},{"id":"b","label":"B","links":[{"place":"a","distance":1}]}]},"queries":[{"from":"a"}]}}

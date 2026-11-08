@@ -9,7 +9,7 @@ Content settings: a rating and topics to steer away from.
 Definitions are fixed authored content. Live state (entrance status, need levels, quest
 stages, host flags) arrives with each turn. Nothing here executes or calls a model.
 """
-import re
+import json, pathlib, re
 
 U32 = 4294967295
 LIMIT = 1000000000
@@ -17,6 +17,8 @@ STATUSES = ['open', 'closed', 'locked', 'blocked', 'hidden']
 STANCES = ['allied', 'friendly', 'neutral', 'wary', 'hostile']
 CARRIES = ['none', 'when_open', 'always']
 RATINGS = ['all', 'teen', 'mature']
+DIRECTIONS = ['north', 'northeast', 'east', 'southeast', 'south', 'southwest', 'west', 'northwest', 'up', 'down']
+PLACE_KINDS = json.loads((pathlib.Path(__file__).resolve().parents[2] / 'src/knowledge/place_kinds.json').read_text())
 
 
 def boolean(b): assert type(b) is bool; return b
@@ -91,11 +93,35 @@ def unique_ids(items):
     for x in items: ident(x['id']); assert x['id'] not in ids; ids.append(x['id'])
 
 
+def place_graph(v, places):
+    """Place kinds, nesting (`within`), tags and links between places."""
+    builtin = [k['id'] for k in PLACE_KINDS['kinds']]; custom = lst(v.get('place_kinds', []), 0, 64)
+    for k in custom:
+        keys(k, ['id', 'label', 'scale', 'indoor']); ident(k['id']); assert k['id'] not in builtin
+        text(k['label'], 48); assert k['scale'] in PLACE_KINDS['scales']; boolean(k['indoor'])
+    unique_ids(custom); kinds = builtin + [k['id'] for k in custom]; ids = [p['id'] for p in places]; pairs = []
+    for p in places:
+        if 'kind' in p: assert p['kind'] in kinds
+        if 'within' in p: assert p['within'] in ids and p['within'] != p['id']
+        tags = lst(p.get('tags', []), 0, 8)
+        for t in tags: ident(t)
+        assert len(set(tags)) == len(tags)
+        for l in lst(p.get('links', []), 0, 16):
+            keys(l, ['place', 'distance'], ['direction']); assert l['place'] in ids and l['place'] != p['id']
+            uint(l['distance'], 0, 1000000000)
+            if 'direction' in l: assert l['direction'] in DIRECTIONS
+            pair = sorted([p['id'], l['place']]); assert pair not in pairs; pairs.append(pair)
+    parent = {p['id']: p.get('within') for p in places}
+    for p in places:
+        x, depth = p['id'], 0
+        while parent[x] is not None: x = parent[x]; depth += 1; assert depth <= 8
+
+
 def codex(v, vars_):
-    keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests']); uint(v['version'], 1, 1)
+    keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests', 'place_kinds']); uint(v['version'], 1, 1)
     places = lst(v.get('places', []), 0, 128)
     for p in places:
-        keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms', 'exterior'])
+        keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms', 'exterior', 'kind', 'within', 'tags', 'links'])
         if 'exterior' in p and p['exterior'] is not None: boolean(p['exterior'])
     unique_ids(places); seen = []
     for p in places:
@@ -128,7 +154,7 @@ def codex(v, vars_):
         unique_ids(norms)
     place_ids = [p['id'] for p in places]
     entrances = lst(v.get('entrances', []), 0, 256)
-    for e in entrances: keys(e, ['id', 'label', 'sides'], ['kind', 'aliases', 'passage', 'carries'])
+    for e in entrances: keys(e, ['id', 'label', 'sides'], ['kind', 'aliases', 'passage', 'carries', 'distance'])
     unique_ids(entrances); seen = []
     for e in entrances:
         names(e, seen)
@@ -140,6 +166,8 @@ def codex(v, vars_):
         for s in sides:
             keys(s, ['place', 'description'], ['travel']); assert s['place'] in place_ids; text(s['description'], 240); decision(s.get('travel'))
         assert len({s['place'] for s in sides}) == len(sides)
+        if 'distance' in e: uint(e['distance'], 0, 1000000000)
+    place_graph(v, places)
     factions = lst(v.get('factions', []), 0, 64)
     for f in factions: keys(f, ['id', 'label', 'description'], ['aliases', 'relations']); text(f['description'], 240)
     unique_ids(factions); seen = []; fids = [f['id'] for f in factions]

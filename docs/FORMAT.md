@@ -2223,14 +2223,21 @@ pending: ≤16 [{token, listener, text, scene, visit, at, greeting, introduced}]
 asked: ≤16 [{token, listener, scene, visit, at}]}`. Tokens are unique across `pending`
 and `asked`.
 
-**Codex** `{version:1, places?, entrances?, factions?, events?, quests?}` (names and
+**Codex** `{version:1, places?, entrances?, factions?, events?, quests?, place_kinds?}` (names and
 aliases are unique per category):
 - `places` ≤128 `[{id, label ≤48, aliases?, spots? ≤16 [{id, label, description ≤240,
   aliases?}], ambience? ≤8 [{when?, smell?, light?, sound?, temperature? (≤160, at least
-  one)}], norms? ≤16 [{id, actions 1–8 [{action, target|null}], reaction ≤240}]}]`;
+  one)}], norms? ≤16 [{id, actions 1–8 [{action, target|null}], reaction ≤240}], kind?,
+  within?, tags? ≤8 distinct ids, links? ≤16 [{place, distance 0–10⁹, direction?}]}]`.
+  `kind` is a built-in kind (`src/knowledge/place_kinds.json`) or one of `place_kinds`;
+  `within` is another place. Chains are at most 8 deep and cannot loop. A link names
+  another place at most once, and each pair of places is linked from one end only.
+  `direction` is north|northeast|east|southeast|south|southwest|west|northwest|up|down;
 - `entrances` ≤256 `[{id, label, sides 1–2 [{place, description ≤240, travel?}], kind?,
   aliases?, passage?: both|one_way = both, carries?: {sound?, sight?: none|when_open|always
-  = when_open}}]`, with distinct side places that exist;
+  = when_open}, distance? 0–10⁹ = 1}]`, with distinct side places that exist;
+- `place_kinds` ≤64 `[{id (not a built-in kind), label ≤48, scale:
+  world|region|settlement|district|site|building|room, indoor: bool}]`;
 - `factions` ≤64 `[{id, label, description, aliases?, relations? ≤32 [{faction (another listed
   faction, once), stance: allied|friendly|neutral|wary|hostile}]}]`;
 - `events` ≤128 `[{id, label, description, start, end ≥ start, aliases?, place?}]`;
@@ -2261,6 +2268,29 @@ factions?, secrets?, opinions?, bio?, ...}`:
   skills? [{name, level}], knowledge? [{topic, level, summary}] (only entries whose `when`
   holds), family? [{name, relation, status}]}` (dropped right after `fears` when trimming),
   and the situation `birthday: true` on the character's birthday.
+
+## Places v1
+
+`gamectx::knowledge::places` (guide: [World model](guides/WORLD.md#places)). The `places`
+JSON-lines `local` kind runs `{codex, queries ≤64}` and returns `{results}`, each
+`{ok:true, result}` or `{ok:false}`. An invalid codex is an error. 30 additive cases live
+in `conformance/places/`.
+
+**Query** `{from: place, closed? ≤256 distinct entrance ids, max_distance? 0–10⁹ = 10⁹,
+limit? 1–64 = 16}`. **Result** `{here, routes, total_routes, around, total_around}`:
+- `here`: `[{place, label, kind|null, scale|null}]`, starting at `from` and following
+  `within` outward.
+- `routes`: `[{place, label, kind, distance, from, steps: [{to, entrance|null,
+  direction|null}]}]`. These are the shortest paths, at most `max_distance` long, from
+  any place in `here` (each starting at 0), over entrances that are not `closed` and have
+  two sides (`one_way` only from side 0 to side 1), and over links in both directions
+  (the reverse direction is the opposite one). Nodes are settled in `(distance, codex
+  index)` order. A path is only replaced by a strictly shorter one. Entrance edges are
+  added in codex order, then link edges by place order. Rows are sorted by `(distance,
+  codex index)`. Places in `here` are never listed.
+- `around`: `[{place, label, kind, within}]`. For each place in `here` in order, its
+  direct children (in codex order) that are neither in `here` nor reached.
+- Each list is cut to `limit`. The totals count before the cut.
 
 ## World timeline v1
 

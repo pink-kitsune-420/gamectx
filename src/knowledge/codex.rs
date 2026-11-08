@@ -80,7 +80,8 @@ pub(crate) fn opt_text<'a>(v: &'a Value, k: &str, chars: usize) -> Result<Option
     v.get(k).map(|x| line(x, chars, usize::MAX)).transpose()
 }
 
-/// Validated world definitions (`{"version":1, places?, entrances?, factions?, events?, quests?}`).
+/// Validated world definitions (`{"version":1, places?, entrances?, factions?, events?, quests?,
+/// place_kinds?}`). See [`crate::knowledge::places`] for place kinds, nesting and links.
 #[derive(Clone, Debug)]
 pub struct Codex {
     value: Value,
@@ -98,11 +99,15 @@ impl Codex {
     }
     pub fn from_value(v: &Value) -> Result<Self> {
         crate::packet::request::bounded(v, 2_097_152)?;
-        keys(v, &["version"], &["places", "entrances", "factions", "events", "quests"])?;
+        keys(v, &["version"], &["places", "entrances", "factions", "events", "quests", "place_kinds"])?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         let places = list(v.get("places"), 0, 128)?;
         for p in places {
-            keys(p, &["id", "label"], &["aliases", "spots", "ambience", "norms", "exterior"])?;
+            keys(
+                p,
+                &["id", "label"],
+                &["aliases", "spots", "ambience", "norms", "exterior", "kind", "within", "tags", "links"],
+            )?;
             if let Some(e) = p.get("exterior").filter(|x| *x != &Value::Null) {
                 c::boolean(e)?;
             }
@@ -177,7 +182,7 @@ impl Codex {
         let place_ids = places.iter().filter_map(|p| p.get("id")).collect::<Vec<_>>();
         let entrances = list(v.get("entrances"), 0, 256)?;
         for e in entrances {
-            keys(e, &["id", "label", "sides"], &["kind", "aliases", "passage", "carries"])?;
+            keys(e, &["id", "label", "sides"], &["kind", "aliases", "passage", "carries", "distance"])?;
         }
         unique_ids(entrances)?;
         let (mut seen, mut entrance_names) = (Vec::new(), Vec::new());
@@ -209,7 +214,11 @@ impl Codex {
             if sides.len() == 2 && sides[0].get("place") == sides[1].get("place") {
                 return Err(c::bad());
             }
+            if let Some(d) = e.get("distance") {
+                c::uint(d, 0, 1_000_000_000)?;
+            }
         }
+        crate::knowledge::places::validate(v, places)?;
         let factions = list(v.get("factions"), 0, 64)?;
         for f in factions {
             keys(f, &["id", "label", "description"], &["aliases", "relations"])?;
@@ -291,6 +300,11 @@ impl Codex {
     }
     pub fn place(&self, id: &str) -> Option<&Value> {
         self.find("places", id)
+    }
+    /// Where a character in a place is, what they can reach and what is around; see
+    /// [`crate::knowledge::places::nearby`].
+    pub fn nearby(&self, query: &Value) -> Result<Value> {
+        crate::knowledge::places::nearby(self, query)
     }
     pub fn place_label(&self, id: &str) -> Option<&str> {
         self.place(id)?.get("label")?.as_str()

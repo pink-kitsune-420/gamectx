@@ -8,6 +8,7 @@ pub mod location;
 pub mod lore;
 pub mod memory;
 pub mod observation;
+pub mod places;
 pub mod props;
 pub mod recall;
 pub mod selection;

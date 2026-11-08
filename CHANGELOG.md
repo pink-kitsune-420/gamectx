@@ -2,6 +2,17 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Places (`knowledge::places`, local kind `places`): codex places gain an optional
+  `kind`, `within` (the place they sit inside), `tags` and `links` (with a distance and
+  a compass direction). There are 112 built-in kinds, such as workshop, city, forest,
+  house, castle and cave, and the codex can add its own under `place_kinds`. Entrances
+  gain an optional `distance`.
+  - `Codex::nearby` returns where a character is (the chain of places they're in), the
+    shortest routes to places they can reach (through open entrances and links, with
+    each step) and what else is around.
+  - All new keys are optional, so existing codexes and engine outputs are unchanged.
+  - 30 cases. Rust matches the Python reference byte for byte on them and on 2,000
+    randomized codexes.
 - World timeline (`knowledge::timeline`, local kind `timeline`): the game's own record
   of what happened.
   - Entries hold when, what kind, a summary, actors, place, things, tags, visibility

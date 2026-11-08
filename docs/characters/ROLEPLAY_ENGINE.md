@@ -214,7 +214,9 @@ A sheet is fixed, authored content about one character. Put it in the config as 
 ## World codex
 
 The codex is shared world content: `places` (with `spots`, conditional `ambience` and
-`norms`), `entrances` between places, `factions`, `events` and `quests`. Put it in the
+`norms`), `entrances` between places, `factions`, `events` and `quests`. Places can also
+have a kind, nest inside each other and link to nearby places; see
+[Places](../guides/WORLD.md#places). Put it in the
 config as `codex`, or pack it once in a game data file for every character:
 
 ```json

@@ -40,3 +40,22 @@ fn timeline_compact_and_full() -> gamectx::Result<()> {
     assert!(t.retract(5000, "Never recorded.").is_err());
     Ok(())
 }
+
+#[test]
+fn places_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::codex::Codex;
+    let codex = Codex::parse(&guide_json("## Places"))?;
+    let query = parse(&guide_json("in `from`"), 4096)?;
+    let out = codex.nearby(&query)?;
+    assert_eq!(out.to_json(), parse(&guide_json("The result (real output)"), 65536)?.to_json());
+    Ok(())
+}
+
+#[test]
+fn place_kinds_cover_the_basics() {
+    let kinds = gamectx::knowledge::places::builtin_kinds();
+    for k in ["workshop", "city", "forest", "house", "castle", "cave"] {
+        assert!(kinds.iter().any(|x| x.get("id").and_then(|v| v.as_str()) == Some(k)), "{k}");
+    }
+    assert_eq!(kinds.len(), 112);
+}
