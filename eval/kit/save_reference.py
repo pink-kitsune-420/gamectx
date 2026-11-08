@@ -84,7 +84,7 @@ def check_data(path, kind, data, sections):
 
 def check_save(path, kind, data):
     assert kind in SAVE_KINDS; path_ok(path, kind)
-    if kind == 'engine': keys(data, ['version', 'greetings', 'listeners', 'pending']); uint(data['version'], 1, 1)
+    if kind == 'engine': keys(data, ['version', 'greetings', 'listeners', 'pending', 'asked']); uint(data['version'], 1, 1)
     elif kind != 'host': assert isinstance(data, dict)
 
 

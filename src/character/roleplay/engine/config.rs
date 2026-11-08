@@ -122,6 +122,12 @@ impl Feature {
             Feature::Disclosures => &[("max_preferences", 1, 16, 3)],
             Feature::Greetings => &[("long_gap_turns", 1, 1_000_000, 12)],
             Feature::Events => &[("soon_turns", 1, 1_000_000, 10)],
+            Feature::Model => &[
+                ("max_tokens", 16, 1024, 160),
+                ("max_sentences", 1, 4, 3),
+                ("max_chars", 40, 240, 240),
+                ("brief_chars", 512, 16384, 4096),
+            ],
             _ => &[],
         }
     }
@@ -140,6 +146,15 @@ pub struct EngineConfig {
     pub(crate) codex: Codex,
     pub(crate) avoid: Vec<(String, Vec<String>)>,
 }
+/// 1–8 rule templates for the model request's first system message.
+fn model_rules(v: &Value) -> Result<Vec<String>> {
+    let list = c::list(v)?;
+    if list.is_empty() || list.len() > 8 {
+        return Err(c::bad());
+    }
+    list.iter().map(|t| super::lines::template(t).and_then(|()| Ok(c::text(t)?.to_owned()))).collect()
+}
+
 fn keys(v: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     let rows = v.as_object().ok_or_else(c::bad)?;
     if required.iter().any(|k| v.get(k).is_none())
@@ -188,7 +203,7 @@ impl EngineConfig {
         keys(
             v,
             &["version", "character"],
-            &["features", "variety", "pack", "phrases", "lines", "lists", "articles", "sheet", "codex"],
+            &["features", "variety", "pack", "phrases", "lines", "lists", "articles", "sheet", "codex", "model_rules"],
         )?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         let character = c::get(v, "character")?;
@@ -317,6 +332,10 @@ impl EngineConfig {
             None => CharacterSheet::default(),
         };
         book.avoid = sheet.avoid.clone();
+        let given_rules = v.get("model_rules").filter(|x| *x != &Value::Null);
+        if let Some(r) = given_rules {
+            book.rules = model_rules(r)?;
+        }
         let value = obj! {
             "version"=>1,
             "character"=>character.clone(),
@@ -328,12 +347,13 @@ impl EngineConfig {
             "lists"=>given_lists.cloned(),
             "articles"=>given_articles.cloned(),
             "sheet"=>sheet.to_value(),
-            "codex"=>codex.to_value()
+            "codex"=>codex.to_value(),
+            "model_rules"=>given_rules.cloned()
         };
         Ok(Self { value, props, actions: actions.ok_or_else(c::bad)?, book, sheet, codex, avoid })
     }
     fn pack(v: &Value) -> Result<LineBook> {
-        c::fields(v, &["version", "language", "phrases", "lists", "articles", "lines"])?;
+        c::fields(v, &["version", "language", "phrases", "lists", "articles", "lines", "model_rules"])?;
         let mut book = LineBook::default();
         for (k, m) in v.get("phrases").and_then(Value::as_object).ok_or_else(c::bad)? {
             book.phrases.push((k.clone(), Matcher::from_value(m)?));
@@ -341,6 +361,7 @@ impl EngineConfig {
         book.lists = Some(lists(c::get(v, "lists")?)?);
         book.articles = articles(c::get(v, "articles")?)?;
         book.lines = c::list(c::get(v, "lines")?)?.iter().map(Rule::from_value).collect::<Result<_>>()?;
+        book.rules = model_rules(c::get(v, "model_rules")?)?;
         Ok(book)
     }
     pub fn to_value(&self) -> Value {
@@ -354,6 +375,10 @@ impl EngineConfig {
     }
     fn feature(&self, f: Feature) -> &Value {
         self.value.get("features").and_then(|v| v.get(f.as_str())).unwrap_or(&Value::Null)
+    }
+    /// The content rating (`all`, `teen` or `mature`).
+    pub fn content_rating(&self) -> &str {
+        self.feature(Feature::Content).get("rating").and_then(Value::as_str).unwrap_or("teen")
     }
     pub fn enabled(&self, f: Feature) -> bool {
         self.feature(f).get("enabled") == Some(&Value::Bool(true))

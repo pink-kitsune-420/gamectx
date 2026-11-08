@@ -83,6 +83,35 @@
   workflows. The other 68 are documented: Rust also deep-validates nested lore and
   memory data that the reference only shape-checks. See
   [FORMAT](docs/FORMAT.md#game-data-and-save-files-v1).
+- Added model requests and replies to the roleplay engine (stage 2.2):
+  - A `model` outcome now carries `request`, a complete OpenAI/llama.cpp-shaped chat
+    request. It holds the pack's `model_rules`, a character brief (persona, speech
+    style, relationships, factions, content rating) and the turn's situation (scene and
+    senses, props, exits, what the character knows about this listener, goal, need,
+    events, recent replies), trimmed to `brief_chars` in a fixed order.
+  - Locked secrets never enter a request.
+  - The new `reply` op validates raw model text: an exact `{"speech"}` object, length,
+    markup, sentence count, out-of-character phrases, avoided words, locked secret text,
+    host ids and repeats. A rejection names its reason and changes nothing. Open
+    requests are checkpointed as `asked`.
+  - New `features.model` settings: `max_tokens`, `max_sentences`, `max_chars` and
+    `brief_chars`. Config `model_rules` replaces the pack's rules.
+- [format] `roleplay-engine` gains 26 conformance cases (130 in total).
+  - Existing cases were re-blessed and reviewed by hand. Their outcomes are unchanged;
+    only additive fields changed: the config echo (`model` settings, `model_rules`),
+    the checkpoint `asked` list and the `request` on `model` outcomes. The two restore
+    inputs gained `asked`.
+  - `save-file` cases were re-blessed for the `asked` list and the resulting digests.
+  - Both kinds are unreleased.
+  - Rust is byte-identical to the Python reference on all 130 cases and on 3,200
+    randomized differential cases with raw model replies. `tests/robustness.rs` fuzzes
+    6,000 mutated replies.
+  - Local model evaluation, $0: the full numbers are in
+    [the guide](docs/characters/ROLEPLAY_ENGINE.md#model-evaluation).
+    - Llama 3.2 3B met every predeclared expectation: 92.6% accepted and fact hits 61.1%
+      versus 11.1% without the brief.
+    - Stheno 8B missed the acceptance bar: 74.1% accepted against ≥ 85%, every
+      rejection being too many sentences. Its grounding gain was the same.
 
 - [api] Add bounded least-recent tale seed selection and ordered fictional tale parts.
 - [format] Add sixteen expression cases; optional structured example tale responses and

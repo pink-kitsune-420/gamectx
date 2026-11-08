@@ -12,7 +12,7 @@ CODEX, SHEET = E.CODEX, E.SHEET
 ENGINE = dict(version=1, character=E.CHAR, features=dict(props=dict(registry=E.PROPS)))
 LORE = dict(version=1, entries=[dict(id='rye_recipe', subject='bakery', topic='recipes', text='Mira proves her rye overnight in the cellar where it stays cool.', tags=['bread'], known_by=['*'], requires=[])])
 MEMORY = dict(next_id=2, records=[dict(id=1, turn=3, importance=6, text='The traveller paid for rye bread with a silver coin.', tags=['trade'])])
-FRESH = dict(version=1, greetings=dict(version=1, revision=0, entries=[]), listeners=[], pending=[])
+FRESH = dict(version=1, greetings=dict(version=1, revision=0, entries=[]), listeners=[], pending=[], asked=[])
 HEARD = dict(FRESH, listeners=[dict(id='player_1', name='Arin', preferences=[dict(value='rye bread', polarity='like')], recent=['Arin; thank you for telling me your name.'], topic=None, revealed=['flour_debt'])])
 DATA = [dict(path='world/codex', kind='codex', data=CODEX), dict(path='characters/baker/sheet', kind='sheet', data=SHEET),
         dict(path='characters/baker/engine', kind='engine-config', data=ENGINE), dict(path='world/props', kind='props', data=E.PROPS),

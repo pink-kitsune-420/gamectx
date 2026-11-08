@@ -4,7 +4,7 @@ Each case lists the outcome fields it must produce, written before any Rust outp
 observed. `--write-conformance` writes conformance/roleplay-engine/<case>/ from the
 reference; otherwise the Rust CLI (`target/debug/gamectx local -`) must match it byte for byte.
 """
-import argparse, copy, subprocess
+import argparse, copy, json, subprocess
 import pathlib as _pl, sys as _sys; _sys.path[1:1] = [str(d) for d in sorted(_pl.Path(__file__).resolve().parents[1].iterdir()) if d.is_dir()]  # every eval/ topic folder
 from roleplay_engine_reference import ROOT, enc, oracle
 
@@ -218,8 +218,64 @@ CASES_B = [
 ]
 
 
+ASK = 'What do you think of the new mayor?'
+def ans(text, token=1, who='player_1'): return dict(op='reply', args=dict(token=token, listener=who, text=text))
+def sp(s): return '{"speech": ' + json.dumps(s) + '}'
+OK = 'The new mayor seems fair enough to me.'
+CASES_C = [
+    ('c_request_shape', runb([turnb(ASK)]), False, [(0, dict(route='model', kind='model', input=ASK))]),
+    ('c_reply_accepted', runb([turnb(ASK), ans(sp(OK)), heard(OK)]), False,
+     [(1, dict(route='model', kind='reply', intent='model', line=None, text=OK)), (2, dict(recorded=True))]),
+    ('c_reply_fenced', runb([turnb(ASK), ans('```json\n' + sp(OK) + '\n```')]), False, [(1, dict(kind='reply', text=OK))]),
+    ('c_reply_escapes', runb([turnb(ASK), ans('{"speech":"Caf\\u00e9 bread, \\"fresh\\" today."}')]), False, [(1, dict(kind='reply', text='Café bread, "fresh" today.'))]),
+    ('c_reject_format', runb([turnb(ASK), ans('Sure! ' + OK), ans('{"speech": "Hi.", "mood": "happy"}'), ans('{"speech": "\\ud800"}')]), False,
+     [(1, dict(kind='rejected', reason='format')), (2, dict(kind='rejected', reason='format')), (3, dict(kind='rejected', reason='format'))]),
+    ('c_reject_empty', runb([turnb(ASK), ans(sp('   '))]), False, [(1, dict(kind='rejected', reason='empty'))]),
+    ('c_reject_length', runb([turnb(ASK, features=None) if False else turnb(ASK), ans(sp('a' * 241))]), False, [(1, dict(kind='rejected', reason='length'))]),
+    ('c_reject_control', runb([turnb(ASK), ans(sp('Line one.\nLine two.'))]), False, [(1, dict(kind='rejected', reason='control'))]),
+    ('c_reject_stage', runb([turnb(ASK), ans(sp('*smiles* Hello there.')), ans(sp('Hello <b>there</b>.'))]), False,
+     [(1, dict(kind='rejected', reason='stage')), (2, dict(kind='rejected', reason='stage'))]),
+    ('c_reject_sentences', runb([turnb(ASK), ans(sp('One. Two! Three? Four.')), ans(sp('One. Two! Three. And four'))]), False,
+     [(1, dict(kind='rejected', reason='sentences')), (2, dict(kind='rejected', reason='sentences'))]),
+    ('c_ellipsis_one_sentence', runb([turnb(ASK), ans(sp('Well... he means well."'))]), False, [(1, dict(kind='reply'))]),
+    ('c_reject_ooc', runb([turnb(ASK), ans(sp('As an AI, I have no view on mayors.')), ans(sp('That is not in my instructions.'))]), False,
+     [(1, dict(kind='rejected', reason='out_of_character')), (2, dict(kind='rejected', reason='out_of_character'))]),
+    ('c_reject_avoided', runb([turnb(ASK), ans(sp('Of course, sir.')), ans(sp('There was blood on the mayor.'))], features=dict(content=dict(avoid=[dict(id='gore', phrases=['blood'])]))), False,
+     [(1, dict(kind='rejected', reason='avoided')), (2, dict(kind='rejected', reason='avoided'))]),
+    ('c_reject_secret', runb([turnb(ASK), ans(sp('Between us, I owe the mill for three months of flour.'))]), False, [(1, dict(kind='rejected', reason='secret'))]),
+    ('c_secret_after_reveal', runb([turnb('Do you owe anyone money?', trust=60), heard('Between us, I owe the mill for three months of flour.'), turnb(ASK, token=2),
+                                    ans(sp('Between us, I owe the mill for three months of flour.'), token=2)]), False, [(3, dict(kind='rejected', reason='repeat'))]),
+    ('c_reject_identifier', runb([turnb(ASK), ans(sp('Hello player_1, welcome.'))]), False, [(1, dict(kind='rejected', reason='identifier'))]),
+    ('c_reject_repeat_then_retry', runb([turnb('Thanks'), heard('You are welcome.'), turnb(ASK, token=2), ans(sp('You are welcome!'), token=2), ans(sp(OK), token=2)]), False,
+     [(3, dict(kind='rejected', reason='repeat')), (4, dict(kind='reply', text=OK))]),
+    ('c_ticket_consumed', runb([turnb(ASK), ans(sp(OK)), ans(sp(OK))]), True, []),
+    ('c_ticket_wrong_listener', runb([turnb(ASK), ans(sp(OK), who='player_2')]), True, []),
+    ('c_token_reuse', runb([turnb(ASK), turnb(ASK)]), True, []),
+    ('c_brief_trimmed', runb([turnb(ASK)], features=dict(model=dict(brief_chars=512))), False, [(0, dict(route='model'))]),
+    ('c_model_params', runb([turnb(ASK)], features=dict(model=dict(max_tokens=64, max_sentences=1, max_chars=120))), False, [(0, dict(route='model'))]),
+    ('c_custom_rules', runb([turnb(ASK)], model_rules=['You are {name}. Answer in {sentences} sentence.']), False, [(0, dict(route='model'))]),
+    ('c_bad_rules', runb([turnb(ASK)], model_rules=['You are {nobody}.']), True, []),
+    ('c_bad_model_param', runb([turnb(ASK)], features=dict(model=dict(max_sentences=9))), True, []),
+    ('c_none_pack_no_rules', runb([turnb(ASK)], pack='none'), False, [(0, dict(route='model'))]),
+]
+
+
+def check_requests():
+    """Expectation 10 on the reference itself: shape, order and secret gating."""
+    r = oracle(copy.deepcopy(CASES_C[0][1]))['results'][0]['request']
+    roles = [m['role'] for m in r['messages']]; assert roles == ['system', 'system', 'system', 'user'] and r['messages'][-1]['content'] == ASK
+    brief = json.loads(r['messages'][1]['content']); sit = json.loads(r['messages'][2]['content'])
+    assert brief['name'] == 'Mira' and brief['role'] == 'the town baker' and 'secrets' not in brief and list(sit)[:2] == ['scene', 'listener']
+    assert 'mill' not in enc(r) and r['response_format']['json_schema']['schema']['required'] == ['speech']
+    after = oracle(copy.deepcopy(CASES_C[14][1]))['results'][2]['request']
+    assert 'I owe the mill' in after['messages'][2]['content']
+    small = oracle(copy.deepcopy(CASES_C[20][1]))['results'][0]['request']
+    assert len(small['messages'][1]['content']) + len(small['messages'][2]['content']) <= 512 or 'summary' not in small['messages'][1]['content']
+    none = oracle(copy.deepcopy(CASES_C[-1][1]))['results'][0]['request']; assert len(none['messages']) == 3
+
+
 def cases():
-    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B]
+    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C]
     # Checkpoint round trip: a saved state restores and continues identically.
     first = oracle(copy.deepcopy(run([turn('Hello!'), heard(FIRST), turn('My name is Arin.', token=2, at=2), heard('Arin; thank you for telling me your name.', token=2)])))
     rows.append(('restore_continues', dict(config=cfg(), state=first['state'], ops=[turn('Hello again', token=3, at=3), turn('What is my name?', token=4, at=4)]), False,
@@ -246,7 +302,7 @@ def lantern_vault_wording():
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--cap', required=True, type=float); p.add_argument('--prototype-only', action='store_true'); p.add_argument('--write-conformance', action='store_true')
     a = p.parse_args(); assert a.cap == 0, 'roleplay engine cases are offline only'
-    rows = cases(); ported = lantern_vault_wording()
+    rows = cases(); ported = lantern_vault_wording(); check_requests()
     for name, args, error, wants in rows:
         try:
             got = oracle(copy.deepcopy(args)); assert not error, name

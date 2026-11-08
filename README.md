@@ -59,11 +59,24 @@ timed events and quests. [`kit::save`](docs/characters/ROLEPLAY_ENGINE.md#saving
 packs the authored side into one game data file and runtime memory into one save file
 with any number of named, forkable states.
 
-The engine only proposes; your game validates and executes. 104 engine and 22 save-file
-conformance cases. The Rust output is byte-identical to independent Python references on
-4,300 randomized engine cases (1,500 in stage 2.1, 2,800 in 2.1b) and on 2,932 of 3,000
-randomized save workflows. The other 68 are stricter Rust validation of nested
-lore/memory data, a documented difference. Zero model calls.
+Anything the authored stages don't cover falls through to a compiled [model
+request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the
+character's persona, speech style and what they know, but never their locked secrets.
+The model's raw reply goes back through `reply`, which validates it before anyone hears
+it.
+
+The engine only proposes; your game validates and executes.
+
+- **Conformance:** 130 engine and 22 save-file cases.
+- **Parity:** the Rust output is byte-identical to independent Python references on
+  7,500 randomized engine cases and on 2,932 of 3,000 randomized save workflows. The
+  other 68 are stricter Rust validation of nested lore/memory data, a documented
+  difference.
+- **Local models ($0):**
+  - Llama 3.2 3B Instruct: 92.6% of replies accepted. Fact hits were 61.1% with the
+    brief and 11.1% without it.
+  - Stheno 8B: same fact hits, but only 74.1% accepted because it overruns the sentence
+    limit. See [the evaluation](docs/characters/ROLEPLAY_ENGINE.md#model-evaluation).
 
 ## Optional local RPG, voice and art studio (unreleased v0.3.1a)
 

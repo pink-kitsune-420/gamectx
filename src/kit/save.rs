@@ -355,7 +355,7 @@ impl SaveState {
         match s.kind.as_str() {
             // Deep validation needs the engine config: see `SaveFile::check` and `SaveState::engine`.
             "engine" => {
-                keys(d, &["version", "greetings", "listeners", "pending"], &[])?;
+                keys(d, &["version", "greetings", "listeners", "pending", "asked"], &[])?;
                 c::uint(c::get(d, "version")?, 1, 1)?;
             }
             "memory" => {

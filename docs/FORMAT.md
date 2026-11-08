@@ -2099,24 +2099,27 @@ requires zero played/heard offsets and issues a fresh ticket; state adds `playba
 ## Roleplay engine v1
 
 `roleplay-engine` (JSON-lines `local` kind) runs `{config, state, ops}`, where `state` is
-`null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered", args}`
-entries. It returns `{config, results, state}`. 104 additive cases live in
-`conformance/roleplay-engine/` (62 from stage 2.1, 42 from stage 2.1b), and no output
-outside that folder changes. See the
+`null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered" | "reply",
+args}` entries. It returns `{config, results, state}`. 130 additive cases live in
+`conformance/roleplay-engine/` (62 from stage 2.1, 42 from 2.1b, 26 from 2.2). See the
 [roleplay engine guide](characters/ROLEPLAY_ENGINE.md) for behavior.
 
 **Config** `{version:1, character:{id,name≤32}, features?, variety?:{recent 0–8 = 2},
 pack?: "en"|"none", phrases?: {intent: matcher} (≤64), lines?: [rule] (≤128),
-lists?: {separator,final}|null, articles?: [word]|null, sheet?: Sheet, codex?: Codex}`.
+lists?: {separator,final}|null, articles?: [word]|null, sheet?: Sheet, codex?: Codex,
+model_rules?: 1–8 templates|null}`.
 - `features` may set any of `chunks{max_chars 512–4096 = 1024}`, `out_of_character`,
   `stage_actions{actions: RoleplayActions}`, `props{registry: Props}`, `directions`,
   `perception`, `commands`, `disclosures{max_preferences 1–16 = 3}`, `recall`,
-  `greetings{long_gap_turns 1–1000000 = 12}`, `social`, `model`,
+  `greetings{long_gap_turns 1–1000000 = 12}`, `social`, `model{max_tokens 16–1024 = 160,
+  max_sentences 1–4 = 3, max_chars 40–240 = 240, brief_chars 512–16384 = 4096}`,
   `content{rating: all|teen|mature = teen, avoid: ≤32 [{id, phrases 1–16}]}`, `entrances`,
   `scenery`, `persona`, `services`, `secrets`, `opinions`, `relationships`, `factions`,
   `events{soon_turns 1–1000000 = 10}`, `quests` and `goals`. Each also takes `enabled`
   (default `true`).
-- The output `config` echoes `sheet` and `codex` (empty `{"version":1}` when absent).
+- The output `config` echoes `sheet` and `codex` (empty `{"version":1}` when absent)
+  and `model_rules` (`null` means the pack's). A pack holds `model_rules` (1–8
+  templates) beside `phrases` and `lines`; templates may also use `{sentences}`.
 - Unknown keys are errors. The output `config` writes every default out.
 
 **Matcher** `{exact?, prefix?, contains?, unless?}`. Each is 1–32 phrases of at most 128
@@ -2156,7 +2159,32 @@ sheet and codex.
 - A direction to a spot adds `spot: true`; an unanswered secret is
   `{route:"secrets", kind:"silent", secret}`.
 - Other kinds: `direction {verb, target}`, `note {note}`,
-  `model {input, long, expression, topic}` and `silent`.
+  `model {input, long, expression, topic, request}` and `silent`. `request` is
+  `{messages: [{role, content}], response_format: {type:"json_schema", json_schema:
+  {name:"speech", strict:true, schema}}, max_tokens}`. `messages` are the rendered rules
+  joined by spaces (omitted when there are none), the brief JSON `{name, pronouns?,
+  role?, summary?, appearance?, values?, fears?, desires?, speech?, relationships?:
+  [{name,kind}], factions?: [{name,role?}], content?: {rating}}`, the situation JSON
+  `{scene: {name, atmosphere, sight?, sound?, smell?, light?, temperature?, props?,
+  exits?}, listener: {relationship, name?, preferences?, already_told?}, goal?, need?,
+  events?: [{name, timing}], recent_replies?}`, then the player's words as `user`.
+  When the brief and situation exceed `brief_chars`, keys are dropped in this order
+  until they fit: `recent_replies, appearance, desires, fears, factions, relationships,
+  events, speech, need, goal, values, summary, already_told, preferences, exits, props`.
+
+**Reply** `{token, listener, text}` for an open request (`text` is the raw model output).
+Accepted when, after removing one optional ```` ```json ```` fence, `text` is exactly
+`{"speech": <JSON string>}` with JSON whitespace, the trimmed speech is non-empty, at
+most `max_chars`, free of control characters and of `* [ ] { } < >`, has at most
+`max_sentences` runs of `.!?` (an unterminated tail counts as one), matches no
+`model_reject` phrase, avoided word or content topic, contains no unrevealed secret's
+`reveal` text, no listener or character id that has `_`, `:` or a digit, and is not a
+normalized repeat of the listener's recent replies. Result: `{route:"model",
+kind:"reply", intent:"model", line:null, text}` (pending until delivered), or
+`{route:"model", kind:"rejected", reason}` with `reason` one of `length, format, empty,
+control, stage, sentences, out_of_character, avoided, secret, identifier, repeat`
+(checked in that order; nothing changes). Unknown tokens and listener mismatches are
+host errors.
 
 **Delivered** `{token, listener, text, heard}` returns one of:
 - `{recorded:false, reason:"unknown"}` for a token with no pending reply;
@@ -2167,7 +2195,9 @@ sheet and codex.
 **Checkpoint** `{version:1, greetings: <studio-greetings state>, listeners: ≤256
 [{id, name, preferences ≤max [{value,polarity}], recent ≤variety.recent, topic,
 revealed ≤32 unique ids}],
-pending: ≤16 [{token, listener, text, scene, visit, at, greeting, introduced}]}`.
+pending: ≤16 [{token, listener, text, scene, visit, at, greeting, introduced}],
+asked: ≤16 [{token, listener, scene, visit, at}]}`. Tokens are unique across `pending`
+and `asked`.
 
 **Codex** `{version:1, places?, entrances?, factions?, events?, quests?}` (names and
 aliases are unique per category):

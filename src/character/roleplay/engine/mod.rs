@@ -27,8 +27,10 @@
 //! ```
 mod config;
 mod lines;
+mod model;
 pub use config::{EngineConfig, Feature};
 pub use lines::VARS;
+use model::{check_speech, compile, Compile};
 
 use super::{
     conversation_route, expression_claim, expression_route_expanded, message_chunks, resolve_command, GreetingMemory,
@@ -80,6 +82,8 @@ pub struct RoleplayEngine {
     greetings: GreetingMemory,
     listeners: Vec<Value>,
     pending: Vec<Value>,
+    /// Open model requests awaiting [`RoleplayEngine::reply`] (at most 16).
+    asked: Vec<Value>,
 }
 
 struct Turn<'a> {
@@ -93,7 +97,7 @@ struct Turn<'a> {
 impl RoleplayEngine {
     pub fn new(config: EngineConfig) -> Self {
         let greetings = GreetingMemory::new(&Self::greeting_config(&config)).expect("validated gap");
-        Self { config, greetings, listeners: Vec::new(), pending: Vec::new() }
+        Self { config, greetings, listeners: Vec::new(), pending: Vec::new(), asked: Vec::new() }
     }
     fn greeting_config(config: &EngineConfig) -> Value {
         obj! {"version"=>1,"long_gap_turns"=>config.setting(Feature::Greetings, "long_gap_turns").unwrap_or(12)}
@@ -101,13 +105,13 @@ impl RoleplayEngine {
     pub fn config(&self) -> &EngineConfig {
         &self.config
     }
-    /// `{version, greetings, listeners, pending}`; restore it with [`RoleplayEngine::restore`].
+    /// `{version, greetings, listeners, pending, asked}`; restore it with [`RoleplayEngine::restore`].
     pub fn checkpoint(&self) -> Value {
-        obj! {"version"=>1,"greetings"=>self.greetings.checkpoint(),"listeners"=>self.listeners.clone(),"pending"=>self.pending.clone()}
+        obj! {"version"=>1,"greetings"=>self.greetings.checkpoint(),"listeners"=>self.listeners.clone(),"pending"=>self.pending.clone(),"asked"=>self.asked.clone()}
     }
     pub fn restore(config: EngineConfig, state: &Value) -> Result<Self> {
         crate::packet::request::bounded(state, 4_194_304)?;
-        c::fields(state, &["version", "greetings", "listeners", "pending"])?;
+        c::fields(state, &["version", "greetings", "listeners", "pending", "asked"])?;
         c::uint(c::get(state, "version")?, 1, 1)?;
         let greetings = GreetingMemory::recover(&Self::greeting_config(&config), c::get(state, "greetings")?)?;
         let me = config.character_id();
@@ -183,7 +187,22 @@ impl RoleplayEngine {
                 return Err(c::bad());
             }
         }
-        Ok(Self { config, greetings, listeners: listeners.to_vec(), pending: pending.to_vec() })
+        let asked = c::list(c::get(state, "asked")?)?;
+        if asked.len() > PENDING {
+            return Err(c::bad());
+        }
+        for (i, a) in asked.iter().enumerate() {
+            c::fields(a, &["token", "listener", "scene", "visit", "at"])?;
+            uint(a, "token", 1)?;
+            if pending.iter().chain(&asked[..i]).any(|old| old.get("token") == a.get("token")) {
+                return Err(c::bad());
+            }
+            ident(c::get(a, "listener")?)?;
+            ident(c::get(a, "scene")?)?;
+            uint(a, "visit", 0)?;
+            uint(a, "at", 0)?;
+        }
+        Ok(Self { config, greetings, listeners: listeners.to_vec(), pending: pending.to_vec(), asked: asked.to_vec() })
     }
     fn listener_mut(&mut self, who: &str) -> Result<&mut Value> {
         listener_mut(&mut self.listeners, who)
@@ -208,7 +227,7 @@ impl RoleplayEngine {
             &["listener", "text", "at", "token", "scene"],
             &["trust", "choices", "labels", "focus", "reason", "targets", "entrances", "needs", "quests", "state"],
         )?;
-        let RoleplayEngine { config, greetings, listeners, pending } = self;
+        let RoleplayEngine { config, greetings, listeners, pending, asked } = self;
         let config: &EngineConfig = config;
         let (book, codex, sheet) = (&config.book, &config.codex, &config.sheet);
         let me = config.character_id();
@@ -219,7 +238,7 @@ impl RoleplayEngine {
         }
         let at = uint(t, "at", 0)?;
         let token = uint(t, "token", 1)?;
-        if pending.iter().any(|p| p.get("token") == t.get("token")) {
+        if pending.iter().chain(asked.iter()).any(|p| p.get("token") == t.get("token")) {
             return Err(c::bad());
         }
         let sc = c::get(t, "scene")?;
@@ -1112,8 +1131,39 @@ impl RoleplayEngine {
             }
         }
         if on(Feature::Model) {
+            let request = compile(&Compile {
+                config,
+                input,
+                base: &base,
+                scene: sc,
+                sight,
+                sound: scene_sound
+                    .or_else(|| if on(Feature::Scenery) { ambience(Some(scene_id), "sound") } else { None }),
+                ambience: &|k| if on(Feature::Scenery) { ambience(Some(scene_id), k) } else { None },
+                present: &present.iter().filter_map(|(id, _)| config.props.label(id)).collect::<Vec<_>>(),
+                exits: &if on(Feature::Entrances) { visible.iter().map(|e| e.label).collect() } else { Vec::new() },
+                listener: find(listeners, who),
+                recent: &recent,
+                events: &if on(Feature::Events) {
+                    codex
+                        .events()
+                        .iter()
+                        .filter(|e| ["now", "soon"].contains(&timing(e)))
+                        .map(|e| (e.get("label").and_then(Value::as_str).unwrap_or_default(), timing(e)))
+                        .collect()
+                } else {
+                    Vec::new()
+                },
+                on: &on,
+            });
+            if asked.len() == PENDING {
+                asked.remove(0);
+            }
+            asked.push(
+                obj! {"token"=>token,"listener"=>who,"scene"=>scene_id,"visit"=>c::get(sc,"visit")?.clone(),"at"=>at},
+            );
             return Ok(
-                obj! {"route"=>"model","kind"=>"model","input"=>input,"long"=>long,"expression"=>expression(input)?,"topic"=>topic},
+                obj! {"route"=>"model","kind"=>"model","input"=>input,"long"=>long,"expression"=>expression(input)?,"topic"=>topic,"request"=>request},
             );
         }
         if on(Feature::Social) {
@@ -1122,6 +1172,45 @@ impl RoleplayEngine {
             }
         }
         Ok(obj! {"route"=>"none","kind"=>"silent"})
+    }
+
+    /// Check a model's raw output for the open request `token`: `{token, listener, text}`.
+    ///
+    /// Only an exact `{"speech": "..."}` object (optionally in a ```json fence) that passes
+    /// every bounded check is accepted. It becomes `{route:"model", kind:"reply",
+    /// intent:"model", line:null, text}`, pending until [`RoleplayEngine::delivered`]
+    /// like any other reply. Otherwise `{route:"model", kind:"rejected", reason}` with
+    /// `reason` one of `length`, `format`, `empty`, `control`, `stage`, `sentences`,
+    /// `out_of_character`, `avoided`, `secret`, `identifier` or `repeat`; the request stays
+    /// open so the host may retry or fall back. These are guardrails, not proof of truth.
+    pub fn reply(&mut self, a: &Value) -> Result<Value> {
+        let mut next = self.clone();
+        let out = next.accept(a)?;
+        *self = next;
+        Ok(out)
+    }
+    fn accept(&mut self, a: &Value) -> Result<Value> {
+        c::fields(a, &["token", "listener", "text"])?;
+        uint(a, "token", 1)?;
+        let who = ident(c::get(a, "listener")?)?;
+        let raw = c::text(c::get(a, "text")?)?;
+        let i = self.asked.iter().position(|x| x.get("token") == a.get("token")).ok_or_else(c::bad)?;
+        if self.asked[i].get("listener").and_then(Value::as_str) != Some(who) {
+            return Err(c::bad());
+        }
+        let speech = match check_speech(raw, &self.config, find(&self.listeners, who), who) {
+            Ok(s) => s,
+            Err(reason) => return Ok(obj! {"route"=>"model","kind"=>"rejected","reason"=>reason}),
+        };
+        let tk = self.asked.remove(i);
+        if self.pending.len() == PENDING {
+            self.pending.remove(0);
+        }
+        self.pending.push(obj! {
+            "token"=>c::get(&tk,"token")?.clone(),"listener"=>who,"text"=>speech.as_str(),"scene"=>c::get(&tk,"scene")?.clone(),
+            "visit"=>c::get(&tk,"visit")?.clone(),"at"=>c::get(&tk,"at")?.clone(),"greeting"=>false,"introduced"=>false
+        });
+        Ok(obj! {"route"=>"model","kind"=>"reply","intent"=>"model","line"=>Value::Null,"text"=>speech})
     }
 
     /// Confirm what the listener actually heard of a reply: `{token, listener, text, heard}`
@@ -1298,7 +1387,7 @@ fn notice(book: &LineBook, route: &str, intent: &str, vars: &Vars, extra: Vec<(&
     Value::Object(out)
 }
 
-/// `{config, state, ops:[{op:"turn"|"delivered", args}]}` → `{config, results, state}`.
+/// `{config, state, ops:[{op:"turn"|"delivered"|"reply", args}]}` → `{config, results, state}`.
 pub(crate) fn fixture(a: &Value) -> Result<Value> {
     c::fields(a, &["config", "state", "ops"])?;
     let config = EngineConfig::from_value(c::get(a, "config")?)?;
@@ -1317,6 +1406,7 @@ pub(crate) fn fixture(a: &Value) -> Result<Value> {
         results.push(match c::text(c::get(op, "op")?)? {
             "turn" => engine.turn(args)?,
             "delivered" => engine.delivered(args)?,
+            "reply" => engine.reply(args)?,
             _ => return Err(c::bad()),
         });
     }

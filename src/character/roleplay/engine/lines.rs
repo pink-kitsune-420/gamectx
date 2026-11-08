@@ -5,7 +5,7 @@ use crate::{checked as c, Result, Value};
 
 /// Template and `when` variables a line may use. Unknown names are config errors;
 /// conditions may also test host flags written `state.<id>`.
-pub const VARS: [&str; 50] = [
+pub const VARS: [&str; 51] = [
     "name",
     "scene",
     "place",
@@ -56,6 +56,7 @@ pub const VARS: [&str; 50] = [
     "timing",
     "quest",
     "stage",
+    "sentences",
 ];
 const KINDS: [&str; 4] = ["exact", "contains", "prefix", "unless"];
 
@@ -126,7 +127,7 @@ pub(crate) fn template(v: &Value) -> Result<()> {
     Ok(())
 }
 
-fn render(t: &str, vars: &Vars) -> Option<String> {
+pub(crate) fn render(t: &str, vars: &Vars) -> Option<String> {
     let (mut out, mut rest) = (String::new(), t);
     while let Some(i) = rest.find('{') {
         let j = rest[i..].find('}')? + i;
@@ -183,6 +184,8 @@ pub(crate) struct LineBook {
     pub(crate) lists: Option<(String, String)>,
     pub(crate) articles: Vec<String>,
     pub(crate) avoid: Vec<String>,
+    /// Rule templates for model requests (pack `model_rules`, or the config's).
+    pub(crate) rules: Vec<String>,
 }
 impl LineBook {
     pub(crate) fn matcher(&self, intent: &str) -> Option<&Matcher> {
@@ -204,7 +207,7 @@ impl LineBook {
         }
         None
     }
-    fn avoided(&self, s: &str) -> bool {
+    pub(crate) fn avoided(&self, s: &str) -> bool {
         let padded = format!(" {} ", normalize(s));
         self.avoid.iter().any(|w| padded.contains(&format!(" {w} ")))
     }

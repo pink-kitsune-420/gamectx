@@ -25,6 +25,18 @@ Stage 2.1b (definitions; predeclared before the Rust implementation):
      side's travel decision only when the entrance is open and the decision is legal.
   9. A norm reaction is attached only to action outcomes whose decision matches the
      current place's norm; it never blocks or changes the decision.
+
+Stage 2.2 (model requests; predeclared before the Rust implementation and before any model
+output was observed):
+ 10. A `model` outcome carries a complete chat request: pack rules, a stable character
+     brief, the per-turn situation, then the player's words, constrained to a
+     `{"speech": string}` JSON schema. A secret's text appears in it only after that
+     secret was revealed to this listener.
+ 11. Compiling never changes which stage answers: every outcome other than `model` is
+     byte-identical to stage 2.1b apart from the config echo and the checkpoint's `asked`.
+ 12. `reply` accepts only an exact speech object that passes every bounded check; an
+     accepted reply is pending until delivered like any other, and a rejection keeps the
+     request open and changes nothing else.
 """
 import copy, json, pathlib, re
 import pathlib as _pl, sys as _sys; _sys.path[1:1] = [str(d) for d in sorted(_pl.Path(__file__).resolve().parents[1].iterdir()) if d.is_dir()]  # every eval/ topic folder
@@ -32,12 +44,13 @@ import roleplay_definitions_reference as defs
 import expression_cases, greeting_memory_cases, message_chunks_cases, overnight_input_cases, roleplay_actions_cases, social_routing_cases
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[])}
+PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[], model_rules=[])}
 FEATURES = ['chunks', 'out_of_character', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
             'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals']
-PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)))
+PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)),
+              model=dict(max_tokens=(16, 1024, 160), max_sentences=(1, 4, 3), max_chars=(40, 240, 240), brief_chars=(512, 16384, 4096)))
 VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
-           'exits status destination through heard smell light temperature role summary services label text need has_need person kind faction stance event events timing quest stage'.split())
+           'exits status destination through heard smell light temperature role summary services label text need has_need person kind faction stance event events timing quest stage sentences'.split())
 MATCHERS = ['exact', 'contains', 'prefix', 'unless']
 U32 = 4294967295
 
@@ -104,6 +117,40 @@ def rule(r):
     boolean(r.get('introduces', False)); when = r.get('when', {}); assert isinstance(when, dict) and len(when) <= 8
     defs.conditions(when, VARS)
     return r
+SPEECH = re.compile(r'\A[ \t\n\r]*\{[ \t\n\r]*"speech"[ \t\n\r]*:[ \t\n\r]*("(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9A-Fa-f]{4})*")[ \t\n\r]*\}[ \t\n\r]*\Z')
+FENCE = re.compile(r'\A[ \t\n\r]*```(?:json)?[ \t]*\n(.*)\n[ \t]*```[ \t\n\r]*\Z', re.S)
+def check_speech(raw, e, who):
+    """(reason, speech): the first failed check, or (None, speech). Guardrails, not proof of truth."""
+    m = e.cfg['features']['model']
+    if len(raw.encode()) > 16384: return 'length', None
+    f = FENCE.match(raw); body = f.group(1) if f else raw
+    g = SPEECH.match(body)
+    if g is None: return 'format', None
+    s = json.loads(g.group(1))
+    if any(0xD800 <= ord(c) <= 0xDFFF for c in s): return 'format', None
+    s = s.strip(' \t\n\r')
+    if not s: return 'empty', None
+    if len(s) > m['max_chars']: return 'length', None
+    if control(s): return 'control', None
+    if any(c in s for c in '*[]{}<>'): return 'stage', None
+    runs = 0; prev = False
+    for c in s:
+        end = c in '.!?'; runs += end and not prev; prev = end
+    tail = s.rstrip('"\')\u201d\u2019 ')
+    if tail and tail[-1] not in '.!?': runs += 1
+    if runs > m['max_sentences']: return 'sentences', None
+    q = norm(s); padded = ' ' + q + ' '
+    if match(e.phrases.get('model_reject'), q)[0]: return 'out_of_character', None
+    if e.avoided(s) or e.on('content') and any(' ' + norm(p) + ' ' in padded for a in e.cfg['features']['content']['avoid'] for p in a['phrases']): return 'avoided', None
+    l = e.listener(who)
+    told = l['revealed'] if l else []
+    if any(norm(x['reveal']) in q for x in e.sheet.get('secrets', []) if x['id'] not in told): return 'secret', None
+    words = set(re.split(r'[^a-z0-9_:-]+', s.lower()))
+    if any(i.lower() in words for i in [who, e.cfg['character']['id']] if any(c in i for c in '_:0123456789')): return 'identifier', None
+    if l and any(norm(r) == q for r in l['recent']): return 'repeat', None
+    return None, s
+
+
 def when_ok(when, v):
     for k, c in when.items():
         if k not in v: return False
@@ -131,7 +178,7 @@ def props_registry(v):
 
 
 def config(c):
-    keys(c, ['version', 'character'], ['features', 'variety', 'pack', 'phrases', 'lines', 'lists', 'articles', 'sheet', 'codex'])
+    keys(c, ['version', 'character'], ['features', 'variety', 'pack', 'phrases', 'lines', 'lists', 'articles', 'sheet', 'codex', 'model_rules'])
     uint(c['version'], 1, 1); keys(c['character'], ['id', 'name']); ident(c['character']['id']); text(c['character']['name'], 32)
     fin = c.get('features', {}); assert isinstance(fin, dict) and set(fin) <= set(FEATURES); features = {}
     for f in FEATURES:
@@ -156,7 +203,11 @@ def config(c):
         assert isinstance(articles, list) and len(articles) <= 8
         for a in articles: text(a, 16); assert norm(a) == a
     cdx = defs.codex(c.get('codex', dict(version=1)), VARS); sh = defs.sheet(c.get('sheet', dict(version=1)), cdx, VARS)
-    return dict(version=1, character=dict(c['character']), features=features, variety=variety, pack=pack, phrases=phrases, lines=lines, lists=lists, articles=articles, sheet=sh, codex=cdx)
+    rules = c.get('model_rules')
+    if rules is not None:
+        assert isinstance(rules, list) and 1 <= len(rules) <= 8
+        for t in rules: template(t)
+    return dict(version=1, character=dict(c['character']), features=features, variety=variety, pack=pack, phrases=phrases, lines=lines, lists=lists, articles=articles, sheet=sh, codex=cdx, model_rules=rules)
 def assert_sep(s): assert isinstance(s, str) and len(s) <= 16 and not control(s)
 
 
@@ -171,13 +222,14 @@ class Engine:
         self.articles = self.cfg['articles'] if self.cfg['articles'] is not None else p['articles']
         self.gcfg = dict(version=1, long_gap_turns=self.cfg['features']['greetings']['long_gap_turns'])
         self.codex = self.cfg['codex']; self.sheet = self.cfg['sheet']
+        self.rules = self.cfg['model_rules'] if self.cfg['model_rules'] is not None else p['model_rules']
         self.avoid = [norm(w) for w in self.sheet.get('speech', {}).get('avoid_words', [])]
-        self.state = self.restore(state) if state is not None else dict(version=1, greetings=dict(version=1, revision=0, entries=[]), listeners=[], pending=[])
+        self.state = self.restore(state) if state is not None else dict(version=1, greetings=dict(version=1, revision=0, entries=[]), listeners=[], pending=[], asked=[])
 
     def on(self, f): return self.cfg['features'][f]['enabled']
 
     def restore(self, s):
-        keys(s, ['version', 'greetings', 'listeners', 'pending']); uint(s['version'], 1, 1)
+        keys(s, ['version', 'greetings', 'listeners', 'pending', 'asked']); uint(s['version'], 1, 1)
         greeting_memory_cases.recover(s['greetings'])
         for e in s['greetings']['entries']: assert e['actor'] == self.cfg['character']['id']
         assert isinstance(s['listeners'], list) and len(s['listeners']) <= 256; ids = []
@@ -197,6 +249,10 @@ class Engine:
             keys(p, ['token', 'listener', 'text', 'scene', 'visit', 'at', 'greeting', 'introduced'])
             uint(p['token'], 1); assert p['token'] not in tokens; tokens.append(p['token']); ident(p['listener']); text(p['text'], 240, 1024); ident(p['scene'])
             uint(p['visit']); uint(p['at']); boolean(p['greeting']); boolean(p['introduced']); assert p['greeting'] or not p['introduced']
+        assert isinstance(s['asked'], list) and len(s['asked']) <= 16
+        for a in s['asked']:
+            keys(a, ['token', 'listener', 'scene', 'visit', 'at']); uint(a['token'], 1); assert a['token'] not in tokens; tokens.append(a['token'])
+            ident(a['listener']); ident(a['scene']); uint(a['visit']); uint(a['at'])
         return copy.deepcopy(s)
 
     def listener(self, who, create=False):
@@ -229,7 +285,7 @@ class Engine:
         cfg = self.cfg; me = cfg['character']
         keys(t, ['listener', 'text', 'at', 'token', 'scene'], ['trust', 'choices', 'labels', 'focus', 'reason', 'targets', 'entrances', 'needs', 'quests', 'state'])
         who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
-        assert all(p['token'] != token for p in self.state['pending'])
+        assert all(p['token'] != token for p in self.state['pending'] + self.state['asked'])
         sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props'])
         ident(sc['id']); text(sc['label'], 48); uint(sc['visit'])
         assert sc['place'] in ['workplace', 'social', 'private', 'other', 'hazard'] and sc['atmosphere'] in ['calm', 'busy', 'tense', 'emergency']
@@ -513,9 +569,77 @@ class Engine:
                 v = dict(base, has_reason=reason is not None)
                 if reason is not None: v['reason'] = reason
                 if out := reply('social', intent, v): return out
-        if self.on('model'): return dict(route='model', kind='model', input=line, long=long, expression=expression(), topic=route['topic'])
+        if self.on('model'):
+            req = self.compile(line, who, base, sc, present, visible, place, timing, ambience, recent)
+            if len(self.state['asked']) == 16: self.state['asked'].pop(0)
+            self.state['asked'].append(dict(token=token, listener=who, scene=sc['id'], visit=sc['visit'], at=at))
+            return dict(route='model', kind='model', input=line, long=long, expression=expression(), topic=route['topic'], request=req)
         if self.on('social') and (out := reply('fallback', 'unknown', base)): return out
         return dict(route='none', kind='silent')
+
+    def compile(self, line, who, base, sc, present, visible, place, timing, ambience, recent):
+        """Expectation 10: rules, brief, situation, player words; locked secrets never appear."""
+        cfg = self.cfg; m = cfg['features']['model']; sh = self.sheet; cdx = self.codex; me = cfg['character']
+        v = dict(base, sentences=m['max_sentences'])
+        rules = [x for t in self.rules if (x := render(t, v)) is not None and x]
+        brief = dict(name=me['name'])
+        if self.on('persona'):
+            per = sh.get('persona', {})
+            for k in ['pronouns', 'role', 'summary', 'appearance', 'values', 'fears', 'desires']:
+                if per.get(k) not in (None, []): brief[k] = per[k]
+            sp = {k: sh['speech'][k] for k in ['formality', 'verbosity', 'quirks', 'catchphrases', 'avoid_words'] if sh.get('speech', {}).get(k) not in (None, [])}
+            if sp: brief['speech'] = sp
+        if self.on('relationships') and sh.get('relationships'): brief['relationships'] = [dict(name=r['name'], kind=r['kind']) for r in sh['relationships']]
+        if self.on('factions') and sh.get('factions'):
+            brief['factions'] = []
+            for f in sh['factions']:
+                x = dict(name=next(d['label'] for d in cdx['factions'] if d['id'] == f['faction']))
+                if f.get('role') is not None: x['role'] = f['role']
+                brief['factions'].append(x)
+        if self.on('content'): brief['content'] = dict(rating=cfg['features']['content']['rating'])
+        scene = dict(name=sc['label'], atmosphere=sc['atmosphere'])
+        if sc.get('sight') is not None: scene['sight'] = sc['sight']
+        sound = sc.get('sound') if sc.get('sound') is not None else ambience(place, 'sound') if self.on('scenery') else None
+        if sound is not None: scene['sound'] = sound
+        if self.on('scenery'):
+            for k in ['smell', 'light', 'temperature']:
+                if (a := ambience(place, k)) is not None: scene[k] = a
+        if present: scene['props'] = [p['prop']['label'] for p in present]
+        if self.on('entrances') and visible: scene['exits'] = [e['d']['label'] for e in visible]
+        l = self.listener(who); listener = dict(relationship=base['relationship'])
+        if l and l['name']: listener['name'] = l['name']
+        if l and l['preferences']: listener['preferences'] = [dict(p) for p in l['preferences']]
+        if self.on('secrets') and l and l['revealed']:
+            told = [x['reveal'] for x in sh.get('secrets', []) if x['id'] in l['revealed']]
+            if told: listener['already_told'] = told
+        sit = dict(scene=scene, listener=listener)
+        if self.on('goals'):
+            cands = [g for g in sh.get('goals', []) if when_ok(g.get('when', {}), base)]
+            if cands: sit['goal'] = max(cands, key=lambda g: g['priority'])['description']
+            if base.get('has_need'): sit['need'] = base['need']
+        if self.on('events'):
+            ev = [dict(name=e['label'], timing=timing(e)) for e in cdx.get('events', []) if timing(e) in ['now', 'soon']]
+            if ev: sit['events'] = ev
+        if recent: sit['recent_replies'] = list(recent)
+        drops = [(sit, 'recent_replies'), (brief, 'appearance'), (brief, 'desires'), (brief, 'fears'), (brief, 'factions'), (brief, 'relationships'), (sit, 'events'),
+                 (brief, 'speech'), (sit, 'need'), (sit, 'goal'), (brief, 'values'), (brief, 'summary'), (listener, 'already_told'), (listener, 'preferences'), (scene, 'exits'), (scene, 'props')]
+        for d, k in drops:
+            if len(enc(brief)) + len(enc(sit)) <= m['brief_chars']: break
+            d.pop(k, None)
+        msgs = ([dict(role='system', content=' '.join(rules))] if rules else []) + [dict(role='system', content=enc(brief)), dict(role='system', content=enc(sit)), dict(role='user', content=line)]
+        schema = dict(type='object', properties=dict(speech=dict(type='string', minLength=1, maxLength=m['max_chars'])), required=['speech'], additionalProperties=False)
+        return dict(messages=msgs, response_format=dict(type='json_schema', json_schema=dict(name='speech', strict=True, schema=schema)), max_tokens=m['max_tokens'])
+
+    def reply(self, a):
+        """Expectation 12: validate untrusted model text against the open request `token`."""
+        keys(a, ['token', 'listener', 'text']); uint(a['token'], 1); ident(a['listener']); assert isinstance(a['text'], str)
+        tk = next(x for x in self.state['asked'] if x['token'] == a['token']); assert tk['listener'] == a['listener']
+        reason, speech = check_speech(a['text'], self, a['listener'])
+        if reason is not None: return dict(route='model', kind='rejected', reason=reason)
+        self.state['asked'].remove(tk)
+        if len(self.state['pending']) == 16: self.state['pending'].pop(0)
+        self.state['pending'].append(dict(token=tk['token'], listener=tk['listener'], text=speech, scene=tk['scene'], visit=tk['visit'], at=tk['at'], greeting=False, introduced=False))
+        return dict(route='model', kind='reply', intent='model', line=None, text=speech)
 
     def stance(self, fid):
         member = [m['faction'] for m in self.sheet.get('factions', [])]
@@ -547,6 +671,6 @@ class Engine:
 def oracle(a):
     keys(a, ['config', 'state', 'ops']); e = Engine(a['config'], a['state']); assert isinstance(a['ops'], list) and len(a['ops']) <= 64; out = []
     for op in a['ops']:
-        keys(op, ['op', 'args']); assert op['op'] in ['turn', 'delivered']
-        out.append(e.turn(op['args']) if op['op'] == 'turn' else e.delivered(op['args']))
+        keys(op, ['op', 'args']); assert op['op'] in ['turn', 'delivered', 'reply']
+        out.append(e.turn(op['args']) if op['op'] == 'turn' else e.delivered(op['args']) if op['op'] == 'delivered' else e.reply(op['args']))
     return dict(config=e.cfg, results=out, state=e.state)

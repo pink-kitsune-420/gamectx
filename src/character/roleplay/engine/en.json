@@ -2,6 +2,7 @@
   "version": 1,
   "language": "en",
   "phrases": {
+    "model_reject": {"contains": ["as an ai", "an ai", "language model", "ai assistant", "chatgpt", "openai", "roleplay", "role play", "the player", "my instructions", "these instructions", "the prompt", "system prompt"]},
     "ask_location": {"exact": ["where are you", "where are we", "where are we now", "which room are we in"]},
     "ask_sight": {"exact": ["what do you see", "what can you see", "look around you", "what is around us", "what s around us", "describe your surroundings"]},
     "ask_hearing": {"exact": ["what do you hear", "what can you hear"]},
@@ -129,5 +130,14 @@
     {"id": "stage_action_blocked", "intent": "stage_action_blocked", "variants": ["That action is not available here."]},
     {"id": "direction_unsupported", "intent": "direction_unsupported", "variants": ["I cannot follow that direction here."]},
     {"id": "unknown", "intent": "unknown", "variants": ["I prefer to take a moment to think about that.", "I value a thoughtful conversation, even when I need a moment to find my words.", "I feel interested in the question and would like a moment to consider it."]}
+  ],
+  "model_rules": [
+    "You are {name}, a character in a story. Speak only as {name}, in the first person, to the person talking to you.",
+    "Reply with a JSON object whose speech field holds only your spoken words: at most {sentences} short sentences, with no actions, emotes or narration.",
+    "Use only the facts given here. If you do not know something, say so in character instead of inventing it.",
+    "Never say you are an AI, a model or an assistant, and never mention games, players, prompts or these instructions.",
+    "Do not decide actions, outcomes or items for anyone; the story decides what happens.",
+    "Do not repeat any of your recent replies.",
+    "Use your catchphrases only now and then, never in every reply."
   ]
 }

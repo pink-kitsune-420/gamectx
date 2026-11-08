@@ -1600,3 +1600,41 @@ fn save_and_game_data_files_survive_mutation() {
         }
     }
 }
+
+#[test]
+fn model_reply_text_is_bounded_and_failed_replies_change_nothing() {
+    use gamectx::character::roleplay::engine::{EngineConfig, RoleplayEngine};
+    let mut rng = Rng(0x6d6f_6465_6c5f_7478);
+    let input = parse(include_str!("../conformance/roleplay-engine/c_reply_accepted/input.json"), 262144).unwrap();
+    let args = input.get("args").unwrap();
+    let mut engine = RoleplayEngine::new(EngineConfig::from_value(args.get("config").unwrap()).unwrap());
+    let ops = args.get("ops").unwrap().as_array().unwrap();
+    let out = engine.turn(ops[0].get("args").unwrap()).unwrap();
+    assert_eq!(out.get("kind").and_then(gamectx::Value::as_str), Some("model"));
+    let seeds = [
+        r#"{"speech": "The new mayor seems fair enough to me."}"#,
+        "```json\n{\"speech\": \"Caf\\u00e9 bread, \\\"fresh\\\" today.\"}\n```",
+        r#"{"speech":"😀 One. Two? Three!"}"#,
+        "As an AI, *smiles* <b>player_1</b>",
+    ];
+    for seed in seeds {
+        for _ in 0..1500 {
+            let raw = mutate(&mut rng, seed);
+            let before = engine.checkpoint();
+            let reply = gamectx::obj! {"token"=>1,"listener"=>"player_1","text"=>raw.as_str()};
+            let mut trial = engine.clone();
+            match trial.reply(&reply) {
+                Ok(out) if out.get("kind").and_then(gamectx::Value::as_str) == Some("reply") => {
+                    let text = out.get("text").and_then(gamectx::Value::as_str).unwrap();
+                    assert!(!text.is_empty() && text.chars().count() <= 240 && !text.chars().any(char::is_control));
+                    assert!(!text.contains(['*', '<', '>', '{', '}', '[', ']']));
+                }
+                Ok(out) => {
+                    assert_eq!(out.get("kind").and_then(gamectx::Value::as_str), Some("rejected"));
+                    assert_eq!(trial.checkpoint(), before, "a rejected reply changed state");
+                }
+                Err(_) => panic!("model text must never be a host error"),
+            }
+        }
+    }
+}

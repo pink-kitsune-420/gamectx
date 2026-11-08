@@ -245,6 +245,7 @@ jobs:
       - run: python3 -I eval/studio/message_chunks_cases.py --cap 0
       - run: python3 -I eval/studio/roleplay_actions_cases.py --cap 0
       - run: python3 -I eval/character/roleplay_engine_cases.py --cap 0
+      - run: python3 -I eval/character/roleplay_model_eval.py --cap 0 --tokens-only
       - run: python3 -I eval/kit/save_cases.py --cap 0
       - run: python3 -I eval/studio/conversation_extensions_bindings.py --cap 0
       - run: node eval/studio/conversation_extensions_bindings.mjs --cap 0

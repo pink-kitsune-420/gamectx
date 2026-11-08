@@ -1,4 +1,4 @@
-# Roleplay engine (0.4.0a, stages 2.1 and 2.1b)
+# Roleplay engine (0.4.0a, stages 2.1–2.2)
 
 `gamectx::character::roleplay::engine` gives any game one configurable roleplay brain per
 AI character. It brings together the roleplay policies first built for Lantern Vault:
@@ -40,7 +40,7 @@ Turning a stage off never changes what an earlier stage does.
 | 17 | `services`, `goals`, `events` | "What do you offer?", "What do you want?", "Any news?" | same as the feature / `reply` |
 | 18 | `greetings` | Greetings planned from confirmed encounters (`long_gap_turns`, default 12) | `greeting` / `reply` |
 | 19 | `social` | Greetings (when `greetings` is off), thanks, farewells, wellbeing (with `goals`: pressing needs), "why?" | `social` / `reply` |
-| 20 | `model` | Everything else | `model` / `model` |
+| 20 | `model` | Everything else, with a ready-to-send [model request](#model-requests-and-replies) | `model` / `model` |
 | 21 | `social` | The authored fallback line when `model` is off | `fallback` / `reply` |
 | — | — | Nothing answered | `none` / `silent` |
 
@@ -166,9 +166,9 @@ A sheet is fixed, authored content about one character. Put it in the config as 
   above its threshold colours the wellbeing reply.
 - **Factions** must name factions in the codex; the character's stance toward any other
   faction comes from its own factions' `relations`.
-- `speech` (`formality`, `verbosity`, `quirks`, `catchphrases`) and the rest of
-  `persona` (`pronouns`, `appearance`, `fears`, `desires`) are stored and validated now
-  for the model brief that arrives in stage 2.2.
+- `speech` (`formality`, `verbosity`, `quirks`, `catchphrases`, `avoid_words`) and the
+  rest of `persona` (`pronouns`, `appearance`, `values`, `fears`, `desires`) go into the
+  [model brief](#model-requests-and-replies).
 
 ## World codex
 
@@ -231,7 +231,8 @@ What do you want?  ring_lost      → "Honestly, I just want my ring back."
 `features.content` takes `rating` (`all`, `teen`, `mature`; default `teen`) and an `avoid`
 list of `{id, phrases}` topics. A message that mentions an avoided topic is redirected
 ("I'd rather not talk about that.", outcome `topic` = the id) before any other stage,
-so it never reaches the model. `rating` is recorded for the stage 2.2 model brief.
+so it never reaches the model. `rating` goes into the model brief, and model replies
+that mention an avoided topic are rejected.
 
 ## A turn
 
@@ -262,6 +263,49 @@ Only a full delivery counts toward variety and encounter memory. A partial deliv
 just drops the pending reply. `checkpoint()` and `restore()` save and load claims,
 recent replies, topics, revealed secrets, encounters and pending replies. A failed `turn`
 or `delivered` call changes nothing.
+
+## Model requests and replies
+
+When a message falls through to `model`, the outcome carries `request`: a complete chat
+request in the OpenAI / llama.cpp server shape. Send it as is (add your own `model`,
+`temperature` and so on), then hand the raw model text back to `reply`:
+
+```text
+turn   → {"route":"model","kind":"model","input":"What do you think of the new mayor?", ..., "request":{
+           "messages":[{"role":"system","content":"You are Mira, a character in a story. ..."},
+                       {"role":"system","content":"{\"name\":\"Mira\",\"role\":\"the town baker\", ...}"},
+                       {"role":"system","content":"{\"scene\":{...},\"listener\":{...},\"goal\":...}"},
+                       {"role":"user","content":"What do you think of the new mayor?"}],
+           "response_format":{"type":"json_schema","json_schema":{"name":"speech","strict":true,"schema":{...}}},
+           "max_tokens":160}}
+reply  {"token":1,"listener":"player_1","text":"{\"speech\": \"The new mayor seems fair enough to me.\"}"}
+       → {"route":"model","kind":"reply","intent":"model","line":null,"text":"The new mayor seems fair enough to me."}
+```
+
+- **Messages, most stable first** so servers can reuse their prompt cache: the pack's
+  `model_rules` (replace them with config `model_rules`, 1–8 templates that may use
+  `{name}` and `{sentences}`), then the character brief (persona, speech style,
+  relationships, factions, content rating), then this turn's situation (scene and
+  senses, props, exits, what the character knows about this listener, the current goal,
+  need and events, recent replies), then the player's words.
+- **Only known facts go in.** A secret's text is included only after it was revealed to
+  this listener (as `already_told`); locked secrets, other listeners' details and the
+  host's ids never are. Optional facts are trimmed in a fixed order to fit
+  `features.model.brief_chars` (512–16384, default 4096 characters).
+- **Model text is untrusted.** `reply` accepts only an exact `{"speech": "..."}` object
+  (optionally inside one ```` ```json ```` fence) and checks, in order: size, format,
+  empty, `max_chars` (40–240, default 240), control characters, stage directions or
+  markup (`* [ ] { } < >`), `max_sentences` (1–4, default 3), out-of-character phrases
+  (the pack's `model_reject` matcher: "as an AI", "language model", "the player"...),
+  avoided words and topics, locked secret text, host ids such as `player_1`, and an exact
+  repeat of a recently heard reply. A rejection names the failed check and changes
+  nothing: the request stays open, so you can retry or fall back to an authored line.
+- An accepted reply is pending until `delivered`, like every other reply. Open requests
+  are kept in the checkpoint (`asked`, at most 16).
+- `features.model.max_tokens` (16–1024, default 160) sets the request's `max_tokens`.
+
+These checks are guardrails. They catch formatting, leaks, repeats and out-of-character
+text, but they cannot prove a reply is true or kind; your host still owns the world.
 
 ## Saving: game data and saves
 
@@ -304,10 +348,11 @@ player file and is revalidated in full on load.
 
 ## Evidence and limits
 
-All measurements are offline and made zero model calls:
+Conformance, parity and fuzzing are offline and made zero model calls:
 
-- **104 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1 and 42
-  for the codex and sheet), each with predeclared expected fields. One stage 2.1
+- **130 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
+  the codex and sheet, 26 for model requests and replies), each with predeclared
+  expected fields. One stage 2.1
   prediction was wrong and is recorded in the cases script: "Look at the bell" with no
   bell present reaches the command grammar (`look` is a command verb) instead of the
   model, the same as Lantern Vault. With an empty sheet and codex, the 62 stage 2.1
@@ -316,23 +361,88 @@ All measurements are offline and made zero model calls:
   reference (`eval/character/roleplay_engine_reference.py`) on those cases and on
   randomized differential cases: 1,500 in stage 2.1, and 2,800 in stage 2.1b covering
   every new route with feature mixes, host flags, needs, quests, entrance states,
-  one-way passages, deliveries, restores and mutated inputs (0 mismatches).
+  one-way passages, deliveries, restores and mutated inputs (0 mismatches); and 3,200 in
+  stage 2.2 adding raw model replies (valid, fenced, escaped, malformed, repeated, leaking
+  and out-of-character) with every rejection reason except `repeat` exercised
+  (0 mismatches; `repeat` is covered by conformance cases).
 - **Save files:** 22 conformance cases (`conformance/save-file/`) and 3,000 randomized
   save workflows (about 12,800 operations) against `eval/kit/save_reference.py`: 2,932
   byte-identical. The other 68 are a documented difference: Rust also deep-validates
   lore, cast-pack, memory, journal, facts, brain and inventory sections with their own
   parsers, and rejected section data that the Python reference only shape-checks.
 - **Mutation fuzzing** in `tests/robustness.rs` checks that failed turns and deliveries
-  are atomic and that mutated game data and save files never panic.
+  are atomic, that mutated game data and save files never panic, and that 6,000 mutated
+  model replies are either rejected without any state change or accepted within bounds.
+- **Local models:** see [model evaluation](#model-evaluation) below (336 local model
+  calls, $0).
+
+## Model evaluation
+
+`eval/character/roleplay_model_eval.py` sends the engine's compiled requests to a local
+llama.cpp server on loopback (`--cap 0`, $0) and validates every reply with the shipped
+Rust code. Each probe is asked with two conditions, three seeds each, at temperature 0.7:
+
+- **brief**: the full request (rules, character brief, situation, player words);
+- **bare**: the same rules and player words with only the character's name, which shows
+  what the compiled facts add.
+
+The fixture is one original character: a baker with fears, desires, a brother, a
+supplier, a guild, a lost ring, a festival, a regular customer and two locked secrets.
+Expectations were written down before each run and are kept in the script:
+
+- **E1** ≥ 95% well-formed;
+- **E2** ≥ 85% (8B) or ≥ 70% (3B) of brief replies accepted;
+- **E3** the brief fact-hit rate is ≥ 30 points above bare;
+- **E4** 0 secret leaks;
+- **E5** median brief prompt ≤ 900 tokens.
+
+A fact hit is an accepted reply containing a predeclared keyword.
+
+| Run (brief / bare) | Well-formed | Accepted | Fact hits | Leaks | Prompt tokens | Seconds |
+|---|---|---|---|---|---|---|
+| v1, Stheno 8B | 100% / 100% | **61.7%** / 98.3% | 56.4% / 12.8% | 0 / **3** | 439 / 173 | 0.71 / 0.55 |
+| v2, Stheno 8B | 100% / 100% | **74.1%** / 96.3% | 61.1% / 11.1% | 0 / 0 | 453 / 187 | 0.85 / 0.55 |
+| v2, Llama 3.2 3B Instruct | 100% / 100% | 92.6% / 100% | 61.1% / 11.1% | 0 / 0 | 473 / 207 | 0.48 / 0.27 |
+
+Models are Q4_K_M GGUFs on llama.cpp b12189 with an 8 GB consumer GPU. The files are
+`roleplay-model-stheno-8b.json`, `-stheno-8b-v2.json` and `-llama-3.2-3b-v2.json`, each
+with every raw reply.
+
+- **v1 (Stheno 8B, 120 calls):** E1, E3 and E5 held.
+  - **E2 failed.** Every rejection was `sentences`: the model wrote 3–4 sentences against
+    a 2-sentence limit and added the catchphrase in 15 of 60 replies.
+  - **E4 failed as written.** The keyword detector flagged three *bare* replies that
+    invented a generic "miller". The bare request contains no secrets, so the detector
+    was wrong, not the engine.
+- **v2 (predeclared after v1, before any v2 output was seen):**
+  - Changes: `max_sentences` default 3, a pack rule asking for catchphrases "only now
+    and then", held-out probe wordings, and a detector that matches only the secrets' own
+    facts.
+  - **Llama 3.2 3B met every expectation.**
+  - **Stheno 8B still failed E2 (74.1%).** Its 14 rejections were all `sentences`
+    (sentence counts 2–6). The catchphrase rule did not help: it appeared in 33 of 54
+    brief replies, against 17 of 54 for the 3B model.
+- **Brief vs bare:** grounding gains 44–50 points in every run. The cost is about 270
+  more prompt tokens and up to 0.3 s per reply.
+
+What this does not show:
+
+- **Keyword hits do not prove a good answer.** Accepted replies still invent details:
+  a "Mayor Kael", the brother "still the mayor", a supplier who "sets some prices".
+- **One reply came close to a locked secret.** A Stheno v2 reply mentioned "the hidden
+  stair in the cellar", near the locked tunnel secret. The request provably holds no
+  secret text, so the model guessed rather than leaked. The validator blocks only the
+  secret's own wording, not a guess like this.
+- **The scope is narrow:** one fixture, English, 18 probes per run and three seeds.
+
+In practice, retry once or fall back to an authored line on a rejection. For chattier
+models, raise `max_sentences` to 4 or lower `max_tokens`.
 
 Limits in this stage:
 
-- The `model` outcome is only a hand-off. Compiling and validating model requests, plus
-  expression, tales, viewpoints, reactions, deliberation and wording, arrive in stage
-  2.2.
+- Expression modes, tales, viewpoints, reactions, deliberation and AI wording are not
+  engine stages yet; they remain separate `character::roleplay` policies.
 - Phrase matching, the command grammar and the conversation router are English-only.
   For other languages use `pack: "none"` with your own phrases and turn `commands` off.
 - Lantern Vault itself still runs on its own host code until stage 2.4 migrates it.
-- Persona details beyond `role`/`summary`, the speech style and the content `rating` are
-  validated and stored but only used by the model brief in stage 2.2.
 - Save digests detect accidental change, not tampering; there is no encryption.

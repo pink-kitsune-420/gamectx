@@ -28,11 +28,21 @@ noted; "3 models" adds Llama 3.3 70B.
   states with digests and a game link): 22 cases, 2,932 of 3,000 randomized workflows
   byte-identical, the other 68 being stricter Rust validation of nested lore/memory.
   Zero model calls. [Guide](characters/ROLEPLAY_ENGINE.md#character-sheet).
+- Phase 2, stage 2.2 (first part) done: model requests and validated replies.
+  - The `model` outcome compiles a full chat request with a persona/speech/content
+    brief and the turn's situation. `reply` validates raw model text.
+  - 130 engine cases. Byte-identical to the Python reference on 3,200 randomized cases.
+  - Local evaluation ($0, 336 calls):
+    - Llama 3.2 3B met every predeclared expectation.
+    - Stheno 8B was 74.1% accepted against ≥ 85%, all rejections being too many
+      sentences. Grounding +50 points on both.
+  - [Guide](characters/ROLEPLAY_ENGINE.md#model-evaluation).
 - Phase 2, next:
-  - 2.2: model request compile/validate behind the `model` outcome, plus expression,
-    tales, viewpoints, reactions, deliberation and wording as engine stages; prop
-    interactions proposed by characters; a persona/speech/content brief compiled from the
-    sheet (style fields are validated and stored today but not yet used).
+  - 2.2 (rest): expression, tales, viewpoints, reactions, deliberation and wording as
+    engine stages, and prop interactions proposed by characters.
+  - 8B follow-up: try a host retry-once or a stricter brevity rule for chatty 8B tunes.
+    This needs a new predeclared run on held-out probes. The catchphrase rule did not
+    reduce catchphrase use on Stheno.
   - 2.3: a visual director with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow.
   - 2.4: migrate Lantern Vault onto the engine, keeping its frozen host checks

@@ -167,3 +167,28 @@ fn guide_definitions_and_save_examples_run() -> gamectx::Result<()> {
     assert_eq!(mira.checkpoint(), engine.checkpoint());
     Ok(())
 }
+
+/// Stage 2.2: the `model` outcome carries a request; `reply` validates what comes back.
+#[test]
+fn model_requests_and_replies_round_trip() -> gamectx::Result<()> {
+    let mut engine = RoleplayEngine::new(EngineConfig::new("baker", "Mira")?);
+    let scene = obj! {"id"=>"bakery","label"=>"the bakery","place"=>"workplace","atmosphere"=>"calm","visit"=>1};
+    let out = engine.turn(
+        &obj! {"listener"=>"player_1","text"=>"What do you think of the mayor?","at"=>1,"token"=>7,"scene"=>scene},
+    )?;
+    assert_eq!(s(&out, "route"), "model");
+    let request = out.get("request").unwrap();
+    let messages = request.get("messages").unwrap().as_array().unwrap();
+    assert_eq!(messages.len(), 4);
+    assert!(messages[0].get("content").unwrap().as_str().unwrap().starts_with("You are Mira"));
+    assert_eq!(messages[3].get("content").unwrap().as_str(), Some("What do you think of the mayor?"));
+    let bad = engine.reply(&obj! {"token"=>7,"listener"=>"player_1","text"=>"*bows* As an AI..."})?;
+    assert_eq!(s(&bad, "kind"), "rejected");
+    let good = engine.reply(&obj! {"token"=>7,"listener"=>"player_1","text"=>r#"{"speech":"He keeps the lamps lit, and that is enough for me."}"#})?;
+    assert_eq!(s(&good, "text"), "He keeps the lamps lit, and that is enough for me.");
+    let text = s(&good, "text").to_owned();
+    let receipt = obj! {"token"=>7,"listener"=>"player_1","text"=>text.as_str(),"heard"=>text.chars().count()};
+    assert_eq!(engine.delivered(&receipt)?.get("recorded"), Some(&Value::Bool(true)));
+    assert!(engine.reply(&obj! {"token"=>7,"listener"=>"player_1","text"=>"{}"}).is_err(), "the request is closed");
+    Ok(())
+}
