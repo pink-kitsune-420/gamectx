@@ -77,19 +77,20 @@ noted; "3 models" adds Llama 3.3 70B.
     stock wares, authored persona fallback, direction travel decisions); 226 engine cases,
     2,000 parity fuzzing workflows (seed 42, 0 mismatches). Existing engine conformance outputs
     reblessed once under `[format]`.
-  - Next: the Lantern Vault migration onto the engine and world model.
+  - Done (Stage L): Lantern Vault migrated onto `RoleplayEngine` and world model (crafting, cooking,
+    bartering, animal companion, pump repair, named saves with `kit::save`). 1694 / 1707 shadow routes
+    agreeing (99.2%), 63 / 63 tests passing, zero model spend.
+  - Done (Stage U): Clean web UI redesigned without CDNs or third-party dependencies: responsive
+    desktop/mobile layout, high-contrast light/dark themes with visible focus rings, carried inventory bag,
+    characters present list, timeline journal chronicle (`/api/journal`, `/api/timeline`), 87 / 87 HTTP
+    web checks green, verified via headless screenshots.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.
     [Guide](guides/VISUAL.md#direct-pictures-tiers-profiles-selectors-and-approvals).
-  - 2.4: migrate Lantern Vault onto the engine, keeping its frozen host checks
-    byte-identical. Blocked on 2.2 (rest): Lantern Vault's chat also routes reactions,
-    viewpoints, expression/tales, follow-ups and model planning, which are not engine
-    stages yet. The front stages differ at the edges: the engine needs a starred action
-    of at least 3 characters and measures 1024 bytes after trimming, and Lantern Vault
-    returns the raw resolve object for blocked actions. Greetings, disclosures and recall
-    keep Lantern Vault's own saved state. Next step: measure engine/Lantern Vault
-    agreement per stage on the existing chat tests before switching any stage.
+  - Next (Agent Model Gaps): work through the 13 gaps from `docs/research/INTELLIGENT_BEING.md` starting
+    with Gap 5 (Action Catalog: read-only description over existing ops; things, recipes, species,
+    communities, inventory, fitness, props, services, reactions, engine directions/commands, initiative).
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

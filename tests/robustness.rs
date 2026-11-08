@@ -1638,3 +1638,63 @@ fn model_reply_text_is_bounded_and_failed_replies_change_nothing() {
         }
     }
 }
+
+#[test]
+fn world_model_modules_survive_mutation_and_extreme_sizes() {
+    use gamectx::knowledge::codex::Codex;
+    use gamectx::knowledge::timeline::Timeline;
+    let mut rng = Rng(0x776f_726c_645f_6d6f);
+
+    // 1. Timeline mutation fuzzing
+    let mut t = Timeline::new();
+    let sample_event = r#"{"at":100,"kind":"history","summary":"The outer gate was sealed.","place":"vault","actors":["keeper"],"tags":["lore"]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_event);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let before = t.entries().len();
+            if t.record(&v).is_ok() {
+                assert!(t.entries().len() >= before);
+            }
+        }
+    }
+
+    // 2. Codex mutation fuzzing (places, things, recipes, species, communities)
+    let sample_codex = r#"{
+        "places": [{"id":"room_a","label":"Hall","kind":"hall","links":[{"place":"room_b","distance":1,"direction":"north"}]}],
+        "things": [{"id":"key_1","label":"Iron Key","kind":"key"}],
+        "recipes": [{"id":"craft_key","kind":"crafting","label":"Craft Key","inputs":[{"thing":"key_1","qty":1}],"output":{"thing":"key_1","qty":1}}],
+        "species": [{"id":"hound","label":"Hound","kind":"animal","temperament":"loyal"}],
+        "communities": [{"id":"artisans","label":"Artisans Guild","members":["smith"]}]
+    }"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_codex);
+        if let Ok(c) = Codex::parse(&mutated) {
+            // Re-serialize check
+            assert_eq!(Codex::parse(&c.to_value().to_json()).unwrap().places().len(), c.places().len());
+        }
+    }
+
+    // 3. Extreme sizes and nested structures
+    // Boundary test: maximum allowed places is 128, version 1 is required
+    let mut boundary = String::from("{\"version\":1,\"places\":[");
+    for i in 0..128 {
+        if i > 0 {
+            boundary.push(',');
+        }
+        boundary.push_str(&format!(r#"{{"id":"p_{i}","label":"Room {i}","kind":"room"}}"#));
+    }
+    boundary.push_str("]}");
+    let parsed = Codex::parse(&boundary).unwrap();
+    assert_eq!(parsed.places().len(), 128);
+
+    // Out-of-bounds test: 129 places must cleanly return Err without panicking
+    let mut too_many = String::from("{\"version\":1,\"places\":[");
+    for i in 0..129 {
+        if i > 0 {
+            too_many.push(',');
+        }
+        too_many.push_str(&format!(r#"{{"id":"p_{i}","label":"Room {i}","kind":"room"}}"#));
+    }
+    too_many.push_str("]}");
+    assert!(Codex::parse(&too_many).is_err());
+}
