@@ -2393,6 +2393,25 @@ Ops:
 - `harvest {actor, animal, place?, new_id?}` → `{ok: bool, produced: [things], entry}`. Checks produce interval and spawns produce into actor holder.
 - `behave {actor, animal, place?}` → `{ok: true, attitude: "affectionate"|"hostile"|"skittish"|"calm", sound?, gesture?}`. Emits non-verbal cues.
 
+## World communities v1
+
+`gamectx::knowledge::communities` (guide: [World model](guides/WORLD.md#communities)). The `communities`
+JSON-lines `local` kind runs `{communities? ≤64, things?, ops ≤64 [{op, args, at?}]}` and returns
+`{results, communities, things}`; each result is `{ok:true, ...}` or `{ok:false, ...}`. 28 additive cases live in `conformance/communities/`.
+
+**Community** `{id, label ≤48, description ≤240, home_places? ≤16 [ids], members? ≤64 [ids], customs? ≤32 [str ≤120], relations? ≤64 [{target, stance, trust? -100..100}], market? {buys? ≤32 [rule], sells? ≤32 [rule]}}`.
+- `stance`: "allied", "friendly", "neutral", "wary", "hostile".
+- `rule`: `{kind? id, tag? id, price_mult? 1–10000}` (exclusive kind or tag; default 1000 = 1.0x).
+
+Ops:
+- `check_relation {community, target}` → `{ok: true, community, target, stance, trust: i64, buy_mult: u64, sell_mult: u64}`.
+- `set_relation {community, target, stance?, trust?, place?}` → `{ok: true, community, target, stance, trust, entry}`. Emits relation change timeline entry.
+- `add_member {community, actor, place?}` → `{ok: true, community, actor, entry}`.
+- `remove_member {community, actor, place?}` → `{ok: true, community, actor, entry}`.
+- `set_customs {community, customs, place?}` → `{ok: true, community, customs, entry}`.
+- `appraise {community, actor, offer_things ≤16, request_things ≤16, trader?, place?}` → `{ok: true, acceptable: bool, offer_value: u64, request_value: u64, difference?: i64, counter_offer?: {deficit, add_offer?, remove_request?}}`.
+- `barter {community, actor, place, offer_things ≤16, request_things ≤16, trader?}` → `{ok: true, offer_value, request_value, transferred_offer: [ids], transferred_request: [ids], entry}` on success (swapping ownership/holders in `things`), or `{ok: false, reason, offer_value, request_value, counter_offer?}` on refusal (reverting state atomically). Generous trades boost relation trust.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

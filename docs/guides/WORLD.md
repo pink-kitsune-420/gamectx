@@ -379,5 +379,84 @@ expectations written before running. Rust matches the Python reference
 (`eval/knowledge/species_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
 
+## Communities
+
+`gamectx::knowledge::communities` models factions, settlements, and guild communities.
+Communities have home places, member rosters, authored customs (cultural norms), and bilateral relations with both qualitative stances (`allied`, `friendly`, `neutral`, `wary`, `hostile`) and signed numeric trust (`-100..100`).
+Their markets specify what goods they buy and sell with item demand/scarcity multipliers.
+
+Bartering evaluates trades host-authoritatively from item condition and base value, market multipliers, and relation stance discounts or surcharges. When an offer is insufficient, the engine generates actionable counter-offers:
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::knowledge::communities::CommunityWorld;
+
+let mut cw = CommunityWorld::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "barter", "at": 10, "args": {
+      "community": "ember_wardens",
+      "actor": "hero",
+      "place": "ember_keep",
+      "offer_things": ["hero_sword"],
+      "request_things": ["warden_torches"]
+    }}
+  ],
+  "communities": [
+    {
+      "id": "ember_wardens",
+      "label": "The Ember Wardens",
+      "description": "Guardians of the mountain pass.",
+      "relations": [
+        {"target": "hero", "stance": "friendly", "trust": 30}
+      ],
+      "market": {
+        "buys": [{"tag": "weapon", "price_mult": 1200}],
+        "sells": [{"kind": "torch", "price_mult": 800}]
+      }
+    }
+  ],
+  "things": {
+    "version": 1,
+    "materials": [{"id": "iron", "label": "Iron"}],
+    "kinds": [
+      {"id": "sword", "label": "Iron Sword", "category": "weapon", "materials": [], "functions": [], "weight": 6, "base_value": 50, "durability": 100, "stackable": false, "tags": ["weapon"]},
+      {"id": "torch", "label": "Torch", "category": "tool", "materials": [], "functions": [], "weight": 1, "base_value": 2, "durability": 20, "stackable": true, "tags": ["light"]}
+    ],
+    "things": [
+      {"id": "hero_sword", "kind": "sword", "location": {"holder": "hero"}, "condition": 100, "owner": "hero", "quantity": 1, "passengers": []},
+      {"id": "warden_torches", "kind": "torch", "location": {"place": "ember_keep"}, "condition": 100, "owner": "ember_wardens", "quantity": 5, "passengers": []}
+    ]
+  }
+}"#, 4096)?;
+
+let out = cw.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That barter execution returns a timeline-ready entry (real output):
+
+```json
+{"ok":true,"offer_value":63,"request_value":7,"transferred_offer":["hero_sword"],"transferred_request":["warden_torches"],"entry":{"at":10,"kind":"barter","summary":"hero bartered with ember_wardens at ember_keep.","actors":["ember_wardens","hero"],"place":"ember_keep","things":["hero_sword","warden_torches"],"tags":["community","barter","trade"],"visibility":"public","witnesses":[],"phrases":["ember_wardens","hero","barter"],"facts":{"community":"ember_wardens","offer_value":63,"request_value":7,"offered":["hero_sword"],"requested":["warden_torches"]}}}
+```
+
+- **Relations & Trust:**
+  - `check_relation`: returns active stance, numeric trust (-100..100), and computed pricing multipliers (`buy_mult`, `sell_mult`).
+  - `set_relation`: updates stance or numeric trust, emitting a relation change timeline entry.
+  - Generous trades (surplus offer value) automatically boost bilateral relation trust.
+- **Rosters & Customs:**
+  - `add_member` / `remove_member`: tracks membership rosters and logs community join/leave events.
+  - `set_customs`: declares and updates local cultural norms and laws.
+- **Bartering & Markets:**
+  - `appraise`: previews exchange balance and returns counter-offers without moving items.
+  - `barter`: atomically transfers item ownership and physical location (holder/place), recording a public timeline entry on completion or reverting state on refusal.
+
+**Evidence:** 28 cases (`conformance/communities/`, 8 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/knowledge/communities_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+
 
 

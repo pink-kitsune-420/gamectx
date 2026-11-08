@@ -75,7 +75,7 @@ committing.
 and the bounded SQL query engine · `packet/` the `Context` builder, budgeted assembly,
 manifests, tool schemas/signatures, full-request accounting, token estimates and sync ·
 `knowledge/` memory, recall, typed facts, lore, attributed notes, inventory, observations,
-evidence selection, location, world and time windows, the world timeline, places, things, recipes and species · `character/` scoped character tools,
+evidence selection, location, world and time windows, the world timeline, places, things, recipes, species and communities · `character/` scoped character tools,
 life (appraisals, continuity, checkpoints, initiative, speech), dialogue, routines, parties,
 archetypes, cast packs, the living world and `roleplay/` policies (greetings, expression,
 wording, viewpoints, reactions, deliberation, actions, commands, message chunks) ·

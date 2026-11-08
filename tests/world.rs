@@ -211,3 +211,58 @@ fn species_guide_output_is_real() -> gamectx::Result<()> {
     assert_eq!(SpeciesWorld::from_value(&sw.to_value())?, sw);
     Ok(())
 }
+
+#[test]
+fn communities_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::communities::CommunityWorld;
+    let mut cw = CommunityWorld::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "barter", "at": 10, "args": {
+          "community": "ember_wardens",
+          "actor": "hero",
+          "place": "ember_keep",
+          "offer_things": ["hero_sword"],
+          "request_things": ["warden_torches"]
+        }}
+      ],
+      "communities": [
+        {
+          "id": "ember_wardens",
+          "label": "The Ember Wardens",
+          "description": "Guardians of the mountain pass.",
+          "relations": [
+            {"target": "hero", "stance": "friendly", "trust": 30}
+          ],
+          "market": {
+            "buys": [{"tag": "weapon", "price_mult": 1200}],
+            "sells": [{"kind": "torch", "price_mult": 800}]
+          }
+        }
+      ],
+      "things": {
+        "version": 1,
+        "materials": [{"id": "iron", "label": "Iron"}],
+        "kinds": [
+          {"id": "sword", "label": "Iron Sword", "category": "weapon", "materials": [], "functions": [], "weight": 6, "base_value": 50, "durability": 100, "stackable": false, "tags": ["weapon"]},
+          {"id": "torch", "label": "Torch", "category": "tool", "materials": [], "functions": [], "weight": 1, "base_value": 2, "durability": 20, "stackable": true, "tags": ["light"]}
+        ],
+        "things": [
+          {"id": "hero_sword", "kind": "sword", "location": {"holder": "hero"}, "condition": 100, "owner": "hero", "quantity": 1, "passengers": []},
+          {"id": "warden_torches", "kind": "torch", "location": {"place": "ember_keep"}, "condition": 100, "owner": "ember_wardens", "quantity": 5, "passengers": []}
+        ]
+      }
+    }"#,
+        4096,
+    )?;
+    let out = cw.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That barter execution returns a timeline-ready entry"), 65536)?.to_json()
+    );
+    // Round trip through a save section value.
+    assert_eq!(CommunityWorld::from_value(&cw.to_value())?, cw);
+    Ok(())
+}

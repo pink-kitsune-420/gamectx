@@ -2,6 +2,22 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Communities (`knowledge::communities`, local kind `communities`): factions extension,
+  home places, members, customs (norms), bilateral relations with numeric trust, markets,
+  and bartering.
+  - Communities extend factions with home places, member rosters, authored customs, and
+    bilateral relations with qualitative stances (`allied`, `friendly`, `neutral`, `wary`,
+    `hostile`) and signed numeric trust (-100..100) determining buy and sell price multipliers.
+  - Markets specify buy and sell lists matching by item kind or material/category tag, with
+    price multipliers.
+  - Bartering checks trade feasibility, evaluates effective values scaled by condition and
+    multipliers, generates actionable counter-offers on deficit, and executes atomic
+    transfers of item ownership and location with public timeline entries. Generous trades
+    automatically boost relation trust.
+  - Ops: check_relation, set_relation, add_member, remove_member, set_customs, appraise,
+    and barter.
+  - 28 cases (8 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches).
 - Species (`knowledge::species`, local kind `species`): animals, plants, people, and hybrids.
   - Species define diet (carnivore, herbivore, omnivore), habitats, lifespan, temperament
     defaults (boldness, sociability, aggression, trainability 0–100), renewable produce,
