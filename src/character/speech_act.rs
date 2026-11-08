@@ -53,6 +53,16 @@ pub const DEFAULT_TRUST: u64 = 50;
 /// Confidence a speaker needs before it will inform or warn, and above which it will not ask.
 pub const SURE: u64 = 50;
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "pairs", default: 256, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "want_beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "wants", default: 32, ceiling: 1024 },
+    crate::character::limits::Limit { name: "beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "beliefs", default: 128, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(SpeechLimits, LIMITS);
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Pair {
     pub trust: u64,
@@ -84,9 +94,13 @@ struct Act {
 /// Belief store plus the social pair state speech acts read and change.
 #[derive(Clone, Debug, Default)]
 pub struct SpeechActs {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: SpeechLimits,
     pub beliefs: BeliefStore,
     /// `(speaker, listener)` → how much the listener trusts the speaker, and the speaker's authority.
     pub pairs: BTreeMap<(String, String), Pair>,
+    /// Listener → speakers with a pair, kept in step with `pairs` so `assess` does not scan every pair.
+    pub trusted: BTreeMap<String, BTreeSet<String>>,
     pub wants: BTreeMap<String, BTreeMap<String, Want>>,
 }
 
@@ -118,18 +132,28 @@ impl SpeechActs {
         Self::default()
     }
 
+    fn put_pair(&mut self, speaker: &str, listener: &str, pair: Pair) {
+        self.trusted.entry(listener.to_string()).or_default().insert(speaker.to_string());
+        self.pairs.insert((speaker.to_string(), listener.to_string()), pair);
+    }
+
     pub fn pair(&self, speaker: &str, listener: &str) -> Pair {
         self.pairs.get(&(speaker.to_string(), listener.to_string())).copied().unwrap_or_default()
     }
 
     fn pair_room(&self, speaker: &str, listener: &str) -> Result<()> {
-        if !self.pairs.contains_key(&(speaker.to_string(), listener.to_string())) && self.pairs.len() >= MAX_PAIRS {
+        if !self.pairs.contains_key(&(speaker.to_string(), listener.to_string()))
+            && self.pairs.len() >= self.limits.get("pairs")
+        {
             return Err(c::bad());
         }
         Ok(())
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
+        self.beliefs.limits.copy_shared(&self.limits);
         run_ops(request, |op, args| match op {
             "relate" => self.op_relate(args),
             "check" => {
@@ -163,7 +187,7 @@ impl SpeechActs {
             authority: opt_uint(args, "authority", 0, 100, cur.authority)?,
         };
         self.pair_room(&speaker, &listener)?;
-        self.pairs.insert((speaker.clone(), listener.clone()), next);
+        self.put_pair(&speaker, &listener, next);
         Ok(obj! { "authority" => next.authority, "listener" => listener, "speaker" => speaker, "trust" => next.trust })
     }
 
@@ -186,15 +210,16 @@ impl SpeechActs {
     }
 
     fn add_want(&mut self, holder: &str, goal: &str, priority: u64, from: &str) -> Result<()> {
-        if !self.wants.contains_key(holder) && self.wants.len() >= MAX_WANT_BEINGS {
+        if !self.wants.contains_key(holder) && self.wants.len() >= self.limits.get("want_beings") {
             return Err(c::bad());
         }
+        let max_wants = self.limits.get("wants");
         let ws = self.wants.entry(holder.to_string()).or_default();
         match ws.get_mut(goal) {
             Some(w) if priority >= w.priority => *w = Want { priority, from: from.to_string() },
             Some(_) => {}
             None => {
-                if ws.len() >= MAX_WANTS {
+                if ws.len() >= max_wants {
                     let victim = ws
                         .iter()
                         .min_by(|a, b| a.1.priority.cmp(&b.1.priority).then(a.0.cmp(b.0)))
@@ -211,7 +236,8 @@ impl SpeechActs {
 
     fn set_trust(&mut self, a: &Act, value: u64, effects: &mut Vec<Value>) {
         let old = self.pair(&a.speaker, &a.listener);
-        self.pairs.insert((a.speaker.clone(), a.listener.clone()), Pair { trust: value, ..old });
+        let (speaker, listener) = (a.speaker.clone(), a.listener.clone());
+        self.put_pair(&speaker, &listener, Pair { trust: value, ..old });
         effects.push(obj! {
             "delta" => value as i64 - old.trust as i64,
             "holder" => a.listener.as_str(),
@@ -468,10 +494,12 @@ impl SpeechActs {
         keys(args, &["being"], &[])?;
         let being = ident(c::get(args, "being")?)?;
         let trusts: Vec<Value> = self
-            .pairs
-            .iter()
-            .filter(|((_, l), _)| l == being)
-            .map(|((s, _), p)| obj! { "authority" => p.authority, "speaker" => s.as_str(), "trust" => p.trust })
+            .trusted
+            .get(being)
+            .into_iter()
+            .flatten()
+            .map(|s| (s, self.pair(s, being)))
+            .map(|(s, p)| obj! { "authority" => p.authority, "speaker" => s.as_str(), "trust" => p.trust })
             .collect();
         let wants: Vec<Value> = self
             .wants

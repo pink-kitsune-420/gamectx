@@ -1,0 +1,64 @@
+{
+  "kind": "attention",
+  "args": {
+    "limits": {
+      "profiles": 1
+    },
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "mother",
+          "cares": [
+            "child"
+          ]
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "smith",
+          "cares": [
+            "fire"
+          ]
+        }
+      },
+      {
+        "op": "notice",
+        "args": {
+          "seed": 3,
+          "events": [
+            {
+              "id": "cry",
+              "kind": "voice",
+              "place": "square",
+              "salience": 20,
+              "noise": 30,
+              "subject": "child"
+            },
+            {
+              "id": "sparks",
+              "kind": "fire",
+              "place": "square",
+              "salience": 20
+            }
+          ],
+          "beings": [
+            {
+              "id": "mother",
+              "place": "square"
+            },
+            {
+              "id": "smith",
+              "place": "square"
+            },
+            {
+              "id": "passerby",
+              "place": "square"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

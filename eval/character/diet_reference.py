@@ -7,6 +7,7 @@ import json
 from typing import Any, Dict, List, Optional
 
 from beliefs_speech_reference import Bad, blist, ident, keys, need, opt_bool, opt_uint, run_ops, text, uint
+from limits_reference import Limits, limited
 
 FOOD_TAGS = ["alcohol", "dairy", "egg", "fish", "fruit", "grain", "herb", "meat", "mineral", "nut", "sweet",
              "vegetable", "water"]
@@ -97,10 +98,14 @@ def new_profile() -> Dict[str, Any]:
 
 class DietRef:
     def __init__(self) -> None:
+        self.limits = Limits([("foods", 256, 65_536), ("beings", 64, 1_000_000), ("recent", 16, 256)])
         self.foods: Dict[str, Dict[str, Any]] = {}
         self.beings: Dict[str, Dict[str, Any]] = {}
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         def f(op, a):
             if op == "register_food":
                 return self.register(a)
@@ -129,7 +134,7 @@ class DietRef:
         need(len(given) > 0 or len(fresh) > 0)
         fresh += [read_food(x) for x in given]
         ids = {f["id"] for f in fresh}
-        need(len(self.foods) + len([i for i in ids if i not in self.foods]) <= MAX_FOODS)
+        need(len(self.foods) + len([i for i in ids if i not in self.foods]) <= self.limits["foods"])
         for fd in fresh:
             self.foods[fd["id"]] = fd
         return {"registered": [fd["id"] for fd in fresh], "total": len(self.foods)}
@@ -144,7 +149,7 @@ class DietRef:
         dislikes = tag_set(a.get("dislikes"), len(FOOD_TAGS))
         need(not set(likes) & set(dislikes))
         forbids = tag_set(a.get("forbids"), len(FOOD_TAGS))
-        need(being in self.beings or len(self.beings) < MAX_BEINGS)
+        need(being in self.beings or len(self.beings) < self.limits["beings"])
         p = self.beings.get(being, new_profile())
         p.update({"diet": diet, "forbids": forbids, "allergies": allergies, "likes": likes, "dislikes": dislikes})
         self.beings[being] = p
@@ -241,9 +246,9 @@ class DietRef:
         eaten = not e["refusals"] or force
         effects = []
         if eaten:
-            need(being in self.beings or len(self.beings) < MAX_BEINGS)
+            need(being in self.beings or len(self.beings) < self.limits["beings"])
             p = self.beings.setdefault(being, new_profile())
-            if len(p["recent"]) >= MAX_RECENT:
+            if len(p["recent"]) >= self.limits["recent"]:
                 p["recent"].pop(0)
             p["recent"].append((e["food"], s["at"]))
             p["meals"] += 1

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising tracked_beings and warnings leaves a normal audit unchanged apart from the echo.",
+  "error": false
+}

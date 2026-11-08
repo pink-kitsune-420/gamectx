@@ -7,6 +7,7 @@ expect_attend_cases.py checks they agree on conformance cases and randomized wor
 from typing import Any, Dict, List, Optional, Tuple
 
 from beliefs_speech_reference import Bad, blist, ident, keys, need, opt_bool, opt_uint, run_ops, text, uint
+from limits_reference import Limits, limited
 
 MAX_AT = 1_000_000_000_000
 EXP_BEINGS = 64
@@ -34,10 +35,14 @@ def resentment(being: str, subject: str, delta: int, reason: str) -> Dict[str, A
 
 class ExpectRef:
     def __init__(self) -> None:
+        self.limits = Limits([("beings", 64, 1_000_000), ("expectations", 32, 1024), ("subjects", 64, 4096)])
         # being -> {"exp": {id: dict}, "rel": {about: [kept, broken]}}
         self.beings: Dict[str, Dict[str, Any]] = {}
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         table = {"expect": self.expect, "tick": self.tick, "happen": self.happen, "cancel": self.cancel,
                  "assess": self.assess}
 
@@ -52,9 +57,9 @@ class ExpectRef:
         return max(10, min(95, 70 + 10 * kept - 15 * broken))
 
     @staticmethod
-    def score(mind: Dict[str, Any], about: str, kept: bool) -> None:
+    def score(mind: Dict[str, Any], about: str, kept: bool, max_subjects: int) -> None:
         rel = mind["rel"]
-        if about not in rel and len(rel) >= MAX_SUBJECTS:
+        if about not in rel and len(rel) >= max_subjects:
             victim = min(rel, key=lambda k: (rel[k][0] + rel[k][1], k))
             del rel[victim]
         entry = rel.setdefault(about, [0, 0])
@@ -80,10 +85,10 @@ class ExpectRef:
         relies = opt_bool(a, "relies", False)
         conf = None if a.get("confidence") is None else uint(a["confidence"], 1, 100)
         label = f"{about} {event}" if a.get("label") is None else text(a["label"], 80)
-        need(being in self.beings or len(self.beings) < EXP_BEINGS)
+        need(being in self.beings or len(self.beings) < self.limits["beings"])
         mind = self.beings.setdefault(being, {"exp": {}, "rel": {}})
         exp = mind["exp"]
-        if eid not in exp and len(exp) >= MAX_EXPECTATIONS:
+        if eid not in exp and len(exp) >= self.limits["expectations"]:
             broken = [k for k in exp if exp[k]["state"] == "broken"]
             need(bool(broken))
             del exp[min(broken, key=lambda k: (exp[k]["due"], k))]
@@ -133,7 +138,7 @@ class ExpectRef:
             for eid in gone:
                 del mind["exp"][eid]
             for about in scores:
-                self.score(mind, about, False)
+                self.score(mind, about, False, self.limits["subjects"])
         return {"at": at, "changes": changes, "effects": effects}
 
     def happen(self, a: Any) -> Dict[str, Any]:
@@ -153,11 +158,11 @@ class ExpectRef:
                     outcome = "late"
                     surprise = e["importance"] * e["confidence"] // 100
                 elif e["dread"]:
-                    self.score(mind, about, True)
+                    self.score(mind, about, True, self.limits["subjects"])
                     effects.append(set_mood(name, -max(1, e["importance"] // 2), why))
                     outcome = "dread_met"
                 else:
-                    self.score(mind, about, True)
+                    self.score(mind, about, True, self.limits["subjects"])
                     effects.append(set_mood(name, max(1, e["importance"] // 10), why))
                     outcome = "kept"
                 resolved.append({"being": name, "early": at < e["due"], "id": eid, "outcome": outcome,
@@ -208,9 +213,13 @@ def profile_view(being: str, p: Dict[str, Any]) -> Dict[str, Any]:
 
 class AttendRef:
     def __init__(self) -> None:
+        self.limits = Limits([("profiles", 64, 1_000_000), ("notice_beings", 64, 4096), ("notice_events", 16, 256)])
         self.profiles: Dict[str, Dict[str, Any]] = {}
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         table = {"profile": self.profile, "notice": self.notice, "assess": self.assess}
 
         def f(op, a):
@@ -224,7 +233,7 @@ class AttendRef:
         cares = sorted({ident(x) for x in blist(a.get("cares"), 16)})
         p = {"alertness": opt_uint(a, "alertness", 0, 100, 50), "perception": opt_uint(a, "perception", 0, 100, 0),
              "cares": cares, "capacity": opt_uint(a, "capacity", 1, MAX_EVENTS, 3)}
-        need(being in self.profiles or len(self.profiles) < MAX_PROFILES)
+        need(being in self.profiles or len(self.profiles) < self.limits["profiles"])
         self.profiles[being] = p
         return profile_view(being, p)
 
@@ -232,8 +241,8 @@ class AttendRef:
         keys(a, ["seed", "events", "beings"], ["at"])
         seed = uint(a["seed"], 0, MAX_SEED)
         at = opt_uint(a, "at", 0, MAX_AT, 0)
-        need(isinstance(a["events"], list) and 1 <= len(a["events"]) <= MAX_EVENTS)
-        need(isinstance(a["beings"], list) and 1 <= len(a["beings"]) <= MAX_NOTICE_BEINGS)
+        need(isinstance(a["events"], list) and 1 <= len(a["events"]) <= self.limits["notice_events"])
+        need(isinstance(a["beings"], list) and 1 <= len(a["beings"]) <= self.limits["notice_beings"])
         events: List[Dict[str, Any]] = []
         for e in a["events"]:
             keys(e, ["id", "kind", "place", "salience"], ["noise", "subject"])

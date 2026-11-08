@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for one belief per being, each new belief evicts the weakest.",
+  "error": false
+}

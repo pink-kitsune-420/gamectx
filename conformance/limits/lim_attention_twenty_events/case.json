@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising notice_events notices among 20 events (the old cap was 16), capacity still applies.",
+  "error": false
+}

@@ -119,6 +119,13 @@ pub(crate) fn list_bound(v: Option<&Value>, max: usize) -> Result<&[Value]> {
 }
 
 /// `about relation value`, each an identifier, joined by `:` in at most 64 characters.
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "beliefs", default: 128, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(BeliefLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Triple {
     pub about: String,
@@ -174,6 +181,8 @@ impl Belief {
 /// Per-being sourced beliefs.
 #[derive(Clone, Debug, Default)]
 pub struct BeliefStore {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: BeliefLimits,
     pub beings: BTreeMap<String, BTreeMap<Triple, Belief>>,
 }
 
@@ -187,7 +196,7 @@ impl BeliefStore {
     }
 
     fn ensure_room(&self, being: &str) -> Result<()> {
-        if !self.beings.contains_key(being) && self.beings.len() >= MAX_BEINGS {
+        if !self.beings.contains_key(being) && self.beings.len() >= self.limits.get("beings") {
             return Err(c::bad());
         }
         Ok(())
@@ -197,11 +206,12 @@ impl BeliefStore {
     /// and the belief as it now stands.
     pub fn learn(&mut self, being: &str, incoming: Belief) -> Result<(&'static str, Belief)> {
         self.ensure_room(being)?;
+        let max_beliefs = self.limits.get("beliefs");
         let beliefs = self.beings.entry(being.to_string()).or_default();
         let key = incoming.triple.clone();
         let result = match beliefs.get_mut(&key) {
             None => {
-                if beliefs.len() >= MAX_BELIEFS {
+                if beliefs.len() >= max_beliefs {
                     let victim = beliefs
                         .values()
                         .min_by(|a, b| {
@@ -252,7 +262,9 @@ impl BeliefStore {
         }))
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         run_ops(request, |op, args| self.dispatch(op, args)?.ok_or_else(c::bad))
     }
 

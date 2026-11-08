@@ -1,0 +1,30 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "limits": {
+      "beings": 1
+    },
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "told",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour"
+        }
+      },
+      {
+        "op": "learn",
+        "args": {
+          "being": "miller",
+          "source": "told",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "kind": "creed",
+  "args": {
+    "limits": {
+      "pews": 3
+    },
+    "ops": [
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "hearthkeepers",
+            "label": "Keepers of the Hearth",
+            "kind": "religion",
+            "tenets": [
+              {
+                "id": "no_theft",
+                "action": "steal",
+                "severity": 80,
+                "label": "Take nothing from another's hearth"
+              },
+              {
+                "id": "no_ash_scatter",
+                "action": "scatter",
+                "sacred_only": true,
+                "severity": 60,
+                "label": "Never scatter sacred ash"
+              },
+              {
+                "id": "no_flesh",
+                "food_tag": "meat",
+                "severity": 40,
+                "label": "Eat nothing that bled"
+              }
+            ],
+            "observances": [
+              {
+                "id": "tend_flame",
+                "action": "tend_hearth",
+                "every": 24,
+                "window": 4,
+                "offset": 6,
+                "severity": 50,
+                "label": "Tend the flame at dawn"
+              }
+            ],
+            "sacred": [
+              "great_hearth"
+            ],
+            "rivals": [
+              {
+                "creed": "free_tillers",
+                "stance": "wary"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "free_tillers",
+            "label": "The Free Tillers",
+            "kind": "ideology",
+            "tenets": [
+              {
+                "id": "no_fences",
+                "action": "fence",
+                "severity": 70,
+                "label": "Common fields stay open"
+              },
+              {
+                "id": "no_tithe",
+                "action": "pay_tithe",
+                "severity": 50,
+                "label": "Owe no lord a sheaf"
+              }
+            ],
+            "observances": [
+              {
+                "id": "field_moot",
+                "action": "attend_moot",
+                "every": 168,
+                "window": 24,
+                "severity": 30,
+                "label": "Speak at the field moot"
+              }
+            ],
+            "rivals": [
+              {
+                "creed": "hearthkeepers",
+                "stance": "hostile"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "stillwater",
+            "label": "The Stillwater Way",
+            "kind": "philosophy",
+            "tenets": [
+              {
+                "id": "no_drink",
+                "food_tag": "alcohol",
+                "severity": 30,
+                "label": "Keep the mind clear"
+              },
+              {
+                "id": "no_boast",
+                "action": "boast",
+                "severity": 20,
+                "label": "Let deeds speak"
+              }
+            ],
+            "rivals": [
+              {
+                "creed": "free_tillers",
+                "stance": "tolerant"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "adhere",
+        "args": {
+          "being": "baker",
+          "creed": "hearthkeepers"
+        }
+      },
+      {
+        "op": "adhere",
+        "args": {
+          "being": "miller",
+          "creed": "hearthkeepers"
+        }
+      },
+      {
+        "op": "adhere",
+        "args": {
+          "being": "tiller",
+          "creed": "free_tillers"
+        }
+      },
+      {
+        "op": "adhere",
+        "args": {
+          "being": "monk",
+          "creed": "stillwater"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "baker",
+          "other": "miller"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "baker",
+          "other": "tiller"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "tiller",
+          "other": "baker"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "monk",
+          "other": "tiller"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "tiller",
+          "other": "monk"
+        }
+      },
+      {
+        "op": "regard",
+        "args": {
+          "being": "baker",
+          "other": "wanderer"
+        }
+      }
+    ]
+  }
+}

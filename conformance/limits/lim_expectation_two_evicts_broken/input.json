@@ -1,0 +1,55 @@
+{
+  "kind": "expectation",
+  "args": {
+    "limits": {
+      "expectations": 2
+    },
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "a",
+          "about": "s",
+          "event": "e",
+          "due": 0,
+          "importance": 10
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "b",
+          "about": "s",
+          "event": "e",
+          "due": 3,
+          "importance": 10
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 4
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "c",
+          "about": "s",
+          "event": "e",
+          "due": 9,
+          "importance": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "clerk"
+        }
+      }
+    ]
+  }
+}

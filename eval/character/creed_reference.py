@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from beliefs_speech_reference import Bad, blist, ident, keys, need, opt_bool, opt_uint, run_ops, text, uint
 from diet_reference import FOOD_TAGS
+from limits_reference import Limits, limited
 
 CREED_KINDS = ["ideology", "philosophy", "religion", "tradition"]
 STANCES = ["hostile", "tolerant", "wary"]
@@ -85,10 +86,14 @@ def new_adherent() -> Dict[str, Any]:
 
 class CreedRef:
     def __init__(self) -> None:
+        self.limits = Limits([("creeds", 32, 4096), ("beings", 128, 1_000_000)])
         self.creeds: Dict[str, Dict[str, Any]] = {}
         self.beings: Dict[str, Dict[str, Any]] = {}
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         table = {"register_creed": self.register, "adhere": self.adhere, "set_norms": self.set_norms,
                  "judge": self.judge, "observe": self.observe, "due": self.due, "food_taboos": self.food_taboos,
                  "regard": self.regard, "assess": self.assess}
@@ -99,14 +104,14 @@ class CreedRef:
         return run_ops(request, f)
 
     def being(self, b: str) -> Dict[str, Any]:
-        need(b in self.beings or len(self.beings) < MAX_BEINGS)
+        need(b in self.beings or len(self.beings) < self.limits["beings"])
         return self.beings.setdefault(b, new_adherent())
 
     def register(self, a: Any) -> Dict[str, Any]:
         keys(a, ["creed"], [])
         cr = read_creed(a["creed"])
         is_new = cr["id"] not in self.creeds
-        need(not is_new or len(self.creeds) < MAX_CREEDS)
+        need(not is_new or len(self.creeds) < self.limits["creeds"])
         out = {"creed": cr["id"], "observances": len(cr["observances"]), "tenets": len(cr["tenets"]),
                "total": len(self.creeds) + (1 if is_new else 0)}
         self.creeds[cr["id"]] = cr

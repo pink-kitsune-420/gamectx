@@ -1,0 +1,427 @@
+{
+  "kind": "attention",
+  "args": {
+    "limits": {
+      "notice_beings": 100
+    },
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 4,
+          "events": [
+            {
+              "id": "bell",
+              "kind": "alarm",
+              "place": "square",
+              "salience": 90,
+              "noise": 90
+            }
+          ],
+          "beings": [
+            {
+              "id": "b0",
+              "place": "square"
+            },
+            {
+              "id": "b1",
+              "place": "square"
+            },
+            {
+              "id": "b2",
+              "place": "square"
+            },
+            {
+              "id": "b3",
+              "place": "square"
+            },
+            {
+              "id": "b4",
+              "place": "square"
+            },
+            {
+              "id": "b5",
+              "place": "square"
+            },
+            {
+              "id": "b6",
+              "place": "square"
+            },
+            {
+              "id": "b7",
+              "place": "square"
+            },
+            {
+              "id": "b8",
+              "place": "square"
+            },
+            {
+              "id": "b9",
+              "place": "square"
+            },
+            {
+              "id": "b10",
+              "place": "square"
+            },
+            {
+              "id": "b11",
+              "place": "square"
+            },
+            {
+              "id": "b12",
+              "place": "square"
+            },
+            {
+              "id": "b13",
+              "place": "square"
+            },
+            {
+              "id": "b14",
+              "place": "square"
+            },
+            {
+              "id": "b15",
+              "place": "square"
+            },
+            {
+              "id": "b16",
+              "place": "square"
+            },
+            {
+              "id": "b17",
+              "place": "square"
+            },
+            {
+              "id": "b18",
+              "place": "square"
+            },
+            {
+              "id": "b19",
+              "place": "square"
+            },
+            {
+              "id": "b20",
+              "place": "square"
+            },
+            {
+              "id": "b21",
+              "place": "square"
+            },
+            {
+              "id": "b22",
+              "place": "square"
+            },
+            {
+              "id": "b23",
+              "place": "square"
+            },
+            {
+              "id": "b24",
+              "place": "square"
+            },
+            {
+              "id": "b25",
+              "place": "square"
+            },
+            {
+              "id": "b26",
+              "place": "square"
+            },
+            {
+              "id": "b27",
+              "place": "square"
+            },
+            {
+              "id": "b28",
+              "place": "square"
+            },
+            {
+              "id": "b29",
+              "place": "square"
+            },
+            {
+              "id": "b30",
+              "place": "square"
+            },
+            {
+              "id": "b31",
+              "place": "square"
+            },
+            {
+              "id": "b32",
+              "place": "square"
+            },
+            {
+              "id": "b33",
+              "place": "square"
+            },
+            {
+              "id": "b34",
+              "place": "square"
+            },
+            {
+              "id": "b35",
+              "place": "square"
+            },
+            {
+              "id": "b36",
+              "place": "square"
+            },
+            {
+              "id": "b37",
+              "place": "square"
+            },
+            {
+              "id": "b38",
+              "place": "square"
+            },
+            {
+              "id": "b39",
+              "place": "square"
+            },
+            {
+              "id": "b40",
+              "place": "square"
+            },
+            {
+              "id": "b41",
+              "place": "square"
+            },
+            {
+              "id": "b42",
+              "place": "square"
+            },
+            {
+              "id": "b43",
+              "place": "square"
+            },
+            {
+              "id": "b44",
+              "place": "square"
+            },
+            {
+              "id": "b45",
+              "place": "square"
+            },
+            {
+              "id": "b46",
+              "place": "square"
+            },
+            {
+              "id": "b47",
+              "place": "square"
+            },
+            {
+              "id": "b48",
+              "place": "square"
+            },
+            {
+              "id": "b49",
+              "place": "square"
+            },
+            {
+              "id": "b50",
+              "place": "square"
+            },
+            {
+              "id": "b51",
+              "place": "square"
+            },
+            {
+              "id": "b52",
+              "place": "square"
+            },
+            {
+              "id": "b53",
+              "place": "square"
+            },
+            {
+              "id": "b54",
+              "place": "square"
+            },
+            {
+              "id": "b55",
+              "place": "square"
+            },
+            {
+              "id": "b56",
+              "place": "square"
+            },
+            {
+              "id": "b57",
+              "place": "square"
+            },
+            {
+              "id": "b58",
+              "place": "square"
+            },
+            {
+              "id": "b59",
+              "place": "square"
+            },
+            {
+              "id": "b60",
+              "place": "square"
+            },
+            {
+              "id": "b61",
+              "place": "square"
+            },
+            {
+              "id": "b62",
+              "place": "square"
+            },
+            {
+              "id": "b63",
+              "place": "square"
+            },
+            {
+              "id": "b64",
+              "place": "square"
+            },
+            {
+              "id": "b65",
+              "place": "square"
+            },
+            {
+              "id": "b66",
+              "place": "square"
+            },
+            {
+              "id": "b67",
+              "place": "square"
+            },
+            {
+              "id": "b68",
+              "place": "square"
+            },
+            {
+              "id": "b69",
+              "place": "square"
+            },
+            {
+              "id": "b70",
+              "place": "square"
+            },
+            {
+              "id": "b71",
+              "place": "square"
+            },
+            {
+              "id": "b72",
+              "place": "square"
+            },
+            {
+              "id": "b73",
+              "place": "square"
+            },
+            {
+              "id": "b74",
+              "place": "square"
+            },
+            {
+              "id": "b75",
+              "place": "square"
+            },
+            {
+              "id": "b76",
+              "place": "square"
+            },
+            {
+              "id": "b77",
+              "place": "square"
+            },
+            {
+              "id": "b78",
+              "place": "square"
+            },
+            {
+              "id": "b79",
+              "place": "square"
+            },
+            {
+              "id": "b80",
+              "place": "square"
+            },
+            {
+              "id": "b81",
+              "place": "square"
+            },
+            {
+              "id": "b82",
+              "place": "square"
+            },
+            {
+              "id": "b83",
+              "place": "square"
+            },
+            {
+              "id": "b84",
+              "place": "square"
+            },
+            {
+              "id": "b85",
+              "place": "square"
+            },
+            {
+              "id": "b86",
+              "place": "square"
+            },
+            {
+              "id": "b87",
+              "place": "square"
+            },
+            {
+              "id": "b88",
+              "place": "square"
+            },
+            {
+              "id": "b89",
+              "place": "square"
+            },
+            {
+              "id": "b90",
+              "place": "square"
+            },
+            {
+              "id": "b91",
+              "place": "square"
+            },
+            {
+              "id": "b92",
+              "place": "square"
+            },
+            {
+              "id": "b93",
+              "place": "square"
+            },
+            {
+              "id": "b94",
+              "place": "square"
+            },
+            {
+              "id": "b95",
+              "place": "square"
+            },
+            {
+              "id": "b96",
+              "place": "square"
+            },
+            {
+              "id": "b97",
+              "place": "square"
+            },
+            {
+              "id": "b98",
+              "place": "square"
+            },
+            {
+              "id": "b99",
+              "place": "square"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

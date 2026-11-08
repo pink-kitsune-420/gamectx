@@ -2480,3 +2480,102 @@ fn growth_modules_survive_mutation_limits_and_boundaries() {
     assert_eq!(big.beings.len(), 5000);
     assert!(big.workflow(&parse(extra, 4096).unwrap()).is_err());
 }
+
+#[test]
+fn pass_two_modules_take_host_limits_and_survive_mutation() {
+    use gamectx::character::limits::Limit;
+    use gamectx::character::{
+        attention::AttentionModel, beliefs::BeliefStore, creed::CreedManager, diet::DietManager,
+        expectation::ExpectationBook, explain::ExplainTracer, speech_act::SpeechActs, stability::StabilityMonitor,
+    };
+    type Run = fn(&Value, &Value) -> gamectx::Result<Value>;
+    fn module(kind: &str) -> Option<(&'static [Limit], Run)> {
+        macro_rules! m {
+            ($m:ident, $t:ty) => {
+                (gamectx::character::$m::LIMITS, |lim: &Value, req: &Value| <$t>::with_limits(lim)?.workflow(req))
+            };
+        }
+        Some(match kind {
+            "attention" => m!(attention, AttentionModel),
+            "beliefs" => m!(beliefs, BeliefStore),
+            "creed" => m!(creed, CreedManager),
+            "diet" => m!(diet, DietManager),
+            "expectation" => m!(expectation, ExpectationBook),
+            "explain" => m!(explain, ExplainTracer),
+            "speech_act" => m!(speech_act, SpeechActs),
+            "stability" => m!(stability, StabilityMonitor),
+            _ => return None,
+        })
+    }
+    let empty = parse("{}", 4).unwrap();
+
+    // 25. Mutated limit-carrying workflows for all eight modules never panic.
+    let samples = [
+        include_str!("../conformance/limits/lim_attention_one_profile/input.json"),
+        include_str!("../conformance/limits/lim_beliefs_small_store/input.json"),
+        include_str!("../conformance/limits/lim_creed_exact_fit/input.json"),
+        include_str!("../conformance/limits/lim_diet_recent_two/input.json"),
+        include_str!("../conformance/limits/lim_expectation_two_evicts_broken/input.json"),
+        include_str!("../conformance/limits/lim_explain_two_traces/input.json"),
+        include_str!("../conformance/limits/lim_speech_store_limits_reach_beliefs/input.json"),
+        include_str!("../conformance/limits/lim_stability_two_warnings/input.json"),
+    ];
+    let mut rng = Rng(0x7A57_11E1_75A1_2026);
+    for _ in 0..1000 {
+        for s in samples {
+            let Ok(v) = parse(&mutate(&mut rng, s), 1 << 20) else { continue };
+            let (Some(kind), Some(args)) = (v.get("kind").and_then(Value::as_str), v.get("args")) else { continue };
+            if let Some((_, run)) = module(kind) {
+                let _ = run(&empty, args);
+            }
+        }
+    }
+
+    for s in samples {
+        let v = parse(s, 1 << 20).unwrap();
+        let kind = v.get("kind").and_then(Value::as_str).unwrap();
+        let ops = v.get("args").and_then(|a| a.get("ops")).unwrap().to_json();
+        let (spec, run) = module(kind).unwrap();
+        let req = |lim: &str| parse(&format!(r#"{{"limits":{lim},"ops":{ops}}}"#), 1 << 20).unwrap();
+        let ok = |lim: &str| run(&empty, &req(lim)).is_ok();
+        // Every ceiling at once is accepted and echoed; ceiling + 1, zero and unknown names are refused.
+        let all: Vec<String> = spec.iter().map(|l| format!(r#""{}":{}"#, l.name, l.ceiling)).collect();
+        let out = run(&empty, &req(&format!("{{{}}}", all.join(",")))).unwrap().to_json();
+        assert!(out.starts_with(&format!(r#"{{"limits":{{{}}}"#, all.join(","))), "{kind}: {out}");
+        for l in spec {
+            assert!(l.default >= 1 && l.default <= l.ceiling, "{kind}.{}", l.name);
+            assert!(!ok(&format!(r#"{{"{}":{}}}"#, l.name, l.ceiling + 1)), "{kind}.{}", l.name);
+            assert!(!ok(&format!(r#"{{"{}":0}}"#, l.name)), "{kind}.{}", l.name);
+            let one = parse(&format!(r#"{{"{}":{}}}"#, l.name, l.ceiling + 1), 64).unwrap();
+            assert!(run(&one, &req("null")).is_err(), "{kind}.{}", l.name);
+        }
+        assert!(!ok(r#"{"not_a_limit":1}"#), "{kind}");
+        assert!(!ok("[1]"), "{kind}");
+        // Without limits nothing is echoed; null limits are accepted and echo the defaults.
+        let plain = parse(&format!(r#"{{"ops":{ops}}}"#), 1 << 20).unwrap();
+        assert!(!run(&empty, &plain).unwrap().to_json().contains(r#""limits""#), "{kind}");
+        let defaults: Vec<String> = spec.iter().map(|l| format!(r#""{}":{}"#, l.name, l.default)).collect();
+        assert!(
+            run(&empty, &req("null"))
+                .unwrap()
+                .to_json()
+                .starts_with(&format!(r#"{{"limits":{{{}}}"#, defaults.join(","))),
+            "{kind}"
+        );
+    }
+
+    // Lowering a limit below current usage keeps state and only blocks growth.
+    let mut diet = DietManager::with_limits(&parse(r#"{"beings":3000}"#, 64).unwrap()).unwrap();
+    for chunk in 0..47 {
+        let batch: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+            .filter(|n| *n < 3000)
+            .map(|n| format!(r#"{{"op":"set_diet","args":{{"being":"b{n}"}}}}"#))
+            .collect();
+        diet.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, batch.join(",")), 1 << 20).unwrap()).unwrap();
+    }
+    let extra = r#"{"ops":[{"op":"set_diet","args":{"being":"one_more"}}]}"#;
+    assert!(diet.workflow(&parse(extra, 4096).unwrap()).is_err());
+    let lower = r#"{"limits":{"beings":10},"ops":[{"op":"set_diet","args":{"being":"b0"}}]}"#;
+    assert!(diet.workflow(&parse(lower, 4096).unwrap()).is_ok());
+    assert!(diet.workflow(&parse(extra, 4096).unwrap()).is_err());
+}

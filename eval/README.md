@@ -1307,6 +1307,21 @@ with `--check eval/character/living-world-timing.json`; CI does not rerun or enf
 These are library host-work measurements, excluding engine rendering/physics, real worker
 latency and external callbacks. [Results and responsibilities](../docs/characters/LIVING_WORLD.md).
 
+## Host limits and scale timing (offline)
+
+`limits_cases.py --cap 0` checks 25 cases (`conformance/limits/`, 6 malformed) where the pass 2
+modules run with host-set limits; `--random 2000 --seed 7` mixes all eight module generators with
+random limits against `gamectx local -` (0 mismatches: 1,436 accepted, 564 refused, 1,077 with
+limits). `limits_reference.py` is the independent limits envelope.
+
+`scale_measure.rs` fills eleven modules with 1,000 and then 10,000 beings and times 1,000 single-op
+queries each, counting live heap with a counting allocator. Build the release library, then
+`rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
+gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
+`scale_measure_check.py --cap 0 --capture RAW_PATH --output FRESH_PATH` records source hashes, hardware
+and method limits. Audit with `--check eval/character/scale-timing.json`; CI compiles and runs the
+harness but enforces no timing thresholds. [Results](../docs/characters/LIFE.md#host-set-limits).
+
 ## Visual compiler and approved asset metadata (offline)
 
 `visual_reference.py` independently prototypes bounded art contracts, live expression/pose

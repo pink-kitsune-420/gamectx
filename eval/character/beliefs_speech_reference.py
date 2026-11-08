@@ -112,22 +112,26 @@ def run_ops(request: Any, f) -> dict:
     return {"version": 1, "results": out}
 
 
+from limits_reference import Limits, limited  # noqa: E402
+
+
 class BeliefsRef:
     def __init__(self) -> None:
+        self.limits = Limits([("beings", 64, 1_000_000), ("beliefs", 128, 4096)])
         self.beings: Dict[str, Dict[Triple, dict]] = {}
 
     def get(self, being: str, t: Triple) -> Optional[dict]:
         return self.beings.get(being, {}).get(t)
 
     def room(self, being: str) -> None:
-        need(being in self.beings or len(self.beings) < MAX_BEINGS)
+        need(being in self.beings or len(self.beings) < self.limits["beings"])
 
     def learn(self, being: str, t: Triple, b: dict) -> Tuple[str, dict]:
         self.room(being)
         m = self.beings.setdefault(being, {})
         old = m.get(t)
         if old is None:
-            if len(m) >= MAX_BELIEFS:
+            if len(m) >= self.limits["beliefs"]:
                 victim = min(m, key=lambda k: (m[k]["confidence"], m[k]["at"], k))
                 del m[victim]
             m[t] = dict(b)
@@ -157,6 +161,9 @@ class BeliefsRef:
         return None if fn is None else fn(a)
 
     def run(self, request: Any) -> dict:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> dict:
         def f(op, a):
             r = self.dispatch(op, a)
             need(r is not None)
@@ -279,6 +286,7 @@ def feels(holder, toward, emotion, delta):
 
 class SpeechRef:
     def __init__(self) -> None:
+        self.limits = Limits([("pairs", 256, 1_000_000), ("want_beings", 64, 1_000_000), ("wants", 32, 1024), ("beings", 64, 1_000_000), ("beliefs", 128, 4096)])
         self.beliefs = BeliefsRef()
         self.pairs: Dict[Tuple[str, str], Dict[str, int]] = {}
         self.wants: Dict[str, Dict[str, Dict[str, Any]]] = {}
@@ -287,9 +295,13 @@ class SpeechRef:
         return dict(self.pairs.get((s, l), {"trust": 50, "authority": 0}))
 
     def pair_room(self, s: str, l: str) -> None:
-        need((s, l) in self.pairs or len(self.pairs) < MAX_PAIRS)
+        need((s, l) in self.pairs or len(self.pairs) < self.limits["pairs"])
 
     def run(self, request: Any) -> dict:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> dict:
+        self.beliefs.limits.copy_shared(self.limits)
         def f(op, a):
             if op == "relate":
                 return self.relate(a)
@@ -338,13 +350,13 @@ class SpeechRef:
         return []
 
     def add_want(self, holder: str, goal: str, priority: int, frm: str) -> None:
-        need(holder in self.wants or len(self.wants) < MAX_WANT_BEINGS)
+        need(holder in self.wants or len(self.wants) < self.limits["want_beings"])
         ws = self.wants.setdefault(holder, {})
         if goal in ws:
             if priority >= ws[goal]["priority"]:
                 ws[goal] = {"priority": priority, "from": frm}
         else:
-            if len(ws) >= MAX_WANTS:
+            if len(ws) >= self.limits["wants"]:
                 victim = min(ws, key=lambda g: (ws[g]["priority"], g))
                 del ws[victim]
             ws[goal] = {"priority": priority, "from": frm}

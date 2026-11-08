@@ -1,0 +1,32 @@
+{
+  "kind": "expectation",
+  "args": {
+    "limits": {
+      "expectations": 1
+    },
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "a",
+          "about": "s",
+          "event": "e",
+          "due": 5,
+          "importance": 10
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "b",
+          "about": "s",
+          "event": "e",
+          "due": 5,
+          "importance": 10
+        }
+      }
+    ]
+  }
+}

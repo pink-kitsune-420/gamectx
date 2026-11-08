@@ -1,0 +1,50 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "limits": {
+      "beliefs": 1
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "beliefs": [
+            {
+              "about": "baker",
+              "relation": "can",
+              "value": "bake"
+            },
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour",
+              "confidence": 40
+            },
+            {
+              "about": "well",
+              "relation": "has",
+              "value": "water",
+              "holds": false,
+              "source": "saw"
+            }
+          ]
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "being": "baker",
+          "relation": "sells"
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "being": "baker",
+          "min_confidence": 80
+        }
+      }
+    ]
+  }
+}

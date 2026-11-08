@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising audit_beings audits 65 beings in one turn (the old cap was 64).",
+  "error": false
+}

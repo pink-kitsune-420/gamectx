@@ -1,0 +1,2145 @@
+{
+  "kind": "diet",
+  "args": {
+    "limits": {
+      "foods": 300
+    },
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "f0",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f1",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f2",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f3",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f4",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f5",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f6",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f7",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f8",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f9",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f10",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f11",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f12",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f13",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f14",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f15",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f16",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f17",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f18",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f19",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f20",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f21",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f22",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f23",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f24",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f25",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f26",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f27",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f28",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f29",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f30",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f31",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f32",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f33",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f34",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f35",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f36",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f37",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f38",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f39",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f40",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f41",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f42",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f43",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f44",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f45",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f46",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f47",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f48",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f49",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f50",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f51",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f52",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f53",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f54",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f55",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f56",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f57",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f58",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f59",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f60",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f61",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f62",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f63",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "f64",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f65",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f66",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f67",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f68",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f69",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f70",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f71",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f72",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f73",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f74",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f75",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f76",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f77",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f78",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f79",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f80",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f81",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f82",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f83",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f84",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f85",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f86",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f87",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f88",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f89",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f90",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f91",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f92",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f93",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f94",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f95",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f96",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f97",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f98",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f99",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f100",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f101",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f102",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f103",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f104",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f105",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f106",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f107",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f108",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f109",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f110",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f111",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f112",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f113",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f114",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f115",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f116",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f117",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f118",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f119",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f120",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f121",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f122",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f123",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f124",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f125",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f126",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f127",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "f128",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f129",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f130",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f131",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f132",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f133",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f134",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f135",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f136",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f137",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f138",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f139",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f140",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f141",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f142",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f143",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f144",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f145",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f146",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f147",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f148",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f149",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f150",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f151",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f152",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f153",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f154",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f155",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f156",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f157",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f158",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f159",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f160",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f161",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f162",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f163",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f164",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f165",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f166",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f167",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f168",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f169",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f170",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f171",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f172",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f173",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f174",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f175",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f176",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f177",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f178",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f179",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f180",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f181",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f182",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f183",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f184",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f185",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f186",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f187",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f188",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f189",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f190",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f191",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "f192",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f193",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f194",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f195",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f196",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f197",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f198",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f199",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f200",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f201",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f202",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f203",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f204",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f205",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f206",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f207",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f208",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f209",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f210",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f211",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f212",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f213",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f214",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f215",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f216",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f217",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f218",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f219",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f220",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f221",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f222",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f223",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f224",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f225",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f226",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f227",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f228",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f229",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f230",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f231",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f232",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f233",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f234",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f235",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f236",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f237",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f238",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f239",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f240",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f241",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f242",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f243",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f244",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f245",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f246",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f247",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f248",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f249",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f250",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f251",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f252",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f253",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f254",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f255",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "f256",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f257",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f258",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f259",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f260",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f261",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f262",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f263",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f264",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f265",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f266",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f267",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f268",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f269",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f270",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f271",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f272",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f273",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f274",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f275",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f276",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f277",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f278",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f279",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f280",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f281",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f282",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f283",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f284",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f285",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f286",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f287",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f288",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f289",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f290",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f291",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f292",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f293",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f294",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f295",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f296",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f297",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f298",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            },
+            {
+              "id": "f299",
+              "tags": [
+                "grain"
+              ],
+              "hunger": 5
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

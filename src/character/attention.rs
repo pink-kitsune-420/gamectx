@@ -44,6 +44,14 @@ pub const MAX_CARES: usize = 16;
 pub const MAX_NEAR: usize = 16;
 pub const MAX_SEED: u64 = (1 << 53) - 1;
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "profiles", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "notice_beings", default: 64, ceiling: 4096 },
+    crate::character::limits::Limit { name: "notice_events", default: 16, ceiling: 256 },
+];
+crate::character::limits::module_limits!(AttentionLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Profile {
     pub alertness: u64,
@@ -92,6 +100,8 @@ struct Event {
 /// Attention profiles per being.
 #[derive(Clone, Debug, Default)]
 pub struct AttentionModel {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: AttentionLimits,
     pub profiles: BTreeMap<String, Profile>,
 }
 
@@ -100,7 +110,9 @@ impl AttentionModel {
         Self::default()
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         run_ops(request, |op, args| match op {
             "profile" => self.op_profile(args),
             "notice" => self.op_notice(args),
@@ -122,7 +134,7 @@ impl AttentionModel {
             cares,
             capacity: opt_uint(args, "capacity", 1, MAX_EVENTS as u64, 3)?,
         };
-        if !self.profiles.contains_key(&being) && self.profiles.len() >= MAX_PROFILES {
+        if !self.profiles.contains_key(&being) && self.profiles.len() >= self.limits.get("profiles") {
             return Err(c::bad());
         }
         let view = p.view(&being);
@@ -134,8 +146,8 @@ impl AttentionModel {
         keys(args, &["seed", "events", "beings"], &["at"])?;
         let seed = uint_bound(c::get(args, "seed")?, 0, MAX_SEED)?;
         let at = opt_uint(args, "at", 0, MAX_AT, 0)?;
-        let raw_events = list_bound(Some(c::get(args, "events")?), MAX_EVENTS)?;
-        let raw_beings = list_bound(Some(c::get(args, "beings")?), MAX_BEINGS)?;
+        let raw_events = list_bound(Some(c::get(args, "events")?), self.limits.get("notice_events"))?;
+        let raw_beings = list_bound(Some(c::get(args, "beings")?), self.limits.get("notice_beings"))?;
         if raw_events.is_empty() || raw_beings.is_empty() {
             return Err(c::bad());
         }

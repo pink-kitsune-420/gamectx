@@ -1,0 +1,16 @@
+{
+  "kind": "diet",
+  "args": {
+    "limits": {
+      "foods": 10
+    },
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      }
+    ]
+  }
+}

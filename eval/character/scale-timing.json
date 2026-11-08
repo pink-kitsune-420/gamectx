@@ -1,0 +1,252 @@
+{
+  "version": 1,
+  "source_sha256": {
+    "src/character/limits.rs": "396a4b267b77b0575504f83905488ea29b07ea76dc2232bf3af7c3be75a3c259",
+    "src/character/beliefs.rs": "9f8ae350ba19cc179363737d667d59f2245bd89b994e80f8eaf6ddc231f855cb",
+    "src/character/speech_act.rs": "2c15b4c31f8b01885d4263a31b50aa7d7f4666c3e8c2d1cdfbe1761e69b4051e",
+    "src/character/diet.rs": "c132a495f6e700268341b87420410a4d081a9311c2a2c56f59b0fce8b5f40d92",
+    "src/character/creed.rs": "8ab266b7e0a4ad81e1d8603710468fc90b6723c4af854eaa9a66c4e3618cca7b",
+    "src/character/explain.rs": "e19ff88566c6a906dfc27d4bb3cbf133a58fa26d388805cf8684748a520bb6a5",
+    "src/character/stability.rs": "20c0a470491cc56a6a8bb59f3d272d570f2d7bec4eae0983d5c387edc8ac601d",
+    "src/character/expectation.rs": "c09ea563890fe5328b46bcf25a9f65761bd39bdd1ffb0a6be3ac90938e112ead",
+    "src/character/attention.rs": "f27f8130f2a528669357a6f03599ac0f52656629ba2d8f1abb33a5401b4bb54b",
+    "src/character/aspiration.rs": "912849cdf22773579577210edad73ba29402debe662ad1a02d3925935034eaf3",
+    "src/character/habit.rs": "e3ff517d49cf5210e0fed45ccc567ea7ba5735f86ca4cb368b903ced10b4e76d",
+    "src/character/lesson.rs": "d24cffee5999e54eb2a9b9cb6540125453157672d28aacdc5a764d88702541ee",
+    "eval/character/scale_measure.rs": "86b370d8ef6bc2814724a835e646b0f0bd9048d924446005f1a267352d4ba815"
+  },
+  "hardware": {
+    "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
+    "cores": 16,
+    "architecture": "x86_64",
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+  },
+  "measurement": {
+    "version": 1,
+    "rows": [
+      {
+        "beings": 1000,
+        "module": "beliefs",
+        "fill_ns_per_op": 4068,
+        "state_bytes": 2520322,
+        "state_bytes_per_being": 2520,
+        "query_median_ns": 1430,
+        "query_p95_ns": 1540,
+        "query_max_ns": 15380
+      },
+      {
+        "beings": 1000,
+        "module": "speech_act",
+        "fill_ns_per_op": 1108,
+        "state_bytes": 172553,
+        "state_bytes_per_being": 172,
+        "query_median_ns": 420,
+        "query_p95_ns": 550,
+        "query_max_ns": 1650
+      },
+      {
+        "beings": 1000,
+        "module": "diet",
+        "fill_ns_per_op": 1637,
+        "state_bytes": 613202,
+        "state_bytes_per_being": 613,
+        "query_median_ns": 1810,
+        "query_p95_ns": 1930,
+        "query_max_ns": 6360
+      },
+      {
+        "beings": 1000,
+        "module": "creed",
+        "fill_ns_per_op": 940,
+        "state_bytes": 294282,
+        "state_bytes_per_being": 294,
+        "query_median_ns": 1570,
+        "query_p95_ns": 1630,
+        "query_max_ns": 7470
+      },
+      {
+        "beings": 1000,
+        "module": "explain",
+        "fill_ns_per_op": 2820,
+        "state_bytes": 2280745,
+        "state_bytes_per_being": 2280,
+        "query_median_ns": 3240,
+        "query_p95_ns": 3381,
+        "query_max_ns": 27980
+      },
+      {
+        "beings": 1000,
+        "module": "stability",
+        "fill_ns_per_op": 1364,
+        "state_bytes": 273882,
+        "state_bytes_per_being": 273,
+        "query_median_ns": 300,
+        "query_p95_ns": 320,
+        "query_max_ns": 1900
+      },
+      {
+        "beings": 1000,
+        "module": "expectation",
+        "fill_ns_per_op": 1673,
+        "state_bytes": 1855242,
+        "state_bytes_per_being": 1855,
+        "query_median_ns": 950,
+        "query_p95_ns": 1010,
+        "query_max_ns": 4760
+      },
+      {
+        "beings": 1000,
+        "module": "attention",
+        "fill_ns_per_op": 773,
+        "state_bytes": 131242,
+        "state_bytes_per_being": 131,
+        "query_median_ns": 1750,
+        "query_p95_ns": 1870,
+        "query_max_ns": 7840
+      },
+      {
+        "beings": 1000,
+        "module": "aspiration",
+        "fill_ns_per_op": 2275,
+        "state_bytes": 684242,
+        "state_bytes_per_being": 684,
+        "query_median_ns": 710,
+        "query_p95_ns": 760,
+        "query_max_ns": 4070
+      },
+      {
+        "beings": 1000,
+        "module": "habit",
+        "fill_ns_per_op": 1583,
+        "state_bytes": 771242,
+        "state_bytes_per_being": 771,
+        "query_median_ns": 710,
+        "query_p95_ns": 780,
+        "query_max_ns": 4640
+      },
+      {
+        "beings": 1000,
+        "module": "lesson",
+        "fill_ns_per_op": 3197,
+        "state_bytes": 1334322,
+        "state_bytes_per_being": 1334,
+        "query_median_ns": 750,
+        "query_p95_ns": 890,
+        "query_max_ns": 6800
+      },
+      {
+        "beings": 10000,
+        "module": "beliefs",
+        "fill_ns_per_op": 4356,
+        "state_bytes": 25211642,
+        "state_bytes_per_being": 2521,
+        "query_median_ns": 2001,
+        "query_p95_ns": 2650,
+        "query_max_ns": 7470
+      },
+      {
+        "beings": 10000,
+        "module": "speech_act",
+        "fill_ns_per_op": 1236,
+        "state_bytes": 1737609,
+        "state_bytes_per_being": 173,
+        "query_median_ns": 700,
+        "query_p95_ns": 770,
+        "query_max_ns": 6160
+      },
+      {
+        "beings": 10000,
+        "module": "diet",
+        "fill_ns_per_op": 1784,
+        "state_bytes": 6137450,
+        "state_bytes_per_being": 613,
+        "query_median_ns": 2120,
+        "query_p95_ns": 2640,
+        "query_max_ns": 7301
+      },
+      {
+        "beings": 10000,
+        "module": "creed",
+        "fill_ns_per_op": 1013,
+        "state_bytes": 2948778,
+        "state_bytes_per_being": 294,
+        "query_median_ns": 1680,
+        "query_p95_ns": 1910,
+        "query_max_ns": 8610
+      },
+      {
+        "beings": 10000,
+        "module": "explain",
+        "fill_ns_per_op": 3373,
+        "state_bytes": 22835650,
+        "state_bytes_per_being": 2283,
+        "query_median_ns": 4120,
+        "query_p95_ns": 5070,
+        "query_max_ns": 17170
+      },
+      {
+        "beings": 10000,
+        "module": "stability",
+        "fill_ns_per_op": 1472,
+        "state_bytes": 2746538,
+        "state_bytes_per_being": 274,
+        "query_median_ns": 310,
+        "query_p95_ns": 330,
+        "query_max_ns": 4870
+      },
+      {
+        "beings": 10000,
+        "module": "expectation",
+        "fill_ns_per_op": 1903,
+        "state_bytes": 18560314,
+        "state_bytes_per_being": 1856,
+        "query_median_ns": 1510,
+        "query_p95_ns": 2110,
+        "query_max_ns": 6920
+      },
+      {
+        "beings": 10000,
+        "module": "attention",
+        "fill_ns_per_op": 846,
+        "state_bytes": 1320314,
+        "state_bytes_per_being": 132,
+        "query_median_ns": 1870,
+        "query_p95_ns": 2150,
+        "query_max_ns": 10140
+      },
+      {
+        "beings": 10000,
+        "module": "aspiration",
+        "fill_ns_per_op": 2406,
+        "state_bytes": 6850314,
+        "state_bytes_per_being": 685,
+        "query_median_ns": 1040,
+        "query_p95_ns": 1450,
+        "query_max_ns": 6580
+      },
+      {
+        "beings": 10000,
+        "module": "habit",
+        "fill_ns_per_op": 1709,
+        "state_bytes": 7720314,
+        "state_bytes_per_being": 772,
+        "query_median_ns": 1030,
+        "query_p95_ns": 1500,
+        "query_max_ns": 6670
+      },
+      {
+        "beings": 10000,
+        "module": "lesson",
+        "fill_ns_per_op": 2394,
+        "state_bytes": 13351642,
+        "state_bytes_per_being": 1335,
+        "query_median_ns": 1090,
+        "query_p95_ns": 1540,
+        "query_max_ns": 5390
+      }
+    ],
+    "queries_per_row": 1000,
+    "actual_model_calls": 0
+  },
+  "limits": "One unpaced local release-mode run, single host thread, uncontrolled OS/desktop scheduling. Per module: fill N beings with one small state-building op each (64-op workflows, requests pre-parsed and excluded), then 1,000 single-op queries spread over the cast (JSON parse excluded, output Value construction included). state_bytes counts live heap growth during the fill via a counting allocator (minimal per-being state; richer beings use more). Excludes JSON parsing/serialization, the gamectx local CLI, cross-module wiring, model calls and engine work; not a whole-game or realtime guarantee."
+}

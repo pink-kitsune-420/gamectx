@@ -46,6 +46,14 @@ pub const MAX_EXPECTATIONS: usize = 32;
 pub const MAX_SUBJECTS: usize = 64;
 pub const MAX_GRACE: u64 = 1_000_000;
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "expectations", default: 32, ceiling: 1024 },
+    crate::character::limits::Limit { name: "subjects", default: 64, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(ExpectationLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Expectation {
     pub about: String,
@@ -96,8 +104,8 @@ impl Mind {
         (70 + 10 * kept as i64 - 15 * broken as i64).clamp(10, 95) as u64
     }
 
-    fn score(&mut self, about: &str, kept: bool) {
-        if !self.reliability.contains_key(about) && self.reliability.len() >= MAX_SUBJECTS {
+    fn score(&mut self, about: &str, kept: bool, max_subjects: usize) {
+        if !self.reliability.contains_key(about) && self.reliability.len() >= max_subjects {
             // Forget the least-observed subject (ties: smallest name).
             let victim =
                 self.reliability.iter().min_by_key(|(k, (a, b))| (a + b, (*k).clone())).map(|(k, _)| k.clone());
@@ -117,6 +125,8 @@ impl Mind {
 /// Per-being expectations and subject reliability.
 #[derive(Clone, Debug, Default)]
 pub struct ExpectationBook {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: ExpectationLimits,
     pub beings: BTreeMap<String, Mind>,
 }
 
@@ -141,7 +151,9 @@ impl ExpectationBook {
         Self::default()
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         run_ops(request, |op, args| match op {
             "expect" => self.op_expect(args),
             "tick" => self.op_tick(args),
@@ -187,11 +199,12 @@ impl ExpectationBook {
             Some(v) => text_bound(v, 80)?.to_string(),
             None => format!("{about} {event}"),
         };
-        if !self.beings.contains_key(&being) && self.beings.len() >= MAX_BEINGS {
+        if !self.beings.contains_key(&being) && self.beings.len() >= self.limits.get("beings") {
             return Err(c::bad());
         }
+        let max_expectations = self.limits.get("expectations");
         let mind = self.beings.entry(being.clone()).or_default();
-        if !mind.expectations.contains_key(&id) && mind.expectations.len() >= MAX_EXPECTATIONS {
+        if !mind.expectations.contains_key(&id) && mind.expectations.len() >= max_expectations {
             // Make room by dropping the broken expectation that fell due first (ties: smallest id).
             let victim = mind
                 .expectations
@@ -220,6 +233,7 @@ impl ExpectationBook {
         keys(args, &["at"], &["being"])?;
         let at = uint_bound(c::get(args, "at")?, 0, MAX_AT)?;
         let names = self.only(args)?;
+        let max_subjects = self.limits.get("subjects");
         let (mut changes, mut effects) = (Vec::new(), Vec::new());
         for name in names {
             let mind = self.beings.get_mut(&name).ok_or_else(c::bad)?;
@@ -270,7 +284,7 @@ impl ExpectationBook {
                 mind.expectations.remove(&id);
             }
             for (about, kept) in scored {
-                mind.score(&about, kept);
+                mind.score(&about, kept, max_subjects);
             }
         }
         Ok(obj! { "at" => at, "changes" => Value::Array(changes), "effects" => Value::Array(effects) })
@@ -282,6 +296,7 @@ impl ExpectationBook {
         let event = ident(c::get(args, "event")?)?.to_string();
         let at = uint_bound(c::get(args, "at")?, 0, MAX_AT)?;
         let names = self.only(args)?;
+        let max_subjects = self.limits.get("subjects");
         let (mut resolved, mut effects) = (Vec::new(), Vec::new());
         for name in names {
             let mind = self.beings.get_mut(&name).ok_or_else(c::bad)?;
@@ -299,11 +314,11 @@ impl ExpectationBook {
                     effects.push(mood(&name, (e.importance / 4).max(1) as i64, reason));
                     "late"
                 } else if e.dread {
-                    mind.score(&about, true);
+                    mind.score(&about, true, max_subjects);
                     effects.push(mood(&name, -((e.importance / 2).max(1) as i64), reason));
                     "dread_met"
                 } else {
-                    mind.score(&about, true);
+                    mind.score(&about, true, max_subjects);
                     effects.push(mood(&name, (e.importance / 10).max(1) as i64, reason));
                     "kept"
                 };

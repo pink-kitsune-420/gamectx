@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising notice_beings lets 100 beings notice one event in one call.",
+  "error": false
+}

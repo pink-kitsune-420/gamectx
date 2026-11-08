@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A null limits object is ignored but still echoed as the defaults.",
+  "error": false
+}

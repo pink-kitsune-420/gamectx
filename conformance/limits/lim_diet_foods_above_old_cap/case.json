@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising the food limit registers 300 foods (the old fixed cap was 256).",
+  "error": false
+}

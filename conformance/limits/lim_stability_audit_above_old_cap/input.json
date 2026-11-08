@@ -1,0 +1,343 @@
+{
+  "kind": "stability",
+  "args": {
+    "limits": {
+      "audit_beings": 65
+    },
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "b0",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b1",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b2",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b3",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b4",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b5",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b6",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b7",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b8",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b9",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b10",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b11",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b12",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b13",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b14",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b15",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b16",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b17",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b18",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b19",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b20",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b21",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b22",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b23",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b24",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b25",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b26",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b27",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b28",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b29",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b30",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b31",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b32",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b33",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b34",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b35",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b36",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b37",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b38",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b39",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b40",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b41",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b42",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b43",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b44",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b45",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b46",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b47",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b48",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b49",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b50",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b51",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b52",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b53",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b54",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b55",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b56",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b57",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b58",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b59",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b60",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b61",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b62",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b63",
+              "motive": "work",
+              "activity": "working"
+            },
+            {
+              "being": "b64",
+              "motive": "work",
+              "activity": "working"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

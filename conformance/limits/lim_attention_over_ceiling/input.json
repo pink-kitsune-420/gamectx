@@ -1,0 +1,36 @@
+{
+  "kind": "attention",
+  "args": {
+    "limits": {
+      "notice_events": 257
+    },
+    "ops": [
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "guard",
+          "alertness": 90,
+          "perception": 40,
+          "cares": [
+            "thief",
+            "fire",
+            "alarm"
+          ],
+          "capacity": 5
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

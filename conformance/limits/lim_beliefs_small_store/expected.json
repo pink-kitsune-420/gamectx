@@ -1,0 +1,1 @@
+{"limits":{"beings":64,"beliefs":1},"version":1,"results":[{"being":"baker","count":1},{"being":"baker","beliefs":[],"count":0},{"being":"baker","beliefs":[{"about":"well","at":0,"confidence":90,"from":null,"holds":false,"key":"well:has:water","relation":"has","source":"saw","value":"water"}],"count":1}]}

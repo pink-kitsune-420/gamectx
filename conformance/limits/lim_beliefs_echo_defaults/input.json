@@ -1,0 +1,38 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "limits": {},
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "told",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour",
+          "from": "carter",
+          "at": 4
+        }
+      },
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "saw",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour",
+          "at": 9,
+          "confidence": 70
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

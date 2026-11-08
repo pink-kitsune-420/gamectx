@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising the creed limit registers 33 creeds (the old fixed cap was 32).",
+  "error": false
+}

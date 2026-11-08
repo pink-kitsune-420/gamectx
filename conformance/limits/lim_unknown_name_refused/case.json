@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Unknown limit names are refused.",
+  "error": true
+}

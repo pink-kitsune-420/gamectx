@@ -676,15 +676,45 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Stage 6 modules (`aspiration`, `habit`, `lesson`) take a
+The game decides how much it needs. The pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`,
+`explain`, `stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`) take a
 `limits` object next to `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a
 `with_limits` constructor. Each limit is an integer from 1 to a hard ceiling that keeps work and
-memory bounded (beings up to 1,000,000; per-being tables up to 256–4,096). Limits only refuse
-growth: lowering one below current usage keeps what exists. When supplied, the output echoes the
-effective limits. Limits are host configuration; never pass model output into them. The
-robustness tests fill a lesson book with 5,000 characters and refuse the 5,001st. Earlier modules
-keep their fixed bounds for now; extending limits to all of them, with measured time and memory
-at large casts, is the next stage.
+memory bounded (beings up to 1,000,000; foods up to 65,536; per-being tables up to 256–4,096;
+per-call lists such as attention's `notice_beings` up to 4,096). Limits only refuse growth:
+lowering one below current usage keeps what exists. When supplied, the output echoes the
+effective limits. Defaults are the earlier fixed bounds, so games that never set limits see the
+same output as before. Limits are host configuration; never pass model output into them. The
+names, defaults and ceilings are in [FORMAT](../FORMAT.md#host-limits-v1); `conformance/limits/`
+shows each module past its old bound (300 foods, 33 creeds, 65 audited beings, 100 beings noticing
+one bell) and refused over its ceiling.
+
+Measured host work at large casts (`eval/character/scale_measure.rs`, retained in
+`eval/character/scale-timing.json`; one release-mode run on an 8-core desktop CPU, single thread).
+Each module was filled with N beings by one small op each, then given 1,000 single-op queries
+spread over the cast:
+
+| module | query median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per being |
+|---|---|---|---|---|
+| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.4 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.6 | 0.7 / 0.8 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.6 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.6 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.2 / 3.4 | 4.1 / 5.1 | 3.4 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.3 | 1.5 | 274 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.9 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.1 | 0.8 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.5 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 0.9 | 1.1 / 1.5 | 2.4 | 1,335 |
+
+Going from 1,000 to 10,000 beings raises query time by at most about 1.5× (lookups are ordered
+maps). Memory is linear: these minimal beings (one belief, trace, expectation and so on each) take
+109 MB across all eleven modules at 10,000 beings, about 11 KB per being; richer beings use more.
+The measurement found one query that scanned the whole cast: speech-act `assess` took 75 µs at
+10,000 pairs before a listener index was added (now 0.7 µs, output unchanged). Limits: JSON
+parsing, the `gamectx local` CLI, cross-module wiring and model calls are excluded; one desktop
+run with uncontrolled scheduling, not a realtime guarantee.
 
 ## Goals from experience (pass 2, A4)
 

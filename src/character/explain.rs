@@ -101,6 +101,13 @@ fn list_bound(v: Option<&Value>, max: usize) -> Result<&[Value]> {
     }
 }
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "traces", default: 128, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(ExplainLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Perception {
     pub source: String,
@@ -266,16 +273,20 @@ impl Trace {
 /// Bounded per-being decision history with deterministic explanations.
 #[derive(Clone, Debug, Default)]
 pub struct ExplainTracer {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: ExplainLimits,
     pub next_seq: u64,
     pub beings: BTreeMap<String, VecDeque<Trace>>,
 }
 
 impl ExplainTracer {
     pub fn new() -> Self {
-        Self { next_seq: 1, beings: BTreeMap::new() }
+        Self { next_seq: 1, beings: BTreeMap::new(), limits: ExplainLimits::default() }
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &[])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -383,7 +394,7 @@ impl ExplainTracer {
             None => ("pending".to_string(), None),
         };
 
-        if !self.beings.contains_key(&being) && self.beings.len() >= MAX_BEINGS {
+        if !self.beings.contains_key(&being) && self.beings.len() >= self.limits.get("beings") {
             return Err(c::bad());
         }
 
@@ -404,9 +415,10 @@ impl ExplainTracer {
             status,
             summary,
         };
+        let max_traces = self.limits.get("traces");
         let history = self.beings.entry(being.clone()).or_default();
         let mut evicted = 0u64;
-        if history.len() >= MAX_TRACES_PER_BEING {
+        if history.len() >= max_traces {
             history.pop_front();
             evicted = 1;
         }
@@ -446,7 +458,8 @@ impl ExplainTracer {
         let being = ident(c::get(args, "being")?)?;
         let id = opt(args, "id").map(ident).transpose()?;
         let action = opt(args, "action").map(ident).transpose()?;
-        let limit = opt(args, "limit").map(|v| uint_bound(v, 1, MAX_TRACES_PER_BEING as u64)).transpose()?.unwrap_or(8);
+        let limit =
+            opt(args, "limit").map(|v| uint_bound(v, 1, self.limits.get("traces") as u64)).transpose()?.unwrap_or(8);
         let history = self.beings.get(being).ok_or_else(c::bad)?;
         let traces: Vec<Value> = history
             .iter()

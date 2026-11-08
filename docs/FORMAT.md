@@ -2870,11 +2870,21 @@ cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
 `gamectx::character::limits`. Modules that take limits accept the envelope `{ops: 1–64 [{op, args?}], limits?:
 {name: 1–ceiling}}`. Unknown names, 0 and values above a ceiling are refused (and nothing is applied). With
 `limits` the output is `{limits: {every name: value, declaration order}, version: 1, results}`; without it the
-output is unchanged. Limits persist on a manager across workflows (`with_limits` sets them up front) and only
-refuse growth: existing entries beyond a lowered limit stay.
+output is unchanged. `limits: null` is accepted and echoes the current limits. Limits persist on a manager across
+workflows (`with_limits` sets them up front) and only refuse growth: existing entries beyond a lowered limit stay.
+Defaults equal the earlier fixed bounds, so outputs without `limits` are byte-identical to before. 25 cases (6
+malformed) live in `conformance/limits/`.
 
 | kind | limit (default, ceiling) |
 |---|---|
+| `beliefs` | `beings` (64, 10⁶), `beliefs` per being (128, 4096) |
+| `speech_act` | `pairs` (256, 10⁶), `want_beings` (64, 10⁶), `wants` per being (32, 1024), and the belief store's `beings` (64, 10⁶) and `beliefs` (128, 4096) |
+| `diet` | `foods` (256, 65536), `beings` (64, 10⁶), `recent` meals per being (16, 256) |
+| `creed` | `creeds` (32, 4096), `beings` (128, 10⁶) |
+| `explain` | `beings` (64, 10⁶), `traces` per being (128, 4096; also bounds a query's `limit`) |
+| `stability` | `tracked_beings` (256, 10⁶), `audit_beings` per turn (64, 4096), `warnings` (256, 65536) |
+| `expectation` | `beings` (64, 10⁶), `expectations` per being (32, 1024), `subjects` per being (64, 4096) |
+| `attention` | `profiles` (64, 10⁶), `notice_beings` per call (64, 4096), `notice_events` per call (16, 256) |
 | `aspiration` | `beings` (1024, 10⁶), `pressures` per being (64, 4096), `goals` per being (16, 256) |
 | `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |

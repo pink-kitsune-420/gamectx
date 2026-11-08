@@ -83,6 +83,14 @@ pub const VILLAGE_PACK: &str = r#"[
  {"id":"salt_lick","label":"salt lick","tags":["mineral"],"hunger":10,"thirst":0,"joy":-2}
 ]"#;
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "foods", default: 256, ceiling: 65536 },
+    crate::character::limits::Limit { name: "beings", default: 64, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "recent", default: 16, ceiling: 256 },
+];
+crate::character::limits::module_limits!(DietLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Food {
     pub id: String,
@@ -260,6 +268,8 @@ fn read_serving(v: &Value, extra: &[&str]) -> Result<Serving> {
 /// Food registry plus per-being diet profiles and meal history.
 #[derive(Clone, Debug, Default)]
 pub struct DietManager {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: DietLimits,
     pub foods: BTreeMap<String, Food>,
     pub beings: BTreeMap<String, Profile>,
 }
@@ -269,7 +279,9 @@ impl DietManager {
         Self::default()
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         run_ops(request, |op, args| match op {
             "register_food" => self.op_register(args),
             "set_diet" => self.op_set_diet(args),
@@ -306,7 +318,7 @@ impl DietManager {
         }
         let ids: BTreeSet<&String> = fresh.iter().map(|f| &f.id).collect();
         let added = ids.iter().filter(|id| !self.foods.contains_key(**id)).count();
-        if self.foods.len() + added > MAX_FOODS {
+        if self.foods.len() + added > self.limits.get("foods") {
             return Err(c::bad());
         }
         let mut registered = Vec::new();
@@ -334,7 +346,7 @@ impl DietManager {
             return Err(c::bad());
         }
         let forbids = tag_set(opt(args, "forbids"), FOOD_TAGS.len())?;
-        if !self.beings.contains_key(&being) && self.beings.len() >= MAX_BEINGS {
+        if !self.beings.contains_key(&being) && self.beings.len() >= self.limits.get("beings") {
             return Err(c::bad());
         }
         let old = self.beings.remove(&being).unwrap_or_default();
@@ -477,11 +489,12 @@ impl DietManager {
         let eaten = e.refusals.is_empty() || force;
         let mut effects = Vec::new();
         if eaten {
-            if !self.beings.contains_key(&being) && self.beings.len() >= MAX_BEINGS {
+            if !self.beings.contains_key(&being) && self.beings.len() >= self.limits.get("beings") {
                 return Err(c::bad());
             }
+            let max_recent = self.limits.get("recent");
             let p = self.beings.entry(being.clone()).or_default();
-            if p.recent.len() >= MAX_RECENT {
+            if p.recent.len() >= max_recent {
                 p.recent.pop_front();
             }
             p.recent.push_back((e.food.clone(), s.at));

@@ -1,0 +1,49 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "limits": {
+      "beliefs": 1,
+      "pairs": 4
+    },
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "miller",
+          "source": "did",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "miller",
+          "listener": "baker",
+          "trust": 70
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "miller",
+          "listener": "baker",
+          "act": "inform",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          },
+          "at": 3
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

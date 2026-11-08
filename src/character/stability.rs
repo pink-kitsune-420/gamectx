@@ -107,6 +107,14 @@ fn ident_set(v: Option<&Value>) -> Result<BTreeSet<String>> {
 }
 
 /// Monitor thresholds. All integers; defaults are documented in `docs/characters/LIFE.md`.
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "tracked_beings", default: 256, ceiling: 1000000 },
+    crate::character::limits::Limit { name: "audit_beings", default: 64, ceiling: 4096 },
+    crate::character::limits::Limit { name: "warnings", default: 256, ceiling: 65536 },
+];
+crate::character::limits::module_limits!(StabilityLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct StabilityConfig {
     pub window: u64,
@@ -181,6 +189,8 @@ struct Report {
 /// World-level stability monitor over host-reported turns.
 #[derive(Clone, Debug, Default)]
 pub struct StabilityMonitor {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: StabilityLimits,
     pub config: StabilityConfig,
     pub beings: BTreeMap<String, BeingWatch>,
     pub grudges: TotalWatch,
@@ -202,7 +212,9 @@ impl StabilityMonitor {
         Self { next_warning: 1, ..Self::default() }
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &[])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -260,7 +272,7 @@ impl StabilityMonitor {
         if config.dither_switches >= config.window {
             return Err(c::bad());
         }
-        *self = Self { config, ..Self::new() };
+        *self = Self { config, limits: self.limits.clone(), ..Self::new() };
         Ok(obj! { "config" => self.config.to_value(), "ok" => true })
     }
 
@@ -317,7 +329,7 @@ impl StabilityMonitor {
         if self.last_turn.is_some_and(|t| turn <= t) {
             return Err(c::bad());
         }
-        let raw = list_bound(Some(c::get(args, "beings")?), MAX_AUDIT_BEINGS)?;
+        let raw = list_bound(Some(c::get(args, "beings")?), self.limits.get("audit_beings"))?;
         let mut reports = Vec::new();
         let mut ids = BTreeSet::new();
         for b in raw {
@@ -334,7 +346,7 @@ impl StabilityMonitor {
             rumor_total = opt(w, "rumor_total").map(|v| uint_bound(v, 0, MAX_TOTAL)).transpose()?;
         }
         let new_beings = ids.iter().filter(|b| !self.beings.contains_key(*b)).count();
-        if self.beings.len() + new_beings > MAX_TRACKED_BEINGS {
+        if self.beings.len() + new_beings > self.limits.get("tracked_beings") {
             return Err(c::bad());
         }
 
@@ -456,7 +468,7 @@ impl StabilityMonitor {
             let w = Value::Object(fields);
             *self.totals.entry(kind.clone()).or_default() += 1;
             self.last_turn_kinds.insert(kind);
-            if self.warnings.len() >= MAX_WARNINGS {
+            if self.warnings.len() >= self.limits.get("warnings") {
                 self.warnings.pop_front();
             }
             self.warnings.push_back(w.clone());
@@ -505,7 +517,7 @@ impl StabilityMonitor {
         }
         let being = opt(args, "being").map(ident).transpose()?;
         let since = opt_uint(args, "since_turn", 0, MAX_TURN, 0)?;
-        let limit = opt_uint(args, "limit", 1, MAX_WARNINGS as u64, 32)? as usize;
+        let limit = opt_uint(args, "limit", 1, self.limits.get("warnings") as u64, 32)? as usize;
         let matched: Vec<&Value> = self
             .warnings
             .iter()

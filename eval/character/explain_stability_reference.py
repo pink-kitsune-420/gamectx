@@ -6,6 +6,7 @@ differential runner in explain_stability_cases.py checks the two agree byte for 
 (as parsed JSON) on conformance cases and randomized workflows.
 """
 from typing import Any, Dict, List, Optional
+from limits_reference import Limits, limited
 
 MAX_OPS = 64
 MAX_TRACES = 128
@@ -146,10 +147,14 @@ def render_trace(t: Dict[str, Any]) -> Dict[str, Any]:
 
 class ExplainReference:
     def __init__(self) -> None:
+        self.limits = Limits([("beings", 64, 1_000_000), ("traces", 128, 4096)])
         self.next_seq = 1
         self.beings: Dict[str, List[Dict[str, Any]]] = {}
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         return run_ops(request, self.dispatch)
 
     def dispatch(self, op: str, args: Any) -> Dict[str, Any]:
@@ -223,13 +228,13 @@ class ExplainReference:
                 "summary": None if ov.get("summary") is None else text(ov["summary"], 200),
             }
 
-        need(being in self.beings or len(self.beings) < MAX_BEINGS)
+        need(being in self.beings or len(self.beings) < self.limits["beings"])
         seq = self.next_seq
         self.next_seq += 1
         tid = f"tr_{seq}"
         hist = self.beings.setdefault(being, [])
         evicted = 0
-        if len(hist) >= MAX_TRACES:
+        if len(hist) >= self.limits["traces"]:
             hist.pop(0)
             evicted = 1
         hist.append({
@@ -266,7 +271,7 @@ class ExplainReference:
         being = ident(args["being"])
         tid = None if args.get("id") is None else ident(args["id"])
         action = None if args.get("action") is None else ident(args["action"])
-        limit = opt_uint(args, "limit", 1, MAX_TRACES, 8)
+        limit = opt_uint(args, "limit", 1, self.limits["traces"], 8)
         need(being in self.beings)
         hist = self.beings[being]
         picked = []
@@ -309,6 +314,7 @@ CONFIG_BOUNDS = {
 
 class StabilityReference:
     def __init__(self, config: Optional[Dict[str, int]] = None) -> None:
+        self.limits = Limits([("tracked_beings", 256, 1_000_000), ("audit_beings", 64, 4096), ("warnings", 256, 65_536)])
         self.config = dict(DEFAULT_CONFIG if config is None else config)
         self.watch: Dict[str, Dict[str, Any]] = {}
         self.totals_watch = {"grudge": {"last": None, "streak": 0}, "rumor": {"last": None, "streak": 0}}
@@ -320,6 +326,9 @@ class StabilityReference:
         self.next_warning = 1
 
     def run(self, request: Any) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Any) -> Dict[str, Any]:
         return run_ops(request, self.dispatch)
 
     def dispatch(self, op: str, args: Any) -> Dict[str, Any]:
@@ -339,7 +348,9 @@ class StabilityReference:
         for k, (lo, hi) in CONFIG_BOUNDS.items():
             cfg[k] = opt_uint(args, k, lo, hi, DEFAULT_CONFIG[k])
         need(cfg["dither_switches"] < cfg["window"])
+        limits = self.limits
         self.__init__(cfg)
+        self.limits = limits
         return {"config": dict(cfg), "ok": True}
 
     def parse_report(self, b: Any) -> Dict[str, Any]:
@@ -380,7 +391,7 @@ class StabilityReference:
         turn = uint(args["turn"], 0, MAX_TURN)
         need(self.last_turn is None or turn > self.last_turn)
         raw = args["beings"]
-        need(isinstance(raw, list) and len(raw) <= MAX_AUDIT)
+        need(isinstance(raw, list) and len(raw) <= self.limits["audit_beings"])
         reports = [self.parse_report(b) for b in raw]
         names = [r["being"] for r in reports]
         need(len(set(names)) == len(names))
@@ -393,7 +404,7 @@ class StabilityReference:
             if world.get("rumor_total") is not None:
                 rumor = uint(world["rumor_total"], 0, MAX_TOTAL)
         fresh = [n for n in names if n not in self.watch]
-        need(len(self.watch) + len(fresh) <= MAX_TRACKED)
+        need(len(self.watch) + len(fresh) <= self.limits["tracked_beings"])
 
         cfg = self.config
         self.last_turn = turn
@@ -483,7 +494,7 @@ class StabilityReference:
             f["turn"] = turn
             self.totals[f["kind"]] = self.totals.get(f["kind"], 0) + 1
             kinds.add(f["kind"])
-            if len(self.log) >= MAX_WARNINGS:
+            if len(self.log) >= self.limits["warnings"]:
                 self.log.pop(0)
             self.log.append(f)
             out.append(f)
@@ -515,7 +526,7 @@ class StabilityReference:
         need(kind is None or kind in KINDS)
         being = None if args.get("being") is None else ident(args["being"])
         since = opt_uint(args, "since_turn", 0, MAX_TURN, 0)
-        limit = opt_uint(args, "limit", 1, MAX_WARNINGS, 32)
+        limit = opt_uint(args, "limit", 1, self.limits["warnings"], 32)
         matched = [
             w for w in self.log
             if (kind is None or w["kind"] == kind)

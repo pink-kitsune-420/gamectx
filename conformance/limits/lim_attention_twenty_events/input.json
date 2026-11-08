@@ -1,0 +1,144 @@
+{
+  "kind": "attention",
+  "args": {
+    "limits": {
+      "notice_events": 20
+    },
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 8,
+          "events": [
+            {
+              "id": "e00",
+              "kind": "stall",
+              "place": "market",
+              "salience": 40
+            },
+            {
+              "id": "e01",
+              "kind": "stall",
+              "place": "market",
+              "salience": 43
+            },
+            {
+              "id": "e02",
+              "kind": "stall",
+              "place": "market",
+              "salience": 46
+            },
+            {
+              "id": "e03",
+              "kind": "stall",
+              "place": "market",
+              "salience": 49
+            },
+            {
+              "id": "e04",
+              "kind": "stall",
+              "place": "market",
+              "salience": 52
+            },
+            {
+              "id": "e05",
+              "kind": "stall",
+              "place": "market",
+              "salience": 55
+            },
+            {
+              "id": "e06",
+              "kind": "stall",
+              "place": "market",
+              "salience": 58
+            },
+            {
+              "id": "e07",
+              "kind": "stall",
+              "place": "market",
+              "salience": 61
+            },
+            {
+              "id": "e08",
+              "kind": "stall",
+              "place": "market",
+              "salience": 64
+            },
+            {
+              "id": "e09",
+              "kind": "stall",
+              "place": "market",
+              "salience": 67
+            },
+            {
+              "id": "e10",
+              "kind": "stall",
+              "place": "market",
+              "salience": 70
+            },
+            {
+              "id": "e11",
+              "kind": "stall",
+              "place": "market",
+              "salience": 73
+            },
+            {
+              "id": "e12",
+              "kind": "stall",
+              "place": "market",
+              "salience": 76
+            },
+            {
+              "id": "e13",
+              "kind": "stall",
+              "place": "market",
+              "salience": 79
+            },
+            {
+              "id": "e14",
+              "kind": "stall",
+              "place": "market",
+              "salience": 82
+            },
+            {
+              "id": "e15",
+              "kind": "stall",
+              "place": "market",
+              "salience": 85
+            },
+            {
+              "id": "e16",
+              "kind": "stall",
+              "place": "market",
+              "salience": 88
+            },
+            {
+              "id": "e17",
+              "kind": "stall",
+              "place": "market",
+              "salience": 91
+            },
+            {
+              "id": "e18",
+              "kind": "stall",
+              "place": "market",
+              "salience": 94
+            },
+            {
+              "id": "e19",
+              "kind": "stall",
+              "place": "market",
+              "salience": 97
+            }
+          ],
+          "beings": [
+            {
+              "id": "clerk",
+              "place": "market"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

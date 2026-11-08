@@ -53,9 +53,41 @@ impl Limits {
         Ok(())
     }
 
+    /// Copies the values of limits both modules declare (for a manager that owns another).
+    pub fn copy_shared(&mut self, from: &Limits) {
+        for (i, l) in self.spec.iter().enumerate() {
+            if from.spec.iter().any(|f| f.name == l.name) {
+                self.values[i] = from.get(l.name);
+            }
+        }
+    }
+
     /// `{name: value}` in declaration order.
     pub fn view(&self) -> Value {
         Value::Object(self.spec.iter().zip(&self.values).map(|(l, v)| (l.name.to_string(), Value::from(*v))).collect())
+    }
+}
+
+/// For modules with their own op loop: if `request` carries `limits`, applies them and
+/// returns the request without that key (`None` when absent, so the request is used as is).
+pub fn take(request: &Value, limits: &mut Limits) -> Result<Option<Value>> {
+    let Value::Object(fields) = request else { return Ok(None) };
+    let Some((_, v)) = fields.iter().find(|(k, _)| k == "limits") else { return Ok(None) };
+    if *v != Value::Null {
+        limits.apply(v)?;
+    }
+    Ok(Some(Value::Object(fields.iter().filter(|(k, _)| k != "limits").cloned().collect())))
+}
+
+/// Prepends the effective limits to a workflow output when the request supplied them.
+pub fn echo(out: Value, limits: &Limits, supplied: bool) -> Value {
+    match out {
+        Value::Object(rest) if supplied => {
+            let mut fields = vec![("limits".to_string(), limits.view())];
+            fields.extend(rest);
+            Value::Object(fields)
+        }
+        other => other,
     }
 }
 
@@ -87,6 +119,55 @@ pub fn run(
     }
     Ok(Value::Object(fields))
 }
+
+/// Declares a module's limits type: a [`Limits`] newtype whose `Default` is the module's spec,
+/// so managers keep `#[derive(Default)]`.
+macro_rules! module_limits {
+    ($name:ident, $spec:expr) => {
+        /// This module's host-set limits (see [`crate::character::limits`]).
+        #[derive(Clone, Debug, PartialEq)]
+        pub struct $name(pub $crate::character::limits::Limits);
+        impl Default for $name {
+            fn default() -> Self {
+                Self($crate::character::limits::Limits::defaults($spec))
+            }
+        }
+        impl std::ops::Deref for $name {
+            type Target = $crate::character::limits::Limits;
+            fn deref(&self) -> &Self::Target {
+                &self.0
+            }
+        }
+        impl std::ops::DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.0
+            }
+        }
+    };
+}
+pub(crate) use module_limits;
+
+/// `workflow` (accepting `{ops, limits?}`) and `with_limits` for a manager with a `limits`
+/// field and a `run_workflow` op loop.
+macro_rules! limited_workflow {
+    () => {
+        /// Runs a workflow. A `limits` object next to `ops` applies host-set
+        /// [capacity limits](crate::character::limits) first and is echoed in the output.
+        pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+            let stripped = $crate::character::limits::take(request, &mut self.limits)?;
+            let out = self.run_workflow(stripped.as_ref().unwrap_or(request))?;
+            Ok($crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+        }
+
+        /// A manager with host limits applied up front.
+        pub fn with_limits(v: &Value) -> Result<Self> {
+            let mut m = Self::new();
+            m.limits.apply(v)?;
+            Ok(m)
+        }
+    };
+}
+pub(crate) use limited_workflow;
 
 #[cfg(test)]
 mod tests {

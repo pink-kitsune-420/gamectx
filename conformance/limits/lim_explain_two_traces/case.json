@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Keeping two traces per being evicts the oldest.",
+  "error": false
+}

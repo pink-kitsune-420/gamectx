@@ -60,6 +60,13 @@ pub const MAX_PERIOD: u64 = 1_000_000;
 pub const LAX: u64 = 30;
 pub const DEFAULT_STANDING: u64 = 50;
 
+/// Host-set capacity limits: `(name, default, ceiling)`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "creeds", default: 32, ceiling: 4096 },
+    crate::character::limits::Limit { name: "beings", default: 128, ceiling: 1000000 },
+];
+crate::character::limits::module_limits!(CreedLimits, LIMITS);
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Tenet {
     pub id: String,
@@ -230,6 +237,8 @@ pub struct Adherent {
 /// Creed registry and per-being adherence, norms and standing.
 #[derive(Clone, Debug, Default)]
 pub struct CreedManager {
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: CreedLimits,
     pub creeds: BTreeMap<String, Creed>,
     pub beings: BTreeMap<String, Adherent>,
 }
@@ -247,7 +256,9 @@ impl CreedManager {
         Self::default()
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         run_ops(request, |op, args| match op {
             "register_creed" => self.op_register(args),
             "adhere" => self.op_adhere(args),
@@ -263,7 +274,7 @@ impl CreedManager {
     }
 
     fn being_mut(&mut self, being: &str) -> Result<&mut Adherent> {
-        if !self.beings.contains_key(being) && self.beings.len() >= MAX_BEINGS {
+        if !self.beings.contains_key(being) && self.beings.len() >= self.limits.get("beings") {
             return Err(c::bad());
         }
         Ok(self.beings.entry(being.to_string()).or_default())
@@ -272,7 +283,7 @@ impl CreedManager {
     fn op_register(&mut self, args: &Value) -> Result<Value> {
         keys(args, &["creed"], &[])?;
         let creed = read_creed(c::get(args, "creed")?)?;
-        if !self.creeds.contains_key(&creed.id) && self.creeds.len() >= MAX_CREEDS {
+        if !self.creeds.contains_key(&creed.id) && self.creeds.len() >= self.limits.get("creeds") {
             return Err(c::bad());
         }
         let out = obj! {

@@ -1,0 +1,340 @@
+{
+  "kind": "creed",
+  "args": {
+    "limits": {
+      "creeds": 33
+    },
+    "ops": [
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c0",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c1",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c2",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c3",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c4",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c5",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c6",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c7",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c8",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c9",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c10",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c11",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c12",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c13",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c14",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c15",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c16",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c17",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c18",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c19",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c20",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c21",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c22",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c23",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c24",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c25",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c26",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c27",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c28",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c29",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c30",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c31",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      },
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "c32",
+            "label": "A creed",
+            "kind": "tradition"
+          }
+        }
+      }
+    ]
+  }
+}

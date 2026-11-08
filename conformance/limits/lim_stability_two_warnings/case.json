@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Keeping two warnings drops the oldest.",
+  "error": false
+}

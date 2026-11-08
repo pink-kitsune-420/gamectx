@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Keeping one trace per being still answers why for the newest action.",
+  "error": false
+}

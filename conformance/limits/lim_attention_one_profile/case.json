@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for one profile, a second is refused.",
+  "error": true
+}

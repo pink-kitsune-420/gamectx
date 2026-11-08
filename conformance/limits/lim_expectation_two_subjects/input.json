@@ -1,0 +1,63 @@
+{
+  "kind": "expectation",
+  "args": {
+    "limits": {
+      "subjects": 2
+    },
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "x0",
+          "about": "s0",
+          "event": "e",
+          "due": 0,
+          "importance": 10
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "x1",
+          "about": "s1",
+          "event": "e",
+          "due": 0,
+          "importance": 10
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "x2",
+          "about": "s2",
+          "event": "e",
+          "due": 0,
+          "importance": 10
+        }
+      },
+      {
+        "op": "happen",
+        "args": {
+          "about": "s0",
+          "event": "e",
+          "at": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 1
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "clerk"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A limit above its ceiling is refused.",
+  "error": true
+}
