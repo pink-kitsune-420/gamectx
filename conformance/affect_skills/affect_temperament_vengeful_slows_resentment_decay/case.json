@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Vengeful temperament reduces resentment decay rate by 1 (min 1).",
+  "error": false
+}

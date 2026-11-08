@@ -1,0 +1,35 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "carter",
+          "temperament": "vengeful",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "resentment_bandit",
+              "kind": "resentment",
+              "subject": "bandit",
+              "level": 40,
+              "baseline": 0,
+              "decay_rate": 2
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "carter",
+          "ticks": 10
+        }
+      }
+    ]
+  }
+}

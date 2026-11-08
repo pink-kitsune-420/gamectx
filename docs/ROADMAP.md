@@ -114,9 +114,12 @@ noted; "3 models" adds Llama 3.3 70B.
     reserved resources, on_fail/on_block recovery, outcome history). Deterministic planner over Action Catalog, strict host validation
     of model proposals, and step advancement solely from confirmed outcomes. Offline acceptance scene replay (§8) verified
     to byte-identical output. 25 conformance cases (5 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
-  - Next (Stage 6 / Gaps 6 & 8): Emotions decay & missing feelings (Gap 6: decay toward baseline by temperament, mood vs emotion,
-    fear/respect/gratitude/envy/admiration) + Skills growth with use (Gap 8: practice gain, duration/quality/risk effects, teaching).
-  - Next (Agent Model Gaps 7–8): model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
+  - Implemented (Stage 6 / Gaps 6 & 8): Emotions decay & missing feelings (Gap 6) + Skills growth with use (Gap 8) (`character::affect::AffectManager` [local kind `affect`], `character::skills::SkillsManager` [local kind `skills`], and `character::life`).
+    Additive attitude kinds `fear`, `respect`, `gratitude`, `envy`, `admiration` [format]; mood separation; decay toward temperament baselines.
+    Skills growth with diminishing returns, duration/risk/quality scaling, and teaching. Offline acceptance scene replay (§8) verified
+    to byte-identical output. 25 conformance cases (5 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
+  - Next (Stage 7 / Gaps 7, 9 & 13): Model of others (Gap 7: knows/wants/feels, provenance) + Lie ledger (Gap 13: claims, contradiction appraisal) + Relationship reconciliation (Gap 9: precedence across sheets, Life, community, viewpoints).
+  - Next (Stage 8 / Gaps 10 & 11): Off-screen effects (Gap 10) + Curiosity (Gap 11).
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

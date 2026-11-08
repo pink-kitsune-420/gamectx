@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Mood valence > 100 is rejected.",
+  "error": true
+}

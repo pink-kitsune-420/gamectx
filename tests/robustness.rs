@@ -1874,4 +1874,74 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     val_ops_65.push_str("]}");
     assert!(clean_task_mgr2.workflow(&parse(&val_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 9. AffectManager mutation fuzzing & boundaries
+    use gamectx::character::affect::AffectManager;
+    let mut affect_mgr = AffectManager::new();
+    let sample_affect_req = r#"{"ops":[{"op":"init","args":{"being":"baker","temperament":"calm","mood":{"valence":20,"arousal":10},"attitudes":[{"id":"fear_wolf","kind":"fear","subject":"wolf","level":30}]}},{"op":"tick","args":{"being":"baker","ticks":5}},{"op":"appraise","args":{"being":"baker","kind":"gratitude","subject":"miller","delta":15}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_affect_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = affect_mgr.workflow(&v);
+        }
+    }
+
+    let mut clean_affect = AffectManager::new();
+    clean_affect.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut affect_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            affect_ops_64.push(',');
+        }
+        affect_ops_64.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    affect_ops_64.push_str("]}");
+    assert!(clean_affect.workflow(&parse(&affect_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_affect2 = AffectManager::new();
+    clean_affect2.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut affect_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            affect_ops_65.push(',');
+        }
+        affect_ops_65.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    affect_ops_65.push_str("]}");
+    assert!(clean_affect2.workflow(&parse(&affect_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 10. SkillsManager mutation fuzzing & boundaries
+    use gamectx::character::skills::SkillsManager;
+    let mut skills_mgr = SkillsManager::new();
+    let sample_skills_req = r#"{"ops":[{"op":"init","args":{"being":"baker","skills":[{"id":"baking","level":10,"practice":20}]}},{"op":"practice","args":{"being":"baker","skill":"baking","practice":30,"success":true}},{"op":"evaluate_action","args":{"being":"baker","skill":"baking","action":"cook","base_duration":20,"base_risk":25}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_skills_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = skills_mgr.workflow(&v);
+        }
+    }
+
+    let mut clean_skills = SkillsManager::new();
+    clean_skills.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut skills_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            skills_ops_64.push(',');
+        }
+        skills_ops_64.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    skills_ops_64.push_str("]}");
+    assert!(clean_skills.workflow(&parse(&skills_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_skills2 = SkillsManager::new();
+    clean_skills2.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut skills_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            skills_ops_65.push(',');
+        }
+        skills_ops_65.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    skills_ops_65.push_str("]}");
+    assert!(clean_skills2.workflow(&parse(&skills_ops_65, 1 << 20).unwrap()).is_err());
 }

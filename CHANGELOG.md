@@ -2,6 +2,19 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Affect decay and missing feelings (`character::affect`, local kind `affect`, and `character::life`, Gap 6):
+  - **[format]** Life definitions (`character::life::Definition` and `character::affect`) add 5 missing attitude kinds: `fear`, `respect`, `gratitude`, `envy`, `admiration` (joining the 19 original kinds for 24 valid kinds in total).
+  - **[format]** Attitude definitions accept optional `decay_rate` (0..100) and `baseline` (-100..100).
+  - Mood separation: background mood (valence, arousal, label) is separated from targeted interpersonal attitudes and emotions. Derived labels: `calm`, `cheerful`, `excited`, `serene`, `agitated`, `depressed`, `irritable`, `tense`, `lethargic`.
+  - Decay toward temperament baselines: transient emotions decay toward 0 (or configured baseline); relationship attitudes decay toward initial baseline. Temperament modifiers: `calm` accelerates emotion/fear decay (+2), `forgiving` accelerates resentment decay (+2), `volatile` slows emotion decay (-2, min 1), `vengeful` slows resentment decay (-1, min 1).
+  - Ops: `init`, `assess`, `tick`, `appraise`, `set_mood`, and `life.decay(ticks)`.
+- Skills growth with use (`character::skills`, local kind `skills`, Gap 8):
+  - Skill records with level (0..=100), practice accumulation, and scaling threshold (`100 + level * 15`).
+  - Practice gain per successful Action Catalog action with diminishing returns formula `((raw_practice * max(10, 100 - level)) / 100).max(1)`. Failed actions grant 0 practice. Level caps strictly at 100.
+  - Action Catalog scaling: skill level scales duration discount (up to 50% discount at level 100), scales down failure risk, and computes output quality tier (`poor`, `standard`, `fine`, `superior`, `masterwork`).
+  - Teaching between beings: higher-skilled character instructs lower-skilled character in the same place. Student receives practice (capped at teacher level) and gains `respect` and `gratitude` attitudes toward teacher.
+  - Ops: `init`, `assess`, `practice`, `evaluate_action`, `teach`.
+  - 25 cases (5 malformed) in `conformance/affect_skills/`. Rust matches Python reference byte for byte on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Tasks and planning (`character::task`, local kind `task`, Gap 4):
   - Task object schema: id, owner, assigned_by/for, motive_ref, steps (with action-catalog refs, target bindings, preconditions, effects, duration/fatigue estimates), status (`proposed`, `accepted`, `active`, `blocked`, `suspended`, `done`, `failed`, `abandoned`), progress, deadline, priority, reserved resources, bounded on_fail/on_block policies, replan/retry limits ($\le 3$), and confirmed outcome history.
   - Deterministic planner: backward chaining over Action Catalog to resolve prerequisite travel, item barter, and crafting sequences under bounded depth ($\le 8$) and steps ($\le 16$).

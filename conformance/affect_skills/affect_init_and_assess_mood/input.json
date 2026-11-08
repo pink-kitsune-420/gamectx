@@ -1,0 +1,35 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "calm",
+          "mood": {
+            "valence": 20,
+            "arousal": 10
+          },
+          "attitudes": [
+            {
+              "id": "trust_player",
+              "kind": "trust",
+              "subject": "player",
+              "level": 15,
+              "baseline": 0,
+              "decay_rate": 1,
+              "reason": "good trade"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

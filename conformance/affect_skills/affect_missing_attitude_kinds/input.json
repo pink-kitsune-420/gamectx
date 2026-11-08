@@ -1,0 +1,46 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scholar",
+          "temperament": "calm",
+          "attitudes": [
+            {
+              "id": "r_master",
+              "kind": "respect",
+              "subject": "master",
+              "level": 50
+            },
+            {
+              "id": "g_healer",
+              "kind": "gratitude",
+              "subject": "healer",
+              "level": 40
+            },
+            {
+              "id": "e_rival",
+              "kind": "envy",
+              "subject": "rival",
+              "level": 25
+            },
+            {
+              "id": "a_hero",
+              "kind": "admiration",
+              "subject": "hero",
+              "level": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "scholar"
+        }
+      }
+    ]
+  }
+}

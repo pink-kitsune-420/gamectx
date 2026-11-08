@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "baker",
+      "temperament": "forgiving",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "resentment_miller",
+          "kind": "resentment",
+          "subject": "miller",
+          "level": 40,
+          "baseline": 0,
+          "decay_rate": 2,
+          "reason": ""
+        }
+      ]
+    },
+    {
+      "being": "baker",
+      "temperament": "forgiving",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "resentment_miller",
+          "kind": "resentment",
+          "subject": "miller",
+          "level": 20,
+          "baseline": 0,
+          "decay_rate": 2,
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

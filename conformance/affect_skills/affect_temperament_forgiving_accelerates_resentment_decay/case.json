@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Forgiving temperament adds +2 to resentment decay rate.",
+  "error": false
+}

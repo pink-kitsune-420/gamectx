@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "apprentice",
+      "temperament": "stoic",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "fear_shadow",
+          "kind": "fear",
+          "subject": "shadow",
+          "level": 30,
+          "baseline": 0,
+          "decay_rate": 4,
+          "reason": "spooky noise"
+        }
+      ]
+    },
+    {
+      "being": "apprentice",
+      "temperament": "stoic",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "fear_shadow",
+          "kind": "fear",
+          "subject": "shadow",
+          "level": 10,
+          "baseline": 0,
+          "decay_rate": 4,
+          "reason": "spooky noise"
+        }
+      ]
+    }
+  ]
+}

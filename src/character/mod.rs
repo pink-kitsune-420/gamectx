@@ -1,5 +1,6 @@
 //! AI characters: scoped tools, character sheets, persistent life, dialogue, routines, parties, archetype
 //! loadouts, cast packs, the living world and opt-in roleplay policies.
+pub mod affect;
 pub mod archetype;
 pub mod body;
 pub mod cast;
@@ -12,5 +13,6 @@ pub mod party;
 pub mod roleplay;
 pub mod routine;
 pub mod sheet;
+pub mod skills;
 pub mod task;
 pub mod tools;

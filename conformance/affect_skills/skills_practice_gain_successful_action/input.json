@@ -1,0 +1,30 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "skills": [
+            {
+              "id": "baking",
+              "label": "Baking",
+              "level": 10,
+              "practice": 0
+            }
+          ]
+        }
+      },
+      {
+        "op": "practice",
+        "args": {
+          "being": "baker",
+          "skill": "baking",
+          "practice": 50,
+          "success": true
+        }
+      }
+    ]
+  }
+}

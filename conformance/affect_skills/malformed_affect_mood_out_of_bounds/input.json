@@ -1,0 +1,17 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "mood": {
+            "valence": 250,
+            "arousal": 0
+          }
+        }
+      }
+    ]
+  }
+}

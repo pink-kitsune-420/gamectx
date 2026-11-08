@@ -1,0 +1,30 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "journeyman",
+          "skills": [
+            {
+              "id": "carpentry",
+              "label": "Carpentry",
+              "level": 50
+            }
+          ]
+        }
+      },
+      {
+        "op": "evaluate_action",
+        "args": {
+          "being": "journeyman",
+          "action": "craft",
+          "skill": "carpentry",
+          "base_duration": 30,
+          "base_risk": 40
+        }
+      }
+    ]
+  }
+}

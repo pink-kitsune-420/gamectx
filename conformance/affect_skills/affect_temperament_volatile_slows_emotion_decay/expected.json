@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "guard",
+      "temperament": "volatile",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "emotion_anger",
+          "kind": "emotion",
+          "subject": "thief",
+          "level": 50,
+          "baseline": 0,
+          "decay_rate": 5,
+          "reason": ""
+        }
+      ]
+    },
+    {
+      "being": "guard",
+      "temperament": "volatile",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "emotion_anger",
+          "kind": "emotion",
+          "subject": "thief",
+          "level": 35,
+          "baseline": 0,
+          "decay_rate": 5,
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

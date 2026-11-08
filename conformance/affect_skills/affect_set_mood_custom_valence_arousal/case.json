@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Directly updating mood valence and arousal re-evaluates mood label.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Initialize character skills and inspect progress percent and threshold.",
+  "error": false
+}

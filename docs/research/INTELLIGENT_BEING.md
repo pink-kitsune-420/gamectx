@@ -235,15 +235,14 @@ with 49 built-in actions. 25 cases (9 malformed) in [`conformance/actions/`](../
 2,000 differential parity fuzzing workflows (seed 7, 0 mismatches). Zero model spend, zero
 behavior changes. [Guide](../guides/WORLD.md#actions).
 
-### Gap 6: emotions do not fade, and some feelings are missing
+### Gap 6: emotions do not fade, and some feelings are missing — **DONE** ([Evidence](../characters/LIFE.md#affect-decay-and-missing-feelings-gap-6))
 
 `emotion` is an attitude kind changed by appraisal, with step limits and cooldowns. No
 time decay was found (`decay` occurs nowhere in `src/`). Attitude kinds have no `fear`,
 `respect`, `gratitude`, `envy` or `admiration`; the social audit already names fear and
 respect as needed. Mood (a short-lived background state) is not separate from emotion.
 
-*Needed:* a decay rate per attitude kind toward a baseline set by temperament, and the
-missing kinds as additive enum values (a format change for Life definitions).
+*Implemented:* Additive attitude kinds `fear`, `respect`, `gratitude`, `envy`, `admiration` added to Life definitions ([format]). Decay rate per attitude kind toward temperament baselines; mood separation (valence/arousal/label); `Life::decay(ticks)` and `character::affect::AffectManager` (local kind `affect`). 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ### Gap 7: little theory of mind
 
@@ -256,14 +255,13 @@ the key, so he may lie".
 emotion)`, each with a source (seen, told, inferred) and the same provenance rules as the
 being's own beliefs. Timeline `witnesses` already supply the raw data for `knows`.
 
-### Gap 8: skills do not grow with use
+### Gap 8: skills do not grow with use — **DONE** ([Evidence](../characters/LIFE.md#skills-growth-with-use-gap-8))
 
 Bio skills and knowledge have static levels. Recipes check a skill but do not grant
 practice. Only fitness attributes can be trained. Skill level does not change the outcome
 quality or failure chance of an action.
 
-*Needed:* practice gain per successful action (bounded, with diminishing returns), skill
-effect on duration, quality and risk in the action catalog, and teaching between beings.
+*Implemented:* `character::skills::SkillsManager` (local kind `skills`): practice gain per successful action with diminishing returns (`factor = max(10, 100 - level)`), level advancement and scaling thresholds (`100 + level * 15`, hard cap at 100), Action Catalog scaling (duration discount up to 50%, risk reduction, output quality tier calculation), and teaching between beings (student receives practice capped at teacher level, develops respect and gratitude attitudes). 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ### Gap 9: three separate relationship stores
 

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Volatile temperament reduces emotion decay rate by 2 (min 1).",
+  "error": false
+}

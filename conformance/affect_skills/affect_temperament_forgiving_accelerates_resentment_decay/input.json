@@ -1,0 +1,35 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "forgiving",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "resentment_miller",
+              "kind": "resentment",
+              "subject": "miller",
+              "level": 40,
+              "baseline": 0,
+              "decay_rate": 2
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "baker",
+          "ticks": 5
+        }
+      }
+    ]
+  }
+}

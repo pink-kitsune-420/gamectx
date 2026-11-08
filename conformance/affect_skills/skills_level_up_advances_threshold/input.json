@@ -1,0 +1,30 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "novice",
+          "skills": [
+            {
+              "id": "foraging",
+              "label": "Foraging",
+              "level": 1,
+              "practice": 110
+            }
+          ]
+        }
+      },
+      {
+        "op": "practice",
+        "args": {
+          "being": "novice",
+          "skill": "foraging",
+          "practice": 20,
+          "success": true
+        }
+      }
+    ]
+  }
+}

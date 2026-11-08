@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "apprentice",
+      "temperament": "calm",
+      "mood": {
+        "valence": 10,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": []
+    },
+    {
+      "being": "apprentice",
+      "attitude_id": "fear_shadow_beast",
+      "kind": "fear",
+      "subject": "shadow_beast",
+      "before": 0,
+      "after": 40,
+      "delta": 40,
+      "reason": "menacing roar",
+      "mood": {
+        "valence": -10,
+        "arousal": 20,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      }
+    }
+  ]
+}

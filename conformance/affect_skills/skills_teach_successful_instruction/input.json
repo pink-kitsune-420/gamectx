@@ -1,0 +1,43 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "master_baker",
+          "skills": [
+            {
+              "id": "baking",
+              "label": "Baking",
+              "level": 70
+            }
+          ]
+        }
+      },
+      {
+        "op": "init",
+        "args": {
+          "being": "apprentice",
+          "skills": [
+            {
+              "id": "baking",
+              "label": "Baking",
+              "level": 15
+            }
+          ]
+        }
+      },
+      {
+        "op": "teach",
+        "args": {
+          "teacher": "master_baker",
+          "student": "apprentice",
+          "skill": "baking",
+          "hours": 3,
+          "same_place": true
+        }
+      }
+    ]
+  }
+}

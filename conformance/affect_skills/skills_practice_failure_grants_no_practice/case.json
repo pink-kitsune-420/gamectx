@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Failed action outcome grants zero practice points.",
+  "error": false
+}

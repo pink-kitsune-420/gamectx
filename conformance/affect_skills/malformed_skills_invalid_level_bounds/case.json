@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Skill level > 100 in init is rejected.",
+  "error": true
+}

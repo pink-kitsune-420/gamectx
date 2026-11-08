@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Character at max skill level 100 accumulates no further practice.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Skill level scales down failure risk of an action.",
+  "error": false
+}

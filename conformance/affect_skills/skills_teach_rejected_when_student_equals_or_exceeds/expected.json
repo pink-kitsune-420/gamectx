@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "peer1",
+      "skills": [
+        {
+          "id": "baking",
+          "label": "Baking",
+          "level": 30,
+          "practice": 0,
+          "threshold": 550,
+          "progress_percent": 0,
+          "total_actions": 0
+        }
+      ]
+    },
+    {
+      "being": "peer2",
+      "skills": [
+        {
+          "id": "baking",
+          "label": "Baking",
+          "level": 30,
+          "practice": 0,
+          "threshold": 550,
+          "progress_percent": 0,
+          "total_actions": 0
+        }
+      ]
+    },
+    {
+      "ok": false,
+      "reason": "teacher skill level must be strictly greater than student level"
+    }
+  ]
+}

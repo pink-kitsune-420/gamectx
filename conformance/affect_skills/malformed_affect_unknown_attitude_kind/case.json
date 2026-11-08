@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Attitude kind outside allowed 24 kinds is rejected.",
+  "error": true
+}

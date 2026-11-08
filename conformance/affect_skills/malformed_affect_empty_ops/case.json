@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Empty operations list in affect workflow is rejected.",
+  "error": true
+}

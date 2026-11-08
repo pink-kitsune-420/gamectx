@@ -13,9 +13,11 @@
 //!
 //! Asserts byte-identical replay.
 
+use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::motive::MotiveArbiter;
+use gamectx::character::skills::SkillsManager;
 use gamectx::character::task::TaskManager;
 use gamectx::data::json::{parse, Value};
 use gamectx::knowledge::action_catalog::ActionCatalog;
@@ -57,6 +59,57 @@ fn run_baker_scene() -> String {
     )
     .unwrap();
     body_mgr.workflow(&init_body).unwrap();
+
+    // Stage 6: Skills & Affect init
+    let mut skills_mgr = SkillsManager::new();
+    let init_skills = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "init",
+                "args": {
+                    "being": "baker",
+                    "skills": [
+                        {"id": "baking", "label": "Baking", "level": 20, "practice": 0}
+                    ]
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    skills_mgr.workflow(&init_skills).unwrap();
+
+    let mut affect_mgr = AffectManager::new();
+    let init_affect = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "init",
+                "args": {
+                    "being": "baker",
+                    "temperament": "forgiving",
+                    "mood": {"valence": -10, "arousal": 15},
+                    "attitudes": [
+                        {
+                            "id": "resentment_player",
+                            "kind": "resentment",
+                            "subject": "player",
+                            "level": 25,
+                            "baseline": 0,
+                            "decay_rate": 2,
+                            "reason": "broken flour promise"
+                        }
+                    ]
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    affect_mgr.workflow(&init_affect).unwrap();
 
     // Stage 5: Propose initial bake task
     let mut task_mgr = TaskManager::new();
@@ -284,19 +337,64 @@ fn run_baker_scene() -> String {
         final_task_res.get("results").unwrap().as_array().unwrap()[0].get("task_status").and_then(Value::as_str);
     assert_eq!(final_status, Some("done"));
 
+    // Stage 6: Skills practice gain from successful bake
+    let bake_practice = parse(
+        r#"{
+        "ops": [
+            {"op":"practice","args":{"being":"baker","skill":"baking","practice":25,"success":true}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let practice_res = skills_mgr.workflow(&bake_practice).unwrap();
+    let effective_gain =
+        practice_res.get("results").unwrap().as_array().unwrap()[0].get("effective_gain").and_then(Value::as_usize);
+    assert_eq!(effective_gain, Some(20)); // factor = 80, 25 * 80 / 100 = 20
+
+    // Stage 6: Affect tick - time passes (10 ticks), forgiving baker's resentment toward player decays
+    let tick_affect = parse(
+        r#"{
+        "ops": [
+            {"op":"tick","args":{"being":"baker","ticks":10}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let affect_res = affect_mgr.workflow(&tick_affect).unwrap();
+    let current_attitudes =
+        affect_res.get("results").unwrap().as_array().unwrap()[0].get("attitudes").unwrap().as_array().unwrap();
+    let resentment_att =
+        current_attitudes.iter().find(|a| a.get("id").and_then(Value::as_str) == Some("resentment_player")).unwrap();
+    let resentment_lvl = match resentment_att.get("level") {
+        Some(Value::Number(s)) => s.parse::<i64>().ok(),
+        _ => None,
+    };
+    // Forgiving temperament: decay_rate 2 + 2 = 4, 4 * 10 = 40, clamps to baseline 0
+    assert_eq!(resentment_lvl, Some(0));
+
     // Step 7: Grounded speech facts check
     // The baker knows:
     // 1. Broken promise from player (overdue deadline 5 at tick 15)
     // 2. Direct experience of cart crash on mill road
     // 3. Apprentice was indoors and did NOT witness cart crash
+    // 4. Skills practice gained on baking (level 20, practice 20)
+    // 5. Resentment toward player has decayed to 0
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
         body_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_skills_state =
+        skills_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_affect_state =
+        affect_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
     let composite_output = obj! {
         "final_task" => final_task_state,
         "final_body" => final_body_state,
+        "final_skills" => final_skills_state,
+        "final_affect" => final_affect_state,
         "witness_outcome" => baker_outcome.clone(),
         "winning_motive" => winning_motive.clone()
     };

@@ -1757,6 +1757,12 @@ checkpoint is version 2. [LIFE](characters/LIFE.md) describes host authority and
   improvisation`; at most 65,536 bytes. See editable `examples/fixtures/characters/merchant-life.json`
   for every nested field. Maximum 64 facets/attitudes/rules, 32 history IDs; texts are
   1..512 non-control characters and at most 2,048 UTF-8 bytes. IDs use existing scope bounds.
+  Attitude definitions require `id,kind,subject,text,level,reason,tension,changes_if,audience,tags`
+  and accept optional `decay_rate` (0..100) and `baseline` (-100..100). Valid attitude kinds are
+  24 values: `preference`, `opinion`, `familiarity`, `trust`, `affection`, `resentment`,
+  `obligation`, `disagreement`, `belief`, `report`, `hypothesis`, `misconception`, `unknown`,
+  `goal`, `commitment`, `unfinished`, `priority`, `physical`, `emotion`, `fear`, `respect`,
+  `gratitude`, `envy`, `admiration` (**[format]** additive change in v0.4.0a).
 - Life config: optional `enabled,balanced,deception,mistaken,tools`, all features false and
   tools empty by default. Resolve shared defaults then partial overrides. Requested tool
   names are only `life_recall` and `life_change`; they still require exposure/live permission.
@@ -2545,6 +2551,54 @@ Ops:
 - `get {id}` → `{task: Task}`.
 - `list {owner?, status?}` → `{tasks: [Task]}`.
 - `validate {steps, owner?, world_state?}` → `{valid: bool, reason: str?, errors: [...], step_count: int}`. Host validation over proposed step sequence.
+
+## Affect dynamics v1 (Gap 6)
+
+`gamectx::character::affect` (`AffectManager`, local kind `affect`) and `character::life` manage emotional decay and mood dynamics:
+- **Mood object:**
+  - `valence`: -100..=100 (negative to positive feeling).
+  - `arousal`: -100..=100 (lethargic to excited/agitated).
+  - `baseline_valence`, `baseline_arousal`: -100..=100.
+  - `decay_rate`: u64 (0..=100).
+  - `label`: derived from (valence, arousal) into `excited`, `serene`, `cheerful`, `agitated`, `depressed`, `irritable`, `tense`, `lethargic`, or `calm`.
+- **Attitude decay:**
+  - Decays attitudes toward baseline (0 for transient emotions/fear/gratitude/admiration/envy; initial level for relationships).
+  - Temperament modifiers: `calm` accelerates emotion/fear decay (+2), `forgiving` accelerates resentment decay (+2), `volatile` slows emotion decay (-2, min 1), `vengeful` slows resentment decay (-1, min 1).
+- Ops:
+  - `init {being, temperament?, mood?, attitudes?}` → BeingAffect.
+  - `assess {being}` → BeingAffect.
+  - `tick {being, ticks}` → BeingAffect (decays mood and attitudes toward baselines).
+  - `appraise {being, kind, subject, delta, id?, reason?}` → `{being, attitude_id, kind, subject, before, after, delta, reason, mood}`.
+  - `set_mood {being, valence?, arousal?, valence_delta?, arousal_delta?, reason?}` → `{being, mood}`.
+  - In `Life`: `decay {ticks}` operation advances time and decays `life.attitudes` toward baselines.
+
+## Skills dynamics v1 (Gap 8)
+
+`gamectx::character::skills` (`SkillsManager`, local kind `skills`) tracks practice, action scaling, and teaching:
+- **Skill record:**
+  - `id`: unique skill identifier.
+  - `label`: display label.
+  - `level`: u64 (0..=100, hard cap at 100).
+  - `practice`: accumulated practice points at current level.
+  - `threshold`: practice required for next level (`100 + level * 15`).
+  - `progress_percent`: `(practice * 100) / threshold`.
+  - `total_actions`: count of practiced actions.
+- **Diminishing returns:**
+  - Practice gain per successful action: `((raw_practice * max(10, 100 - level)) / 100).max(1)`.
+  - Failed action outcomes grant 0 practice.
+- **Action Catalog scaling:**
+  - Duration discount: up to 50% discount at level 100 (`duration = (base_duration * (100 - (level * 50 / 100))) / 100`).
+  - Risk reduction: `risk = base_risk.saturating_sub((level * base_risk) / 100)`.
+  - Quality score & tier: `quality_score = min(100, level + quality_bonus)` yielding `poor` (0..24), `standard` (25..49), `fine` (50..74), `superior` (75..89), or `masterwork` (90..100).
+- **Teaching:**
+  - Teacher skill level must be strictly greater than student level.
+  - Student gains practice up to teacher's level and gains `respect` and `gratitude` attitudes toward teacher.
+- Ops:
+  - `init {being, skills: [...]}` → BeingSkills.
+  - `assess {being}` → BeingSkills.
+  - `practice {being, skill, practice, success, label?, action?}` → `{being, skill, level, practice, threshold, effective_gain, leveled_up, success}`.
+  - `evaluate_action {being, action, base_duration, base_risk, skill?, quality_bonus?}` → `{being, action, skill, level, base_duration, duration, duration_discount_percent, base_risk, risk, quality_score, quality_tier}`.
+  - `teach {teacher, student, skill, hours?, same_place?}` → `{ok, teacher, student, skill, teacher_level, student_level, student_practice, practice_gained, leveled_up, relationship_effects}`.
 
 ## Game data and save files v1
 

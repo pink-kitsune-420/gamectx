@@ -1,0 +1,31 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "master_artist",
+          "skills": [
+            {
+              "id": "painting",
+              "label": "Painting",
+              "level": 92
+            }
+          ]
+        }
+      },
+      {
+        "op": "evaluate_action",
+        "args": {
+          "being": "master_artist",
+          "action": "craft",
+          "skill": "painting",
+          "base_duration": 60,
+          "base_risk": 10,
+          "quality_bonus": 5
+        }
+      }
+    ]
+  }
+}

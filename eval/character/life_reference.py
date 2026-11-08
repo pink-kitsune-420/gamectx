@@ -41,6 +41,30 @@ def run(a):
      att['level']=after;att['last']=e['at'];refs=att['supports' if r['delta']>=0 else 'contradicts'];refs.append(e['token']);refs[:]=refs[-16:]
      changes.append(result);rev+=1
    elif kind=='inspect':result=dict(revision=rev,watermark=watermark,clock=clock,attitudes=attrs,events=events,changes=changes)
+   elif kind=='decay':
+    assert set(v)=={'ticks'}
+    ticks=v['ticks']; assert isinstance(ticks,int) and 1<=ticks<=100000
+    temp_facets=[f for f in d.get('facets',[]) if f.get('kind')=='temperament']
+    temp_str=temp_facets[0]['text'] if temp_facets else 'calm'
+    changed=False
+    for att in attrs:
+     def_obj=att['definition']
+     akind=def_obj['kind']
+     cur_lvl=att['level']
+     base_lvl=def_obj.get('baseline', 0 if akind in ('emotion','fear','gratitude','envy','admiration') else def_obj['level'])
+     rate=def_obj.get('decay_rate', 5 if akind=='emotion' else 4 if akind=='fear' else 3 if akind in ('admiration','gratitude','envy') else 2 if akind=='resentment' else 1 if akind in ('affection','trust') else 0)
+     if 'calm' in temp_str and akind in ('emotion','fear'): rate += 2
+     elif 'forgiving' in temp_str and akind=='resentment': rate += 2
+     elif 'volatile' in temp_str and akind in ('emotion','fear'): rate = max(1, rate - 2)
+     elif 'vengeful' in temp_str and akind=='resentment': rate = max(1, rate - 1)
+     if rate > 0:
+      amt=rate*ticks
+      new_lvl=max(base_lvl,cur_lvl-amt) if cur_lvl>base_lvl else min(base_lvl,cur_lvl+amt) if cur_lvl<base_lvl else cur_lvl
+      if new_lvl!=cur_lvl:
+       att['level']=new_lvl
+       changed=True
+    if changed: rev+=1
+    result=dict(revision=rev,attitudes=attrs)
    elif kind=='context':
     assert 0<=v['limit']<=16
     def visible(x):return set(a['participants'])<=set(x['audience']) and (not v['tags'] or set(v['tags'])&set(x['tags']))

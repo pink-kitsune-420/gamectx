@@ -1,0 +1,36 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "apprentice",
+          "temperament": "stoic",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "fear_shadow",
+              "kind": "fear",
+              "subject": "shadow",
+              "level": 30,
+              "baseline": 0,
+              "decay_rate": 4,
+              "reason": "spooky noise"
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "apprentice",
+          "ticks": 5
+        }
+      }
+    ]
+  }
+}

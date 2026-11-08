@@ -762,6 +762,10 @@ When a motive or goal requires work, [tasks and planning](characters/LIFE.md#tas
 (`character::task::TaskManager` or local kind `task`) compiles it into a tracked task with action steps,
 preconditions, and expected effects. The deterministic planner solves causal prerequisite chains over the Action
 Catalog; model proposals and replans are host-validated, and only confirmed world outcomes advance steps.
+Character emotional states and mood dynamics are tracked via [affect dynamics](characters/LIFE.md#affect-decay-and-missing-feelings-gap-6)
+(`character::affect::AffectManager` or local kind `affect`), separating background mood (valence and arousal) from targeted interpersonal attitudes (`fear`, `respect`, `gratitude`, `envy`, `admiration`, `trust`, `resentment`, etc.) and decaying emotions toward temperament baselines over time.
+Skills grow through practice via [skills dynamics](characters/LIFE.md#skills-growth-with-use-gap-8)
+(`character::skills::SkillsManager` or local kind `skills`), applying diminishing returns, scaling action duration, risk, and output quality, and enabling teaching between characters.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

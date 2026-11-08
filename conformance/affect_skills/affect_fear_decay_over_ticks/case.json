@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Attitude of kind fear decays toward baseline 0 over ticks.",
+  "error": false
+}

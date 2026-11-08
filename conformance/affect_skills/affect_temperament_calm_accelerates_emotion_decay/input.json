@@ -1,0 +1,35 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "calm",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "fear_wolves",
+              "kind": "fear",
+              "subject": "wolves",
+              "level": 50,
+              "baseline": 0,
+              "decay_rate": 4
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "baker",
+          "ticks": 5
+        }
+      }
+    ]
+  }
+}

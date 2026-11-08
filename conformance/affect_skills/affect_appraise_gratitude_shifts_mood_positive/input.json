@@ -1,0 +1,28 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "calm",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          }
+        }
+      },
+      {
+        "op": "appraise",
+        "args": {
+          "being": "baker",
+          "kind": "gratitude",
+          "subject": "neighbor",
+          "delta": 30,
+          "reason": "helped fix roof"
+        }
+      }
+    ]
+  }
+}

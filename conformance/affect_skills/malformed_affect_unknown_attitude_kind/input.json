@@ -1,0 +1,21 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "attitudes": [
+            {
+              "id": "bad",
+              "kind": "telepathy_rage",
+              "subject": "cat",
+              "level": 10
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

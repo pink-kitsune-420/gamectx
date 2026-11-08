@@ -1,0 +1,43 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "peer1",
+          "skills": [
+            {
+              "id": "baking",
+              "label": "Baking",
+              "level": 30
+            }
+          ]
+        }
+      },
+      {
+        "op": "init",
+        "args": {
+          "being": "peer2",
+          "skills": [
+            {
+              "id": "baking",
+              "label": "Baking",
+              "level": 30
+            }
+          ]
+        }
+      },
+      {
+        "op": "teach",
+        "args": {
+          "teacher": "peer1",
+          "student": "peer2",
+          "skill": "baking",
+          "hours": 1,
+          "same_place": true
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "baker",
+      "temperament": "calm",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": []
+    },
+    {
+      "being": "baker",
+      "mood": {
+        "valence": 45,
+        "arousal": 30,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "excited"
+      }
+    }
+  ]
+}

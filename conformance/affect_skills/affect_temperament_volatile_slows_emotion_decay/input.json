@@ -1,0 +1,35 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "guard",
+          "temperament": "volatile",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "emotion_anger",
+              "kind": "emotion",
+              "subject": "thief",
+              "level": 50,
+              "baseline": 0,
+              "decay_rate": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "guard",
+          "ticks": 5
+        }
+      }
+    ]
+  }
+}

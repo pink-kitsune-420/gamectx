@@ -1,0 +1,13 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "sorcery_teleport",
+        "args": {
+          "being": "wizard"
+        }
+      }
+    ]
+  }
+}

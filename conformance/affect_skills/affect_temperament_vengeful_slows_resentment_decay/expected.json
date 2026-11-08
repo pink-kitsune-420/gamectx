@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "carter",
+      "temperament": "vengeful",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "resentment_bandit",
+          "kind": "resentment",
+          "subject": "bandit",
+          "level": 40,
+          "baseline": 0,
+          "decay_rate": 2,
+          "reason": ""
+        }
+      ]
+    },
+    {
+      "being": "carter",
+      "temperament": "vengeful",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "resentment_bandit",
+          "kind": "resentment",
+          "subject": "bandit",
+          "level": 30,
+          "baseline": 0,
+          "decay_rate": 2,
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "skills",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "skills": [
+            {
+              "id": "baking",
+              "level": 150
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

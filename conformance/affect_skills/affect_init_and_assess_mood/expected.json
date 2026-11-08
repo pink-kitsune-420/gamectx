@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "baker",
+      "temperament": "calm",
+      "mood": {
+        "valence": 20,
+        "arousal": 10,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "trust_player",
+          "kind": "trust",
+          "subject": "player",
+          "level": 15,
+          "baseline": 0,
+          "decay_rate": 1,
+          "reason": "good trade"
+        }
+      ]
+    },
+    {
+      "being": "baker",
+      "temperament": "calm",
+      "mood": {
+        "valence": 20,
+        "arousal": 10,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "trust_player",
+          "kind": "trust",
+          "subject": "player",
+          "level": 15,
+          "baseline": 0,
+          "decay_rate": 1,
+          "reason": "good trade"
+        }
+      ]
+    }
+  ]
+}

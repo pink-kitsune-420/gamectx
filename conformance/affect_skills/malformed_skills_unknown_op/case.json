@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Unknown operation name in skills workflow is rejected.",
+  "error": true
+}

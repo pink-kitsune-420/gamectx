@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Accumulating practice past the threshold advances level and computes new threshold.",
+  "error": false
+}

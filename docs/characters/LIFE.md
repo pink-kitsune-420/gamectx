@@ -395,5 +395,32 @@ and motives into concrete, committed multi-step plans executed through the Actio
 
 **Evidence:** 25 cases (`conformance/task/`, 5 malformed), 2,000 differential parity workflows (`eval/character/task_cases.py`, seed 7, 0 mismatches), model proposal evaluation (`eval/character/task_model_eval.py`, 100% bounds and validation accuracy), and Acceptance Scene (§8) replay test (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Affect decay and missing feelings (Gap 6)
+
+`gamectx::character::affect` (`AffectManager`, local kind `affect`) and `character::life` manage emotional decay and mood dynamics:
+- **Additive attitude kinds [format]:** Life definitions accept 5 additional attitude kinds: `fear`, `respect`, `gratitude`, `envy`, `admiration` (joining 19 earlier kinds for 24 valid kinds in total).
+- **Mood separation:** Untargeted background mood (valence, arousal, label) is modeled separately from targeted attitudes. Derived mood labels: `calm`, `cheerful`, `excited`, `serene`, `agitated`, `depressed`, `irritable`, `tense`, `lethargic`.
+- **Decay toward temperament baselines:** Transient emotions decay toward 0 (or configured baseline); interpersonal attitudes decay toward initial baseline. Temperament modifiers:
+  - `calm`: transient emotion and fear decay accelerates (+2).
+  - `forgiving`: resentment decay accelerates (+2).
+  - `volatile`: emotion decay slows down (-2, min 1).
+  - `vengeful`: resentment decay slows down (-1, min 1).
+- **Operations:** `init`, `assess`, `tick`, `appraise`, `set_mood`. `Life::decay(ticks)` advances time and decays `life.attitudes` toward baselines.
+
+## Skills growth with use (Gap 8)
+
+`gamectx::character::skills` (`SkillsManager`, local kind `skills`) manages character skills, practice, and instruction:
+- **Skill records:** id, label, level (0..=100), practice, threshold for next level (`100 + level * 15`).
+- **Diminishing returns practice gain:** Successful Action Catalog actions grant practice scaled down as level increases: `((raw_practice * max(10, 100 - level)) / 100).max(1)`. Failed actions grant 0 practice. Level caps strictly at 100.
+- **Action Catalog scaling:**
+  - Duration discount: up to 50% discount at level 100 (`duration = (base_duration * (100 - (level * 50 / 100))) / 100`).
+  - Risk reduction: `risk = base_risk.saturating_sub((level * base_risk) / 100)`.
+  - Quality score & tier: `quality_score = min(100, level + quality_bonus)` yielding `poor`, `standard`, `fine`, `superior`, or `masterwork`.
+- **Teaching between beings:** Higher-skilled character instructs lower-skilled character in the same place. Student receives practice (capped at teacher level) and develops `respect` and `gratitude` attitudes toward teacher.
+- **Operations:** `init`, `assess`, `practice`, `evaluate_action`, `teach`.
+
+**Evidence:** 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), acceptance scene verification (`tests/acceptance_baker.rs`), $0 API spend.
+
+
 
 

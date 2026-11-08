@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "results": [
+    {
+      "being": "scholar",
+      "temperament": "calm",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "a_hero",
+          "kind": "admiration",
+          "subject": "hero",
+          "level": 60,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "e_rival",
+          "kind": "envy",
+          "subject": "rival",
+          "level": 25,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "g_healer",
+          "kind": "gratitude",
+          "subject": "healer",
+          "level": 40,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "r_master",
+          "kind": "respect",
+          "subject": "master",
+          "level": 50,
+          "baseline": 50,
+          "decay_rate": 0,
+          "reason": ""
+        }
+      ]
+    },
+    {
+      "being": "scholar",
+      "temperament": "calm",
+      "mood": {
+        "valence": 0,
+        "arousal": 0,
+        "baseline_valence": 0,
+        "baseline_arousal": 0,
+        "decay_rate": 5,
+        "label": "calm"
+      },
+      "attitudes": [
+        {
+          "id": "a_hero",
+          "kind": "admiration",
+          "subject": "hero",
+          "level": 60,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "e_rival",
+          "kind": "envy",
+          "subject": "rival",
+          "level": 25,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "g_healer",
+          "kind": "gratitude",
+          "subject": "healer",
+          "level": 40,
+          "baseline": 0,
+          "decay_rate": 3,
+          "reason": ""
+        },
+        {
+          "id": "r_master",
+          "kind": "respect",
+          "subject": "master",
+          "level": 50,
+          "baseline": 50,
+          "decay_rate": 0,
+          "reason": ""
+        }
+      ]
+    }
+  ]
+}

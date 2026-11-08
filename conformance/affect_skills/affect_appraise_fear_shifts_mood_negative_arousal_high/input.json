@@ -1,0 +1,28 @@
+{
+  "kind": "affect",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "apprentice",
+          "temperament": "calm",
+          "mood": {
+            "valence": 10,
+            "arousal": 0
+          }
+        }
+      },
+      {
+        "op": "appraise",
+        "args": {
+          "being": "apprentice",
+          "kind": "fear",
+          "subject": "shadow_beast",
+          "delta": 40,
+          "reason": "menacing roar"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Teaching returns refusal if teacher skill level is not strictly greater than student level.",
+  "error": false
+}

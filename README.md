@@ -68,7 +68,9 @@ an [action catalog](docs/guides/WORLD.md#actions) (read-only metadata over all 1
 a [witness bridge](docs/characters/LIFE.md#witness-bridge-gap-1) (turning timeline entries and events into sensory Life experiences),
 [body and need dynamics](docs/characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12) (tick rates, satisfiers, fatigue build/recovery, health, injuries, and condition effects),
 a [motive arbiter](docs/characters/LIFE.md#motive-arbiter-gap-3) (deterministic, explainable ranking across emergencies, needs, promises, routines, goals, and brain impulses on a common 0..=100 scale),
-and [tasks and planning](docs/characters/LIFE.md#tasks-and-planning-gap-4) (task objects, deterministic planner over the action catalog, host-validated model proposals, and step advancement via confirmed outcomes).
+[tasks and planning](docs/characters/LIFE.md#tasks-and-planning-gap-4) (task objects, deterministic planner over the action catalog, host-validated model proposals, and step advancement via confirmed outcomes),
+[affect dynamics](docs/characters/LIFE.md#affect-decay-and-missing-feelings-gap-6) (mood separation, attitude decay toward temperament baselines, and additive attitude kinds fear/respect/gratitude/envy/admiration),
+and [skills dynamics](docs/characters/LIFE.md#skills-growth-with-use-gap-8) (diminishing-returns practice gain, action duration/risk/quality scaling, and teaching between beings).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

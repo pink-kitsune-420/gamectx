@@ -163,9 +163,10 @@ impl Definition {
             return Err(c::bad());
         }
         for (i, a) in attitudes.iter().enumerate() {
-            c::fields(
+            crate::knowledge::codex::keys(
                 a,
                 &["id", "kind", "subject", "text", "level", "reason", "tension", "changes_if", "audience", "tags"],
+                &["decay_rate", "baseline"],
             )?;
             for k in ["id", "subject"] {
                 c::scope(text(a, k)?)?;
@@ -194,6 +195,11 @@ impl Definition {
                     | "priority"
                     | "physical"
                     | "emotion"
+                    | "fear"
+                    | "respect"
+                    | "gratitude"
+                    | "envy"
+                    | "admiration"
             ) {
                 return Err(c::bad());
             }
@@ -201,6 +207,12 @@ impl Definition {
                 line(text(a, k)?)?;
             }
             signed(get(a, "level")?, 100)?;
+            if let Some(d) = a.get("decay_rate") {
+                c::uint(d, 0, 100)?;
+            }
+            if let Some(b) = a.get("baseline") {
+                signed(b, 100)?;
+            }
             names(get(a, "tags")?, 8)?;
             let audience = names(get(a, "audience")?, 16)?;
             if audience.is_empty()
@@ -566,6 +578,78 @@ impl Life {
     pub fn inspect(&self) -> Value {
         obj! {"revision"=>self.revision,"watermark"=>self.watermark,"clock"=>self.clock,"attitudes"=>self.attitudes.clone(),"events"=>self.events.clone(),"changes"=>self.changes.clone()}
     }
+    /// Decay subjective attitudes toward baseline by kind and temperament.
+    pub fn decay(&mut self, ticks: u64) -> Result<Value> {
+        self.active()?;
+        if ticks == 0 || ticks > 100_000 {
+            return Err(c::bad());
+        }
+        let temp_facet = c::list(get(&self.definition.value, "facets").unwrap_or(&Value::Null))
+            .unwrap_or(&[])
+            .iter()
+            .find(|f| f.get("kind").and_then(Value::as_str) == Some("temperament"));
+        let temp_str = temp_facet.and_then(|f| f.get("text")).and_then(Value::as_str).unwrap_or("calm");
+        let mut changed = false;
+        let mut updated_attitudes = self.attitudes.clone();
+        for att in &mut updated_attitudes {
+            let def = att.get("definition").ok_or_else(c::bad)?;
+            let kind = text(def, "kind")?;
+            let current_level = signed(get(att, "level")?, 100)?;
+            let baseline = if let Some(b) = def.get("baseline") {
+                signed(b, 100)?
+            } else {
+                match kind {
+                    "emotion" | "fear" | "gratitude" | "envy" | "admiration" => 0,
+                    _ => signed(get(def, "level")?, 100)?,
+                }
+            };
+            let base_decay: u64 = if let Some(d) = def.get("decay_rate") {
+                c::uint(d, 0, 100)?
+            } else {
+                match kind {
+                    "emotion" => 5,
+                    "fear" => 4,
+                    "admiration" | "gratitude" | "envy" => 3,
+                    "resentment" => 2,
+                    "affection" | "trust" => 1,
+                    _ => 0,
+                }
+            };
+            let mut decay_rate = base_decay;
+            if (temp_str.contains("calm") && matches!(kind, "emotion" | "fear"))
+                || (temp_str.contains("forgiving") && kind == "resentment")
+            {
+                decay_rate = decay_rate.saturating_add(2);
+            } else if temp_str.contains("volatile") && matches!(kind, "emotion" | "fear") {
+                decay_rate = decay_rate.saturating_sub(2).max(1);
+            } else if temp_str.contains("vengeful") && kind == "resentment" {
+                decay_rate = decay_rate.saturating_sub(1).max(1);
+            }
+
+            if decay_rate > 0 {
+                let decay_amount = (decay_rate.saturating_mul(ticks)) as i64;
+                let new_level = if current_level > baseline {
+                    (current_level - decay_amount).max(baseline)
+                } else if current_level < baseline {
+                    (current_level + decay_amount).min(baseline)
+                } else {
+                    current_level
+                };
+                if new_level != current_level {
+                    super_set(att, "level", Value::from(new_level));
+                    changed = true;
+                }
+            }
+        }
+        if changed {
+            self.bump()?;
+            self.attitudes = updated_attitudes;
+        }
+        Ok(obj! {
+            "revision" => self.revision,
+            "attitudes" => self.attitudes.clone(),
+        })
+    }
 }
 pub(crate) fn validate_event(e: &Value, actor: &str, participants: &[String]) -> Result<()> {
     bounded(e, 8192)?;
@@ -630,6 +714,11 @@ pub fn workflow(a: &Value) -> Result<Value> {
             "context" => {
                 c::fields(args, &["tags", "limit"])?;
                 life.context(get(args, "tags")?, c::uint(get(args, "limit")?, 0, 16)? as usize)
+            }
+            "decay" => {
+                c::fields(args, &["ticks"])?;
+                let ticks = c::uint(get(args, "ticks")?, 1, 100_000)?;
+                life.decay(ticks)
             }
             "inspect" => {
                 c::fields(args, &[])?;
