@@ -2117,9 +2117,9 @@ requires zero played/heard offsets and issues a fresh ticket; state adds `playba
 
 `roleplay-engine` (JSON-lines `local` kind) runs `{config, state, ops}`, where `state` is
 `null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered" | "reply",
-args}` entries. It returns `{config, results, state}`. 177 additive cases live in
+args}` entries. It returns `{config, results, state}`. 208 additive cases live in
 `conformance/roleplay-engine/` (62 from stage 2.1, 42 from 2.1b, 26 from 2.2, 47 for
-embodiment, matter and addressing). See the
+embodiment, matter and addressing, 31 for `bio`). See the
 [roleplay engine guide](characters/ROLEPLAY_ENGINE.md) for behavior.
 
 **Config** `{version:1, character:{id,name≤32}, features?, variety?:{recent 0–8 = 2},
@@ -2133,7 +2133,7 @@ model_rules?: 1–8 templates|null}`.
   max_sentences 1–4 = 3, max_chars 40–240 = 240, brief_chars 512–16384 = 4096}`,
   `content{rating: all|teen|mature = teen, avoid: ≤32 [{id, phrases 1–16}]}`, `entrances`,
   `scenery`, `persona`, `services`, `secrets`, `opinions`, `relationships`, `factions`,
-  `events{soon_turns 1–1000000 = 10}`, `quests` and `goals`. Each also takes `enabled`
+  `events{soon_turns 1–1000000 = 10}`, `quests`, `goals` and `bio`. Each also takes `enabled`
   (default `true`).
 - The output `config` echoes `sheet` and `codex` (empty `{"version":1}` when absent)
   and `model_rules` (`null` means the pack's). A pack holds `model_rules` (1–8
@@ -2237,7 +2237,7 @@ aliases are unique per category):
 - `quests` ≤128 `[{id, label, stages 1–32 [{id, description}], aliases?, givers? ≤16}]`.
 
 **Sheet** `{version:1, persona?, speech?, services?, goals?, needs?, relationships?,
-factions?, secrets?, opinions?}`:
+factions?, secrets?, opinions?, bio?, ...}`:
 - `persona {pronouns ≤32, role ≤80, summary ≤240, appearance ≤480, values/fears/desires
   ≤8 × ≤80}`; `speech {formality: casual|neutral|formal, verbosity: terse|normal|chatty,
   quirks/catchphrases ≤8 × ≤120, avoid_words ≤32 × ≤40}`;
@@ -2247,7 +2247,20 @@ factions?, secrets?, opinions?}`:
 - `relationships` ≤64 `[{with (unique), name, kind ≤32, aliases?, description?}]`;
   `factions` ≤16 `[{faction (in the codex), role?}]`;
 - `secrets` ≤32 `[{id, phrases 1–16, reveal ≤240, when (required), cover?}]`;
-  `opinions` ≤64 `[{id, phrases 1–16, variants 1–8 × ≤240, when?}]`.
+  `opinions` ≤64 `[{id, phrases 1–16, variants 1–8 × ≤240, when?}]`;
+- `bio {species? ≤48, age? 0–100000, birthday? {month 1–12, day 1–(28|29|30|31)},
+  profession? ≤80, anatomy? {body? ≤48, parts? ≤16 × ≤48, notes? ≤240}, health? Health,
+  skills? ≤32 [{id, label ≤48, level 0–100, phrases? ≤8}], knowledge? ≤32 [{id, topic ≤48,
+  phrases 1–8, level 0–100, summary ≤240, when?}], family? ≤16 [{name ≤32, relation ≤32,
+  status: alive|deceased|estranged|unknown, with?}]}`. **Health** `{status:
+  healthy|tired|hurt|ill|wounded|critical, conditions? ≤16 [{id, label ≤48, severity
+  0–100, visible}]}`. A turn may add `health?: Health` (replaces the sheet's) and
+  `date?: {month, day}`. `bio` answers use route `bio`; `ask_skill` adds `skill`,
+  `ask_knowledge` adds `knowledge`. The model brief may add `bio {species?, age?,
+  birthday?, profession?, anatomy?, health? {status, conditions: [visible labels]},
+  skills? [{name, level}], knowledge? [{topic, level, summary}] (only entries whose `when`
+  holds), family? [{name, relation, status}]}` (dropped right after `fears` when trimming),
+  and the situation `birthday: true` on the character's birthday.
 
 ## Game data and save files v1
 

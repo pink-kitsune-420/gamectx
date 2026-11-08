@@ -61,9 +61,11 @@ pub enum Feature {
     Quests,
     /// Sheet goals ("what do you want?") and urgent needs.
     Goals,
+    /// Sheet `bio`: age, birthday, profession, skills, knowledge, health and family.
+    Bio,
 }
 impl Feature {
-    pub const ALL: [Feature; 25] = [
+    pub const ALL: [Feature; 26] = [
         Feature::Chunks,
         Feature::OutOfCharacter,
         Feature::Addressing,
@@ -89,6 +91,7 @@ impl Feature {
         Feature::Events,
         Feature::Quests,
         Feature::Goals,
+        Feature::Bio,
     ];
     pub fn as_str(self) -> &'static str {
         match self {
@@ -117,6 +120,7 @@ impl Feature {
             Feature::Events => "events",
             Feature::Quests => "quests",
             Feature::Goals => "goals",
+            Feature::Bio => "bio",
         }
     }
     /// Numeric settings: (name, low, high, default).

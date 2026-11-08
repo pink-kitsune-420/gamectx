@@ -16,6 +16,7 @@ pub(crate) struct Compile<'a> {
     pub config: &'a EngineConfig,
     pub input: &'a str,
     pub base: &'a Vars,
+    pub health: Option<&'a Value>,
     pub scene: &'a Value,
     pub sight: Option<&'a str>,
     pub sound: Option<&'a str>,
@@ -86,6 +87,11 @@ pub(crate) fn compile(t: &Compile) -> Value {
         }
         if let Some(st) = non_empty(sheet.char_state()) {
             put(&mut brief, "state", st.clone());
+        }
+    }
+    if on(Feature::Bio) {
+        if let Some(b) = super::bio::brief(sheet, t.health, t.base) {
+            put(&mut brief, "bio", b);
         }
     }
     let relationships = sheet.all("relationships");
@@ -180,6 +186,9 @@ pub(crate) fn compile(t: &Compile) -> Value {
             }
         }
     }
+    if on(Feature::Bio) && t.base.get("is_birthday") == Some(&Scalar::Flag(true)) {
+        put(&mut sit, "birthday", Value::Bool(true));
+    }
     if !t.events.is_empty() {
         let list = t.events.iter().map(|(name, timing)| obj! {"name"=>*name,"timing"=>*timing});
         put(&mut sit, "events", Value::Array(list.collect()));
@@ -198,11 +207,12 @@ pub(crate) fn compile(t: &Compile) -> Value {
         all.extend(sit.iter().cloned());
         (Value::Object(brief.clone()), Value::Object(all))
     };
-    let drops: [(u8, &str); 19] = [
+    let drops: [(u8, &str); 20] = [
         (3, "recent_replies"),
         (0, "appearance"),
         (0, "desires"),
         (0, "fears"),
+        (0, "bio"),
         (0, "factions"),
         (0, "relationships"),
         (3, "events"),

@@ -25,6 +25,7 @@
 //! engine.delivered(&obj! {"token"=>1,"listener"=>"player_1","text"=>"Hello, I'm Mira; welcome to the bakery.","heard"=>39})?;
 //! # Ok::<(), gamectx::Error>(())
 //! ```
+mod bio;
 mod config;
 mod lines;
 mod model;
@@ -488,8 +489,16 @@ impl RoleplayEngine {
                 "held",
                 "gaze",
                 "scent",
+                "health",
+                "date",
             ],
         )?;
+        if let Some(h) = opt(t, "health") {
+            crate::character::sheet::validate_health(h)?;
+        }
+        if let Some(d) = opt(t, "date") {
+            crate::character::sheet::validate_day(d)?;
+        }
         let RoleplayEngine { config, greetings, listeners, pending, asked } = self;
         let config: &EngineConfig = config;
         let (book, codex, sheet) = (&config.book, &config.codex, &config.sheet);
@@ -1046,6 +1055,7 @@ impl RoleplayEngine {
         for (k, v) in flag_vars {
             base.set(&k, v);
         }
+        bio::vars(&mut base, sheet, opt(t, "health"), opt(t, "date"), book);
         if on(Feature::Goals) {
             let mut best: Option<(u64, &str)> = None;
             for n in sheet.all("needs") {
@@ -1426,6 +1436,33 @@ impl RoleplayEngine {
             for (route, intent) in asks {
                 if book.matcher(intent).and_then(|m| m.hit(&q)).is_some() {
                     if let Some(out) = say(pending, route, intent, &v, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
+        }
+        if on(Feature::Bio) && !long && sheet.bio().is_some() {
+            for intent in ["ask_age", "ask_birthday", "ask_profession", "ask_skills", "ask_health", "ask_family"] {
+                if book.matcher(intent).and_then(|m| m.hit(&q)).is_some() {
+                    if let Some(out) = say(pending, "bio", intent, &base, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
+            if let Some(rest) = book.matcher("ask_skill").and_then(|m| m.hit(&q)).filter(|r| !r.is_empty()) {
+                if let Some((id, label, level)) = bio::skill(sheet, book, book.bare(&rest)) {
+                    let mut v = base.clone();
+                    v.text("skill", label).int("skill_level", level);
+                    if let Some(out) = say(pending, "bio", "ask_skill", &v, vec![("skill", Value::str(id))]) {
+                        return Ok(out);
+                    }
+                }
+            }
+            if let Some(rest) = book.matcher("ask_knowledge").and_then(|m| m.hit(&q)).filter(|r| !r.is_empty()) {
+                if let Some((id, topic, level, summary)) = bio::knowledge(sheet, book, book.bare(&rest), &base) {
+                    let mut v = base.clone();
+                    v.text("knowledge", summary).text("knowledge_topic", topic).int("knowledge_level", level);
+                    if let Some(out) = say(pending, "bio", "ask_knowledge", &v, vec![("knowledge", Value::str(id))]) {
                         return Ok(out);
                     }
                 }
@@ -1929,6 +1966,7 @@ impl RoleplayEngine {
                 config,
                 input,
                 base: &base,
+                health: opt(t, "health"),
                 scene: sc,
                 sight,
                 sound: scene_sound

@@ -31,6 +31,7 @@ Turning a stage off never changes what an earlier stage does.
 | 7 | `services` | A service request phrase ("sell me bread") whose `when` holds | `services` / `action` or `clarify` |
 | 8 | `directions` | `*approaches X*`, `*enters Y*` against host-listed `targets` (and, with `scenery`, the place's spots) | `direction` / `direction` or `clarify` |
 | 9 | `perception`, `entrances`, `scenery`, `persona` | Where are we / what do you see / hear / your name; how do I get out; smell, light, temperature; what do you do, tell me about yourself | `perception`, `entrances`, `scenery`, `persona` / `reply` |
+| 9a | `bio` | How old are you, when is your birthday, what is your trade, what are you good at / are you good at X, what do you know about X, are you hurt, do you have family | `bio` / `reply` |
 | 10 | `props`, `entrances`, `scenery` | Look at / describe / what is a present prop, a visible entrance, or a spot | `props`, `entrances`, `scenery` / `reply` |
 | 11 | `commands` | The bounded English command grammar over this turn's legal `choices` | `command` / `action` or `clarify` |
 | 12 | `disclosures` | A single-sentence "My name is …", "Call me …, not …", "I like …" (remembered per listener, `max_preferences` 1–16, default 3) | `disclosure` / `reply` |
@@ -170,6 +171,45 @@ A sheet is fixed, authored content about one character. Put it in the config as 
 - `speech` (`formality`, `verbosity`, `quirks`, `catchphrases`, `avoid_words`) and the
   rest of `persona` (`pronouns`, `appearance`, `values`, `fears`, `desires`) go into the
   [model brief](#model-requests-and-replies).
+
+### Bio: age, birthday, profession, skills, knowledge, health, family
+
+`bio` holds the facts people ask about a person. Everything in it is optional:
+
+```json
+"bio":{"species":"human","age":34,"birthday":{"month":3,"day":14},"profession":"a baker",
+ "anatomy":{"body":"humanoid","parts":["two arms","two legs"],"notes":"A burn scar on the left wrist."},
+ "health":{"status":"hurt","conditions":[{"id":"burn","label":"a burned hand","severity":30,"visible":true},
+                                         {"id":"fever","label":"a hidden fever","severity":60,"visible":false}]},
+ "skills":[{"id":"baking","label":"baking","level":90,"phrases":["making bread"]},
+           {"id":"singing","label":"singing","level":20},{"id":"sums","label":"sums","level":50}],
+ "knowledge":[{"id":"mill","topic":"the mill","phrases":["mill"],"level":90,
+               "summary":"The mill is behind on repairs.","when":{"trust":{"min":50}}}],
+ "family":[{"name":"Hessa","relation":"mother","status":"alive"},{"name":"Orrin","relation":"father","status":"deceased"},
+           {"name":"Pell","relation":"brother","status":"estranged"}]}
+```
+
+| Player | Outcome (`route: bio`) |
+|---|---|
+| How old are you? | `age`: "I am 34 years old." |
+| When is your birthday? (turn `date` {month 3, day 14}) | `birthday_today`: "It's today, as it happens: March 14." |
+| What is your trade? | `profession`: "I'm a baker by trade." |
+| What are you good at? | `skills`: the top three by level, "I'm best at baking, sums and singing." |
+| Are you good at making bread? | `skill_expert` (≥75) / `skill_able` (≥40) / `skill_novice` (≥1) / `skill_none` |
+| What do you know about the mill? | `knowledge_deep` (level ≥50: the summary) or `knowledge_shallow`, only while `when` holds; otherwise it falls through |
+| Are you hurt? | `health_conditions`: "I'm hurt: a burned hand." (visible conditions only) |
+| Do you have family? | `family`: "My family is my mother Hessa, my late father Orrin and my estranged brother Pell." |
+
+- Health changes in play: send the live `health` with the turn and it replaces the
+  sheet's. Conditions with `visible: false` are never spoken or put in the model brief;
+  use a secret if the character may confide one.
+- Month names and family wording ("my late …", "my estranged …") are pack lines
+  (`birthday_date`, `family_member`), so other languages supply their own.
+- Every bio value is also a template variable (`age`, `profession`, `health`,
+  `is_birthday`, `skills`, `family`, …), so any line or `when` can use them: a merchant
+  can greet differently on their birthday, a wounded guard can refuse a duel.
+- Turn `bio` off and these questions reach the model, which still gets the bio brief
+  only while `bio` is on.
 
 ## World codex
 
@@ -384,10 +424,10 @@ player file and is revalidated in full on load.
 
 Conformance, parity and fuzzing are offline and made zero model calls:
 
-- **177 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
+- **208 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
   the codex and sheet, 26 for model requests and replies, 32 for embodiment, matter and
-  spatial addressing, 15 for distance attenuation and group audiences), each with
-  predeclared expected fields. One stage 2.1
+  spatial addressing, 15 for distance attenuation and group audiences, 31 for `bio`),
+  each with predeclared expected fields. One stage 2.1
   prediction was wrong and is recorded in the cases script: "Look at the bell" with no
   bell present reaches the command grammar (`look` is a command verb) instead of the
   model, the same as Lantern Vault. With an empty sheet and codex, the 62 stage 2.1

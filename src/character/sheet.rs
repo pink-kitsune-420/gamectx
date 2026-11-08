@@ -63,6 +63,7 @@ impl CharacterSheet {
                 "habits",
                 "tags",
                 "attributes",
+                "bio",
             ],
         )?;
         c::uint(c::get(v, "version")?, 1, 1)?;
@@ -195,6 +196,9 @@ impl CharacterSheet {
         if let Some(att) = v.get("attributes").filter(|x| *x != &Value::Null) {
             validate_attributes(att)?;
         }
+        if let Some(b) = v.get("bio").filter(|x| *x != &Value::Null) {
+            validate_bio(b)?;
+        }
         Ok(Self { value: v.clone(), services, goals, relationship_names, secrets, opinions, avoid })
     }
     pub fn to_value(&self) -> Value {
@@ -248,6 +252,11 @@ impl CharacterSheet {
         self.all("tags").iter().filter_map(Value::as_str).collect()
     }
     /// Open-ended custom attributes.
+    /// The optional `bio` section: species, age, birthday, profession, anatomy, health,
+    /// skills, knowledge and family.
+    pub fn bio(&self) -> Option<&Value> {
+        self.value.get("bio").filter(|x| **x != Value::Null)
+    }
     pub fn attributes(&self) -> Option<&Value> {
         self.value.get("attributes")
     }
@@ -422,6 +431,92 @@ pub(crate) fn validate_matter(v: &Value) -> Result<()> {
     for k in ["material", "color", "texture"] {
         if let Some(val) = v.get(k).filter(|x| *x != &Value::Null) {
             line(val, 48, usize::MAX)?;
+        }
+    }
+    Ok(())
+}
+
+/// Health statuses a sheet or turn may give.
+pub const HEALTH: [&str; 6] = ["healthy", "tired", "hurt", "ill", "wounded", "critical"];
+/// Family member statuses.
+pub const FAMILY_STATUS: [&str; 4] = ["alive", "deceased", "estranged", "unknown"];
+
+/// A calendar day `{month 1–12, day}` (February may have 29 days).
+pub(crate) fn validate_day(v: &Value) -> Result<(u64, u64)> {
+    keys(v, &["month", "day"], &[])?;
+    let m = c::uint(c::get(v, "month")?, 1, 12)?;
+    let dim = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m as usize - 1];
+    Ok((m, c::uint(c::get(v, "day")?, 1, dim)?))
+}
+
+/// `{status, conditions?: ≤16 [{id, label ≤48, severity 0–100, visible}]}`.
+pub(crate) fn validate_health(v: &Value) -> Result<()> {
+    keys(v, &["status"], &["conditions"])?;
+    if !HEALTH.contains(&c::text(c::get(v, "status")?)?) {
+        return Err(c::bad());
+    }
+    let given = list(v.get("conditions"), 0, 16)?;
+    for x in given {
+        keys(x, &["id", "label", "severity", "visible"], &[])?;
+        line(c::get(x, "label")?, 48, usize::MAX)?;
+        c::uint(c::get(x, "severity")?, 0, 100)?;
+        c::boolean(c::get(x, "visible")?)?;
+    }
+    unique_ids(given)
+}
+
+pub(crate) fn validate_bio(v: &Value) -> Result<()> {
+    keys(v, &[], &["species", "age", "birthday", "profession", "anatomy", "health", "skills", "knowledge", "family"])?;
+    opt_text(v, "species", 48)?;
+    opt_text(v, "profession", 80)?;
+    if let Some(a) = v.get("age") {
+        c::uint(a, 0, 100_000)?;
+    }
+    if let Some(b) = v.get("birthday") {
+        validate_day(b)?;
+    }
+    if let Some(a) = v.get("anatomy") {
+        keys(a, &[], &["body", "parts", "notes"])?;
+        opt_text(a, "body", 48)?;
+        opt_text(a, "notes", 240)?;
+        for p in list(a.get("parts"), 0, 16)? {
+            line(p, 48, usize::MAX)?;
+        }
+    }
+    if let Some(h) = v.get("health") {
+        validate_health(h)?;
+    }
+    let mut seen = Vec::new();
+    let skills = list(v.get("skills"), 0, 32)?;
+    for x in skills {
+        keys(x, &["id", "label", "level"], &["phrases"])?;
+        line(c::get(x, "label")?, 48, usize::MAX)?;
+        c::uint(c::get(x, "level")?, 0, 100)?;
+        if let Some(p) = x.get("phrases") {
+            phrases(p, &mut seen, 8)?;
+        }
+    }
+    unique_ids(skills)?;
+    let mut seen = Vec::new();
+    let knowledge = list(v.get("knowledge"), 0, 32)?;
+    for x in knowledge {
+        keys(x, &["id", "topic", "phrases", "level", "summary"], &["when"])?;
+        line(c::get(x, "topic")?, 48, usize::MAX)?;
+        phrases(c::get(x, "phrases")?, &mut seen, 8)?;
+        c::uint(c::get(x, "level")?, 0, 100)?;
+        line(c::get(x, "summary")?, 240, usize::MAX)?;
+        Conditions::field(x, "when", &VARS)?;
+    }
+    unique_ids(knowledge)?;
+    for x in list(v.get("family"), 0, 16)? {
+        keys(x, &["name", "relation", "status"], &["with"])?;
+        line(c::get(x, "name")?, 32, usize::MAX)?;
+        line(c::get(x, "relation")?, 32, usize::MAX)?;
+        if !FAMILY_STATUS.contains(&c::text(c::get(x, "status")?)?) {
+            return Err(c::bad());
+        }
+        if let Some(w) = x.get("with") {
+            ident(w)?;
         }
     }
     Ok(())

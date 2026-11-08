@@ -2,6 +2,17 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Character sheets gain `bio`: species, age, birthday, profession, anatomy, health
+  (status and conditions, visible or hidden), skills with levels, knowledge topics (gated by
+  `when`) and family. A new switchable engine feature `bio` answers age, birthday,
+  trade, skills, knowledge, health and family questions from it, and adds the facts to
+  the model brief. Turns may send live `health` and today's `date`. All wording is in pack
+  lines. 31 additive cases. Rust is byte-identical to the Python reference on them and on
+  3,000 randomized workflows.
+  - **[format]** The engine config echo now lists `"bio":{"enabled":true}`, so 138
+    `roleplay-engine` expected outputs gained exactly that text and nothing else.
+  - Fixed the Python stage-action reference, which accepted a string as `phrases`; Rust
+    already rejected it.
 - Added `media::visual::VisualDirector` (phase 2.3) and the `visual-director` local kind:
   tiered art bibles (1–4, falling back to a lower tier that has the entity), format profiles
   (format, framing, camera angle, size), host fact selectors (`when` over typed host

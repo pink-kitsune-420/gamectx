@@ -352,6 +352,62 @@ CASES_E = [
 ]
 
 
+# Stage bio (sheet age, birthday, profession, skills, knowledge, health, family); expectations written before running.
+BIO = dict(age=34, birthday=dict(month=3, day=14), profession='a baker', species='human',
+           anatomy=dict(body='humanoid', parts=['two arms', 'two legs'], notes='A burn scar on the left wrist.'),
+           health=dict(status='hurt', conditions=[dict(id='burn', label='a burned hand', severity=30, visible=True), dict(id='fever', label='a hidden fever', severity=60, visible=False)]),
+           skills=[dict(id='baking', label='baking', level=90, phrases=['making bread']), dict(id='singing', label='singing', level=20), dict(id='sums', label='sums', level=50)],
+           knowledge=[dict(id='grain', topic='grain', phrases=['flour', 'wheat'], level=80, summary='Good flour comes from the eastern fields.'),
+                      dict(id='herbs', topic='herbs', phrases=['herb lore'], level=20, summary='Mint grows by the well.'),
+                      dict(id='mill', topic='the mill', phrases=['mill'], level=90, summary='The mill is behind on repairs.', when=dict(trust=dict(min=50)))],
+           family=[dict(name='Hessa', relation='mother', status='alive'), dict(name='Orrin', relation='father', status='deceased'), dict(name='Pell', relation='brother', status='estranged')])
+def bio(**over): return dict(version=1, bio=dict(BIO, **over))
+def bline(line, **kw): return (0, dict(route='bio', line=line, **kw))
+CASES_F = [
+    ('f_bio_age', run([turn('How old are you?')], sheet=bio()), False, [bline('age', text='I am 34 years old.')]),
+    ('f_bio_age_none', run([turn("What's your age?")], sheet=dict(version=1, bio=dict(profession='a baker'))), False, [bline('age_none')]),
+    ('f_bio_birthday', run([turn('When is your birthday?')], sheet=bio()), False, [bline('birthday', text='My birthday is March 14.')]),
+    ('f_bio_birthday_today', run([turn('When is your birthday?', date=dict(month=3, day=14))], sheet=bio()), False, [bline('birthday_today', text="It's today, as it happens: March 14.")]),
+    ('f_bio_birthday_other_day', run([turn('When were you born?', date=dict(month=3, day=15))], sheet=bio()), False, [bline('birthday')]),
+    ('f_bio_profession', run([turn('What is your trade?')], sheet=bio()), False, [bline('profession', text="I'm a baker by trade.")]),
+    ('f_bio_skills', run([turn('What are you good at?')], sheet=bio()), False, [bline('skills', text="I'm best at baking, sums and singing.")]),
+    ('f_bio_skill_expert', run([turn('Are you good at making bread?')], sheet=bio()), False, [bline('skill_expert', skill='baking', text="I'm very good at baking.")]),
+    ('f_bio_skill_able', run([turn('How good are you at sums?')], sheet=bio()), False, [bline('skill_able', skill='sums')]),
+    ('f_bio_skill_novice', run([turn('Can you sing?')], sheet=bio(skills=[dict(id='singing', label='singing', level=20, phrases=['sing'])])), False, [bline('skill_novice')]),
+    ('f_bio_skill_unknown', run([turn('Are you good at fencing?')], sheet=bio()), False, [(0, dict(route='model'))]),
+    ('f_bio_knowledge_deep', run([turn('What do you know about flour?')], sheet=bio()), False, [bline('knowledge_deep', knowledge='grain', text='Good flour comes from the eastern fields.')]),
+    ('f_bio_knowledge_shallow', run([turn('What do you know about herbs?')], sheet=bio()), False, [bline('knowledge_shallow', text='I know only a little about herbs.')]),
+    ('f_bio_knowledge_locked', run([turn('What do you know about the mill?')], sheet=bio()), False, [(0, dict(route='model'))]),
+    ('f_bio_knowledge_unlocked', run([turn('What do you know about the mill?', trust=60)], sheet=bio()), False, [bline('knowledge_deep', knowledge='mill')]),
+    ('f_bio_health_conditions', run([turn('Are you hurt?')], sheet=bio()), False, [bline('health_conditions', text="I'm hurt: a burned hand.")]),
+    ('f_bio_health_turn_override', run([turn('Are you ill?', health=dict(status='healthy'))], sheet=bio()), False, [bline('health_fine', text="I'm in good health.")]),
+    ('f_bio_health_plain', run([turn('How is your health?', health=dict(status='tired', conditions=[dict(id='x', label='a secret wound', severity=90, visible=False)]))], sheet=bio()), False,
+     [bline('health', text="I'm tired.")]),
+    ('f_bio_family', run([turn('Do you have family?')], sheet=bio()), False,
+     [bline('family', text='My family is my mother Hessa, my late father Orrin and my estranged brother Pell.')]),
+    ('f_bio_family_none', run([turn('Are you married?')], sheet=bio(family=[])), False, [bline('family_none')]),
+    ('f_bio_disabled', run([turn('How old are you?')], sheet=bio(), features=dict(bio=dict(enabled=False))), False, [(0, dict(route='model'))]),
+    ('f_bio_no_bio_section', run([turn('How old are you?')]), False, [(0, dict(route='model'))]),
+    ('f_bio_model_brief', runb([turnb(ASK, date=dict(month=3, day=14))], sheet=dict(SHEET, bio=BIO)), False, [(0, dict(route='model'))]),
+    ('f_bad_bio_age', run([turn('Hi')], sheet=bio(age=-1)), True, []),
+    ('f_bad_bio_feb30', run([turn('Hi')], sheet=bio(birthday=dict(month=2, day=30))), True, []),
+    ('f_bad_bio_health_status', run([turn('Hi')], sheet=bio(health=dict(status='fine'))), True, []),
+    ('f_bad_bio_family_status', run([turn('Hi')], sheet=bio(family=[dict(name='A', relation='aunt', status='missing')])), True, []),
+    ('f_bad_bio_skill_dup', run([turn('Hi')], sheet=bio(skills=[dict(id='a', label='a', level=1), dict(id='a', label='b', level=2)])), True, []),
+    ('f_bad_bio_unknown_key', run([turn('Hi')], sheet=bio(zodiac='pisces')), True, []),
+    ('f_bad_turn_date', run([turn('Hi', date=dict(month=13, day=1))]), True, []),
+    ('f_bad_turn_health', run([turn('Hi', health=dict(status='healthy', conditions=[dict(id='a', label='x', severity=101, visible=True)]))]), True, []),
+]
+
+
+def check_bio_brief():
+    """The model brief carries bio facts without hidden conditions or locked knowledge."""
+    r = oracle(copy.deepcopy(next(a for n, a, *_ in CASES_F if n == 'f_bio_model_brief')))['results'][0]['request']
+    brief = json.loads(r['messages'][1]['content']); sit = json.loads(r['messages'][2]['content'])
+    b = brief['bio']; assert b['age'] == 34 and b['birthday'] == 'March 14' and b['health'] == dict(status='hurt', conditions=['a burned hand'])
+    assert 'fever' not in enc(r) and 'repairs' not in enc(r) and [k['topic'] for k in b['knowledge']] == ['grain', 'herbs'] and sit['birthday'] is True
+
+
 def check_requests():
     """Expectation 10 on the reference itself: shape, order and secret gating."""
     r = oracle(copy.deepcopy(CASES_C[0][1]))['results'][0]['request']
@@ -367,7 +423,7 @@ def check_requests():
 
 
 def cases():
-    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D + CASES_E]
+    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D + CASES_E + CASES_F]
     # Checkpoint round trip: a saved state restores and continues identically.
     first = oracle(copy.deepcopy(run([turn('Hello!'), heard(FIRST), turn('My name is Arin.', token=2, at=2), heard('Arin; thank you for telling me your name.', token=2)])))
     rows.append(('restore_continues', dict(config=cfg(), state=first['state'], ops=[turn('Hello again', token=3, at=3), turn('What is my name?', token=4, at=4)]), False,
@@ -394,7 +450,7 @@ def lantern_vault_wording():
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--cap', required=True, type=float); p.add_argument('--prototype-only', action='store_true'); p.add_argument('--write-conformance', action='store_true')
     a = p.parse_args(); assert a.cap == 0, 'roleplay engine cases are offline only'
-    rows = cases(); ported = lantern_vault_wording(); check_requests()
+    rows = cases(); ported = lantern_vault_wording(); check_requests(); check_bio_brief()
     for name, args, error, wants in rows:
         try:
             got = oracle(copy.deepcopy(args)); assert not error, name

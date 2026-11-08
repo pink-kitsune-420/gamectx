@@ -11,7 +11,7 @@ def decision(d):
 def oracle(a):
  assert set(a)=={'registry','input','choices'};r=a['registry'];assert set(r)=={'version','entries'}and r['version']==1 and len(r['entries'])<=128;seen=[];ids=[]
  for e in r['entries']:
-  assert set(e)=={'id','phrases','decision','narration'};ident(e['id']);assert e['id']not in ids;ids.append(e['id']);line(e['narration'],240);decision(e['decision']);assert 1<=len(e['phrases'])<=8
+  assert set(e)=={'id','phrases','decision','narration'};ident(e['id']);assert e['id']not in ids;ids.append(e['id']);line(e['narration'],240);decision(e['decision']);assert isinstance(e['phrases'],list) and 1<=len(e['phrases'])<=8
   for phrase in e['phrases']:
    line(phrase,128);key=normalized(phrase);assert key and key not in seen;seen.append(key)
  assert len(a['choices'])<=128

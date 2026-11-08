@@ -5,7 +5,7 @@ use crate::{checked as c, Result, Value};
 
 /// Template and `when` variables a line may use. Unknown names are config errors;
 /// conditions may also test host flags written `state.<id>`.
-pub const VARS: [&str; 82] = [
+pub const VARS: [&str; 108] = [
     "name",
     "scene",
     "place",
@@ -88,6 +88,32 @@ pub const VARS: [&str; 82] = [
     "has_texture",
     "has_matter",
     "state",
+    "age",
+    "has_age",
+    "birthday",
+    "has_birthday",
+    "birth_month",
+    "birth_day",
+    "is_birthday",
+    "profession",
+    "has_profession",
+    "health",
+    "has_health",
+    "conditions",
+    "has_conditions",
+    "skills",
+    "has_skills",
+    "skill",
+    "skill_level",
+    "knowledge",
+    "knowledge_topic",
+    "knowledge_level",
+    "family",
+    "has_family",
+    "relation",
+    "member",
+    "family_status",
+    "species",
 ];
 const KINDS: [&str; 4] = ["exact", "contains", "prefix", "unless"];
 

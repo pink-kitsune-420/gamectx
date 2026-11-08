@@ -165,9 +165,45 @@ def codex(v, vars_):
     return v
 
 
+HEALTH = ['healthy', 'tired', 'hurt', 'ill', 'wounded', 'critical']
+FAMILY_STATUS = ['alive', 'deceased', 'estranged', 'unknown']
+def day(v):
+    keys(v, ['month', 'day']); m = uint(v['month'], 1, 12); uint(v['day'], 1, [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]); return v
+def health(v):
+    keys(v, ['status'], ['conditions']); assert v['status'] in HEALTH
+    cs = lst(v.get('conditions', []), 0, 16)
+    for x in cs: keys(x, ['id', 'label', 'severity', 'visible']); text(x['label'], 48); uint(x['severity'], 0, 100); assert type(x['visible']) is bool
+    unique_ids(cs); return v
+def bio(v, vars_):
+    keys(v, [], ['species', 'age', 'birthday', 'profession', 'anatomy', 'health', 'skills', 'knowledge', 'family'])
+    if 'species' in v: text(v['species'], 48)
+    if 'profession' in v: text(v['profession'], 80)
+    if 'age' in v: uint(v['age'], 0, 100000)
+    if 'birthday' in v: day(v['birthday'])
+    if 'anatomy' in v:
+        a = v['anatomy']; keys(a, [], ['body', 'parts', 'notes'])
+        if 'body' in a: text(a['body'], 48)
+        if 'notes' in a: text(a['notes'], 240)
+        for p in lst(a.get('parts', []), 0, 16): text(p, 48)
+    if 'health' in v: health(v['health'])
+    seen = []; skills = lst(v.get('skills', []), 0, 32)
+    for x in skills:
+        keys(x, ['id', 'label', 'level'], ['phrases']); text(x['label'], 48); uint(x['level'], 0, 100)
+        if 'phrases' in x: phrases(x['phrases'], seen, 8)
+    unique_ids(skills)
+    seen = []; know = lst(v.get('knowledge', []), 0, 32)
+    for x in know:
+        keys(x, ['id', 'topic', 'phrases', 'level', 'summary'], ['when']); text(x['topic'], 48); phrases(x['phrases'], seen, 8); uint(x['level'], 0, 100); text(x['summary'], 240)
+        conditions(x.get('when', {}), vars_)
+    unique_ids(know)
+    for x in lst(v.get('family', []), 0, 16):
+        keys(x, ['name', 'relation', 'status'], ['with']); text(x['name'], 32); text(x['relation'], 32); assert x['status'] in FAMILY_STATUS
+        if 'with' in x: ident(x['with'])
+
+
 def sheet(v, cdx, vars_):
     keys(v, ['version'], ['persona', 'speech', 'services', 'goals', 'needs', 'relationships', 'factions', 'secrets', 'opinions',
-                          'features', 'clothing', 'state', 'sensory', 'habits', 'tags', 'attributes']); uint(v['version'], 1, 1)
+                          'features', 'clothing', 'state', 'sensory', 'habits', 'tags', 'attributes', 'bio']); uint(v['version'], 1, 1)
     p = v.get('persona', {}); keys(p, [], ['pronouns', 'role', 'summary', 'appearance', 'values', 'fears', 'desires'])
     for k, n in [('pronouns', 32), ('role', 80), ('summary', 240), ('appearance', 480)]:
         if k in p: text(p[k], n)
@@ -237,6 +273,7 @@ def sheet(v, cdx, vars_):
         sn = v['sensory']; keys(sn, [], ['scent', 'voice_tone'])
         for k in ['scent', 'voice_tone']:
             if k in sn and sn[k] is not None: text(sn[k], 48)
+    if v.get('bio') is not None: bio(v['bio'], vars_)
     if 'habits' in v and v['habits'] is not None:
         for h in lst(v['habits'], 0, 16): text(h, 80)
     if 'tags' in v and v['tags'] is not None:

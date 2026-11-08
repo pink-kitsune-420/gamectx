@@ -51,6 +51,11 @@ noted; "3 models" adds Llama 3.3 70B.
     waits or gestures), with host audiences (one id or a group), named speech, facing,
     nearest character, earshot and distance attenuation. 47 cases, 0 parity mismatches.
     [Guide](characters/ROLEPLAY_ENGINE.md#addressing).
+  - Done: character `bio` (age, birthday, profession, anatomy, health, skills,
+    knowledge, family) as a sheet section and engine feature; 31 cases.
+  - Next: a world timeline (an ordered, authoritative history of what happened, kept in
+    saves), place kinds and containment (city ⊃ house ⊃ room; forest, castle, cave), then
+    the Lantern Vault migration.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.

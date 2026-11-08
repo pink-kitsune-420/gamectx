@@ -46,14 +46,15 @@ import expression_cases, greeting_memory_cases, message_chunks_cases, overnight_
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[], model_rules=[])}
 FEATURES = ['chunks', 'out_of_character', 'addressing', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
-            'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals']
+            'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals', 'bio']
 PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), addressing=dict(action_turns=(0, 100, 3), conversational_distance=(1, 100, 5), max_distance=(1, 1000, 20)),
               disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)),
               model=dict(max_tokens=(16, 1024, 160), max_sentences=(1, 4, 3), max_chars=(40, 240, 240), brief_chars=(512, 16384, 4096)))
 VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
            'exits status destination through heard smell light temperature floor has_floor ceiling has_ceiling exterior role summary services label text need has_need person kind faction stance event events timing quest stage sentences facing spot '
            'material color texture clothing eyes hair skin posture activity awareness expression scent '
-           'held has_held has_posture gaze has_gaze has_clothing has_activity has_material has_color has_texture has_matter state'.split())
+           'held has_held has_posture gaze has_gaze has_clothing has_activity has_material has_color has_texture has_matter state '
+           'age has_age birthday has_birthday birth_month birth_day is_birthday profession has_profession health has_health conditions has_conditions skills has_skills skill skill_level knowledge knowledge_topic knowledge_level family has_family relation member family_status species'.split())
 MATCHERS = ['exact', 'contains', 'prefix', 'unless']
 U32 = 4294967295
 
@@ -314,6 +315,71 @@ class Engine:
             assert len(self.state['listeners']) < 256; l = dict(id=who, name=None, preferences=[], recent=[], topic=None, revealed=[]); self.state['listeners'].append(l)
         return l
 
+    # Stage `bio` (sheet age, birthday, profession, skills, knowledge, health, family).
+    def bio_health(self, turn_health):
+        return turn_health if turn_health is not None else (self.sheet.get('bio') or {}).get('health')
+
+    @staticmethod
+    def bio_visible(h):
+        return sorted([c for c in (h or {}).get('conditions', []) if c['visible'] is True], key=lambda c: (-c['severity'], c['id']))
+
+    def bio_ranked(self):
+        return sorted((self.sheet.get('bio') or {}).get('skills', []), key=lambda x: (-x['level'], x['id']))
+
+    def bio_vars(self, base, turn_health, date):
+        bio = self.sheet.get('bio') or {}
+        if 'species' in bio: base['species'] = bio['species']
+        base['has_age'] = 'age' in bio
+        if 'age' in bio: base['age'] = bio['age']
+        b = bio.get('birthday'); base['has_birthday'] = b is not None; today = False
+        if b is not None:
+            base['birth_month'] = b['month']; base['birth_day'] = b['day']
+            got = self.say('birthday_date', base, [])
+            if got is not None: base['birthday'] = got[1]
+            today = date is not None and date['month'] == b['month'] and date['day'] == b['day']
+        base['is_birthday'] = today
+        base['has_profession'] = 'profession' in bio
+        if 'profession' in bio: base['profession'] = bio['profession']
+        h = self.bio_health(turn_health); base['has_health'] = h is not None
+        if h is not None: base['health'] = h['status']
+        for flag, var, labels in [('has_conditions', 'conditions', [c['label'] for c in self.bio_visible(h)]), ('has_skills', 'skills', [x['label'] for x in self.bio_ranked()[:3]])]:
+            j = self.joined(labels) if labels else None
+            j = j if j is not None and len(j) <= 240 else None
+            base[flag] = j is not None
+            if j is not None: base[var] = j
+        members = []
+        for m in bio.get('family', []):
+            got = self.say('family_member', dict(relation=m['relation'], member=m['name'], family_status=m['status']), [])
+            if got is not None: members.append(got[1])
+        j = self.joined(members) if members else None
+        j = j if j is not None and len(j) <= 240 else None
+        base['has_family'] = j is not None
+        if j is not None: base['family'] = j
+
+    def bio_skill(self, want):
+        for x in (self.sheet.get('bio') or {}).get('skills', []):
+            if any(self.bare(norm(n)) == want for n in [x['label']] + x.get('phrases', [])): return x
+        return None
+
+    def bio_knowledge(self, want, base):
+        x = next((k for k in (self.sheet.get('bio') or {}).get('knowledge', []) if any(self.bare(norm(n)) == want for n in [k['topic']] + k['phrases'])), None)
+        return x if x is not None and when_ok(x.get('when', {}), base) else None
+
+    def bio_brief(self, turn_health, base):
+        bio = self.sheet.get('bio') or {}; out = {}
+        for k in ['species', 'age']:
+            if k in bio: out[k] = bio[k]
+        if 'birthday' in base: out['birthday'] = base['birthday']
+        for k in ['profession', 'anatomy']:
+            if k in bio: out[k] = copy.deepcopy(bio[k])
+        h = self.bio_health(turn_health)
+        if h is not None: out['health'] = dict(status=h['status'], conditions=[c['label'] for c in self.bio_visible(h)])
+        if bio.get('skills'): out['skills'] = [dict(name=x['label'], level=x['level']) for x in self.bio_ranked()]
+        known = [dict(topic=k['topic'], level=k['level'], summary=k['summary']) for k in bio.get('knowledge', []) if when_ok(k.get('when', {}), base)]
+        if known: out['knowledge'] = known
+        if bio.get('family'): out['family'] = [dict(name=m['name'], relation=m['relation'], status=m['status']) for m in bio['family']]
+        return out or None
+
     def say(self, intent, v, recent):
         for r in self.lines:
             if r['intent'] != intent or not when_ok(r.get('when', {}), v): continue
@@ -418,7 +484,9 @@ class Engine:
                                                                'audience', 'distance', 'facing', 'spot', 'coords', 'speaker_facing', 'speaker_spot', 'speaker_coords',
                                                                'line_of_sight', 'blocked_by', 'behind', 'dimensions',
                                                                'features', 'clothing', 'sensory', 'habits', 'tags', 'attributes',
-                                                               'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent'])
+                                                               'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent', 'health', 'date'])
+        if t.get('health') is not None: defs.health(t['health'])
+        if t.get('date') is not None: defs.day(t['date'])
         who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
         assert all(p['token'] != token for p in self.state['pending'] + self.state['asked'])
         if t.get('audience') is not None: audience_val(t['audience'])
@@ -638,6 +706,7 @@ class Engine:
         scent = t.get('scent') if t.get('scent') is not None else (t.get('sensory') or {}).get('scent') if (t.get('sensory') or {}).get('scent') is not None else (sh.get('sensory') or {}).get('scent')
         if scent: base['scent'] = scent
         for k, x in flags.items(): base['state.' + k] = x
+        self.bio_vars(base, t.get('health'), t.get('date'))
         if self.on('goals'):
             urgent = [(needs[n['id']], -i, n) for i, n in enumerate(sh.get('needs', [])) if n['id'] in needs and needs[n['id']] >= n['threshold']]
             base['has_need'] = bool(urgent)
@@ -760,6 +829,15 @@ class Engine:
                     if k in sh.get('persona', {}): v[k] = sh['persona'][k]
             for route_name, intent in asks:
                 if match(self.phrases.get(intent), q)[0] and (out := reply(route_name, intent, v)): return out
+        if self.on('bio') and not long and sh.get('bio') is not None:
+            for intent in ['ask_age', 'ask_birthday', 'ask_profession', 'ask_skills', 'ask_health', 'ask_family']:
+                if match(self.phrases.get(intent), q)[0] and (out := reply('bio', intent, base)): return out
+            ok, rest = match(self.phrases.get('ask_skill'), q)
+            if ok and rest and (k := self.bio_skill(self.bare(rest))) is not None:
+                if out := reply('bio', 'ask_skill', dict(base, skill=k['label'], skill_level=k['level']), dict(skill=k['id'])): return out
+            ok, rest = match(self.phrases.get('ask_knowledge'), q)
+            if ok and rest and (k := self.bio_knowledge(self.bare(rest), base)) is not None:
+                if out := reply('bio', 'ask_knowledge', dict(base, knowledge=k['summary'], knowledge_topic=k['topic'], knowledge_level=k['level']), dict(knowledge=k['id'])): return out
         if not long and (self.on('props') or self.on('entrances') or self.on('scenery')):
             ok, rest = match(self.phrases.get('describe_prop'), q)
             if ok and rest:
@@ -911,14 +989,14 @@ class Engine:
                 if reason is not None: v['reason'] = reason
                 if out := reply('social', intent, v): return out
         if self.on('model'):
-            req = self.compile(line, who, base, sc, present, visible, place, timing, ambience, recent)
+            req = self.compile(line, who, base, sc, present, visible, place, timing, ambience, recent, t.get('health'))
             if len(self.state['asked']) == 16: self.state['asked'].pop(0)
             self.state['asked'].append(dict(token=token, listener=who, scene=sc['id'], visit=sc['visit'], at=at))
             return dict(route='model', kind='model', input=line, long=long, expression=expression(), topic=route['topic'], request=req)
         if self.on('social') and (out := reply('fallback', 'unknown', base)): return out
         return dict(route='none', kind='silent')
 
-    def compile(self, line, who, base, sc, present, visible, place, timing, ambience, recent):
+    def compile(self, line, who, base, sc, present, visible, place, timing, ambience, recent, health=None):
         """Expectation 10: rules, brief, situation, player words; locked secrets never appear."""
         cfg = self.cfg; m = cfg['features']['model']; sh = self.sheet; cdx = self.codex; me = cfg['character']
         v = dict(base, sentences=m['max_sentences'])
@@ -933,6 +1011,7 @@ class Engine:
             if sh.get('features'): brief['features'] = dict(sh['features'])
             if sh.get('clothing'): brief['clothing'] = list(sh['clothing'])
             if sh.get('state'): brief['state'] = dict(sh['state'])
+        if self.on('bio') and (b := self.bio_brief(health, base)) is not None: brief['bio'] = b
         if self.on('relationships') and sh.get('relationships'): brief['relationships'] = [dict(name=r['name'], kind=r['kind']) for r in sh['relationships']]
         if self.on('factions') and sh.get('factions'):
             brief['factions'] = []
@@ -967,11 +1046,12 @@ class Engine:
             cands = [g for g in sh.get('goals', []) if when_ok(g.get('when', {}), base)]
             if cands: sit['goal'] = max(cands, key=lambda g: g['priority'])['description']
             if base.get('has_need'): sit['need'] = base['need']
+        if self.on('bio') and base.get('is_birthday') is True: sit['birthday'] = True
         if self.on('events'):
             ev = [dict(name=e['label'], timing=timing(e)) for e in cdx.get('events', []) if timing(e) in ['now', 'soon']]
             if ev: sit['events'] = ev
         if recent: sit['recent_replies'] = list(recent)
-        drops = [(sit, 'recent_replies'), (brief, 'appearance'), (brief, 'desires'), (brief, 'fears'), (brief, 'factions'), (brief, 'relationships'), (sit, 'events'),
+        drops = [(sit, 'recent_replies'), (brief, 'appearance'), (brief, 'desires'), (brief, 'fears'), (brief, 'bio'), (brief, 'factions'), (brief, 'relationships'), (sit, 'events'),
                  (brief, 'speech'), (brief, 'clothing'), (brief, 'features'), (brief, 'state'), (sit, 'need'), (sit, 'goal'), (brief, 'values'), (brief, 'summary'), (listener, 'already_told'), (listener, 'preferences'), (scene, 'exits'), (scene, 'props')]
         for d, k in drops:
             if len(enc(brief)) + len(enc(sit)) <= m['brief_chars']: break
