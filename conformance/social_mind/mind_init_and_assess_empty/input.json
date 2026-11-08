@@ -1,0 +1,19 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "subject": "baker"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker"
+        }
+      }
+    ]
+  }
+}

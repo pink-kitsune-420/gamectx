@@ -1,0 +1,26 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "merchant",
+          "listener": "buyer",
+          "topic": "origin",
+          "claim": "imported_silk",
+          "at": 20
+        }
+      },
+      {
+        "op": "check_consistency",
+        "args": {
+          "speaker": "merchant",
+          "listener": "buyer",
+          "topic": "origin",
+          "proposed_claim": "imported_silk"
+        }
+      }
+    ]
+  }
+}

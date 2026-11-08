@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Initialize relationship manager with sheet relations and attitudes, then assess.",
+  "error": false
+}

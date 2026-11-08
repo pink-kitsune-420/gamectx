@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record an intentional lie in told-ledger where claim contradicts known true value.",
+  "error": false
+}

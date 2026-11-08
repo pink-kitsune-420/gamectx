@@ -1,0 +1,29 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "feels",
+          "emotion": "respect",
+          "target": "baker",
+          "level": 35,
+          "source": "seen",
+          "at": 30
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "feels",
+          "key": "respect:baker"
+        }
+      }
+    ]
+  }
+}

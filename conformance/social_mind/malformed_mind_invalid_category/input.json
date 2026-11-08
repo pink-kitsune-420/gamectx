@@ -1,0 +1,16 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "invalid_category",
+          "fact": "fire"
+        }
+      }
+    ]
+  }
+}

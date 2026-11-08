@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Check proposed claim that contradicts prior statement made to the same listener.",
+  "error": false
+}

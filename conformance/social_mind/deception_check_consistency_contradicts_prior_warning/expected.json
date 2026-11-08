@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"dec_1","is_lie":false,"listener":"guard","ok":true,"speaker":"thief","topic":"whereabouts"},{"consistent":false,"is_prior_lie":false,"listener":"guard","ok":true,"prior_claim":"was_at_inn","speaker":"thief","topic":"whereabouts","warning":"contradicts_prior_claim_to_this_listener"}]}

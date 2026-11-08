@@ -1,0 +1,18 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve",
+        "args": {
+          "subject": "baker",
+          "target": "farmer",
+          "sheet_relationship": {
+            "with": "farmer",
+            "kind": "friend"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"dec_1","is_lie":false,"listener":"buyer","ok":true,"speaker":"merchant","topic":"price_of_flour"},{"records":[{"at":10,"claim":"5_coins","id":"dec_1","is_lie":false,"listener":"buyer","speaker":"merchant","status":"active","topic":"price_of_flour","true_value":"5_coins"}]}]}

@@ -1,0 +1,22 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "appraise_action",
+        "args": {
+          "actor": "player",
+          "target": "baker",
+          "action": "broken_promise"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker",
+          "target": "player"
+        }
+      }
+    ]
+  }
+}

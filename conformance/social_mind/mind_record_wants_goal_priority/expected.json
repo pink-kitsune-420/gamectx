@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"subject":"baker","other":"customer","category":"wants","goal":"buy_fresh_bread","priority":80,"source":"told"},{"subject":"baker","others":[{"other":"customer","wants":[{"goal":"buy_fresh_bread","priority":80,"source":"told","at":10}]}]}]}

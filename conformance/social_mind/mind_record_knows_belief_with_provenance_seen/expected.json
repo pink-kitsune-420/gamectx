@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"subject":"baker","other":"apprentice","category":"knows","fact":"fire_in_hearth","status":true,"source":"seen"},{"subject":"baker","others":[{"knows":[{"fact":"fire_in_hearth","status":true,"source":"seen","at":5,"confidence":100}],"other":"apprentice"}]}]}

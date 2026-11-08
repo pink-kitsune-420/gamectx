@@ -1,0 +1,34 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "sheet_relationships": [
+            {
+              "subject": "baker",
+              "with": "apprentice",
+              "kind": "friend"
+            }
+          ],
+          "attitudes": [
+            {
+              "subject": "baker",
+              "target": "apprentice",
+              "kind": "trust",
+              "level": -30
+            }
+          ]
+        }
+      },
+      {
+        "op": "resolve",
+        "args": {
+          "subject": "baker",
+          "target": "apprentice"
+        }
+      }
+    ]
+  }
+}

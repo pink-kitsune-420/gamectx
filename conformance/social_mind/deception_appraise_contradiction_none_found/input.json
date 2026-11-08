@@ -1,0 +1,26 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "baker",
+          "listener": "customer",
+          "topic": "freshness",
+          "claim": "baked_today",
+          "true_value": "baked_today",
+          "at": 35
+        }
+      },
+      {
+        "op": "appraise_contradiction",
+        "args": {
+          "listener": "customer",
+          "topic": "freshness",
+          "observed_truth": "baked_today"
+        }
+      }
+    ]
+  }
+}

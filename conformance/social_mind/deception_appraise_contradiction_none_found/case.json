@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Listener appraises topic with observed truth matching prior claim without contradiction.",
+  "error": false
+}

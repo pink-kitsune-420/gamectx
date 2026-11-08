@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Infer knowledge of event for another person who perceived the event in the same place.",
+  "error": false
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"dec_1","is_lie":false,"listener":"buyer","ok":true,"speaker":"merchant","topic":"origin"},{"consistent":true,"is_prior_lie":false,"listener":"buyer","ok":true,"prior_claim":"imported_silk","speaker":"merchant","topic":"origin"}]}

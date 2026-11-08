@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Infer that an occluded person in the same place with low noise could not sense the event.",
+  "error": false
+}

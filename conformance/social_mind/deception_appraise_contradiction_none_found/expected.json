@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"dec_1","is_lie":false,"listener":"customer","ok":true,"speaker":"baker","topic":"freshness"},{"contradiction_found":false,"contradictions":[],"listener":"customer","observed_truth":"baked_today","relationship_effects":[],"topic":"freshness"}]}

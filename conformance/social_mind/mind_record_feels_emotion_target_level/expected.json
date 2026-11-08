@@ -1,0 +1,1 @@
+{"version":1,"results":[{"category":"feels","emotion":"envy","level":40,"ok":true,"other":"rival","source":"inferred","subject":"baker","target":"baker"},{"subject":"baker","others":[{"feels":[{"at":12,"emotion":"envy","level":40,"source":"inferred","target":"baker"}],"other":"rival"}]}]}

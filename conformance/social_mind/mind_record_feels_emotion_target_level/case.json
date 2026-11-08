@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record belief that another person feels an emotion toward a target.",
+  "error": false
+}

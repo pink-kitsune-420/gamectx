@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record belief that another person knows a fact, witnessed directly.",
+  "error": false
+}

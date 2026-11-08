@@ -70,7 +70,10 @@ a [witness bridge](docs/characters/LIFE.md#witness-bridge-gap-1) (turning timeli
 a [motive arbiter](docs/characters/LIFE.md#motive-arbiter-gap-3) (deterministic, explainable ranking across emergencies, needs, promises, routines, goals, and brain impulses on a common 0..=100 scale),
 [tasks and planning](docs/characters/LIFE.md#tasks-and-planning-gap-4) (task objects, deterministic planner over the action catalog, host-validated model proposals, and step advancement via confirmed outcomes),
 [affect dynamics](docs/characters/LIFE.md#affect-decay-and-missing-feelings-gap-6) (mood separation, attitude decay toward temperament baselines, and additive attitude kinds fear/respect/gratitude/envy/admiration),
-and [skills dynamics](docs/characters/LIFE.md#skills-growth-with-use-gap-8) (diminishing-returns practice gain, action duration/risk/quality scaling, and teaching between beings).
+[skills dynamics](docs/characters/LIFE.md#skills-growth-with-use-gap-8) (diminishing-returns practice gain, action duration/risk/quality scaling, and teaching between beings),
+[theory of mind](docs/characters/LIFE.md#theory-of-mind-gap-7) (modeling other beings' knowledge, desires, and emotions with provenance and witness-based inference),
+a [deception ledger](docs/characters/LIFE.md#deception-ledger-gap-13) (told-ledger per listener, pre-speech consistency checking, and contradiction appraisal on exposure),
+and [relationship reconciliation](docs/characters/LIFE.md#relationship-reconciliation-gap-9) (precedence across Life attitudes, Sheet relations, and community standing with unified action appraisal and community trust aggregation).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

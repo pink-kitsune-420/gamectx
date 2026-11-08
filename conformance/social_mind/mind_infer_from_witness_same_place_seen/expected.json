@@ -1,0 +1,1 @@
+{"version":1,"results":[{"fact":"cart_crash","inferences":[{"confidence":100,"fact":"cart_crash","knows":true,"other":"carter","reason":"actor","source":"seen"}],"ok":true,"subject":"baker"}]}

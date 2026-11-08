@@ -1,0 +1,27 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "customer",
+          "category": "wants",
+          "goal": "buy_fresh_bread",
+          "priority": 80,
+          "source": "told",
+          "at": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker",
+          "other": "customer",
+          "category": "wants"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"dec_1","is_lie":true,"listener":"guard","ok":true,"speaker":"thief","topic":"stolen_gems"},{"records":[{"at":15,"claim":"saw_nothing","id":"dec_1","is_lie":true,"listener":"guard","speaker":"thief","status":"active","topic":"stolen_gems","true_value":"hidden_in_boot"}]}]}

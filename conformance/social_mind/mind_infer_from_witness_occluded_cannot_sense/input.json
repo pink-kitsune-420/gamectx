@@ -1,0 +1,43 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "infer_from_witness",
+        "args": {
+          "subject": "baker",
+          "fact": "whispered_secret",
+          "entry": {
+            "at": 20,
+            "kind": "whisper",
+            "place": "pantry",
+            "actors": [
+              "baker"
+            ],
+            "visibility": "witnessed",
+            "noise": 5
+          },
+          "beings": [
+            {
+              "id": "baker",
+              "place": "pantry",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "guard",
+              "place": "pantry",
+              "senses": {
+                "sight": false,
+                "hearing": false,
+                "occluded": true
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

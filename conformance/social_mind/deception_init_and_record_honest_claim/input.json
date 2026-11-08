@@ -1,0 +1,25 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "merchant",
+          "listener": "buyer",
+          "topic": "price_of_flour",
+          "claim": "5_coins",
+          "true_value": "5_coins",
+          "at": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "speaker": "merchant",
+          "listener": "buyer"
+        }
+      }
+    ]
+  }
+}

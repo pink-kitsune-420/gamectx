@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Listener discovers truth contradicting active prior statement, penalizing trust.",
+  "error": false
+}

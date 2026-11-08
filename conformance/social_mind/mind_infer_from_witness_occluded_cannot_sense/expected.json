@@ -1,0 +1,1 @@
+{"version":1,"results":[{"fact":"whispered_secret","inferences":[{"confidence":90,"fact":"whispered_secret","knows":false,"other":"guard","reason":"occluded_cannot_sense","source":"inferred"}],"ok":true,"subject":"baker"}]}

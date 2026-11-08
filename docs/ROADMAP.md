@@ -118,7 +118,7 @@ noted; "3 models" adds Llama 3.3 70B.
     Additive attitude kinds `fear`, `respect`, `gratitude`, `envy`, `admiration` [format]; mood separation; decay toward temperament baselines.
     Skills growth with diminishing returns, duration/risk/quality scaling, and teaching. Offline acceptance scene replay (§8) verified
     to byte-identical output. 25 conformance cases (5 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
-  - Next (Stage 7 / Gaps 7, 9 & 13): Model of others (Gap 7: knows/wants/feels, provenance) + Lie ledger (Gap 13: claims, contradiction appraisal) + Relationship reconciliation (Gap 9: precedence across sheets, Life, community, viewpoints).
+  - Implemented (Stage 7 / Gaps 7, 9 & 13): Theory of mind (Gap 7: knows/wants/feels with provenance and witness-based inference; `character::mind::MindManager`, local kind `mind`) + Deception ledger (Gap 13: told-ledger per listener, consistency checking, contradiction appraisal; `character::deception::DeceptionLedger`, local kind `deception`) + Relationship reconciliation (Gap 9: precedence across Life attitudes, Sheet relations, and community standing with unified action appraisal and community trust aggregation; `character::relationship::RelationshipManager`, local kind `relationship`). Offline acceptance scene replay (§8) verified to byte-identical output. 25 conformance cases (3 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
   - Next (Stage 8 / Gaps 10 & 11): Off-screen effects (Gap 10) + Curiosity (Gap 11).
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.

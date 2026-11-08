@@ -1,0 +1,28 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "knows",
+          "fact": "fire_in_hearth",
+          "status": true,
+          "source": "seen",
+          "at": 5,
+          "confidence": 100
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "knows"
+        }
+      }
+    ]
+  }
+}

@@ -2,6 +2,23 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Theory of mind (`character::mind`, local kind `mind`, Gap 7):
+  - Per-other beliefs: `knows(other, fact)` (boolean status, provenance `seen`/`told`/`inferred`, confidence), `wants(other, goal)` (priority, provenance), and `feels(other, emotion)` (attitude kind, target, level, provenance).
+  - Sensory perception and witness-based knowledge inference over timeline events (`can_perceive`), allowing beings to deduce what co-present observers saw vs. what absent or occluded beings do not know.
+  - Ops: `init`, `assess`, `record`, `infer_from_witness`, `query`.
+- Deception ledger (`character::deception`, local kind `deception`, Gap 13):
+  - Told-ledger per listener tracking topic, claim, true value, intentional lie flag (`claim != true_value`), timestamp, and lifecycle status (`active`, `retracted`, `contradicted`).
+  - Pre-speech consistency check (`check_consistency`) to ensure beings do not inadvertently contradict prior claims made to the same listener.
+  - Contradiction appraisal (`appraise_contradiction`) when a listener discovers evidence contradicting a prior claim, marking the lie as contradicted and applying relationship penalties (`trust` -25, `resentment` +15).
+  - Ops: `init`, `assess`, `record`, `check_consistency`, `appraise_contradiction`.
+- Relationship reconciliation (`character::relationship`, local kind `relationship`, Gap 9):
+  - Documented precedence rule reconciling the separate relationship stores: dynamic Life personal attitudes take top priority, falling back to authored Sheet relationship baselines (`friend`, `mentor`, `apprentice`, `ally`, `rival`, `enemy`, `stranger`), modulated by community standing bias (`community_trust / 4`, halved for strong personal bonds $|trust| \ge 50$), styled by Viewpoint framing.
+  - Unified appraisal path (`appraise_action`) evaluating action outcomes (barter success/failure, broken/kept promises, attacks, help, gifts, teaching, exposed deception) to produce personal attitude deltas.
+  - Community trust aggregation (`aggregate_community_trust`) computing inter-group trust from member cohorts.
+  - Ops: `init`, `assess`, `resolve`, `appraise_action`, `aggregate_community_trust`.
+  - 25 cases (3 malformed) in `conformance/social_mind/`. Rust matches Python reference byte for byte on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
+
+
 - Affect decay and missing feelings (`character::affect`, local kind `affect`, and `character::life`, Gap 6):
   - **[format]** Life definitions (`character::life::Definition` and `character::affect`) add 5 missing attitude kinds: `fear`, `respect`, `gratitude`, `envy`, `admiration` (joining the 19 original kinds for 24 valid kinds in total).
   - **[format]** Attitude definitions accept optional `decay_rate` (0..100) and `baseline` (-100..100).

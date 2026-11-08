@@ -1,0 +1,53 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "attitudes": [
+            {
+              "subject": "baker1",
+              "target": "miller1",
+              "kind": "trust",
+              "level": 40
+            },
+            {
+              "subject": "baker1",
+              "target": "miller2",
+              "kind": "trust",
+              "level": 20
+            },
+            {
+              "subject": "baker2",
+              "target": "miller1",
+              "kind": "trust",
+              "level": 60
+            },
+            {
+              "subject": "baker2",
+              "target": "miller2",
+              "kind": "trust",
+              "level": 40
+            }
+          ]
+        }
+      },
+      {
+        "op": "aggregate_community_trust",
+        "args": {
+          "community": "bakers_guild",
+          "target_community": "millers_union",
+          "members": [
+            "baker1",
+            "baker2"
+          ],
+          "target_members": [
+            "miller1",
+            "miller2"
+          ]
+        }
+      }
+    ]
+  }
+}

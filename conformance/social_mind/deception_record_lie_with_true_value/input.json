@@ -1,0 +1,25 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "thief",
+          "listener": "guard",
+          "topic": "stolen_gems",
+          "claim": "saw_nothing",
+          "true_value": "hidden_in_boot",
+          "at": 15
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "speaker": "thief",
+          "listener": "guard"
+        }
+      }
+    ]
+  }
+}

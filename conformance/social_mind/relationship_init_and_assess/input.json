@@ -1,0 +1,33 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "sheet_relationships": [
+            {
+              "subject": "baker",
+              "with": "miller",
+              "kind": "friend"
+            }
+          ],
+          "attitudes": [
+            {
+              "subject": "baker",
+              "target": "miller",
+              "kind": "trust",
+              "level": 45
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker"
+        }
+      }
+    ]
+  }
+}

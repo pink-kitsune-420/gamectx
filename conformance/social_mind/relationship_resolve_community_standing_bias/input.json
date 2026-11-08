@@ -1,0 +1,36 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "attitudes": [
+            {
+              "subject": "baker",
+              "target": "trader",
+              "kind": "trust",
+              "level": 10
+            }
+          ],
+          "communities": [
+            {
+              "community": "guild",
+              "target": "merchant_coalition",
+              "trust": 40
+            }
+          ]
+        }
+      },
+      {
+        "op": "resolve",
+        "args": {
+          "subject": "baker",
+          "target": "trader",
+          "community": "guild",
+          "target_community": "merchant_coalition"
+        }
+      }
+    ]
+  }
+}

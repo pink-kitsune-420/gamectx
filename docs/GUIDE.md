@@ -766,6 +766,12 @@ Character emotional states and mood dynamics are tracked via [affect dynamics](c
 (`character::affect::AffectManager` or local kind `affect`), separating background mood (valence and arousal) from targeted interpersonal attitudes (`fear`, `respect`, `gratitude`, `envy`, `admiration`, `trust`, `resentment`, etc.) and decaying emotions toward temperament baselines over time.
 Skills grow through practice via [skills dynamics](characters/LIFE.md#skills-growth-with-use-gap-8)
 (`character::skills::SkillsManager` or local kind `skills`), applying diminishing returns, scaling action duration, risk, and output quality, and enabling teaching between characters.
+Perceptions of other minds are modeled via [theory of mind](characters/LIFE.md#theory-of-mind-gap-7)
+(`character::mind::MindManager` or local kind `mind`), tracking per-other beliefs (`knows`, `wants`, `feels`) with provenance sources (`seen`, `told`, `inferred`) and witness-based knowledge deduction from timeline events.
+Truthful and deceptive communication is audited via the [deception ledger](characters/LIFE.md#deception-ledger-gap-13)
+(`character::deception::DeceptionLedger` or local kind `deception`), maintaining a told-ledger per listener, checking claim consistency before speech, and evaluating contradiction penalties when falsehoods are exposed.
+Personal bonds, authored sheet baselines, and group affiliations are reconciled via [relationship reconciliation](characters/LIFE.md#relationship-reconciliation-gap-9)
+(`character::relationship::RelationshipManager` or local kind `relationship`), enforcing documented precedence (personal attitudes > sheet relations > community standing bias > viewpoints), dispatching action outcome appraisals, and aggregating member attitudes into community relations.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

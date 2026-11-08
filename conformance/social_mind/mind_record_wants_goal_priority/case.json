@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record belief that another person wants a specific goal with priority.",
+  "error": false
+}

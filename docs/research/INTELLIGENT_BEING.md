@@ -244,16 +244,14 @@ respect as needed. Mood (a short-lived background state) is not separate from em
 
 *Implemented:* Additive attitude kinds `fear`, `respect`, `gratitude`, `envy`, `admiration` added to Life definitions ([format]). Decay rate per attitude kind toward temperament baselines; mood separation (valence/arousal/label); `Life::decay(ticks)` and `character::affect::AffectManager` (local kind `affect`). 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
-### Gap 7: little theory of mind
+### Gap 7: little theory of mind — **DONE** ([Evidence](../characters/LIFE.md#theory-of-mind-gap-7))
 
 A being records what a listener said (names, preferences, disclosures) and its own stance
 toward them. It has no record of what it thinks someone else knows, believes, wants or
 feels. It cannot reason "she did not see the theft, so she does not know" or "he wants
 the key, so he may lie".
 
-*Needed:* per-other beliefs: `knows(other, fact)`, `wants(other, goal)`, `feels(other,
-emotion)`, each with a source (seen, told, inferred) and the same provenance rules as the
-being's own beliefs. Timeline `witnesses` already supply the raw data for `knows`.
+*Implemented:* per-other beliefs: `knows(other, fact)`, `wants(other, goal)`, `feels(other, emotion)` with provenance sources (`seen`, `told`, `inferred`), witness-based knowledge inference from timeline events and sensory perception (`character::mind::MindManager`, local kind `mind`). 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ### Gap 8: skills do not grow with use — **DONE** ([Evidence](../characters/LIFE.md#skills-growth-with-use-gap-8))
 
@@ -263,15 +261,13 @@ quality or failure chance of an action.
 
 *Implemented:* `character::skills::SkillsManager` (local kind `skills`): practice gain per successful action with diminishing returns (`factor = max(10, 100 - level)`), level advancement and scaling thresholds (`100 + level * 15`, hard cap at 100), Action Catalog scaling (duration discount up to 50%, risk reduction, output quality tier calculation), and teaching between beings (student receives practice capped at teacher level, develops respect and gratitude attitudes). 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
-### Gap 9: three separate relationship stores
+### Gap 9: three separate relationship stores — **DONE** ([Evidence](../characters/LIFE.md#relationship-reconciliation-gap-9))
 
 Sheet `relationships` (authored labels), Life attitudes (trust, affection, …), community
 relations (group trust) and viewpoints (saved stances) each hold part of "how I feel about
 you". They are not reconciled. A barter that goes badly changes none of the personal ones.
 
-*Needed:* a documented precedence and one appraisal path: action outcomes produce
-appraisal events, Life attitudes hold personal values, community trust is derived from or
-combined with members' attitudes by an explicit rule.
+*Implemented:* `character::relationship::RelationshipManager` (local kind `relationship`): documented precedence rule (Life dynamic attitudes > Sheet authored baselines > Community standing bias > Viewpoint styling), single appraisal path from action outcomes (`appraise_action`), and community trust aggregation from member attitudes (`aggregate_community_trust`). 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ### Gap 10: off-screen life has intent but no effects
 
@@ -301,14 +297,13 @@ way that the other systems respect (routine skipped, speech blocked, actions lim
 *Needed:* body conditions with effects on the action catalog (blocked verbs, extra cost),
 routine (forced rest) and expression (cannot speak while asleep), all host-set.
 
-### Gap 13: intentional deception is a switch, not a model
+### Gap 13: intentional deception is a switch, not a model — **DONE** ([Evidence](../characters/LIFE.md#deception-ledger-gap-13))
 
 Life has a `deception` config flag and secrets have covers. There is no record of what a
 being has told whom that it knows to be false, so it cannot keep a lie consistent or be
 caught in one.
 
-*Needed:* a told-ledger per listener (claim, true value, when), checked before speech and
-appraised by the listener when contradicted.
+*Implemented:* `character::deception::DeceptionLedger` (local kind `deception`): told-ledger per listener tracking claims, true values, and timestamps, pre-speech consistency checking (`check_consistency`), and contradiction appraisal with relationship penalties upon exposure (`appraise_contradiction`). 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ## 7. Suggested order
 
@@ -323,9 +318,9 @@ Ordered by how much each unblocks the others, not by size.
    promises and emergencies.
 5. **Tasks and planning** (gap 4) — **DONE** ([Evidence](../characters/LIFE.md#tasks-and-planning-gap-4)). Task object, deterministic planner, model proposals
    validated by the host, confirmed outcome step progression.
-6. **Affect decay and missing kinds** (gap 6), **skill growth** (gap 8).
+6. **Affect decay and missing kinds** (gap 6), **skill growth** (gap 8) — **DONE** ([Evidence](../characters/LIFE.md#affect-decay-and-missing-feelings-gap-6)).
 7. **Theory of mind** (gap 7), **deception ledger** (gap 13), **relationship
-   reconciliation** (gap 9).
+   reconciliation** (gap 9) — **DONE** ([Evidence](../characters/LIFE.md#theory-of-mind-gap-7)).
 8. **Off-screen effects** (gap 10) and **curiosity** (gap 11).
 
 Each step should be zero model calls first. Items 1–4 and 6 are pure host computation and

@@ -1,0 +1,23 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "appraise_action",
+        "args": {
+          "actor": "trader",
+          "target": "baker",
+          "action": "barter",
+          "success": false
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker",
+          "target": "trader"
+        }
+      }
+    ]
+  }
+}

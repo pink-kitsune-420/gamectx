@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"subject":"baker","other":"apprentice","category":"knows","fact":"secret_recipe","status":true,"source":"told"},{"belief":{"fact":"secret_recipe","status":true,"source":"told","at":25,"confidence":100},"found":true,"other":"apprentice","subject":"baker"},{"found":false,"other":"apprentice","subject":"baker"}]}

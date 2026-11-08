@@ -421,6 +421,39 @@ and motives into concrete, committed multi-step plans executed through the Actio
 
 **Evidence:** 25 cases (`conformance/affect_skills/`, 5 malformed), 2,000 differential parity workflows (`eval/character/affect_skills_cases.py`, seed 7, 0 mismatches), acceptance scene verification (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Theory of mind (Gap 7)
+
+`gamectx::character::mind` (`MindManager`, local kind `mind`) provides internal models of other beings:
+- **Per-other beliefs:**
+  - `knows(other, fact)`: boolean status with provenance source (`seen`, `told`, `inferred`), timestamp, and confidence (0..=100).
+  - `wants(other, goal)`: goal identifier, priority (0..=100), and provenance source.
+  - `feels(other, emotion)`: emotion kind (from valid attitude kinds), optional target, level (-100..=100), and provenance source.
+- **Witness knowledge inference:** Evaluates sensory perception over timeline events (`can_perceive`). If another being perceived the event, records `knows: true` (source: `seen`); if not perceived (different place, occluded, asleep, etc.), records `knows: false` (source: `inferred`). This enables reasoning like "she did not see the cart crash, so she does not know about it".
+- **Operations:** `init`, `assess`, `record`, `infer_from_witness`, `query`.
+
+## Deception ledger (Gap 13)
+
+`gamectx::character::deception` (`DeceptionLedger`, local kind `deception`) tracks intentional claims and exposure:
+- **Told-ledger per listener:** Records statements made by a speaker to a listener: topic, claim, true value, whether it is an intentional lie (`claim != true_value`), timestamp, and status (`active`, `retracted`, `contradicted`).
+- **Pre-speech consistency checking:** Before speaking, beings query `check_consistency` to ensure proposed claims do not contradict prior statements made to that listener ("keep a lie consistent").
+- **Contradiction appraisal:** When a listener observes truth contradicting an active claim on that topic, `appraise_contradiction` marks the record as `contradicted` and applies relationship penalties: `trust` (-25) and `resentment` (+15).
+- **Operations:** `init`, `assess`, `record`, `check_consistency`, `appraise_contradiction`.
+
+## Relationship reconciliation (Gap 9)
+
+`gamectx::character::relationship` (`RelationshipManager`, local kind `relationship`) unifies the separate relationship stores:
+- **Precedence rule:**
+  1. *Dynamic Life attitudes:* Highest precedence for interpersonal interactions.
+  2. *Sheet relationships:* Authored baseline labels (`friend`, `mentor`, `apprentice`, `ally`, `rival`, `enemy`, `stranger`) provide fallback baseline trust/affection when personal attitudes are at baseline.
+  3. *Community relations:* Group-level standing applies a contextual modifier (`community_trust / 4`, halved if personal bond $|trust| \ge 50$).
+  4. *Viewpoints:* Provides stylistic tone and framing.
+- **Single appraisal path:** Standardized action outcomes (`appraise_action`) generate and apply attitude deltas (barter success/failure, broken/kept promises, attacks, assistance, gifts, teaching, exposed lies).
+- **Community trust aggregation:** Aggregates group trust from member cohorts (`aggregate_community_trust`).
+- **Operations:** `init`, `assess`, `resolve`, `appraise_action`, `aggregate_community_trust`.
+
+**Evidence:** 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), acceptance scene replay verification (`tests/acceptance_baker.rs`), $0 API spend.
+
+
 
 
 

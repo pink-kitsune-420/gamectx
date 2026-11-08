@@ -1,0 +1,16 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "baker",
+          "listener": "baker",
+          "topic": "soliloquy",
+          "claim": "talking_to_myself"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record an honest statement in told-ledger where claim equals true value.",
+  "error": false
+}

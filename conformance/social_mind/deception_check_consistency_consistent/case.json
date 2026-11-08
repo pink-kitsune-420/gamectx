@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Check proposed claim against prior statement to listener with matching value.",
+  "error": false
+}

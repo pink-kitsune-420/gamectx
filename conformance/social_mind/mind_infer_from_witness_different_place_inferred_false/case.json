@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Infer that a person in a different place did not witness the event.",
+  "error": false
+}

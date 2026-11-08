@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject record operation where speaker is the same as listener.",
+  "error": true
+}

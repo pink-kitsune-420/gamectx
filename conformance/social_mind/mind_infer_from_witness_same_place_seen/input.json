@@ -1,0 +1,42 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "infer_from_witness",
+        "args": {
+          "subject": "baker",
+          "fact": "cart_crash",
+          "entry": {
+            "at": 15,
+            "kind": "crash",
+            "place": "road",
+            "actors": [
+              "carter"
+            ],
+            "visibility": "witnessed",
+            "noise": 80
+          },
+          "beings": [
+            {
+              "id": "baker",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "carter",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

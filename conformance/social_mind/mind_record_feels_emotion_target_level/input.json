@@ -1,0 +1,28 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "rival",
+          "category": "feels",
+          "emotion": "envy",
+          "target": "baker",
+          "level": 40,
+          "source": "inferred",
+          "at": 12
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "baker",
+          "other": "rival",
+          "category": "feels"
+        }
+      }
+    ]
+  }
+}

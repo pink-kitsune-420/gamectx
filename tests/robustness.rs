@@ -1944,4 +1944,107 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     skills_ops_65.push_str("]}");
     assert!(clean_skills2.workflow(&parse(&skills_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 11. MindManager mutation fuzzing & boundaries
+    use gamectx::character::mind::MindManager;
+    let mut mind_mgr = MindManager::new();
+    let sample_mind_req = r#"{"ops":[{"op":"init","args":{"subject":"baker"}},{"op":"record","args":{"subject":"baker","other":"apprentice","category":"knows","fact":"cart_crash","status":false,"source":"inferred","at":10}},{"op":"record","args":{"subject":"baker","other":"customer","category":"wants","goal":"bread","priority":80,"source":"told","at":12}},{"op":"record","args":{"subject":"baker","other":"rival","category":"feels","emotion":"envy","level":30,"source":"inferred","at":14}},{"op":"assess","args":{"subject":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_mind_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = mind_mgr.workflow(&v);
+        }
+    }
+
+    let mut clean_mind = MindManager::new();
+    clean_mind.workflow(&parse(r#"{"ops":[{"op":"init","args":{"subject":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut mind_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            mind_ops_64.push(',');
+        }
+        mind_ops_64.push_str(r#"{"op":"assess","args":{"subject":"baker"}}"#);
+    }
+    mind_ops_64.push_str("]}");
+    assert!(clean_mind.workflow(&parse(&mind_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_mind2 = MindManager::new();
+    clean_mind2.workflow(&parse(r#"{"ops":[{"op":"init","args":{"subject":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut mind_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            mind_ops_65.push(',');
+        }
+        mind_ops_65.push_str(r#"{"op":"assess","args":{"subject":"baker"}}"#);
+    }
+    mind_ops_65.push_str("]}");
+    assert!(clean_mind2.workflow(&parse(&mind_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 12. DeceptionLedger mutation fuzzing & boundaries
+    use gamectx::character::deception::DeceptionLedger;
+    let mut dec_ledger = DeceptionLedger::new();
+    let sample_dec_req = r#"{"ops":[{"op":"record","args":{"speaker":"thief","listener":"guard","topic":"stolen_ring","claim":"saw_nothing","true_value":"in_pocket","at":10}},{"op":"check_consistency","args":{"speaker":"thief","listener":"guard","topic":"stolen_ring","proposed_claim":"saw_nothing"}},{"op":"appraise_contradiction","args":{"listener":"guard","topic":"stolen_ring","observed_truth":"found_in_pocket"}},{"op":"assess","args":{"listener":"guard"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_dec_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = dec_ledger.workflow(&v);
+        }
+    }
+
+    let mut clean_dec = DeceptionLedger::new();
+    let mut dec_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            dec_ops_64.push(',');
+        }
+        dec_ops_64.push_str(r#"{"op":"assess","args":{}}"#);
+    }
+    dec_ops_64.push_str("]}");
+    assert!(clean_dec.workflow(&parse(&dec_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_dec2 = DeceptionLedger::new();
+    let mut dec_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            dec_ops_65.push(',');
+        }
+        dec_ops_65.push_str(r#"{"op":"assess","args":{}}"#);
+    }
+    dec_ops_65.push_str("]}");
+    assert!(clean_dec2.workflow(&parse(&dec_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 13. RelationshipManager mutation fuzzing & boundaries
+    use gamectx::character::relationship::RelationshipManager;
+    let mut rel_mgr = RelationshipManager::new();
+    let sample_rel_req = r#"{"ops":[{"op":"init","args":{"sheet_relationships":[{"subject":"baker","with":"player","kind":"friend"}],"attitudes":[{"subject":"baker","target":"player","kind":"trust","level":20}]}},{"op":"resolve","args":{"subject":"baker","target":"player"}},{"op":"appraise_action","args":{"actor":"player","target":"baker","action":"broken_promise"}},{"op":"assess","args":{"subject":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_rel_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = rel_mgr.workflow(&v);
+        }
+    }
+
+    let mut clean_rel = RelationshipManager::new();
+    clean_rel.workflow(&parse(r#"{"ops":[{"op":"init","args":{}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut rel_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            rel_ops_64.push(',');
+        }
+        rel_ops_64.push_str(r#"{"op":"assess","args":{"subject":"baker"}}"#);
+    }
+    rel_ops_64.push_str("]}");
+    assert!(clean_rel.workflow(&parse(&rel_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_rel2 = RelationshipManager::new();
+    clean_rel2.workflow(&parse(r#"{"ops":[{"op":"init","args":{}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut rel_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            rel_ops_65.push(',');
+        }
+        rel_ops_65.push_str(r#"{"op":"assess","args":{"subject":"baker"}}"#);
+    }
+    rel_ops_65.push_str("]}");
+    assert!(clean_rel2.workflow(&parse(&rel_ops_65, 1 << 20).unwrap()).is_err());
 }

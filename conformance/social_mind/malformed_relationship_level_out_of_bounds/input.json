@@ -1,0 +1,20 @@
+{
+  "kind": "relationship",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "attitudes": [
+            {
+              "subject": "baker",
+              "target": "player",
+              "kind": "trust",
+              "level": 200
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

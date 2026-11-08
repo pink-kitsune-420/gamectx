@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject relationship attitude initialization with level exceeding bounds.",
+  "error": true
+}

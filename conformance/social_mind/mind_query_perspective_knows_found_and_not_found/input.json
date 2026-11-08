@@ -1,0 +1,37 @@
+{
+  "kind": "mind",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "knows",
+          "fact": "secret_recipe",
+          "status": true,
+          "source": "told",
+          "at": 25
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "knows",
+          "key": "secret_recipe"
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "subject": "baker",
+          "other": "apprentice",
+          "category": "knows",
+          "key": "missing_recipe"
+        }
+      }
+    ]
+  }
+}

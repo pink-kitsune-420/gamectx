@@ -1,0 +1,26 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "speaker": "thief",
+          "listener": "guard",
+          "topic": "whereabouts",
+          "claim": "was_at_inn",
+          "at": 25
+        }
+      },
+      {
+        "op": "check_consistency",
+        "args": {
+          "speaker": "thief",
+          "listener": "guard",
+          "topic": "whereabouts",
+          "proposed_claim": "was_at_docks"
+        }
+      }
+    ]
+  }
+}

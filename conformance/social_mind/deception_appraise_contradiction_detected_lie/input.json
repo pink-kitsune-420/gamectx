@@ -1,0 +1,33 @@
+{
+  "kind": "deception",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "id": "dec_lie_1",
+          "speaker": "thief",
+          "listener": "guard",
+          "topic": "stolen_ring",
+          "claim": "innocent",
+          "true_value": "stole_it",
+          "at": 30
+        }
+      },
+      {
+        "op": "appraise_contradiction",
+        "args": {
+          "listener": "guard",
+          "topic": "stolen_ring",
+          "observed_truth": "found_in_pocket"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "listener": "guard"
+        }
+      }
+    ]
+  }
+}

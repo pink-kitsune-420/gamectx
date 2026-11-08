@@ -15,8 +15,11 @@
 
 use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
+use gamectx::character::deception::DeceptionLedger;
 use gamectx::character::life::witness::WitnessBridge;
+use gamectx::character::mind::MindManager;
 use gamectx::character::motive::MotiveArbiter;
+use gamectx::character::relationship::RelationshipManager;
 use gamectx::character::skills::SkillsManager;
 use gamectx::character::task::TaskManager;
 use gamectx::data::json::{parse, Value};
@@ -374,13 +377,104 @@ fn run_baker_scene() -> String {
     // Forgiving temperament: decay_rate 2 + 2 = 4, 4 * 10 = 40, clamps to baseline 0
     assert_eq!(resentment_lvl, Some(0));
 
-    // Step 7: Grounded speech facts check
-    // The baker knows:
-    // 1. Broken promise from player (overdue deadline 5 at tick 15)
-    // 2. Direct experience of cart crash on mill road
-    // 3. Apprentice was indoors and did NOT witness cart crash
-    // 4. Skills practice gained on baking (level 20, practice 20)
-    // 5. Resentment toward player has decayed to 0
+    // Step 7: Grounded speech facts check (Theory of Mind, Deception Ledger, Relationship Reconciliation)
+    // 1. Theory of Mind: baker infers that apprentice indoors did NOT witness cart crash
+    let mut mind_mgr = MindManager::new();
+    let mind_infer = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "infer_from_witness",
+                "args": {
+                    "subject": "baker",
+                    "fact": "cart_crash",
+                    "entry": {
+                        "at": 6,
+                        "kind": "crash",
+                        "place": "mill_road",
+                        "actors": ["carter"],
+                        "visibility": "witnessed",
+                        "noise": 80
+                    },
+                    "beings": [
+                        {"id": "baker", "place": "mill_road", "senses": {"sight": true, "hearing": true}},
+                        {"id": "apprentice", "place": "bakery", "senses": {"sight": true, "hearing": true, "occluded": true}}
+                    ]
+                }
+            },
+            {
+                "op": "query",
+                "args": {"subject": "baker", "other": "apprentice", "category": "knows", "key": "cart_crash"}
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let mind_res = mind_mgr.workflow(&mind_infer).unwrap();
+    let query_res = &mind_res.get("results").unwrap().as_array().unwrap()[1];
+    assert_eq!(query_res.get("found"), Some(&Value::Bool(true)));
+    let belief = query_res.get("belief").unwrap();
+    assert_eq!(belief.get("status"), Some(&Value::Bool(false)), "Baker believes apprentice does not know about crash");
+    assert_eq!(belief.get("source"), Some(&Value::str("inferred")));
+
+    // 2. Deception ledger: baker speaks honestly to player about the crash
+    let mut dec_ledger = DeceptionLedger::new();
+    let dec_check = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "check_consistency",
+                "args": {
+                    "speaker": "baker",
+                    "listener": "player",
+                    "topic": "cart_crash",
+                    "proposed_claim": "witnessed_cart_crash"
+                }
+            },
+            {
+                "op": "record",
+                "args": {
+                    "speaker": "baker",
+                    "listener": "player",
+                    "topic": "cart_crash",
+                    "claim": "witnessed_cart_crash",
+                    "true_value": "witnessed_cart_crash",
+                    "at": 16
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let dec_res = dec_ledger.workflow(&dec_check).unwrap();
+    let record_res = &dec_res.get("results").unwrap().as_array().unwrap()[1];
+    assert_eq!(record_res.get("is_lie"), Some(&Value::Bool(false)), "Baker tells player the truth");
+
+    // 3. Relationship reconciliation: baker resolves relationship with player
+    let mut rel_mgr = RelationshipManager::new();
+    let rel_req = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "resolve",
+                "args": {
+                    "subject": "baker",
+                    "target": "player",
+                    "sheet_relationship": {"with": "player", "kind": "friend"}
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let rel_res = rel_mgr.workflow(&rel_req).unwrap();
+    let resolved = &rel_res.get("results").unwrap().as_array().unwrap()[0];
+    assert_eq!(resolved.get("dominant_stance"), Some(&Value::str("friendly")));
+    assert_eq!(resolved.get("effective_trust"), Some(&Value::int(40)));
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -389,12 +483,21 @@ fn run_baker_scene() -> String {
         skills_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
     let final_affect_state =
         affect_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_mind_state =
+        mind_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"subject":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_dec_state =
+        dec_ledger.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"speaker":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_rel_state =
+        rel_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"subject":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
     let composite_output = obj! {
         "final_task" => final_task_state,
         "final_body" => final_body_state,
         "final_skills" => final_skills_state,
         "final_affect" => final_affect_state,
+        "final_mind" => final_mind_state,
+        "final_dec" => final_dec_state,
+        "final_rel" => final_rel_state,
         "witness_outcome" => baker_outcome.clone(),
         "winning_motive" => winning_motive.clone()
     };
