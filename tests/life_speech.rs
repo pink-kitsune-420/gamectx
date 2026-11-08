@@ -1,7 +1,7 @@
 use gamectx::{
-    deployment::{ModelSize, Workload},
-    json,
-    life::{assess_sentence, Config, ContextCaps, Definition, Life, Setting, SpeechTurn},
+    character::life::{assess_sentence, Config, ContextCaps, Definition, Life, Setting, SpeechTurn},
+    data::json,
+    deploy::deployment::{ModelSize, Workload},
     obj, Value,
 };
 use std::sync::Arc;
@@ -9,9 +9,10 @@ fn val(s: &str) -> Value {
     json::parse(s, 65536).unwrap()
 }
 fn life() -> Life {
-    let setting = Setting::from_value(&val(include_str!("../examples/characters/setting.json"))).unwrap();
-    let def =
-        Arc::new(Definition::draft(&val(include_str!("../examples/characters/merchant-life.json")), &setting).unwrap());
+    let setting = Setting::from_value(&val(include_str!("../examples/fixtures/characters/setting.json"))).unwrap();
+    let def = Arc::new(
+        Definition::draft(&val(include_str!("../examples/fixtures/characters/merchant-life.json")), &setting).unwrap(),
+    );
     Life::accept(
         "counter",
         "merchant",
@@ -97,7 +98,7 @@ fn tier_hints_do_not_enable_expression_on_unknown_questions() {
 }
 #[test]
 fn coordinator_v2_keeps_host_diagnostics_out_and_shares_the_fact_cap() {
-    use gamectx::{dialogue::Thread, life::Coordinator};
+    use gamectx::{character::dialogue::Thread, character::life::Coordinator};
     let l = life();
     let mut c = Coordinator::new("counter", "merchant", &vec!["merchant", "player"].into()).unwrap();
     c.bind_scene(&obj!{"id"=>"counter","revision"=>1,"epoch"=>1,"at"=>1,"participants"=>vec!["merchant","player"],"facts"=>Vec::<Value>::new(),"affordances"=>Vec::<Value>::new()}).unwrap();

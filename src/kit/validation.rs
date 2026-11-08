@@ -1,4 +1,4 @@
-use crate::{checked as c, json, Error, Result, Value};
+use crate::{checked as c, data::json, Error, Result, Value};
 
 pub(super) fn bad() -> Error {
     Error::new("invalid or out-of-bounds kit value")

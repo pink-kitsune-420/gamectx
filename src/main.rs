@@ -1,8 +1,8 @@
-use gamectx::budget::{assemble, Packet};
-use gamectx::catalog::{Catalog, Limits};
-use gamectx::estimate::{self, Calibration};
-use gamectx::manifest::{self, read_json_file, Check, Manifest};
-use gamectx::{schema, Error, Result};
+use gamectx::data::catalog::{Catalog, Limits};
+use gamectx::packet::budget::{assemble, Packet};
+use gamectx::packet::estimate::{self, Calibration};
+use gamectx::packet::manifest::{self, read_json_file, Check, Manifest};
+use gamectx::{packet::schema, Error, Result};
 use std::io::{BufRead, Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -143,7 +143,7 @@ fn run(raw: &[String]) -> Result<()> {
         "local" => {
             args.only(&[], 1)?;
             let mut input = String::new();
-            let cap = gamectx::request::MAX_REQUEST_BYTES;
+            let cap = gamectx::packet::request::MAX_REQUEST_BYTES;
             if args.positional[0] == "-" {
                 std::io::stdin()
                     .take(cap as u64 + 1)
@@ -156,7 +156,7 @@ fn run(raw: &[String]) -> Result<()> {
                     .read_to_string(&mut input)
                     .map_err(|e| Error::new(e.to_string()))?;
             }
-            println!("{}", gamectx::local::process(&gamectx::json::parse(&input, cap)?)?.to_json());
+            println!("{}", gamectx::kit::local::process(&gamectx::data::json::parse(&input, cap)?)?.to_json());
             Ok(())
         }
         "kit" => {
@@ -168,7 +168,7 @@ fn run(raw: &[String]) -> Result<()> {
                 .map_err(|e| Error::new(e.to_string()))?;
             println!(
                 "{}",
-                gamectx::kit::process(&gamectx::json::parse(&input, gamectx::kit::MAX_REQUEST_BYTES)?)?.to_json()
+                gamectx::kit::process(&gamectx::data::json::parse(&input, gamectx::kit::MAX_REQUEST_BYTES)?)?.to_json()
             );
             Ok(())
         }
@@ -273,11 +273,11 @@ fn run(raw: &[String]) -> Result<()> {
         "calc" => {
             args.only(&["--formulas"], 1)?;
             let formulas = match args.get("--formulas") {
-                Some(file) => gamectx::formula::Formulas::from_value(
+                Some(file) => gamectx::data::formula::Formulas::from_value(
                     &read_json_file(Path::new(file))?,
-                    gamectx::formula::Limits::default(),
+                    gamectx::data::formula::Limits::default(),
                 )?,
-                None => gamectx::formula::Formulas::new(),
+                None => gamectx::data::formula::Formulas::new(),
             };
             println!("{}", formulas.calc(&args.positional[0])?.to_json());
             Ok(())
@@ -287,28 +287,28 @@ fn run(raw: &[String]) -> Result<()> {
             let mut text = String::new();
             if args.positional[0] == "-" {
                 std::io::stdin()
-                    .take(gamectx::replay::MAX_TRACE_BYTES as u64 + 1)
+                    .take(gamectx::runtime::replay::MAX_TRACE_BYTES as u64 + 1)
                     .read_to_string(&mut text)
                     .map_err(|e| Error::new(e.to_string()))?;
             } else {
                 std::fs::File::open(&args.positional[0])
                     .map_err(|e| Error::new(e.to_string()))?
-                    .take(gamectx::replay::MAX_TRACE_BYTES as u64 + 1)
+                    .take(gamectx::runtime::replay::MAX_TRACE_BYTES as u64 + 1)
                     .read_to_string(&mut text)
                     .map_err(|e| Error::new(e.to_string()))?;
             }
-            println!("{}", gamectx::replay::run_json(&text)?.to_json());
+            println!("{}", gamectx::runtime::replay::run_json(&text)?.to_json());
             Ok(())
         }
         "brain" if args.has("--tools") => {
             args.only(&["--tools"], 0)?;
-            println!("{}", gamectx::brain::tools().to_json());
+            println!("{}", gamectx::runtime::brain::tools().to_json());
             Ok(())
         }
         "brain" => {
             args.only(&["--cache"], 1)?;
             let mut text = String::new();
-            let cap = gamectx::brain::MAX_STATE_BYTES as u64 + 1;
+            let cap = gamectx::runtime::brain::MAX_STATE_BYTES as u64 + 1;
             if args.positional[0] == "-" {
                 std::io::stdin().take(cap).read_to_string(&mut text).map_err(|e| Error::new(e.to_string()))?;
             } else {
@@ -318,28 +318,28 @@ fn run(raw: &[String]) -> Result<()> {
                     .read_to_string(&mut text)
                     .map_err(|e| Error::new(e.to_string()))?;
             }
-            let input = gamectx::json::parse(&text, gamectx::brain::MAX_STATE_BYTES)?;
+            let input = gamectx::data::json::parse(&text, gamectx::runtime::brain::MAX_STATE_BYTES)?;
             let output = match args.number("--cache")? {
-                Some(capacity) => gamectx::brain::process_cached(&input, capacity)?,
-                None => gamectx::brain::process(&input)?,
+                Some(capacity) => gamectx::runtime::brain::process_cached(&input, capacity)?,
+                None => gamectx::runtime::brain::process(&input)?,
             };
             println!("{}", output.to_json());
             Ok(())
         }
         "query" if args.has("--guidance") => {
             args.only(&["--guidance"], 0)?;
-            let profile = gamectx::query::Guidance::parse(args.get("--guidance").unwrap_or(""))?;
+            let profile = gamectx::data::query::Guidance::parse(args.get("--guidance").unwrap_or(""))?;
             println!("{}", gamectx::Value::str(profile.text()).to_json());
             Ok(())
         }
         "query" if args.has("--explain") => {
             args.only(&["--explain"], 1)?;
-            println!("{}", gamectx::query::Query::parse(&args.positional[0])?.plan().to_json());
+            println!("{}", gamectx::data::query::Query::parse(&args.positional[0])?.plan().to_json());
             Ok(())
         }
         "query" if args.has("--tool") => {
             args.only(&["--tool"], 0)?;
-            println!("{}", gamectx::query::tool().to_json());
+            println!("{}", gamectx::data::query::tool().to_json());
             Ok(())
         }
         "query" if args.has("--schema") => {
@@ -350,14 +350,14 @@ fn run(raw: &[String]) -> Result<()> {
                     .take(manifest::MAX_FILE_BYTES as u64 + 1)
                     .read_to_string(&mut text)
                     .map_err(|e| Error::new(e.to_string()))?;
-                gamectx::json::parse(&text, manifest::MAX_FILE_BYTES)?
+                gamectx::data::json::parse(&text, manifest::MAX_FILE_BYTES)?
             } else {
                 read_json_file(Path::new(&args.positional[0]))?
             };
             let named = named_tables(&tables)?;
             let description = match args.get("--metadata") {
-                Some(file) => gamectx::query::describe_with(&named, &read_json_file(Path::new(file))?)?,
-                None => gamectx::query::describe(&named)?,
+                Some(file) => gamectx::data::query::describe_with(&named, &read_json_file(Path::new(file))?)?,
+                None => gamectx::data::query::describe(&named)?,
             };
             println!("{}", description.to_json());
             Ok(())
@@ -370,7 +370,7 @@ fn run(raw: &[String]) -> Result<()> {
             let tables = read_json_file(Path::new(&args.positional[0]))?;
             let tables = named_tables(&tables)?;
             let mut session =
-                gamectx::query::Session::new().result_bytes(args.number("--result-bytes")?.unwrap_or(4096));
+                gamectx::data::query::Session::new().result_bytes(args.number("--result-bytes")?.unwrap_or(4096));
             let mut input = std::io::stdin().lock();
             let mut output = std::io::stdout().lock();
             while !session.is_finished() {
@@ -382,7 +382,7 @@ fn run(raw: &[String]) -> Result<()> {
                 if bytes > 8192 {
                     return Err(Error::new("query input line exceeds 8192 bytes"));
                 }
-                let call = gamectx::json::parse(&line, 8192).unwrap_or(gamectx::Value::Null);
+                let call = gamectx::data::json::parse(&line, 8192).unwrap_or(gamectx::Value::Null);
                 let reply = session.apply_call(&call, &tables)?;
                 writeln!(output, "{}", reply.to_json()).map_err(|e| Error::new(e.to_string()))?;
                 output.flush().map_err(|e| Error::new(e.to_string()))?;
@@ -397,11 +397,11 @@ fn run(raw: &[String]) -> Result<()> {
                     .take((1 << 20) + 1)
                     .read_to_string(&mut input)
                     .map_err(|e| Error::new(e.to_string()))?;
-                gamectx::json::parse(&input, 1 << 20)?
+                gamectx::data::json::parse(&input, 1 << 20)?
             } else {
                 read_json_file(Path::new(&args.positional[0]))?
             };
-            println!("{}", gamectx::query::run(&args.positional[1], &named_tables(&tables)?)?.to_json());
+            println!("{}", gamectx::data::query::run(&args.positional[1], &named_tables(&tables)?)?.to_json());
             Ok(())
         }
         "help" | "--help" | "-h" => {

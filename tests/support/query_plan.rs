@@ -1,7 +1,6 @@
 use gamectx::{
-    obj,
-    query::{Query, Shape},
-    Error, Result, Value,
+    data::query::{Query, Shape},
+    obj, Error, Result, Value,
 };
 pub fn process(v: &Value) -> Result<Value> {
     let query = Query::parse(v.get("sql").and_then(Value::as_str).ok_or_else(|| Error::new("sql string required"))?)?;

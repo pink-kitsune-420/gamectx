@@ -1,10 +1,22 @@
 # Roadmap
 
-Release naming: GitHub `v0.3.0a`, Cargo package `0.3.0-a`.
-The earlier `v0.2.0a` release uses Cargo package `0.2.0-a`.
+Release naming: GitHub `v0.4.0a`, Cargo package `0.4.0-a` (in progress). The released
+`v0.3.0a` uses Cargo package `0.3.0-a`; the earlier `v0.2.0a` uses `0.2.0-a`.
 
 One line per item. Numbers are from `eval/` on Llama 3.2 3B and Mistral Small 3.2 24B unless
 noted; "3 models" adds Llama 3.3 70B.
+
+## In progress for v0.4.0a
+
+- Phase 1, layout: library modules grouped into `data`, `packet`, `knowledge`, `character`
+  (with `roleplay`), `runtime`, `deploy`, `media` and `kit`; `studio` split by purpose.
+  Examples, docs and eval grouped to match, with indexes. No behavior/format change: all
+  conformance cases and frozen artifacts byte-identical; pre-0.4 evidence verified through
+  `eval/common/provenance.py`. Breaking import paths are listed in the changelog.
+- Phase 2, next: a universal, configurable character runtime that ports Lantern Vault's
+  character/roleplay behavior (scene awareness, greetings, recall, reactions, expression,
+  viewpoints, deliberation, visual descriptions/art bibles and more) into the library as
+  opt-in features with tunable values, so any game can use them without demo code.
 
 ## Implemented locally for v0.3.1a
 
@@ -13,8 +25,8 @@ noted; "3 models" adds Llama 3.3 70B.
   structured story opening/ending, cross-tab audio ownership and retryable audio-start
   refusal. Six local 3B calls adopt all three tale packets; factual wording still has
   conservative rejection. Sixteen additive cases, ninety shared binding fixtures,
-  cap0/$0. [Evidence](SCENE_SOCIAL_REPAIR.md). Larger remaining priorities: implicit
-  memory use, topic continuity and motivation-driven choices; [full audit](SOCIAL_CHARACTER_GAPS.md).
+  cap0/$0. [Evidence](studio/SCENE_SOCIAL_REPAIR.md). Larger remaining priorities: implicit
+  memory use, topic continuity and motivation-driven choices; [full audit](research/SOCIAL_CHARACTER_GAPS.md).
 
 - Connected character wording + bounded expression/fiction/short-scope negotiation,
   scoped disclosed names/preferences, explicit OOC, conservative repeat pruning and
@@ -22,8 +34,8 @@ noted; "3 models" adds Llama 3.3 70B.
   memory regression; 33-chat-turn offline/live host journey with two players/two NPCs.
   Live campaign adopted 4/5 packets but exposed duplicate/flat replies; fresh three-call
   holdout structurally passes with connected original fables. Small manual cohort,
-  no universal quality claim, all cap0/$0. [Evidence](STUDIO_EXPRESSION.md),
-  [public research](ROLEPLAY_RESEARCH.md). Remaining: finite English routing, occasional
+  no universal quality claim, all cap0/$0. [Evidence](studio/STUDIO_EXPRESSION.md),
+  [public research](research/ROLEPLAY_RESEARCH.md). Remaining: finite English routing, occasional
   generic/presumptive social speech, lexical guards are not semantic truth proofs.
 
 - Optional loopback Lantern Vault studio: RPG/party controls, live cast inspection,
@@ -32,7 +44,7 @@ noted; "3 models" adds Llama 3.3 70B.
   default std-only UI, optional system curl for HTTPS. 32 policy workflows, 85 HTTP checks,
   five fake-browser scenarios, eleven Rust studio tests; 1,090 older cases unchanged.
   Zero real provider calls / $0; physical voice/image quality and FPS unmeasured.
-  [Setup, protocols and limits](STUDIO.md).
+  [Setup, protocols and limits](studio/STUDIO.md).
 
 
 - Optional visual compiler/registry: locked art contract, live expression/activity slots,
@@ -40,7 +52,7 @@ noted; "3 models" adds Llama 3.3 70B.
   safe approved fallbacks, inspect/repair and stale-worker fences. Python/Rust parity:
   64 workflows, 13 malformed; 1,026 previous cases unchanged. Zero model calls / $0 API;
   37 queued metadata jobs, 5 exact reuses, 2 fallbacks. Image quality and timing unmeasured.
-  [Contract, editable example and limits](VISUAL.md).
+  [Contract, editable example and limits](guides/VISUAL.md).
 
 
 - Probe validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
@@ -64,7 +76,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - New model work: 159 local calls including token-first checks/preflights, API spend $0,
   no other model loaded/downloaded. Four CPU threads/GPU0/context2048; sampled runner RSS
   peak 2,558,652,416 bytes in classification. Global memory/cache state uncontrolled.
-  [Evidence, raw artifacts and limits](ADVERSARIAL_EVAL.md).
+  [Evidence, raw artifacts and limits](evidence/ADVERSARIAL_EVAL.md).
 
 
 - Follow-up validation: root/native formatting, strict Clippy, tests/rustdoc, Rust 1.82,
@@ -91,7 +103,7 @@ noted; "3 models" adds Llama 3.3 70B.
 - Optional routine definitions/timelines, actual scoped observation history and source
   time ranges: 69 independent Python/Rust workflows (63 accepted, six rejected), 21
   additive cases, 20,000 text mutations, 43 persistent binding fixtures. No existing
-  conformance/evaluation output rewritten. [Integration and limits](ROUTINES.md).
+  conformance/evaluation output rewritten. [Integration and limits](guides/ROUTINES.md).
 - Host calendars/conditions and stable priority/window/ID selection; interruption,
   resumption, bounded deferral and explicit completion. Existing scheduler budgets
   128 test NPCs at 16 updates/tick; no LLM planning calls. Source history retains real
@@ -123,7 +135,7 @@ noted; "3 models" adds Llama 3.3 70B.
   one-sentence v3 (241 tokens) still implied observed clear blue weather. Three variants,
   18 local calls including token-only/preflight, $0 API. Records retained and audited;
   source-selected sky response remains default. No semantic guarantee from a prefix.
-  [Measurements and limits](CONVERSATION_PATCH_EVAL.md).
+  [Measurements and limits](evidence/CONVERSATION_PATCH_EVAL.md).
 
 ## Shipped (0.1.0-alpha.2)
 
@@ -165,7 +177,7 @@ noted; "3 models" adds Llama 3.3 70B.
 
 | Item | Result |
 |---|---|
-| Fresh alpha.3 hosted-model check | Six states across cargo/teams/routes, 48 questions/model, two small models. Full JSON 27/96, packed 27/96, schema + query 91/96. Completed-exchange average input 1,786.792→1,252.125→916.490; first query 83/96, after correction/final 91/96. 105 Rust/Python feedback envelopes match. Total usage-priced spend $0.05529491875 including token check and interrupted-run cost. [Full report](MODEL_TEST_2026_11_06.md). |
+| Fresh alpha.3 hosted-model check | Six states across cargo/teams/routes, 48 questions/model, two small models. Full JSON 27/96, packed 27/96, schema + query 91/96. Completed-exchange average input 1,786.792→1,252.125→916.490; first query 83/96, after correction/final 91/96. 105 Rust/Python feedback envelopes match. Total usage-priced spend $0.05529491875 including token check and interrupted-run cost. [Full report](evidence/MODEL_TEST_2026_11_06.md). |
 
 ## Shipped (v0.2.0a): query optimization
 
@@ -174,7 +186,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Borrowed query execution and streaming aggregates | Seven paired release trials/five synthetic fixtures: 4.6–32.5× faster parsed execution. Wide 1,024-row total: 1,000 calls 1,277,473,628→53,773,386 ns; allocations/query 9,229→11, peak transient bytes 1,355,791→8,211. 2,024 alpha.4 result/error comparisons and 3,000 generated Python comparisons agree. |
 | Query plans, explicit host shapes and row/result bounds | 16 new conformance cases; 516 byte-identical Python comparisons; 20,000 extra mutations. Shapes check structure only, not intent/values/permissions. Existing query/tool/session output unchanged. |
 | Namespace and dotted-ID relevance | Ten lexical regressions 2/10→10/10; four additional catalog parity cases and one exact-ID/numeric-spelling query case. All 366 prior conformance outputs unchanged; 35 new cases in this batch. No API spend or semantic/model-accuracy claim. |
-| Optional explicit-selection system guidance | Fresh paired six-state cohort: 3B 46/48→48/48, 24B 47/48→46/48; overall 93/96→94/96, input 907.865→1,107.802 (+22.0%). Exact text available per host configuration; default standard. Four new profile cases; 209 fresh feedback envelopes agree. Token/accuracy total $0.0293735125, caps $0.01/$0.08. [Report](QUERY_OPTIMIZATION_2026_11_06.md). |
+| Optional explicit-selection system guidance | Fresh paired six-state cohort: 3B 46/48→48/48, 24B 47/48→46/48; overall 93/96→94/96, input 907.865→1,107.802 (+22.0%). Exact text available per host configuration; default standard. Four new profile cases; 209 fresh feedback envelopes agree. Token/accuracy total $0.0293735125, caps $0.01/$0.08. [Report](evidence/QUERY_OPTIMIZATION_2026_11_06.md). |
 
 ## Shipped (v0.2.0a): integration kit
 
@@ -185,7 +197,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Inspector, doctor and starter | Explains selected source indices/omitted fields/age/budget; validates references and warns about missing units/unbounded age. Starter source 1,646 bytes → selected packed table 97 bytes, complete packet 646; 550-byte cap drops rows to 540 bytes. Lossy host selection, no model-accuracy claim. |
 | Named reusable context recipes | Prepared stable tools/schema and host-selected rows/schema-only/extra memory or fact sections. Seven paired release trials/1,000 turns: registration each turn 146,130,805 ns → shared registration 78,931,400 ns. Synthetic registration reuse, not model latency. |
 | Persistent and native host bridges | Versioned bounded JSON-lines, separate C ABI, thin Python/Node/TypeScript/C# adapters. 265 Python/native checks, 8 Node checks, 59 C# fixture replies plus two smoke checks on Linux; engine/mobile/Web deployment untested. |
-| Developer-owned evaluation kit | Complete recorded cohorts, independent expected results, separate answer/query scores, invalid calls, bytes/tokens/latency with missing data kept null. Three scripted states: correct run 3/3, injected-error run 2/3, one invalid query/call detected. No hosted-model run; entire batch $0 API. [Guide and evidence](KIT.md). |
+| Developer-owned evaluation kit | Complete recorded cohorts, independent expected results, separate answer/query scores, invalid calls, bytes/tokens/latency with missing data kept null. Three scripted states: correct run 3/3, injected-error run 2/3, one invalid query/call detected. No hosted-model run; entire batch $0 API. [Guide and evidence](guides/KIT.md). |
 
 ## Shipped (v0.2.0a): local deployment support
 
@@ -195,7 +207,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Legal-pair decisions and explicit deployment profiles | One correction, live availability/revision checks, current fallback or abstention, no action execution. Identity pins digest/quantization/template/tokenizer/runner. Guidance/transport stay opt-in. |
 | Model-size workload guide | Editable 1B, 1.5B, 3B, 8B, 30B and 70B templates and task/content/choice hints; all generic tiers marked unmeasured. Size does not infer model capability, guidance or hardware fit. |
 | Actual local Qwen 3B evaluation | Four physical cores / 7,996,997,632 bytes RAM, Q4_K_M, 2K starting context. 30 scenes × three modes: raw/scene/schema final pipeline 26/30, 30/30, 30/30; accepted model correctness 23/30, 27/30, 30/30. Median turn µs 19,226,226 / 8,651,346 / 5,451,699; p95 35,123,472 / 19,212,467 / 14,292,873. Preflights/retries/local hydration included; natural cache reuse and memory pressure limit extrapolation. |
-| Local guidance/tool/narration pilot and telemetry | Six scenes: concise/example/native-tools decision 6/6, 6/6, 5/6; no proved guidance gain over baseline. Backend-aware sampled runner RSS up to 2,705,707,008 bytes; main-cohort missing RSS remains null. Independent raw-data/decision/budget/report audits, all local API spend $0. [Report](LOCAL_MODEL_2026_11_06.md). |
+| Local guidance/tool/narration pilot and telemetry | Six scenes: concise/example/native-tools decision 6/6, 6/6, 5/6; no proved guidance gain over baseline. Backend-aware sampled runner RSS up to 2,705,707,008 bytes; main-cohort missing RSS remains null. Independent raw-data/decision/budget/report audits, all local API spend $0. [Report](evidence/LOCAL_MODEL_2026_11_06.md). |
 
 ## Added in v0.3.0a: local optimizations
 
@@ -208,7 +220,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Local-match router | Composes host rules/procedures/brains with legality, revision and live availability; ambiguity/conflict falls through. Eight scripted cases: three local drafts/five LLM paths, not measured real-game call reduction. |
 | Readable decision codec | Six local Qwen token probes: 2/4/8 choices 158→118, 224→174, 344→274. Matched-order 12 scenes: pairs 8/12, named 11/12; input 3,865→3,285, output 178→111. Small synthetic tasks, opt-in. |
 | Split configuration comparison | Complete independent cases/identity-checked profiles; tuning-only quality/cost Pareto frontier and exported profile/recipe, separate holdout report. Injected held-out failure stays visible at 1/2 and does not change tuning winner. |
-| Verification | 179 byte-identical Python/Rust workflows (152 accepted/27 rejected), 69 added conformance cases, 30,000 new mutations. All 496 prior cases unchanged; zero third-party dependencies, Rust 1.82. All new API spend $0. [Guide/evidence](OPTIMIZATION.md). |
+| Verification | 179 byte-identical Python/Rust workflows (152 accepted/27 rejected), 69 added conformance cases, 30,000 new mutations. All 496 prior cases unchanged; zero third-party dependencies, Rust 1.82. All new API spend $0. [Guide/evidence](guides/OPTIMIZATION.md). |
 
 ## Playable integration testbed (v0.3.0a)
 
@@ -216,7 +228,7 @@ noted; "3 models" adds Llama 3.3 70B.
 |---|---|
 | Original dungeon example | Six-room human/JSON-lines host, seeded key/purse/prices/health, local shop/combat, revision-checked actions and model-visible snapshots. 103 Python/Rust rule workflows agree; 23 separate example fixtures, all 565 core cases unchanged; 10,000 mutations. |
 | Replays and packet checkpoints | Six scripted seeds win; 240 mode observations. Raw/scene/named request JSON totals 275,304/261,304/206,347 bytes across 80 matching checkpoints. Raw archive drops at 55 checkpoints; byte/history differences are not isolated tokenizer savings. |
-| Optional local agent | Token-first loopback-only bounded player with complete-turn traces and independent rule/native audits. First Qwen named-mode smoke repeats legal look actions without advancing the quest; validity is not success. API spend $0 per local run. [Guide](../examples/dungeon/README.md). |
+| Optional local agent | Token-first loopback-only bounded player with complete-turn traces and independent rule/native audits. First Qwen named-mode smoke repeats legal look actions without advancing the quest; validity is not success. API spend $0 per local run. [Guide](../examples/lantern-vault/README.md). |
 
 ## Human-play characters and task workflows (v0.3.0a)
 
@@ -226,7 +238,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Direct current utterance | Native chat renderer keeps current text outside nested JSON. Focused 3B cohort generation input/output 6767/308 versus standard 7468/525, both 2/4 intent; bundled task/prompt changes prevent isolating the renderer effect. |
 | Human player, AI characters | Free-form keeper/merchant/narrator speech with scoped original player quotes, bounded dialogue, deletion and one-use revision checks; speech executes no action. 43 independent workflows, 507 accepted/11 rejected operations, 13 fixture sets. |
 | Entity reference guard | Longer overlapping phrases, canonical action type, fresh scoped action focus and targeted revision-bound human clarification. 360 independent workflows across six seeds; 30,000 social/entity mutations; seven fake-generation front-end tests. Example English heuristics, not a universal entity parser. |
-| Local pilot | Three nine-speech/four-intent cohorts, no retries, 26 calls each. Slot pilot 7/8; phrase-aware revision 8/8, four local deferrals plus 4/4 model choices. Revised cases are regression evidence, not fresh holdout. All token/accuracy runs $0 API; no other sizes tested. [Guide and raw artifact checks](WORKFLOWS.md). |
+| Local pilot | Three nine-speech/four-intent cohorts, no retries, 26 calls each. Slot pilot 7/8; phrase-aware revision 8/8, four local deferrals plus 4/4 model choices. Revised cases are regression evidence, not fresh holdout. All token/accuracy runs $0 API; no other sizes tested. [Guide and raw artifact checks](guides/WORKFLOWS.md). |
 
 ## Shared dialogue-to-action support (v0.3.0a)
 
@@ -234,14 +246,14 @@ noted; "3 models" adds Llama 3.3 70B.
 |---|---|
 | Reusable conversations | Native `Conversation`/configurable limits: scoped whole exchanges and verbatim quotes, one-use source-validated replies, deletion, live scope/revision gates. Dungeon storage/validation delegates to core; all old social/model artifacts still audit identically. |
 | Reusable references and confirmation | Host-supplied entity types/aliases/pronouns with bounded overlap matching; generic pending action verifies scope/revision/terms/current permissions and never dispatches. 78 independent Python/Rust workflows, 38 new core cases, all 595 prior cases unchanged, 30,000 added mutations. |
-| Merchant loop repair | Local exact purchase receipts and yes/no offers; insufficient funds explain the shortfall without generation. 66 workflows / 144 trade requests over six seeds and 11 front-end tests; successful real launcher trade smoke, zero generation. All new API spend $0. [Shared guide](CONVERSATION.md). |
+| Merchant loop repair | Local exact purchase receipts and yes/no offers; insufficient funds explain the shortfall without generation. 66 workflows / 144 trade requests over six seeds and 11 front-end tests; successful real launcher trade smoke, zero generation. All new API spend $0. [Shared guide](guides/CONVERSATION.md). |
 
 ## User-reported dialogue regressions (v0.3.0a)
 
 | Item | Result |
 |---|---|
 | Preserved observations | 11 sequences / 26 turns; deployment identity, seed, usage and original world trace unknown. Correct original-name recall coexists with invented player disclosures/home, weather and tonic purpose. Manual claim annotations, no aggregate model score. |
-| Host/storage reproduction | Seed-7 native/Python audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets, two reproduced purchases. Player quotes retain original input only; forgetting preserves inventory. All 633 core cases unchanged; no prompt/runtime changes, zero new model calls, $0 API. [Report](DUNGEON_FEEDBACK.md). |
+| Host/storage reproduction | Seed-7 native/Python audit: 17 trade requests, 16 matching local receipts, nine supplied speech packets, two reproduced purchases. Player quotes retain original input only; forgetting preserves inventory. All 633 core cases unchanged; no prompt/runtime changes, zero new model calls, $0 API. [Report](evidence/DUNGEON_FEEDBACK.md). |
 
 ## Authored lore and factual answers (v0.3.0a)
 
@@ -251,7 +263,7 @@ noted; "3 models" adds Llama 3.3 70B.
 | Source-bound answers | Model selects a source or unknown; host renders exact lore/state text or attributed player quotes, rechecks scope/revision/source and never executes actions. Live fields supersede matching lore fields. 108 independent workflows, 28 new cases, all 633 prior cases unchanged; 30000 added mutations. |
 | Dungeon integration | Editable world file, new source/legacy dialogue switch, scoped factual tickets and authored background in open-ended dialogue. Sixty native request workflows across five seeds and eleven front-end checks. Legacy artifacts still audit identically. |
 | New local question tests | Native v3 11/12; 20 fresh questions 17/20, after routing fixes 20/20 regression; eight more questions 7/8. Final “Did I…” disclosure guard handles the miss locally, 1/1. All pilots/failures retained; no new independent generalization claim after repair. |
-| Runtime evidence | Rerun median/p95 turn 563910/2265634 µs includes ten local unknown paths; unequal call mix prevents format-only speed claims. Separate post-run runner/host RSS 2180976640/4694016 bytes, not peak RAM. Every new token/accuracy/audit run $0 API. [Contracts](LORE.md), [full report](LORE_EVAL.md). |
+| Runtime evidence | Rerun median/p95 turn 563910/2265634 µs includes ten local unknown paths; unequal call mix prevents format-only speed claims. Separate post-run runner/host RSS 2180976640/4694016 bytes, not peak RAM. Every new token/accuracy/audit run $0 API. [Contracts](guides/LORE.md), [full report](evidence/LORE_EVAL.md). |
 
 ## Measured and rejected
 
@@ -375,7 +387,7 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Dynamic character stages
 
-See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md).
+See [implementation and completion record](characters/LIFE.md) and [evidence](evidence/LIFE_EVAL.md).
 
 - Stage 1: `f863b45`, approved life definitions, subjective attitudes and attributed
   experiences; 52 independent workflows, bounded host appraisal, original editable files.
@@ -430,7 +442,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Preserve remaining failures: v2 still invents clear weather and a dark blue wick; one
   reply exceeds the instructed 120 characters. Both v2 origin cases acknowledge unknowns
   without invented origins. Do not present this as general subject resolution or grounding.
-- Raw v2 token/results/review artifacts and [method/limits](LIFE_SPEECH_V2_EVAL.md) are retained;
+- Raw v2 token/results/review artifacts and [method/limits](evidence/LIFE_SPEECH_V2_EVAL.md) are retained;
   no tuned rerun, larger model, automatic repair or default source-answer change. Next:
   independent human review and fresh multi-turn families covering unknown scenes and stock.
 
@@ -457,7 +469,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Host work remains: truthful receipt/signal/listener inputs, private-scope/redaction policy,
   complete provider counting, actual model loading/call limits, game dispatch, persistent
   scene/floor state, spending settlement and independent live/human evaluation. Existing
-  failed speech artifacts remain unchanged. [Full contract/evidence](ARCHETYPES.md).
+  failed speech artifacts remain unchanged. [Full contract/evidence](characters/ARCHETYPES.md).
 
 ## Living world and cast pack layer
 
@@ -483,7 +495,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
   remains authenticated co-location/counters/signals, correct scene/dependency revisions,
   foreground budgeting, bounded validation callbacks, real execution/delivery and durable
   journal/ledger retention/compaction/erasure. Root/influence capacities are explicit; no
-  automatic archival or unlimited-world claim. [Method and limits](LIVING_WORLD.md).
+  automatic archival or unlimited-world claim. [Method and limits](characters/LIVING_WORLD.md).
 
 - Retained host trace: 272 µs median, 348 µs p95, 2248 µs maximum; 1000/1,000 measured host frames below 16,667 µs, with the documented exclusions.
 
@@ -492,7 +504,7 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Initial 1,000-event archival trace preserves original evidence but legacy active-set
   recall does not search it; 600-chat Web trace rejects 536 turns starting at turn 65
   because routine dialogue fills rumor capacity. Ranked additive repairs and live
-  cohort methodology: [overnight evaluation](OVERNIGHT_DEEP_EVAL.md).
+  cohort methodology: [overnight evaluation](evidence/OVERNIGHT_DEEP_EVAL.md).
 - First runtime repair: transient `LivingWorld::record` plus causal/appraisal-safe
   `Life::trim_transient`, used by the Web host. Fresh 600-chat trace: 0 rejected turns
   versus 536/600 in the retained baseline. A separate 1,000 fully delivered turn test
@@ -550,9 +562,9 @@ See [implementation and completion record](LIFE.md) and [evidence](LIFE_EVAL.md)
 - Evidence: 32 Python/Rust cases, shared bindings, 2,000 mutations, offline host routing
   and owned-process cohorts; no larger-model or image-quality claim. See MODEL_MANAGER.md.
 
-Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+Native voice integration and the Settings menu are documented in [Native voice](studio/NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
 
-Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+Two-player LAN conversation keeps all processing on the host. See [LAN play](studio/LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
 
 - Voice/Settings/LAN verification: 13 Python/Rust audio plan fixtures, 2,000 parser mutations,
   seven offline CLI-host workflows, ten LAN authorization workflows, four host mock AI calls
@@ -573,15 +585,15 @@ Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN
   unmeasured. Earlier evaluation/conformance outputs remain frozen.
 
 Voice recording history, cancellable local replies and the floating context/execution
-profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+profilers are documented in [Studio diagnostics](studio/STUDIO_DIAGNOSTICS.md).
 
-- Completed: optional persistent character viewpoints with scoped personality/Life context, delivery confirmation and branch/reset behavior; Thinking UI hides old replies. Twelve parity cases, nine host workflows, five Firefox workflows; fresh local 3B holdout 3/3 relevant/accepted versus 0/3 baseline. See [evidence and limits](CHARACTER_VIEWPOINTS.md). Host-gated extensible reactions and transfer adapters are next.
+- Completed: optional persistent character viewpoints with scoped personality/Life context, delivery confirmation and branch/reset behavior; Thinking UI hides old replies. Twelve parity cases, nine host workflows, five Firefox workflows; fresh local 3B holdout 3/3 relevant/accepted versus 0/3 baseline. See [evidence and limits](characters/CHARACTER_VIEWPOINTS.md). Host-gated extensible reactions and transfer adapters are next.
 
-- Completed: opt-in host reaction policy with attitude/personality/resource/reason gates, fresh authorization, physical-threat provenance and registered generic handlers. Studio coin/item gifts/loans/support conserve resources with scoped debts and interleaved checkpoint replay. 22 parity cases, 12 host workflows (20 coins conserved), six Firefox workflows, 0 extra model calls. [Limits/integration](CHARACTER_REACTIONS.md).
+- Completed: opt-in host reaction policy with attitude/personality/resource/reason gates, fresh authorization, physical-threat provenance and registered generic handlers. Studio coin/item gifts/loans/support conserve resources with scoped debts and interleaved checkpoint replay. 22 parity cases, 12 host workflows (20 coins conserved), six Firefox workflows, 0 extra model calls. [Limits/integration](characters/CHARACTER_REACTIONS.md).
 
-- Fixed: personal small talk falling through to role-only speech enums. Opt-in social routing, immediate varied greetings, zero-call mood/explanation turns with NPC/player perspective and confirmed context, and duplicate/engine-metadata rejection. 22 parity cases, 12 host workflows and five Firefox workflows; paired local 3B experiments/final holdout and limits in [studio conversation](STUDIO_CONVERSATION.md).
+- Fixed: personal small talk falling through to role-only speech enums. Opt-in social routing, immediate varied greetings, zero-call mood/explanation turns with NPC/player perspective and confirmed context, and duplicate/engine-metadata rejection. 22 parity cases, 12 host workflows and five Firefox workflows; paired local 3B experiments/final holdout and limits in [studio conversation](studio/STUDIO_CONVERSATION.md).
 
-- Completed: per-NPC/listener encounter memory and zero-model contextual greeting plans, full-heard introductions, scoped legacy migration and branch/reset behavior. Arrival/Approach uses host-confirmed stage directions; typed travel is permission checked and guests cannot bypass host control. 26 parity cases, two new aliases, 12 encounter / seven action host workflows and seven Firefox workflows; [evidence/limits](CONTEXTUAL_GREETINGS.md).
+- Completed: per-NPC/listener encounter memory and zero-model contextual greeting plans, full-heard introductions, scoped legacy migration and branch/reset behavior. Arrival/Approach uses host-confirmed stage directions; typed travel is permission checked and guests cannot bypass host control. 26 parity cases, two new aliases, 12 encounter / seven action host workflows and seven Firefox workflows; [evidence/limits](characters/CONTEXTUAL_GREETINGS.md).
 
 - Optional native reasoning controls and ephemeral hypotheses: implemented with exact-model
   capability checks; 28 independent offline policy cases and automatic-speech browser policy.

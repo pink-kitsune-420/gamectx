@@ -17,17 +17,17 @@ alive until every request finishes; release returned strings with the exported f
 function. Native callback dispatch stays in the host. The C# adapter takes raw JSON and
 returns a raw versioned JSON envelope so the host chooses its own serializer.
 
-See [KIT](../docs/KIT.md) and [FORMAT](../docs/FORMAT.md#integration-kit) for lifecycle,
+See [KIT](../docs/guides/KIT.md) and [FORMAT](../docs/FORMAT.md#integration-kit) for lifecycle,
 request fields, operations and limits. Raw C/native JSON preserves number spellings;
 Node's parsed JSON numbers follow JavaScript's binary64 rules. IDs should be strings.
 
-Checks: `eval/kit_bindings_check.py` exercises Python and native parity;
-`eval/kit_bindings_check.mjs` exercises the Node adapter. `csharp/Check.cs` is a runnable
+Checks: `eval/runtime/kit_bindings_check.py` exercises Python and native parity;
+`eval/runtime/kit_bindings_check.mjs` exercises the Node adapter. `csharp/Check.cs` is a runnable
 C# driver. Python can emit its reference fixture replies with `--csharp-fixtures DIR`;
 the driver accepts project, requests.txt and expected.txt paths. CI compiles and runs it
 on Linux. Actual engine/mobile/Web deployments are not included in these checks.
 
-Optional [routine sessions](../docs/ROUTINES.md) use the same persistent ABI/envelopes.
+Optional [routine sessions](../docs/guides/ROUTINES.md) use the same persistent ABI/envelopes.
 Python `Character.routine_configure/update/observation/complete/reserve/save/restore` and
 Node camelCase equivalents wrap privileged host operations; none is a model tool.
 Select only registered `routine_status`/`activity_propose` for the current turn. Supply
@@ -41,12 +41,12 @@ same three `character_routine_*` host operation names over C#/C session requests
 `kind,knowledge` answer. This read is not a model function; no ABI symbols changed.
 The expanded adversarial binding suite contains 61 fixtures.
 
-Optional [dynamic characters](../docs/LIFE.md) use the same persistent ABI. Python and Node
+Optional [dynamic characters](../docs/characters/LIFE.md) use the same persistent ABI. Python and Node
 `Character` add life configure/experience/appraisal/context/recall helpers and generic
 `life`, `continuity`, `initiative` host methods; TypeScript declarations cover them. C#/C
 continue through versioned session requests. The combined v2 checkpoint preserves life,
 notebook/progress/consumed IDs, continuity/initiative replay metadata and retention policy;
 restore cancels executable pending work. Routines/world storage retain their existing host
-transactions. `eval/life_bindings_check.py`/`.mjs` exercise 39 independent fixture replies;
+transactions. `eval/character/life_bindings_check.py`/`.mjs` exercise 39 independent fixture replies;
 the existing C# driver consumes `target/life-csharp` files. Host operations are never model
 tools. Authenticate participant scopes, permissions and save/erasure watermarks externally.

@@ -1,13 +1,14 @@
 use gamectx::{
-    dialogue, obj,
-    request::{Count, CountMethod, RequestBudget},
+    character::dialogue,
+    obj,
+    packet::request::{Count, CountMethod, RequestBudget},
     Result, Value,
 };
 fn count(v: &Value) -> Result<Count> {
     Ok(Count { input: v.to_json().len(), method: CountMethod::Estimate })
 }
 fn fixture() -> Value {
-    gamectx::json::parse(include_str!("../conformance/kit/build/input.json"), 1 << 20).unwrap()
+    gamectx::data::json::parse(include_str!("../conformance/kit/build/input.json"), 1 << 20).unwrap()
 }
 #[test]
 fn full_request_counts_native_tools_history_and_output() -> Result<()> {
@@ -17,10 +18,10 @@ fn full_request_counts_native_tools_history_and_output() -> Result<()> {
     turn.var_with("lore", "x".repeat(1000), 1, false)?;
     turn.var_with("current", "Inspect the gate", 9, true)?;
     let budget = RequestBudget::new(600, 80, 20)?;
-    let built=turn.build_request(&budget,|packet|Ok(obj! {"messages"=>vec![obj! {"role"=>"system","content"=>packet.to_json()}],"tools"=>vec![gamectx::query::tool()]}),count);
+    let built=turn.build_request(&budget,|packet|Ok(obj! {"messages"=>vec![obj! {"role"=>"system","content"=>packet.to_json()}],"tools"=>vec![gamectx::data::query::tool()]}),count);
     // Native tool descriptions alone consume this deliberately tiny fixture byte budget.
     assert!(built.is_err());
-    let built=turn.build_request(&RequestBudget::new(1800,80,20)?,|packet|Ok(obj! {"messages"=>vec![obj! {"role"=>"system","content"=>packet.to_json()}],"tools"=>vec![gamectx::query::tool()]}),count)?;
+    let built=turn.build_request(&RequestBudget::new(1800,80,20)?,|packet|Ok(obj! {"messages"=>vec![obj! {"role"=>"system","content"=>packet.to_json()}],"tools"=>vec![gamectx::data::query::tool()]}),count)?;
     assert!(built.receipt.fits());
     assert!(built.packet.value.get("current").is_some());
     assert!(built.request.get("tools").is_some());
@@ -40,7 +41,7 @@ fn full_request_counts_native_tools_history_and_output() -> Result<()> {
 }
 #[test]
 fn decision_requires_live_permission_and_never_executes() -> Result<()> {
-    let choices = gamectx::decision::Choices::from_value(&obj! {"version"=>1,"revision"=>9,
+    let choices = gamectx::runtime::decision::Choices::from_value(&obj! {"version"=>1,"revision"=>9,
     "choices"=>vec![obj! {"action"=>"inspect","target"=>"grove:gate"},obj! {"action"=>"wait","target"=>Value::Null}],
     "fallback"=>obj! {"action"=>"wait","target"=>Value::Null}})?;
     let mut s = choices.session();
@@ -99,17 +100,17 @@ fn query_stdin_supports_local_hydration_without_temp_files() {
 
 #[test]
 fn size_templates_are_advisory_and_do_not_change_profile_formats() -> Result<()> {
-    use gamectx::deployment::{Identity, ModelSize, Profile};
+    use gamectx::deploy::deployment::{Identity, ModelSize, Profile};
     let examples = [
-        include_str!("../examples/deployments/1b.json"),
-        include_str!("../examples/deployments/1.5b.json"),
-        include_str!("../examples/deployments/3b.json"),
-        include_str!("../examples/deployments/8b.json"),
-        include_str!("../examples/deployments/30b.json"),
-        include_str!("../examples/deployments/70b.json"),
+        include_str!("../examples/fixtures/deployments/1b.json"),
+        include_str!("../examples/fixtures/deployments/1.5b.json"),
+        include_str!("../examples/fixtures/deployments/3b.json"),
+        include_str!("../examples/fixtures/deployments/8b.json"),
+        include_str!("../examples/fixtures/deployments/30b.json"),
+        include_str!("../examples/fixtures/deployments/70b.json"),
     ];
     for text in examples {
-        let value = gamectx::json::parse(text, 8192)?;
+        let value = gamectx::data::json::parse(text, 8192)?;
         let profile = value.get("profile").unwrap();
         let identity = Identity::from_value(profile.get("identity").unwrap())?;
         let size = ModelSize::parse(value.get("guideline").unwrap().get("size_class").unwrap().as_str().unwrap())?;

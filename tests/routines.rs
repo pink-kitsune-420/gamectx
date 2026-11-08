@@ -1,10 +1,9 @@
 use gamectx::{
-    character::{CharacterTools, CharacterView},
-    json::parse,
-    obj,
-    observation::History,
-    routine::{Config, Frame, Routine, Runtime, Timeline},
-    Value,
+    character::routine::{Config, Frame, Routine, Runtime, Timeline},
+    character::tools::{CharacterTools, CharacterView},
+    data::json::parse,
+    knowledge::observation::History,
+    obj, Value,
 };
 use std::sync::Arc;
 fn input() -> Value {
@@ -245,7 +244,7 @@ fn history_can_run_without_routines_and_disabled_features_make_no_model_calls() 
 }
 #[test]
 fn scheduler_budgets_many_npc_updates_without_model_work() {
-    let mut scheduler = gamectx::schedule::Scheduler::new(128, 16).unwrap();
+    let mut scheduler = gamectx::runtime::schedule::Scheduler::new(128, 16).unwrap();
     let shared = definition();
     let mut npcs = Vec::new();
     for id in 0..128 {
@@ -319,8 +318,8 @@ fn initial_save_roundtrip_and_private_runtime_roster_are_checked() {
 #[test]
 fn focused_and_expanded_context_keep_required_facts_with_full_request_recounts() {
     use gamectx::{
-        character::{AttentionLimits, MemoryChoice, ToolChoice, TurnPlan},
-        request::{Count, CountMethod, RequestBudget},
+        character::tools::{AttentionLimits, MemoryChoice, ToolChoice, TurnPlan},
+        packet::request::{Count, CountMethod, RequestBudget},
     };
     let mut r = runtime();
     r.update(frame(1, 0, false, false)).unwrap();
@@ -362,7 +361,7 @@ fn focused_and_expanded_context_keep_required_facts_with_full_request_recounts()
 
 #[test]
 fn task_selection_preserves_required_older_evidence_and_rejects_missing_sources() {
-    use gamectx::observation::Selection;
+    use gamectx::knowledge::observation::Selection;
     let mut r = runtime();
     r.update(frame(1, 1, false, false)).unwrap();
     let mut o = observation();
@@ -527,7 +526,7 @@ fn restore_rejects_impossible_lifecycles_and_same_revision_frame_changes() {
 
 #[test]
 fn typed_time_answers_keep_reports_and_wrong_instruments_separate_from_truth() {
-    use gamectx::observation::TimeKind;
+    use gamectx::knowledge::observation::TimeKind;
     let mut r = runtime();
     r.update(frame(1, 1, false, false)).unwrap();
     assert_eq!(r.time_assessment().unwrap().kind(), TimeKind::Approximate); // enabled routine phase

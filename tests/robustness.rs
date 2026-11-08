@@ -1,8 +1,8 @@
 //! Deterministic mutation testing: malformed input must produce errors, never panics,
 //! and anything that parses must survive packing and serialize back to itself.
 
-use gamectx::json::{parse, Value};
-use gamectx::{catalog, schema, signatures, table};
+use gamectx::data::json::{parse, Value};
+use gamectx::{data::catalog, data::table, packet::schema, packet::signatures};
 
 const SEEDS: [&str; 6] = [
     r##"[{"id":"a","kind":"x","n":1.50},{"id":"b","kind":"x","n":-2e3}]"##,
@@ -15,14 +15,14 @@ const SEEDS: [&str; 6] = [
 const NOISE: &[u8] = b"{}[]\":,\\-+.eE0123456789tfnul \t\nabc#\x01\xc3\xa9";
 
 #[allow(dead_code)] // Interactive host methods are covered by the dungeon integration test.
-#[path = "../examples/dungeon/game.rs"]
+#[path = "../examples/lantern-vault/game.rs"]
 mod dungeon;
 use dungeon as game;
 #[allow(dead_code)]
-#[path = "../examples/dungeon/intent.rs"]
+#[path = "../examples/lantern-vault/intent.rs"]
 mod dungeon_intent;
 #[allow(dead_code)] // Rendering is exercised by the dungeon host integration tests.
-#[path = "../examples/dungeon/social.rs"]
+#[path = "../examples/lantern-vault/social.rs"]
 mod dungeon_social;
 
 struct Rng(u64);
@@ -58,14 +58,14 @@ fn exercise(value: &Value) {
     assert!(value.is_valid(value.json_len()));
     assert_eq!(value.json_len(), value.to_json().len());
     assert_eq!(parse(&value.to_json(), usize::MAX).as_ref(), Ok(value), "serialization must round-trip");
-    let mut session = gamectx::query::Session::new();
+    let mut session = gamectx::data::query::Session::new();
     session.apply_call(value, &[("items", &[])]).unwrap();
     if !session.is_finished() {
         session.apply_call(value, &[("items", &[])]).unwrap();
     }
     assert!(session.apply_call(value, &[("items", &[])]).is_err());
     if let Some(items) = value.as_array() {
-        let _ = gamectx::query::describe(&[("items", items)]);
+        let _ = gamectx::data::query::describe(&[("items", items)]);
         if let Ok(packed) = table::pack(items, &[]) {
             assert!(Value::Array(table::unpack(&packed).unwrap()).same(value));
         }
@@ -104,9 +104,9 @@ fn mutated_inputs_never_panic() {
 #[test]
 fn dungeon_replays_are_bounded_and_never_panic() {
     let seeds = [
-        include_str!("../examples/dungeon/cases/win_7/input.json"),
-        include_str!("../examples/dungeon/cases/stale/input.json"),
-        include_str!("../examples/dungeon/cases/invalid_shape/input.json"),
+        include_str!("../examples/lantern-vault/cases/win_7/input.json"),
+        include_str!("../examples/lantern-vault/cases/stale/input.json"),
+        include_str!("../examples/lantern-vault/cases/invalid_shape/input.json"),
     ];
     let mut rng = Rng(0x5197_8234_bccc_1101);
     for i in 0..10_000 {
@@ -122,9 +122,9 @@ fn dungeon_replays_are_bounded_and_never_panic() {
 #[test]
 fn npc_reply_and_memory_parsers_are_bounded_and_atomic() {
     let seeds = [
-        include_str!("../examples/dungeon/social-cases/remember/input.json"),
-        include_str!("../examples/dungeon/social-cases/bad_memory/input.json"),
-        include_str!("../examples/dungeon/social-cases/stale/input.json"),
+        include_str!("../examples/lantern-vault/social-cases/remember/input.json"),
+        include_str!("../examples/lantern-vault/social-cases/bad_memory/input.json"),
+        include_str!("../examples/lantern-vault/social-cases/stale/input.json"),
     ];
     let mut rng = Rng(0x219a_1234_bccc_7771);
     let mut world = game::Game::new(7).unwrap();
@@ -148,7 +148,7 @@ fn npc_reply_and_memory_parsers_are_bounded_and_atomic() {
 
 #[test]
 fn formula_text_never_panics_or_hangs() {
-    use gamectx::formula::Formulas;
+    use gamectx::data::formula::Formulas;
     let mut f = Formulas::new();
     f.define("d", &["a", "b"], "max(0, 10 - b) * (1 - a / 100)", "").unwrap();
     f.define("e", &["x"], "d(x, x) + d(x, 1)", "").unwrap();
@@ -181,7 +181,7 @@ fn formula_text_never_panics_or_hangs() {
 
 #[test]
 fn query_text_never_panics_or_hangs() {
-    use gamectx::query;
+    use gamectx::data::query;
     let tables = parse(
         r##"{"items":[{"id":"a","kind":"food","n":3,"w":0.50,"x":null},{"id":"b","kind":"tool","n":-2e3,"w":1,"x":true}],
             "empty":[]}"##,
@@ -233,7 +233,7 @@ fn query_text_never_panics_or_hangs() {
 
 #[test]
 fn brain_definitions_learning_and_saved_text_never_panic() {
-    use gamectx::{brain::Brain, obj};
+    use gamectx::{obj, runtime::brain::Brain};
     let definition = obj! {"version" => 1, "inputs" => vec!["x"], "outputs" => vec!["act"],
     "nodes" => vec![obj! {"id" => "act", "weights" => obj! {"x" => 0.5}, "bias" => 0.1,
         "pinned" => false, "learning_limit" => 0.5}]};
@@ -276,7 +276,7 @@ fn brain_definitions_learning_and_saved_text_never_panic() {
 
 #[test]
 fn brain_rate_selection_text_never_panics_or_partially_updates() {
-    use gamectx::{brain::Brain, obj};
+    use gamectx::{obj, runtime::brain::Brain};
     let workflow = parse(include_str!("../conformance/brain-select/select-earlier-tie/input.json"), 8192).unwrap();
     let brain = Brain::from_value(workflow.get("definition").unwrap()).unwrap();
     let args = workflow.get("operations").unwrap().as_array().unwrap()[0].get("args").unwrap().to_json();
@@ -300,7 +300,7 @@ fn brain_rate_selection_text_never_panics_or_partially_updates() {
 
 #[test]
 fn cached_brain_workflow_text_matches_uncached_execution() {
-    use gamectx::brain;
+    use gamectx::runtime::brain;
     let seeds = [
         include_str!("../conformance/brain-cache/repeated-normalized/input.json"),
         include_str!("../conformance/brain-cache/masks-thresholds-unknown/input.json"),
@@ -358,7 +358,7 @@ fn hostile_unpack_input_errors_cleanly() {
 fn context_sync_model_text_is_bounded_and_atomic() {
     use gamectx::{
         obj,
-        sync::{Publisher, Replica},
+        packet::sync::{Publisher, Replica},
     };
     let mut sender = Publisher::new("fuzz").unwrap();
     let first = sender.publish(&obj! {"a"=>1,"b"=>"stable"}, None).unwrap();
@@ -383,7 +383,7 @@ fn context_sync_model_text_is_bounded_and_atomic() {
 
 #[test]
 fn host_validation_and_sliced_model_text_never_partially_update() {
-    use gamectx::brain::Brain;
+    use gamectx::runtime::brain::Brain;
     let workflow = parse(include_str!("../conformance/runtime/host-selection/input.json"), 1 << 16).unwrap();
     let workflow = workflow.get("workflow").unwrap();
     let brain = Brain::from_value(workflow.get("definition").unwrap()).unwrap();
@@ -413,13 +413,13 @@ fn host_validation_and_sliced_model_text_never_partially_update() {
 
 #[test]
 fn new_binding_metadata_journal_and_replay_text_is_bounded_and_atomic() {
-    use gamectx::{brain::FeatureSchema, memory::Journal, obj};
-    let schema = include_str!("../examples/brain/bindings.json");
-    let metadata = include_str!("../examples/query-meanings.json");
-    let tables = parse(include_str!("../examples/query-meaning-tables.json"), 1 << 16).unwrap();
+    use gamectx::{knowledge::memory::Journal, obj, runtime::brain::FeatureSchema};
+    let schema = include_str!("../examples/fixtures/brain/bindings.json");
+    let metadata = include_str!("../examples/data/query-meanings.json");
+    let tables = parse(include_str!("../examples/data/query-meaning-tables.json"), 1 << 16).unwrap();
     let named: Vec<_> = tables.as_object().unwrap().iter().map(|(k, v)| (k.as_str(), v.as_array().unwrap())).collect();
     let row=(obj!{"turn"=>1,"entity"=>"actor_a","key"=>"near_cover","text"=>"The actor approached cover.","tags"=>vec!["activity"],"importance"=>5,"source"=>"observed","expires"=>20}).to_json();
-    let trace = include_str!("../examples/brain/trace.json");
+    let trace = include_str!("../examples/fixtures/brain/trace.json");
     let seeds = [schema, metadata, &row, trace];
     let mut rng = Rng(0xDA7A_4A51_7733_0012);
     for i in 0..40_000 {
@@ -436,7 +436,7 @@ fn new_binding_metadata_journal_and_replay_text_is_bounded_and_atomic() {
             }
             1 => {
                 if let Ok(value) = parse(&text, 1 << 16) {
-                    if let Ok(result) = gamectx::query::describe_with(&named, &value) {
+                    if let Ok(result) = gamectx::data::query::describe_with(&named, &value) {
                         assert_eq!(parse(&result.to_json(), 1 << 20).unwrap(), result);
                     }
                 }
@@ -452,7 +452,7 @@ fn new_binding_metadata_journal_and_replay_text_is_bounded_and_atomic() {
                 }
             }
             _ => {
-                if let Ok(result) = gamectx::replay::run_json(&text) {
+                if let Ok(result) = gamectx::runtime::replay::run_json(&text) {
                     assert_eq!(parse(&result.to_json(), 1 << 20).unwrap(), result);
                 }
             }
@@ -462,7 +462,7 @@ fn new_binding_metadata_journal_and_replay_text_is_bounded_and_atomic() {
 
 #[test]
 fn cited_hypothesis_and_saved_evidence_text_never_mutates_observations() {
-    use gamectx::{memory::EvidenceMemory, obj};
+    use gamectx::{knowledge::memory::EvidenceMemory, obj};
     let mut native = EvidenceMemory::new("actor_a", "game_ticks", 8, 4).unwrap();
     for id in 1..=2 {
         native.observe(id,&obj!{"turn"=>id,"entity"=>"actor_a","key"=>format!("signal_{id}"),"text"=>"The actor approached cover.","tags"=>vec!["activity"],"importance"=>5,"source"=>"observed","expires"=>30},&["position"]).unwrap();
@@ -495,7 +495,7 @@ fn cited_hypothesis_and_saved_evidence_text_never_mutates_observations() {
 
 #[test]
 fn registered_fact_claims_and_saved_states_are_bounded_and_atomic() {
-    use gamectx::facts::{FactOptions, FactRegistry};
+    use gamectx::knowledge::facts::{FactOptions, FactRegistry};
     let mut facts = FactRegistry::new(8).unwrap();
     let source = facts.register("world", "available", true, FactOptions::default()).unwrap();
     facts.register("plan", "ready", true, FactOptions { dependencies: vec![source], ..Default::default() }).unwrap();
@@ -556,12 +556,13 @@ fn runtime_upgrade_workflow_text_is_bounded() {
 #[test]
 fn saved_runtime_and_authored_configuration_mutations_round_trip() {
     use gamectx::{
-        brain::BrainBundle, playbook::Playbook, recall::RecallIndex, requests::RequestContext, spending::SpendingLedger,
+        knowledge::recall::RecallIndex, runtime::brain::BrainBundle, runtime::playbook::Playbook,
+        runtime::requests::RequestContext, runtime::spending::SpendingLedger,
     };
     let workflow = parse(include_str!("../conformance/upgrades/bundle-reuse/input.json"), 1 << 16).unwrap();
     let bundle = BrainBundle::new(
-        gamectx::brain::Brain::from_value(workflow.get("perception").unwrap()).unwrap(),
-        gamectx::brain::Brain::from_value(workflow.get("decision").unwrap()).unwrap(),
+        gamectx::runtime::brain::Brain::from_value(workflow.get("perception").unwrap()).unwrap(),
+        gamectx::runtime::brain::Brain::from_value(workflow.get("decision").unwrap()).unwrap(),
         workflow.get("ports").unwrap(),
     )
     .unwrap()
@@ -627,9 +628,9 @@ fn saved_runtime_and_authored_configuration_mutations_round_trip() {
 #[test]
 fn query_contracts_plans_and_identifier_text_survive_mutation() {
     use gamectx::{
+        data::query::{Query, Shape},
+        data::view,
         obj,
-        query::{Query, Shape},
-        view,
     };
     let seeds = [
         r#"{"table":"cargo","filter_columns":["mass","mass"],"limit":null,"aggregate":false}"#,
@@ -647,7 +648,7 @@ fn query_contracts_plans_and_identifier_text_survive_mutation() {
                 let _ = query.require_shape(&shape);
             }
         }
-        let _ = gamectx::query::Guidance::parse(&text);
+        let _ = gamectx::data::query::Guidance::parse(&text);
         let scores = view::relevance_scores(&rows, &text);
         assert!(scores.iter().all(|s| *s <= text.chars().count() * 2));
         assert_eq!(parse(&query.plan().to_json(), 8192).unwrap(), query.plan());
@@ -694,13 +695,13 @@ fn local_decision_dialogue_profile_and_telemetry_text_is_bounded() {
     for i in 0..20_000 {
         let input = mutate(&mut rng, seeds[i % seeds.len()]);
         if let Ok(v) = parse(&input, 1_572_864) {
-            if let Ok(result) = gamectx::local::process(&v) {
+            if let Ok(result) = gamectx::kit::local::process(&v) {
                 assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
             }
-            let _ = gamectx::dialogue::Thread::from_value(&v);
-            let _ = gamectx::dialogue::Scene::from_value(&v);
-            let _ = gamectx::deployment::Profile::from_value(&v);
-            if let Ok(c) = gamectx::decision::Choices::from_value(&v) {
+            let _ = gamectx::character::dialogue::Thread::from_value(&v);
+            let _ = gamectx::character::dialogue::Scene::from_value(&v);
+            let _ = gamectx::deploy::deployment::Profile::from_value(&v);
+            if let Ok(c) = gamectx::runtime::decision::Choices::from_value(&v) {
                 let _ = c.session().apply(&input, 0, |_| false);
             }
         }
@@ -722,15 +723,15 @@ fn optimization_contracts_and_model_text_are_bounded() {
     for i in 0..20_000 {
         let input = mutate(&mut rng, seeds[i % seeds.len()]);
         if let Ok(value) = parse(&input, 1_572_864) {
-            if let Ok(result) = gamectx::local::process(&value) {
+            if let Ok(result) = gamectx::kit::local::process(&value) {
                 assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
             }
         }
     }
     let v = parse(seeds[5], 1 << 16).unwrap();
     let a = v.get("args").unwrap();
-    let choices = gamectx::decision::Choices::from_value(a.get("choices").unwrap()).unwrap();
-    let codec = gamectx::decision::ChoiceCodec::new(&choices, a.get("names").unwrap()).unwrap();
+    let choices = gamectx::runtime::decision::Choices::from_value(a.get("choices").unwrap()).unwrap();
+    let codec = gamectx::runtime::decision::ChoiceCodec::new(&choices, a.get("names").unwrap()).unwrap();
     for _ in 0..10_000 {
         let text = mutate(&mut rng, r#"{"choice":"inspect_gate"}"#);
         if let Ok(pair) = codec.decode(&text) {
@@ -769,14 +770,14 @@ fn shared_conversation_reference_and_confirmation_model_text_is_bounded() {
     for i in 0..20_000 {
         let input = mutate(&mut rng, seeds[i % seeds.len()]);
         if let Ok(value) = parse(&input, 65536) {
-            if let Ok(result) = gamectx::local::process(&value) {
+            if let Ok(result) = gamectx::kit::local::process(&value) {
                 assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
             }
         }
     }
     let args = gamectx::obj! {"scope"=>"shop","speaker"=>"trader","revision"=>1,"input"=>"Hello.","facts"=>gamectx::obj! {"price"=>3},"recall"=>2,"history"=>2};
     for _ in 0..10_000 {
-        let mut c = gamectx::dialogue::Conversation::default();
+        let mut c = gamectx::character::dialogue::Conversation::default();
         c.prepare(&args).unwrap();
         let before = c.state("shop").unwrap();
         let text = mutate(&mut rng, r#"{"speech":"Hello.","tone":"neutral","fact_ids":["price"],"memory_ids":[]}"#);
@@ -797,14 +798,14 @@ fn lore_and_source_answer_text_remain_bounded_and_cannot_supply_new_prose() {
     for i in 0..20_000 {
         let text = mutate(&mut rng, seeds[i % seeds.len()]);
         if let Ok(value) = parse(&text, 262144) {
-            if let Ok(result) = gamectx::local::process(&value) {
+            if let Ok(result) = gamectx::kit::local::process(&value) {
                 assert_eq!(parse(&result.to_json(), 1_572_864).as_ref(), Ok(&result));
             }
         }
     }
     let input = parse(seeds[1], 65536).unwrap();
     let args = input.get("args").unwrap();
-    let answers = gamectx::dialogue::Answers::from_value(args.get("definition").unwrap()).unwrap();
+    let answers = gamectx::character::dialogue::Answers::from_value(args.get("definition").unwrap()).unwrap();
     let context = gamectx::obj! {"scope"=>"player:trader","revision"=>7};
     for _ in 0..10_000 {
         let text = mutate(&mut rng, r#"{"answer":"price"}"#);
@@ -831,7 +832,7 @@ fn informational_tool_text_and_integer_transfer_proposals_fail_atomically() {
     let evidence = gamectx::obj! {"id"=>"line:1","speaker"=>"player","text"=>"The oil is mine."};
     let mut rng = Rng(0x99aa_3150_2190_8877);
     for _ in 0..10_000 {
-        let mut inv = gamectx::inventory::Inventory::from_value(&snapshot).unwrap();
+        let mut inv = gamectx::knowledge::inventory::Inventory::from_value(&snapshot).unwrap();
         let before = inv.to_value();
         let input = mutate(&mut rng, r#"{"revision":0,"item":"item:oil","to":"player","quantity":2}"#);
         if inv.propose("merchant", &input, |_| true).is_err() {
@@ -849,7 +850,7 @@ fn informational_tool_text_and_integer_transfer_proposals_fail_atomically() {
                 .sum();
             assert_eq!(total, 4);
         }
-        let mut notes = gamectx::info::Notes::new("shop").unwrap();
+        let mut notes = gamectx::knowledge::info::Notes::new("shop").unwrap();
         let before = notes.to_value();
         let input =
             mutate(&mut rng, r#"{"subject":"item:oil","attribute":"owner","value":"player","source":"line:1"}"#);
@@ -862,7 +863,7 @@ fn informational_tool_text_and_integer_transfer_proposals_fail_atomically() {
         }
         let input = mutate(&mut rng, include_str!("../conformance/info-inventory/lore_values/input.json"));
         if let Ok(value) = parse(&input, 262144) {
-            if let Ok(output) = gamectx::local::process(&value) {
+            if let Ok(output) = gamectx::kit::local::process(&value) {
                 assert_eq!(parse(&output.to_json(), 262144).unwrap(), output);
             }
         }
@@ -910,7 +911,7 @@ fn conversation_tool_model_text_is_bounded_and_failed_calls_preserve_private_sta
     ];
     let mut rng = Rng(0x1237_9870_65aa_42bb);
     for i in 0..20_000 {
-        let mut t = gamectx::dialogue::InteractionTools::new(
+        let mut t = gamectx::character::dialogue::InteractionTools::new(
             "scene:shop",
             "npc:merchant",
             &vec!["npc:merchant", "player:a", "player:b"].into(),
@@ -939,7 +940,7 @@ fn conversation_tool_model_text_is_bounded_and_failed_calls_preserve_private_sta
             include_str!("../conformance/interactions/promise_lifecycle/input.json")
         };
         if let Ok(v) = parse(&mutate(&mut rng, seed), 1_048_576) {
-            if let Ok(result) = gamectx::local::process(&v) {
+            if let Ok(result) = gamectx::kit::local::process(&v) {
                 assert_eq!(parse(&result.to_json(), 1_572_864).unwrap(), result);
             }
         }
@@ -949,9 +950,9 @@ fn conversation_tool_model_text_is_bounded_and_failed_calls_preserve_private_sta
 #[test]
 fn perception_and_character_model_calls_are_bounded() {
     use gamectx::{
-        character::{CharacterTools, CharacterView, TurnPlan},
-        location::Locations,
-        world::WorldState,
+        character::tools::{CharacterTools, CharacterView, TurnPlan},
+        knowledge::location::Locations,
+        knowledge::world::WorldState,
     };
     let definition = parse(include_str!("../conformance/location/full/input.json"), 1 << 20).unwrap();
     let locations = Locations::from_value(definition.get("args").unwrap().get("definition").unwrap()).unwrap();
@@ -978,7 +979,7 @@ fn perception_and_character_model_calls_are_bounded() {
             assert!(v.json_len() <= 4096);
             assert_eq!(parse(&v.to_json(), 4096).unwrap(), v);
         }
-        let _ = gamectx::dialogue::render_quote(&text);
+        let _ = gamectx::character::dialogue::render_quote(&text);
         if let Ok(v) = parse(&text, 4096) {
             let _ = Locations::from_value(&v);
             let _ = WorldState::from_value(&v);
@@ -991,8 +992,8 @@ fn perception_and_character_model_calls_are_bounded() {
 #[test]
 fn routines_observations_and_proposals_reject_mutated_untrusted_text() {
     use gamectx::{
-        character::{CharacterTools, CharacterView},
-        routine::{Config, Frame, Routine, Runtime},
+        character::routine::{Config, Frame, Routine, Runtime},
+        character::tools::{CharacterTools, CharacterView},
     };
     use std::sync::Arc;
     let a = parse(include_str!("../conformance/routines/interruption_resume/input.json"), 1_500_000).unwrap();
@@ -1048,8 +1049,9 @@ fn routines_observations_and_proposals_reject_mutated_untrusted_text() {
 
 #[test]
 fn observation_selection_mutations_are_bounded_and_read_only() {
-    use gamectx::observation::{History, Selection};
-    let config = gamectx::routine::Config::resolve(&gamectx::obj! {"history"=>true}, &gamectx::obj! {}).unwrap();
+    use gamectx::knowledge::observation::{History, Selection};
+    let config =
+        gamectx::character::routine::Config::resolve(&gamectx::obj! {"history"=>true}, &gamectx::obj! {}).unwrap();
     let mut history = History::new("scope:a", "merchant", &vec!["merchant"].into(), "cycle:37", config).unwrap();
     let input = parse(include_str!("../conformance/routines/remembered_sunlight/input.json"), 1_500_000).unwrap();
     history.observe(&input.get("args").unwrap().get("observations").unwrap().as_array().unwrap()[0]).unwrap();
@@ -1072,13 +1074,17 @@ fn observation_selection_mutations_are_bounded_and_read_only() {
 
 #[test]
 fn life_model_text_is_bounded_and_atomic() {
-    use gamectx::life::{Config, Definition, Life, Setting};
+    use gamectx::character::life::{Config, Definition, Life, Setting};
     use std::sync::Arc;
     let setting =
-        Setting::from_value(&parse(include_str!("../examples/characters/setting.json"), 65536).unwrap()).unwrap();
+        Setting::from_value(&parse(include_str!("../examples/fixtures/characters/setting.json"), 65536).unwrap())
+            .unwrap();
     let definition = Arc::new(
-        Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json"), 65536).unwrap(), &setting)
-            .unwrap(),
+        Definition::draft(
+            &parse(include_str!("../examples/fixtures/characters/merchant-life.json"), 65536).unwrap(),
+            &setting,
+        )
+        .unwrap(),
     );
     let life = Life::accept(
         "scope",
@@ -1108,21 +1114,25 @@ fn continuity_inputs_never_panic() {
     for _ in 0..10000 {
         let s = mutate(&mut rng, seed);
         if let Ok(v) = parse(&s, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
 
 #[test]
 fn character_checkpoints_reject_mutations_without_partial_restore() {
-    use gamectx::life::{Config, Coordinator, Definition, Life, Setting};
+    use gamectx::character::life::{Config, Coordinator, Definition, Life, Setting};
     use gamectx::obj;
     use std::sync::Arc;
     let setting =
-        Setting::from_value(&parse(include_str!("../examples/characters/setting.json"), 65536).unwrap()).unwrap();
+        Setting::from_value(&parse(include_str!("../examples/fixtures/characters/setting.json"), 65536).unwrap())
+            .unwrap();
     let d = Arc::new(
-        Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json"), 65536).unwrap(), &setting)
-            .unwrap(),
+        Definition::draft(
+            &parse(include_str!("../examples/fixtures/characters/merchant-life.json"), 65536).unwrap(),
+            &setting,
+        )
+        .unwrap(),
     );
     let mut life = Life::accept(
         "scope",
@@ -1154,7 +1164,7 @@ fn initiative_candidate_mutations_are_bounded() {
     for _ in 0..10000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1166,11 +1176,11 @@ fn speech_turns_and_sentence_diagnostics_bound_model_written_text() {
     for _ in 0..10000 {
         let text = mutate(&mut rng, seed);
         if let Ok(value) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&value);
+            let _ = gamectx::kit::local::process(&value);
         }
         let speech = mutate(&mut rng, "Your lamp is ready. If you need to know more,");
         let before = speech.clone();
-        let _ = gamectx::life::assess_sentence(&speech, 240);
+        let _ = gamectx::character::life::assess_sentence(&speech, 240);
         assert_eq!(before, speech);
     }
 }
@@ -1187,7 +1197,7 @@ fn archetype_and_party_frames_reject_mutations_with_bounded_work() {
         for _ in 0..4000 {
             let text = mutate(&mut rng, seed);
             if let Ok(value) = parse(&text, 262144) {
-                let _ = gamectx::local::process(&value);
+                let _ = gamectx::kit::local::process(&value);
             }
         }
     }
@@ -1205,7 +1215,7 @@ fn cast_world_and_async_speech_inputs_never_panic_or_wait_for_model_work() {
         for _ in 0..3000 {
             let text = mutate(&mut rng, seed);
             if let Ok(v) = parse(&text, 1_572_864) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1223,7 +1233,7 @@ fn visual_contract_worker_and_repair_mutations_are_bounded() {
         for _ in 0..3000 {
             let text = mutate(&mut rng, seed);
             if let Ok(v) = parse(&text, 1_572_864) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1240,7 +1250,7 @@ fn studio_provider_and_voice_inputs_never_dispatch_during_mutation_checks() {
         for _ in 0..3000 {
             let text = mutate(&mut rng, seed);
             if let Ok(v) = parse(&text, 65536) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1253,7 +1263,7 @@ fn transient_dialogue_mutations_are_bounded_and_never_become_rumor_origins() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 1_572_864) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1265,7 +1275,7 @@ fn scoped_archival_recall_mutations_fail_closed() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 1_572_864) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1277,7 +1287,7 @@ fn source_speech_rejects_mutated_unapproved_text_and_stale_sources() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1289,7 +1299,7 @@ fn human_command_mutations_never_execute_or_escape_current_choices() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            if let Ok(answer) = gamectx::local::process(&v) {
+            if let Ok(answer) = gamectx::kit::local::process(&v) {
                 if answer.get("status") == Some(&"resolved".into()) {
                     let args = v.get("args").unwrap();
                     let choices = args.get("choices").unwrap().as_array().unwrap();
@@ -1307,7 +1317,7 @@ fn required_speech_never_uses_generic_unknown_to_skip_source_validation() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1319,7 +1329,7 @@ fn model_manager_policy_mutations_are_bounded_and_never_execute_services() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1330,8 +1340,8 @@ fn native_audio_plans_never_execute_or_accept_paths() {
     let mut rng = Rng(0x61756469);
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
-        if let Ok(v) = gamectx::json::parse(&text, 4096) {
-            let _ = gamectx::local::process(&v);
+        if let Ok(v) = gamectx::data::json::parse(&text, 4096) {
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1343,7 +1353,7 @@ fn speech_buffer_plans_are_bounded_under_mutation() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 4096) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1355,7 +1365,7 @@ fn voice_archive_retention_mutations_never_access_files() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1367,7 +1377,7 @@ fn viewpoint_text_and_checkpoints_are_bounded_under_mutation() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1379,7 +1389,7 @@ fn reaction_gate_mutations_never_execute_world_actions() {
     for _ in 0..2000 {
         let text = mutate(&mut rng, seed);
         if let Ok(v) = parse(&text, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1391,7 +1401,7 @@ fn social_routing_mutations_never_promote_text_to_world_actions() {
     for _ in 0..2000 {
         let s = mutate(&mut rng, seed);
         if let Ok(v) = parse(&s, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1403,7 +1413,7 @@ fn encounter_receipt_mutations_do_not_create_world_actions() {
     for _ in 0..2000 {
         let s = mutate(&mut rng, seed);
         if let Ok(v) = parse(&s, 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1418,7 +1428,7 @@ fn deliberation_and_untrusted_hypothesis_mutations_are_bounded() {
     for seed in seeds {
         for _ in 0..1000 {
             if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1434,7 +1444,7 @@ fn message_chunk_mutations_never_create_calls_or_unbounded_packets() {
     for seed in seeds {
         for _ in 0..1000 {
             if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1446,7 +1456,7 @@ fn registered_action_and_phrase_mutations_remain_proposals() {
     let mut rng = Rng(0x7374616765);
     for _ in 0..2000 {
         if let Ok(v) = parse(&mutate(&mut rng, seed), 65536) {
-            let _ = gamectx::local::process(&v);
+            let _ = gamectx::kit::local::process(&v);
         }
     }
 }
@@ -1461,7 +1471,7 @@ fn expressive_contracts_and_disclosures_remain_bounded_under_mutation() {
     ] {
         for _ in 0..1000 {
             if let Ok(v) = parse(&mutate(&mut rng, seed), 131072) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1476,7 +1486,7 @@ fn source_bound_wording_and_restatement_filters_reject_mutated_model_text() {
     ] {
         for _ in 0..1000 {
             if let Ok(v) = parse(&mutate(&mut rng, seed), 131072) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }
@@ -1491,7 +1501,7 @@ fn tale_parts_and_rotation_remain_bounded_under_mutation() {
     ] {
         for _ in 0..1000 {
             if let Ok(v) = parse(&mutate(&mut rng, seed), 8192) {
-                let _ = gamectx::local::process(&v);
+                let _ = gamectx::kit::local::process(&v);
             }
         }
     }

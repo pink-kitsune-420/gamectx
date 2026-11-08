@@ -1,7 +1,8 @@
 use gamectx::{
-    brain::{self, Brain},
-    json::parse,
-    obj, Value,
+    data::json::parse,
+    obj,
+    runtime::brain::{self, Brain},
+    Value,
 };
 
 fn sample(x: f64, target: f64) -> Value {
@@ -110,7 +111,7 @@ fn pins_and_saved_state_are_revalidated() {
 #[test]
 fn tool_requests_are_strict_bounded_and_pack_as_signatures() {
     let tools = brain::tools();
-    assert!(gamectx::signatures::pack(tools.as_array().unwrap()).is_ok());
+    assert!(gamectx::packet::signatures::pack(tools.as_array().unwrap()).is_ok());
     let mut brain = brain::create_call(&obj! {"request" => definition().to_json()}).unwrap();
     let request = obj! {"inputs" => obj! {"x" => 0.8}, "allowed" => vec!["act"], "min_score" => 0, "min_margin" => 0};
     assert_eq!(

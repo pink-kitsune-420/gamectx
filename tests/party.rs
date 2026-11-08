@@ -1,17 +1,17 @@
 use gamectx::{
-    archetype::{Archetype, Blueprint, BlueprintBuilder},
-    deployment::{Identity, ModelSize},
-    json,
-    life::{Definition, Setting},
-    lore::Lore,
+    character::archetype::{Archetype, Blueprint, BlueprintBuilder},
+    character::life::{Definition, Setting},
+    character::party::{AttitudeGates, ModelRoute, PartyScene, SceneTurn},
+    data::json,
+    deploy::deployment::{Identity, ModelSize},
+    knowledge::lore::Lore,
     obj,
-    party::{AttitudeGates, ModelRoute, PartyScene, SceneTurn},
-    spending::SpendingLedger,
+    runtime::spending::SpendingLedger,
     Value,
 };
 use std::sync::Arc;
 fn world() -> Value {
-    json::parse(include_str!("../examples/party/chime-counter.json"), 262144).unwrap()
+    json::parse(include_str!("../examples/fixtures/party/chime-counter.json"), 262144).unwrap()
 }
 fn set(v: &mut Value, k: &str, value: Value) {
     if let Value::Object(f) = v {
@@ -27,7 +27,7 @@ fn request() -> Value {
         .unwrap()
         .clone()
 }
-fn load(w: &Value, b: &Blueprint) -> gamectx::life::Life {
+fn load(w: &Value, b: &Blueprint) -> gamectx::character::life::Life {
     let setting = Setting::from_value(w.get("setting").unwrap()).unwrap();
     let d = Arc::new(Definition::draft(w.get("definitions").unwrap().get("merchant").unwrap(), &setting).unwrap());
     b.life("chime_counter", "merchant", &PartyScene::from_value(w.get("scene").unwrap()).unwrap().participants(), d)
@@ -58,18 +58,21 @@ fn presets_compose_without_enabling_model_tools_or_background_calls() {
     assert_eq!(mixed.caps().episodes, 2);
     assert_eq!(mixed.caps().exchanges, 1);
     assert!(BlueprintBuilder::new(Archetype::Service).tools(&["life_change"]).build().is_err());
-    let inventory=gamectx::inventory::Inventory::from_value(&obj!{"version"=>1,"revision"=>1,"items"=>vec![obj!{"id"=>"lamp","label"=>"Repaired lamp","tags"=>vec!["trade"]}],"holdings"=>vec![obj!{"owner"=>"merchant","item"=>"lamp","quantity"=>1}]}).unwrap();
+    let inventory=gamectx::knowledge::inventory::Inventory::from_value(&obj!{"version"=>1,"revision"=>1,"items"=>vec![obj!{"id"=>"lamp","label"=>"Repaired lamp","tags"=>vec!["trade"]}],"holdings"=>vec![obj!{"owner"=>"merchant","item"=>"lamp","quantity"=>1}]}).unwrap();
     assert_eq!(
         mixed.stock(&inventory, &vec!["merchant"].into(), &vec!["trade"].into()).unwrap().as_array().unwrap().len(),
         1
     );
     assert!(ambient.stock(&inventory, &vec!["merchant"].into(), &vec!["trade"].into()).is_err());
     let q = Blueprint::preset(Archetype::Quest).unwrap();
-    let evidence=gamectx::selection::Evidence::from_value(&vec![obj!{"id"=>"receipt","value"=>"The lamp was returned.","depends"=>Vec::<Value>::new(),"priority"=>10,"required"=>true}].into()).unwrap();
+    let evidence=gamectx::knowledge::selection::Evidence::from_value(&vec![obj!{"id"=>"receipt","value"=>"The lamp was returned.","depends"=>Vec::<Value>::new(),"priority"=>10,"required"=>true}].into()).unwrap();
     assert!(q.evidence(&evidence, 512).unwrap().to_json().contains("lamp was returned"));
-    let tools =
-        gamectx::dialogue::InteractionTools::new("chime_counter", "merchant", &vec!["merchant", "player_1"].into())
-            .unwrap();
+    let tools = gamectx::character::dialogue::InteractionTools::new(
+        "chime_counter",
+        "merchant",
+        &vec!["merchant", "player_1"].into(),
+    )
+    .unwrap();
     assert!(q.promises(&tools).unwrap().as_array().unwrap().is_empty());
 }
 #[test]
@@ -195,11 +198,13 @@ fn hybrid_projection_grounds_small_turns_without_enabling_more_tools() {
 fn ambient_uses_real_routine_and_brain_without_a_model_allowance() {
     let b = Blueprint::preset(Archetype::Ambient).unwrap();
     let people: Value = vec!["guard", "player_1"].into();
-    let routine = Arc::new(gamectx::routine::Routine::parse(include_str!("../examples/dungeon/routine.json")).unwrap());
+    let routine = Arc::new(
+        gamectx::character::routine::Routine::parse(include_str!("../examples/lantern-vault/routine.json")).unwrap(),
+    );
     let mut runtime = b.routine("watch", "guard", &people, "cycle:37", routine).unwrap();
-    runtime.update(gamectx::routine::Frame::from_value(&obj!{"revision"=>1,"now"=>0,"conditions"=>vec!["route"],"allowed"=>vec!["work","walk","customer"],"emergency"=>false}).unwrap()).unwrap();
+    runtime.update(gamectx::character::routine::Frame::from_value(&obj!{"revision"=>1,"now"=>0,"conditions"=>vec!["route"],"allowed"=>vec!["work","walk","customer"],"emergency"=>false}).unwrap()).unwrap();
     assert!(runtime.reserve_model_call(1).is_err());
-    let brain = gamectx::brain::Brain::dense(&["alert"], &["watch", "idle"], 1, 7).unwrap();
+    let brain = gamectx::runtime::brain::Brain::dense(&["alert"], &["watch", "idle"], 1, 7).unwrap();
     assert!(b.run_brain(&brain, &obj! {"alert"=>1}, &["watch", "idle"]).is_ok());
     assert!(b.initiative("watch", "guard", &people).is_ok());
 }
@@ -244,7 +249,7 @@ fn gate_sidecars_accept_existing_scoped_lore_and_facet_ids() {
 fn player_followup_resets_the_npc_chain_without_replaying_a_trigger() {
     let v = json::parse(include_str!("../conformance/archetype-party/one_responder_and_replay/input.json"), 262144)
         .unwrap();
-    let result = gamectx::local::process(&v).unwrap();
+    let result = gamectx::kit::local::process(&v).unwrap();
     let rows = result.get("results").unwrap().as_array().unwrap();
     assert_eq!(rows[2].get("result").unwrap().get("reason"), Some(&Value::str("replayed_trigger")));
     let selected = rows.last().unwrap().get("result").unwrap().get("selected").unwrap().as_array().unwrap();

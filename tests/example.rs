@@ -1,13 +1,13 @@
 //! Runs the Ember Keep example through the library and the command-line tool.
 
-use gamectx::budget::assemble_bytes;
-use gamectx::manifest::{self, Check};
+use gamectx::packet::budget::assemble_bytes;
+use gamectx::packet::manifest::{self, Check};
 use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 use std::process::Stdio;
 
-const MANIFEST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/ember-keep/manifest.json");
+const MANIFEST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/fixtures/ember-keep/manifest.json");
 
 #[test]
 fn example_round_trips_and_fits_its_budget() {
@@ -33,7 +33,7 @@ fn gamectx(args: &[&str]) -> (bool, String, String) {
 fn cli_pack_report_verify_and_errors() {
     let (ok, packet, receipt) = gamectx(&["pack", MANIFEST, "--receipt"]);
     assert!(ok);
-    assert!(gamectx::json::parse(packet.trim(), 1 << 20).is_ok());
+    assert!(gamectx::data::json::parse(packet.trim(), 1 << 20).is_ok());
     assert!(receipt.contains("\"dropped\""));
 
     let (ok, report, _) = gamectx(&["report", MANIFEST]);
@@ -51,10 +51,10 @@ fn cli_pack_report_verify_and_errors() {
 
 #[test]
 fn cli_search_pages_with_generation() {
-    let catalog = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/ember-keep/catalog.json");
+    let catalog = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/fixtures/ember-keep/catalog.json");
     let (ok, first, _) = gamectx(&["search", catalog, "fire", "--count", "2"]);
     assert!(ok);
-    let page = gamectx::json::parse(first.trim(), 1 << 16).unwrap();
+    let page = gamectx::data::json::parse(first.trim(), 1 << 16).unwrap();
     let generation = page.get("generation").unwrap().as_str().unwrap().to_owned();
     let next = page.get("next").unwrap().as_usize().unwrap().to_string();
     let (ok, _, _) =
@@ -73,7 +73,7 @@ fn cli_query_executes_and_reports_errors() {
     assert_eq!(out, "[\"ember_cake\",\"salt_pouch\",\"bone_hook\"]\n");
     let (ok, tool, _) = gamectx(&["query", "--tool"]);
     assert!(ok);
-    assert_eq!(tool, format!("{}\n", gamectx::query::tool().to_json()));
+    assert_eq!(tool, format!("{}\n", gamectx::data::query::tool().to_json()));
     let (ok, _, err) = gamectx(&["query", tables, "DELETE FROM items"]);
     assert!(!ok && err.contains("SELECT"));
     let (ok, _, err) = gamectx(&["query", "--tool", tables]);
@@ -109,7 +109,7 @@ fn cli_schema_and_session_protocol() {
     );
     assert!(output.status.success());
     let text = String::from_utf8(output.stdout).unwrap();
-    let replies: Vec<_> = text.lines().map(|line| gamectx::json::parse(line, 8192).unwrap()).collect();
+    let replies: Vec<_> = text.lines().map(|line| gamectx::data::json::parse(line, 8192).unwrap()).collect();
     assert_eq!(replies.len(), 2);
     assert_eq!(replies[0].get("retry").and_then(gamectx::Value::as_bool), Some(true));
     assert_eq!(replies[1].to_json(), r#"{"result":2}"#);
@@ -140,21 +140,21 @@ fn cli_brain_workflows_and_tools() {
     assert_eq!(String::from_utf8(output.stdout).unwrap(), expected);
     let (ok, tools, _) = gamectx(&["brain", "--tools"]);
     assert!(ok);
-    assert_eq!(tools, format!("{}\n", gamectx::brain::tools().to_json()));
+    assert_eq!(tools, format!("{}\n", gamectx::runtime::brain::tools().to_json()));
     let output = query_input(&["brain", "-"], r#"{"definition":{},"operations":[]}"#);
     assert!(!output.status.success());
-    let output = query_input(&["brain", "-"], &" ".repeat(gamectx::brain::MAX_STATE_BYTES + 1));
+    let output = query_input(&["brain", "-"], &" ".repeat(gamectx::runtime::brain::MAX_STATE_BYTES + 1));
     assert!(!output.status.success());
-    let workflow = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/brain/workflow.json");
+    let workflow = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/fixtures/brain/workflow.json");
     let (ok, result, _) = gamectx(&["brain", workflow]);
     assert!(ok);
-    let value = gamectx::json::parse(result.trim(), gamectx::brain::MAX_STATE_BYTES).unwrap();
+    let value = gamectx::data::json::parse(result.trim(), gamectx::runtime::brain::MAX_STATE_BYTES).unwrap();
     let last = value.get("results").unwrap().as_array().unwrap().last().unwrap();
     assert_eq!(last.get("choice").and_then(gamectx::Value::as_str), Some("withdraw"));
-    let selection = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/brain/selection.json");
+    let selection = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/fixtures/brain/selection.json");
     let (ok, result, _) = gamectx(&["brain", selection]);
     assert!(ok);
-    let result = gamectx::json::parse(result.trim(), gamectx::brain::MAX_STATE_BYTES).unwrap();
+    let result = gamectx::data::json::parse(result.trim(), gamectx::runtime::brain::MAX_STATE_BYTES).unwrap();
     let reports = result.get("results").unwrap().as_array().unwrap();
     assert_eq!(reports[0].get("accepted"), Some(&gamectx::Value::Bool(true)));
     assert_eq!(reports[0].get("trials").unwrap().as_array().unwrap().len(), 3);
@@ -170,7 +170,7 @@ fn manifest_accepts_every_documented_table_key() {
         "value":[{"id":"a","kind":"tool","count":3,"w":1.25},{"id":"b","kind":"food","count":9,"w":2.5}],
         "group_by":["kind"],"where":{"count":{">":1}},"relevant_to":"any tools?","sort_by":"-count",
         "limit":5,"fields":["id","kind","w"],"round":{"w":1}}]}"#;
-    let m = manifest::parse(&gamectx::json::parse(text, 4096).unwrap(), Path::new(".")).unwrap();
+    let m = manifest::parse(&gamectx::data::json::parse(text, 4096).unwrap(), Path::new(".")).unwrap();
     assert_eq!(
         m.sections[0].section.value.to_json(),
         r#"{"group_by":"kind","columns":["id","w"],"groups":{"tool":[["a",1.2]]}}"#
@@ -181,8 +181,8 @@ fn manifest_accepts_every_documented_table_key() {
 #[test]
 fn cli_meanings_and_replay_match_native_apis() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
-    let tables = root.join("examples/query-meaning-tables.json");
-    let metadata = root.join("examples/query-meanings.json");
+    let tables = root.join("examples/data/query-meaning-tables.json");
+    let metadata = root.join("examples/data/query-meanings.json");
     let result = std::process::Command::new(env!("CARGO_BIN_EXE_gamectx"))
         .arg("query")
         .arg("--schema")
@@ -192,18 +192,18 @@ fn cli_meanings_and_replay_match_native_apis() {
         .output()
         .unwrap();
     assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
-    let rows = gamectx::json::parse(&std::fs::read_to_string(tables).unwrap(), 65536).unwrap();
-    let meta = gamectx::json::parse(&std::fs::read_to_string(metadata).unwrap(), 65536).unwrap();
+    let rows = gamectx::data::json::parse(&std::fs::read_to_string(tables).unwrap(), 65536).unwrap();
+    let meta = gamectx::data::json::parse(&std::fs::read_to_string(metadata).unwrap(), 65536).unwrap();
     let named: Vec<_> = rows.as_object().unwrap().iter().map(|(k, v)| (k.as_str(), v.as_array().unwrap())).collect();
     assert_eq!(
         String::from_utf8(result.stdout).unwrap().trim(),
-        gamectx::query::describe_with(&named, &meta).unwrap().to_json()
+        gamectx::data::query::describe_with(&named, &meta).unwrap().to_json()
     );
-    let path = root.join("examples/brain/trace.json");
+    let path = root.join("examples/fixtures/brain/trace.json");
     let result = std::process::Command::new(env!("CARGO_BIN_EXE_gamectx")).arg("replay").arg(&path).output().unwrap();
     assert!(result.status.success());
     assert_eq!(
         String::from_utf8(result.stdout).unwrap().trim(),
-        gamectx::replay::run_json(&std::fs::read_to_string(path).unwrap()).unwrap().to_json()
+        gamectx::runtime::replay::run_json(&std::fs::read_to_string(path).unwrap()).unwrap().to_json()
     );
 }

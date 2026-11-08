@@ -1,5 +1,5 @@
 use gamectx::{
-    json::{self, Value},
+    data::json::{self, Value},
     obj,
 };
 #[test]

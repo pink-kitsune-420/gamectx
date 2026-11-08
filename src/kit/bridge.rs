@@ -1,5 +1,5 @@
 use super::*;
-use crate::{json, Error};
+use crate::{data::json, Error};
 use std::io::{BufRead, Write};
 use std::path::Path;
 
@@ -35,7 +35,7 @@ impl Project {
                 let revision = c::uint(c::get(args, "revision")?, 1, 1_000_000)? as usize;
                 Ok(self.feature_schema(text(args, "dataset")?, revision, c::get(args, "policies")?)?.to_value())
             }
-            "local" => crate::local::process(args),
+            "local" => crate::kit::local::process(args),
             "evaluate" => evaluation::run(self, args),
             _ => Err(Error::new("unknown kit operation")),
         }

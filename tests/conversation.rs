@@ -1,7 +1,8 @@
 use gamectx::{
-    decision::PendingAction,
-    dialogue::{resolve_references, Conversation, ConversationLimits},
-    obj, Value,
+    character::dialogue::{resolve_references, Conversation, ConversationLimits},
+    obj,
+    runtime::decision::PendingAction,
+    Value,
 };
 #[test]
 fn conversation_limits_scopes_and_failed_replies_preserve_state() {

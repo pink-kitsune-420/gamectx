@@ -1,14 +1,14 @@
 use gamectx::{
-    brain::{Brain, BrainBundle, PreparedFrame},
-    facts::{Authority, FactOptions, FactRef, FactRegistry},
-    memory::Record,
+    knowledge::facts::{Authority, FactOptions, FactRef, FactRegistry},
+    knowledge::memory::Record,
+    knowledge::recall::RecallIndex,
+    knowledge::temporal::TemporalWindow,
     obj,
-    outcome::OutcomeTracker,
-    playbook::Playbook,
-    recall::RecallIndex,
-    requests::{RequestContext, RequestGate, RequestTicket},
-    spending::SpendingLedger,
-    temporal::TemporalWindow,
+    runtime::brain::{Brain, BrainBundle, PreparedFrame},
+    runtime::outcome::OutcomeTracker,
+    runtime::playbook::Playbook,
+    runtime::requests::{RequestContext, RequestGate, RequestTicket},
+    runtime::spending::SpendingLedger,
     Error, Result, Value,
 };
 fn bad() -> Error {

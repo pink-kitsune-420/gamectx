@@ -1,8 +1,8 @@
 //! Optional bounded persistent character sessions. Existing immutable Project APIs
 //! stay unchanged; session operations never execute external game callbacks.
 use super::*;
-use crate::character::{CharacterTools, CharacterView, TurnPlan};
-use crate::request::Composition;
+use crate::character::tools::{CharacterTools, CharacterView, TurnPlan};
+use crate::packet::request::Composition;
 use std::sync::Mutex;
 mod life;
 mod visual;
@@ -16,14 +16,14 @@ pub struct Session {
 struct Resident {
     character: CharacterTools,
     plan: Option<(Composition, Vec<String>, u32)>,
-    coordinator: Option<crate::life::Coordinator>,
-    initiative: Option<crate::life::Initiative>,
+    coordinator: Option<crate::character::life::Coordinator>,
+    initiative: Option<crate::character::life::Initiative>,
     retention: bool,
 }
 fn planning_state(plan: &Composition) -> Result<Value> {
     let mut state = plan.state();
     let packet = c::get(c::get(&state, "candidate")?, "packet")?;
-    let frame = crate::character::frame(packet)?;
+    let frame = crate::character::tools::frame(packet)?;
     if let Value::Object(fields) = &mut state {
         fields.push(("frame".into(), frame));
     }
@@ -93,12 +93,13 @@ impl Session {
             }
             "character_routine_configure" => {
                 c::fields(args, &["id", "defaults", "overrides", "calendar", "definition"])?;
-                let config = crate::routine::Config::resolve(c::get(args, "defaults")?, c::get(args, "overrides")?)?;
+                let config =
+                    crate::character::routine::Config::resolve(c::get(args, "defaults")?, c::get(args, "overrides")?)?;
                 let definition = c::get(args, "definition")?;
                 let routine = if definition == &Value::Null {
                     None
                 } else {
-                    Some(std::sync::Arc::new(crate::routine::Routine::from_value(definition)?))
+                    Some(std::sync::Arc::new(crate::character::routine::Routine::from_value(definition)?))
                 };
                 character.configure_routine(text(args, "calendar")?, config, routine)?;
                 resident.plan = None;
@@ -107,7 +108,9 @@ impl Session {
             "character_routine_update" => {
                 c::fields(args, &["id", "frame"])?;
                 resident.plan = None;
-                character.routine_mut()?.update(crate::routine::Frame::from_value(c::get(args, "frame")?)?)?;
+                character
+                    .routine_mut()?
+                    .update(crate::character::routine::Frame::from_value(c::get(args, "frame")?)?)?;
                 Ok(obj! {"updated"=>id})
             }
             "character_routine_observation" => {
@@ -121,37 +124,37 @@ impl Session {
                 resident.plan = None;
                 character.routine_mut()?.complete(
                     text(args, "activity")?,
-                    crate::routine::num(args, "start")?,
-                    crate::routine::num(args, "revision")? as u32,
-                    crate::routine::num(args, "token")?,
+                    crate::character::routine::num(args, "start")?,
+                    crate::character::routine::num(args, "revision")? as u32,
+                    crate::character::routine::num(args, "token")?,
                 )?;
                 Ok(obj! {"completed"=>id})
             }
             "character_routine_reserve" => {
                 c::fields(args, &["id", "revision"])?;
                 // Reserving a provider call must not invalidate its counted request.
-                character.reserve_routine_call(crate::routine::num(args, "revision")? as u32)?;
+                character.reserve_routine_call(crate::character::routine::num(args, "revision")? as u32)?;
                 Ok(obj! {"reserved"=>id})
             }
             "character_routine_context" => {
                 c::fields(args, &["id", "selection", "revision", "max_bytes"])?;
                 let runtime = character.routine().ok_or_else(bad)?;
-                if runtime.revision() != Some(crate::routine::num(args, "revision")? as u32) {
+                if runtime.revision() != Some(crate::character::routine::num(args, "revision")? as u32) {
                     return Err(bad());
                 }
-                let result =
-                    runtime.context_for(&crate::observation::Selection::from_value(c::get(args, "selection")?)?)?;
-                crate::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
+                let result = runtime
+                    .context_for(&crate::knowledge::observation::Selection::from_value(c::get(args, "selection")?)?)?;
+                crate::packet::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
                 Ok(result)
             }
             "character_routine_assess_time" => {
                 c::fields(args, &["id", "revision", "max_bytes"])?;
                 let runtime = character.routine().ok_or_else(bad)?;
-                if runtime.revision() != Some(crate::routine::num(args, "revision")? as u32) {
+                if runtime.revision() != Some(crate::character::routine::num(args, "revision")? as u32) {
                     return Err(bad());
                 }
                 let result = runtime.time_assessment()?.to_value();
-                crate::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
+                crate::packet::request::bounded(&result, c::uint(c::get(args, "max_bytes")?, 64, 32768)? as usize)?;
                 Ok(result)
             }
             "character_routine_wake" => {
@@ -163,8 +166,8 @@ impl Session {
             }
             "character_routine_affected" => {
                 c::fields(args, &["id", "conditions", "activities"])?;
-                let conditions = crate::routine::names(c::get(args, "conditions")?, 128)?;
-                let activities = crate::routine::names(c::get(args, "activities")?, 128)?;
+                let conditions = crate::character::routine::names(c::get(args, "conditions")?, 128)?;
+                let activities = crate::character::routine::names(c::get(args, "activities")?, 128)?;
                 let affected = character.routine().ok_or_else(bad)?.affected(
                     &conditions.iter().map(String::as_str).collect::<Vec<_>>(),
                     &activities.iter().map(String::as_str).collect::<Vec<_>>(),
@@ -180,10 +183,10 @@ impl Session {
                 resident.plan = None;
                 character.routine_mut()?.restore(
                     c::get(args, "state")?,
-                    crate::routine::num(args, "min_revision")? as u32,
-                    crate::routine::num(args, "min_observation")?,
-                    crate::routine::num(args, "min_completion")?,
-                    crate::routine::num(args, "min_tick")?,
+                    crate::character::routine::num(args, "min_revision")? as u32,
+                    crate::character::routine::num(args, "min_observation")?,
+                    crate::character::routine::num(args, "min_completion")?,
+                    crate::character::routine::num(args, "min_tick")?,
                 )?;
                 Ok(obj! {"restored"=>id})
             }

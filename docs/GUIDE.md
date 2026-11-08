@@ -1,7 +1,7 @@
 # Getting more from less
 
 Practical rules for game context, in order of impact. Each says whether it was measured
-with the [eval script](../eval/model_eval.py) (three models, Llama 3.2 3B to Llama 3.3 70B)
+with the [eval script](../eval/query/model_eval.py) (three models, Llama 3.2 3B to Llama 3.3 70B)
 or is standard practice that was not.
 
 ## 1. Send only the rows that matter
@@ -192,7 +192,7 @@ need their own evaluation, and repeatedly tuning against validation data can ove
 For startup and tick-loop costs, load saved learning once using `restore_json` and keep
 the compiled `Brain`. Clone a preloaded template for independent actors instead of
 restoring the same JSON repeatedly. Each clone retains its own learned parameters,
-revision, history and consumed IDs. The [preload example](../examples/preloaded-brains.rs)
+revision, history and consumed IDs. The [preload example](../examples/runtime/preloaded-brains.rs)
 demonstrates two owners and undo without changing the other owner.
 
 Use `CachedBrain` when normalized observations repeat. Capacity is 0–256 FIFO entries;
@@ -260,7 +260,7 @@ in a 64-actor, 240-frame trace, max eight/frame. A 120-turn context trace transf
 [methodology and limits](../eval/README.md#frame-work-and-context-reuse) accompany the numbers.
 API spend $0; actual local-model KV-cache savings remain unmeasured.*
 
-Run the [combined example](../examples/runtime-loop.rs) with `cargo run --example runtime-loop`.
+Run the [combined example](../examples/runtime/runtime-loop.rs) with `cargo run --example runtime-loop`.
 It includes scheduled native predictions, sliced selection, prepared context, explicit ACKs
 and host-policy validation. It completes 40 frames with nine evaluations and one retained
 revision; a further host-metric update is rejected when its validation loss cannot improve.
@@ -271,7 +271,7 @@ Use a `FeatureSchema` when an engine binds physical measurements to brain inputs
 Give it a stable ID and revision, declare units/ranges and missing/outside policies,
 and save its complete definition with the learned state. `BoundBrain` compares the
 expected schema on restore and checks graph order on each bound call. The host still
-has to measure the units it declares. The [integration example](../examples/integration-tools.rs)
+has to measure the units it declares. The [integration example](../examples/runtime/integration-tools.rs)
 normalizes named physical values, stabilizes a reaction, captures a replay and supplies
 query meanings. Run `cargo run --example integration-tools`.
 
@@ -280,7 +280,7 @@ observations, masks, thresholds, labels and brain snapshot changes. Replay tests
 the policy would output on recorded inputs; changing policy may change future world
 states, which requires engine evaluation. Recorded p50/p95 times summarize host-supplied
 elapsed values, not replay performance. Keep the binding envelope alongside normalized
-traces. `gamectx replay examples/brain/trace.json` demonstrates all abstention reasons.
+traces. `gamectx replay examples/fixtures/brain/trace.json` demonstrates all abstention reasons.
 
 Enable `StableBrain` only when fewer reaction switches help the game. It preserves the
 raw prediction separately and immediately honors urgency, eligibility and abstention.
@@ -320,7 +320,7 @@ must be erased; dependent hypotheses disappear too. Filtered snapshots take effe
 immediately, while physical removal requires forgetting. Clock identity and subject are
 checked on restore. Define clock progression in the engine, especially during pauses
 or disconnected-player time. The library does not own archival files, consent policy,
-active-player timers or permissions. [The tested evidence example](../examples/evidence-memory.rs)
+active-player timers or permissions. [The tested evidence example](../examples/knowledge/evidence-memory.rs)
 runs with `cargo run --example evidence-memory`.
 
 Use `facts::FactRegistry` for explicit engine/user assertions that should survive event
@@ -345,14 +345,14 @@ free-form statements require host interpretation and evidence checking.
 `Turn::facts` adds a filtered, byte-budgeted table with a dropped count. The offline
 128-fact fixture retains eight in 927 bytes under a 1,024-byte cap and reports 120 dropped;
 direct lookup can still retrieve those current facts. This is a packet-size/integrity
-check, not a model-accuracy result. [The tested example](../examples/registered-facts.rs)
+check, not a model-accuracy result. [The tested example](../examples/knowledge/registered-facts.rs)
 runs with `cargo run --example registered-facts`. Use `Journal` for observations and
 `EvidenceMemory` for tentative reasoning; neither automatically promotes ideas into
 registered facts. The host owns archive I/O, validation and any model-facing tool routing.
 
 ## Reuse and checked runtime work
 
-The [fresh alpha.3 model check](MODEL_TEST_2026_11_06.md) compares full JSON, packed tables
+The [fresh alpha.3 model check](evidence/MODEL_TEST_2026_11_06.md) compares full JSON, packed tables
 and schema + query across six states/three schema families on the two smaller models.
 Scores were 27/96, 27/96 and 91/96; average input per completed exchange was
 1,786.792, 1,252.125 and 916.490, including query/correction/final-answer calls. Packing
@@ -360,7 +360,7 @@ alone keeps the aggregate score while reducing tokens; native queries handle ari
 and row selection more reliably in this cohort. Valid queries can still add unintended
 limits/filters, and these measurements do not establish live-game accuracy.
 
-Start with the [tested synthetic host example](../examples/runtime-upgrades.rs):
+Start with the [tested synthetic host example](../examples/runtime/runtime-upgrades.rs):
 `cargo run --example runtime-upgrades`. It makes no real requests or game actions.
 
 Build `RecallIndex` from records already filtered by subject, time and consent. Keep the
@@ -437,7 +437,7 @@ or permissions. Expose only authorized tables/columns and keep host action check
 
 `run_bounded` checks input row count and output bytes without truncation. Its output check
 happens after computation; cap host cell sizes separately if transient memory matters.
-See the tested [query plan example](../examples/query-plans.rs) and
+See the tested [query plan example](../examples/data/query-plans.rs) and
 [format contract](FORMAT.md#query-plans-and-host-contracts).
 
 Choose supplemental query guidance per model/workload with
@@ -447,13 +447,13 @@ rows, requested filters only, and the native top-N aggregate syntax. Keep it acr
 correction/final turns; do not repeatedly append it. Six fresh synthetic states measured
 3B 46/48→48/48, 24B 47/48→46/48 and 22.0% higher complete-exchange input. It is opt-in;
 model size alone does not choose a profile. See the tested query-plans example and
-[paired report](QUERY_OPTIMIZATION_2026_11_06.md).
+[paired report](evidence/QUERY_OPTIMIZATION_2026_11_06.md).
 
 ## Shared registration and integration tools (v0.2.0a)
 
-Use the optional [integration kit](KIT.md) when the same data definitions need to drive
+Use the optional [integration kit](guides/KIT.md) when the same data definitions need to drive
 packing, query meanings, validation and brain feature units. Start with the tested
-[registered project example](../examples/registered-project.rs), or generate the CLI
+[registered project example](../examples/kit/registered-project.rs), or generate the CLI
 starter with `gamectx init <new-directory>` and run its `check.py`.
 
 Register immutable dataset/tool definitions and named recipes, then supply current,
@@ -464,7 +464,7 @@ can supply as recipe sections; sanitize those values in the host. Tool callbacks
 check current world permissions after argument validation.
 
 `doctor`, `inspect`, persistent `serve`, native and language adapters, and offline recorded
-run evaluation are described in [KIT](KIT.md). The evaluator requires complete candidate
+run evaluation are described in [KIT](guides/KIT.md). The evaluator requires complete candidate
 cohorts and independent expected answers; missing usage stays null. On its scripted three
 states the correct candidate scores 3/3; an intentionally flawed one scores 2/3 with one
 invalid query and one invalid call. These are evaluator checks, not hosted-model results.
@@ -472,7 +472,7 @@ The implementation has 144 byte-identical Python/Rust workflows and $0 new API s
 
 ## Local models and complete requests (v0.2.0a)
 
-Use [LOCAL](LOCAL.md) and the tested [local turn example](../examples/local-turn.rs).
+Use [LOCAL](guides/LOCAL.md) and the tested [local turn example](../examples/packet/local-turn.rs).
 `RequestBudget` accounts for the full rendered request through the host's actual tokenizer,
 reserving generation and safety headroom. Packet byte/ratio estimates alone omit external
 messages and hidden native tool/template framing. Recheck every correction/tool reply.
@@ -487,12 +487,12 @@ Profiles are explicit and bound to complete deployment identity. Two thousand co
 tokens is a starting trial, not a model capacity limit. `ollama_eval.py` measures actual
 local requests, complete turns, retries and sampled memory. Token-only checks precede
 accuracy. Compare held-out scenes/templates and actual hardware before changing defaults;
-see [the measured report](LOCAL_MODEL_2026_11_06.md) for scope and limitations.
+see [the measured report](evidence/LOCAL_MODEL_2026_11_06.md) for scope and limitations.
 
 ## Further optional optimizations (v0.3.0a)
 
-Use the [tested optimization example](../examples/optimized-turn.rs) and
-[workflow guide](OPTIMIZATION.md) after establishing the existing local-model pipeline.
+Use the [tested optimization example](../examples/packet/optimized-turn.rs) and
+[workflow guide](guides/OPTIMIZATION.md) after establishing the existing local-model pipeline.
 Start with a host-declared intent boundary if a legal correction could change the task.
 For common questions, register a typed query template and bind arguments as data instead
 of asking a small model to write SQL. Keep arbitrary SQL available for other questions.
@@ -512,7 +512,7 @@ right recipe. The detailed report separates synthetic byte, routing and model ev
 
 ## Test a complete game loop
 
-[Lantern Vault](../examples/dungeon/README.md) is a playable six-room dungeon using the
+[Lantern Vault](../examples/lantern-vault/README.md) is a playable six-room dungeon using the
 current integration kit, typed queries, scene packets and readable decisions. Start with
 human play and the deterministic replay checker, then use the optional local-only agent.
 Measure completion and state changes separately from valid actions; the first local Qwen
@@ -534,7 +534,7 @@ use only fresh scoped referents, and ask “which key?” when several candidate
 Never turn a guessed match or generated speech into inventory permission. A targeted
 human selection must still pass the current revision/visibility/action checks.
 
-The [workflow guide](WORKFLOWS.md) records real failures as well as smaller packets:
+The [workflow guide](guides/WORKFLOWS.md) records real failures as well as smaller packets:
 adding more grounded instructions regressed one 3B intent pilot from 2/4 to 1/4; exact
 host slots and clarification did better on that tiny regression set. This does not prove
 universal semantic understanding. Required facts and recent required exchanges remain
@@ -543,7 +543,7 @@ protected; a size hint must never silently remove them.
 
 ## Let dialogue reach validated actions
 
-Use the shared [conversation and confirmation APIs](CONVERSATION.md) to separate
+Use the shared [conversation and confirmation APIs](guides/CONVERSATION.md) to separate
 speech from a pending action. The host supplies current scope/facts and stores original
 player quotes; it validates the model's reply and source IDs. A clearly requested trade
 can instead return a local offer containing actual item/price/quantity terms. Human
@@ -554,7 +554,7 @@ locally instead of repeatedly asking for approval. An NPC sentence is not an off
 Inventory arithmetic already belongs in local queries: `COUNT(*)` counts rows;
 `SUM(count)` counts units when the host provides that field. Reuse catalog/memory tags
 for retrieval. Neither conversation memory nor tags establish item ownership or consent.
-The runnable [shared example](../examples/conversation.rs) exercises memory, confirmation
+The runnable [shared example](../examples/character/conversation.rs) exercises memory, confirmation
 and inventory totals without a model.
 
 
@@ -567,7 +567,7 @@ unverified context, even when it sounds confident or uses an available citation 
 Ask the model to distinguish exact supplied quotes, current host facts and unknown
 attributes; source availability alone does not validate its explanation. `/forget`
 clears conversation material and pending replies, while host-owned inventory persists.
-The [reported regression audit](DUNGEON_FEEDBACK.md) preserves examples and verifies
+The [reported regression audit](evidence/DUNGEON_FEEDBACK.md) preserves examples and verifies
 these storage/state boundaries without claiming the prose hallucinations are fixed.
 
 
@@ -585,8 +585,8 @@ Player quote answers should retain their exact words and attribution. Open-ended
 flavor can use authored background without promoting generated dialogue into facts.
 This limits invented prose in factual answers; a model can still choose the wrong valid
 source. Keep question interpretation, source validity and world changes as separate scores.
-See the [tested API example](../examples/lore.rs), [contracts](LORE.md) and
-[retained model results](LORE_EVAL.md).
+See the [tested API example](../examples/knowledge/lore.rs), [contracts](guides/LORE.md) and
+[retained model results](evidence/LORE_EVAL.md).
 
 
 ## Give conversation optional information tools
@@ -596,8 +596,8 @@ Register `info::Notes::tools()` with your runner and dispatch bounded argument t
 For ownership, distinguish a reported claim from a fresh `Inventory::lookup_call` result.
 Use separate scopes for private conversations, expose only visible owners, and check a
 trade's revision and host permissions before committing. Several player IDs can be owners;
-no single-player constant is required. See [contracts and limits](INFO.md) and the
-[executable example](../examples/info_tools.rs). Include every enabled schema and tool result
+no single-player constant is required. See [contracts and limits](guides/INFO.md) and the
+[executable example](../examples/knowledge/info_tools.rs). Include every enabled schema and tool result
 in the full-request budget; these tools do not automatically improve model accuracy.
 
 
@@ -607,12 +607,12 @@ Use `dialogue::InteractionTools` to publish witnessed changes, retain reported p
 and preferences, resolve ambiguous references, and propose exact host-enumerated offers.
 Publish progress only after game validation. Bind private scopes and specific offer
 recipients so one player's conversation cannot approve another player's transaction.
-The [tested multiplayer-capable API example](../examples/conversation_tools.rs) shows the
-flow without networking or model calls. [Contracts and context costs](INTERACTIONS.md).
+The [tested multiplayer-capable API example](../examples/character/conversation_tools.rs) shows the
+flow without networking or model calls. [Contracts and context costs](guides/INTERACTIONS.md).
 
 ## Character perception and capacity
 
-Use the optional [character facade](CHARACTERS.md) for an actor-bound `look_around`,
+Use the optional [character facade](characters/CHARACTERS.md) for an actor-bound `look_around`,
 location/world snapshots, existing notes/inventory tools and task-specific context.
 Bind redacted views each turn; exact game time is not automatically NPC knowledge.
 Clock/watch readings, approximate schedules/sun observations and attributed reports
@@ -620,14 +620,14 @@ have different provenance and precision. Keep output and safety reservations whi
 counting the complete provider-rendered prompt. Increasing capacity can retain more
 relevant data, while explicit attention limits keep a small model on one task.
 
-The [new measurements](CONVERSATION_PATCH_EVAL.md) distinguish local routing and byte
+The [new measurements](evidence/CONVERSATION_PATCH_EVAL.md) distinguish local routing and byte
 parity from unsuccessful live speech diagnostics. General free-form speech is still
 experimental; it is not a verified paraphrase of authoritative facts.
 
 ## Add usual activities only when your game needs them
 
-Start with the [tested optional routine example](../examples/routines.rs) and
-[editable dungeon demo](../examples/dungeon/routine.json). The engine resolves condition
+Start with the [tested optional routine example](../examples/character/routines.rs) and
+[editable dungeon demo](../examples/lantern-vault/routine.json). The engine resolves condition
 IDs, calendars and permissions; the local planner selects intended activities without
 LLM calls. Schedule dirty NPCs through the existing work budget. Only engine receipts
 confirm completion, and only actual sensor/event data creates an observation.
@@ -637,20 +637,20 @@ prove sunlight. A window can permit a direct sun estimate; clouds or occlusion c
 it. Preserve aging ranges, reports and contradictory readings instead of fabricating
 confidence or exposing the simulation clock. Select current/next intent, required facts
 and a few relevant experiences for a small model; explicitly configured richer context
-still uses full rendered-request counting and protected facts. [Contracts](ROUTINES.md).
+still uses full rendered-request counting and protected facts. [Contracts](guides/ROUTINES.md).
 
 For more responsive routines, use `next_wake` with your timer queue and `affected` for
 planning-event dependencies; both feed the existing scheduler. Use explicit observation
 selection with required source tokens when the newest experiences are unrelated to the
 current task. Missing required evidence should cause a refresh or unknown, rather than
-quietly substituting other memories. The [tested context example](../examples/routine-context.rs)
+quietly substituting other memories. The [tested context example](../examples/character/routine-context.rs)
 combines these paths without model calls. The measured host-copy optimization and its
-synthetic-workload limits are recorded in [ROUTINES](ROUTINES.md#optional-task-selection-and-responsive-wakeups).
+synthetic-workload limits are recorded in [ROUTINES](guides/ROUTINES.md#optional-task-selection-and-responsive-wakeups).
 
 
 ## Validate meaning as well as legal syntax
 
-The [new adversarial probes](ADVERSARIAL_EVAL.md) found that a legal action could still
+The [new adversarial probes](evidence/ADVERSARIAL_EVAL.md) found that a legal action could still
 violate a negated command, and a perfectly valid JSON reply could misread time sources.
 Use a whole-command grammar for local shortcuts, clarify unsupported clauses, and keep
 natural world-changing interpretations behind host confirmation. Prefer typed
@@ -687,49 +687,49 @@ played/heard portions and results. A generated reply never confirms delivery or 
 Persist consequential events during conversation; archive acknowledged originals before
 eviction. Load an earlier save into a fresh instance with branch-specific fences. Host
 storage authenticates IDs, transactions, replay floors and scoped erasure across archives,
-snapshots, indices and external speech queues. [Contracts and host operation table](LIFE.md).
+snapshots, indices and external speech queues. [Contracts and host operation table](characters/LIFE.md).
 
 For short factual speech, opt into `Life::compile_speech` version 2 rather than sending
 legacy balanced policy unchanged. Use `SpeechTurn::from_hints` and host-declared known-state;
 mark player attributes with explicit subject and unknown status. The compiler leaves the
 actual utterance outside JSON and asks focused models for grounded short speech. Diagnose
 sentence endings with `assess_sentence` before queueing; retain raw rejected output.
-[Runnable example](../examples/character-speech.rs) and [paired results with retained failures](LIFE_SPEECH_V2_EVAL.md).
+[Runnable example](../examples/character/character-speech.rs) and [paired results with retained failures](evidence/LIFE_SPEECH_V2_EVAL.md).
 
 For multiple NPC roles, use an explicit `archetype::Blueprint` or compose modules with
-`BlueprintBuilder`. The [party example](../examples/party.rs) installs approved life and
+`BlueprintBuilder`. The [party example](../examples/character/party.rs) installs approved life and
 routine data, selects authoritative stock, reserves a spotlight route, and compiles
 different replies for two players. Feed only host-confirmed hearing to `PartyScene`; apply
 sidecar `AttitudeGates` before selection, and dispatch any exposed Life tools through
 `PartyScene::call_life` so recall cannot bypass gates. Recount the actual provider request
-before dispatching a one-use floor grant. [Contracts, limits and offline evidence](ARCHETYPES.md).
+before dispatching a one-use floor grant. [Contracts, limits and offline evidence](characters/ARCHETYPES.md).
 
 For one-file towns, load `cast::CastPack` and explicitly accept it with `LivingWorld::new`.
-The [tested example](../examples/living-world.rs) performs deterministic routine/rumor/
+The [tested example](../examples/character/living-world.rs) performs deterministic routine/rumor/
 initiative work before issuing an immediate authored fallback. Keep optional model work
 outside the frame callback; validate a completion and freeze before actual caption/audio
 delivery. Use the world compiler/tool dispatcher so group influence participates in gates.
-[Living-world contracts, retention limits and timing evidence](LIVING_WORLD.md).
+[Living-world contracts, retention limits and timing evidence](characters/LIVING_WORLD.md).
 
 ## Compile and repair visual assets without model calls
 
-Use [the visual compiler](VISUAL.md) to keep an authored style, silhouette, camera and
+Use [the visual compiler](guides/VISUAL.md) to keep an authored style, silhouette, camera and
 palette consistent while host-confirmed trust/emotion, active activity and perceived facts
 select discrete expression/pose/environment cues. Start with `cargo run --example visual`
-and edit `examples/visual/chime-art.json`; the example runs as a test. Closed shutters and
+and edit `examples/fixtures/visual/chime-art.json`; the example runs as a test. Closed shutters and
 sunlight share an authored conflict group. Unobserved/global fact text never reaches the
 rendered tokens. Queue the returned job externally and display only the selected approved
 fallback (or your placeholder). Submission alone does not approve an image.
 
 Inspect a key, then apply bounded token/negative/prop/seed repairs or pin reviewed hand edits.
-[Persistent binding operations](KIT.md#persistent-visual-asset-sessions) use the same Rust
+[Persistent binding operations](guides/KIT.md#persistent-visual-asset-sessions) use the same Rust
 registry as the CLI/native ABI. The 64-workflow offline artifact measures zero model calls;
 no provider, image-quality, latency or frame-rate claim is made.
 
 ## Play Lantern Vault in a local browser
 
 `cargo run --example dungeon -- --web --cap 0` starts the opt-in standard-library host
-on loopback. [The studio guide](STUDIO.md) covers party controls, text/voice gameplay,
+on loopback. [The studio guide](studio/STUDIO.md) covers party controls, text/voice gameplay,
 provider/tier maps, the asset debug drawer, and save/load slots. Models never execute
 world actions. Interim STT only previews/interrupts; final input enters the validated
 host command path. Only confirmed playback prefixes become heard memories.
@@ -739,7 +739,7 @@ works without installed models. Online ceilings and a positive startup cap must 
 explicitly. Paid reservations survive failures/restarts and cannot roll back with a branch.
 All automated studio checks use offline/fake devices and `--cap 0`; actual voice and image
 quality are unmeasured. Provider configuration and the tested example are editable in
-`examples/dungeon/web/`.
+`examples/lantern-vault/web/`.
 
 For ordinary heard dialogue, `LivingWorld::record(actor, event)` accepts a host-validated
 non-retained event without reserving a rumor slot. `Life::trim_transient(keep)` preserves
@@ -766,7 +766,7 @@ that a host-authored sentence is correct. Supply current validated cards and hon
 attribution for reports and claims. The Web studio exposes grounded/dialogue policies;
 old configurations without `speech_mode` preserve dialogue behavior.
 
-`studio::resolve_command` can route a small explicit English grammar without a model.
+`character::roleplay::resolve_command` can route a small explicit English grammar without a model.
 Supply only current legal pairs, visible labels and a recent focus already scoped to the
 player/scene. The Web example expires focus after four ticks and clears it on player/NPC
 switches, travel and branch loads. A typo or multi-item instruction asks the player to
@@ -779,7 +779,7 @@ renderer predates party gates and has no gate input; feeding a cast definition d
 to it can expose its gated facets. After checkpoint recovery, pass the recovered Life
 to the party compiler before adding bounded, host-authorized archival episodes. The
 overnight campaign evaluation retains a failed renderer integration and a corrected
-public-API host adapter in `eval/overnight_campaign_compile.rs`.
+public-API host adapter in `eval/overnight/overnight_campaign_compile.rs`.
 
 Optional selected recall can match `wick` against archived `wicks`; use required causal
 anchors for facts that must be present rather than relying on lexical similarity.
@@ -792,37 +792,37 @@ For the Lantern Vault preview, open **Model setup**, check local servers, choose
 installed model and **Apply changes**. Setting a tier alone does not select installed
 weights. The visible activity log and reply-origin label explain whether an LLM ran or
 the offline line was retained. **New game** resets current play while preserving settings,
-branches, art approvals and spending; see [the Studio guide](STUDIO.md).
+branches, art approvals and spending; see [the Studio guide](studio/STUDIO.md).
 
 Use **Models & Services** to choose normal/dramatic text and image profiles, audio services,
 residency and predictive warming. Configure what counts as dramatic or force a scene mode.
 Only installed/configured profiles are eligible; online calls remain under the launch cap.
-The [manager guide](MODEL_MANAGER.md) explains server ownership, art approval and limits.
+The [manager guide](studio/MODEL_MANAGER.md) explains server ownership, art approval and limits.
 
-Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+Native voice integration and the Settings menu are documented in [Native voice](studio/NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
 
-Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+Two-player LAN conversation keeps all processing on the host. See [LAN play](studio/LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
 
-Buffered Piper playback and microphone recovery are documented in [buffered speech](BUFFERED_SPEECH.md).
+Buffered Piper playback and microphone recovery are documented in [buffered speech](studio/BUFFERED_SPEECH.md).
 
 Voice recording history, cancellable local replies and the floating context/execution
-profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+profilers are documented in [Studio diagnostics](studio/STUDIO_DIAGNOSTICS.md).
 
-Use Settings → Characters in the local studio to enable editable dispositions and listener-scoped saved opinions. [Character viewpoints](CHARACTER_VIEWPOINTS.md) explains complete-heard confirmation, branch persistence, bounds and model limitations. Thinking hides the previous reply until the new line is ready; Use instant reply keeps the 0B path available.
+Use Settings → Characters in the local studio to enable editable dispositions and listener-scoped saved opinions. [Character viewpoints](characters/CHARACTER_VIEWPOINTS.md) explains complete-heard confirmation, branch persistence, bounds and model limitations. Thinking hides the previous reply until the new line is ready; Use instant reply keeps the 0B path available.
 
-Settings → Characters → Optional world reactions enables host-approved gifts, loans and support. Only currently eligible offers appear in play. See [rules, host evidence and replay boundaries](CHARACTER_REACTIONS.md); other world actions require registered engine handlers.
+Settings → Characters → Optional world reactions enables host-approved gifts, loans and support. Only currently eligible offers appear in play. See [rules, host evidence and replay boundaries](characters/CHARACTER_REACTIONS.md); other world actions require registered engine handlers.
 
-With personality turns enabled, try “Hello”, “How are you today?” and, after reading/hearing the reply, “Why is that?” Greetings need no LLM; mood and explanation turns are immediate and temporary and do not replace saved opinions. [Routing and evidence](STUDIO_CONVERSATION.md).
+With personality turns enabled, try “Hello”, “How are you today?” and, after reading/hearing the reply, “Why is that?” Greetings need no LLM; mood and explanation turns are immediate and temporary and do not replace saved opinions. [Routing and evidence](studio/STUDIO_CONVERSATION.md).
 
-With personality turns enabled, travel to a character's room to see an arrival and contextual greeting; **Approach** engages without speaking for the player. Typed `*enters the workshop*` still needs a legal route. Read/Play confirms an introduction. Settings → Characters → Greeting behavior adjusts quiet turns. [Memory, venue, party and save behavior](CONTEXTUAL_GREETINGS.md).
+With personality turns enabled, travel to a character's room to see an arrival and contextual greeting; **Approach** engages without speaking for the player. Typed `*enters the workshop*` still needs a legal route. Read/Play confirms an introduction. Settings → Characters → Greeting behavior adjusts quiet turns. [Memory, venue, party and save behavior](characters/CONTEXTUAL_GREETINGS.md).
 
 ## Studio reasoning and speech
 
-See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
+See [deliberation controls](studio/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
 
 ## Conversation length and stage actions
 
-See [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+See [conversation extensions](studio/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
 
 ## Give connected characters their own wording
 
@@ -832,16 +832,16 @@ personal/social/fiction contracts allow bounded expression. Offline or invalid g
 keeps the authored fallback. The library's `studio-expression` and `studio-wording` local
 contracts preserve old defaults and share all binding transports.
 
-`cargo run --bin gamectx -- local examples/cast/expression-fixture.json` renders a
+`cargo run --bin gamectx -- local examples/fixtures/cast/expression-fixture.json` renders a
 confirmed-perspective fictional turn; the fixture runs in the documented API tests.
 Only pass host-selected facts/attitudes and actually heard history. A character's
 invented tale is not an observation, and a player's disclosed name is still a claim.
-See [formats, evidence and limitations](STUDIO_EXPRESSION.md) and the
-[short roleplay investigation](ROLEPLAY_RESEARCH.md).
+See [formats, evidence and limitations](studio/STUDIO_EXPRESSION.md) and the
+[short roleplay investigation](research/ROLEPLAY_RESEARCH.md).
 
 For current NPC location and perceived dialogue, reuse `Locations` with an actor-visible
 snapshot and the current revision. Do not give an NPC the player inventory to answer
 where it is. The Studio now demonstrates this path, heard-seed story rotation and
-retryable blocked audio; see [scene repairs](SCENE_SOCIAL_REPAIR.md). For a larger
-character implementation, use the [feature/gap map](SOCIAL_CHARACTER_GAPS.md) to
+retryable blocked audio; see [scene repairs](studio/SCENE_SOCIAL_REPAIR.md). For a larger
+character implementation, use the [feature/gap map](research/SOCIAL_CHARACTER_GAPS.md) to
 distinguish storage mechanisms from implicit memory use and motivation-driven behavior.

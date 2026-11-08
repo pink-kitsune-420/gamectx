@@ -1,4 +1,4 @@
-use gamectx::{json::parse, obj, Value};
+use gamectx::{data::json::parse, obj, Value};
 fn fixture(name: &str) -> Value {
     let path = format!("{}/conformance/optimization/{name}/input.json", env!("CARGO_MANIFEST_DIR"));
     parse(&std::fs::read_to_string(path).unwrap(), 1_572_864).unwrap()
@@ -7,7 +7,7 @@ fn fixture(name: &str) -> Value {
 fn invalid_count_ack_does_not_mutate_composition() {
     let fixture = fixture("compose_recount");
     let a = fixture.get("args").unwrap();
-    let mut session = gamectx::request::Composition::from_value(a.get("definition").unwrap()).unwrap();
+    let mut session = gamectx::packet::request::Composition::from_value(a.get("definition").unwrap()).unwrap();
     let before = session.state();
     assert!(session
         .observe(&obj! {"sequence"=>0,"candidate"=>Value::Null,"count"=>obj! {"input"=>1,"method"=>"exact"}})
@@ -30,9 +30,10 @@ fn dense_dependency_graph_is_complete_and_bounded() {
             "priority"=>i,"required"=>i==127}
         })
         .collect::<Vec<_>>();
-    let selected = gamectx::selection::Evidence::from_value(&Value::Array(records)).unwrap().select(4096).unwrap();
+    let selected =
+        gamectx::knowledge::selection::Evidence::from_value(&Value::Array(records)).unwrap().select(4096).unwrap();
     assert_eq!(selected.get("kept").unwrap().as_array().unwrap().len(), 128);
-    assert!(gamectx::selection::Evidence::from_value(&obj! {"not"=>"records"}).is_err());
+    assert!(gamectx::knowledge::selection::Evidence::from_value(&obj! {"not"=>"records"}).is_err());
 }
 #[test]
 fn template_uses_recipe_visibility_even_on_empty_tables() {
@@ -45,7 +46,7 @@ fn template_uses_recipe_visibility_even_on_empty_tables() {
             &parse(&std::fs::read_to_string(format!("{root}/examples/kit/snapshot.json")).unwrap(), 65536).unwrap(),
         )
         .unwrap();
-    let template=gamectx::query::Template::from_value(&obj! {"name"=>"count_kind","description"=>"Count food.","sql"=>"SELECT COUNT(*) FROM stock",
+    let template=gamectx::data::query::Template::from_value(&obj! {"name"=>"count_kind","description"=>"Count food.","sql"=>"SELECT COUNT(*) FROM stock",
         "parameters"=>vec![obj! {"name"=>"kind","column"=>"kind","op"=>"=","kind"=>"string"}],"max_rows"=>4096,"result_bytes"=>512}).unwrap();
     // The example recipe exposes id/count, not kind, despite using kind in its host view.
     assert!(project.query_template("conversation", &snapshot, &template, &obj! {"kind"=>"food"}).is_err());
@@ -71,7 +72,7 @@ fn template_uses_recipe_visibility_even_on_empty_tables() {
 }
 #[test]
 fn bound_query_keeps_original_values_and_host_filters() {
-    let template=gamectx::query::Template::from_value(&obj! {"name"=>"visible","description"=>"Visible owned IDs.",
+    let template=gamectx::data::query::Template::from_value(&obj! {"name"=>"visible","description"=>"Visible owned IDs.",
         "sql"=>"SELECT id, price FROM stock WHERE owner = 'player' ORDER BY price DESC LIMIT 1",
         "parameters"=>vec![obj! {"name"=>"kind","column"=>"kind","op"=>"=","kind"=>"string"}],"max_rows"=>4096,"result_bytes"=>512}).unwrap();
     let rows=parse(r#"[{"id":"雪:coin.v2","owner":"player","kind":"food","price":9007199254740993},{"id":"other","owner":"other","kind":"food","price":9007199254741000}]"#,4096).unwrap();

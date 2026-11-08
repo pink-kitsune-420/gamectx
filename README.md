@@ -14,16 +14,37 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 > **Alpha.** The API, command-line options and packed formats may change between
 > `0.x` prereleases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
 
-**Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) ·
-[conformance cases](conformance/README.md) · [model eval](eval/README.md) · [roadmap](docs/ROADMAP.md)
+**Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) · [all docs](docs/README.md) ·
+[examples](examples/README.md) · [conformance cases](conformance/README.md) · [model eval](eval/README.md) ·
+[roadmap](docs/ROADMAP.md)
 
-The [dynamic character guide](docs/LIFE.md) records the five implementation stages from
-[the agent brief](docs/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
+## Layout (0.4.0a)
+
+The library is grouped into domain modules; the [crate docs](src/lib.rs) list every submodule.
+
+| Module | Contents |
+|---|---|
+| `gamectx::data` | strict JSON, lossless tables, views, safe formulas, catalogs, model-written SQL queries |
+| `gamectx::packet` | the `Context` builder, budgeted assembly, manifests, tool schemas/signatures, full-request accounting, token estimates, sync |
+| `gamectx::knowledge` | memory, recall, typed facts, lore, informational notes, inventory, observations, evidence selection, location, world, time windows |
+| `gamectx::character` | character tools, life, dialogue, routines, parties, archetypes, cast packs, living world, `roleplay` policies |
+| `gamectx::runtime` | reaction brains, legal-choice decisions, scheduling, procedures, outcomes, replay, request tickets, spending |
+| `gamectx::deploy` | deployment profiles, scene-driven model policy, configuration tuning, turn telemetry |
+| `gamectx::media` | visual specs and asset registry, voice delivery, provider routing |
+| `gamectx::kit` | registration, recipes, validated callbacks, inspection, JSON-lines/native bridges |
+
+`Context`, `Table`, `Turn`, `Value`, `Error`, `Result` and `obj!` stay at the crate root.
+Repository folders follow the same grouping: [`examples/`](examples/README.md) by domain plus
+shared `fixtures/` and the `lantern-vault/` game, [`docs/`](docs/README.md) by purpose and
+[`eval/`](eval/README.md) by topic. Bindings live in `bindings/`, format cases in `conformance/`.
+
+The [dynamic character guide](docs/characters/LIFE.md) records the five implementation stages from
+[the agent brief](docs/research/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
 
 ## Optional local RPG, voice and art studio (unreleased v0.3.1a)
 
 Run `cargo run --example dungeon -- --web --cap 0` and open the printed loopback URL.
-The [Lantern Vault studio](docs/STUDIO.md) combines text RPG/party controls, approved art
+The [Lantern Vault studio](docs/studio/STUDIO.md) combines text RPG/party controls, approved art
 and repair, live character inspection, TTS/STT and receipt-based barge-in. Text, image,
 TTS and STT backends switch independently; all paid requests share a durable spending cap.
 Default play needs no model or provider account. The Rust host uses only `std`; optional
@@ -31,25 +52,25 @@ HTTPS providers use system curl. Browser voice support varies.
 
 **32 Python/Rust workflows**, **85 HTTP checks** and **5 fake-browser scenarios** run with
 zero real provider calls / $0 API spend. All **1,090** prior conformance cases remain
-unchanged. [Editable provider profiles](examples/dungeon/web/providers.json) select actual
+unchanged. [Editable provider profiles](examples/lantern-vault/web/providers.json) select actual
 model IDs per tier; unconfigured profiles retain deterministic fallbacks.
 
 ## Optional visual specs and approved art (unreleased v0.3.1a)
 
-[Visual compiler and registry](docs/VISUAL.md) lock an editable art bible, map live Life
+[Visual compiler and registry](docs/guides/VISUAL.md) lock an editable art bible, map live Life
 attitudes/emotions and active routine/initiative poses, and include only perceived scene
 cues. Content keys reuse approved/pinned assets; pending work returns compatible approved
 fallbacks. Host inspection, repair constraints, seed rotation and hand-edited pins invalidate
 stale candidates. Python, Node and native/C# sessions share the host controls.
 
-Run `cargo run --example visual`; edit [the art bible](examples/visual/chime-art.json).
+Run `cargo run --example visual`; edit [the art bible](examples/fixtures/visual/chime-art.json).
 **64 Python/Rust workflows**, including **13 malformed cases**, match with **0 model calls**
 and **$0 API spend**. All **1,026** prior conformance cases remain unchanged. Generation is
 external; this measures metadata behavior, not image quality or image-model performance.
 
 ## Optional dynamic character continuity (unreleased v0.3.1a)
 
-[Life APIs](docs/LIFE.md) add approved character definitions, source-attributed experiences,
+[Life APIs](docs/characters/LIFE.md) add approved character definitions, source-attributed experiences,
 bounded appraisals, parallel conversation topics, acknowledged partial speech, durable
 checkpoints, archive backpressure, causal recall/forgetting and purposeful initiative.
 Opinions, accepted promises and actual event tokens drive initiative; routine work makes
@@ -60,7 +81,7 @@ Run `cargo run --example dungeon -- --life-demo --size 3` for an original mercha
 interrupted repair, remembered preference, corrected name, changed opinion and reunion
 following save/load. `--size 70 --life-tools` demonstrates expanded context and explicit
 tool selection without loading a model. Editable definitions/configuration are included.
-The [minimal Rust example](examples/character-life.rs) runs as a test. New
+The [minimal Rust example](examples/character/character-life.rs) runs as a test. New
 `--dialogue natural-scaled` optionally applies actual dialogue recall/exchange hints and
 removes distractor lore for unknown small-model answers; earlier modes retain their bytes.
 
@@ -69,7 +90,7 @@ Independent Python/Rust checks cover **221 workflows**, including a **1,000-even
 for 128 experiences plus 128 appraisals measured median **176,881,587 → 7,338,259 ns** and
 **2,517,745 → 22,025 allocator calls**, with identical final state. In-memory structural
 validation makes zero heap allocations; these are synthetic host measurements, not model
-speed or accuracy. [Evidence, method and limits](docs/LIFE_EVAL.md).
+speed or accuracy. [Evidence, method and limits](docs/evidence/LIFE_EVAL.md).
 
 A retained local speech diagnostic made **24 calls**, **$0 API**: all **8/8** replies had
 valid shapes, yet both variants invented birthplace details and the character-context
@@ -79,17 +100,17 @@ answers remain the default. Human social-quality evaluation is still needed.
 
 ## Modular archetypes and multi-party scenes
 
-The opt-in [archetype and multi-party layer](docs/ARCHETYPES.md) provides ambient (0B),
+The opt-in [archetype and multi-party layer](docs/characters/ARCHETYPES.md) provides ambient (0B),
 service, quest and companion loadouts. Compose modules through `BlueprintBuilder`, gate
 lore/facets/affordances by listener attitudes, render confirmed hearing from each AI's
 perspective, and reserve bounded responders and spotlight routes through the shared ledger.
-Run `cargo run --example party` and edit [the six-participant scene](examples/party/chime-counter.json).
+Run `cargo run --example party` and edit [the six-participant scene](examples/fixtures/party/chime-counter.json).
 Offline evidence covers 68 Python/Rust workflows and 68 additive cases, with zero model calls.
 Provider token counting, authoritative execution and hearing stay with the host.
 
 ## Turn-aware short speech follow-up
 
-[Speech compiler v2](docs/LIFE_SPEECH_V2_EVAL.md) gates creative policy by host profile and
+[Speech compiler v2](docs/evidence/LIFE_SPEECH_V2_EVAL.md) gates creative policy by host profile and
 known-state, binds facts to explicit subjects, and keeps the current request outside JSON.
 Run `cargo run --example character-speech`; the life dungeon demo also uses it. A bounded
 sentence helper identifies punctuation endings and suspected schema-wall cutoffs without
@@ -102,7 +123,7 @@ guarantee: **48 local calls**, **$0 API**, four regressions and four new holdout
 
 ## Adversarial probes and measured limits (unreleased v0.3.1a)
 
-[Fresh probes](docs/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,
+[Fresh probes](docs/evidence/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,
 hidden time conflicts and invalid restores: 15/57→57/57 checks pass; 900 engine steps
 match the independent rules. The installed local Qwen variant produced valid JSON on
 32/32 source/time tests but only 25/32 correct answers. Shorter context was faster and
@@ -113,7 +134,7 @@ Default tool exposure, prior outputs and immutable native ABI remain unchanged.
 
 ## Optional routines and source time knowledge (unreleased v0.3.1a)
 
-[Routine APIs](docs/ROUTINES.md) add bounded usual-activity definitions, deterministic
+[Routine APIs](docs/guides/ROUTINES.md) add bounded usual-activity definitions, deterministic
 per-character timelines, actual observation history and attributed aging time ranges.
 All features default off; hosts choose shared defaults, character overrides, individual
 tools, task exposure and live permissions. Plans never prove experiences. Movement,
@@ -121,26 +142,26 @@ sensors, calendars, completion and action execution stay in the engine. No model
 are needed for planning. Run `cargo run --example routines` or the offline dungeon
 `--routines-demo`; editable files and persistent Python/Node/C# bridges are included.
 69 independent Python/Rust workflows agree; 21 additive cases preserve all 797 prior
-outputs. [Explicit task evidence selection and timer hints](docs/ROUTINES.md#optional-task-selection-and-responsive-wakeups)
+outputs. [Explicit task evidence selection and timer hints](docs/guides/ROUTINES.md#optional-task-selection-and-responsive-wakeups)
 add 54 offline workflows; a measured host update optimization avoids copying retained
 history. These are deterministic checks and a synthetic CPU benchmark, with no new
 model-accuracy or full-turn latency claim. Model/API spend $0.
 
 ## Actor perception and adaptive context (unreleased v0.3.1a)
 
-[Character tools](docs/CHARACTERS.md) provide optional `look_around`, location descriptions,
+[Character tools](docs/characters/CHARACTERS.md) provide optional `look_around`, location descriptions,
 world-state lookup and a single scoped dispatcher for notes, inventory and conversation
 helpers. The game supplies visibility and knowledge: NPCs do not automatically know the
 global clock or outdoor weather. Scene snapshots and tool permissions are revision-bound.
 Task-focused context can grow with measured capacity while small-model attention stays
 explicitly limited. Rust, Python, Node and C# bridges support persistent character sessions.
-The [new checks](docs/CONVERSATION_PATCH_EVAL.md) report byte parity and retain failed
+The [new checks](docs/evidence/CONVERSATION_PATCH_EVAL.md) report byte parity and retain failed
 speech experiments separately from deterministic routing improvements.
 
 ## Playable dungeon testbed (v0.3.0a)
 
 Run `cargo run --example dungeon -- --seed 7` for an original six-room text game.
-[Lantern Vault](examples/dungeon/README.md) has deterministic rules, seeded variations,
+[Lantern Vault](examples/lantern-vault/README.md) has deterministic rules, seeded variations,
 replay files and a persistent JSON interface for local agents. It exercises scene packets,
 typed affordability queries, bounded decisions and current-state validation. Six scripted
 routes escape; optional model runs report actual wins separately from legal actions.
@@ -148,61 +169,61 @@ Basic play needs no model or network. For human play with local AI characters, r
 `cargo run --example dungeon -- --ai --size 3 --seed 7` with Python 3 and an installed
 Ollama model. NPCs answer free-form questions and remember scoped player quotes; natural
 language actions use bounded choices and targeted clarification. Local rules validate
-world changes. [Size-and-task workflows](docs/WORKFLOWS.md) cover editable 1B, 1.5B, 3B,
+world changes. [Size-and-task workflows](docs/guides/WORKFLOWS.md) cover editable 1B, 1.5B, 3B,
 8B, 30B and 70B hints and the measured limits of the local 3B pilot. New API spend $0.
 
-Shared [conversation APIs](docs/CONVERSATION.md) now provide scoped quote memory,
+Shared [conversation APIs](docs/guides/CONVERSATION.md) now provide scoped quote memory,
 validated replies, entity references and one-use action confirmation for other hosts.
 The dungeon's merchant reports unaffordable purchases locally and completes affordable
 ones after yes/no confirmation. Inventory counts/sums and catalog/memory tags already
 use the existing query and metadata APIs; hosts retain inventory ownership.
 
-[Reported dialogue regressions](docs/DUNGEON_FEEDBACK.md) now preserve 11 playthrough
+[Reported dialogue regressions](docs/evidence/DUNGEON_FEEDBACK.md) now preserve 11 playthrough
 sequences: transaction handling and name recall work, while free-form speech can still
 invent player history or item purposes. The offline audit separates those outcomes.
 
 ## Authored world information (v0.3.0a)
 
-Use `cargo run --example dungeon -- --ai --world examples/dungeon/world.json` to load
+Use `cargo run --example dungeon -- --ai --world examples/lantern-vault/world.json` to load
 editable character backgrounds and world facts. Only relevant, authorized records reach
 a character. Factual questions select a host-supplied source or an explicit unknown;
 player quotes stay distinct from lore and current inventory. Open-ended dialogue remains
 generated. `--dialogue legacy` selects the earlier control.
 
-Optional [information tools](docs/INFO.md) let a model remember and look up reported
+Optional [information tools](docs/guides/INFO.md) let a model remember and look up reported
 ownership, locations and other claims with original evidence. A read-only inventory tool
 returns game-confirmed owners/counts; unique instances and validated host transfers are
-supported. Claims never change inventory. See [the runnable example](examples/info_tools.rs).
+supported. Claims never change inventory. See [the runnable example](examples/knowledge/info_tools.rs).
 Structured lore and `--dialogue natural` are available experimentally; local tests still
 show factual hallucinations, so source selection remains the default.
 
-Optional [conversation tools](docs/INTERACTIONS.md) add witnessed events, promises,
+Optional [conversation tools](docs/guides/INTERACTIONS.md) add witnessed events, promises,
 relationship notes, clarification and recipient-bound offers. Explicit participant IDs
 support multiplayer hosts; the dungeon remains a single-player example. Enable tools
-selectively and keep execution in the game. [Runnable example](examples/conversation_tools.rs).
+selectively and keep execution in the game. [Runnable example](examples/character/conversation_tools.rs).
 
-The reusable [lore and answer APIs](docs/LORE.md) keep the Rust core dependency-free.
-[Local tests](docs/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
+The reusable [lore and answer APIs](docs/guides/LORE.md) keep the Rust core dependency-free.
+[Local tests](docs/evidence/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local
 regression repair; these are small diagnostics, not universal accuracy. Every run $0 API.
 
 ## Further local optimizations (v0.3.0a)
 
-[Optional optimization workflows](docs/OPTIMIZATION.md) add host-declared intent guards,
+[Optional optimization workflows](docs/guides/OPTIMIZATION.md) add host-declared intent guards,
 typed prepared query tools, dependency-complete evidence selection, host-assisted rendered
 token counting, local-match routing, readable-choice responses and offline configuration
 comparison. Existing formats and defaults remain unchanged. Six local Qwen token probes
 for 2/4/8 choices measured 158→118, 224→174 and 344→274 prompt tokens with the readable
 codec, including choice/schema grounding. This is opt-in; smaller prompts alone do not
-prove better decisions. The [tested example](examples/optimized-turn.rs) shows intent
+prove better decisions. The [tested example](examples/packet/optimized-turn.rs) shows intent
 guarding and query arguments without SQL substitution. New API spend $0.
 
 ## Integrating a game (v0.2.0a)
 
-The optional [integration kit](docs/KIT.md) registers data meanings, units, visibility,
+The optional [integration kit](docs/guides/KIT.md) registers data meanings, units, visibility,
 tools and named context recipes once. Build each turn from a validated snapshot, inspect
 selection/budget decisions separately, and dispatch model tool calls through validated
-host callbacks. [The runnable Rust example](examples/registered-project.rs) includes Rust
+host callbacks. [The runnable Rust example](examples/kit/registered-project.rs) includes Rust
 builders, schema-only queries and shared brain feature units.
 
 `gamectx init <new-directory>` generates a project, snapshot, recorded-run evaluation
@@ -217,12 +238,12 @@ integration and validation easier; new model accuracy has not been measured. API
 
 ## Local 1B–3B workflows (v0.2.0a)
 
-[Local-model APIs](docs/LOCAL.md) add full-request budgets with a host tokenizer callback,
+[Local-model APIs](docs/guides/LOCAL.md) add full-request budgets with a host tokenizer callback,
 protected scene facts and whole dialogue exchanges, legal-pair decisions with one retry,
 and explicit deployment-bound guidance/format profiles. Existing filtering, arithmetic,
 queries, facts and action validation do the local work. The core remains dependency-free.
-See the [workload guide for 1B, 1.5B, 3B, 8B, 30B and 70B](docs/MODEL_SIZES.md),
-[tested example](examples/local-turn.rs) and [local evaluation report](docs/LOCAL_MODEL_2026_11_06.md).
+See the [workload guide for 1B, 1.5B, 3B, 8B, 30B and 70B](docs/guides/MODEL_SIZES.md),
+[tested example](examples/packet/local-turn.rs) and [local evaluation report](docs/evidence/LOCAL_MODEL_2026_11_06.md).
 
 ## Latest alpha.3 model check
 
@@ -246,7 +267,7 @@ scores tie overall but differ on individual cases.
 Total usage-priced spend was **$0.05529491875**, including the initial token check and
 one interrupted runner call. These are small synthetic tabular tasks, not live gameplay
 or a test of brain/memory quality. [Full method, per-family scores, limitations and raw
-responses](docs/MODEL_TEST_2026_11_06.md).
+responses](docs/evidence/MODEL_TEST_2026_11_06.md).
 
 ## Earlier model measurements
 
@@ -263,7 +284,7 @@ models through an OpenAI-compatible API. Input tokens are what the provider bill
 Per model, gamectx with signatures scored at least as well as JSON: Llama 3.2 3B 49 vs 48,
 Mistral Small 3.2 24B 45 vs 41, Llama 3.3 70B 47 vs 44 (of 53), and chose the right action
 30 of 30 times. Lookups and schema rules were near-perfect in every format; the differences
-came from filtering questions. The [eval script](eval/model_eval.py) reruns this for about
+came from filtering questions. The [eval script](eval/query/model_eval.py) reruns this for about
 $0.31 with all three models, or roughly a quarter of that with its default two smaller ones.
 
 What the measurements show:
@@ -322,7 +343,7 @@ What the measurements show:
 
 ## What it does
 
-From the included [Ember Keep example](examples/ember-keep) (8 actions, a 10-item inventory,
+From the included [Ember Keep example](examples/fixtures/ember-keep) (8 actions, a 10-item inventory,
 5 recent events, a 28-entry catalog):
 
 ```text
@@ -379,7 +400,7 @@ packet: 1906 bytes; budget 2000 bytes
   optional section is dropped, and required sections fail loudly instead of being cut.
 - **Token estimates**: uncalibrated packet estimates count one byte per token; provider
   reports teach a per-model ratio with a 2x margin. These remain estimates, not a guarantee
-  for hidden chat/tool framing. The optional [full-request contract](docs/LOCAL.md) counts
+  for hidden chat/tool framing. The optional [full-request contract](docs/guides/LOCAL.md) counts
   rendered requests and reserves output/safety separately.
 - **Verification**: `gamectx verify` unpacks every lossless section and checks it matches
   the original exactly, or for a table with a view, the rows the view selected. Numbers
@@ -394,10 +415,10 @@ cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.3.0a --
 cargo install gamectx --version '=0.3.0-a' --locked
 # or, from a clone:
 cargo build --release
-./target/release/gamectx report examples/ember-keep/manifest.json
-./target/release/gamectx pack examples/ember-keep/manifest.json --receipt
-./target/release/gamectx verify examples/ember-keep/manifest.json
-./target/release/gamectx search examples/ember-keep/catalog.json "lanterns" --count 3
+./target/release/gamectx report examples/fixtures/ember-keep/manifest.json
+./target/release/gamectx pack examples/fixtures/ember-keep/manifest.json --receipt
+./target/release/gamectx verify examples/fixtures/ember-keep/manifest.json
+./target/release/gamectx search examples/fixtures/ember-keep/catalog.json "lanterns" --count 3
 ```
 
 A manifest lists the sections of one packet:
@@ -461,13 +482,13 @@ turn.table("inventory", inventory, Table::new().group_by("kind").group_by("rarit
 turn.table("plenty", stock, Table::new().filter("count", ">=", 15).fields(&["id", "count"]))?;
 turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
 turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
-turn.memory("memories", &memory, player_said, 8)?;   // gamectx::memory::Memory
+turn.memory("memories", &memory, player_said, 8)?;   // gamectx::knowledge::memory::Memory
 
 let packet = turn.build()?;        // packet.text, and packet.receipt of what was dropped
 let system = packet.system_prompt("You are the game logic for Warden Ilse.");
 ```
 
-`tools` and `inventory` are `gamectx::Value`s, from `gamectx::json::parse` on your JSON or
+`tools` and `inventory` are `gamectx::Value`s, from `gamectx::data::json::parse` on your JSON or
 built with `obj!` and `vec![...]`. Numbers, strings, booleans, `Option` and `Vec` convert
 automatically.
 
@@ -490,12 +511,12 @@ you need full control; run `cargo doc --open` from the v0.3.0a checkout for its 
 
 ### Give the model a query tool
 
-Include `gamectx::query::tool()` with your actions, then execute its `sql` argument over
+Include `gamectx::data::query::tool()` with your actions, then execute its `sql` argument over
 the tables the game allows it to read. Return the JSON result, or the error so the model
 can correct its request. Table names must match those shown in the packet.
 
 ```rust
-use gamectx::{json, query};
+use gamectx::{data::json, data::query};
 
 let rows = json::parse(r#"[{"id":"moss_cake","count":2,"weight":0.25},
     {"id":"ember_cake","count":6,"weight":3.75}]"#, 4096)?;
@@ -524,7 +545,7 @@ no rows or numeric samples. Send it as a per-turn `query_tables` variable alongs
 `stack_weight` is `count * unit_weight`, computed by the host using `derive`.
 
 ```rust
-use gamectx::{obj, query};
+use gamectx::{obj, data::query};
 
 let mut session = query::Session::new().result_bytes(512);
 let feedback = session.apply_call(&obj! {"sql" => "SELECT SUM(stack_weight) FROM food"}, &tables)?;
@@ -538,7 +559,7 @@ assert!(session.is_finished());
 
 Here `tables` contains the host-derived `stack_weight` column. Use one session per
 question over the same snapshot. Success ends it too: a valid query with the wrong
-meaning does not trigger a retry. See the [runnable host example](examples/query-workflow.rs):
+meaning does not trigger a retry. See the [runnable host example](examples/data/query-workflow.rs):
 
 ```bash
 cargo run --example query-workflow
@@ -561,7 +582,7 @@ this measures local execution, not model latency. [Measurements](eval/README.md#
 `query::Shape` optionally enforces a host-declared table, filter-column multiset, limit
 and aggregate flag. It does not verify natural-language intent, filter values, selected
 fields or permissions. Use it for structured host requests with known requirements.
-The [runnable example](examples/query-plans.rs) is tested:
+The [runnable example](examples/data/query-plans.rs) is tested:
 
 ```bash
 cargo run --example query-plans
@@ -572,7 +593,7 @@ Optional `query::Guidance::ExplicitSelection` supplies a supplemental system par
 `Standard` (empty supplement) remains the default. On six fresh synthetic states the
 3B model improved 46/48→48/48, while 24B fell 47/48→46/48; complete-exchange input rose
 22.0%. Choose per model/workload rather than assuming all weaker models improve.
-See the [paired report](docs/QUERY_OPTIMIZATION_2026_11_06.md) and tested example above.
+See the [paired report](docs/evidence/QUERY_OPTIMIZATION_2026_11_06.md) and tested example above.
 CLI: `gamectx query --guidance explicit-selection` prints the paragraph as a JSON string.
 
 Table and catalog `relevant_to` recognize namespace and dotted ID components, including
@@ -589,7 +610,7 @@ inputs remain unknown, and ties or unknown eligible scores yield `choice:null` f
 host-defined fallback. Scores are utilities, not confidence probabilities.
 
 ```rust
-use gamectx::{brain::Brain, obj};
+use gamectx::{runtime::brain::Brain, obj};
 
 let sample = |danger: f64, need: f64| obj! {
     "inputs" => obj! {"danger" => danger, "need" => need},
@@ -623,7 +644,7 @@ uses native observations and makes no model calls. Keep training on the host's s
 
 ```bash
 cargo run --example adaptive-brain
-gamectx brain examples/brain/workflow.json
+gamectx brain examples/fixtures/brain/workflow.json
 gamectx brain --tools
 ```
 
@@ -657,7 +678,7 @@ also obeys the original 500,000-unit cap. The original `train` stays available f
 single-rate MSE training. The model tool is `train_select_brain`; a runnable workflow is:
 
 ```bash
-gamectx brain examples/brain/selection.json
+gamectx brain examples/fixtures/brain/selection.json
 ```
 
 This metric assumes all outputs are eligible and zero score/margin thresholds. Check
@@ -670,10 +691,10 @@ a template for actors that should learn independently. `CachedBrain` adds an opt
 bounded prediction cache:
 
 ```rust
-use gamectx::brain::{Brain, CachedBrain};
+use gamectx::runtime::brain::{Brain, CachedBrain};
 use gamectx::obj;
 
-let saved = include_str!("examples/brain/preloaded.json");
+let saved = include_str!("examples/fixtures/brain/preloaded.json");
 let template = Brain::restore_json(saved)?;
 let mut actor = CachedBrain::new(template.clone(), 32)?;
 let other = CachedBrain::new(template, 32)?;
@@ -702,7 +723,7 @@ restoring the same saved JSON per actor in this local measurement.
 
 ```bash
 cargo run --example preloaded-brains
-gamectx brain examples/brain/workflow.json --cache 32
+gamectx brain examples/fixtures/brain/workflow.json --cache 32
 ```
 
 The CLI cache lives for one workflow; output and saved state remain byte-identical.
@@ -714,7 +735,7 @@ API spend for these measurements: $0.
 writes a reusable `Prediction`. It performs no heap allocation on successful calls:
 
 ```rust
-use gamectx::brain::{Brain, Prediction};
+use gamectx::runtime::brain::{Brain, Prediction};
 let brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
 let mut prediction = Prediction::default();
 brain.run_into(&[Some(800_000), Some(200_000)], 0b11, 0, 0, &mut prediction)?;
@@ -770,12 +791,12 @@ the protocol. Deltas do not guarantee lower inference tokens or context-window u
 
 ```bash
 cargo run --example runtime-loop
-python3 -I eval/prefix_cache_eval.py --cap 0
+python3 -I eval/query/prefix_cache_eval.py --cap 0
 # Optional: a running local llama.cpp server; no credentials or paid provider.
-python3 -I eval/prefix_cache_eval.py --url http://127.0.0.1:8080 --cap 0
+python3 -I eval/query/prefix_cache_eval.py --url http://127.0.0.1:8080 --cap 0
 ```
 
-The [complete host example](examples/runtime-loop.rs) combines scheduling, sliced
+The [complete host example](examples/runtime/runtime-loop.rs) combines scheduling, sliced
 training, native inference, prepared context and acknowledged synchronization. The prefix
 harness compares local server cache modes and records reported token counts/timings;
 actual server KV-cache savings remain unmeasured here. All new measurements cost $0.
@@ -795,7 +816,7 @@ eligibility, labels, optional measured latency and explicit brain-state changes.
 reports decision agreement, abstention/switch counts and recorded latency percentiles.
 It checks at most 256 events/1 MiB; it does not simulate world consequences or explain
 an actor's intentions. Keep a versioned binding envelope with traces when physical input
-meaning matters. The [combined example](examples/integration-tools.rs) runs as a test.
+meaning matters. The [combined example](examples/runtime/integration-tools.rs) runs as a test.
 
 `StableBrain` optionally keeps the previous eligible reaction until a new winner improves
 utility enough or its minimum hold period ends. Urgent events bypass holding; ineligible
@@ -821,8 +842,8 @@ semantic test, not a general gameplay benchmark; metadata costs tokens and still
 incorrect queries. Both runs together cost $0.0053331125. [Method and recorded queries](eval/README.md#bindings-semantics-and-evidence).
 
 ```bash
-gamectx query --schema examples/query-meaning-tables.json --metadata examples/query-meanings.json
-gamectx replay examples/brain/trace.json
+gamectx query --schema examples/data/query-meaning-tables.json --metadata examples/data/query-meanings.json
+gamectx replay examples/fixtures/brain/trace.json
 cargo run --example integration-tools
 ```
 
@@ -851,7 +872,7 @@ retained evidence. Restores require matching subject and clock identity.
 cargo run --example evidence-memory
 ```
 
-The [tested example](examples/evidence-memory.rs) records two observations, stores a
+The [tested example](examples/knowledge/evidence-memory.rs) records two observations, stores a
 contested hypothesis, checks persistence and removes a private dependency. The offline
 reference accepted six valid workflows and rejected nine invalid workflows. Repeated
 proposals kept confidence at 0.6, expiry at turn 30 and native observations at two.
@@ -889,7 +910,7 @@ mechanical checks, not a measured increase in model accuracy. API spend: $0.
 cargo run --example registered-facts
 ```
 
-The [tested example](examples/registered-facts.rs) covers registration, pins, claim checks,
+The [tested example](examples/knowledge/registered-facts.rs) covers registration, pins, claim checks,
 dependency invalidation, persistence and packet assembly. [Format and limits](docs/FORMAT.md#registered-facts)
 and [offline reproduction](eval/README.md#registered-facts) describe the contract.
 
@@ -926,7 +947,7 @@ this is not a measured game-frame or model-accuracy improvement. All new checks 
 cargo run --example runtime-upgrades
 ```
 
-The [tested synthetic example](examples/runtime-upgrades.rs) combines all seven APIs.
+The [tested synthetic example](examples/runtime/runtime-upgrades.rs) combines all seven APIs.
 See [the guide](docs/GUIDE.md#reuse-and-checked-runtime-work),
 [format contracts](docs/FORMAT.md#optional-runtime-upgrades) and
 [measurements](eval/README.md#optional-runtime-upgrades). The host retains world sensing,
@@ -972,16 +993,16 @@ MIT. See [LICENSE](LICENSE).
 
 ## Living world and one-file cast packs
 
-The opt-in [living-world layer](docs/LIVING_WORLD.md) loads a shared setting, locations,
+The opt-in [living-world layer](docs/characters/LIVING_WORLD.md) loads a shared setting, locations,
 groups and multiple archetypes from one validated file. It propagates attributed reports
 and bounded group influence without model calls, selects relevant habit/atmosphere context,
 and provides immediate authored speech with an optional validated upgrade before delivery.
-Run `cargo run --example living-world` and edit [the town pack](examples/cast/chime-town.json).
+Run `cargo run --example living-world` and edit [the town pack](examples/fixtures/cast/chime-town.json).
 Evidence covers 54 independent Python/Rust workflows and a retained 1,000-frame host-work
 trace. Existing outputs stay unchanged; this adds no model dependency or whole-game FPS claim.
 
 Long-session diagnostics and opt-in transient dialogue retention are documented in
-[the overnight evaluation](docs/OVERNIGHT_DEEP_EVAL.md). Routine Web chat no longer
+[the overnight evaluation](docs/evidence/OVERNIGHT_DEEP_EVAL.md). Routine Web chat no longer
 consumes rumor roots; the retained 600-turn offline trace completes with zero rejections.
 Archive-aware `Life::recall_selected` adds explicit subject filters and required causal
 anchors while preserving legacy recall. Its bounded, host-selected policy is explained
@@ -996,7 +1017,7 @@ participant switch; delivery/recognition continue using their own speech/session
 For question-specific factual answers, the optional required-answer policy removes generic
 deferral while retaining source checks. A fresh restored-cast paired 3B check improves
 required-answer coverage from 3/12 to 12/12 using host-authored sentences. The completed
-[overnight report](docs/OVERNIGHT_DEEP_EVAL.md) includes raw failures, bounded-storage
+[overnight report](docs/evidence/OVERNIGHT_DEEP_EVAL.md) includes raw failures, bounded-storage
 limits, tier audits and the distinction from free-model intelligence.
 
 The local Studio now shows applied model status, installed Ollama names, request activity
@@ -1007,41 +1028,41 @@ No model setup is required before meeting a character.
 Lantern Vault now includes an opt-in **Models & Services** manager for demand loading,
 idle release, predictive warming and owned service controls. Configurable **Dramatic scene**
 rules select separate text/image profiles and a detailed art bible; online profiles use
-the existing spending ledger. [Configuration and evidence](docs/MODEL_MANAGER.md).
+the existing spending ledger. [Configuration and evidence](docs/studio/MODEL_MANAGER.md).
 
-Native Piper/whisper.cpp support uses separately installed engines and weights. See [setup](docs/NATIVE_VOICE.md); model and voice controls live in Settings.
+Native Piper/whisper.cpp support uses separately installed engines and weights. See [setup](docs/studio/NATIVE_VOICE.md); model and voice controls live in Settings.
 
-Two-player LAN chat keeps AI and world processing on the host; see [LAN play](docs/LAN_PLAY.md).
+Two-player LAN chat keeps AI and world processing on the host; see [LAN play](docs/studio/LAN_PLAY.md).
 
-Piper prepares full lines before playback; see [buffered speech and microphone checks](docs/BUFFERED_SPEECH.md).
+Piper prepares full lines before playback; see [buffered speech and microphone checks](docs/studio/BUFFERED_SPEECH.md).
 
-Saved voice recordings and floating context/execution profilers: [guide](docs/STUDIO_DIAGNOSTICS.md).
+Saved voice recordings and floating context/execution profilers: [guide](docs/studio/STUDIO_DIAGNOSTICS.md).
 
-The local studio can opt into [saved character viewpoints](docs/CHARACTER_VIEWPOINTS.md) for dreams, hobbies and preferences; confirmed subjective speech stays separate from world authority.
+The local studio can opt into [saved character viewpoints](docs/characters/CHARACTER_VIEWPOINTS.md) for dreams, hobbies and preferences; confirmed subjective speech stays separate from world authority.
 
-[Host-approved character reactions](docs/CHARACTER_REACTIONS.md) add optional personality/attitude/resource gates, generic handler authorization and playable coin/item loans, gifts and support at zero extra model calls.
+[Host-approved character reactions](docs/characters/CHARACTER_REACTIONS.md) add optional personality/attitude/resource gates, generic handler authorization and playable coin/item loans, gifts and support at zero extra model calls.
 
-[Studio social turns](docs/STUDIO_CONVERSATION.md) route greetings, wellbeing and heard-topic follow-ups separately from factual shop answers when personality turns are enabled.
+[Studio social turns](docs/studio/STUDIO_CONVERSATION.md) route greetings, wellbeing and heard-topic follow-ups separately from factual shop answers when personality turns are enabled.
 
-[Contextual greetings](docs/CONTEXTUAL_GREETINGS.md) remember confirmed introductions per NPC/player and adapt to encounters and places. Entering a room or using Approach can open conversation through a stage direction, with zero model calls.
+[Contextual greetings](docs/characters/CONTEXTUAL_GREETINGS.md) remember confirmed introductions per NPC/player and adapt to encounters and places. Entering a room or using Approach can open conversation through a stage direction, with zero model calls.
 
 ## Optional reasoning and automatic speech
 
-See [deliberation controls](docs/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
+See [deliberation controls](docs/studio/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
 
 ## Longer conversations and registered roleplay actions
 
-See [conversation extensions](docs/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+See [conversation extensions](docs/studio/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
 
-With [AI character wording](docs/STUDIO_EXPRESSION.md), connected models word greetings,
+With [AI character wording](docs/studio/STUDIO_EXPRESSION.md), connected models word greetings,
 recall and factual replies as well as personal conversation; matching validated wording
 can be reused, and authored lines cover offline/failed generation. Original tiny tales,
 scoped name/preference disclosures and oversized-request negotiation have separate
-contracts. Try `cargo run --bin gamectx -- local examples/cast/expression-fixture.json`;
-that editable packet is checked in the API tests. See the [roleplay investigation](docs/ROLEPLAY_RESEARCH.md)
+contracts. Try `cargo run --bin gamectx -- local examples/fixtures/cast/expression-fixture.json`;
+that editable packet is checked in the API tests. See the [roleplay investigation](docs/research/ROLEPLAY_RESEARCH.md)
 for public research, original implementation choices and measured limitations.
 
 Current-place dialogue, twelve plot seeds per NPC with heard-history rotation, and retryable
-unheard audio are documented in [scene/delivery repairs](docs/SCENE_SOCIAL_REPAIR.md).
-The [social-character audit](docs/SOCIAL_CHARACTER_GAPS.md) maps identity, senses,
+unheard audio are documented in [scene/delivery repairs](docs/studio/SCENE_SOCIAL_REPAIR.md).
+The [social-character audit](docs/research/SOCIAL_CHARACTER_GAPS.md) maps identity, senses,
 implicit memory, relationships, motives, actions and society to current capabilities and gaps.

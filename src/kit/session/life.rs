@@ -1,9 +1,11 @@
 //! Privileged persistent host operations. These names are never model tool schemas.
 use super::*;
-use crate::life::{Config, ContextCaps, Coordinator, Definition, Initiative, InitiativePolicy, Life, Setting};
+use crate::character::life::{
+    Config, ContextCaps, Coordinator, Definition, Initiative, InitiativePolicy, Life, Setting,
+};
 use std::sync::Arc;
 fn num(v: &Value, k: &str) -> Result<u64> {
-    crate::life::num(v, k)
+    crate::character::life::num(v, k)
 }
 fn invalidate(r: &mut Resident) -> Result<()> {
     r.plan = None;
@@ -39,7 +41,7 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
             invalidate(r)?;
             let mut event = c::get(a, "event")?.clone();
             if !r.retention {
-                crate::life::set_value(&mut event, "retain", Value::Bool(false));
+                crate::character::life::set_value(&mut event, "retain", Value::Bool(false));
             }
             r.character.life_mut()?.experience(&event)?;
             Ok(obj! {"revision"=>r.character.life().unwrap().revision()})
@@ -124,7 +126,7 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
         "character_life_save" => {
             c::fields(a, &["id", "identity"])?;
             let result = obj! {"version"=>2,"interactions"=>r.character.interactions().checkpoint(),"initiative"=>r.initiative.as_ref().map_or(Value::Null,Initiative::checkpoint),"life"=>r.character.life().ok_or_else(bad)?.checkpoint(c::get(a,"identity")?)?,"continuity"=>r.coordinator.as_ref().map_or(Value::Null,Coordinator::checkpoint),"retention"=>r.retention};
-            crate::request::bounded(&result, crate::request::MAX_REQUEST_BYTES - 65536)?;
+            crate::packet::request::bounded(&result, crate::packet::request::MAX_REQUEST_BYTES - 65536)?;
             Ok(result)
         }
         "character_life_restore" => {
@@ -186,8 +188,9 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
             };
             let current = r.character.interactions().checkpoint();
             let min_note = c::uint(c::get(a, "min_note")?, 0, u32::MAX as u64)?
-                .max(crate::life::num(c::get(&current, "notes")?, "sequence")?) as u32;
-            let interactions = crate::dialogue::InteractionTools::recover(
+                .max(crate::character::life::num(c::get(&current, "notes")?, "sequence")?)
+                as u32;
+            let interactions = crate::character::dialogue::InteractionTools::recover(
                 c::get(state, "interactions")?,
                 min_note,
                 num(a, "max_tick")? as u32,
@@ -238,7 +241,7 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
                 r.character.life().ok_or_else(bad)?,
                 c::get(a, "selection")?,
                 ContextCaps::from_value(c::get(a, "caps")?)?,
-                &crate::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
+                &crate::character::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
             )
         }
         "character_continuity_speech_context" => {
@@ -248,8 +251,8 @@ pub(super) fn execute(r: &mut Resident, op: &str, a: &Value) -> Result<Value> {
                 r.character.life().ok_or_else(bad)?,
                 c::get(a, "selection")?,
                 ContextCaps::from_value(c::get(a, "caps")?)?,
-                &crate::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
-                &crate::life::SpeechTurn::from_value(c::get(a, "turn")?)?,
+                &crate::character::dialogue::Thread::from_value(c::get(a, "dialogue")?)?,
+                &crate::character::life::SpeechTurn::from_value(c::get(a, "turn")?)?,
             )
         }
         "character_continuity_generate" => {

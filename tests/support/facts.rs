@@ -1,6 +1,6 @@
 use gamectx::{
-    facts::{Authority, FactOptions, FactRef, FactRegistry},
-    json::{Error, Result, Value},
+    data::json::{Error, Result, Value},
+    knowledge::facts::{Authority, FactOptions, FactRef, FactRegistry},
     obj,
 };
 fn bad() -> Error {

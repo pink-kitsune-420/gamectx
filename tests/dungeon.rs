@@ -1,20 +1,20 @@
-#[path = "../examples/dungeon/conversation_policy.rs"]
+#[path = "../examples/lantern-vault/conversation_policy.rs"]
 mod conversation_policy;
-#[path = "../examples/dungeon/game.rs"]
+#[path = "../examples/lantern-vault/game.rs"]
 mod game;
-#[path = "../examples/dungeon/host.rs"]
+#[path = "../examples/lantern-vault/host.rs"]
 mod host;
-#[path = "../examples/dungeon/intent.rs"]
+#[path = "../examples/lantern-vault/intent.rs"]
 mod intent;
-#[path = "../examples/dungeon/knowledge.rs"]
+#[path = "../examples/lantern-vault/knowledge.rs"]
 mod knowledge;
-#[path = "../examples/dungeon/natural.rs"]
+#[path = "../examples/lantern-vault/natural.rs"]
 mod natural;
-#[path = "../examples/dungeon/place.rs"]
+#[path = "../examples/lantern-vault/place.rs"]
 mod place;
-#[path = "../examples/dungeon/social.rs"]
+#[path = "../examples/lantern-vault/social.rs"]
 mod social;
-#[path = "../examples/dungeon/trade.rs"]
+#[path = "../examples/lantern-vault/trade.rs"]
 mod trade;
 use gamectx::{obj, Value};
 fn act(host: &mut host::Host, action: &str, target: &str) {
@@ -42,7 +42,8 @@ fn packets_keep_current_truth_and_hide_unseen_items() {
     assert_eq!(observed.get("budget").unwrap().get("method"), Some(&Value::str("estimate")));
     let request = observed.get("request").unwrap();
     let messages = request.get("messages").unwrap().as_array().unwrap();
-    let data = gamectx::json::parse(messages.last().unwrap().get("content").unwrap().as_str().unwrap(), 65536).unwrap();
+    let data =
+        gamectx::data::json::parse(messages.last().unwrap().get("content").unwrap().as_str().unwrap(), 65536).unwrap();
     let evidence = data.get("scene").unwrap().get("facts").unwrap().get("evidence").unwrap();
     assert_eq!(evidence.get("affordable").unwrap().to_json(), r#"["item:oil","item:chalk"]"#);
     let before = host.game.public();
@@ -83,12 +84,14 @@ fn bounded_choices_and_live_callback_reject_theft_and_preserve_inspection() {
 
 #[test]
 fn independent_dungeon_replay_fixtures() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/dungeon/cases");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/lantern-vault/cases");
     let mut count = 0;
     for entry in std::fs::read_dir(root).unwrap() {
         let dir = entry.unwrap().path();
-        let metadata = gamectx::json::parse(&std::fs::read_to_string(dir.join("case.json")).unwrap(), 65536).unwrap();
-        let input = gamectx::json::parse(&std::fs::read_to_string(dir.join("input.json")).unwrap(), 262144).unwrap();
+        let metadata =
+            gamectx::data::json::parse(&std::fs::read_to_string(dir.join("case.json")).unwrap(), 65536).unwrap();
+        let input =
+            gamectx::data::json::parse(&std::fs::read_to_string(dir.join("input.json")).unwrap(), 262144).unwrap();
         match game::replay(&input) {
             Ok(value) => {
                 assert_ne!(metadata.get("error"), Some(&Value::Bool(true)));
@@ -114,11 +117,12 @@ fn social_replay_can_leave_world_unchanged() {
 
 #[test]
 fn independent_social_fixtures_and_freshness() {
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/dungeon/social-cases");
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples/lantern-vault/social-cases");
     let mut count = 0;
     for entry in std::fs::read_dir(root).unwrap() {
         let dir = entry.unwrap().path();
-        let input = gamectx::json::parse(&std::fs::read_to_string(dir.join("input.json")).unwrap(), 262144).unwrap();
+        let input =
+            gamectx::data::json::parse(&std::fs::read_to_string(dir.join("input.json")).unwrap(), 262144).unwrap();
         assert_eq!(
             social::replay(&input).unwrap().to_json() + "\n",
             std::fs::read_to_string(dir.join("expected.json")).unwrap(),
@@ -251,7 +255,8 @@ fn stock_paraphrases_do_not_offer_purchases_or_select_seal_lore() {
 }
 #[test]
 fn experimental_natural_dialogue_uses_structured_authorized_facts_and_atomic_budget_checks() {
-    let world = gamectx::lore::Lore::parse(include_str!("../examples/dungeon/world-structured.json")).unwrap();
+    let world =
+        gamectx::knowledge::lore::Lore::parse(include_str!("../examples/lantern-vault/world-structured.json")).unwrap();
     let mut h = host::Host::with_world(7, world).unwrap();
     act(&mut h, "go", "room:gallery");
     act(&mut h, "go", "room:workshop");

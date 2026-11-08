@@ -1,6 +1,6 @@
 use gamectx::{
-    json,
-    life::{Config, Definition, Life, Setting},
+    character::life::{Config, Definition, Life, Setting},
+    data::json,
     obj, Value,
 };
 use std::sync::Arc;
@@ -8,9 +8,10 @@ fn parse(s: &str) -> Value {
     json::parse(s, 524288).unwrap()
 }
 fn life() -> Life {
-    let setting = Setting::from_value(&parse(include_str!("../examples/characters/setting.json"))).unwrap();
+    let setting = Setting::from_value(&parse(include_str!("../examples/fixtures/characters/setting.json"))).unwrap();
     let definition = Arc::new(
-        Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json")), &setting).unwrap(),
+        Definition::draft(&parse(include_str!("../examples/fixtures/characters/merchant-life.json")), &setting)
+            .unwrap(),
     );
     Life::accept(
         "counter",
@@ -51,8 +52,9 @@ fn private_scope_is_not_shared() {
     let l = life();
     assert!(!l.identity_matches("elsewhere", "merchant", &["merchant".into(), "player".into()]));
 }
-fn coordinator() -> gamectx::life::Coordinator {
-    let mut c = gamectx::life::Coordinator::new("counter", "merchant", &vec!["merchant", "player"].into()).unwrap();
+fn coordinator() -> gamectx::character::life::Coordinator {
+    let mut c =
+        gamectx::character::life::Coordinator::new("counter", "merchant", &vec!["merchant", "player"].into()).unwrap();
     c.bind_scene(&scene(1, 1)).unwrap();
     c.thread(&thread("trade")).unwrap();
     c
@@ -77,7 +79,7 @@ fn harmless_updates_two_threads_and_one_use_validation() {
 }
 #[test]
 fn fake_speech_transport_does_not_create_hearing_or_actions() {
-    use gamectx::life::SpeechTransport;
+    use gamectx::character::life::SpeechTransport;
     #[derive(Default)]
     struct Fake {
         queued: Vec<u64>,
@@ -144,7 +146,7 @@ fn checkpoint_identity_fences_and_corrupt_state_fail_atomically() {
 }
 #[test]
 fn archive_failure_retry_and_crash_recovery_are_idempotent() {
-    use gamectx::life::{FileStore, Storage};
+    use gamectx::character::life::{FileStore, Storage};
     struct Fail;
     impl Storage for Fail {
         fn archive(&mut self, _: &Value, _: &Value) -> gamectx::Result<()> {
@@ -176,11 +178,11 @@ fn saved_conversation_never_resurrects_pending_work() {
     let mut c = coordinator();
     c.generate("trade", "Welcome back.", &vec!["sun"].into(), 0).unwrap();
     let saved = c.checkpoint();
-    let mut recovered = gamectx::life::Coordinator::recover(&saved, 1, 10).unwrap();
+    let mut recovered = gamectx::character::life::Coordinator::recover(&saved, 1, 10).unwrap();
     assert!(recovered.validate(1, 0).is_err());
     let next = recovered.generate("trade", "Welcome back.", &vec!["sun"].into(), 0).unwrap();
     assert_eq!(next.get("id"), Some(&Value::from(2)));
-    assert!(gamectx::life::Coordinator::recover(&saved, 2, 10).is_err());
+    assert!(gamectx::character::life::Coordinator::recover(&saved, 2, 10).is_err());
 }
 #[test]
 fn erasure_removes_causal_and_subjective_derivations() {
@@ -206,17 +208,19 @@ fn initiative_frame(now: u64, turn: u64) -> Value {
 fn candidate(id: &str, recipient: Value) -> Value {
     obj! {"id"=>id,"kind"=>if recipient==Value::Null{"activity"}else{"ask"},"priority"=>10,"reason"=>"Resume useful work.","requires"=>Vec::<Value>::new(),"resource"=>Value::Null,"recipient"=>recipient,"attitudes"=>Vec::<Value>::new(),"events"=>Vec::<Value>::new(),"promises"=>Vec::<Value>::new()}
 }
-fn initiative(calls: u64) -> gamectx::life::Initiative {
-    gamectx::life::Initiative::new(
+fn initiative(calls: u64) -> gamectx::character::life::Initiative {
+    gamectx::character::life::Initiative::new(
         "counter",
         "merchant",
         &vec!["merchant", "player"].into(),
-        gamectx::life::InitiativePolicy::resolve(&obj! {"enabled"=>true,"model_calls"=>calls}, &obj! {}).unwrap(),
+        gamectx::character::life::InitiativePolicy::resolve(&obj! {"enabled"=>true,"model_calls"=>calls}, &obj! {})
+            .unwrap(),
     )
     .unwrap()
 }
-fn interactions() -> gamectx::dialogue::InteractionTools {
-    gamectx::dialogue::InteractionTools::new("counter", "merchant", &vec!["merchant", "player"].into()).unwrap()
+fn interactions() -> gamectx::character::dialogue::InteractionTools {
+    gamectx::character::dialogue::InteractionTools::new("counter", "merchant", &vec!["merchant", "player"].into())
+        .unwrap()
 }
 #[test]
 fn initiative_quota_duplicate_greetings_and_chatter_loop() {
@@ -283,8 +287,8 @@ fn initiative_receipts_backoff_recovery_and_dispatch_permission() {
 #[test]
 fn scheduler_limits_96_character_scopes_without_model_work() {
     use gamectx::{
-        life::{Initiative, InitiativePolicy},
-        schedule::Scheduler,
+        character::life::{Initiative, InitiativePolicy},
+        runtime::schedule::Scheduler,
     };
     let mut scheduler = Scheduler::new(96, 16).unwrap();
     let mut npcs = Vec::new();
@@ -293,9 +297,11 @@ fn scheduler_limits_96_character_scopes_without_model_work() {
         l.clear();
         let scope = format!("counter:{id}");
         // Same approved actor definition, independent host character instances/save scopes.
-        let setting = Setting::from_value(&parse(include_str!("../examples/characters/setting.json"))).unwrap();
+        let setting =
+            Setting::from_value(&parse(include_str!("../examples/fixtures/characters/setting.json"))).unwrap();
         let def = Arc::new(
-            Definition::draft(&parse(include_str!("../examples/characters/merchant-life.json")), &setting).unwrap(),
+            Definition::draft(&parse(include_str!("../examples/fixtures/characters/merchant-life.json")), &setting)
+                .unwrap(),
         );
         let l = Life::accept(
             &scope,
@@ -306,7 +312,8 @@ fn scheduler_limits_96_character_scopes_without_model_work() {
         )
         .unwrap();
         let tools =
-            gamectx::dialogue::InteractionTools::new(&scope, "merchant", &vec!["merchant", "player"].into()).unwrap();
+            gamectx::character::dialogue::InteractionTools::new(&scope, "merchant", &vec!["merchant", "player"].into())
+                .unwrap();
         let i = Initiative::new(
             &scope,
             "merchant",
@@ -361,9 +368,9 @@ fn completed_promise_invalidates_initiative_before_dispatch() {
 #[test]
 fn context_caps_use_real_size_hints_and_stable_prefix() {
     use gamectx::{
-        deployment::{ModelSize, Workload},
-        dialogue::Thread,
-        life::{render_character_chat, ContextCaps},
+        character::dialogue::Thread,
+        character::life::{render_character_chat, ContextCaps},
+        deploy::deployment::{ModelSize, Workload},
     };
     for (size, recall, exchanges) in [
         (ModelSize::B1, 1, 1),
@@ -443,8 +450,8 @@ fn author_edits_are_separate_from_player_reports() {
     l.experience(&event(1, 1, "correction")).unwrap();
     let reported = l.context(&vec!["trade"].into(), 2).unwrap();
     assert_eq!(original.get("facets"), reported.get("facets"));
-    let setting = Setting::from_value(&parse(include_str!("../examples/characters/setting.json"))).unwrap();
-    let mut d = parse(include_str!("../examples/characters/merchant-life.json"));
+    let setting = Setting::from_value(&parse(include_str!("../examples/fixtures/characters/setting.json"))).unwrap();
+    let mut d = parse(include_str!("../examples/fixtures/characters/merchant-life.json"));
     let old = Arc::new(Definition::draft(&d, &setting).unwrap());
     assert!(l.author_edit(old, l.revision()).is_err());
     if let Value::Object(fields) = &mut d {
@@ -464,7 +471,7 @@ fn initiative_recovery_preserves_greeting_and_call_watermarks() {
     i.consider(&initiative_frame(1, 1), &candidates, &l, &tools).unwrap();
     i.reserve_call(1).unwrap();
     let saved = i.checkpoint();
-    let mut loaded = gamectx::life::Initiative::recover(&saved, &l, 1, 0, 10).unwrap();
+    let mut loaded = gamectx::character::life::Initiative::recover(&saved, &l, 1, 0, 10).unwrap();
     assert!(loaded.dispatch(1, &initiative_frame(1, 1), &l, &tools, |_| true).is_err());
     assert!(loaded.reserve_call(1).is_err());
     assert_eq!(
@@ -478,7 +485,7 @@ fn initiative_recovery_preserves_greeting_and_call_watermarks() {
 }
 #[test]
 fn durable_promises_and_erased_note_sequences_survive_recovery() {
-    use gamectx::dialogue::InteractionTools;
+    use gamectx::character::dialogue::InteractionTools;
     let mut tools = interactions();
     let source = obj! {"id"=>"promise:1","speaker"=>"merchant","text"=>"I will repair the lamp."};
     let args = r#"{"promisor":"merchant","beneficiary":"player","task":"Repair the lamp.","source":"promise:1"}"#;

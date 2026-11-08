@@ -1,9 +1,9 @@
 use gamectx::{
-    brain::{Brain, Prediction},
-    json::parse,
+    data::json::parse,
     obj,
-    schedule::Scheduler,
-    sync::{Publisher, Replica},
+    packet::sync::{Publisher, Replica},
+    runtime::brain::{Brain, Prediction},
+    runtime::schedule::Scheduler,
     Value,
 };
 #[path = "support/runtime.rs"]
@@ -54,7 +54,7 @@ fn sliced_jobs_match_direct_training_and_selection_at_different_boundaries() {
         let mut empty = workflow.as_object().unwrap().to_vec();
         empty.retain(|(k, _)| k != "operations");
         empty.push(("operations".into(), Value::Array(vec![])));
-        let state = gamectx::brain::process(&Value::Object(empty)).unwrap();
+        let state = gamectx::runtime::brain::process(&Value::Object(empty)).unwrap();
         let brain = Brain::restore(state.get("state").unwrap()).unwrap();
         let operation = &workflow.get("operations").unwrap().as_array().unwrap()[0];
         let args = operation.get("args").unwrap();
@@ -215,7 +215,7 @@ fn host_target_ties_expect_abstention_while_default_selection_keeps_its_metric()
 
 #[test]
 fn arbitrary_packet_predicates_still_receive_complete_candidates() {
-    use gamectx::budget::{assemble, Section};
+    use gamectx::packet::budget::{assemble, Section};
     let sections = vec![
         Section { name: "keep".into(), priority: 1, stable: true, required: true, value: Value::str("x".repeat(256)) },
         Section { name: "drop".into(), priority: 0, stable: false, required: false, value: Value::from(1) },

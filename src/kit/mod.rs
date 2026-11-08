@@ -2,12 +2,13 @@
 //!
 //! This opt-in layer composes existing table, view, query and budget APIs. Host-only fields
 //! are removed before selection. Hosts still decide which rows an actor may see and must
-//! check current permissions/world state in every action callback. See `docs/KIT.md`.
+//! check current permissions/world state in every action callback. See `docs/guides/KIT.md`.
 mod bridge;
 mod session;
 pub use session::Session;
 mod builders;
 pub mod evaluation;
+pub mod local;
 mod tools;
 mod validation;
 
@@ -15,9 +16,9 @@ pub use bridge::{init, serve, MAX_REQUEST_BYTES};
 pub use builders::{Arguments, Dataset, Field, Kind, Parameter, Recipe, Registration, Tool};
 pub use tools::{Dispatcher, MAX_CALL_BYTES};
 
-use crate::budget::{assemble_prepared_bytes, Packet, PreparedSection, Section};
 use crate::checked as c;
-use crate::{obj, query, table, view, Result, Value};
+use crate::packet::budget::{assemble_prepared_bytes, Packet, PreparedSection, Section};
+use crate::{data::query, data::table, data::view, obj, Result, Value};
 use std::collections::BTreeSet;
 use std::sync::Arc;
 use validation::*;
@@ -171,7 +172,7 @@ fn validate_selection(d: &Value, x: &Value) -> Result<()> {
 }
 impl Project {
     pub fn parse(text: &str) -> Result<Self> {
-        Self::from_value(&crate::json::parse(text, MAX_PROJECT_BYTES)?)
+        Self::from_value(&crate::data::json::parse(text, MAX_PROJECT_BYTES)?)
     }
     pub fn from_value(v: &Value) -> Result<Self> {
         bounded(v, MAX_PROJECT_BYTES)?;
@@ -462,7 +463,7 @@ impl Project {
         dataset: &str,
         revision: usize,
         policies: &Value,
-    ) -> Result<crate::brain::FeatureSchema> {
+    ) -> Result<crate::runtime::brain::FeatureSchema> {
         bounded(policies, 16_384)?;
         let d = self.dataset(dataset)?;
         let policies = c::list(policies)?;
@@ -481,7 +482,7 @@ impl Project {
             fields.extend(p.as_object().expect("policy").iter().filter(|(k, _)| k != "name").cloned());
             features.push(Value::Object(fields));
         }
-        crate::brain::FeatureSchema::from_value(
+        crate::runtime::brain::FeatureSchema::from_value(
             &obj! {"version" => 1, "id" => dataset, "revision" => revision, "features" => features},
         )
     }

@@ -1,9 +1,9 @@
 use gamectx::{
-    brain::{BoundBrain, Brain, FeatureSchema, Prediction, Selection, SelectionPolicy, StableBrain},
-    json::parse,
-    memory::{EvidenceMemory, Journal},
+    data::json::parse,
+    knowledge::memory::{EvidenceMemory, Journal},
     obj,
-    replay::Recorder,
+    runtime::brain::{BoundBrain, Brain, FeatureSchema, Prediction, Selection, SelectionPolicy, StableBrain},
+    runtime::replay::Recorder,
     Value,
 };
 fn input(name: &str) -> Value {
@@ -28,7 +28,7 @@ fn memory() -> EvidenceMemory {
 
 #[test]
 fn bindings_reject_changed_units_version_range_and_graph_order() {
-    let schema = FeatureSchema::parse(include_str!("../examples/brain/bindings.json")).unwrap();
+    let schema = FeatureSchema::parse(include_str!("../examples/fixtures/brain/bindings.json")).unwrap();
     let mut bound = BoundBrain::new(base(), schema.clone()).unwrap();
     let saved = bound.to_value().unwrap();
     assert_eq!(BoundBrain::restore(&saved, &schema).unwrap().to_value().unwrap(), saved);
@@ -90,7 +90,7 @@ fn diagnostic_conditions_and_replay_capture_preserve_state_and_bounds() {
         recorder.record(event).unwrap();
     }
     assert_eq!(recorder.to_value(), trace);
-    let replayed = gamectx::replay::run(&trace).unwrap();
+    let replayed = gamectx::runtime::replay::run(&trace).unwrap();
     let stats = replayed.get("summary").unwrap();
     assert_eq!(stats.get("p95_ns"), Some(&Value::from(160)));
     assert_eq!(stats.get("correct"), Some(&Value::from(7)));

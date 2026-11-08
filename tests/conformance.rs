@@ -3,13 +3,13 @@
 //!
 //! Set `GAMECTX_BLESS=1` to rewrite every `expected.json` from the current behavior.
 
-use gamectx::budget::{assemble_bytes, Section};
-use gamectx::catalog::{Catalog, Limits};
-use gamectx::estimate::{self, Calibration};
-use gamectx::formula::Formulas;
-use gamectx::json::{parse, Error, Result, Value};
-use gamectx::view::{self, View};
-use gamectx::{fingerprint, schema, signatures, table};
+use gamectx::data::catalog::{Catalog, Limits};
+use gamectx::data::formula::Formulas;
+use gamectx::data::json::{parse, Error, Result, Value};
+use gamectx::data::view::{self, View};
+use gamectx::packet::budget::{assemble_bytes, Section};
+use gamectx::packet::estimate::{self, Calibration};
+use gamectx::{data::table, fingerprint, packet::schema, packet::signatures};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -41,7 +41,7 @@ fn strings(value: &Value) -> Vec<String> {
 fn formulas(args: &Value) -> Result<Formulas> {
     match args.get("formulas") {
         None => Ok(Formulas::new()),
-        Some(v) => Formulas::from_value(v, gamectx::formula::Limits::default()),
+        Some(v) => Formulas::from_value(v, gamectx::data::formula::Limits::default()),
     }
 }
 
@@ -57,12 +57,12 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
     let input = parse(&read(&dir.join("input.json")), 1 << 20).expect("input.json must be valid JSON");
     let list = || input.as_array().expect("input must be an array");
     let out = match op {
-        "local" => gamectx::local::process(&input)?,
+        "local" => gamectx::kit::local::process(&input)?,
         "kit" => gamectx::kit::process(&input)?,
         "facts" => facts::process(&input)?,
         "query-plan" => query_plan::process(&input)?,
         "query-guidance" => Value::str(
-            gamectx::query::Guidance::parse(
+            gamectx::data::query::Guidance::parse(
                 input.as_str().ok_or_else(|| Error::new("guidance profile must be a string"))?,
             )?
             .text(),
@@ -70,8 +70,8 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
         "upgrades" => upgrades::process(&input)?,
         "integration" => integration::process(&input)?,
         "runtime" => runtime::process(&input)?,
-        "brain" | "brain-select" => gamectx::brain::process(&input)?,
-        "brain-cache" => gamectx::brain::process_cached(&input, arg_usize(args, "capacity", 32))?,
+        "brain" | "brain-select" => gamectx::runtime::brain::process(&input)?,
+        "brain-cache" => gamectx::runtime::brain::process_cached(&input, arg_usize(args, "capacity", 32))?,
         "table" => table::pack(
             &view::apply_with(list(), &View::from_json(args)?, &formulas(args)?)?,
             &group_by(args)?.iter().map(String::as_str).collect::<Vec<_>>(),
@@ -140,13 +140,14 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
             ])
         }
         "memory" => {
-            let memory = gamectx::memory::Memory::from_value(&input, gamectx::memory::Limits::default())?;
+            let memory =
+                gamectx::knowledge::memory::Memory::from_value(&input, gamectx::knowledge::memory::Limits::default())?;
             let text = args.get("relevant_to").and_then(Value::as_str).unwrap_or("");
-            gamectx::memory::Memory::table(&memory.recall(text, arg_usize(args, "count", 8)))
+            gamectx::knowledge::memory::Memory::table(&memory.recall(text, arg_usize(args, "count", 8)))
         }
         "formula" => {
             let defined =
-                Formulas::from_value(input.get("define").expect("define"), gamectx::formula::Limits::default())?;
+                Formulas::from_value(input.get("define").expect("define"), gamectx::data::formula::Limits::default())?;
             let calcs = input.get("calc").and_then(Value::as_array).expect("calc");
             Value::Array(
                 calcs.iter().map(|c| defined.calc(c.as_str().expect("calc string")).unwrap_or(Value::Null)).collect(),
@@ -160,7 +161,7 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 .iter()
                 .map(|(name, rows)| (name.as_str(), rows.as_array().expect("table rows")))
                 .collect();
-            gamectx::query::run(args.get("sql").and_then(Value::as_str).expect("sql"), &tables)?
+            gamectx::data::query::run(args.get("sql").and_then(Value::as_str).expect("sql"), &tables)?
         }
         "query-schema" | "query-session" => {
             let tables: Vec<(&str, &[Value])> = input
@@ -174,9 +175,10 @@ fn run(op: &str, args: &Value, dir: &Path) -> Result<String> {
                 })
                 .collect::<Result<_>>()?;
             if op == "query-schema" {
-                gamectx::query::describe(&tables)?
+                gamectx::data::query::describe(&tables)?
             } else {
-                let mut session = gamectx::query::Session::new().result_bytes(arg_usize(args, "result_bytes", 4096));
+                let mut session =
+                    gamectx::data::query::Session::new().result_bytes(arg_usize(args, "result_bytes", 4096));
                 let calls = args.get("calls").and_then(Value::as_array).expect("calls array");
                 Value::Array(calls.iter().map(|call| session.apply_call(call, &tables)).collect::<Result<_>>()?)
             }

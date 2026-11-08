@@ -1,11 +1,11 @@
 //! Host-bound perception and scoped character tools, independent of any model provider.
 use gamectx::{
-    character::{AttentionLimits, CharacterTools, CharacterView, MemoryChoice, ToolChoice, TurnPlan},
-    json::parse,
-    location::Locations,
+    character::tools::{AttentionLimits, CharacterTools, CharacterView, MemoryChoice, ToolChoice, TurnPlan},
+    data::json::parse,
+    knowledge::location::Locations,
+    knowledge::world::WorldState,
     obj,
-    request::{Count, CountMethod, RequestBudget},
-    world::WorldState,
+    packet::request::{Count, CountMethod, RequestBudget},
     Result, Value,
 };
 fn places(revision: u32) -> Result<Locations> {

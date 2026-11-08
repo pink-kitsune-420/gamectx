@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.4.0a (Cargo `0.4.0-a`), unreleased
+
+- [api] **Breaking: library modules are grouped by domain.** No behavior, output or
+  format changed: every conformance case and frozen evaluation artifact is byte-identical.
+  Update imports with this table; `Context`, `Table`, `Turn`, `Value`, `Error`, `Result`,
+  `obj!`, `fingerprint` and `fingerprint_u64` stay at the crate root.
+
+  | 0.3 path | 0.4 path |
+  |---|---|
+  | `json`, `table`, `view`, `formula`, `catalog`, `query` | `data::*` |
+  | `context`, `budget`, `manifest`, `request`, `estimate`, `schema`, `signatures`, `sync` | `packet::*` |
+  | `memory`, `recall`, `facts`, `lore`, `info`, `inventory`, `observation`, `selection`, `location`, `world`, `temporal` | `knowledge::*` |
+  | `life`, `living`, `party`, `archetype`, `cast`, `routine`, `dialogue` | `character::*` |
+  | `character` (`CharacterTools`, `CharacterView`, `TurnPlan`...) | `character::tools` |
+  | `brain`, `decision`, `schedule`, `playbook`, `outcome`, `replay`, `requests`, `spending` | `runtime::*` |
+  | `deployment`, `tune`, `turn` | `deploy::*` |
+  | `visual` | `media::visual` |
+  | `local` | `kit::local` |
+  | `studio` greetings, conversation routing, expression, wording, viewpoints, reactions, deliberation, roleplay actions, commands, message chunks | `character::roleplay` |
+  | `studio::{VoiceTurn, VoiceArchive, speech_buffer, native_audio_plan, voice_workflow}` | `media::voice` |
+  | `studio::{backends, fallback, ProviderBudget, routing_workflow}` | `media::providers` |
+  | `studio::ModelPolicy` | `deploy::model_policy::ModelPolicy` |
+
+  JSON-lines operation names such as `studio-greetings` are formats and are unchanged.
+- Repository folders follow the same grouping. `examples/` has domain folders, shared
+  `fixtures/` and `lantern-vault/` (formerly `dungeon/`); every `cargo run --example NAME`
+  keeps its name. `docs/` has `guides/`, `characters/`, `studio/`, `evidence/` and
+  `research/` with an index; `eval/` has nine topic folders. Frozen evidence keeps its
+  recorded paths and digests: `eval/common/provenance.py` maps them to current files and
+  checks digests of edited runners/sources against the last pre-0.4 commit, so CI checks
+  out full history. Evaluation scripts need Python 3.12+.
+
 - [api] Add bounded least-recent tale seed selection and ordered fictional tale parts.
 - [format] Add sixteen expression cases; optional structured example tale responses and
   zero-offset `blocked` delivery retries preserve legacy arrays and prior conformance.
@@ -156,7 +188,7 @@ know what an upgrade costs:
 - **[docs]** Records 159 local Qwen calls including tokens/preflights and $0 API spend.
   Time classification: 25/32 correct despite 32/32 valid JSON; focused 12/16 versus
   expanded 13/16, with lower input/latency. Retains all misses and the earlier adapter-only
-  timing pilot. No semantic guarantee from compact prompts or grammar. See [ADVERSARIAL_EVAL](docs/ADVERSARIAL_EVAL.md).
+  timing pilot. No semantic guarantee from compact prompts or grammar. See [ADVERSARIAL_EVAL](docs/evidence/ADVERSARIAL_EVAL.md).
 
 
 - **[api]** Adds explicit task observation selection with protected source tokens,
@@ -255,7 +287,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
   tuned rerun 20/20, additional questions 7/8, final local disclosure repair 1/1 without
   a model call. Core byte fixture 1669→145 selected lore bytes; no lossless/token claim.
   Timing/usage and a separate warm RSS sample are recorded with their limits. All new
-  runs $0 API; no larger models loaded. [Report](docs/LORE_EVAL.md).
+  runs $0 API; no larger models loaded. [Report](docs/evidence/LORE_EVAL.md).
 
 - **[internal]** Preserves 11 user-reported dungeon interaction sequences / 26 turns
   with separate manual grounding/recall/transaction annotations. Offline native/Python
@@ -266,7 +298,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
   or host facts. All 633 core cases unchanged; runtime prompts/behavior unchanged.
 - **[docs]** Records remaining fabricated player history, home, weather and tonic
   purpose alongside correct transactions and name recall. Schema/citation acceptance
-  is not a semantic score. New audit spend $0 API. [Report](docs/DUNGEON_FEEDBACK.md).
+  is not a semantic score. New audit spend $0 API. [Report](docs/evidence/DUNGEON_FEEDBACK.md).
 
 - **[api]** Extracts reusable scoped conversation memory/reply validation, configurable
   lexical entity references and one-use confirmed action proposals into the library.
@@ -281,7 +313,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
   66 workflows / 144 trade requests across six seeds; 11 front-end regression tests.
 - **[docs]** Documents existing inventory counts/sums and catalog/memory tags, shared
   conversation APIs and the host responsibilities they preserve. New testing makes
-  zero model calls and spends $0 API; no new model-accuracy claim. [Guide](docs/CONVERSATION.md).
+  zero model calls and spends $0 API; no new model-accuracy claim. [Guide](docs/guides/CONVERSATION.md).
 
 - **[api]** Adds editable size-and-task workflow profiles for 1B/1.5B/3B/8B/30B/70B,
   plus opt-in direct current-request rendering. All generic tiers remain unmeasured;
@@ -300,7 +332,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
   2/4, 1/4, 2/4; generation input 7468/8240/6767 tokens, output 525/610/308.
   Host-slot pilot 7/8, then phrase-aware regression pilot 8/8, including four local
   deferrals and four correct model choices. Not independent held-out accuracy or a
-  controlled latency/RAM benchmark; all local runs $0 API. [Evidence](docs/WORKFLOWS.md).
+  controlled latency/RAM benchmark; all local runs $0 API. [Evidence](docs/guides/WORKFLOWS.md).
 
 - **[api]** Adds the playable `dungeon` example: six rooms, seeded key/prices/health,
   deterministic shop/combat, atomic revision-checked actions, persistent JSON host,
@@ -312,7 +344,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
   JSON bytes 275,304 / 261,304 / 206,347. Raw drops optional archives at 55 checkpoints;
   these are byte measurements with different history, not isolated token savings.
   First local Qwen smoke exposes legal-action repetition without quest progress.
-  Both local token/gameplay runs cost $0 API; [testbed guide](examples/dungeon/README.md).
+  Both local token/gameplay runs cost $0 API; [testbed guide](examples/lantern-vault/README.md).
 
 - **[api]** Adds opt-in host intent boundaries and correction context, typed prepared
   query tools with AST-bound arguments and recipe-bound execution, dependency-complete
@@ -324,7 +356,7 @@ conversation-tool selection has deterministic tests but no live-model accuracy r
 - **[docs]** Local Qwen one-token counts for 2/4/8 choices: 158→118, 224→174, 344→274.
   Matched-order 12-scene codec probe: 8/12→11/12 correct, input 3,865→3,285 and output
   178→111. Small synthetic cohort; codec stays opt-in. Offline packet 419→49 bytes
-  retains declared dependencies. New API spend $0; [details](docs/OPTIMIZATION.md).
+  retains declared dependencies. New API spend $0; [details](docs/guides/OPTIMIZATION.md).
 
 ## v0.2.0a — 2026-11-06
 
@@ -345,7 +377,7 @@ Cargo package version: `0.2.0-a`.
   8 GB: raw/scene/schema pipeline 26/30, 30/30, 30/30; median complete-turn microseconds
   19,226,226 / 8,651,346 / 5,451,699. Six-scene guidance/tool/narration pilot, sampled RAM
   and swap, strict local-only runner and offline cohort audit. Total API spend $0.
-  See [the report](docs/LOCAL_MODEL_2026_11_06.md); no general model-size accuracy claim.
+  See [the report](docs/evidence/LOCAL_MODEL_2026_11_06.md); no general model-size accuracy claim.
 
 - **[api]** Adds optional `kit` Rust registration/builders, named recipes, visibility/freshness
   validation, recipe-scoped SQL, brain feature-unit reuse and validated host callback dispatch.
@@ -357,7 +389,7 @@ Cargo package version: `0.2.0-a`.
   8 Node, 59 C# fixture replies plus two smoke checks; actual engines untested.
 - **[internal]** Reuses prepared recipe registration. Seven paired synthetic release trials:
   1,000 turns 146,130,805 → 78,931,400 ns versus reparsing registration each turn. Not a
-  model-latency or universal runtime speedup. New API spend $0; [integration guide](docs/KIT.md).
+  model-latency or universal runtime speedup. New API spend $0; [integration guide](docs/guides/KIT.md).
 
 - **[format]** Table and catalog `relevant_to` recognize namespace/dotted/path identifier
   components (`: . / - _`); full cells and underscore segments still match. Lexical

@@ -1,9 +1,8 @@
 use gamectx::{
-    json,
-    life::{Config, Definition, Life, Setting},
-    obj,
-    visual::{self, Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec},
-    Value,
+    character::life::{Config, Definition, Life, Setting},
+    data::json,
+    media::visual::{self, Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec},
+    obj, Value,
 };
 use std::sync::Arc;
 fn parse(s: &str) -> Value {
@@ -144,7 +143,7 @@ fn epoch_and_repair_cycles_reject_stale_workers() {
 }
 #[test]
 fn active_routine_and_started_receipt_are_distinct_from_proposals() {
-    use gamectx::routine::{Config, Frame, Routine, Runtime};
+    use gamectx::character::routine::{Config, Frame, Routine, Runtime};
     let a = parse(include_str!("../conformance/routines/interruption_resume/input.json"));
     let a = a.get("args").unwrap();
     let config = Config::resolve(&obj! {"routines"=>true}, &obj! {}).unwrap();

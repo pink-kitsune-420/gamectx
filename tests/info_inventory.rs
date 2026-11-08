@@ -1,4 +1,4 @@
-use gamectx::{info::Notes, inventory::Inventory, obj, Value};
+use gamectx::{knowledge::info::Notes, knowledge::inventory::Inventory, obj, Value};
 fn snapshot() -> Value {
     obj! {"version"=>1,"revision"=>0,"items"=>vec![obj!{"id"=>"item:oil","label"=>"oil","tags"=>vec!["repair"]}],"holdings"=>vec![obj!{"owner"=>"merchant","item"=>"item:oil","quantity"=>5}]}
 }
@@ -67,6 +67,9 @@ fn ownership_lookup_binds_visibility_and_transfers_are_atomic_replay_safe() {
         .is_err());
     assert_eq!(after, inv.to_value());
     let rows = inv.rows(&vec!["merchant", "player"].into(), &vec!["repair"].into()).unwrap();
-    assert_eq!(gamectx::query::run("SELECT SUM(count) FROM items", &[("items", &rows)]).unwrap(), Value::from(5u32));
+    assert_eq!(
+        gamectx::data::query::run("SELECT SUM(count) FROM items", &[("items", &rows)]).unwrap(),
+        Value::from(5u32)
+    );
     assert_eq!(inv.lookup_tool().get("function").unwrap().get("name"), Some(&Value::str("inventory_lookup")));
 }

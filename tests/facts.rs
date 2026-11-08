@@ -1,6 +1,6 @@
 use gamectx::{
-    facts::{Authority, ClaimStatus, FactOptions, FactRegistry},
-    json::parse,
+    data::json::parse,
+    knowledge::facts::{Authority, ClaimStatus, FactOptions, FactRegistry},
     obj, Context, Value,
 };
 

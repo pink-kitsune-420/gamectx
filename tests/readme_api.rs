@@ -1,10 +1,10 @@
 //! The "Use it in your code" example from the README, run against the Ember Keep data.
 
-use gamectx::json::parse;
+use gamectx::data::json::parse;
 use gamectx::{obj, Context, Table, Value};
 
 fn load(name: &str) -> Value {
-    let path = format!("{}/examples/ember-keep/{name}", env!("CARGO_MANIFEST_DIR"));
+    let path = format!("{}/examples/fixtures/ember-keep/{name}", env!("CARGO_MANIFEST_DIR"));
     parse(&std::fs::read_to_string(path).unwrap(), 1 << 20).unwrap()
 }
 
@@ -30,7 +30,7 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
     turn.table("plenty", stock, Table::new().filter("count", ">=", 5).fields(&["id", "count"]))?;
     turn.table("nearby_npcs", npcs, Table::new().sort_by("distance").limit(10).fields(&["name", "role"]))?;
     turn.var("event", obj! {"actor" => "player", "did" => "lit_lantern", "where" => "hall"})?;
-    let mut memory = gamectx::memory::Memory::new();
+    let mut memory = gamectx::knowledge::memory::Memory::new();
     memory.remember(3, "The player asked about rare weapons yesterday.", &["player"], 5)?;
     turn.memory("memories", &memory, player_said, 8)?;
 
@@ -55,7 +55,7 @@ fn readme_example_builds_a_packet() -> gamectx::Result<()> {
 
 #[test]
 fn readme_query_example() -> gamectx::Result<()> {
-    use gamectx::{json, query};
+    use gamectx::{data::json, data::query};
 
     let rows = json::parse(
         r#"[{"id":"moss_cake","count":2,"weight":0.25},
@@ -70,7 +70,7 @@ fn readme_query_example() -> gamectx::Result<()> {
 
 #[test]
 fn schema_only_query_workflow_example() -> gamectx::Result<()> {
-    use gamectx::{query, view};
+    use gamectx::{data::query, data::view};
     let stock = vec![
         obj! {"id" => "moss_cake", "kind" => "food", "count" => 2, "unit_weight" => 0.25},
         obj! {"id" => "ember_cake", "kind" => "food", "count" => 6, "unit_weight" => 3.75},
@@ -104,7 +104,7 @@ fn schema_only_query_workflow_example() -> gamectx::Result<()> {
 
 #[test]
 fn adaptive_brain_readme_example() -> gamectx::Result<()> {
-    use gamectx::brain::Brain;
+    use gamectx::runtime::brain::Brain;
     let sample = |danger: f64, need: f64| {
         obj! {
             "inputs" => obj! {"danger" => danger, "need" => need},
@@ -126,7 +126,7 @@ fn adaptive_brain_readme_example() -> gamectx::Result<()> {
 
 #[test]
 fn brain_selection_readme_example() -> gamectx::Result<()> {
-    use gamectx::brain::Brain;
+    use gamectx::runtime::brain::Brain;
     let sample = |danger: f64, need: f64| {
         obj! {
             "inputs" => obj! {"danger" => danger, "need" => need},
@@ -149,8 +149,8 @@ fn brain_selection_readme_example() -> gamectx::Result<()> {
 
 #[test]
 fn preloaded_cache_readme_example() -> gamectx::Result<()> {
-    use gamectx::brain::{Brain, CachedBrain};
-    let saved = include_str!("../examples/brain/preloaded.json");
+    use gamectx::runtime::brain::{Brain, CachedBrain};
+    let saved = include_str!("../examples/fixtures/brain/preloaded.json");
     let template = Brain::restore_json(saved)?;
     let mut actor = CachedBrain::new(template.clone(), 32)?;
     let other = CachedBrain::new(template, 32)?;
@@ -167,7 +167,7 @@ fn preloaded_cache_readme_example() -> gamectx::Result<()> {
 
 #[test]
 fn native_inference_readme_example() -> gamectx::Result<()> {
-    use gamectx::brain::{Brain, Prediction};
+    use gamectx::runtime::brain::{Brain, Prediction};
     let brain = Brain::dense(&["danger", "need"], &["withdraw", "assist"], 4, 3)?;
     let mut prediction = Prediction::default();
     brain.run_into(&[Some(800_000), Some(200_000)], 0b11, 0, 0, &mut prediction)?;
@@ -175,16 +175,16 @@ fn native_inference_readme_example() -> gamectx::Result<()> {
     Ok(())
 }
 
-#[path = "../examples/runtime-loop.rs"]
+#[path = "../examples/runtime/runtime-loop.rs"]
 mod runtime_loop;
 #[test]
 fn combined_runtime_documented_example() -> gamectx::Result<()> {
     runtime_loop::main()
 }
 
-#[path = "../examples/evidence-memory.rs"]
+#[path = "../examples/knowledge/evidence-memory.rs"]
 mod evidence_memory;
-#[path = "../examples/integration-tools.rs"]
+#[path = "../examples/runtime/integration-tools.rs"]
 mod integration_tools;
 #[test]
 fn documented_integration_and_evidence_examples() -> gamectx::Result<()> {
@@ -192,91 +192,91 @@ fn documented_integration_and_evidence_examples() -> gamectx::Result<()> {
     evidence_memory::main()
 }
 
-#[path = "../examples/registered-facts.rs"]
+#[path = "../examples/knowledge/registered-facts.rs"]
 mod registered_facts;
 #[test]
 fn documented_registered_facts_example() -> gamectx::Result<()> {
     registered_facts::main()
 }
 
-#[path = "../examples/runtime-upgrades.rs"]
+#[path = "../examples/runtime/runtime-upgrades.rs"]
 mod runtime_upgrades;
 #[test]
 fn documented_runtime_upgrades_example() -> gamectx::Result<()> {
     runtime_upgrades::main()
 }
 
-#[path = "../examples/query-plans.rs"]
+#[path = "../examples/data/query-plans.rs"]
 mod query_plans;
 #[test]
 fn documented_query_plan_example() -> gamectx::Result<()> {
     query_plans::main()
 }
 
-#[path = "../examples/registered-project.rs"]
+#[path = "../examples/kit/registered-project.rs"]
 mod registered_project;
 #[test]
 fn documented_project_example() -> gamectx::Result<()> {
     registered_project::main()
 }
 
-#[path = "../examples/local-turn.rs"]
+#[path = "../examples/packet/local-turn.rs"]
 mod local_turn;
 #[test]
 fn documented_local_turn_example() -> gamectx::Result<()> {
     local_turn::main()
 }
 
-#[path = "../examples/optimized-turn.rs"]
+#[path = "../examples/packet/optimized-turn.rs"]
 mod optimized_turn;
 #[test]
 fn documented_optimization_example() -> gamectx::Result<()> {
     optimized_turn::main()
 }
 
-#[path = "../examples/task-workflow.rs"]
+#[path = "../examples/packet/task-workflow.rs"]
 mod task_workflow;
 #[test]
 fn documented_size_task_workflow_example() -> gamectx::Result<()> {
     task_workflow::main()
 }
 
-#[path = "../examples/conversation.rs"]
+#[path = "../examples/character/conversation.rs"]
 mod conversation_example;
 #[test]
 fn documented_shared_conversation_example() -> gamectx::Result<()> {
     conversation_example::main()
 }
 
-#[path = "../examples/lore.rs"]
+#[path = "../examples/knowledge/lore.rs"]
 mod lore_example;
 #[test]
 fn documented_lore_example() -> gamectx::Result<()> {
     lore_example::main()
 }
 
-#[path = "../examples/info_tools.rs"]
+#[path = "../examples/knowledge/info_tools.rs"]
 mod info_tools_example;
 #[test]
 fn documented_information_tools_example() -> gamectx::Result<()> {
     info_tools_example::main()
 }
 
-#[path = "../examples/conversation_tools.rs"]
+#[path = "../examples/character/conversation_tools.rs"]
 mod conversation_tools_example;
 #[test]
 fn documented_conversation_tools_example() -> gamectx::Result<()> {
     conversation_tools_example::main()
 }
 
-#[path = "../examples/routines.rs"]
+#[path = "../examples/character/routines.rs"]
 mod routines_example;
 #[test]
 fn documented_optional_routine_example() -> gamectx::Result<()> {
     routines_example::main()
 }
 
-#[path = "../examples/routine-context.rs"]
+#[path = "../examples/character/routine-context.rs"]
 mod routine_context_example;
 #[test]
 fn documented_routine_context_example() -> gamectx::Result<()> {
@@ -284,35 +284,35 @@ fn documented_routine_context_example() -> gamectx::Result<()> {
 }
 
 #[allow(dead_code)]
-#[path = "../examples/character-life.rs"]
+#[path = "../examples/character/character-life.rs"]
 mod character_life_example;
 
 #[allow(dead_code)]
-#[path = "../examples/character-speech.rs"]
+#[path = "../examples/character/character-speech.rs"]
 mod character_speech_example;
 
 #[allow(dead_code)]
-#[path = "../examples/party.rs"]
+#[path = "../examples/character/party.rs"]
 mod party_example;
 
 #[allow(dead_code)]
-#[path = "../examples/living-world.rs"]
+#[path = "../examples/character/living-world.rs"]
 mod living_world_example;
 
 #[test]
 fn registered_roleplay_action_proposes_a_current_affordance() {
-    let input = include_str!("../examples/cast/roleplay-action-fixture.json");
-    let v = gamectx::json::parse(input, 65536).unwrap();
-    let result = gamectx::local::process(&v).unwrap();
+    let input = include_str!("../examples/fixtures/cast/roleplay-action-fixture.json");
+    let v = gamectx::data::json::parse(input, 65536).unwrap();
+    let result = gamectx::kit::local::process(&v).unwrap();
     assert_eq!(result.get("status").and_then(gamectx::Value::as_str), Some("proposed"));
     assert_eq!(result.get("decision").unwrap().get("action").and_then(gamectx::Value::as_str), Some("buy"));
 }
 
 #[test]
 fn documented_expression_packet_keeps_current_request_outside_json() {
-    let input = include_str!("../examples/cast/expression-fixture.json");
-    let v = gamectx::json::parse(input, 65536).unwrap();
-    let packet = gamectx::local::process(&v).unwrap();
+    let input = include_str!("../examples/fixtures/cast/expression-fixture.json");
+    let v = gamectx::data::json::parse(input, 65536).unwrap();
+    let packet = gamectx::kit::local::process(&v).unwrap();
     let messages = packet.get("messages").unwrap().as_array().unwrap();
     assert!(messages.last().unwrap().get("content").unwrap().as_str().unwrap().starts_with("Current request:\n"));
     assert_eq!(messages[1].get("role").unwrap().as_str(), Some("system"));

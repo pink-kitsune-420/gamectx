@@ -1,15 +1,43 @@
 # Model evaluation
 
+## Layout
+
+Independent Python references, offline checks, local/hosted model runners and their frozen
+artifacts, grouped by topic. Run every script from the repository root with
+`python3 -I eval/<topic>/<script>.py`; Python 3.12+ and, for `.mjs` checks, Node 22.
+
+| Folder | Topic |
+|---|---|
+| `query/` | Packing, query tool, query workflow/guidance, calc, relevance, release model checks |
+| `local/` | Local deployment contracts, Ollama runners, workflows, optimization, adversarial probes |
+| `runtime/` | Reaction brains, runtime upgrades, integration kit, facts and evidence |
+| `knowledge/` | Lore, information/inventory tools, conversation tools, location and world |
+| `character/` | Life, continuity, initiative, routines, archetypes, parties, living world, opinions |
+| `media/` | Visual compiler and asset registry |
+| `lantern-vault/` | The dungeon example: rules, social/knowledge/trade routing, natural speech |
+| `studio/` | Studio host, roleplay features, voice, model manager, browser drivers |
+| `overnight/` | Overnight deep-evaluation campaigns and audits |
+| `common/` | Shared provenance helper for evidence recorded before 0.4 |
+
+Each script adds every topic folder to its import path, so shared references (for example
+`dungeon_reference`) import by module name from any folder. Frozen artifacts are never
+rewritten: evidence recorded before the 0.4 layout keeps its original paths and digests,
+and `common/provenance.py` maps them to the current files (`common/moves-0.4.json`). For
+runners/sources the 0.4 layout edited, it verifies digests against the last pre-0.4 commit
+in git history; that proves what was measured, not that edited code measures the same.
+
+## Query and packing models
+
 `model_eval.py` asks real models the same questions about one game state with the data
 as plain JSON and as gamectx packets, then reports accuracy and billed input tokens.
 Standard library only; any OpenAI-compatible chat API.
 
 ```bash
 cargo build --release
-python3 -I eval/model_eval.py --dry-run                      # packets, questions, cost; no calls
-python3 -I eval/model_eval.py --key-file PATH --cap 0.50     # stops before spending more than $0.50
-python3 -I eval/model_eval.py --base-url URL --models a,b --formats json,gamectx
-python3 -I eval/model_eval.py --kinds inv_filter,npc_filter --formats gamectx-grouped,gamectx-grouped+reason
+python3 -I eval/query/model_eval.py --dry-run                      # packets, questions, cost; no calls
+python3 -I eval/query/model_eval.py --key-file PATH --cap 0.50     # stops before spending more than $0.50
+python3 -I eval/query/model_eval.py --base-url URL --models a,b --formats json,gamectx
+python3 -I eval/query/model_eval.py --kinds inv_filter,npc_filter --formats gamectx-grouped,gamectx-grouped+reason
 ```
 
 Formats: `json` (compact JSON), `gamectx` (tables), `gamectx-grouped` (tables grouped by
@@ -37,18 +65,18 @@ accuracy and request tokens, not savings from omitting tables or total multi-tur
 
 ```bash
 cargo build --release --locked
-python3 -I eval/query_eval.py --tokens-only --formats direct,tool --cap 0.003
-python3 -I eval/query_eval.py --formats direct,sql,json --cap 0.08
-python3 -I eval/query_eval.py --formats tool --cap 0.03
+python3 -I eval/query/query_eval.py --tokens-only --formats direct,tool --cap 0.003
+python3 -I eval/query/query_eval.py --formats direct,sql,json --cap 0.08
+python3 -I eval/query/query_eval.py --formats tool --cap 0.03
 # No API requests (the key is not read):
-python3 -I eval/query_eval.py --dry-run --cap 0
-python3 -I eval/query_eval.py --replay eval/results/query-RUN/results.json --cap 0
-python3 -I eval/query_eval.py --differential 3000 --cap 0
-python3 -I eval/test_query_eval.py
+python3 -I eval/query/query_eval.py --dry-run --cap 0
+python3 -I eval/query/query_eval.py --replay eval/results/query-RUN/results.json --cap 0
+python3 -I eval/query/query_eval.py --differential 3000 --cap 0
+python3 -I eval/query/test_query_eval.py
 ```
 
 Measured on 2026-11-05, 29 questions per model, temperature 0, Llama 3.2 3B and Mistral
-Small 3.2 24B. The [saved summary](query-results.json) records counts, tokens and costs.
+Small 3.2 24B. The [saved summary](query/query-results.json) records counts, tokens and costs.
 
 | Mode | Llama correct | Mistral correct | Total | Avg input, Llama / Mistral |
 |---|---|---|---|---|
@@ -93,16 +121,16 @@ and field notes. Tied maxima accept any tied answer.
 
 ```bash
 cargo build --release --locked
-python3 -I eval/query_workflow_eval.py --dry-run --seeds 7,101,202,303 --cap 0
-python3 -I eval/query_workflow_eval.py --tokens-only --cap 0.006
-python3 -I eval/query_workflow_eval.py --cap 0.12
+python3 -I eval/query/query_workflow_eval.py --dry-run --seeds 7,101,202,303 --cap 0
+python3 -I eval/query/query_workflow_eval.py --tokens-only --cap 0.006
+python3 -I eval/query/query_workflow_eval.py --cap 0.12
 # Holdout prompts/scoring are fixed before these states' accuracy calls:
-python3 -I eval/query_workflow_eval.py --tokens-only --seeds 101,202,303 --modes full,schema --cap 0.008
-python3 -I eval/query_workflow_eval.py --seeds 101,202,303 --modes full,schema --cap 0.24
+python3 -I eval/query/query_workflow_eval.py --tokens-only --seeds 101,202,303 --modes full,schema --cap 0.008
+python3 -I eval/query/query_workflow_eval.py --seeds 101,202,303 --modes full,schema --cap 0.24
 # Free checks (no key read):
-python3 -I eval/test_query_workflow.py
-python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
-python3 -I eval/query_workflow_eval.py --replay eval/results/workflow-RUN/results.json --cap 0
+python3 -I eval/query/test_query_workflow.py
+python3 -I eval/query/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
+python3 -I eval/query/query_workflow_eval.py --replay eval/results/workflow-RUN/results.json --cap 0
 ```
 
 Measured on 2026-11-05, temperature 0, the same two default small models. Development
@@ -137,7 +165,7 @@ reports instead of double-counting its parent.
 
 The development accuracy run cost $0.071431. Token-only checks cost $0.001100 for development
 and $0.002232 for holdouts. Holdout accuracy runs including the capped/resumed request cost
-$0.147087. Total new spend: $0.221850. [Saved measurements](query-workflow-results.json)
+$0.147087. Total new spend: $0.221850. [Saved measurements](query/query-workflow-results.json)
 include per-state results, remaining failures, usage and conservative undiscounted costs.
 `summarize_query_workflow.py` rebuilds the summary from saved runs without API calls.
 
@@ -154,9 +182,9 @@ lessons, validation gates and saved learning, and compares Rust byte for byte.
 
 ```bash
 cargo build --release --locked
-python3 -I eval/brain_eval.py                # regenerates eval/brain-results.json, free
-python3 -I eval/brain_eval.py --check        # prototype/Rust parity, free
-python3 -I eval/test_brain.py                # shared fixtures and atomicity, free
+python3 -I eval/runtime/brain_eval.py                # regenerates eval/runtime/brain-results.json, free
+python3 -I eval/runtime/brain_eval.py --check        # prototype/Rust parity, free
+python3 -I eval/runtime/test_brain.py                # shared fixtures and atomicity, free
 cargo run --example adaptive-brain          # runnable host example, free
 ```
 
@@ -181,7 +209,7 @@ gets fresh training/validation seeds 31/47, then is tested on seeds 1001/1002/10
 scores 264/384 before and 384/384 after adaptation; validation MSE falls from 0.013335
 to 0.000032. These are fresh labels supplied by the host, not discovered causal rewards.
 Trained saved states after the first update are 1,374 / 1,762 / 1,381 / 1,587 bytes.
-[Saved measurements](brain-results.json) include work estimates and Python timings for
+[Saved measurements](runtime/brain-results.json) include work estimates and Python timings for
 one local run; timing is not a platform guarantee. Total API spend is $0.
 
 Measured alternatives: a linear-only network scored 192/384 on the switch holdout versus
@@ -209,10 +237,10 @@ The original `brain_eval.py` experiment and saved measurements stay historical.
 
 ```bash
 cargo build --release --locked
-python3 -I eval/brain_accuracy_eval.py           # regenerates selection measurements, free
-python3 -I eval/test_brain_accuracy.py
-python3 -I eval/brain_accuracy_eval.py --check
-gamectx brain examples/brain/selection.json
+python3 -I eval/runtime/brain_accuracy_eval.py           # regenerates selection measurements, free
+python3 -I eval/runtime/test_brain_accuracy.py
+python3 -I eval/runtime/brain_accuracy_eval.py --check
+gamectx brain examples/fixtures/brain/selection.json
 ```
 
 The four utility tasks use the existing initializer (seed 3, four hidden nodes), training
@@ -244,7 +272,7 @@ correctness (110/128 → 103/128). Rate 0.3 helped switch (119/128) but hurt sup
 validation ranged 74/128 (seed 1) to 114/128 (seed 7), versus 110/128 (seed 3). Selection
 retains an existing brain's authored/learned starting state instead of silently reseeding it.
 
-[Saved results](brain-accuracy-results.json) include all 32 validation-only diagnostic
+[Saved results](runtime/brain-accuracy-results.json) include all 32 validation-only diagnostic
 conditions and per-rate reports. API spend: $0. Tests cover 17 new conformance fixtures,
 45 byte-identical Python/Rust workflows including 1,536 fresh predictions, and 10,000
 additional model-text mutations. All old format outputs remain unchanged.
@@ -261,16 +289,16 @@ thresholds and revision. `brain_cache_bench.rs` measures the implemented release
 with byte-equality assertions against uncached predictions outside the timed loops.
 
 ```bash
-python3 -I eval/brain_cache_eval.py
-python3 -I eval/test_brain_cache.py
+python3 -I eval/runtime/brain_cache_eval.py
+python3 -I eval/runtime/test_brain_cache.py
 cargo build --release --locked
-python3 -I eval/brain_cache_eval.py --check
-rustc --edition=2021 -O eval/brain_cache_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/brain-cache-bench
-./target/brain-cache-bench > eval/brain-cache-results.json
+python3 -I eval/runtime/brain_cache_eval.py --check
+rustc --edition=2021 -O eval/runtime/brain_cache_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/brain-cache-bench
+./target/brain-cache-bench > eval/runtime/brain-cache-results.json
 cargo run --example preloaded-brains
 ```
 
-The [saved local measurements](brain-cache-results.json) report medians of five trials,
+The [saved local measurements](runtime/brain-cache-results.json) report medians of five trials,
 20,000 predictions per trial, capacity 32. Trial order alternates cached/uncached. Inputs
 are prepared before timing. Small networks have four inputs, four hidden nodes and two
 outputs (30 parameters); large networks have four inputs, 16 hidden nodes and four
@@ -323,17 +351,17 @@ uses the same current JSON implementation (including allocation-free `json_len`)
 this isolates assembly changes rather than comparing complete historical binaries.
 
 ```bash
-python3 -I eval/runtime_eval.py                  # regenerate deterministic results
-python3 -I eval/test_runtime.py
+python3 -I eval/runtime/runtime_eval.py                  # regenerate deterministic results
+python3 -I eval/runtime/test_runtime.py
 cargo build --release --locked
-rustc --edition=2021 -O eval/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
-python3 -I eval/runtime_eval.py --check
-rustc --edition=2021 -O eval/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
-./target/runtime-bench > eval/runtime-bench-results.json
+rustc --edition=2021 -O eval/runtime/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
+python3 -I eval/runtime/runtime_eval.py --check
+rustc --edition=2021 -O eval/runtime/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
+./target/runtime-bench > eval/runtime/runtime-bench-results.json
 cargo run --example runtime-loop
 ```
 
-[Timing/allocation results](runtime-bench-results.json) are medians of five trials in
+[Timing/allocation results](runtime/runtime-bench-results.json) are medians of five trials in
 one local environment. Native and JSON inputs are prebuilt before timing, cycle 256
 states and represent the same millionth-grid observations. Small/large graphs have
 four inputs, 4/16 hidden nodes and 2/4 outputs, seed 3. Both APIs perform inference;
@@ -368,7 +396,7 @@ Prepared reuse is about 4.2×/80.0× faster than the old fits/pressure algorithm
 assembly added allocations when packets already fit; the shipped path counts first and
 moves fitting values directly. Arbitrary fit predicates retain full candidate callbacks.
 
-Sliced selection uses `examples/brain/selection.json`: one observed uninterrupted run
+Sliced selection uses `examples/fixtures/brain/selection.json`: one observed uninterrupted run
 1,307,880 ns versus 25 slices capped at 4,096 work units, total 1,185,084 ns, median
 slice 46,973 ns, maximum 53,370 ns. This is a latency illustration, not a benchmark of
 scheduler guarantees or a claim that slicing reduces total training work. Setup and
@@ -376,7 +404,7 @@ finish occur outside those slice timings. The final report and saved state match
 selection byte-for-byte. Python also checks 1,024 training visits split into 147 slices
 per task over four tasks, preserving final weights exactly.
 
-[Deterministic runtime results](runtime-results.json): 64 actors over 240 frames,
+[Deterministic runtime results](runtime/runtime-results.json): 64 actors over 240 frames,
 one unit/evaluation, budget eight/frame, initial phases 0..7, minimum interval one,
 refresh age 60 and all actors changed every 30 frames. Scheduled evaluations 512 versus
 15,360 per-frame evaluations, peak eight/frame. This models sparse change notifications;
@@ -417,8 +445,8 @@ All previous fixtures remain unchanged.
 ### Optional local llama.cpp prefix measurement
 
 ```bash
-python3 -I eval/prefix_cache_eval.py --cap 0
-python3 -I eval/prefix_cache_eval.py --url http://127.0.0.1:8080 --turns 12 --cap 0
+python3 -I eval/query/prefix_cache_eval.py --cap 0
+python3 -I eval/query/prefix_cache_eval.py --url http://127.0.0.1:8080 --turns 12 --cap 0
 ```
 
 Without `--url`, this only accounts for byte prefixes. With a running local server it
@@ -443,21 +471,21 @@ scoped memory, native evidence/hypotheses and optional stable reaction selection
 except the explicitly recorded query-meaning runs below are offline and cost $0.
 
 ```bash
-python3 -I eval/integration_eval.py
-python3 -I eval/test_integration.py
+python3 -I eval/runtime/integration_eval.py
+python3 -I eval/runtime/test_integration.py
 cargo build --release --locked
-rustc --edition=2021 -O eval/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
-python3 -I eval/integration_eval.py --check
-python3 -I eval/query_meaning_eval.py --check --cap 0
-rustc --edition=2021 -O eval/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
-./target/integration-bench > eval/integration-bench-results.json
+rustc --edition=2021 -O eval/runtime/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
+python3 -I eval/runtime/integration_eval.py --check
+python3 -I eval/query/query_meaning_eval.py --check --cap 0
+rustc --edition=2021 -O eval/runtime/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
+./target/integration-bench > eval/runtime/integration-bench-results.json
 cargo run --example integration-tools
 cargo run --example evidence-memory
 ```
 
 ### Packet regression and memory measurements
 
-[Saved packet results](integration-bench-results.json) compare the frozen `dd87e76`
+[Saved packet results](runtime/integration-bench-results.json) compare the frozen `dd87e76`
 assembler (`budget_pre_integration.rs`, including local copies of its private JSON
 helpers) against the repaired byte-budget path. The prior path walked values for
 size and then receipt size before/during serialization. The new fitting path collects
@@ -500,7 +528,7 @@ units, range, revision and feature order; saved bindings reject mismatches. Inpu
 include inverted/clamped/unknown values and physical ranges crossing zero. This validates
 the declared contract, not whether an engine measured what it claimed.
 
-[Deterministic integration results](integration-results.json) use fresh random seeds
+[Deterministic integration results](runtime/integration-results.json) use fresh random seeds
 5001/5002/5003 for stability: two direct utility outputs, 240 frames/seed. At each frame,
 inputs are independent 0.5±0.01 noisy utilities, except every 40th frame supplies a strong
 0.8/0.2 preference and marks urgency. Frames 150..157 allow only the second reaction.
@@ -538,14 +566,14 @@ Ambiguous natural-language meanings are defined by the host metadata; this is a 
 semantic test, not evidence that arbitrary gameplay questions improve equally.
 
 The token check ran first, capped at $0.01; the accuracy run was capped at $0.06. Only
-Llama 3.2 3B and Mistral Small 3.2 24B ran. [Token usage](query-meaning-tokens.json):
+Llama 3.2 3B and Mistral Small 3.2 24B ran. [Token usage](query/query-meaning-tokens.json):
 
 | Model | Schema input tokens | Meanings input tokens |
 |---|---:|---:|
 | Llama 3.2 3B | 205 | 365 |
 | Mistral Small 3.2 24B | 190 | 352 |
 
-[Accuracy results and every recorded query](query-meaning-results.json):
+[Accuracy results and every recorded query](query/query-meaning-results.json):
 
 | Model | Schema correct / 30 | Meanings correct / 30 | Average input, schema→meanings | Average output, schema→meanings |
 |---|---:|---:|---:|---:|
@@ -560,8 +588,8 @@ and all 120 executed/error query outputs match Rust byte-for-byte, entirely offl
 
 ```bash
 # Paid examples; do not rerun automatically during tests.
-python3 -I eval/query_meaning_eval.py --tokens-only --cap 0.01
-python3 -I eval/query_meaning_eval.py --cap 0.06
+python3 -I eval/query/query_meaning_eval.py --tokens-only --cap 0.01
+python3 -I eval/query/query_meaning_eval.py --cap 0.06
 ```
 
 ### Freshness, evidence and hypotheses
@@ -602,15 +630,15 @@ bounded context tables. It makes no API calls and needs no credentials. Decimal-
 lexemes are retained; comparisons avoid float rounding, including large integer IDs.
 
 ```bash
-python3 -I eval/test_facts.py
-python3 -I eval/facts_eval.py
+python3 -I eval/runtime/test_facts.py
+python3 -I eval/runtime/facts_eval.py
 cargo build --release --locked
-rustc --edition=2021 -O eval/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
-python3 -I eval/facts_eval.py --check
+rustc --edition=2021 -O eval/runtime/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
+python3 -I eval/runtime/facts_eval.py --check
 cargo run --example registered-facts
 ```
 
-[Recorded offline result](facts-results.json): 128 registered assertions and 128 exact
+[Recorded offline result](runtime/facts-results.json): 128 registered assertions and 128 exact
 supported checks; a 1,024-byte cap keeps eight rows in 927 bytes and reports 120 dropped.
 The remaining active assertions stay available by direct lookup. This deterministic
 fixture exercises size and integrity, not token savings or natural-language/gameplay
@@ -636,17 +664,17 @@ provider libraries are used. Original model tools and all earlier 326 conformanc
 remain unchanged.
 
 ```bash
-python3 -I eval/test_upgrades.py
-python3 -I eval/upgrades_eval.py
+python3 -I eval/runtime/test_upgrades.py
+python3 -I eval/runtime/upgrades_eval.py
 cargo build --release --locked
-rustc --edition=2021 -O eval/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
-python3 -I eval/upgrades_eval.py --check
-rustc --edition=2021 -O eval/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench
+rustc --edition=2021 -O eval/runtime/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
+python3 -I eval/runtime/upgrades_eval.py --check
+rustc --edition=2021 -O eval/runtime/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench
 ./target/upgrades-bench
 cargo run --example runtime-upgrades
 ```
 
-[Deterministic results](upgrades-results.json):
+[Deterministic results](runtime/upgrades-results.json):
 
 | Check | Result |
 |---|---|
@@ -673,7 +701,7 @@ isolation, source replay and conservative ledger restore. Expected outputs were 
 for exact source/version/phase semantics. In particular issued and current request
 contexts are independent copies; changed actor/world/schema/permissions must return false.
 
-[Paired release benchmark](upgrades-bench-results.json), seven alternating trials, median
+[Paired release benchmark](runtime/upgrades-bench-results.json), seven alternating trials, median
 nanoseconds for 1,000 frames ×12 candidates; both paths use existing native inference,
 prebuilt modules and the same inputs. Bundle preparation is included; construction is
 excluded. Checksums agree before and during timing; native unit tests compare full results.
@@ -696,7 +724,7 @@ separates library checks from host sensing, validation, archive and billing duti
 
 ## Fresh alpha.3 model check
 
-The [2026-11-06 report](../docs/MODEL_TEST_2026_11_06.md) records a new hosted-model run
+The [2026-11-06 report](../docs/evidence/MODEL_TEST_2026_11_06.md) records a new hosted-model run
 using Llama 3.2 3B and Mistral Small 3.2 24B on six fresh states across cargo, teams and
 routes. Eight questions/state/model/format give 288 scored exchanges. Full JSON and
 lossless packed tables receive identical meanings and rows; schema + query receives
@@ -724,10 +752,10 @@ Neither prompts nor scoring were tuned after looking at results.
 Offline commands (CI uses these; no credential or model API access):
 
 ```bash
-python3 -I eval/test_release_model.py
-python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-tokens.json
-python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-results.json
-python3 -I eval/summarize_release_model.py --check
+python3 -I eval/query/test_release_model.py
+python3 -I eval/query/release_model_eval.py --check --cap 0 --output eval/query/release-model-tokens.json
+python3 -I eval/query/release_model_eval.py --check --cap 0 --output eval/query/release-model-results.json
+python3 -I eval/query/summarize_release_model.py --check
 ```
 
 The checker verifies six native prompt sets/48 independent oracle results and 105
@@ -741,8 +769,8 @@ Paid reruns require new paths and explicit caps; preserve the token-first sequen
 
 ```bash
 mkdir -p eval/results
-python3 -I eval/release_model_eval.py --tokens-only --cap 0.01 --output eval/results/release-tokens-new.json
-python3 -I eval/release_model_eval.py --cap 0.12 --output eval/results/release-accuracy-new.json
+python3 -I eval/query/release_model_eval.py --tokens-only --cap 0.01 --output eval/results/release-tokens-new.json
+python3 -I eval/query/release_model_eval.py --cap 0.12 --output eval/results/release-accuracy-new.json
 ```
 
 The runner makes one transport attempt per call and checkpoints the full reservation
@@ -801,14 +829,14 @@ query repair.
 
 ```bash
 cargo build --release --locked
-rustc --edition=2021 -O eval/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
-rustc --edition=2021 -O eval/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
-python3 -I eval/test_query_upgrade.py
-python3 -I eval/query_optimization_check.py
-python3 -I eval/relevance_eval.py
-python3 -I eval/query_eval.py --differential 3000 --cap 0
-python3 -I eval/query_upgrade_eval.py --cap 0
-rustc --edition=2021 -O eval/query_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-bench
+rustc --edition=2021 -O eval/query/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
+rustc --edition=2021 -O eval/query/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
+python3 -I eval/query/test_query_upgrade.py
+python3 -I eval/query/query_optimization_check.py
+python3 -I eval/query/relevance_eval.py
+python3 -I eval/query/query_eval.py --differential 3000 --cap 0
+python3 -I eval/query/query_upgrade_eval.py --cap 0
+rustc --edition=2021 -O eval/query/query_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-bench
 target/query-bench
 ```
 
@@ -832,24 +860,24 @@ universal accuracy upgrade. All 209 fresh native/Python feedback envelopes match
 Token-only check cost $0.0012702 (cap $0.01); accuracy $0.0281033125 (cap $0.08);
 total $0.0293735125. Full replies/usage/pricing are in `query-guidance-tokens.json` and
 `query-guidance-results.json`; audited derived statistics in `query-guidance-summary.json`.
-See the [full report](../docs/QUERY_OPTIMIZATION_2026_11_06.md) for methodology and limitations.
+See the [full report](../docs/evidence/QUERY_OPTIMIZATION_2026_11_06.md) for methodology and limitations.
 
 ```bash
-python3 -I eval/query_upgrade_eval.py --check eval/query-guidance-results.json --cap 0
-python3 -I eval/summarize_query_upgrade.py --check
+python3 -I eval/query/query_upgrade_eval.py --check eval/query/query-guidance-results.json --cap 0
+python3 -I eval/query/summarize_query_upgrade.py --check
 ```
 
 Future paid runs require new output paths and explicit caps, token-only first:
 
 ```bash
-python3 -I eval/query_upgrade_eval.py --models --tokens-only --cap 0.01 --output eval/results/query-guidance-tokens-new.json
-python3 -I eval/query_upgrade_eval.py --models --cap 0.08 --output eval/results/query-guidance-results-new.json
+python3 -I eval/query/query_upgrade_eval.py --models --tokens-only --cap 0.01 --output eval/results/query-guidance-tokens-new.json
+python3 -I eval/query/query_upgrade_eval.py --models --cap 0.08 --output eval/results/query-guidance-results-new.json
 ```
 
 ## Integration kit (offline, unreleased)
 
 `kit_eval.py` independently prototypes registration, selection, packing, argument validation,
-brain bindings and recorded-run scoring. `python3 -I eval/kit_eval.py --check` compares
+brain bindings and recorded-run scoring. `python3 -I eval/runtime/kit_eval.py --check` compares
 144 workflows (113 accepted, 31 rejected) byte for byte with `target/debug/gamectx`.
 It includes 101 generated stock snapshots and three separately seeded scripted evaluation
 states. Expected results are not model-generated. `kit-results.json` records this run.
@@ -861,7 +889,7 @@ raw samples in `kit-performance.json`. Both arms validate each snapshot. This is
 registration reuse, not model latency or a comparison against hand-optimized host code.
 
 Build the separate native crate, then run `kit_bindings_check.py` (265 Python/native checks)
-and `node eval/kit_bindings_check.mjs` (8 Node checks). The Python script can produce
+and `node eval/runtime/kit_bindings_check.mjs` (8 Node checks). The Python script can produce
 C# fixtures with `--csharp-fixtures DIR`; compile `bindings/csharp/{GamectxClient,Check}.cs`
 and pass the project and generated requests/expected paths. Linux run: 59 fixture replies
 and two smoke checks. The Rust suite adds 47 conformance cases and 20,000 text mutations.
@@ -869,14 +897,14 @@ and two smoke checks. The Rust suite adds 47 conformance cases and 20,000 text m
 No API/network requests are made by these scripts. The public `gamectx evaluate` command
 scores host-collected runs over independent expected snapshots; guidance is metadata,
 missing usage stays null, and incomplete/duplicate cohorts fail. No new model-accuracy
-claim. New API spend $0. See [KIT](../docs/KIT.md) for formats and limits.
+claim. New API spend $0. See [KIT](../docs/guides/KIT.md) for formats and limits.
 
 ## Local 1B–3B deployment contracts (v0.2.0a)
 
 `local_reference.py` and `local_cases.py` prototype full-request reservations, protected
 scene/dialogue hydration, exact legal-pair decisions, explicit deployment profiles and
-complete-turn reporting. New API docs: [LOCAL](../docs/LOCAL.md). Run
-`python3 -I eval/local_cases.py --check` after building `target/debug/gamectx`; it compares
+complete-turn reporting. New API docs: [LOCAL](../docs/guides/LOCAL.md). Run
+`python3 -I eval/local/local_cases.py --check` after building `target/debug/gamectx`; it compares
 148 workflows (132 accepted, 16 rejected) byte for byte. Forty-eight new conformance cases
 include errors; all 448 previous cases are unchanged. Mutation tests add 20,000 inputs.
 The fixture byte counter is explicitly estimated, not a model tokenizer.
@@ -898,7 +926,7 @@ complete cohorts, actual prompt counts, retained required facts and raw-offer or
 Use fresh output files; partial checkpoints remain explicit. Linux memory values are sampled
 RSS/available RAM/swap deltas, not true allocator peaks. Missing cache metrics stay null.
 
-The [local report](../docs/LOCAL_MODEL_2026_11_06.md) links frozen prompts, responses, settings,
+The [local report](../docs/evidence/LOCAL_MODEL_2026_11_06.md) links frozen prompts, responses, settings,
 per-call usage/timing and measured hardware. No hosted API spend is incurred. Existing paid
 cohorts and their scripts remain frozen. Prose quality is independently reviewed, not inferred
 from schema compliance or a correct action ID.
@@ -926,13 +954,13 @@ conditions preserve the same offered order. The first pilot used different offer
 orders and is excluded; `optimization_model_pilot.py` freezes its checker and artifacts.
 Offline CI replays results; it makes no model calls. All new API spend is $0.
 
-See [the workflow guide](../docs/OPTIMIZATION.md) for assumptions, limits and commands.
+See [the workflow guide](../docs/guides/OPTIMIZATION.md) for assumptions, limits and commands.
 The new accuracy probe is not a full-turn latency/RAM study or proof of live game gains.
 
 ## Playable dungeon testbed
 
 `dungeon_reference.py` independently implements the original example's deterministic
-rules. `dungeon_cases.py --cap 0 --check --audit eval/dungeon-results.json` verifies 103
+rules. `dungeon_cases.py --cap 0 --check --audit eval/lantern-vault/dungeon-results.json` verifies 103
 Python/Rust replays, six scripted wins and 240 packet observations. Build with
 `cargo build --example dungeon --locked` first. Twenty-three separate example conformance fixtures add no changes
 to the 565 core cases. Tests add 10,000 malformed replay mutations.
@@ -946,13 +974,13 @@ saved model text/actions against both independent Python rules and the native ho
 
 The first named-mode Qwen/seed-7 smoke exposes repeated legal `look_entry` actions with no
 quest progress. Preserve it as a failure, not a successful legal-output score. Both local
-runs spend $0 API; CI only replays saved data. The [guide](../examples/dungeon/README.md)
+runs spend $0 API; CI only replays saved data. The [guide](../examples/lantern-vault/README.md)
 separates byte/checkpoint figures from token/model claims and includes playable commands.
 
 
 ## Human-play workflows and entity references (unreleased)
 
-[WORKFLOWS](../docs/WORKFLOWS.md) records exact counts, remaining prose errors and
+[WORKFLOWS](../docs/guides/WORKFLOWS.md) records exact counts, remaining prose errors and
 limits. All new runs use the same installed local Qwen 3.09B Q4_K_M, context 2048,
 four CPU threads. Every token and accuracy run spends $0 API; no larger model is loaded.
 
@@ -961,11 +989,11 @@ Offline reproduction:
 ```sh
 cargo build --locked
 cargo build --example dungeon --locked
-python3 -I eval/workflow_cases.py --cap 0 --check
-python3 -I eval/dungeon_social_cases.py --cap 0 --check
-python3 -I eval/test_dungeon_ai.py
-python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
-python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json
+python3 -I eval/local/workflow_cases.py --cap 0 --check
+python3 -I eval/lantern-vault/dungeon_social_cases.py --cap 0 --check
+python3 -I eval/lantern-vault/test_dungeon_ai.py
+python3 -I eval/lantern-vault/check_dungeon_slots.py --cap 0 --check eval/lantern-vault/dungeon-slots-tokens.json eval/lantern-vault/dungeon-slots-results.json eval/lantern-vault/dungeon-entities-tokens.json eval/lantern-vault/dungeon-entities-results.json
+python3 -I eval/lantern-vault/check_dungeon_social.py --cap 0 eval/lantern-vault/dungeon-social-tokens.json eval/lantern-vault/dungeon-social-results.json eval/lantern-vault/dungeon-social-guided-tokens.json eval/lantern-vault/dungeon-social-guided-results.json eval/lantern-vault/dungeon-social-focused-tokens.json eval/lantern-vault/dungeon-social-focused-results.json
 ```
 
 `workflow_cases.py` independently checks 24 size/task presets plus two render successes
@@ -982,10 +1010,10 @@ API credentials. `--cap 0` is mandatory. Token probes and corrections count towa
 local call cap, including failed dispatches.
 
 ```sh
-python3 -I eval/dungeon_social_eval.py --cap 0 --tokens-only --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/social-tokens.json
-python3 -I eval/dungeon_social_eval.py --cap 0 --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/social-tokens.json --output eval/results/social-results.json
-python3 -I eval/dungeon_slots_eval.py --cap 0 --tokens-only --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/entity-tokens.json
-python3 -I eval/dungeon_slots_eval.py --cap 0 --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/entity-tokens.json --output eval/results/entity-results.json
+python3 -I eval/lantern-vault/dungeon_social_eval.py --cap 0 --tokens-only --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/social-tokens.json
+python3 -I eval/lantern-vault/dungeon_social_eval.py --cap 0 --guidance focused --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/social-tokens.json --output eval/results/social-results.json
+python3 -I eval/lantern-vault/dungeon_slots_eval.py --cap 0 --tokens-only --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --output eval/results/entity-tokens.json
+python3 -I eval/lantern-vault/dungeon_slots_eval.py --cap 0 --entity-context --model arzaan789/qwen2.5-3b-uncensored:latest --tokens eval/results/entity-tokens.json --output eval/results/entity-results.json
 ```
 
 Standard/grounded/focused character cohorts each make 26 calls with no correction.
@@ -1012,14 +1040,14 @@ against the real host, including insufficient funds, one-use acceptance, decline
 confirmation, topic changes, owned items and ambiguous targets. `test_dungeon_ai.py`
 now has 11 real-host/fake-generation tests, including the actual conversation loop.
 All these tests make zero model calls and spend $0 API. Core mutations add 30,000
-attempts. See [CONVERSATION](../docs/CONVERSATION.md) for bounds, limitations and APIs.
+attempts. See [CONVERSATION](../docs/guides/CONVERSATION.md) for bounds, limitations and APIs.
 
 ```sh
 cargo build --locked
 cargo build --example dungeon --locked
-python3 -I eval/conversation_cases.py --cap 0 --check
-python3 -I eval/dungeon_trade_cases.py --cap 0
-python3 -I eval/test_dungeon_ai.py
+python3 -I eval/lantern-vault/conversation_cases.py --cap 0 --check
+python3 -I eval/lantern-vault/dungeon_trade_cases.py --cap 0
+python3 -I eval/lantern-vault/test_dungeon_ai.py
 ```
 
 After building the native bridge, `conversation_cases.py --cap 0 --check-bindings`
@@ -1031,17 +1059,17 @@ compares the same cases through persistent and native transports; CI runs both.
 `dungeon-feedback.json` preserves 11 reported sequences / 26 turns, with manual claim
 annotations and missing deployment/usage fields explicitly null. These are observations,
 not fresh model calls or an aggregate accuracy score. After building the dungeon,
-`python3 -I eval/check_dungeon_feedback.py --cap 0` independently audits seed-7 host
+`python3 -I eval/lantern-vault/check_dungeon_feedback.py --cap 0` independently audits seed-7 host
 reproductions: 17 trade requests, 16 matching local receipts, nine supplied speech packets
 and two purchases in separate successful-purchase sequences. It checks unchanged world
 state for speech and original-player-only quote retention against the Python reference.
 The current validator accepts some factually wrong speech; acceptance is not correctness.
-No model is called; new API spend $0. CI runs the offline audit. [Report](../docs/DUNGEON_FEEDBACK.md).
+No model is called; new API spend $0. CI runs the offline audit. [Report](../docs/evidence/DUNGEON_FEEDBACK.md).
 
 
 ## Authored lore and source-bound local answers
 
-[LORE_EVAL](../docs/LORE_EVAL.md) records the full pilot history, token/accuracy usage,
+[LORE_EVAL](../docs/evidence/LORE_EVAL.md) records the full pilot history, token/accuracy usage,
 latency definitions and remaining failures. All runs use the same installed Qwen 3.09B
 Q4_K_M, four CPU threads, context 2048; every run spends $0 API. Frozen v1–v4 reference
 policies retain failed routing. Current policy is `dungeon_knowledge_reference.py`.
@@ -1049,10 +1077,10 @@ policies retain failed routing. Current policy is `dungeon_knowledge_reference.p
 ```sh
 cargo build --locked
 cargo build --example dungeon --locked
-python3 -I eval/lore_cases.py --cap 0 --check
-python3 -I eval/dungeon_knowledge_cases.py --cap 0
-python3 -I eval/test_dungeon_knowledge.py
-python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
+python3 -I eval/knowledge/lore_cases.py --cap 0 --check
+python3 -I eval/lantern-vault/dungeon_knowledge_cases.py --cap 0
+python3 -I eval/lantern-vault/test_dungeon_knowledge.py
+python3 -I eval/knowledge/check_lore_model.py --cap 0 eval/knowledge/lore-tokens.json eval/knowledge/lore-results.json eval/knowledge/lore-v2-tokens.json eval/knowledge/lore-v2-results.json eval/knowledge/lore-native-tokens.json eval/knowledge/lore-native-results.json eval/knowledge/lore-fresh-tokens.json eval/knowledge/lore-fresh-results.json eval/knowledge/lore-retest-tokens.json eval/knowledge/lore-retest-results.json eval/knowledge/lore-extra-tokens.json eval/knowledge/lore-extra-results.json eval/knowledge/lore-repair-tokens.json eval/knowledge/lore-repair-results.json
 ```
 
 There are 108 independent core workflows, 28 new conformance cases, 60 byte-identical
@@ -1077,31 +1105,31 @@ Offline, no server or key:
 
 ```bash
 cargo build --locked --bin gamectx --example dungeon --example info_tools
-python3 -I eval/info_inventory_cases.py --cap 0
-python3 -I eval/dungeon_natural_cases.py --cap 0
-python3 -I eval/check_natural_model.py --cap 0 eval/natural-tokens.json eval/natural-results.json eval/natural-v2-tokens.json eval/natural-v2-results.json
-python3 -I eval/check_lore_model.py --cap 0 eval/lore-stock-tokens.json eval/lore-stock-results.json
+python3 -I eval/knowledge/info_inventory_cases.py --cap 0
+python3 -I eval/lantern-vault/dungeon_natural_cases.py --cap 0
+python3 -I eval/lantern-vault/check_natural_model.py --cap 0 eval/lantern-vault/natural-tokens.json eval/lantern-vault/natural-results.json eval/lantern-vault/natural-v2-tokens.json eval/lantern-vault/natural-v2-results.json
+python3 -I eval/knowledge/check_lore_model.py --cap 0 eval/knowledge/lore-stock-tokens.json eval/knowledge/lore-stock-results.json
 cargo run --locked --example info_tools
 ```
 
 39 format workflows, 96 stock regressions and 72 native natural requests match independent
 Python prototypes. All 661 earlier conformance fixtures stay unchanged. [Information
-contracts](../docs/INFO.md) quote schema/result byte sizes from the executable example.
+contracts](../docs/guides/INFO.md) quote schema/result byte sizes from the executable example.
 
 `dungeon_natural_eval.py` requires an already-installed local model, `--cap 0`, a fresh
 output path, and a token-only artifact before generation. `--version 1` reconstructs the
 frozen broad prototype; default version 2 uses narrower facts. Both retained trials have
 20/20 structurally valid replies but factual failures. Do not equate shape acceptance with
 accuracy, and do not infer latency/RAM improvements from these overlapping diagnostics.
-[Raw-result interpretation](../docs/LORE_EVAL.md).
+[Raw-result interpretation](../docs/evidence/LORE_EVAL.md).
 
 
 ## Optional conversation tools
 
 ```bash
 cargo build --locked --bin gamectx --example conversation_tools
-python3 -I eval/interaction_cases.py --cap 0
-python3 -I eval/interaction_measure.py --cap 0 --check eval/interaction-results.json
+python3 -I eval/knowledge/interaction_cases.py --cap 0
+python3 -I eval/knowledge/interaction_measure.py --cap 0 --check eval/knowledge/interaction-results.json
 cargo run --locked --example conversation_tools
 ```
 
@@ -1109,7 +1137,7 @@ cargo run --locked --example conversation_tools
 attempts. The 120-event byte fixture selects two records from 80 authorized events:
 8589→231 bytes. Eight schema bytes total 3127; enable only useful tools for each turn.
 All checks are offline, $0 API, and do not establish live-model accuracy or latency.
-[Privacy, multiplayer and consent contracts](../docs/INTERACTIONS.md).
+[Privacy, multiplayer and consent contracts](../docs/guides/INTERACTIONS.md).
 
 
 ## Information-tool transport regressions
@@ -1117,8 +1145,8 @@ All checks are offline, $0 API, and do not establish live-model accuracy or late
 After building the CLI and native library:
 
 ```bash
-python3 -I eval/information_bindings_check.py --cap 0 --fixtures target/information-csharp
-node eval/information_bindings_check.mjs --cap 0 target/information-csharp
+python3 -I eval/knowledge/information_bindings_check.py --cap 0 --fixtures target/information-csharp
+node eval/knowledge/information_bindings_check.mjs --cap 0 target/information-csharp
 mcs -out:target/information-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
 LD_LIBRARY_PATH=bindings/native/target/debug mono target/information-csharp/Check.exe examples/kit/project.json target/information-csharp/requests.txt target/information-csharp/expected.txt
 ```
@@ -1131,7 +1159,7 @@ these checks exercise native behavior, not live-model tool-selection accuracy.
 
 ## Optional routine/time contract (unreleased v0.3.1a)
 
-`python3 -I eval/routines_cases.py --cap 0` checks an independent Python prototype
+`python3 -I eval/character/routines_cases.py --cap 0` checks an independent Python prototype
 against Rust on 69 deterministic workflows (63 accepted, six rejected). Twenty-one
 additive core fixtures retain all 797 prior outputs. `--prototype-only` works without
 Rust; `--write-conformance` writes only the new feature cases from the oracle.
@@ -1141,7 +1169,7 @@ New Rust mutation tests make 20,000 attempts, without model calls or network acc
 These are host-correctness checks, not live model accuracy/token/latency/RAM measurements.
 Historical evaluation artifacts are untouched. New model/API spend $0.
 
-Follow-up: `python3 -I eval/routine_improvements_cases.py --cap 0` checks 54 independent
+Follow-up: `python3 -I eval/character/routine_improvements_cases.py --cap 0` checks 54 independent
 selection/timer/dependency workflows and audits `routine-performance.json` (seven paired
 host-only timings, no provider calls). Nine new conformance cases preserve all earlier
 818 outputs. The noisy observation fixture measures selected JSON bytes 2,102→371 with
@@ -1150,7 +1178,7 @@ a required older source retained; this is not a full-request token count or accu
 52-fixture session suite. Ten thousand additional mutations test selectors.
 
 To rerun host timings (results vary by machine/load): build release, compile
-`eval/routine_bench.rs` against `target/release/libgamectx.rlib`, and run `target/routine-bench`.
+`eval/character/routine_bench.rs` against `target/release/libgamectx.rlib`, and run `target/routine-bench`.
 Both timing arms assert byte-equivalent final state; setup is excluded. The recorded
 paired process RSS includes both arms, and excludes models. No live model was loaded.
 
@@ -1174,10 +1202,10 @@ validity is 32/32, source classification 25/32; not an NPC speech/gameplay score
 experiment. `--production --tokens TOKENS --output NEW` uses the actual opt-in UI cache;
 the earlier independent prototype remains reproducible without `--production`. The old
 adapter-only pilot and complete diagnostic production timing have different scopes.
-`check_character_limits.py --cap 0 --check eval/character-limit-summary.json` reconstructs
+`check_character_limits.py --cap 0 --check eval/local/character-limit-summary.json` reconstructs
 all requests/scores/count receipts and validates all five retained live artifacts offline.
 Every recorded run spends $0 API; combined 159 local calls. No new model speech correctness
-or general context-size/parameter-capability claim. [Full evidence](../docs/ADVERSARIAL_EVAL.md).
+or general context-size/parameter-capability claim. [Full evidence](../docs/evidence/ADVERSARIAL_EVAL.md).
 
 ## Dynamic character implementation stages
 
@@ -1185,22 +1213,22 @@ All independent contracts run offline, without credentials or models:
 
 ```sh
 cargo build --bin gamectx --example dungeon --locked
-python3 -I eval/life_cases.py --cap 0
-python3 -I eval/continuity_cases.py --cap 0
-python3 -I eval/episodic_cases.py --cap 0
-python3 -I eval/initiative_cases.py --cap 0
-python3 -I eval/continuity_context_cases.py --cap 0
-python3 -I eval/natural_scaled_check.py --cap 0
+python3 -I eval/character/life_cases.py --cap 0
+python3 -I eval/character/continuity_cases.py --cap 0
+python3 -I eval/character/episodic_cases.py --cap 0
+python3 -I eval/character/initiative_cases.py --cap 0
+python3 -I eval/character/continuity_context_cases.py --cap 0
+python3 -I eval/lantern-vault/natural_scaled_check.py --cap 0
 cargo build --manifest-path bindings/native/Cargo.toml --locked
-python3 -I eval/life_bindings_check.py --cap 0
-node eval/life_bindings_check.mjs
+python3 -I eval/character/life_bindings_check.py --cap 0
+node eval/character/life_bindings_check.mjs
 ```
 
 The first five scripts accept `--prototype-only` and total 221 independent workflows;
 `--write-conformance` writes only their new families, never historical expectations.
 The 1,000-event archive workload is offline. C# uses the generated `target/life-csharp`
 requests/expected fixture files through the existing driver. New schemas/defaults and
-benchmarks are described in [LIFE](../docs/LIFE.md) and [LIFE_EVAL](../docs/LIFE_EVAL.md).
+benchmarks are described in [LIFE](../docs/characters/LIFE.md) and [LIFE_EVAL](../docs/evidence/LIFE_EVAL.md).
 
 For the structural validator, run `validation_reference.py` into
 `target/validation-oracle.json`, build the release library, then compile/run
@@ -1221,7 +1249,7 @@ A complete new pair makes 24 local calls, $0 API; no hosted budget is inferred.
 
 `life_speech_reference.py` independently specifies turn policy, subject-scoped facts,
 direct current-request rendering and punctuation diagnostics. After building the CLI,
-`python3 -I eval/life_speech_cases.py --cap 0` checks 32 compiler workflows and 16 sentence/
+`python3 -I eval/character/life_speech_cases.py --cap 0` checks 32 compiler workflows and 16 sentence/
 bound cases; `--prototype-only` runs just the oracle, `--write-conformance` adds only new
 families, and `--check-bindings` additionally checks 64 persistent CLI/native replies.
 No old conformance output or v1 speech artifact is regenerated.
@@ -1234,57 +1262,57 @@ The output schema stays at 240 characters and output reservation at 96. All raw 
 retained; helper diagnostics do not trim, silently repair, retry or replace them. Existing
 v1 files are SHA-256-bound and remain frozen. Audit frozen v2 tokens/results with `--check`.
 `life_model_v2_review.py --cap 0 --check` reproduces separately labeled assistant notes and
-mechanical metrics; it is not independent human scoring. [Results and remaining failures](../docs/LIFE_SPEECH_V2_EVAL.md).
+mechanical metrics; it is not independent human scoring. [Results and remaining failures](../docs/evidence/LIFE_SPEECH_V2_EVAL.md).
 
 ## Archetype and multi-party host checks
 
 `archetype_reference.py` and `party_compile_reference.py` independently prototype four
 composable loadouts, current-attitude gates, relative hearing history, floor reservations
-and spotlight routing. Run `python3 -I eval/archetype_cases.py --cap 0 --prototype-only
+and spotlight routing. Run `python3 -I eval/character/archetype_cases.py --cap 0 --prototype-only
 --tokens-only` before implementation/evaluation: no provider/tokenizer is assumed, and
 token counts are explicitly unknown. After building the CLI, `--check
-eval/archetype-party-results.json` checks 68 workflows, including 12 compiled-turn cases.
+eval/character/archetype-party-results.json` checks 68 workflows, including 12 compiled-turn cases.
 `--write-conformance` writes only the additive archetype-party family.
 
 `--check-bindings` checks 136 persistent CLI/native bridge replies and creates fixtures in
-target/archetype-party-csharp. Run `node eval/archetype_bindings_check.mjs`; the existing C#
+target/archetype-party-csharp. Run `node eval/character/archetype_bindings_check.mjs`; the existing C#
 Check driver accepts that directory's requests.txt/expected.txt. All make zero model calls.
 `--report FRESH_PATH` writes deterministic byte measurements, refusing existing paths.
 The retained report measures 3,210/2,708 trusted/untrusted provider-neutral request bytes,
 zero gated payloads in the untrusted request and zero ambient reserved model calls.
 These are structural host checks, not a conversational or model-tier benchmark. Existing
-v1/v2 life-model artifacts stay frozen. [Method, limits and runnable example](../docs/ARCHETYPES.md).
+v1/v2 life-model artifacts stay frozen. [Method, limits and runnable example](../docs/characters/ARCHETYPES.md).
 
 ## Living world and cast packs
 
 `living_reference.py` and `living_compile_reference.py` independently specify the one-file
 cast, bounded attributed reports, chronological group influence, relevant badges/atmosphere
-and speech lifecycle. Run `python3 -I eval/living_cases.py --cap 0 --prototype-only
+and speech lifecycle. Run `python3 -I eval/character/living_cases.py --cap 0 --prototype-only
 --tokens-only` first. No provider is contacted; tokenizer counts remain unknown. After
-building the CLI, `--check eval/living-world-results.json` checks 54 workflows and frozen
+building the CLI, `--check eval/character/living-world-results.json` checks 54 workflows and frozen
 life-model artifact hashes. `--write-conformance` writes only the new living-world family.
 `--check-bindings` checks 108 Python CLI/native replies and creates Node/C# fixtures under
-target/living-world-csharp; run `node eval/living_bindings_check.mjs` and the existing C#
+target/living-world-csharp; run `node eval/character/living_bindings_check.mjs` and the existing C#
 Check driver with that directory's requests.txt/expected.txt.
 
 `living_measure.rs` measures 1,000 unpaced release frames, four existing routine runtimes,
 initiative, 64 roots, 128 delivered reports, bounded pair scans and one fallback lifecycle
 per frame. It uses 200 fixed JSON strings as simulated completions, not actual model outputs.
-Build the release library, then `rustc --edition=2021 -O eval/living_measure.rs -L
+Build the release library, then `rustc --edition=2021 -O eval/character/living_measure.rs -L
 dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o
 target/living-measure`. Run to a fresh JSON path, then `living_measure_check.py --cap 0
 --capture RAW_PATH --output FRESH_PATH` records source hashes/hardware/method limits. Audit
-with `--check eval/living-world-timing.json`; CI does not rerun or enforce timing thresholds.
+with `--check eval/character/living-world-timing.json`; CI does not rerun or enforce timing thresholds.
 These are library host-work measurements, excluding engine rendering/physics, real worker
-latency and external callbacks. [Results and responsibilities](../docs/LIVING_WORLD.md).
+latency and external callbacks. [Results and responsibilities](../docs/characters/LIVING_WORLD.md).
 
 ## Visual compiler and approved asset metadata (offline)
 
 `visual_reference.py` independently prototypes bounded art contracts, live expression/pose
 selection, perceived-only fact cues, SHA-256 content keys and approval/fallback/repair.
-`python3 -I eval/visual_cases.py --cap 0 --prototype-only --tokens-only` checks predeclared
+`python3 -I eval/media/visual_cases.py --cap 0 --prototype-only --tokens-only` checks predeclared
 expectations before Rust comparison. Build the CLI then run `--cap 0 --check
- eval/visual-results.json` for 64 byte-identical workflows (13 malformed). The artifact
+ eval/media/visual-results.json` for 64 byte-identical workflows (13 malformed). The artifact
 records 37 queued metadata jobs, 5 exact reuses, 2 approved fallbacks and frozen hashes of
 all six life-model artifacts. Jobs are not dispatched: 0 model calls / $0 spend; image
 quality, provider tokens, latency and frame rate unmeasured. `--write-conformance` only
@@ -1292,17 +1320,17 @@ writes the additive visual family. Each accepted expected output was reviewed fo
 rules/cues, withheld facts, state transitions, fallback refs and stale-work rejection.
 
 `--check-bindings` exercises Python CLI/native persistent operations and emits Node/C#
-fixtures to target/visual-csharp. Run `node eval/visual_bindings_check.mjs` and the existing
+fixtures to target/visual-csharp. Run `node eval/media/visual_bindings_check.mjs` and the existing
 C# fixture driver. Tests include original SHA-256 known answers, typed live appraisal and
 routine/started-initiative adapters, repair-cycle nonce recovery and 9,000 deterministic
-input mutations. [Full contract and limits](../docs/VISUAL.md).
+input mutations. [Full contract and limits](../docs/guides/VISUAL.md).
 
 ## Loopback RPG / provider / voice studio (offline)
 
 `studio_reference.py` independently prototypes cumulative multi-modality reservation and
 Unicode voice receipt policies. `studio_cases.py --cap 0 --prototype-only --tokens-only`
 predeclares 32 workflows before comparison. Build the CLI/example, then run
-`python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json` to reproduce
+`python3 -I eval/studio/studio_check.py --cap 0 --check eval/studio/studio-web-results.json` to reproduce
 32 byte-identical Python/Rust policies, 85 real loopback HTTP endpoint checks and five
 fake-browser device/event scenarios. `--write-conformance` on the policy script writes
 only the additive studio family; selected routes, reservation errors, heard prefixes and
@@ -1315,7 +1343,7 @@ policy mutations. All fixtures use cap-zero transports; positive accounting amou
 synthetic ledger exercises. No installed provider, actual microphone or browser service is
 contacted. The retained artifact reports zero real provider calls / $0 spend, with physical
 voice offsets/quality, image quality, installed-runner latency and FPS explicitly unmeasured.
-See [the complete integration guide](../docs/STUDIO.md).
+See [the complete integration guide](../docs/studio/STUDIO.md).
 
 Overnight investigation: `overnight_deep.py --cap 0 --offline --output NEW.json`
 exercises 1,000 archival events and 600 loopback chat turns. Token-first installed-Qwen
@@ -1335,7 +1363,7 @@ checks stateful Python CLI/native selection and prepares Node/C# fixtures in tar
 `overnight_grounded_eval.py --cap 0` predeclares separate paired free/source-bound packets,
 requires a token-first artifact, reserves before subsequent requests, and can continue an
 interrupted artifact into a new file using `--resume`. The original incomplete run is
-retained. `overnight_audit.py --cap 0 --check eval/overnight-grounded-review.json` audits
+retained. `overnight_audit.py --cap 0 --check eval/overnight/overnight-grounded-review.json` audits
 48 recorded generations and revalidates all authorized replies in Rust without models.
 `overnight_ui_tokens.py --cap 0 --output NEW.json` measures the actual focused GUI body;
 `overnight-tier-requests.json` retains actual mock provider requests for all six tiers.
@@ -1350,14 +1378,14 @@ without rewriting that earlier fixture or any project baseline expectations.
 
 `overnight_campaign_live.py --cap 0 --build --holdout --output NEW.json` creates four
 1,000-event sessions and forty fresh restores. First build the public host adapter with
-`rustc --edition=2021 eval/overnight_campaign_compile.rs -L dependency=target/release/deps
+`rustc --edition=2021 eval/overnight/overnight_campaign_compile.rs -L dependency=target/release/deps
 --extern gamectx=target/release/libgamectx.rlib -o target/overnight-campaign-compile`
 after `cargo build --release --locked` and building the native library (or use `--cli`).
 The default renderer applies PartyScene gates; `--legacy-renderer` is an explicit failed
 harness reproduction, not a recommended host. `--optional-preferences` exercises archived
 lexical preference selection without mandatory preference anchors. Build and tokenize
 before live generation; `--required` selects question-specific required answers.
-`overnight_campaign_audit.py --cap 0 --check eval/overnight-campaign-review.json` audits
+`overnight_campaign_audit.py --cap 0 --check eval/overnight/overnight-campaign-review.json` audits
 the frozen failed and corrected live cohorts without calling a model.
 `overnight_required_speech_cases.py --cap 0` checks four independent policy workflows.
 The final optional preference trace reproduces all twelve previously live-tested packets;
@@ -1369,11 +1397,11 @@ Studio usability follow-up: `studio_setup_cases.py --cap 0` declares eight indep
 setup/reset expectations; `studio_setup_holdout.py --cap 0 --output NEW.json` exercises
 the actual host with an original loopback Ollama mock. It tests installed-name discovery,
 apply-after-travel, Talk routing, fallback/recovery, reset while a response is held, stale
-results and saved branches. `node eval/test_studio_setup.mjs --cap 0` checks pure UI helpers.
+results and saved branches. `node eval/studio/test_studio_setup.mjs --cap 0` checks pure UI helpers.
 No real provider runs in these automated checks. The original Studio artifact stays fixed.
 
 For a manual real-browser check, start an isolated Firefox with `--headless --no-remote --profile PROFILE --remote-debugging-port=9223`, start an isolated offline preview at
-port 8788, then run `python3 -I eval/studio_setup_browser.py --cap 0 --port 8788 --webdriver 9223 --output NEW.json`. This uses the original stdlib loopback BiDi driver,
+port 8788, then run `python3 -I eval/studio/studio_setup_browser.py --cap 0 --port 8788 --webdriver 9223 --output NEW.json`. This uses the original stdlib loopback BiDi driver,
 not a product dependency; it modifies that preview's game and branch A. Physical audio,
 STT accuracy, image quality and general player usability are outside its claims.
 
@@ -1388,49 +1416,49 @@ cache/approval and online-cap fallback. `model_manager_owned.py --cap 0` tests r
 owned fixture processes, replacement and parent-exit cleanup. Neither contacts installed
 models or online providers. Use `--output NEW.json` to retain a fresh run.
 `model_manager_bindings.py --cap 0` checks Python CLI/native and prepares shared Node/C#
-fixtures; `node eval/model_manager_bindings.mjs --cap 0` checks the Node bridge.
+fixtures; `node eval/studio/model_manager_bindings.mjs --cap 0` checks the Node bridge.
 
-Manual browser coverage: `python3 -I eval/model_manager_browser.py --cap 0` requires an
+Manual browser coverage: `python3 -I eval/studio/model_manager_browser.py --cap 0` requires an
 isolated offline host on 8788 and Firefox BiDi on 9223. Manual installed-provider lifecycle
-smoke: `python3 -I eval/model_manager_live.py --cap 0 --model INSTALLED_ID`; it uses existing
+smoke: `python3 -I eval/studio/model_manager_live.py --cap 0 --model INSTALLED_ID`; it uses existing
 loopback servers, loads/unloads only normal profiles, and leaves normal SD restored.
 Neither is an automated CI prerequisite. Retained browser/live JSON records the limits.
 
-Native audio: `python3 -I eval/native_audio_cases.py --cap 0` (13 pure cases),
-`python3 -I eval/native_voice_host.py --cap 0` (original CLI fixtures), and
-`python3 -I eval/native_audio_bindings.py --cap 0` / `node eval/native_audio_bindings.mjs --cap 0`.
-LAN: `python3 -I eval/lan_session_host.py --cap 0` and `python3 -I eval/lan_model_host.py --cap 0`.
-Manual Firefox: `python3 -I eval/voice_lan_browser.py --cap 0` against an isolated host on
+Native audio: `python3 -I eval/studio/native_audio_cases.py --cap 0` (13 pure cases),
+`python3 -I eval/studio/native_voice_host.py --cap 0` (original CLI fixtures), and
+`python3 -I eval/studio/native_audio_bindings.py --cap 0` / `node eval/studio/native_audio_bindings.mjs --cap 0`.
+LAN: `python3 -I eval/studio/lan_session_host.py --cap 0` and `python3 -I eval/studio/lan_model_host.py --cap 0`.
+Manual Firefox: `python3 -I eval/studio/voice_lan_browser.py --cap 0` against an isolated host on
 8788 with `--lan 127.0.0.2` and Firefox BiDi 9223. Manual installed voice smoke:
-`python3 -I eval/native_voice_live.py --cap 0 --installation INSTALL_DIR`.
+`python3 -I eval/studio/native_voice_live.py --cap 0 --installation INSTALL_DIR`.
 The latter two are not automated CI prerequisites; retained JSON states their limits.
 
-Buffered speech checks: `python3 -I eval/speech_buffer_cases.py --cap 0`,
-`node eval/test_speech_buffer.mjs --cap 0`, plus the native-host recovery cohort.
-Bindings use `eval/speech_buffer_bindings.py` / `.mjs`. Manual installed timing:
-`python3 -I eval/speech_buffer_live.py --cap 0 --installation INSTALL_DIR --baseline BASELINE_BINARY`;
+Buffered speech checks: `python3 -I eval/studio/speech_buffer_cases.py --cap 0`,
+`node eval/studio/test_speech_buffer.mjs --cap 0`, plus the native-host recovery cohort.
+Bindings use `eval/studio/speech_buffer_bindings.py` / `.mjs`. Manual installed timing:
+`python3 -I eval/studio/speech_buffer_live.py --cap 0 --installation INSTALL_DIR --baseline BASELINE_BINARY`;
 `--holdout-only` tests a fresh multi-part line. Manual Firefox capture uses
-`eval/speech_mic_browser.py --cap 0 --reference ORIGINAL_WAV`; `--delay-interim` forces
+`eval/studio/speech_mic_browser.py --cap 0 --reference ORIGINAL_WAV`; `--delay-interim` forces
 an interim/final ordering race. It requires an isolated native-STT host on 8788 and
 Firefox BiDi 9223. These manual installed/browser checks are not CI prerequisites.
 Retained speech-buffer/mic JSON records the measurement limits; old artifacts stay frozen.
 
-Voice history: `python3 -I eval/voice_archive_cases.py --cap 0` (12 pure cases),
-`python3 -I eval/voice_history_host.py --cap 0` (original delayed Ollama/CLI mocks),
+Voice history: `python3 -I eval/studio/voice_archive_cases.py --cap 0` (12 pure cases),
+`python3 -I eval/studio/voice_history_host.py --cap 0` (original delayed Ollama/CLI mocks),
 and the corresponding `voice_archive_bindings.py` / `.mjs` fixtures.
-Manual browser: `python3 -I eval/voice_history_browser.py --cap 0` requires Firefox
+Manual browser: `python3 -I eval/studio/voice_history_browser.py --cap 0` requires Firefox
 BiDi 9223 and creates its own isolated mock host. Media playback is stubbed; no model,
 physical audio or paid API is invoked. Retained voice-history JSON records its limits.
 
-Character viewpoints: `python3 -I eval/viewpoint_cases.py --cap 0` and `eval/personality_host.py --cap 0` run offline. `eval/personality_browser.py --cap 0` uses an explicitly started Firefox BiDi instance on 9223. Frozen `personality-model-*` and fresh `personality-model-v2-*` retain token-first packets, raw local 3B replies and lexical reviews; [interpretation](../docs/CHARACTER_VIEWPOINTS.md). Bindings use `viewpoint_bindings.py` / `.mjs`.
+Character viewpoints: `python3 -I eval/studio/viewpoint_cases.py --cap 0` and `eval/studio/personality_host.py --cap 0` run offline. `eval/studio/personality_browser.py --cap 0` uses an explicitly started Firefox BiDi instance on 9223. Frozen `personality-model-*` and fresh `personality-model-v2-*` retain token-first packets, raw local 3B replies and lexical reviews; [interpretation](../docs/characters/CHARACTER_VIEWPOINTS.md). Bindings use `viewpoint_bindings.py` / `.mjs`.
 
 Reactions: `reaction_cases.py --cap 0` checks 22 independent Python/Rust fixtures; `reaction_host.py --cap 0` checks transfers/debts/replay with no AI. `reaction_browser.py --cap 0` uses Firefox BiDi 9223. Frozen `reaction-host.json` and `reaction-browser.json` record counts/limits. `reaction_bindings.py` / `.mjs` cover all bindings.
 
-Social routing: `social_routing_cases.py --cap 0` runs 22 independent Rust/Python cases; `conversation_host.py --cap 0` exercises production host sequences. `social_conversation_browser.py --cap 0` needs Firefox BiDi 9223. `social_routing_bindings.py` / `.mjs` cover bindings. Frozen `conversation-model-*` and `conversation-model-v2-*`, `conversation-model-v3-*` and `conversation-model-final-*` retain raw token-first/local paired sequences; see [limits and the experimental metadata/duplicate/weather failures and the final zero-call routine path](../docs/STUDIO_CONVERSATION.md).
+Social routing: `social_routing_cases.py --cap 0` runs 22 independent Rust/Python cases; `conversation_host.py --cap 0` exercises production host sequences. `social_conversation_browser.py --cap 0` needs Firefox BiDi 9223. `social_routing_bindings.py` / `.mjs` cover bindings. Frozen `conversation-model-*` and `conversation-model-v2-*`, `conversation-model-v3-*` and `conversation-model-final-*` retain raw token-first/local paired sequences; see [limits and the experimental metadata/duplicate/weather failures and the final zero-call routine path](../docs/studio/STUDIO_CONVERSATION.md).
 
 Contextual greetings: `greeting_memory_cases.py --cap 0` checks 26 independent fixtures; `greeting_memory_host.py --cap 0` and `greeting_actions_host.py --cap 0` exercise real offline host state. `greeting_memory_browser.py --cap 0` needs an explicitly started Firefox BiDi 9223. `greeting_memory_bindings.py` / `.mjs` cover bindings; `studio_stage_reference.py --cap 0` records the original finite action grammar. Frozen new host/browser JSON contains counts/limits. No live model run is needed for this zero-generation layer.
 
-`python3 eval/deliberation_cases.py --cap 0` checks 28 independent reasoning/hypothesis fixtures; `node eval/autospeech_check.mjs --cap 0` checks 11 playback eligibility conditions. No live reasoning quality improvement is claimed.
+`python3 eval/studio/deliberation_cases.py --cap 0` checks 28 independent reasoning/hypothesis fixtures; `node eval/studio/autospeech_check.mjs --cap 0` checks 11 playback eligibility conditions. No live reasoning quality improvement is claimed.
 
 Conversation extensions: `message_chunks_cases.py --cap 0` (22),
 `roleplay_actions_cases.py --cap 0` (14), `conversation_extensions_host.py --cap 0`
@@ -1440,14 +1468,14 @@ Firefox workflows with mock audio/model). `conversation_extensions_model.py` req
 artifacts and manual review report complete packets but a name-summary omission and
 higher wall time; they do not establish quality or performance improvements.
 
-Expression/AI wording: `python3 eval/expression_cases.py --cap 0` (60),
-`python3 eval/wording_cases.py --cap 0` (14), `roleplayer_campaign.py --cap 0` and
+Expression/AI wording: `python3 eval/studio/expression_cases.py --cap 0` (60),
+`python3 eval/studio/wording_cases.py --cap 0` (14), `roleplayer_campaign.py --cap 0` and
 `ai_wording_host.py --cap 0` use actual host state with offline mocks. Both host scripts
 accept `--tokens-only --model INSTALLED_NAME` before a local four-thread live run;
 `--output` refuses overwrites. `expression_browser.py --cap 0` uses isolated Firefox
 BiDi 9223 and mocked model/audio. Bindings use `expression_bindings.py`/`.mjs`.
 Frozen `expression-model-*`, `roleplayer-*` and `ai-wording-*` retain packets, raw local
-responses and failures; [interpretation and limits](../docs/STUDIO_EXPRESSION.md).
+responses and failures; [interpretation and limits](../docs/studio/STUDIO_EXPRESSION.md).
 These scripts never require a paid API, model download or physical voice in CI.
 
 `expression_replay.py --cap 0` replays frozen campaign output through the old chunk

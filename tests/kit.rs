@@ -1,4 +1,4 @@
-use gamectx::{json, kit::Project, obj, Result, Value};
+use gamectx::{data::json, kit::Project, obj, Result, Value};
 use std::cell::Cell;
 
 fn fixture() -> Result<(Project, Value)> {

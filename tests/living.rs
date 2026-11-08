@@ -1,12 +1,12 @@
 use gamectx::{
-    cast::CastPack,
-    json,
-    living::{LivingWorld, SpeechQueue},
+    character::cast::CastPack,
+    character::living::{LivingWorld, SpeechQueue},
+    data::json,
     obj, Value,
 };
 use std::sync::Arc;
 fn pack() -> Value {
-    json::parse(include_str!("../examples/cast/chime-town.json"), 1_048_576).unwrap()
+    json::parse(include_str!("../examples/fixtures/cast/chime-town.json"), 1_048_576).unwrap()
 }
 fn world() -> LivingWorld {
     LivingWorld::new(Arc::new(CastPack::from_value(&pack()).unwrap()), "town_save_a").unwrap()
@@ -36,7 +36,7 @@ fn pack_checks_whole_cast_before_acceptance_and_preserves_shared_definitions() {
 #[test]
 fn reports_stay_reports_and_group_influence_does_not_corrupt_life_checkpoints() {
     let f = fixture("rumor_chain_and_ripple");
-    let (world, results) = gamectx::living::replay(arg(&f)).unwrap();
+    let (world, results) = gamectx::character::living::replay(arg(&f)).unwrap();
     let report = results[2].get("result").unwrap().get("reports").unwrap().as_array().unwrap()[0].clone();
     assert_eq!(report.get("hops"), Some(&2.into()));
     assert_eq!(report.get("event").unwrap().get("kind"), Some(&Value::str("report")));
@@ -61,8 +61,8 @@ fn reports_stay_reports_and_group_influence_does_not_corrupt_life_checkpoints() 
 }
 #[test]
 fn effective_ripples_control_actual_secret_selection() {
-    let before = gamectx::local::process(&fixture("compile_before_ripple")).unwrap();
-    let after = gamectx::local::process(&fixture("compile_after_ripple")).unwrap();
+    let before = gamectx::kit::local::process(&fixture("compile_before_ripple")).unwrap();
+    let after = gamectx::kit::local::process(&fixture("compile_after_ripple")).unwrap();
     assert!(!before.get("request").unwrap().to_json().contains("copper sparrow"));
     assert!(after.get("request").unwrap().to_json().contains("copper sparrow"));
     let messages = after.get("request").unwrap().get("messages").unwrap().as_array().unwrap();
@@ -132,7 +132,7 @@ fn clock_only_frames_do_not_starve_pending_speech() {
 }
 #[test]
 fn scan_budget_and_known_roots_prevent_unbounded_work_or_ripple_replay() {
-    let result = gamectx::local::process(&fixture("bounded_scan_recovers")).unwrap();
+    let result = gamectx::kit::local::process(&fixture("bounded_scan_recovers")).unwrap();
     let rows = result.get("results").unwrap().as_array().unwrap();
     let mut sent = 0;
     for row in &rows[1..] {
@@ -159,7 +159,7 @@ fn queue_capacity_requires_retirement_and_ids_do_not_replay() {
 #[test]
 fn real_routines_and_initiative_run_before_any_worker() {
     let f = fixture("immediate_routine_and_initiative");
-    let (w, rows) = gamectx::living::replay(arg(&f)).unwrap();
+    let (w, rows) = gamectx::character::living::replay(arg(&f)).unwrap();
     assert_eq!(
         rows[0].get("result").unwrap().get("routines").unwrap().as_array().unwrap()[0].get("ok"),
         Some(&true.into())
@@ -171,7 +171,7 @@ fn real_routines_and_initiative_run_before_any_worker() {
 
 #[test]
 fn later_direct_appraisal_does_not_reapply_a_saturated_group_effect() {
-    let result = gamectx::local::process(&fixture("ripple_then_direct_appraisal")).unwrap();
+    let result = gamectx::kit::local::process(&fixture("ripple_then_direct_appraisal")).unwrap();
     let rows = result.get("results").unwrap().as_array().unwrap();
     let inspection = rows.last().unwrap().get("result").unwrap();
     assert_eq!(

@@ -1,8 +1,7 @@
 use gamectx::{
-    json::parse,
-    obj,
-    query::{Query, Shape},
-    Value,
+    data::json::parse,
+    data::query::{Query, Shape},
+    obj, Value,
 };
 #[test]
 fn contracts_check_structure_without_claiming_semantics() -> gamectx::Result<()> {
@@ -40,8 +39,8 @@ fn validation_and_sorting_still_precede_limit() -> gamectx::Result<()> {
 #[test]
 fn relevance_boundaries_are_shared_by_tables_and_catalogs() -> gamectx::Result<()> {
     use gamectx::{
-        catalog::{Catalog, Limits},
-        view,
+        data::catalog::{Catalog, Limits},
+        data::view,
     };
     for id in ["zone:café_map", "zone.café_map", "zone/café_map", "zone-café_map"] {
         let rows = vec![obj! {"id"=>id}, obj! {"id"=>"zone:caféteria"}];
@@ -78,7 +77,7 @@ fn explain_cli_reads_no_table_and_rejects_extra_arguments() {
 
 #[test]
 fn guidance_is_explicit_and_standard_is_empty() -> gamectx::Result<()> {
-    use gamectx::query::Guidance;
+    use gamectx::data::query::Guidance;
     assert_eq!(Guidance::default(), Guidance::Standard);
     assert!(Guidance::Standard.text().is_empty());
     for name in ["standard", "explicit-selection"] {

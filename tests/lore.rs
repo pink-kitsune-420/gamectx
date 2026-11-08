@@ -1,7 +1,7 @@
-use gamectx::{dialogue::Answers, lore::Lore, obj, Value};
+use gamectx::{character::dialogue::Answers, knowledge::lore::Lore, obj, Value};
 #[test]
 fn lore_permissions_required_fit_and_snapshot_ownership_are_explicit() {
-    let lore = Lore::parse(include_str!("../examples/dungeon/world.json")).unwrap();
+    let lore = Lore::parse(include_str!("../examples/lantern-vault/world.json")).unwrap();
     let query = |actor: &str, grants: Vec<&str>, required: Vec<&str>, bytes: usize| obj! {"actor"=>actor,"grants"=>grants,"query"=>"vault inscription","subjects"=>vec!["room:vault"],"required"=>required,"limit"=>4,"max_bytes"=>bytes};
     let private = lore.select(&query("npc:merchant", vec!["vault_open"], vec![], 2048)).unwrap();
     assert!(private.get("packet").unwrap().as_array().unwrap().is_empty());

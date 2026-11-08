@@ -1,6 +1,6 @@
 [package]
 name = "gamectx"
-version = "0.3.1-a"
+version = "0.4.0-a"
 edition = "2021"
 rust-version = "1.82"
 license = "MIT"
@@ -9,6 +9,7 @@ repository = "https://github.com/pink-kitsune-420/gamectx"
 documentation = "https://docs.rs/gamectx"
 description = "Compile game data and tool schemas into small, budgeted context packets for AI-driven games."
 readme = "README.md"
+autoexamples = false
 exclude = ["eval/"]
 keywords = ["llm", "game-ai", "context", "json", "tokens"]
 categories = ["game-development", "compression", "command-line-utilities"]
@@ -16,3 +17,109 @@ categories = ["game-development", "compression", "command-line-utilities"]
 # Zero third-party dependencies by design: the only code in this crate is its own
 # and Rust's standard library, which keeps licensing simple for anyone embedding it.
 [dependencies]
+
+# Examples live in folders that mirror src/; names are stable `cargo run --example NAME` targets.
+
+[[example]]
+name = "character-life"
+path = "examples/character/character-life.rs"
+
+[[example]]
+name = "character-speech"
+path = "examples/character/character-speech.rs"
+
+[[example]]
+name = "character_tools"
+path = "examples/character/character_tools.rs"
+
+[[example]]
+name = "conversation"
+path = "examples/character/conversation.rs"
+
+[[example]]
+name = "conversation_tools"
+path = "examples/character/conversation_tools.rs"
+
+[[example]]
+name = "living-world"
+path = "examples/character/living-world.rs"
+
+[[example]]
+name = "party"
+path = "examples/character/party.rs"
+
+[[example]]
+name = "routine-context"
+path = "examples/character/routine-context.rs"
+
+[[example]]
+name = "routines"
+path = "examples/character/routines.rs"
+
+[[example]]
+name = "query-plans"
+path = "examples/data/query-plans.rs"
+
+[[example]]
+name = "query-workflow"
+path = "examples/data/query-workflow.rs"
+
+[[example]]
+name = "registered-project"
+path = "examples/kit/registered-project.rs"
+
+[[example]]
+name = "evidence-memory"
+path = "examples/knowledge/evidence-memory.rs"
+
+[[example]]
+name = "info_tools"
+path = "examples/knowledge/info_tools.rs"
+
+[[example]]
+name = "lore"
+path = "examples/knowledge/lore.rs"
+
+[[example]]
+name = "registered-facts"
+path = "examples/knowledge/registered-facts.rs"
+
+[[example]]
+name = "visual"
+path = "examples/media/visual.rs"
+
+[[example]]
+name = "local-turn"
+path = "examples/packet/local-turn.rs"
+
+[[example]]
+name = "optimized-turn"
+path = "examples/packet/optimized-turn.rs"
+
+[[example]]
+name = "task-workflow"
+path = "examples/packet/task-workflow.rs"
+
+[[example]]
+name = "adaptive-brain"
+path = "examples/runtime/adaptive-brain.rs"
+
+[[example]]
+name = "integration-tools"
+path = "examples/runtime/integration-tools.rs"
+
+[[example]]
+name = "preloaded-brains"
+path = "examples/runtime/preloaded-brains.rs"
+
+[[example]]
+name = "runtime-loop"
+path = "examples/runtime/runtime-loop.rs"
+
+[[example]]
+name = "runtime-upgrades"
+path = "examples/runtime/runtime-upgrades.rs"
+
+[[example]]
+name = "dungeon"
+path = "examples/lantern-vault/main.rs"

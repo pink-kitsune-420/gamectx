@@ -1,51 +1,23 @@
-//! gamectx compiles game data and tool schemas into small, budgeted context packets for
-//! AI-driven games.
+//! gamectx compiles game data, tool schemas and character state into small, budgeted context
+//! packets for AI-driven games. The model only ever proposes; the game validates and executes.
 //!
 //! Start with [`Context`]: register tools and prompts once, then add variables and tables
-//! each turn. The modules below are the building blocks it uses.
+//! each turn. The domain modules below are the building blocks it uses.
 //!
-//! - [`request`], [`dialogue`], [`decision`], [`deployment`], [`turn`]: full-request budgets, protected scenes, bounded choices and local deployment telemetry.
-//! - [`selection`], [`tune`]: dependency-complete host evidence and split recorded-configuration comparisons.
-//! - [`info`], [`inventory`]: optional reported information tools and current ownership/count lookup.
-//!   [`dialogue::InteractionTools`] adds scoped events, promises, relationships, references and offers.
-//! - [`kit`]: shared data registration, named recipes, validated callbacks, inspection and host bridges.
-//! - [`context`]: the easy API ([`Context`], [`Turn`], [`Table`]).
-//! - [`table`]: uniform objects to a header plus rows, optionally grouped by one or more
-//!   columns (lossless).
-//! - [`schema`]: tool schemas to rows with shared `$defs` (lossless), or a one-line outline (lossy).
-//! - [`signatures`]: tool schemas as short text lines, 12–14% fewer tokens than packed JSON
-//!   Schema (lossless).
-//! - [`view`]: sort, keep the top N, keep chosen columns and round numbers before packing.
-//! - [`catalog`]: searchable, paged registries instead of whole-registry dumps.
-//! - [`budget`]: stable-first assembly that drops low-priority sections to fit a budget.
-//! - [`estimate`]: conservative token estimates calibrated from provider usage reports.
-//! - [`memory`]: long-term records, scoped facts and cited hypotheses with expiry/privacy, with a
-//!   legacy `remember` tool for the model.
-//! - [`facts`]: explicit host/user assertions, pins, versioned dependencies and exact typed claim checks.
-//! - [`recall`]: optional immutable lexical indexes with host aliases and word normalization.
-//! - [`playbook`]: reusable host-validated procedures with current versioned prerequisites.
-//! - [`outcome`]: execution/exposure-gated, single-consumption training labels.
-//! - [`temporal`]: native event windows, rates and ordered sequence counts.
-//! - [`requests`]: sealed one-use asynchronous result tickets with freshness checks.
-//! - [`spending`]: integer reservations, settlement and conservative crash recovery.
-//! - [`query`]: a small SQL `SELECT` the model writes and the game runs exactly, for
-//!   filters and totals models get wrong when they read the data themselves.
-//!   Table descriptions keep rows in the game; correction sessions allow one retry.
-//! - [`brain`]: small game-defined reaction networks with deterministic local inference,
-//!   guarded/sliced training, native inference, versioned bindings, diagnostics and optional stability/caching.
-//!   [`brain::BrainBundle`] reuses one sealed perception frame across decision candidates.
-//! - [`replay`]: bounded observation/state traces with diagnostic and recorded-latency summaries.
-//! - [`schedule`]: bounded event-driven actor scheduling with periodic refresh.
-//! - [`sync`]: acknowledged context snapshots/deltas with strict reconstruction and resynchronization.
-//! - [`manifest`]: a JSON description of a packet, used by the `gamectx` command.
-//! - [`json`]: strict JSON values with exact number text, plus the [`obj!`] macro.
-//!
-//! The model only ever proposes. Packed context describes what exists; the game must
-//! still validate every action the model asks for.
+//! | Module | What it holds |
+//! |---|---|
+//! | [`data`] | strict [`json`](data::json), lossless [`table`](data::table)s, [`view`](data::view)s, safe [`formula`](data::formula)s, paged [`catalog`](data::catalog)s and the bounded model-written SQL [`query`](data::query) engine |
+//! | [`packet`] | the [`Context`] builder, stable-first [`budget`](packet::budget) assembly, [`manifest`](packet::manifest)s, tool [`schema`](packet::schema)/[`signatures`](packet::signatures), full-[`request`](packet::request) accounting, token [`estimate`](packet::estimate)s and acknowledged [`sync`](packet::sync) |
+//! | [`knowledge`] | [`memory`](knowledge::memory), [`recall`](knowledge::recall) indexes, typed [`facts`](knowledge::facts), authored [`lore`](knowledge::lore), attributed [`info`](knowledge::info) notes, [`inventory`](knowledge::inventory), [`observation`](knowledge::observation)s, evidence [`selection`](knowledge::selection), [`location`](knowledge::location), [`world`](knowledge::world) and [`temporal`](knowledge::temporal) windows |
+//! | [`character`] | scoped character [`tools`](character::tools), persistent [`life`](character::life), [`dialogue`](character::dialogue), [`routine`](character::routine)s, [`party`](character::party) scenes, [`archetype`](character::archetype) loadouts, [`cast`](character::cast) packs, the [`living`](character::living) world and opt-in [`roleplay`](character::roleplay) policies |
+//! | [`runtime`] | reaction [`brain`](runtime::brain)s, legal-choice [`decision`](runtime::decision)s, [`schedule`](runtime::schedule)s, [`playbook`](runtime::playbook) procedures, [`outcome`](runtime::outcome) labels, [`replay`](runtime::replay), one-use [`requests`](runtime::requests) and [`spending`](runtime::spending) |
+//! | [`deploy`] | identity-pinned [`deployment`](deploy::deployment) profiles, scene-driven [`model_policy`](deploy::model_policy), recorded-configuration [`tune`](deploy::tune) and complete-[`turn`](deploy::turn) telemetry |
+//! | [`media`] | [`visual`](media::visual) specs and asset registry, [`voice`](media::voice) delivery and [`providers`](media::providers) backend routing |
+//! | [`kit`] | shared registration, named recipes, validated callbacks, inspection and host bridges |
 //!
 //! ```
-//! use gamectx::budget::{assemble_bytes, Section};
-//! use gamectx::{json, table};
+//! use gamectx::data::{json, table};
+//! use gamectx::packet::budget::{assemble_bytes, Section};
 //!
 //! let inventory = json::parse(r#"[{"id":"salt_pouch","count":12},{"id":"ash_bread","count":4}]"#, 1 << 20)?;
 //! let packed = table::pack(inventory.as_array().unwrap(), &[])?;
@@ -57,58 +29,18 @@
 //! # Ok::<(), gamectx::Error>(())
 //! ```
 
-pub mod archetype;
-pub mod brain;
-pub mod budget;
-pub mod cast;
-pub mod catalog;
 pub mod character;
 mod checked;
-pub mod context;
-pub mod decision;
-pub mod deployment;
-pub mod dialogue;
-pub mod estimate;
-pub mod facts;
-pub mod formula;
-pub mod info;
-pub mod inventory;
-pub mod json;
+pub mod data;
+pub mod deploy;
 pub mod kit;
-pub mod life;
-pub mod living;
-pub mod local;
-pub mod location;
-pub mod lore;
-pub mod manifest;
-pub mod memory;
-pub mod observation;
-pub mod outcome;
-pub mod party;
-pub mod playbook;
-pub mod query;
-pub mod recall;
-pub mod replay;
-pub mod request;
-pub mod requests;
-pub mod routine;
-pub mod schedule;
-pub mod schema;
-pub mod selection;
-pub mod signatures;
-pub mod spending;
-pub mod studio;
-pub mod sync;
-pub mod table;
-pub mod temporal;
-pub mod tune;
-pub mod turn;
-pub mod view;
-pub mod visual;
-pub mod world;
+pub mod knowledge;
+pub mod media;
+pub mod packet;
+pub mod runtime;
 
-pub use context::{Context, Table, Turn};
-pub use json::{Error, Result, Value};
+pub use data::json::{Error, Result, Value};
+pub use packet::context::{Context, Table, Turn};
 
 /// 64-bit FNV-1a. Used to notice changed data, never for security.
 pub fn fingerprint_u64(text: &str) -> u64 {

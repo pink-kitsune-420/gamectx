@@ -1,9 +1,9 @@
 use gamectx::{
-    brain::{Brain, Prediction},
-    budget::{assemble_bytes, Section},
     obj,
-    schedule::Scheduler,
-    sync::{Publisher, Replica},
+    packet::budget::{assemble_bytes, Section},
+    packet::sync::{Publisher, Replica},
+    runtime::brain::{Brain, Prediction},
+    runtime::schedule::Scheduler,
     Error, Result, Value,
 };
 fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
@@ -33,7 +33,7 @@ fn initial(workflow: &Value) -> Result<Brain> {
     let mut data = workflow.as_object().ok_or_else(|| Error::new("workflow"))?.to_vec();
     data.retain(|(k, _)| k != "operations");
     data.push(("operations".into(), Value::Array(vec![])));
-    Brain::restore(get(&gamectx::brain::process(&Value::Object(data))?, "state")?)
+    Brain::restore(get(&gamectx::runtime::brain::process(&Value::Object(data))?, "state")?)
 }
 pub fn process(v: &Value) -> Result<Value> {
     match text(get(v, "kind")?)? {
@@ -81,7 +81,7 @@ pub fn process(v: &Value) -> Result<Value> {
             let p = assemble_bytes(sections?, int(get(v, "cap")?)?)?;
             Ok(obj! {"packet"=>p.value,"receipt"=>p.receipt.to_value()})
         }
-        "host" => gamectx::brain::process(get(v, "workflow")?),
+        "host" => gamectx::runtime::brain::process(get(v, "workflow")?),
         "job" => {
             let workflow = get(v, "workflow")?;
             let mut brain = initial(workflow)?;

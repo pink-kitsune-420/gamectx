@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # eval/common/provenance.py reads pre-0.4 files from history
       - run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
       - run: cargo +stable fmt --check
       - run: cargo +stable clippy --all-targets --locked -- -D warnings
@@ -21,232 +23,234 @@ jobs:
       - run: cargo +stable build --release --locked
       - run: cargo +stable build --bin gamectx --example dungeon --example info_tools --example conversation_tools --example character_tools --locked
       - run: cargo +stable test --example character_tools --locked
-      - run: python3 -I eval/test_dungeon_agent.py
-      - run: python3 -I eval/workflow_cases.py --cap 0 --check
-      - run: python3 -I eval/dungeon_social_cases.py --cap 0 --check
-      - run: python3 -I eval/conversation_cases.py --cap 0 --check
-      - run: python3 -I eval/dungeon_trade_cases.py --cap 0
-      - run: python3 -I eval/check_dungeon_feedback.py --cap 0
-      - run: python3 -I eval/lore_cases.py --cap 0 --check
-      - run: python3 -I eval/dungeon_knowledge_cases.py --cap 0
-      - run: python3 -I eval/test_dungeon_knowledge.py
-      - run: python3 -I eval/conversation_patch_cases.py --cap 0
-      - run: python3 -I eval/conversation_time_cases.py --cap 0
-      - run: python3 -I eval/check_conversation_patch.py --cap 0
-      - run: python3 -I eval/location_cases.py --cap 0
-      - run: python3 -I eval/world_cases.py --cap 0
-      - run: python3 -I eval/character_cases.py --cap 0
-      - run: python3 -I eval/routines_cases.py --cap 0
-      - run: python3 -I eval/routine_improvements_cases.py --cap 0
-      - run: python3 -I eval/test_adversarial.py
-      - run: python3 -I eval/test_count_cache.py
-      - run: python3 -I eval/adversarial_probe.py --cap 0 --require-fixed
-      - run: python3 -I eval/adversarial_cases.py --cap 0
-      - run: python3 -I eval/time_assessment_cases.py --cap 0
-      - run: python3 -I eval/life_cases.py --cap 0
-      - run: python3 -I eval/continuity_cases.py --cap 0
-      - run: python3 -I eval/episodic_cases.py --cap 0
-      - run: python3 -I eval/initiative_cases.py --cap 0
-      - run: python3 -I eval/continuity_context_cases.py --cap 0
-      - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-tokens.json
-      - run: python3 -I eval/life_model_eval.py --cap 0 --check eval/life-model-results.json
-      - run: python3 -I eval/life_speech_cases.py --cap 0
-      - run: python3 -I eval/archetype_cases.py --cap 0 --check eval/archetype-party-results.json
-      - run: python3 -I eval/living_cases.py --cap 0 --check eval/living-world-results.json
-      - run: python3 -I eval/living_measure_check.py --cap 0 --check eval/overnight-living-timing.json
-      - run: python3 -I eval/visual_cases.py --cap 0 --check eval/visual-results.json
-      - run: python3 -I eval/overnight_transient_cases.py --cap 0
-      - run: python3 -I eval/overnight_memory_cases.py --cap 0
-      - run: python3 -I eval/overnight_causality_cases.py --cap 0
-      - run: python3 -I eval/overnight_input_cases.py --cap 0
-      - run: python3 -I eval/overnight_input_holdout.py --cap 0
-      - run: python3 -I eval/overnight_scope_holdout.py --cap 0 --expect-rejection --output target/overnight-scope-ci.json
-      - run: node eval/test_studio_context.mjs --cap 0
-      - run: python3 -I eval/studio_setup_cases.py --cap 0
-      - run: python3 -I eval/studio_setup_holdout.py --cap 0
-      - run: node eval/test_studio_setup.mjs --cap 0
-      - run: python3 -I eval/model_manager_cases.py --cap 0
-      - run: python3 -I eval/model_manager_host.py --cap 0
-      - run: python3 -I eval/model_manager_owned.py --cap 0
-      - run: python3 -I eval/native_audio_cases.py --cap 0
-      - run: python3 -I eval/speech_buffer_cases.py --cap 0
-      - run: python3 -I eval/voice_archive_cases.py --cap 0
-      - run: python3 -I eval/voice_history_host.py --cap 0
-      - run: python3 -I eval/viewpoint_cases.py --cap 0
-      - run: python3 -I eval/personality_host.py --cap 0
-      - run: python3 -I eval/reaction_cases.py --cap 0
-      - run: python3 -I eval/reaction_host.py --cap 0
-      - run: python3 -I eval/social_routing_cases.py --cap 0
-      - run: python3 -I eval/conversation_host.py --cap 0
-      - run: python3 -I eval/greeting_memory_cases.py --cap 0
-      - run: python3 -I eval/greeting_memory_host.py --cap 0
-      - run: python3 -I eval/greeting_actions_host.py --cap 0
-      - run: python3 -I eval/studio_stage_reference.py --cap 0
-      - run: node eval/test_speech_buffer.mjs --cap 0
-      - run: python3 -I eval/native_voice_host.py --cap 0
-      - run: python3 -I eval/lan_session_host.py --cap 0
-      - run: python3 -I eval/lan_model_host.py --cap 0
-      - run: python3 -I eval/overnight_causality_cases.py --cap 0 --semantic
-      - run: python3 -I eval/overnight_required_speech_cases.py --cap 0
-      - run: python3 -I eval/overnight_campaign_audit.py --cap 0 --check eval/overnight-campaign-review.json
-      - run: python3 -I eval/overnight_speech_cases.py --cap 0
-      - run: python3 -I eval/overnight_audit.py --cap 0 --check eval/overnight-grounded-review.json
+      - run: python3 -I eval/lantern-vault/test_dungeon_agent.py
+      - run: python3 -I eval/local/workflow_cases.py --cap 0 --check
+      - run: python3 -I eval/lantern-vault/dungeon_social_cases.py --cap 0 --check
+      - run: python3 -I eval/lantern-vault/conversation_cases.py --cap 0 --check
+      - run: python3 -I eval/lantern-vault/dungeon_trade_cases.py --cap 0
+      - run: python3 -I eval/lantern-vault/check_dungeon_feedback.py --cap 0
+      - run: python3 -I eval/knowledge/lore_cases.py --cap 0 --check
+      - run: python3 -I eval/lantern-vault/dungeon_knowledge_cases.py --cap 0
+      - run: python3 -I eval/lantern-vault/test_dungeon_knowledge.py
+      - run: python3 -I eval/lantern-vault/conversation_patch_cases.py --cap 0
+      - run: python3 -I eval/lantern-vault/conversation_time_cases.py --cap 0
+      - run: python3 -I eval/lantern-vault/check_conversation_patch.py --cap 0
+      - run: python3 -I eval/knowledge/location_cases.py --cap 0
+      - run: python3 -I eval/knowledge/world_cases.py --cap 0
+      - run: python3 -I eval/character/character_cases.py --cap 0
+      - run: python3 -I eval/character/routines_cases.py --cap 0
+      - run: python3 -I eval/character/routine_improvements_cases.py --cap 0
+      - run: python3 -I eval/local/test_adversarial.py
+      - run: python3 -I eval/query/test_count_cache.py
+      - run: python3 -I eval/local/adversarial_probe.py --cap 0 --require-fixed
+      - run: python3 -I eval/local/adversarial_cases.py --cap 0
+      - run: python3 -I eval/local/time_assessment_cases.py --cap 0
+      - run: python3 -I eval/character/life_cases.py --cap 0
+      - run: python3 -I eval/character/continuity_cases.py --cap 0
+      - run: python3 -I eval/character/episodic_cases.py --cap 0
+      - run: python3 -I eval/character/initiative_cases.py --cap 0
+      - run: python3 -I eval/character/continuity_context_cases.py --cap 0
+      - run: python3 -I eval/character/life_model_eval.py --cap 0 --check eval/character/life-model-tokens.json
+      - run: python3 -I eval/character/life_model_eval.py --cap 0 --check eval/character/life-model-results.json
+      - run: python3 -I eval/character/life_speech_cases.py --cap 0
+      - run: python3 -I eval/character/archetype_cases.py --cap 0 --check eval/character/archetype-party-results.json
+      - run: python3 -I eval/character/living_cases.py --cap 0 --check eval/character/living-world-results.json
+      - run: python3 -I eval/character/living_measure_check.py --cap 0 --check eval/overnight/overnight-living-timing.json
+      - run: python3 -I eval/media/visual_cases.py --cap 0 --check eval/media/visual-results.json
+      - run: python3 -I eval/overnight/overnight_transient_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_memory_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_causality_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_input_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_input_holdout.py --cap 0
+      - run: python3 -I eval/overnight/overnight_scope_holdout.py --cap 0 --expect-rejection --output target/overnight-scope-ci.json
+      - run: node eval/studio/test_studio_context.mjs --cap 0
+      - run: python3 -I eval/studio/studio_setup_cases.py --cap 0
+      - run: python3 -I eval/studio/studio_setup_holdout.py --cap 0
+      - run: node eval/studio/test_studio_setup.mjs --cap 0
+      - run: python3 -I eval/studio/model_manager_cases.py --cap 0
+      - run: python3 -I eval/studio/model_manager_host.py --cap 0
+      - run: python3 -I eval/studio/model_manager_owned.py --cap 0
+      - run: python3 -I eval/studio/native_audio_cases.py --cap 0
+      - run: python3 -I eval/studio/speech_buffer_cases.py --cap 0
+      - run: python3 -I eval/studio/voice_archive_cases.py --cap 0
+      - run: python3 -I eval/studio/voice_history_host.py --cap 0
+      - run: python3 -I eval/studio/viewpoint_cases.py --cap 0
+      - run: python3 -I eval/studio/personality_host.py --cap 0
+      - run: python3 -I eval/studio/reaction_cases.py --cap 0
+      - run: python3 -I eval/studio/reaction_host.py --cap 0
+      - run: python3 -I eval/studio/social_routing_cases.py --cap 0
+      - run: python3 -I eval/studio/conversation_host.py --cap 0
+      - run: python3 -I eval/studio/greeting_memory_cases.py --cap 0
+      - run: python3 -I eval/studio/greeting_memory_host.py --cap 0
+      - run: python3 -I eval/studio/greeting_actions_host.py --cap 0
+      - run: python3 -I eval/studio/studio_stage_reference.py --cap 0
+      - run: node eval/studio/test_speech_buffer.mjs --cap 0
+      - run: python3 -I eval/studio/native_voice_host.py --cap 0
+      - run: python3 -I eval/studio/lan_session_host.py --cap 0
+      - run: python3 -I eval/studio/lan_model_host.py --cap 0
+      - run: python3 -I eval/overnight/overnight_causality_cases.py --cap 0 --semantic
+      - run: python3 -I eval/overnight/overnight_required_speech_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_campaign_audit.py --cap 0 --check eval/overnight/overnight-campaign-review.json
+      - run: python3 -I eval/overnight/overnight_speech_cases.py --cap 0
+      - run: python3 -I eval/overnight/overnight_audit.py --cap 0 --check eval/overnight/overnight-grounded-review.json
       - run: cargo +stable test --example visual --locked
-      - run: python3 -I eval/studio_check.py --cap 0 --check eval/studio-web-results.json
+      - run: python3 -I eval/studio/studio_check.py --cap 0 --check eval/studio/studio-web-results.json
       - run: cargo +stable test --example living-world --locked
       - run: cargo +stable test --example party --locked
-      - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-tokens.json
-      - run: python3 -I eval/life_model_v2_eval.py --cap 0 --check eval/life-model-v2-results.json
-      - run: python3 -I eval/life_model_v2_review.py --cap 0 --check
+      - run: python3 -I eval/character/life_model_v2_eval.py --cap 0 --check eval/character/life-model-v2-tokens.json
+      - run: python3 -I eval/character/life_model_v2_eval.py --cap 0 --check eval/character/life-model-v2-results.json
+      - run: python3 -I eval/character/life_model_v2_review.py --cap 0 --check
       - run: cargo +stable test --example character-speech --locked
-      - run: python3 -I eval/validation_reference.py > target/validation-oracle.json
-      - run: rustc --edition=2021 -O eval/validation_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/validation-check
+      - run: python3 -I eval/query/validation_reference.py > target/validation-oracle.json
+      - run: rustc --edition=2021 -O eval/query/validation_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/validation-check
       - run: ./target/validation-check
       - run: cargo +stable test --example character-life --locked
-      - run: python3 -I eval/check_character_limits.py --cap 0 --check eval/character-limit-summary.json
+      - run: python3 -I eval/local/check_character_limits.py --cap 0 --check eval/local/character-limit-summary.json
       - run: cargo +stable test --example dungeon --locked
-      - run: python3 -I eval/info_inventory_cases.py --cap 0
-      - run: python3 -I eval/interaction_cases.py --cap 0
-      - run: python3 -I eval/interaction_measure.py --cap 0 --check eval/interaction-results.json
-      - run: python3 -I eval/dungeon_natural_cases.py --cap 0
-      - run: python3 -I eval/natural_scaled_check.py --cap 0
-      - run: python3 -I eval/check_natural_model.py --cap 0 eval/natural-tokens.json eval/natural-results.json eval/natural-v2-tokens.json eval/natural-v2-results.json
-      - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-stock-tokens.json eval/lore-stock-results.json
-      - run: python3 -I eval/check_lore_model.py --cap 0 eval/lore-tokens.json eval/lore-results.json eval/lore-v2-tokens.json eval/lore-v2-results.json eval/lore-native-tokens.json eval/lore-native-results.json eval/lore-fresh-tokens.json eval/lore-fresh-results.json eval/lore-retest-tokens.json eval/lore-retest-results.json eval/lore-extra-tokens.json eval/lore-extra-results.json eval/lore-repair-tokens.json eval/lore-repair-results.json
-      - run: python3 -I eval/test_dungeon_ai.py
-      - run: python3 -I eval/check_dungeon_slots.py --cap 0 --check eval/dungeon-slots-tokens.json eval/dungeon-slots-results.json eval/dungeon-entities-tokens.json eval/dungeon-entities-results.json
-      - run: python3 -I eval/check_dungeon_social.py --cap 0 eval/dungeon-social-tokens.json eval/dungeon-social-results.json eval/dungeon-social-guided-tokens.json eval/dungeon-social-guided-results.json eval/dungeon-social-focused-tokens.json eval/dungeon-social-focused-results.json
-      - run: python3 -I eval/dungeon_cases.py --cap 0 --check --audit eval/dungeon-results.json
-      - run: python3 -I eval/check_dungeon_agent.py --cap 0 eval/dungeon-model-tokens.json eval/dungeon-model-results.json
-      - run: python3 -I eval/optimization_cases.py --check
-      - run: python3 -I eval/optimization_measure.py --cap 0 --check
-      - run: python3 -I eval/optimization_measure.py --cap 0 --check-tokens eval/optimization-tokens.json
-      - run: python3 -I eval/optimization_model_eval.py --cap 0 --check eval/optimization-heldout-tokens.json
-      - run: python3 -I eval/optimization_model_eval.py --cap 0 --check eval/optimization-heldout-results.json
-      - run: python3 -I eval/optimization_model_pilot.py --cap 0 --check eval/optimization-pilot-results.json
-      - run: python3 -I eval/query_upgrade_eval.py --check eval/query-guidance-results.json --cap 0
-      - run: python3 -I eval/summarize_query_upgrade.py --check
-      - run: python3 -I eval/test_query_upgrade.py
-      - run: rustc --edition=2021 -O eval/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
-      - run: rustc --edition=2021 -O eval/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
-      - run: python3 -I eval/query_optimization_check.py
-      - run: python3 -I eval/relevance_eval.py
-      - run: python3 -I eval/test_query_eval.py
-      - run: python3 -I eval/test_query_workflow.py
-      - run: python3 -I eval/test_brain.py
-      - run: python3 -I eval/test_brain_accuracy.py
-      - run: python3 -I eval/test_brain_cache.py
-      - run: python3 -I eval/test_runtime.py
-      - run: python3 -I eval/test_integration.py
-      - run: python3 -I eval/test_facts.py
-      - run: python3 -I eval/test_upgrades.py
-      - run: python3 -I eval/test_release_model.py
-      - run: python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-tokens.json
-      - run: python3 -I eval/release_model_eval.py --check --cap 0 --output eval/release-model-results.json
-      - run: python3 -I eval/summarize_release_model.py --check
-      - run: rustc --edition=2021 -O eval/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
-      - run: python3 -I eval/upgrades_eval.py --check
-      - run: rustc --edition=2021 -O eval/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench
+      - run: python3 -I eval/knowledge/info_inventory_cases.py --cap 0
+      - run: python3 -I eval/knowledge/interaction_cases.py --cap 0
+      - run: python3 -I eval/knowledge/interaction_measure.py --cap 0 --check eval/knowledge/interaction-results.json
+      - run: python3 -I eval/lantern-vault/dungeon_natural_cases.py --cap 0
+      - run: python3 -I eval/lantern-vault/natural_scaled_check.py --cap 0
+      - run: python3 -I eval/lantern-vault/check_natural_model.py --cap 0 eval/lantern-vault/natural-tokens.json eval/lantern-vault/natural-results.json eval/lantern-vault/natural-v2-tokens.json eval/lantern-vault/natural-v2-results.json
+      - run: python3 -I eval/knowledge/check_lore_model.py --cap 0 eval/knowledge/lore-stock-tokens.json eval/knowledge/lore-stock-results.json
+      - run: python3 -I eval/knowledge/check_lore_model.py --cap 0 eval/knowledge/lore-tokens.json eval/knowledge/lore-results.json eval/knowledge/lore-v2-tokens.json eval/knowledge/lore-v2-results.json eval/knowledge/lore-native-tokens.json eval/knowledge/lore-native-results.json eval/knowledge/lore-fresh-tokens.json eval/knowledge/lore-fresh-results.json eval/knowledge/lore-retest-tokens.json eval/knowledge/lore-retest-results.json eval/knowledge/lore-extra-tokens.json eval/knowledge/lore-extra-results.json eval/knowledge/lore-repair-tokens.json eval/knowledge/lore-repair-results.json
+      - run: python3 -I eval/lantern-vault/test_dungeon_ai.py
+      - run: python3 -I eval/lantern-vault/check_dungeon_slots.py --cap 0 --check eval/lantern-vault/dungeon-slots-tokens.json eval/lantern-vault/dungeon-slots-results.json eval/lantern-vault/dungeon-entities-tokens.json eval/lantern-vault/dungeon-entities-results.json
+      - run: python3 -I eval/lantern-vault/check_dungeon_social.py --cap 0 eval/lantern-vault/dungeon-social-tokens.json eval/lantern-vault/dungeon-social-results.json eval/lantern-vault/dungeon-social-guided-tokens.json eval/lantern-vault/dungeon-social-guided-results.json eval/lantern-vault/dungeon-social-focused-tokens.json eval/lantern-vault/dungeon-social-focused-results.json
+      - run: python3 -I eval/lantern-vault/dungeon_cases.py --cap 0 --check --audit eval/lantern-vault/dungeon-results.json
+      - run: python3 -I eval/lantern-vault/check_dungeon_agent.py --cap 0 eval/lantern-vault/dungeon-model-tokens.json eval/lantern-vault/dungeon-model-results.json
+      - run: python3 -I eval/local/optimization_cases.py --check
+      - run: python3 -I eval/local/optimization_measure.py --cap 0 --check
+      - run: python3 -I eval/local/optimization_measure.py --cap 0 --check-tokens eval/local/optimization-tokens.json
+      - run: python3 -I eval/local/optimization_model_eval.py --cap 0 --check eval/local/optimization-heldout-tokens.json
+      - run: python3 -I eval/local/optimization_model_eval.py --cap 0 --check eval/local/optimization-heldout-results.json
+      - run: python3 -I eval/local/optimization_model_pilot.py --cap 0 --check eval/local/optimization-pilot-results.json
+      - run: python3 -I eval/query/query_upgrade_eval.py --check eval/query/query-guidance-results.json --cap 0
+      - run: python3 -I eval/query/summarize_query_upgrade.py --check
+      - run: python3 -I eval/query/test_query_upgrade.py
+      - run: rustc --edition=2021 -O eval/query/query_plan_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-plan-check
+      - run: rustc --edition=2021 -O eval/query/query_compare.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/query-compare
+      - run: python3 -I eval/query/query_optimization_check.py
+      - run: python3 -I eval/query/relevance_eval.py
+      - run: python3 -I eval/query/test_query_eval.py
+      - run: python3 -I eval/query/test_query_workflow.py
+      - run: python3 -I eval/runtime/test_brain.py
+      - run: python3 -I eval/runtime/test_brain_accuracy.py
+      - run: python3 -I eval/runtime/test_brain_cache.py
+      - run: python3 -I eval/runtime/test_runtime.py
+      - run: python3 -I eval/runtime/test_integration.py
+      - run: python3 -I eval/runtime/test_facts.py
+      - run: python3 -I eval/runtime/test_upgrades.py
+      - run: python3 -I eval/query/test_release_model.py
+      - run: python3 -I eval/query/release_model_eval.py --check --cap 0 --output eval/query/release-model-tokens.json
+      - run: python3 -I eval/query/release_model_eval.py --check --cap 0 --output eval/query/release-model-results.json
+      - run: python3 -I eval/query/summarize_release_model.py --check
+      - run: rustc --edition=2021 -O eval/runtime/upgrades_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-check
+      - run: python3 -I eval/runtime/upgrades_eval.py --check
+      - run: rustc --edition=2021 -O eval/runtime/upgrades_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/upgrades-bench
       - run: ./target/upgrades-bench > /dev/null
-      - run: rustc --edition=2021 -O eval/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
-      - run: python3 -I eval/facts_eval.py --check
-      - run: rustc --edition=2021 -O eval/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
-      - run: python3 -I eval/integration_eval.py --check
-      - run: rustc --edition=2021 -O eval/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
+      - run: rustc --edition=2021 -O eval/runtime/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
+      - run: python3 -I eval/runtime/facts_eval.py --check
+      - run: rustc --edition=2021 -O eval/runtime/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
+      - run: python3 -I eval/runtime/integration_eval.py --check
+      - run: rustc --edition=2021 -O eval/runtime/integration_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-bench
       - run: ./target/integration-bench > /dev/null
-      - run: python3 -I eval/query_meaning_eval.py --check --cap 0
-      - run: python3 -I eval/prefix_cache_eval.py --cap 0
-      - run: rustc --edition=2021 -O eval/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
-      - run: python3 -I eval/runtime_eval.py --check
-      - run: rustc --edition=2021 -O eval/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
+      - run: python3 -I eval/query/query_meaning_eval.py --check --cap 0
+      - run: python3 -I eval/query/prefix_cache_eval.py --cap 0
+      - run: rustc --edition=2021 -O eval/runtime/runtime_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-check
+      - run: python3 -I eval/runtime/runtime_eval.py --check
+      - run: rustc --edition=2021 -O eval/runtime/runtime_bench.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/runtime-bench
       - run: ./target/runtime-bench > /dev/null
-      - run: python3 -I eval/brain_cache_eval.py --check
-      - run: python3 -I eval/brain_accuracy_eval.py --check
-      - run: python3 -I eval/brain_eval.py --check
-      - run: python3 -I eval/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
-      - run: python3 -I eval/query_eval.py --differential 3000 --cap 0
+      - run: python3 -I eval/runtime/brain_cache_eval.py --check
+      - run: python3 -I eval/runtime/brain_accuracy_eval.py --check
+      - run: python3 -I eval/runtime/brain_eval.py --check
+      - run: python3 -I eval/query/query_workflow_eval.py --check --seeds 7,101,202,303 --cap 0
+      - run: python3 -I eval/query/query_eval.py --differential 3000 --cap 0
 
   kit-bindings:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # eval/common/provenance.py reads pre-0.4 files from history
       - run: rustup toolchain install stable --profile minimal --component clippy,rustfmt
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
       - run: cargo +stable build --locked
-      - run: python3 -I eval/kit_eval.py --check
-      - run: python3 -I eval/local_cases.py --check
-      - run: python3 -I eval/test_ollama.py
-      - run: python3 -I eval/check_local_model.py --cap 0 eval/local-model-tokens.json eval/local-model-results.json eval/local-tools-tokens.json eval/local-guidance-results.json
+      - run: python3 -I eval/runtime/kit_eval.py --check
+      - run: python3 -I eval/local/local_cases.py --check
+      - run: python3 -I eval/local/test_ollama.py
+      - run: python3 -I eval/local/check_local_model.py --cap 0 eval/local/local-model-tokens.json eval/local/local-model-results.json eval/local/local-tools-tokens.json eval/local/local-guidance-results.json
       - run: cargo +stable fmt --manifest-path bindings/native/Cargo.toml --check
       - run: cargo +stable clippy --manifest-path bindings/native/Cargo.toml --all-targets --locked -- -D warnings
       - run: cargo +stable test --manifest-path bindings/native/Cargo.toml --locked
       - run: cargo +stable build --manifest-path bindings/native/Cargo.toml --locked
-      - run: python3 -I eval/workflow_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/conversation_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/lore_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/optimization_cases.py --check-bindings
-      - run: python3 -I eval/kit_bindings_check.py --csharp-fixtures target/kit-csharp
-      - run: node eval/kit_bindings_check.mjs
-      - run: python3 -I eval/local_bindings_check.py
-      - run: python3 -I eval/information_bindings_check.py --cap 0 --fixtures target/information-csharp
-      - run: node eval/information_bindings_check.mjs --cap 0 target/information-csharp
-      - run: python3 -I eval/character_session_cases.py --cap 0 --fixtures target/character-csharp
-      - run: node eval/character_bindings_check.mjs
-      - run: python3 -I eval/routine_bindings_check.py --cap 0
-      - run: node eval/routine_bindings_check.mjs
-      - run: python3 -I eval/routine_detail_bindings_check.py --cap 0
-      - run: node eval/routine_detail_bindings_check.mjs
-      - run: python3 -I eval/adversarial_bindings_check.py --cap 0
-      - run: node eval/adversarial_bindings_check.mjs
-      - run: python3 -I eval/life_bindings_check.py --cap 0
-      - run: python3 -I eval/life_speech_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/archetype_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/living_cases.py --cap 0 --check-bindings
-      - run: python3 -I eval/visual_cases.py --cap 0 --check-bindings
-      - run: node eval/visual_bindings_check.mjs
-      - run: python3 -I eval/studio_cases.py --cap 0 --check-bindings
-      - run: node eval/studio_bindings_check.mjs --cap 0
-      - run: python3 -I eval/overnight_bindings_check.py --cap 0
-      - run: node eval/overnight_bindings_check.mjs --cap 0
-      - run: python3 -I eval/model_manager_bindings.py --cap 0
-      - run: node eval/model_manager_bindings.mjs --cap 0
-      - run: python3 -I eval/native_audio_bindings.py --cap 0
-      - run: node eval/native_audio_bindings.mjs --cap 0
-      - run: python3 -I eval/speech_buffer_bindings.py --cap 0
-      - run: node eval/speech_buffer_bindings.mjs --cap 0
-      - run: python3 -I eval/voice_archive_bindings.py --cap 0
-      - run: node eval/voice_archive_bindings.mjs --cap 0
-      - run: python3 -I eval/viewpoint_bindings.py --cap 0
-      - run: node eval/viewpoint_bindings.mjs --cap 0
-      - run: python3 -I eval/reaction_bindings.py --cap 0
-      - run: node eval/reaction_bindings.mjs --cap 0
-      - run: python3 -I eval/social_routing_bindings.py --cap 0
-      - run: node eval/social_routing_bindings.mjs --cap 0
-      - run: python3 -I eval/greeting_memory_bindings.py --cap 0
-      - run: node eval/greeting_memory_bindings.mjs --cap 0
-      - run: python3 -I eval/deliberation_cases.py --cap 0
-      - run: python3 -I eval/deliberation_bindings.py --cap 0
-      - run: node eval/deliberation_bindings.mjs --cap 0
-      - run: python3 -I eval/expression_cases.py --cap 0
-      - run: python3 -I eval/story_scene_cases.py --cap 0
-      - run: python3 -I eval/scene_story_host.py --cap 0
-      - run: node eval/scene_voice_check.mjs --cap 0
-      - run: python3 -I eval/wording_cases.py --cap 0
-      - run: python3 -I eval/expression_bindings.py --cap 0
-      - run: node eval/expression_bindings.mjs --cap 0
-      - run: python3 -I eval/roleplayer_campaign.py --cap 0
-      - run: python3 -I eval/ai_wording_host.py --cap 0
-      - run: python3 -I eval/message_chunks_cases.py --cap 0
-      - run: python3 -I eval/roleplay_actions_cases.py --cap 0
-      - run: python3 -I eval/conversation_extensions_bindings.py --cap 0
-      - run: node eval/conversation_extensions_bindings.mjs --cap 0
-      - run: python3 -I eval/conversation_extensions_host.py --cap 0
-      - run: node eval/autospeech_check.mjs --cap 0
-      - run: node eval/living_bindings_check.mjs
-      - run: node eval/archetype_bindings_check.mjs
-      - run: node eval/life_bindings_check.mjs
+      - run: python3 -I eval/local/workflow_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/lantern-vault/conversation_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/knowledge/lore_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/local/optimization_cases.py --check-bindings
+      - run: python3 -I eval/runtime/kit_bindings_check.py --csharp-fixtures target/kit-csharp
+      - run: node eval/runtime/kit_bindings_check.mjs
+      - run: python3 -I eval/local/local_bindings_check.py
+      - run: python3 -I eval/knowledge/information_bindings_check.py --cap 0 --fixtures target/information-csharp
+      - run: node eval/knowledge/information_bindings_check.mjs --cap 0 target/information-csharp
+      - run: python3 -I eval/character/character_session_cases.py --cap 0 --fixtures target/character-csharp
+      - run: node eval/character/character_bindings_check.mjs
+      - run: python3 -I eval/character/routine_bindings_check.py --cap 0
+      - run: node eval/character/routine_bindings_check.mjs
+      - run: python3 -I eval/character/routine_detail_bindings_check.py --cap 0
+      - run: node eval/character/routine_detail_bindings_check.mjs
+      - run: python3 -I eval/local/adversarial_bindings_check.py --cap 0
+      - run: node eval/local/adversarial_bindings_check.mjs
+      - run: python3 -I eval/character/life_bindings_check.py --cap 0
+      - run: python3 -I eval/character/life_speech_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/character/archetype_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/character/living_cases.py --cap 0 --check-bindings
+      - run: python3 -I eval/media/visual_cases.py --cap 0 --check-bindings
+      - run: node eval/media/visual_bindings_check.mjs
+      - run: python3 -I eval/studio/studio_cases.py --cap 0 --check-bindings
+      - run: node eval/studio/studio_bindings_check.mjs --cap 0
+      - run: python3 -I eval/overnight/overnight_bindings_check.py --cap 0
+      - run: node eval/overnight/overnight_bindings_check.mjs --cap 0
+      - run: python3 -I eval/studio/model_manager_bindings.py --cap 0
+      - run: node eval/studio/model_manager_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/native_audio_bindings.py --cap 0
+      - run: node eval/studio/native_audio_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/speech_buffer_bindings.py --cap 0
+      - run: node eval/studio/speech_buffer_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/voice_archive_bindings.py --cap 0
+      - run: node eval/studio/voice_archive_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/viewpoint_bindings.py --cap 0
+      - run: node eval/studio/viewpoint_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/reaction_bindings.py --cap 0
+      - run: node eval/studio/reaction_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/social_routing_bindings.py --cap 0
+      - run: node eval/studio/social_routing_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/greeting_memory_bindings.py --cap 0
+      - run: node eval/studio/greeting_memory_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/deliberation_cases.py --cap 0
+      - run: python3 -I eval/studio/deliberation_bindings.py --cap 0
+      - run: node eval/studio/deliberation_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/expression_cases.py --cap 0
+      - run: python3 -I eval/studio/story_scene_cases.py --cap 0
+      - run: python3 -I eval/studio/scene_story_host.py --cap 0
+      - run: node eval/studio/scene_voice_check.mjs --cap 0
+      - run: python3 -I eval/studio/wording_cases.py --cap 0
+      - run: python3 -I eval/studio/expression_bindings.py --cap 0
+      - run: node eval/studio/expression_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/roleplayer_campaign.py --cap 0
+      - run: python3 -I eval/studio/ai_wording_host.py --cap 0
+      - run: python3 -I eval/studio/message_chunks_cases.py --cap 0
+      - run: python3 -I eval/studio/roleplay_actions_cases.py --cap 0
+      - run: python3 -I eval/studio/conversation_extensions_bindings.py --cap 0
+      - run: node eval/studio/conversation_extensions_bindings.mjs --cap 0
+      - run: python3 -I eval/studio/conversation_extensions_host.py --cap 0
+      - run: node eval/studio/autospeech_check.mjs --cap 0
+      - run: node eval/character/living_bindings_check.mjs
+      - run: node eval/character/archetype_bindings_check.mjs
+      - run: node eval/character/life_bindings_check.mjs
       - run: sudo apt-get update && sudo apt-get install -y mono-mcs
       - run: mcs -out:target/kit-csharp/Check.exe bindings/csharp/GamectxClient.cs bindings/csharp/Check.cs
       - run: LD_LIBRARY_PATH=bindings/native/target/debug mono target/kit-csharp/Check.exe examples/kit/project.json target/kit-csharp/requests.txt target/kit-csharp/expected.txt
@@ -280,6 +284,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # eval/common/provenance.py reads pre-0.4 files from history
       - run: rustup toolchain install 1.82 --profile minimal
       - run: cargo +1.82 test --locked
       - run: cargo +1.82 test --example dungeon --locked

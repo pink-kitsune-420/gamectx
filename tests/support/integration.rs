@@ -1,8 +1,9 @@
 use gamectx::{
-    brain::{BoundBrain, Brain, FeatureSchema, Selection, SelectionPolicy, StableBrain},
-    json::{parse, Error, Result, Value},
-    memory::Journal,
-    obj, replay,
+    data::json::{parse, Error, Result, Value},
+    knowledge::memory::Journal,
+    obj,
+    runtime::brain::{BoundBrain, Brain, FeatureSchema, Selection, SelectionPolicy, StableBrain},
+    runtime::replay,
 };
 fn bad() -> Error {
     Error::new("invalid integration workflow")
@@ -32,13 +33,13 @@ fn brain(workflow: &Value) -> Result<Brain> {
     let mut raw = workflow.as_object().ok_or_else(bad)?.to_vec();
     raw.retain(|(key, _)| key != "operations");
     raw.push(("operations".into(), Value::Array(vec![])));
-    let initial = gamectx::brain::process(&Value::Object(raw))?;
+    let initial = gamectx::runtime::brain::process(&Value::Object(raw))?;
     Brain::restore(get(&initial, "state")?)
 }
 pub fn process(v: &Value) -> Result<Value> {
     match text(get(v, "kind")?)? {
         "evidence" => {
-            use gamectx::memory::{EvidenceMemory, EvidenceSnapshot};
+            use gamectx::knowledge::memory::{EvidenceMemory, EvidenceSnapshot};
             let subject = text(get(v, "subject")?)?;
             let clock = text(get(v, "clock")?)?;
             let mut memory =
@@ -116,7 +117,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "metadata" => {
             let tables = get(v, "tables")?.as_object().ok_or_else(bad)?;
             let named: Result<Vec<_>> = tables.iter().map(|(name, rows)| Ok((name.as_str(), list(rows)?))).collect();
-            gamectx::query::describe_with(&named?, get(v, "metadata")?)
+            gamectx::data::query::describe_with(&named?, get(v, "metadata")?)
         }
         "diagnostics" => {
             let brain = brain(get(v, "workflow")?)?;
@@ -178,7 +179,9 @@ pub fn process(v: &Value) -> Result<Value> {
                 }
             }
             let saved = journal.to_value();
-            if Journal::restore(&parse(&saved.to_json(), gamectx::memory::MAX_JOURNAL_BYTES)?)?.to_value() != saved {
+            if Journal::restore(&parse(&saved.to_json(), gamectx::knowledge::memory::MAX_JOURNAL_BYTES)?)?.to_value()
+                != saved
+            {
                 return Err(bad());
             }
             Ok(obj! {"results"=>results,"state"=>saved})

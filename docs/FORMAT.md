@@ -202,7 +202,7 @@ Input: `{"complete":true,"entries":[{"kind":"item","id":"ember_lantern","tags":[
 or a bare array of entries. IDs, kinds and tags may not contain spaces or control
 characters. Tags are sorted, and at most 8 are kept per entry.
 
-Output of `gamectx search examples/ember-keep/catalog.json lights --kind item --count 1`:
+Output of `gamectx search examples/fixtures/ember-keep/catalog.json lights --kind item --count 1`:
 
 ```json
 {"generation":"5ec1d79bdf3831c5","complete":true,
@@ -416,7 +416,7 @@ or query rewriting is performed; default tools, descriptions and sessions are un
 
 The conformance `query-guidance` operation takes a JSON profile string and returns the
 supplement as a JSON string. Unknown names and non-string input fail. The profile trades
-more input for a mixed per-model result; see the [paired report](QUERY_OPTIMIZATION_2026_11_06.md).
+more input for a mixed per-model result; see the [paired report](evidence/QUERY_OPTIMIZATION_2026_11_06.md).
 
 ## Query plans and host contracts
 
@@ -600,7 +600,7 @@ and must be 1..2000000; the aggregate estimate cannot exceed it. Each trial must
 satisfy the original `(3*E*N+2*V)*P <= 500000` bound. All budget checks occur before any
 training. Extra validation passes account for both MSE and decision counts.
 
-The [runnable selection workflow](../examples/brain/selection.json) returns this first result:
+The [runnable selection workflow](../examples/fixtures/brain/selection.json) returns this first result:
 
 ```json
 {"accepted":true,"revision":1,"before_loss":0.167654,"after_loss":0.000385,"before_correct":1,"after_correct":2,"validation_count":2,"selected_rate":0.3,"steps":101728,"trials":[{"rate":0.03,"loss":0.038317,"correct":1},{"rate":0.1,"loss":0.002275,"correct":2},{"rate":0.3,"loss":0.000385,"correct":2}]}
@@ -1199,7 +1199,7 @@ crash exclusion, provider request caps and authenticated billing remain host dut
 
 ## Model measurement references
 
-The [fresh alpha.3 model check](MODEL_TEST_2026_11_06.md) uses these existing table,
+The [fresh alpha.3 model check](evidence/MODEL_TEST_2026_11_06.md) uses these existing table,
 metadata and query-session formats without changing them. Across six synthetic states,
 full JSON and packed tables each scored 27/96; schema + query scored 91/96. Average
 completed-exchange input was 1,786.792 / 1,252.125 / 916.490 tokens. All 105 recorded
@@ -1211,7 +1211,7 @@ records four syntactically valid queries with wrong intent and one terminal synt
 
 Opt-in version 1; existing formats are unchanged. `kit::process` / `gamectx kit` accept
 exactly `{project,op,args}`. `Project::parse` accepts the project alone. Unknown, missing
-and duplicate fields are rejected. Full workflows and examples: [KIT](KIT.md).
+and duplicate fields are rejected. Full workflows and examples: [KIT](guides/KIT.md).
 
 A project has exactly `version:1`, `datasets`, `tools`, `recipes`. Maximum compact project
 size 262,144 UTF-8 bytes; at most 16 datasets, 32 tools and 32 recipes. Names (including
@@ -1454,7 +1454,7 @@ native Rust APIs; no adapter operation invokes game callbacks.
 
 Full required fields, bounds, validation/selection order, byte versus token semantics,
 model-facing versus host-only results and failure behavior are specified in
-[OPTIMIZATION](OPTIMIZATION.md). In particular, composition acknowledgement equality
+[OPTIMIZATION](guides/OPTIMIZATION.md). In particular, composition acknowledgement equality
 preserves JSON object order and number spelling; a count for another candidate cannot
 be used. Ready receipts still trust the host counter. Missing tuning metrics remain null
 and exclude selection. Held-out results do not select configurations.
@@ -1464,7 +1464,7 @@ and exclude selection. Held-out results do not select configurations.
 The standalone `dungeon` Cargo example defines a bounded version-1 JSON-lines host and
 `{seed,commands}` replay format. This is an example protocol, separate from the unchanged
 library/kit/local formats. Its action/visibility/revision rules and request limits are
-specified in the [testbed guide](../examples/dungeon/README.md). `examples/dungeon/cases`
+specified in the [testbed guide](../examples/lantern-vault/README.md). `examples/lantern-vault/cases`
 contains separate example conformance fixtures for the pure replay rules. They do not
 add a library operation or require library ports to implement the game.
 
@@ -1489,13 +1489,13 @@ Two additive `local` kinds preserve existing kinds and expected outputs:
 
 The Rust APIs are `deployment::{Workload,WorkloadHints}`, `ModelSize::workflow_profile`,
 `ModelSize::workload_hints` and `dialogue::render_direct`. Thirty new conformance cases;
-all 565 previous cases unchanged. [Profiles and measurements](WORKFLOWS.md).
+all 565 previous cases unchanged. [Profiles and measurements](guides/WORKFLOWS.md).
 
 The example-only dungeon adds `interpret`, `workflow`, `speech_prepare`, `speech_finish`,
 `speech_state` and `speech_forget` to its own JSON-lines protocol. Its social replays and
-fixtures live under `examples/dungeon`, outside the core format corpus. Protocol arguments,
+fixtures live under `examples/lantern-vault`, outside the core format corpus. Protocol arguments,
 scoped memory, clarification revision checks and bounds are specified in its
-[guide](../examples/dungeon/README.md). These host operations are not automatic model tools.
+[guide](../examples/lantern-vault/README.md). These host operations are not automatic model tools.
 
 
 ## Shared conversation, reference and confirmation contracts (v0.3.0a)
@@ -1503,7 +1503,7 @@ scoped memory, clarification revision checks and bounds are specified in its
 Local kinds `conversation`, `references` and `confirmation` expose the additive
 native APIs `dialogue::{Conversation,ConversationLimits,resolve_references}` and
 `decision::PendingAction`. Exact input/output schemas, bounds and workflow operations
-are specified in [CONVERSATION](CONVERSATION.md). Thirty-eight new cases under
+are specified in [CONVERSATION](guides/CONVERSATION.md). Thirty-eight new cases under
 `conformance/conversation` cover these operations; all 595 prior cases stay unchanged.
 The replay adapters create fresh state; native callers retain instances across turns.
 No adapter dispatches game actions or promotes generated speech into authoritative facts.
@@ -1515,17 +1515,17 @@ proposal contract; result is an accepted deterministic game action. A pending of
 created only by the host's explicit purchase-request handler, never by generated prose.
 
 
-The user-feedback corpus `eval/dungeon-feedback.json` is diagnostic data, outside the
+The user-feedback corpus `eval/lantern-vault/dungeon-feedback.json` is diagnostic data, outside the
 core conformance formats. It preserves unpinned reported input/reply text and separate
 manual annotations; missing deployment/world/usage data remain null. Its offline audit
 reproduces host rules and feeds supplied speech through validation, without treating
-structural acceptance as semantic accuracy. [Report](DUNGEON_FEEDBACK.md).
+structural acceptance as semantic accuracy. [Report](evidence/DUNGEON_FEEDBACK.md).
 
 
 ## Authored lore and source-bound answers (v0.3.0a)
 
 Additive local kinds `lore` (`{world,select}`) and `answers` (`{definition,calls}`) expose
-`lore::Lore` and `dialogue::Answers`. [LORE](LORE.md) specifies exact fields, byte/count
+`lore::Lore` and `dialogue::Answers`. [LORE](guides/LORE.md) specifies exact fields, byte/count
 bounds, audience/grant checks, required-fit semantics, source precedence and response
 validation. Twenty-eight new conformance cases leave all 633 previous cases unchanged.
 Authored lore is not live state; quote answers preserve player words with attribution.
@@ -1539,7 +1539,7 @@ path permits up to 512 reply characters; legacy generated speech remains capped 
 
 ## Informational tools and structured lore (v0.3.0a)
 
-Additive local kinds `info` and `inventory` implement the exact contracts in [INFO.md](INFO.md).
+Additive local kinds `info` and `inventory` implement the exact contracts in [INFO.md](guides/INFO.md).
 `info` args are `{scope,calls:[{name,text,sources}]}` (at most 128 calls), returning
 `{scope,notes,results:[{ok:true,result}|{ok:false}]}`. `inventory` args are
 `{snapshot,calls}` (at most 64), returning `{snapshot,results}` with the same isolated
@@ -1550,7 +1550,7 @@ most 32 entries. No outer state is changed if initial validation fails.
 
 Lore version 2 is additive: `value` replaces `text`, with at most 4096 serialized bytes
 per value. Selection packets preserve that field. Mixed-version fields are rejected.
-All version-1 lore output remains byte-identical. See [LORE.md](LORE.md).
+All version-1 lore output remains byte-identical. See [LORE.md](guides/LORE.md).
 
 
 ## Conversation tool workflow (v0.3.0a)
@@ -1561,7 +1561,7 @@ at most 128 operations. An operation is exactly `{op,args}`: host operations `ev
 Call args are `{name,text,sources,revision,max_bytes,allowed}`; `allowed` is a host list
 of at most 32 exact decisions. `respond` args are `{recipient,revision,confirm,terms,allowed}`.
 `clear` args are `{}`. Other host records and all model arguments follow
-[INTERACTIONS.md](INTERACTIONS.md). Results are `{state,results}`; per-operation results
+[INTERACTIONS.md](guides/INTERACTIONS.md). Results are `{state,results}`; per-operation results
 use `{ok:true,result}` or `{ok:false}`. State is private host inspection, not a model packet.
 Invalid initial configuration rejects the workflow. Model-call failures are atomic;
 recipient confirmation follows the existing one-attempt consumption contract.
@@ -1599,12 +1599,12 @@ is `request,selected_tools,input_bytes,omitted`. Fifty new fixtures specify exac
 Quote phrasing is a new opt-in renderer; old answer-resolution output stays unchanged.
 
 The new version-1 character host operations and view/plan shapes are documented in
-[CHARACTERS.md](CHARACTERS.md). Persistent bridge envelopes retain their prior shape.
+[CHARACTERS.md](characters/CHARACTERS.md). Persistent bridge envelopes retain their prior shape.
 
 ## Routines, observations and time knowledge
 
 Additive unreleased v0.3.1a formats; all previous expected outputs stay unchanged.
-See [ROUTINES](ROUTINES.md) for policy/host responsibilities and persistent operations.
+See [ROUTINES](guides/ROUTINES.md) for policy/host responsibilities and persistent operations.
 
 Routine definition, exact fields: `version:1,id,revision,calendar,activities`. At most
 128 activities; 131,072 definition bytes. Scoped IDs are nonempty, no controls, at most
@@ -1749,12 +1749,12 @@ controls, nonpositive output or insufficient whole-turn allowance fail before in
 
 Existing formats remain unchanged. Definitions, source/subjective views, standalone
 checkpoints and context packets use new version 1 contracts; the persistent combined
-checkpoint is version 2. [LIFE](LIFE.md) describes host authority and recovery.
+checkpoint is version 2. [LIFE](characters/LIFE.md) describes host authority and recovery.
 
 - `Setting`: exactly `id,calendar,entities,history`. Up to 128 entities/history records;
   each history record is `id,at,participants,text`. Drafts reference only approved history.
 - `Definition`: exactly `version,id,revision,setting,calendar,facets,attitudes,rules,history,
-  improvisation`; at most 65,536 bytes. See editable `examples/characters/merchant-life.json`
+  improvisation`; at most 65,536 bytes. See editable `examples/fixtures/characters/merchant-life.json`
   for every nested field. Maximum 64 facets/attitudes/rules, 32 history IDs; texts are
   1..512 non-control characters and at most 2,048 UTF-8 bytes. IDs use existing scope bounds.
 - Life config: optional `enabled,balanced,deception,mistaken,tools`, all features false and
@@ -1813,7 +1813,7 @@ most 32 facts is exactly `key,subject,status,value`, using approved entity IDs. 
 are non-null; unknown values are null with status unknown. Each value is at most 1,024 JSON
 bytes. Keys are unique scope strings, excluding question_subject/utterance_speaker/
 fact_subjects. Facts must fit the attention cap, never drop required unknown markers.
-Profile/known-state gating is described in [LIFE](LIFE.md#turn-aware-speech-policy-v2).
+Profile/known-state gating is described in [LIFE](characters/LIFE.md#turn-aware-speech-policy-v2).
 
 The additive `local` kind `life-speech-v2` is an offline adapter with `life,request`; it
 returns `character,request`. It makes no model calls. `sentence-boundary` takes `text,
@@ -1824,7 +1824,7 @@ text and does not certify semantic completeness or factual support.
 
 ## Archetype and party layer (opt-in v1)
 
-[Complete contracts and host responsibilities](ARCHETYPES.md). Blueprint input is exactly
+[Complete contracts and host responsibilities](characters/ARCHETYPES.md). Blueprint input is exactly
 `version:1,preset,size,modules,policies,tools,model_calls`; presets are ambient/service/quest/
 companion, sizes 0b/1b/1.5b/3b/8b/30b/70b. Module overrides are partial booleans; policies
 are exactly balanced/deception/mistaken. Tools are a unique subset of life_recall/life_change
@@ -1872,7 +1872,7 @@ are kind/subject/level. These adapters are host/testing operations, never model 
 
 ## Living world / cast pack v1
 
-[Full contracts, bounds and host responsibilities](LIVING_WORLD.md). CastPack is exactly
+[Full contracts, bounds and host responsibilities](characters/LIVING_WORLD.md). CastPack is exactly
 `version:1,id,revision,setting,players,locations,groups,characters,lore,features,propagation,
 ripple,habits`, at most 1 MiB. Setting, Locations, Lore, Blueprint, Definition, Routine and
 AttitudeGates reuse existing formats. Up to 12 characters plus up to 8 players must fit
@@ -1926,7 +1926,7 @@ never model tools and use the unchanged version-1 bridge/native ABI.
 ## Optional visual specs and asset registry
 
 The additive `visual-spec` / `visual-assets` local formats and persistent `visual_*`
-host operations are specified in [VISUAL](VISUAL.md). They add 64 conformance cases,
+host operations are specified in [VISUAL](guides/VISUAL.md). They add 64 conformance cases,
 including 13 malformed inputs; all 1,026 existing cases retain their bytes. Bible/spec
 objects use canonical lexical keys for SHA-256 identity (other formats retain their
 existing ordering). Inspection is outside the key. Registry outputs have stable
@@ -1942,7 +1942,7 @@ operations are reserve (`modality,backend,ceiling,local_fallback`), dispatch/fin
 progress/interrupt/finish (`through,heard`) and recognition (`text,final,uncertainty`).
 An operation is wrapped as `{op,args}`; success is `{ok:true,result}`, failure `{ok:false}`.
 Top-level shape/bounds errors reject the workflow. These deterministic adapters dispatch
-nothing. [STUDIO](STUDIO.md) specifies provider names, receipts, cumulative caps and limits.
+nothing. [STUDIO](studio/STUDIO.md) specifies provider names, receipts, cumulative caps and limits.
 32 additive cases leave all previous 1,090 cases byte-identical.
 
 ### Transient world dialogue
@@ -1982,7 +1982,7 @@ text, stale revision, unavailable source and invalid/duplicate sentence variants
 
 ### Studio command proposals
 
-The opt-in `studio-command` adapter / `studio::resolve_command` accepts
+The opt-in `studio-command` adapter / `character::roleplay::resolve_command` accepts
 `{input,choices,labels,focus}`: 1,024 input bytes, at most 128 unique `{action,target}`
 pairs, 128 label records `{id,aliases}` with at most eight aliases each, and a nullable
 host-chosen focus ID. The complete request is at most 65,536 bytes. Output is
@@ -2037,9 +2037,9 @@ adds `model_manager`, and visual selection adds a distinct `preview_asset` for l
 previous approved art. This is not approval or exact reuse for the newly requested key.
 Host launchers and executable arguments remain outside this protocol. See MODEL_MANAGER.md.
 
-Native voice integration and the Settings menu are documented in [Native voice](NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
+Native voice integration and the Settings menu are documented in [Native voice](studio/NATIVE_VOICE.md). Engines/weights are separately installed; the host launches one bounded audio job at a time, removes temporary recordings, and stops owned process groups on cancellation.
 
-Two-player LAN conversation keeps all processing on the host. See [LAN play](LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
+Two-player LAN conversation keeps all processing on the host. See [LAN play](studio/LAN_PLAY.md) for the private listener, join code, guest permissions, delivery/floor rules and offline evidence.
 
 `studio-native-audio` local requests contain exact `engine`/`request` fields. Piper requests
 contain `model,input,voice,speed,response_format`; Whisper requests contain `model`.
@@ -2051,7 +2051,7 @@ LAN guest APIs are separate from existing host APIs: `POST /api/join {code}`,
 Authenticated cookies bind player 2; guest writes also carry scene generation headers.
 Only loopback hosts can read `/api/session` or `POST /api/session_rotate {}`.
 
-Buffered Piper playback and microphone recovery are documented in [buffered speech](BUFFERED_SPEECH.md).
+Buffered Piper playback and microphone recovery are documented in [buffered speech](studio/BUFFERED_SPEECH.md).
 
 `studio-speech-buffer` is additive: exact args `text,start` produce `parts` with
 `text,start,through` and a final `through`. Text is 1–240 Unicode scalars without controls;
@@ -2062,23 +2062,23 @@ to existing Studio audio packets. Checkpoints describe completed PCM parts, not 
 word alignment. Existing generic HTTP voice formats and conformance outputs are unchanged.
 
 Voice recording history, cancellable local replies and the floating context/execution
-profilers are documented in [Studio diagnostics](STUDIO_DIAGNOSTICS.md).
+profilers are documented in [Studio diagnostics](studio/STUDIO_DIAGNOSTICS.md).
 
-`studio-viewpoints` adds bounded `{state,ops}` delivery-confirmed mental stances; see [character viewpoints](CHARACTER_VIEWPOINTS.md). Existing fixture outputs and checkpoints without this optional extension remain unchanged.
+`studio-viewpoints` adds bounded `{state,ops}` delivery-confirmed mental stances; see [character viewpoints](characters/CHARACTER_VIEWPOINTS.md). Existing fixture outputs and checkpoints without this optional extension remain unchanged.
 
-`studio-reactions` adds `{policy,frame,proposal}` selection/authorization with 22 additive cases. Only selected `allowed` capabilities belong in model context; see [reaction contract](CHARACTER_REACTIONS.md). Optional example transfer checkpoint records preserve old saves.
+`studio-reactions` adds `{policy,frame,proposal}` selection/authorization with 22 additive cases. Only selected `allowed` capabilities belong in model context; see [reaction contract](characters/CHARACTER_REACTIONS.md). Optional example transfer checkpoint records preserve old saves.
 
-`studio-conversation` adds a bounded `{input,previous}` → `{kind,topic}` social routing hint, with 22 additive `social-routing` cases. It grants no actions or facts; [host behavior and limits](STUDIO_CONVERSATION.md). Existing conversation fixtures are unchanged.
+`studio-conversation` adds a bounded `{input,previous}` → `{kind,topic}` social routing hint, with 22 additive `social-routing` cases. It grants no actions or facts; [host behavior and limits](studio/STUDIO_CONVERSATION.md). Existing conversation fixtures are unchanged.
 
-`studio-greetings` adds bounded `{config,state,ops}` encounter planning/confirmation, 26 additive cases and an optional example `encounters` checkpoint extension. `approach` and finite wrapped stage directions are validated example host actions. [Contracts and bounds](CONTEXTUAL_GREETINGS.md).
+`studio-greetings` adds bounded `{config,state,ops}` encounter planning/confirmation, 26 additive cases and an optional example `encounters` checkpoint extension. `approach` and finite wrapped stage directions are validated example host actions. [Contracts and bounds](characters/CONTEXTUAL_GREETINGS.md).
 
 ## Additive studio deliberation contract
 
-See [deliberation controls](STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
+See [deliberation controls](studio/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.
 
 ## Additive message and roleplay contracts
 
-See [conversation extensions](STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
+See [conversation extensions](studio/STUDIO_CONVERSATION_EXTENSIONS.md) for bounded sentence tickets, longer player input, unverified optional summaries and `RoleplayActions` registration. Host validation and spending caps still apply.
 
 ## Additive character expression contracts
 
@@ -2088,10 +2088,10 @@ additive conformance cases, with existing expected outputs unchanged. The option
 example `conversation.json` boolean `ai_wording` is false when absent; GUI model/text
 configuration enables it. Personality profiles may add bounded `interests`/`story_seeds`.
 No required checkpoint field is added; claims derive from existing confirmed operations.
-See [exact fields, bounds and speech authority](STUDIO_EXPRESSION.md).
+See [exact fields, bounds and speech authority](studio/STUDIO_EXPRESSION.md).
 
 `studio-expression` adds `seed:{candidates,recent,offset}` and
 `tale:{opening,ending}` operations with sixteen additive conformance cases. The Studio
 accepts a structured tale while retaining legacy arrays. Example delivery event `blocked`
 requires zero played/heard offsets and issues a fresh ticket; state adds `playback_blocked`.
-[Bounds, source authority and compatibility](SCENE_SOCIAL_REPAIR.md).
+[Bounds, source authority and compatibility](studio/SCENE_SOCIAL_REPAIR.md).

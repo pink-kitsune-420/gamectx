@@ -1,13 +1,13 @@
 //! Host-only visual registry sessions, shared by JSON-lines and the native ABI.
 use super::*;
-use crate::visual::{Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec};
+use crate::media::visual::{Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec};
 #[derive(Debug)]
 pub(super) struct VisualResident {
     bible: ArtBible,
     registry: AssetRegistry,
 }
 pub(super) fn execute(s: &Session, op: &str, a: &Value) -> Result<Value> {
-    crate::request::bounded(a, super::super::MAX_REQUEST_BYTES)?;
+    crate::packet::request::bounded(a, super::super::MAX_REQUEST_BYTES)?;
     let id = text(a, "id")?;
     c::scope(id)?;
     // Always acquire character state before visual state, including operations

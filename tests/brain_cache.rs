@@ -1,7 +1,8 @@
 use gamectx::{
-    brain::{Brain, CachedBrain},
-    json::parse,
-    obj, Value,
+    data::json::parse,
+    obj,
+    runtime::brain::{Brain, CachedBrain},
+    Value,
 };
 
 fn brain() -> Brain {

@@ -1,4 +1,4 @@
-use gamectx::{dialogue::InteractionTools, obj, Value};
+use gamectx::{character::dialogue::InteractionTools, obj, Value};
 fn tools() -> InteractionTools {
     InteractionTools::new("shop", "npc:merchant", &vec!["npc:merchant", "player:a", "player:b"].into()).unwrap()
 }
