@@ -192,3 +192,109 @@ fn model_requests_and_replies_round_trip() -> gamectx::Result<()> {
     assert!(engine.reply(&obj! {"token"=>7,"listener"=>"player_1","text"=>"{}"}).is_err(), "the request is closed");
     Ok(())
 }
+
+#[test]
+fn character_living_embodiment_and_prop_matter_interactions() -> gamectx::Result<()> {
+    let anvil_props = Props::parse(
+        r#"{"version":1,"props":[{"id":"anvil","label":"the old anvil","aliases":["anvil"],
+        "description":"A scarred iron anvil, pitted from years of work.",
+        "material":"wrought iron","color":"charcoal grey","texture":"pitted and scarred",
+        "mass":120.0,"state":"solid","dimensions":[0.4, 0.8, 0.5],
+        "interactions":[
+            {"id":"strike","phrases":["strikes the anvil","strike the anvil"],
+            "decision":{"action":"use","target":"prop:anvil"},"narration":"strikes the anvil"},
+            {"id":"polish","phrases":["polishes the anvil","polish the anvil"],
+            "decision":{"action":"clean","target":"prop:anvil"},"narration":"polishes the anvil surface"}
+        ]}]}"#,
+    )?;
+
+    let config = EngineConfig::new("smith", "Oren")?.with_props(&anvil_props)?;
+    let mut engine = RoleplayEngine::new(config);
+
+    let forge_scene = obj! {
+        "id" => "forge",
+        "label" => "the old forge",
+        "place" => "workplace",
+        "atmosphere" => "busy",
+        "visit" => 1,
+        "props" => vec![
+            obj! {
+                "id" => "anvil",
+                "note" => Value::Null,
+                "material" => "wrought iron",
+                "color" => "charcoal grey",
+                "texture" => "pitted and scarred",
+                "mass" => 120.0,
+                "state" => "solid",
+                "dimensions" => vec![0.4, 0.8, 0.5]
+            }
+        ]
+    };
+
+    // 1. Ask about posture
+    let posture_turn = obj! {
+        "listener" => "player_1",
+        "text" => "What is your posture?",
+        "at" => 1,
+        "token" => 1,
+        "scene" => forge_scene.clone(),
+        "posture" => "leaning heavily over the workbench"
+    };
+    let out = engine.turn(&posture_turn)?;
+    assert_eq!(s(&out, "route"), "persona");
+    assert_eq!(s(&out, "intent"), "ask_posture");
+    assert_eq!(s(&out, "text"), "I am leaning heavily over the workbench.");
+
+    // 2. Ask about held items
+    let held_turn = obj! {
+        "listener" => "player_1",
+        "text" => "What are you holding?",
+        "at" => 2,
+        "token" => 2,
+        "scene" => forge_scene.clone(),
+        "held" => vec!["a heavy iron forging hammer", "tongs"]
+    };
+    let out = engine.turn(&held_turn)?;
+    assert_eq!(s(&out, "route"), "persona");
+    assert_eq!(s(&out, "intent"), "ask_held");
+    assert_eq!(s(&out, "text"), "I am holding a heavy iron forging hammer and tongs.");
+
+    // 3. Ask about physical matter of the anvil
+    let matter_turn = obj! {
+        "listener" => "player_1",
+        "text" => "What is the anvil made of?",
+        "at" => 3,
+        "token" => 3,
+        "scene" => forge_scene.clone()
+    };
+    let out = engine.turn(&matter_turn)?;
+    assert_eq!(s(&out, "route"), "props");
+    assert_eq!(s(&out, "intent"), "ask_matter");
+    assert_eq!(s(&out, "text"), "The the old anvil is made of wrought iron.");
+
+    // 4. Inspect eligible prop interactions programmatically
+    let choices = vec![obj! {"action" => "use", "target" => "prop:anvil"}];
+    let eligible = engine.eligible_prop_interactions(&forge_scene, &choices)?;
+    assert_eq!(eligible.len(), 1);
+    assert_eq!(s(&eligible[0], "prop"), "anvil");
+    assert_eq!(s(&eligible[0], "interaction"), "strike");
+
+    // All interactions eligible when choices is empty
+    let all_eligible = engine.eligible_prop_interactions(&forge_scene, &[])?;
+    assert_eq!(all_eligible.len(), 2);
+
+    // 5. Propose a character-initiated prop interaction
+    let proposed = engine.propose_interaction("anvil", "strike", &choices)?;
+    assert_eq!(s(&proposed, "route"), "props");
+    assert_eq!(s(&proposed, "kind"), "action");
+    assert_eq!(s(&proposed, "interaction"), "strike");
+    assert_eq!(s(&proposed, "narration"), "strikes the anvil");
+
+    // Propose an interaction that is blocked by host choices
+    let blocked = engine.propose_interaction("anvil", "polish", &choices)?;
+    assert_eq!(s(&blocked, "route"), "props");
+    assert_eq!(s(&blocked, "kind"), "clarify");
+    assert_eq!(s(&blocked, "intent"), "stage_action_blocked");
+
+    Ok(())
+}

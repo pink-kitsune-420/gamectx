@@ -270,6 +270,49 @@ impl RoleplayEngine {
     pub fn config(&self) -> &EngineConfig {
         &self.config
     }
+
+    /// Return all eligible interactions for props currently present in `scene` that
+    /// are legal under `choices` (or all present interactions if `choices` is empty).
+    pub fn eligible_prop_interactions(&self, scene: &Value, choices: &[Value]) -> Result<Vec<Value>> {
+        let sc = scene.get("scene").unwrap_or(scene);
+        let present_raw = list(sc.get("props"), 0, 64)?;
+        let mut ids = Vec::new();
+        for p in present_raw {
+            let id = ident(c::get(p, "id")?)?;
+            ids.push(id);
+        }
+        let eligible = self.config.props.eligible_interactions(&ids, choices);
+        let mut out = Vec::new();
+        for (prop, inter) in eligible {
+            out.push(obj! {
+                "prop" => prop,
+                "interaction" => c::get(inter, "id")?.clone(),
+                "decision" => c::get(inter, "decision")?.clone(),
+                "narration" => c::get(inter, "narration")?.clone(),
+            });
+        }
+        Ok(out)
+    }
+
+    /// Propose a prop interaction as a character action.
+    ///
+    /// Verifies the prop is registered, the interaction exists on the prop,
+    /// and the interaction's decision is legal against `choices` (or returns `stage_action_blocked`).
+    pub fn propose_interaction(&self, prop_id: &str, interaction_id: &str, choices: &[Value]) -> Result<Value> {
+        self.config.props.get(prop_id).ok_or_else(c::bad)?;
+        let x = self.config.props.find_interaction(prop_id, interaction_id).ok_or_else(c::bad)?;
+        let d = c::get(x, "decision")?;
+        let extra = vec![("prop", Value::str(prop_id)), ("interaction", c::get(x, "id")?.clone())];
+        if d != &Value::Null && !choices.is_empty() && !choices.iter().any(|ch| ch.same(d)) {
+            let base = Vars::new();
+            return Ok(notice(&self.config.book, "props", "stage_action_blocked", &base, extra));
+        }
+        let mut out = vec![("route".to_owned(), Value::str("props")), ("kind".to_owned(), Value::str("action"))];
+        out.extend(extra.into_iter().map(|(k, v)| (k.to_owned(), v)));
+        out.push(("decision".into(), d.clone()));
+        out.push(("narration".into(), c::get(x, "narration")?.clone()));
+        Ok(Value::Object(out))
+    }
     /// `{version, greetings, listeners, pending, asked}`; restore it with [`RoleplayEngine::restore`].
     pub fn checkpoint(&self) -> Value {
         obj! {"version"=>1,"greetings"=>self.greetings.checkpoint(),"listeners"=>self.listeners.clone(),"pending"=>self.pending.clone(),"asked"=>self.asked.clone()}
@@ -906,6 +949,7 @@ impl RoleplayEngine {
             sheet.clothing().into_iter().map(str::to_owned).collect()
         };
         let clothing_refs: Vec<&str> = clothing_owned.iter().map(String::as_str).collect();
+        base.flag("has_clothing", !clothing_refs.is_empty());
         if !clothing_refs.is_empty() {
             if let Some(j) = book.joined(&clothing_refs).filter(|j| j.chars().count() <= 240) {
                 base.text("clothing", &j);
@@ -913,11 +957,52 @@ impl RoleplayEngine {
         }
         let posture =
             opt(t, "posture").or_else(|| sheet.char_state().and_then(|s| s.get("posture"))).and_then(Value::as_str);
+        base.flag("has_posture", posture.is_some());
         if let Some(p) = posture {
             base.text("posture", p);
         }
+        let held_owned: Vec<String> = if let Some(h) = opt(t, "held") {
+            if let Some(s) = h.as_str() {
+                vec![s.to_owned()]
+            } else if let Some(arr) = h.as_array() {
+                arr.iter().filter_map(Value::as_str).map(str::to_owned).collect()
+            } else if let Some(obj) = h.as_object() {
+                obj.iter().filter_map(|(_, v)| v.as_str()).map(str::to_owned).collect()
+            } else {
+                Vec::new()
+            }
+        } else if let Some(st) = opt(t, "state").or_else(|| sheet.char_state()) {
+            if let Some(h) = st.get("held") {
+                if let Some(s) = h.as_str() {
+                    vec![s.to_owned()]
+                } else if let Some(arr) = h.as_array() {
+                    arr.iter().filter_map(Value::as_str).map(str::to_owned).collect()
+                } else if let Some(obj) = h.as_object() {
+                    obj.iter().filter_map(|(_, v)| v.as_str()).map(str::to_owned).collect()
+                } else {
+                    Vec::new()
+                }
+            } else {
+                Vec::new()
+            }
+        } else {
+            Vec::new()
+        };
+        let held_refs: Vec<&str> = held_owned.iter().map(String::as_str).collect();
+        base.flag("has_held", !held_refs.is_empty());
+        if !held_refs.is_empty() {
+            if let Some(j) = book.joined(&held_refs).filter(|j| j.chars().count() <= 240) {
+                base.text("held", &j);
+            }
+        }
+        let gaze = opt(t, "gaze").or_else(|| sheet.char_state().and_then(|s| s.get("gaze"))).and_then(Value::as_str);
+        base.flag("has_gaze", gaze.is_some());
+        if let Some(g) = gaze {
+            base.text("gaze", g);
+        }
         let activity =
             opt(t, "activity").or_else(|| sheet.char_state().and_then(|s| s.get("activity"))).and_then(Value::as_str);
+        base.flag("has_activity", activity.is_some());
         if let Some(a) = activity {
             base.text("activity", a);
         }
@@ -1246,7 +1331,8 @@ impl RoleplayEngine {
         }
         if on(Feature::Persona) {
             asks.extend(
-                ["ask_role", "ask_self", "ask_clothing", "ask_appearance", "ask_activity"].map(|i| ("persona", i)),
+                ["ask_role", "ask_self", "ask_clothing", "ask_appearance", "ask_activity", "ask_posture", "ask_held"]
+                    .map(|i| ("persona", i)),
             );
         }
         if !asks.is_empty() && !long {
@@ -1334,6 +1420,10 @@ impl RoleplayEngine {
                         p.material.or_else(|| prop_def.and_then(|d| d.get("material")).and_then(Value::as_str));
                     let color = p.color.or_else(|| prop_def.and_then(|d| d.get("color")).and_then(Value::as_str));
                     let texture = p.texture.or_else(|| prop_def.and_then(|d| d.get("texture")).and_then(Value::as_str));
+                    v.flag("has_material", material.is_some())
+                        .flag("has_color", color.is_some())
+                        .flag("has_texture", texture.is_some())
+                        .flag("has_matter", material.is_some() || color.is_some() || texture.is_some());
                     if let Some(m) = material {
                         v.text("material", m);
                     }
@@ -1391,6 +1481,52 @@ impl RoleplayEngine {
                         vec![("spot", s.get("id").cloned().unwrap_or(Value::Null))],
                     ) {
                         return Ok(out);
+                    }
+                }
+            }
+            if on(Feature::Props) {
+                let matter_rest =
+                    book.matcher("ask_matter").and_then(|m| m.hit(&q)).filter(|r| !r.is_empty()).or_else(|| {
+                        let s = q.as_str();
+                        let prefix = ["what is ", "what s ", "what are "].into_iter().find(|p| s.starts_with(p))?;
+                        let suffix = [" made of", " made from"].into_iter().find(|e| s.ends_with(e))?;
+                        if s.len() > prefix.len() + suffix.len() {
+                            Some(s[prefix.len()..s.len() - suffix.len()].trim().to_owned())
+                        } else {
+                            None
+                        }
+                    });
+                if let Some(rest) = matter_rest {
+                    let want = book.bare(&rest).to_owned();
+                    let hits = present
+                        .iter()
+                        .filter(|p| p.line_of_sight && config.props.names(p.id).iter().any(|n| book.bare(n) == want))
+                        .collect::<Vec<_>>();
+                    if let [p] = hits[..] {
+                        let mut v = base.clone();
+                        v.text("prop", config.props.label(p.id).unwrap_or_default());
+                        let prop_def = config.props.get(p.id);
+                        let material =
+                            p.material.or_else(|| prop_def.and_then(|d| d.get("material")).and_then(Value::as_str));
+                        let color = p.color.or_else(|| prop_def.and_then(|d| d.get("color")).and_then(Value::as_str));
+                        let texture =
+                            p.texture.or_else(|| prop_def.and_then(|d| d.get("texture")).and_then(Value::as_str));
+                        v.flag("has_material", material.is_some())
+                            .flag("has_color", color.is_some())
+                            .flag("has_texture", texture.is_some())
+                            .flag("has_matter", material.is_some() || color.is_some() || texture.is_some());
+                        if let Some(m) = material {
+                            v.text("material", m);
+                        }
+                        if let Some(c) = color {
+                            v.text("color", c);
+                        }
+                        if let Some(t) = texture {
+                            v.text("texture", t);
+                        }
+                        if let Some(out) = say(pending, "props", "ask_matter", &v, vec![("prop", Value::str(p.id))]) {
+                            return Ok(out);
+                        }
                     }
                 }
             }

@@ -77,6 +77,16 @@ pub(crate) fn compile(t: &Compile) -> Value {
         if !speech.is_empty() {
             put(&mut brief, "speech", Value::Object(speech));
         }
+        if let Some(f) = non_empty(sheet.features()) {
+            put(&mut brief, "features", f.clone());
+        }
+        let cl = sheet.clothing();
+        if !cl.is_empty() {
+            put(&mut brief, "clothing", Value::strings(&cl));
+        }
+        if let Some(st) = non_empty(sheet.char_state()) {
+            put(&mut brief, "state", st.clone());
+        }
     }
     let relationships = sheet.all("relationships");
     if on(Feature::Relationships) && !relationships.is_empty() {
@@ -188,7 +198,7 @@ pub(crate) fn compile(t: &Compile) -> Value {
         all.extend(sit.iter().cloned());
         (Value::Object(brief.clone()), Value::Object(all))
     };
-    let drops: [(u8, &str); 16] = [
+    let drops: [(u8, &str); 19] = [
         (3, "recent_replies"),
         (0, "appearance"),
         (0, "desires"),
@@ -197,6 +207,9 @@ pub(crate) fn compile(t: &Compile) -> Value {
         (0, "relationships"),
         (3, "events"),
         (0, "speech"),
+        (0, "clothing"),
+        (0, "features"),
+        (0, "state"),
         (3, "need"),
         (3, "goal"),
         (0, "values"),

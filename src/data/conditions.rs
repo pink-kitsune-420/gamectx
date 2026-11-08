@@ -39,6 +39,9 @@ pub(crate) fn int(v: &Value) -> Option<i64> {
 #[derive(Clone, Debug, Default)]
 pub struct Vars(Vec<(String, Scalar)>);
 impl Vars {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn set(&mut self, k: &str, v: Scalar) -> &mut Self {
         self.0.retain(|(old, _)| old != k);
         self.0.push((k.to_owned(), v));

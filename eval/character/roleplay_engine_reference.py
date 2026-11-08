@@ -52,7 +52,8 @@ PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), addressing=dict(action_t
               model=dict(max_tokens=(16, 1024, 160), max_sentences=(1, 4, 3), max_chars=(40, 240, 240), brief_chars=(512, 16384, 4096)))
 VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
            'exits status destination through heard smell light temperature floor has_floor ceiling has_ceiling exterior role summary services label text need has_need person kind faction stance event events timing quest stage sentences facing spot '
-           'material color texture clothing eyes hair skin posture activity awareness expression scent'.split())
+           'material color texture clothing eyes hair skin posture activity awareness expression scent '
+           'held has_held has_posture gaze has_gaze has_clothing has_activity has_material has_color has_texture has_matter state'.split())
 MATCHERS = ['exact', 'contains', 'prefix', 'unless']
 U32 = 4294967295
 
@@ -595,13 +596,29 @@ class Engine:
             if feat.get('hair'): base['hair'] = feat['hair']
             if feat.get('skin'): base['skin'] = feat['skin']
         clothing = t.get('clothing') if t.get('clothing') is not None else sh.get('clothing')
+        base['has_clothing'] = bool(clothing)
         if clothing:
             cl_list = [clothing] if isinstance(clothing, str) else [x for x in clothing if isinstance(x, str)]
             if cl_list and (j := self.joined(cl_list)) is not None and len(j) <= 240:
                 base['clothing'] = j
         posture = t.get('posture') if t.get('posture') is not None else (sh.get('state') or {}).get('posture')
+        base['has_posture'] = bool(posture)
         if posture: base['posture'] = posture
+        held = t.get('held') if t.get('held') is not None else (t.get('state') or {}).get('held') if (t.get('state') or {}).get('held') is not None else (sh.get('state') or {}).get('held')
+        if held:
+            h_list = [held] if isinstance(held, str) else list(held.values()) if isinstance(held, dict) else [x for x in held if isinstance(x, str)]
+            if h_list and (j := self.joined(h_list)) is not None and len(j) <= 240:
+                base['held'] = j
+                base['has_held'] = True
+            else:
+                base['has_held'] = False
+        else:
+            base['has_held'] = False
+        gaze = t.get('gaze') if t.get('gaze') is not None else (sh.get('state') or {}).get('gaze')
+        base['has_gaze'] = bool(gaze)
+        if gaze: base['gaze'] = gaze
         activity = t.get('activity') if t.get('activity') is not None else (sh.get('state') or {}).get('activity')
+        base['has_activity'] = bool(activity)
         if activity: base['activity'] = activity
         awareness = t.get('awareness') if t.get('awareness') is not None else (sh.get('state') or {}).get('awareness')
         if awareness: base['awareness'] = awareness
@@ -704,7 +721,7 @@ class Engine:
         asks = ([('perception', i) for i in ['ask_location', 'ask_sight', 'ask_hearing', 'ask_name']] if self.on('perception') else []) + \
             ([('entrances', 'ask_exits')] if self.on('entrances') and cdx.get('entrances') else []) + \
             ([('scenery', i) for i in ['ask_smell', 'ask_light', 'ask_temperature', 'ask_floor', 'ask_ceiling']] if self.on('scenery') and place is not None else []) + \
-            ([('persona', i) for i in ['ask_role', 'ask_self', 'ask_clothing', 'ask_appearance', 'ask_activity']] if self.on('persona') else [])
+            ([('persona', i) for i in ['ask_role', 'ask_self', 'ask_clothing', 'ask_appearance', 'ask_activity', 'ask_posture', 'ask_held']] if self.on('persona') else [])
         if asks and not long:
             sound = sc.get('sound') if sc.get('sound') is not None else ambience(place, 'sound') if self.on('scenery') else None
             floor = sc.get('floor') if sc.get('floor') is not None else ambience(place, 'floor') if self.on('scenery') else None
@@ -745,6 +762,10 @@ class Engine:
                     if col: v['color'] = col
                     tex = p.get('texture') or p['prop'].get('texture')
                     if tex: v['texture'] = tex
+                    v['has_material'] = mat is not None
+                    v['has_color'] = col is not None
+                    v['has_texture'] = tex is not None
+                    v['has_matter'] = mat is not None or col is not None or tex is not None
                     if out := reply('props', 'describe_prop', v, dict(prop=p['prop']['id'])): return out
                 hits = [e for e in visible if self.on('entrances') and self.bare(rest) in [self.bare(n) for n in e['names']]]
                 if len(hits) == 1:
@@ -758,7 +779,31 @@ class Engine:
                     for k in ['material', 'color', 'texture']:
                         if hits[0].get(k): v[k] = hits[0][k]
                     if out := reply('scenery', 'describe_spot', v, dict(spot=hits[0]['id'])): return out
-                    if out := reply('scenery', 'describe_spot', v, dict(spot=hits[0]['id'])): return out
+            ok, rest = match(self.phrases.get('ask_matter'), q)
+            if not (ok and rest):
+                for pfx in ['what is ', 'what s ', 'what are ']:
+                    if q.startswith(pfx):
+                        for sfx in [' made of', ' made from']:
+                            if q.endswith(sfx) and len(q) > len(pfx) + len(sfx):
+                                rest = q[len(pfx):len(q) - len(sfx)].strip()
+                                ok = bool(rest)
+                                break
+                        if ok and rest: break
+            if ok and rest:
+                hits = [p for p in present if p.get('line_of_sight') is not False and self.bare(rest) in [self.bare(norm(n)) for n in [p['prop']['label']] + p['prop']['aliases']]]
+                if len(hits) == 1:
+                    p = hits[0]; v = dict(base, prop=p['prop']['label'])
+                    mat = p.get('material') or p['prop'].get('material')
+                    if mat: v['material'] = mat
+                    col = p.get('color') or p['prop'].get('color')
+                    if col: v['color'] = col
+                    tex = p.get('texture') or p['prop'].get('texture')
+                    if tex: v['texture'] = tex
+                    v['has_material'] = mat is not None
+                    v['has_color'] = col is not None
+                    v['has_texture'] = tex is not None
+                    v['has_matter'] = mat is not None or col is not None or tex is not None
+                    if out := reply('props', 'ask_matter', v, dict(prop=p['prop']['id'])): return out
         if self.on('commands') and not long:
             # A null focus never matches a null target (the Rust grammar checks focus only for targeted pairs).
             r = overnight_input_cases.resolve(line, choices, {l['id']: l['aliases'] for l in labels}, focus if focus is not None else '\0none')
@@ -874,6 +919,9 @@ class Engine:
                 if per.get(k) not in (None, []): brief[k] = per[k]
             sp = {k: sh['speech'][k] for k in ['formality', 'verbosity', 'quirks', 'catchphrases', 'avoid_words'] if sh.get('speech', {}).get(k) not in (None, [])}
             if sp: brief['speech'] = sp
+            if sh.get('features'): brief['features'] = dict(sh['features'])
+            if sh.get('clothing'): brief['clothing'] = list(sh['clothing'])
+            if sh.get('state'): brief['state'] = dict(sh['state'])
         if self.on('relationships') and sh.get('relationships'): brief['relationships'] = [dict(name=r['name'], kind=r['kind']) for r in sh['relationships']]
         if self.on('factions') and sh.get('factions'):
             brief['factions'] = []
@@ -913,7 +961,7 @@ class Engine:
             if ev: sit['events'] = ev
         if recent: sit['recent_replies'] = list(recent)
         drops = [(sit, 'recent_replies'), (brief, 'appearance'), (brief, 'desires'), (brief, 'fears'), (brief, 'factions'), (brief, 'relationships'), (sit, 'events'),
-                 (brief, 'speech'), (sit, 'need'), (sit, 'goal'), (brief, 'values'), (brief, 'summary'), (listener, 'already_told'), (listener, 'preferences'), (scene, 'exits'), (scene, 'props')]
+                 (brief, 'speech'), (brief, 'clothing'), (brief, 'features'), (brief, 'state'), (sit, 'need'), (sit, 'goal'), (brief, 'values'), (brief, 'summary'), (listener, 'already_told'), (listener, 'preferences'), (scene, 'exits'), (scene, 'props')]
         for d, k in drops:
             if len(enc(brief)) + len(enc(sit)) <= m['brief_chars']: break
             d.pop(k, None)

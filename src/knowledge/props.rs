@@ -162,6 +162,64 @@ impl Props {
         };
         self.names.iter().filter(|(_, n)| *n == i).map(|(k, _)| k.as_str()).collect()
     }
+    /// All registered interactions for a prop.
+    pub fn interactions(&self, id: &str) -> &[Value] {
+        self.get(id).and_then(|p| p.get("interactions")).and_then(Value::as_array).map(AsRef::as_ref).unwrap_or(&[])
+    }
+    /// Find an interaction on a prop by interaction ID.
+    pub fn find_interaction(&self, prop_id: &str, interaction_id: &str) -> Option<&Value> {
+        self.interactions(prop_id).iter().find(|x| x.get("id").and_then(Value::as_str) == Some(interaction_id))
+    }
+    /// Material of the prop if defined.
+    pub fn material(&self, id: &str) -> Option<&str> {
+        self.get(id)?.get("material")?.as_str()
+    }
+    /// Color of the prop if defined.
+    pub fn color(&self, id: &str) -> Option<&str> {
+        self.get(id)?.get("color")?.as_str()
+    }
+    /// Texture of the prop if defined.
+    pub fn texture(&self, id: &str) -> Option<&str> {
+        self.get(id)?.get("texture")?.as_str()
+    }
+    /// Mass in kg of the prop if defined.
+    pub fn mass(&self, id: &str) -> Option<f64> {
+        self.get(id)?.get("mass").and_then(|v| match v {
+            Value::Number(s) => s.parse().ok(),
+            _ => None,
+        })
+    }
+    /// State of matter (solid, liquid, gas) of the prop if defined.
+    pub fn state(&self, id: &str) -> Option<&str> {
+        self.get(id)?.get("state")?.as_str()
+    }
+    /// Dimensions [width, length, height] of the prop if defined.
+    pub fn dimensions(&self, id: &str) -> Option<&Value> {
+        self.get(id)?.get("dimensions")
+    }
+    /// Tags associated with the prop.
+    pub fn tags(&self, id: &str) -> &[Value] {
+        self.get(id).and_then(|p| p.get("tags")).and_then(Value::as_array).map(AsRef::as_ref).unwrap_or(&[])
+    }
+    /// Custom key-value attributes of the prop.
+    pub fn attributes(&self, id: &str) -> Option<&Value> {
+        self.get(id)?.get("attributes")
+    }
+    /// Return all interactions on `present` props matching an entry in `choices`
+    /// (or all present interactions if `choices` is empty).
+    pub fn eligible_interactions<'a>(&'a self, present: &[&'a str], choices: &[Value]) -> Vec<(&'a str, &'a Value)> {
+        let mut out = Vec::new();
+        for &id in present {
+            for inter in self.interactions(id) {
+                if let Some(d) = inter.get("decision") {
+                    if d == &Value::Null || choices.is_empty() || choices.iter().any(|ch| ch.same(d)) {
+                        out.push((id, inter));
+                    }
+                }
+            }
+        }
+        out
+    }
     /// The interaction whose phrase equals `input` (normalized; one surrounding `*stage*`
     /// pair is ignored) among the `present` props, as `(prop id, interaction)`.
     pub fn interaction<'a>(&'a self, present: &[&str], input: &str) -> Option<(&'a str, &'a Value)> {
