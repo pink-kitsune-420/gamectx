@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject offscreen batch resolve when activities count exceeds max work per tick.",
+  "error": true
+}

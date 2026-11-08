@@ -1,0 +1,32 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scholar",
+          "temperament": "calm"
+        }
+      },
+      {
+        "op": "evaluate_novelty",
+        "args": {
+          "being": "scholar",
+          "people": [
+            "visitor"
+          ],
+          "things": [
+            "scroll"
+          ],
+          "places": [
+            "library_archive"
+          ],
+          "facts": [
+            "lost_language"
+          ]
+        }
+      }
+    ]
+  }
+}

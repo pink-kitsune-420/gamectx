@@ -1,0 +1,26 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "apprentice",
+          "temperament": "curious"
+        }
+      },
+      {
+        "op": "generate_candidates",
+        "args": {
+          "being": "apprentice",
+          "places": [
+            "hidden_cellar"
+          ],
+          "things": [
+            "locked_chest"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Initialize offscreen resolver and clear records.",
+  "error": false
+}

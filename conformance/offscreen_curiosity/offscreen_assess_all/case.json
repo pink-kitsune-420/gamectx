@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Assess all offscreen records recorded so far.",
+  "error": false
+}

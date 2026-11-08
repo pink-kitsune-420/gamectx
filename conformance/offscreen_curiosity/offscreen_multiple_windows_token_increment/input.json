@@ -1,0 +1,27 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker",
+          "activity": "oven_stoking",
+          "action": "stoke",
+          "observed": false,
+          "at": 200
+        }
+      },
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker",
+          "activity": "bread_pulling",
+          "action": "pull",
+          "observed": false,
+          "at": 210
+        }
+      }
+    ]
+  }
+}

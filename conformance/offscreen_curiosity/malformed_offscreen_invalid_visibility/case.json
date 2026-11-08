@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject offscreen resolution with invalid visibility kind.",
+  "error": true
+}

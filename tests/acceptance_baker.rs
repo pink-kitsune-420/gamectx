@@ -15,10 +15,12 @@
 
 use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
+use gamectx::character::curiosity::CuriosityManager;
 use gamectx::character::deception::DeceptionLedger;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::mind::MindManager;
 use gamectx::character::motive::MotiveArbiter;
+use gamectx::character::offscreen::OffscreenResolver;
 use gamectx::character::relationship::RelationshipManager;
 use gamectx::character::skills::SkillsManager;
 use gamectx::character::task::TaskManager;
@@ -475,6 +477,74 @@ fn run_baker_scene() -> String {
     assert_eq!(resolved.get("dominant_stance"), Some(&Value::str("friendly")));
     assert_eq!(resolved.get("effective_trust"), Some(&Value::int(40)));
 
+    // 4. Off-screen resolution: apprentice completes chores unobserved
+    let mut off_res = OffscreenResolver::new();
+    let off_req = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "resolve_window",
+                "args": {
+                    "being": "apprentice",
+                    "activity": "sweeping_bakery",
+                    "action": "sweep",
+                    "observed": false,
+                    "at": 18,
+                    "place": "bakery",
+                    "visibility": "witnessed",
+                    "fatigue": 6,
+                    "practice": 15,
+                    "inputs": [{"item": "broom_durability", "count": 1}],
+                    "outputs": [{"item": "clean_bakery", "count": 1}]
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let off_out = off_res.workflow(&off_req).unwrap();
+    let off_record = &off_out.get("results").unwrap().as_array().unwrap()[0];
+    assert_eq!(off_record.get("resolved"), Some(&Value::Bool(true)));
+    assert_eq!(off_record.get("practice_gained"), Some(&Value::int(15)));
+
+    // 5. Curiosity & novelty detection: baker notices strange visitor and generates initiative candidate
+    let mut cur_mgr = CuriosityManager::new();
+    let cur_init_req = parse(
+        r#"{
+        "ops": [
+            {
+                "op": "init",
+                "args": {
+                    "being": "baker",
+                    "temperament": "curious",
+                    "known_people": ["player", "apprentice"],
+                    "known_things": ["oven", "bread"],
+                    "known_places": ["bakery", "market"],
+                    "known_facts": ["cart_crash"]
+                }
+            },
+            {
+                "op": "generate_candidates",
+                "args": {
+                    "being": "baker",
+                    "people": ["mysterious_traveler"],
+                    "things": ["enchanted_yeast"],
+                    "auto_mark": true
+                }
+            }
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let cur_out = cur_mgr.workflow(&cur_init_req).unwrap();
+    let candidates_res = &cur_out.get("results").unwrap().as_array().unwrap()[1];
+    let candidates = candidates_res.get("candidates").unwrap().as_array().unwrap();
+    assert_eq!(candidates.len(), 2);
+    assert_eq!(candidates[0].get("kind"), Some(&Value::str("ask")));
+    assert_eq!(candidates[1].get("kind"), Some(&Value::str("activity")));
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -489,8 +559,14 @@ fn run_baker_scene() -> String {
         dec_ledger.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"speaker":"baker"}}]}"#, 4096).unwrap()).unwrap();
     let final_rel_state =
         rel_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"subject":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_off_state =
+        off_res.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"apprentice"}}]}"#, 4096).unwrap()).unwrap();
+    let final_cur_state =
+        cur_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
     let composite_output = obj! {
+        "final_curiosity" => final_cur_state,
+        "final_offscreen" => final_off_state,
         "final_task" => final_task_state,
         "final_body" => final_body_state,
         "final_skills" => final_skills_state,

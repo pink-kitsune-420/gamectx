@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject generate_candidates when limit exceeds bounds.",
+  "error": true
+}

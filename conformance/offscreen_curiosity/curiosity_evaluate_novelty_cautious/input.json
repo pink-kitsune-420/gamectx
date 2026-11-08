@@ -1,0 +1,44 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "guard",
+          "temperament": "cautious",
+          "known_people": [
+            "alice"
+          ],
+          "known_things": [
+            "sword"
+          ],
+          "known_places": [
+            "barracks"
+          ],
+          "known_facts": [
+            "gate_code"
+          ]
+        }
+      },
+      {
+        "op": "evaluate_novelty",
+        "args": {
+          "being": "guard",
+          "people": [
+            "stranger_charlie"
+          ],
+          "things": [
+            "suspicious_box"
+          ],
+          "places": [
+            "dark_alley"
+          ],
+          "facts": [
+            "intruder_alert"
+          ]
+        }
+      }
+    ]
+  }
+}

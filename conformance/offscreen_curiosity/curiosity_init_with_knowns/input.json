@@ -1,0 +1,36 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "curious",
+          "known_people": [
+            "alice",
+            "bob"
+          ],
+          "known_things": [
+            "oven",
+            "peel"
+          ],
+          "known_places": [
+            "bakery",
+            "market"
+          ],
+          "known_facts": [
+            "recipe_bread",
+            "recipe_pie"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

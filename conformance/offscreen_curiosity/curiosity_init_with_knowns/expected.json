@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"baker","ok":true},{"being":"baker","known_facts":["recipe_bread","recipe_pie"],"known_people":["alice","bob"],"known_places":["bakery","market"],"known_things":["oven","peel"],"temperament":"curious"}]}

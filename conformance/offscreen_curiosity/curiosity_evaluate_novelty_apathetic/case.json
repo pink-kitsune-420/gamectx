@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Evaluate novelty signal under apathetic temperament (0.4x scaling).",
+  "error": false
+}

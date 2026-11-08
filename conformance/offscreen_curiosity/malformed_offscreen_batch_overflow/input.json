@@ -1,0 +1,116 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "batch_resolve",
+        "args": {
+          "activities": [
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            },
+            {
+              "being": "b",
+              "activity": "a",
+              "action": "c",
+              "observed": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

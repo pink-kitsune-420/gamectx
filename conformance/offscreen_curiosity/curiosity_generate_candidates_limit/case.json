@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Cap generated initiative candidates to limit parameter.",
+  "error": false
+}

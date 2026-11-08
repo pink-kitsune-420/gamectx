@@ -1,0 +1,31 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "merchant"
+        }
+      },
+      {
+        "op": "mark_familiar",
+        "args": {
+          "being": "merchant",
+          "people": [
+            "buyer_dan"
+          ],
+          "places": [
+            "harbor_wharf"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "merchant"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Verify auto_mark adds novel entities into familiarity memory.",
+  "error": false
+}

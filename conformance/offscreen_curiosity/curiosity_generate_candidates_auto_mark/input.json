@@ -1,0 +1,39 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scout",
+          "temperament": "curious"
+        }
+      },
+      {
+        "op": "generate_candidates",
+        "args": {
+          "being": "scout",
+          "people": [
+            "mysterious_figure"
+          ],
+          "things": [
+            "strange_key"
+          ],
+          "auto_mark": true
+        }
+      },
+      {
+        "op": "evaluate_novelty",
+        "args": {
+          "being": "scout",
+          "people": [
+            "mysterious_figure"
+          ],
+          "things": [
+            "strange_key"
+          ]
+        }
+      }
+    ]
+  }
+}

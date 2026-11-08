@@ -1,0 +1,13 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "bad being with spaces!"
+        }
+      }
+    ]
+  }
+}

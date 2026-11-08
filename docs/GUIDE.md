@@ -772,6 +772,10 @@ Truthful and deceptive communication is audited via the [deception ledger](chara
 (`character::deception::DeceptionLedger` or local kind `deception`), maintaining a told-ledger per listener, checking claim consistency before speech, and evaluating contradiction penalties when falsehoods are exposed.
 Personal bonds, authored sheet baselines, and group affiliations are reconciled via [relationship reconciliation](characters/LIFE.md#relationship-reconciliation-gap-9)
 (`character::relationship::RelationshipManager` or local kind `relationship`), enforcing documented precedence (personal attitudes > sheet relations > community standing bias > viewpoints), dispatching action outcome appraisals, and aggregating member attitudes into community relations.
+Unobserved background activities are coarsely resolved via [off-screen life resolution](characters/LIFE.md#off-screen-life-resolution-gap-10)
+(`character::offscreen::OffscreenResolver` or local kind `offscreen`), applying Action Catalog expected effects, timeline entries, and Life experiences within bounded work per tick.
+Novel perceptions and exploration drivers are evaluated via the [curiosity and exploration model](characters/LIFE.md#curiosity-and-exploration-model-gap-11)
+(`character::curiosity::CuriosityManager` or local kind `curiosity`), computing temperament-scaled novelty signals across unencountered people, things, places, and facts, and generating validated host initiative candidates.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Generate activity-kind initiative candidates for new location and unfamiliar thing.",
+  "error": false
+}

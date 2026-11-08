@@ -1,0 +1,33 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "apprentice",
+          "activity": "woodchopping",
+          "action": "chop",
+          "observed": false,
+          "at": 105,
+          "place": "forest_clearing",
+          "visibility": "witnessed",
+          "fatigue": 15,
+          "practice": 20,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "axe_durability"
+            }
+          ],
+          "outputs": [
+            {
+              "count": 5,
+              "item": "firewood"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

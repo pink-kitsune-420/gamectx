@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Resolve offscreen window when observed is true skips resolution.",
+  "error": false
+}

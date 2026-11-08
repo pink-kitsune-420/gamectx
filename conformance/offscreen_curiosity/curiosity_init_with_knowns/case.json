@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Initialize curiosity model with predefined known people, things, places, and facts.",
+  "error": false
+}

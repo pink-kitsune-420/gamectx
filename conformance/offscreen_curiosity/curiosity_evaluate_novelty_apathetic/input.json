@@ -1,0 +1,32 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "hermit",
+          "temperament": "apathetic"
+        }
+      },
+      {
+        "op": "evaluate_novelty",
+        "args": {
+          "being": "hermit",
+          "people": [
+            "traveler"
+          ],
+          "things": [
+            "book"
+          ],
+          "places": [
+            "crossroads"
+          ],
+          "facts": [
+            "royal_decree"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker",
+          "activity": "baking_shift",
+          "action": "cook",
+          "observed": false,
+          "at": 100,
+          "place": "bakery",
+          "visibility": "private",
+          "fatigue": 8,
+          "practice": 12,
+          "inputs": [
+            {
+              "count": 2,
+              "item": "flour"
+            }
+          ],
+          "outputs": [
+            {
+              "count": 2,
+              "item": "bread"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

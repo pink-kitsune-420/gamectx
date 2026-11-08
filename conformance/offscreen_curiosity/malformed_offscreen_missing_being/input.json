@@ -1,0 +1,15 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "activity": "baking_shift",
+          "action": "cook",
+          "observed": false
+        }
+      }
+    ]
+  }
+}

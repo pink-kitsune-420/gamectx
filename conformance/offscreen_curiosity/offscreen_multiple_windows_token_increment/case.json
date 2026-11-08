@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Verify token increment across sequential resolved windows.",
+  "error": false
+}

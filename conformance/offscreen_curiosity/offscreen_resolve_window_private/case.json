@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Resolve offscreen window with private visibility, inputs and outputs.",
+  "error": false
+}

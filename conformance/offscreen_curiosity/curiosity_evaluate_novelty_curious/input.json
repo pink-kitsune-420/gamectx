@@ -1,0 +1,46 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scout",
+          "temperament": "curious",
+          "known_people": [
+            "alice"
+          ],
+          "known_things": [
+            "compass"
+          ],
+          "known_places": [
+            "camp"
+          ],
+          "known_facts": [
+            "trail_map"
+          ]
+        }
+      },
+      {
+        "op": "evaluate_novelty",
+        "args": {
+          "being": "scout",
+          "people": [
+            "alice",
+            "stranger_charlie"
+          ],
+          "things": [
+            "compass",
+            "relic_stone"
+          ],
+          "places": [
+            "ancient_ruins"
+          ],
+          "facts": [
+            "hidden_tomb_rumor"
+          ]
+        }
+      }
+    ]
+  }
+}

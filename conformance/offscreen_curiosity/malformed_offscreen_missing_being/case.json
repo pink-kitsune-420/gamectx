@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject offscreen resolution when being is missing.",
+  "error": true
+}

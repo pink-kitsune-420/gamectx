@@ -2,6 +2,18 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Off-screen life resolution (`character::offscreen`, local kind `offscreen`, Gap 10):
+  - Coarse resolution when activity windows close unobserved (`observed: false`), applying Action Catalog expected effects once: resources consumed (`inputs`) and produced (`outputs`), fatigue delta, and skill practice gained.
+  - Timeline entry (`private` or `witnessed`) and direct Life experience generation for the actor, ensuring the world changes and characters remember activities performed while the player is away.
+  - Bounded work per tick ($\le 16$ activities in `batch_resolve`), pure host computation ($0 model spend).
+  - Ops: `init`, `resolve_window`, `batch_resolve`, `assess`.
+- Curiosity and exploration model (`character::curiosity`, local kind `curiosity`, Gap 11):
+  - Familiarity memory per being tracking `known_people`, `known_things`, `known_places`, and `known_facts`.
+  - Novelty detection evaluating unencountered entities with base scores (`new_person`: 40, `new_place`: 35, `new_thing`: 30, `unknown_fact`: 25).
+  - Temperament scaling: deterministic score multipliers for `curious` (1.5x), `cautious` (0.7x), `apathetic` (0.4x), and `calm` (1.0x).
+  - Host initiative candidate generation conforming to the 10-field initiative schema: `ask` for people/facts, `activity` for things/places, with priority matching scaled novelty score and optional `auto_mark`.
+  - Ops: `init`, `evaluate_novelty`, `generate_candidates`, `mark_familiar`, `assess`.
+  - 25 conformance cases (6 malformed) in `conformance/offscreen_curiosity/`. Rust matches Python reference byte for byte on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Theory of mind (`character::mind`, local kind `mind`, Gap 7):
   - Per-other beliefs: `knows(other, fact)` (boolean status, provenance `seen`/`told`/`inferred`, confidence), `wants(other, goal)` (priority, provenance), and `feels(other, emotion)` (attitude kind, target, level, provenance).
   - Sensory perception and witness-based knowledge inference over timeline events (`can_perceive`), allowing beings to deduce what co-present observers saw vs. what absent or occluded beings do not know.

@@ -1,0 +1,13 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "clear_records": true
+        }
+      }
+    ]
+  }
+}

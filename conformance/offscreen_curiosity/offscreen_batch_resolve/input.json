@@ -1,0 +1,37 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "batch_resolve",
+        "args": {
+          "activities": [
+            {
+              "being": "baker",
+              "activity": "flour_milling",
+              "action": "mill",
+              "observed": false,
+              "at": 50,
+              "place": "mill",
+              "outputs": [
+                {
+                  "count": 10,
+                  "item": "flour"
+                }
+              ]
+            },
+            {
+              "being": "guard",
+              "activity": "perimeter_patrol",
+              "action": "patrol",
+              "observed": false,
+              "at": 55,
+              "place": "gatehouse",
+              "fatigue": 10
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

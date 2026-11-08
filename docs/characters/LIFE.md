@@ -453,6 +453,32 @@ and motives into concrete, committed multi-step plans executed through the Actio
 
 **Evidence:** 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), acceptance scene replay verification (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Off-screen life resolution (Gap 10)
+
+`gamectx::character::offscreen` (`OffscreenResolver`, local kind `offscreen`) provides coarse resolution of unobserved activities:
+- **Expected effects application:** When an activity window closes unobserved by the player (`observed: false`), applies the Action Catalog's expected effects once: resources consumed (`inputs`) and produced (`outputs`), fatigue delta, and skill practice gained.
+- **Timeline entry & Life experience generation:** Creates a timeline entry (`private` or `witnessed`) with place and summary, and records a direct Life experience for the actor, ensuring the world changes and characters remember activities performed while the player is away.
+- **Bounded work per tick:** Batch resolution is capped at $\le 16$ activities per tick, using the existing scheduler. Pure host computation ($0 model spend).
+- **Operations:** `init`, `resolve_window`, `batch_resolve`, `assess`.
+
+## Curiosity and exploration model (Gap 11)
+
+`gamectx::character::curiosity` (`CuriosityManager`, local kind `curiosity`) evaluates novelty and produces exploration/dialogue initiative candidates:
+- **Familiarity memory:** Tracks known entities across 4 categories: `known_people`, `known_things`, `known_places`, and `known_facts`.
+- **Novelty detection & scoring:** Perceived entities not in familiarity memory produce novelty signals with base scores (`new_person`: 40, `new_place`: 35, `new_thing`: 30, `unknown_fact`: 25).
+- **Temperament scaling:** Novelty scores are scaled deterministically by temperament:
+  - `curious`: 1.5x scaling (`score * 15 / 10`).
+  - `cautious`: 0.7x scaling (`score * 7 / 10`).
+  - `apathetic`: 0.4x scaling (`score * 4 / 10`).
+  - `calm`: 1.0x baseline scaling.
+- **Initiative candidate generation:** Generates host initiative candidates fully conforming to the 10-field initiative schema:
+  - Novel people and unknown facts generate `ask` candidates with priority matching scaled score.
+  - Novel things and places generate `activity` candidates (examine / explore) with priority matching scaled score.
+  - Optional `auto_mark` marks generated entities as familiar so they are not repeatedly explored.
+- **Operations:** `init`, `evaluate_novelty`, `generate_candidates`, `mark_familiar`, `assess`.
+
+**Evidence:** 25 conformance cases (`conformance/offscreen_curiosity/`, 6 malformed), 2,000 differential parity workflows (`eval/character/offscreen_curiosity_cases.py`, seed 7, 0 mismatches), acceptance scene replay verification (`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

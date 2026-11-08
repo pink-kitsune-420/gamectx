@@ -2047,4 +2047,72 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     rel_ops_65.push_str("]}");
     assert!(clean_rel2.workflow(&parse(&rel_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 14. OffscreenResolver mutation fuzzing & boundaries
+    use gamectx::character::offscreen::OffscreenResolver;
+    let mut off_res = OffscreenResolver::new();
+    let sample_off_req = r#"{"ops":[{"op":"init","args":{"clear_records":true}},{"op":"resolve_window","args":{"being":"baker","activity":"baking","action":"cook","observed":false,"at":10,"place":"kitchen","fatigue":5,"practice":10,"inputs":[{"count":1,"item":"flour"}],"outputs":[{"count":1,"item":"bread"}]}},{"op":"batch_resolve","args":{"activities":[{"being":"baker","activity":"baking","action":"cook","observed":false}]}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_off_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = off_res.workflow(&v);
+        }
+    }
+
+    let mut clean_off = OffscreenResolver::new();
+    let mut off_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            off_ops_64.push(',');
+        }
+        off_ops_64.push_str(r#"{"op":"assess","args":{}}"#);
+    }
+    off_ops_64.push_str("]}");
+    assert!(clean_off.workflow(&parse(&off_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_off2 = OffscreenResolver::new();
+    let mut off_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            off_ops_65.push(',');
+        }
+        off_ops_65.push_str(r#"{"op":"assess","args":{}}"#);
+    }
+    off_ops_65.push_str("]}");
+    assert!(clean_off2.workflow(&parse(&off_ops_65, 1 << 20).unwrap()).is_err());
+
+    // 15. CuriosityManager mutation fuzzing & boundaries
+    use gamectx::character::curiosity::CuriosityManager;
+    let mut cur_mgr = CuriosityManager::new();
+    let sample_cur_req = r#"{"ops":[{"op":"init","args":{"being":"baker","temperament":"curious","known_people":["alice"],"known_things":["oven"],"known_places":["bakery"],"known_facts":["recipe"]}},{"op":"evaluate_novelty","args":{"being":"baker","people":["bob"],"things":["gem"],"places":["ruins"],"facts":["rumor"]}},{"op":"generate_candidates","args":{"being":"baker","people":["bob"],"limit":4,"auto_mark":true}},{"op":"mark_familiar","args":{"being":"baker","places":["ruins"]}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_cur_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = cur_mgr.workflow(&v);
+        }
+    }
+
+    let mut clean_cur = CuriosityManager::new();
+    clean_cur.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut cur_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            cur_ops_64.push(',');
+        }
+        cur_ops_64.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    cur_ops_64.push_str("]}");
+    assert!(clean_cur.workflow(&parse(&cur_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_cur2 = CuriosityManager::new();
+    clean_cur2.workflow(&parse(r#"{"ops":[{"op":"init","args":{"being":"baker"}}]}"#, 1 << 20).unwrap()).unwrap();
+    let mut cur_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            cur_ops_65.push(',');
+        }
+        cur_ops_65.push_str(r#"{"op":"assess","args":{"being":"baker"}}"#);
+    }
+    cur_ops_65.push_str("]}");
+    assert!(clean_cur2.workflow(&parse(&cur_ops_65, 1 << 20).unwrap()).is_err());
 }

@@ -1,0 +1,33 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker",
+          "activity": "knead_dough",
+          "action": "knead",
+          "observed": false,
+          "at": 130
+        }
+      },
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "guard",
+          "activity": "watch",
+          "action": "scout",
+          "observed": false,
+          "at": 135
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

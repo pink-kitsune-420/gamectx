@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject curiosity init with invalid being identifier.",
+  "error": true
+}

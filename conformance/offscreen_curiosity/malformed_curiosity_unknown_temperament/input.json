@@ -1,0 +1,14 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "hyperactive"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "generate_candidates",
+        "args": {
+          "being": "baker",
+          "limit": 999
+        }
+      }
+    ]
+  }
+}

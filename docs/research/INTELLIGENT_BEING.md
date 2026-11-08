@@ -269,24 +269,21 @@ you". They are not reconciled. A barter that goes badly changes none of the pers
 
 *Implemented:* `character::relationship::RelationshipManager` (local kind `relationship`): documented precedence rule (Life dynamic attitudes > Sheet authored baselines > Community standing bias > Viewpoint styling), single appraisal path from action outcomes (`appraise_action`), and community trust aggregation from member attitudes (`aggregate_community_trust`). 25 conformance cases (`conformance/social_mind/`, 3 malformed), 2,000 differential parity workflows (`eval/character/social_mind_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
-### Gap 10: off-screen life has intent but no effects
+### Gap 10: off-screen life has intent but no effects — **DONE** ([Evidence](../characters/LIFE.md#off-screen-life-resolution-gap-10))
 
 Routines select intended activities, and the docs are clear that `active` does not mean
 done. Nothing resolves what an off-screen activity produced or consumed (bread baked,
 flour used, fatigue gained). The world therefore does not change while the player is away,
 unless the host does it.
 
-*Needed:* optional coarse resolution: when an activity window closes unobserved, apply the
-action catalog's expected effects once, record a `private` or `witnessed` timeline entry
-and a Life experience. Bounded work per tick, using the existing scheduler.
+*Implemented:* `character::offscreen::OffscreenResolver` (local kind `offscreen`): coarse resolution when activity windows close unobserved, applying Action Catalog expected effects once (consumed/produced resources, fatigue delta, skill practice), creating timeline entries (`private` or `witnessed`) and Life experiences. Bounded work ($\le 16$ per tick). 25 conformance cases (`conformance/offscreen_curiosity/`, 6 malformed), 2,000 differential parity workflows (`eval/character/offscreen_curiosity_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
-### Gap 11: no curiosity, exploration or interest model
+### Gap 11: no curiosity, exploration or interest model — **DONE** ([Evidence](../characters/LIFE.md#curiosity-and-exploration-model-gap-11))
 
 No code makes a being notice something new and want to look at it, learn about it or ask
 about it. Initiative can ask, but only from host-authored candidates.
 
-*Needed:* a novelty signal (new person, new thing, changed place, unknown fact referenced)
-that produces an initiative candidate, scaled by temperament.
+*Implemented:* `character::curiosity::CuriosityManager` (local kind `curiosity`): novelty signal across unencountered people, things, places, and facts, scaled deterministically by temperament (`curious`: 1.5x, `cautious`: 0.7x, `apathetic`: 0.4x, `calm`: 1.0x), generating host initiative candidates (`ask` for people/facts, `activity` for things/places) strictly conforming to the 10-field initiative schema. 25 conformance cases, 2,000 differential parity workflows, $0 API spend.
 
 ### Gap 12: no mortality, injury or incapacity — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12))
 
@@ -321,7 +318,7 @@ Ordered by how much each unblocks the others, not by size.
 6. **Affect decay and missing kinds** (gap 6), **skill growth** (gap 8) — **DONE** ([Evidence](../characters/LIFE.md#affect-decay-and-missing-feelings-gap-6)).
 7. **Theory of mind** (gap 7), **deception ledger** (gap 13), **relationship
    reconciliation** (gap 9) — **DONE** ([Evidence](../characters/LIFE.md#theory-of-mind-gap-7)).
-8. **Off-screen effects** (gap 10) and **curiosity** (gap 11).
+8. **Off-screen effects** (gap 10) and **curiosity** (gap 11) — **DONE** ([Evidence](../characters/LIFE.md#off-screen-life-resolution-gap-10)).
 
 Each step should be zero model calls first. Items 1–4 and 6 are pure host computation and
 can be verified offline. Items 5, 7 and 11 involve model proposals and need `eval/`

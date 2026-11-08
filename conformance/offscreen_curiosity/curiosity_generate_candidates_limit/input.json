@@ -1,0 +1,32 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "temperament": "curious"
+        }
+      },
+      {
+        "op": "generate_candidates",
+        "args": {
+          "being": "baker",
+          "people": [
+            "p1",
+            "p2",
+            "p3",
+            "p4"
+          ],
+          "things": [
+            "t1",
+            "t2",
+            "t3"
+          ],
+          "limit": 2
+        }
+      }
+    ]
+  }
+}
