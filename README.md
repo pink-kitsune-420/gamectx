@@ -58,8 +58,8 @@ spots, ambience and house rules, entrances with open/locked/hidden states, facti
 timed events and quests. [`kit::save`](docs/characters/ROLEPLAY_ENGINE.md#saving-game-data-and-saves)
 packs the authored side into one game data file and runtime memory into one save file
 with any number of named, forkable states. The [world model](docs/guides/WORLD.md) adds
-a timeline (the game's own record of what happened and who knows it) and places: kinds
-such as workshop, forest or castle, nesting, and a nearby-places query.
+a timeline (the game's own record of what happened and who knows it), places (kinds,
+nesting, and a nearby-places query) and things (materials, tools, containers, and carriers).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

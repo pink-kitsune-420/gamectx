@@ -62,10 +62,9 @@ noted; "3 models" adds Llama 3.3 70B.
   - Done: world timeline (`knowledge::timeline`, guide `docs/guides/WORLD.md`), 46 cases.
   - Done: places (`knowledge::places`): 112 built-in kinds plus custom ones, `within`
     nesting, links with distances and directions, and `Codex::nearby`; 30 cases.
+  - Done: things (`knowledge::things`, guide `docs/guides/WORLD.md`): materials, kinds,
+    instances, salvage, containers, carriers, best_tool, whats_here; 42 cases.
   - Next, the world model (in this order):
-    - things: materials; kinds of tools, weapons, furniture and containers with in-game
-      functions; carriers (animals and vehicles); stock; creating, destroying (into
-      materials) and removing props;
     - recipes: crafting, cooking, building (changing the world), repairing and
       dismantling, using tools, stations and skills;
     - species: animals, plants and hybrids, temperaments, animal interactions;

@@ -20,6 +20,9 @@ DATA = [dict(path='world/codex', kind='codex', data=CODEX), dict(path='character
 HISTORY = dict(version=1, next=2, entries=[dict(seq=1, at=38, kind='trade', summary='The traveller bought rye bread with a silver coin.', actors=['player_1', 'baker'],
                                                  place='bakery', things=[], tags=['trade'], visibility='witnessed', witnesses=[], phrases=['the silver coin'], facts={},
                                                  retracted=None, covers=None)])
+THINGS_DATA = dict(version=1, materials=[dict(id='iron', label='Iron')],
+                   kinds=[dict(id='sword', label='Sword', category='weapon', materials=[dict(material='iron', amount=1)], functions=[], weight=5, base_value=10, durability=100, stackable=False)],
+                   things=[dict(id='s1', kind='sword', location=dict(place='forge'), condition=100, quantity=1)])
 SLOT = [dict(path='characters/baker/engine', kind='engine', data=HEARD), dict(path='characters/baker/memory', kind='memory', data=MEMORY),
         dict(path='world/flags', kind='host', data=dict(ring_lost=True))]
 
@@ -74,6 +77,8 @@ def cases():
          [(i, dict(error=o)) for i, o in enumerate(['save', 'save', 'save', 'save', 'fork'])]),
         ('timeline_section', dict(ops=[save(sections=SLOT + [dict(path='world/timeline', kind='timeline', data=HISTORY)]), op('export_save')]), [(0, dict(ok=dict(name='slot-1')))]),
         ('bad_timeline_section', dict(ops=[save(sections=[dict(path='world/timeline', kind='timeline', data=dict(HISTORY, next=1))])]), [(0, dict(error='save'))]),
+        ('things_section', dict(ops=[save(sections=SLOT + [dict(path='world/things', kind='things', data=THINGS_DATA)]), op('export_save')]), [(0, dict(ok=dict(name='slot-1')))]),
+        ('bad_things_section', dict(ops=[save(sections=[dict(path='world/things', kind='things', data=dict(THINGS_DATA, version=2))])]), [(0, dict(error='save'))]),
         ('fork_name_taken', dict(ops=[save(), save('autosave', 44), op('fork', **{'from': 'slot-1'}, name='autosave', saved_at=45)]), [(2, dict(error='fork'))]),
     ]
 

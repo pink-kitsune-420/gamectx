@@ -59,3 +59,53 @@ fn place_kinds_cover_the_basics() {
     }
     assert_eq!(kinds.len(), 112);
 }
+
+#[test]
+fn things_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::things::Things;
+    let mut world_things = Things::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "create", "args": {
+          "id": "iron_pickaxe",
+          "kind": "pickaxe",
+          "location": {"place": "forge"},
+          "condition": 100,
+          "owner": "smith"
+        }}
+      ],
+      "things": {
+        "version": 1,
+        "materials": [
+          {"id": "iron", "label": "Iron Ingot"},
+          {"id": "wood", "label": "Timber"}
+        ],
+        "kinds": [
+          {
+            "id": "pickaxe",
+            "label": "Iron Pickaxe",
+            "category": "tool",
+            "materials": [{"material": "iron", "amount": 2}, {"material": "wood", "amount": 1}],
+            "functions": [{"function": "dig", "power": 4}],
+            "weight": 8,
+            "base_value": 15,
+            "durability": 120,
+            "stackable": false
+          }
+        ],
+        "things": []
+      }
+    }"#,
+        4096,
+    )?;
+    let out = world_things.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That operation returns a timeline-ready entry"), 65536)?.to_json()
+    );
+    // Round trip through a save section value.
+    assert_eq!(Things::from_value(&world_things.to_value())?, world_things);
+    Ok(())
+}

@@ -46,10 +46,11 @@ import pathlib as _pl, sys as _sys; _sys.path[1:1] = [str(d) for d in sorted(_pl
 import roleplay_definitions_reference as defs
 import roleplay_engine_reference as eng
 import timeline_reference
+import things_reference
 from roleplay_engine_reference import ROOT as ROOT_DIR, enc, keys, ident, text, uint
 
 DATA_KINDS = ['codex', 'props', 'sheet', 'engine-config', 'lore', 'cast-pack', 'host']
-SAVE_KINDS = ['engine', 'memory', 'journal', 'facts', 'brain', 'inventory', 'timeline', 'host']
+SAVE_KINDS = ['engine', 'memory', 'journal', 'facts', 'brain', 'inventory', 'timeline', 'things', 'host']
 PER_CHARACTER = ['sheet', 'engine-config', 'engine']
 MAX_SECTIONS, MAX_STATES, MAX_SAFE = 4096, 256, 9007199254740991
 
@@ -87,6 +88,7 @@ def check_save(path, kind, data):
     assert kind in SAVE_KINDS; path_ok(path, kind)
     if kind == 'engine': keys(data, ['version', 'greetings', 'listeners', 'pending', 'asked']); uint(data['version'], 1, 1)
     elif kind == 'timeline': timeline_reference.Timeline(data)
+    elif kind == 'things': things_reference.Things(data)
     elif kind != 'host': assert isinstance(data, dict)
 
 

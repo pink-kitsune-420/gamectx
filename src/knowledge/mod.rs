@@ -13,5 +13,6 @@ pub mod props;
 pub mod recall;
 pub mod selection;
 pub mod temporal;
+pub mod things;
 pub mod timeline;
 pub mod world;

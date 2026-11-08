@@ -58,7 +58,8 @@ use crate::{checked as c, fingerprint, obj, Result, Value};
 /// Kinds a [`GameData`] section may hold.
 pub const DATA_KINDS: [&str; 7] = ["codex", "props", "sheet", "engine-config", "lore", "cast-pack", "host"];
 /// Kinds a [`SaveState`] section may hold.
-pub const SAVE_KINDS: [&str; 8] = ["engine", "memory", "journal", "facts", "brain", "inventory", "timeline", "host"];
+pub const SAVE_KINDS: [&str; 9] =
+    ["engine", "memory", "journal", "facts", "brain", "inventory", "timeline", "things", "host"];
 /// Most sections in one data file or one state.
 pub const MAX_SECTIONS: usize = 4096;
 /// Most states in one save file.
@@ -368,6 +369,7 @@ impl SaveState {
             "brain" => drop(crate::runtime::brain::Brain::restore(d)?),
             "inventory" => drop(crate::knowledge::inventory::Inventory::from_value(d)?),
             "timeline" => drop(crate::knowledge::timeline::Timeline::from_value(d)?),
+            "things" => drop(crate::knowledge::things::Things::from_value(d)?),
             "host" => {}
             _ => return Err(c::bad()),
         }

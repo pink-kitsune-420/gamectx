@@ -2325,6 +2325,32 @@ Ops:
   normalized and matches when it and a phrase contain each other on whole-word
   boundaries. Results sort by `(at, seq)`. `total` counts every match before `limit`.
 
+## World things v1
+
+`gamectx::knowledge::things` (guide: [World model](guides/WORLD.md#things)). The `things`
+JSON-lines `local` kind runs `{things: Things|null, ops ≤64 [{op, args, at?}]}` and returns
+`{results, things}`; each result is `{ok:true, result}` or `{ok:false}`, and a failed op
+changes nothing. 42 additive cases live in `conformance/things/`.
+
+**Things** `{version:1, materials ≤256, kinds ≤512, things ≤4096}`:
+- `materials`: `[{id, label ≤48, unit_weight?, unit_value?}]`.
+- `kinds`: `[{id, label ≤48, category, materials ≤8 [{material, amount 1–10⁹}], functions ≤16 [{function, power 1–10⁹}], weight 0–10⁹, base_value 0–10⁹, durability 0–10⁹, stackable: bool, capacity? 0–10⁹, accepted_tags? ≤8 ids, load_capacity? 0–10⁹, seats? 0–64, tags? ≤8 ids}]`.
+  `category` is one of: tool, weapon, furniture, container, food, material, clothing, vehicle, structure, plant, other.
+- `things`: `[{id, kind, location: {place|container|holder|carrier}, condition 0–100, owner: id|null, quantity 1–10⁹, passengers: [id]}]`.
+
+Ops:
+- `create {id, kind, location, condition? = 100, owner?, quantity? = 1}` → `{id, entry}`.
+- `destroy {thing, actor?}` → `{yields: [{material, amount}], entry}`. Materials are scaled by `(amount * quantity * condition) / 100`.
+- `remove {thing, actor?}` → `{entry}`. Deletes with no salvage yield.
+- `move {thing, to_place, actor?}` → `{entry}`.
+- `store {thing, container, actor?}` → `{entry}`. Validates capacity and accepted tags; prevents cycles.
+- `take {thing, actor}` → `{entry}`.
+- `load {carrier, thing?, passenger?, actor?}` → `{entry}`. Validates load capacity and seats.
+- `unload {carrier, thing?, passenger?, to_place?, actor?}` → `{entry}`.
+- `travel {carrier, to, actor?}` → `{from_place, to_place, entry}`. Transports carrier, contents and passengers.
+- `best_tool {holder, function}` → `{thing, kind, power}`.
+- `whats_here {place}` → `{place, total, things}`.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The
@@ -2333,7 +2359,7 @@ file and one save file and returns `{results}`, each `{ok: …}` or `{error: <op
 failed op changes nothing). Ops: `pack_data {title, sections:[{path,kind,data}]}`,
 `put_data {path,kind,data}`, `remove_data {path}`, `load_data <data file>`, `link {}`,
 `save {name, saved_at, sections, label?, parent?}`, `fork {from, name, saved_at, label?}`,
-`remove_state {name}`, `export_save {}`, `load_save <save file>`. 24 additive cases live
+`remove_state {name}`, `export_save {}`, `load_save <save file>`. 26 additive cases live
 in `conformance/save-file/`.
 
 **Data file** `{format:"gamectx-data", version:1, title 1–120, sections, digest}`.
@@ -2346,7 +2372,7 @@ duplicates, data ≤16 MiB. A path is 2–4 identifier segments under `world/`,
 `characters/<id>/` or `host/`. Kinds:
 - data files: `codex`, `props`, `sheet`, `engine-config`, `lore`, `cast-pack`, `host`;
 - save states: `engine`, `memory`, `journal`, `facts`, `brain`, `inventory`, `timeline`,
-  `host`.
+  `things`, `host`.
 
 `sheet`, `engine-config` and `engine` live at exactly `characters/<id>/<name>`; an engine
 config's character id must equal `<id>`. Sheets are validated against the data file's

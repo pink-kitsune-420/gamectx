@@ -2,6 +2,20 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Things (`knowledge::things`, local kind `things`): materials, thing kinds and instances.
+  - Materials define elemental matter with weights and values. Kinds define categories
+    (tool, weapon, furniture, container, food, material, clothing, vehicle, structure,
+    plant, other), functions with power levels, weights, durability, stackability, and
+    salvage yields. Containers support capacity and tag acceptance; carriers support load
+    capacity and seats.
+  - Instances hold condition, owner, quantity and sit in places, containers, holders, or
+    carriers.
+  - Ops: create, destroy (salvaging materials scaled by condition), remove, move, store,
+    take, load, unload, travel (moving carrier and cargo), best_tool, and whats_here.
+  - All state-changing operations emit timeline-ready entries. Saves accept a `things`
+    section.
+  - 42 cases plus 2 save-file cases. Rust matches the Python reference byte for byte on
+    all of them and on 2,000 randomized workflows.
 - Places (`knowledge::places`, local kind `places`): codex places gain an optional
   `kind`, `within` (the place they sit inside), `tags` and `links` (with a distance and
   a compass direction). There are 112 built-in kinds, such as workshop, city, forest,

@@ -11,7 +11,7 @@ Each part ships the same way as the rest of gamectx: an independent Python refer
 |---|---|
 | [Timeline](#timeline) | done |
 | [Places](#places): kinds, nesting, nearby | done |
-| Things: materials, tools, weapons, furniture, containers, carriers, stock | planned |
+| [Things](#things): materials, tools, weapons, furniture, containers, carriers, stock | done |
 | Recipes: crafting, cooking, building, repairing, dismantling | planned |
 | Species: animals, plants, hybrids, temperaments | planned |
 | Communities: relations, markets, bartering | planned |
@@ -165,3 +165,73 @@ before `limit` is applied. The exact format is in
 expectations written before running. Rust matches the Python reference
 (`eval/knowledge/timeline_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+## Things
+
+`gamectx::knowledge::things::Things` tracks what exists in the physical world:
+materials, thing kinds, and individual instances. It handles weights, salvage yields,
+containers with capacities and tag filters, carriers (vehicles and animals) with seats
+and cargo load limits, and tool function rankings.
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::knowledge::things::Things;
+
+let mut world_things = Things::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "create", "args": {
+      "id": "iron_pickaxe",
+      "kind": "pickaxe",
+      "location": {"place": "forge"},
+      "condition": 100,
+      "owner": "smith"
+    }}
+  ],
+  "things": {
+    "version": 1,
+    "materials": [
+      {"id": "iron", "label": "Iron Ingot"},
+      {"id": "wood", "label": "Timber"}
+    ],
+    "kinds": [
+      {
+        "id": "pickaxe",
+        "label": "Iron Pickaxe",
+        "category": "tool",
+        "materials": [{"material": "iron", "amount": 2}, {"material": "wood", "amount": 1}],
+        "functions": [{"function": "dig", "power": 4}],
+        "weight": 8,
+        "base_value": 15,
+        "durability": 120,
+        "stackable": false
+      }
+    ],
+    "things": []
+  }
+}"#, 4096)?;
+
+let out = world_things.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That operation returns a timeline-ready entry (real output):
+
+```json
+{"ok":true,"result":{"id":"iron_pickaxe","entry":{"at":0,"kind":"create_thing","summary":"Created Iron Pickaxe (iron_pickaxe).","actors":["smith"],"place":"forge","things":["iron_pickaxe"],"tags":["things","create"],"visibility":"public","witnesses":[],"phrases":["Iron Pickaxe","iron_pickaxe"],"facts":{"kind":"pickaxe","quantity":1,"condition":100}}}}
+```
+
+- **Materials:** define elemental substances with base unit weights and values.
+- **Categories:** tool, weapon, furniture, container, food, material, clothing, vehicle, structure, plant, and other.
+- **Functions:** tools and workstations declare functional powers (e.g. `cut`, `chop`, `dig`, `light`, `cook`, `store`, `ride`, `carry`). `best_tool` finds the highest-power tool held by an actor.
+- **Instances and Storage:** each instance sits in a place, container, holder or carrier. Containers reject items when exceeding `capacity` or when tag rules fail. Carriers accept passengers up to `seats` and cargo up to `load_capacity`.
+- **Salvage and Removal:** `destroy` breaks an item down into its base materials scaled by current condition. `remove` deletes an instance cleanly.
+- **Travel:** moving a carrier (`travel`) transports all passengers and carried items to the new destination.
+- **Relation to Inventory and Props:** `knowledge::inventory` is a lightweight ledger for tokens and counters used in fast character tool calling; `knowledge::props` provides static scene descriptions and interaction prompts; `knowledge::things` manages host-authoritative spatial entities and matter.
+
+**Evidence:** 42 cases (`conformance/things/`, 3 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/knowledge/things_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
