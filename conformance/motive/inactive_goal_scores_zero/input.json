@@ -1,0 +1,24 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "goals": [
+            {
+              "id": "win_fair",
+              "priority": 80,
+              "active": false
+            }
+          ],
+          "routine": {
+            "id": "bake",
+            "priority": 45,
+            "window_active": true
+          }
+        }
+      }
+    ]
+  }
+}

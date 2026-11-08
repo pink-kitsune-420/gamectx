@@ -1,0 +1,18 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "routine": {
+            "id": "evening_bake",
+            "priority": 60,
+            "window_active": false,
+            "time_to_start": 15
+          }
+        }
+      }
+    ]
+  }
+}

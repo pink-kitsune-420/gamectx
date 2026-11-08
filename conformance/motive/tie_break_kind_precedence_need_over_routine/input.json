@@ -1,0 +1,24 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "daily_chores",
+              "kind": "routine",
+              "score": 60
+            },
+            {
+              "id": "mild_hunger",
+              "kind": "need",
+              "score": 60
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

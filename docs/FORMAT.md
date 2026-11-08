@@ -2483,6 +2483,25 @@ Ops:
 - `add_injury {being, injury: {id, label?, severity?, location?, effects?}}` → `{ok: true, being, injuries: [...], health}`. Adds injury and reduces health by severity.
 - `heal_injury {being, injury_id, amount?, heal_health?}` → `{ok: true, being, injuries: [...], health}`. Heals injury severity and restores health.
 
+## Motive arbiter v1
+
+`gamectx::character::motive` (guide: [Life](characters/LIFE.md#motive-arbiter-gap-3)). The `motive`
+JSON-lines `local` kind runs `{ops: 1–64 [{op, args}]}` over competing character motives and returns `{version: 1, results: [...]}`.
+25 additive cases live in `conformance/motive/`.
+
+Ops:
+- `arbitrate {body?, routine?, goals?, promises?, emergencies?, brains?, motives?}` → `{winner: {id, kind, score, action?, reason}, winning_reason: str, ranked: [{id, kind, score, action?, reason}], count: int}`.
+  - Resolves competing motives onto a unified `0..=100` bounded scale:
+    - `emergency` (80..100): danger, critical health $\le 25$, exhaustion collapse (95), or death (100).
+    - `need` (0..92): homeostatic drives ($50..90$ above threshold, 92 at level 100).
+    - `promise` (20..95): commitments by deadline ($70..85$ impending $\le 5$ ticks, $80..95$ overdue).
+    - `routine` (10..75): scheduled daily shift activities ($30..75$ active window, penalized when upcoming).
+    - `task` (30..80): active planning and execution tasks.
+    - `goal` (20..70): authored sheet goals when condition `when` matches.
+    - `reaction` (0..65): situational impulses from reaction brains (bounded input, never sole arbiter).
+  - Deterministic tie-breaking: score descending, kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
+  - Generates clear explainable `winning_reason` detailing why the winning motive defeated the runner-up.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

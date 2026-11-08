@@ -2,6 +2,16 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Motive arbiter (`character::motive`, local kind `motive`, Gap 3):
+  - Deterministic, explainable ranking across competing subsystem drives on a common 0..=100 scale:
+    emergencies (danger, critical health, exhaustion collapse), needs (homeostatic drives above threshold),
+    promises and deadlines (remaining ticks / overdue status), routine shift activities, active tasks,
+    sheet goals, and reaction brains (situational impulses bounded to 65 as inputs, never sole arbiter).
+  - Deterministic tie-breaking by score descending, kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
+  - Names winning motive and provides clear `winning_reason` explaining why it defeated the runner-up.
+  - Ops: `arbitrate`.
+  - 25 cases (5 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Body and needs dynamics (`character::body`, local kind `body`, Gaps 2 and 12):
   - Homeostatic need definitions with tick rates, urgency thresholds, and satisfiers (action or item -> reduction amount). Species and character sheets can declare their own needs (`species.needs`, `sheet.needs`).
   - Body state record tracking fatigue (0..100), health (0..100), injuries (severity, location, effects), and conditions (`asleep`, `sick`, `unconscious`, `dead`).

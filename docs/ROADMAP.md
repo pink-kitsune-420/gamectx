@@ -104,9 +104,15 @@ noted; "3 models" adds Llama 3.3 70B.
     `unconscious`, `dead`). Conditions affect the action catalog (blocked verbs, extra fatigue cost), routines (forced rest /
     incapacitated), and speech (silent while asleep, unconscious, or dead). 25 conformance cases (5 malformed), 2,000 differential
     parity workflows (seed 7, 0 mismatches).
-  - Next (Stage 4 / Gap 3): Motive arbiter. One deterministic, explainable ranking across needs, routine slot, goals,
-    tasks, promises, and emergencies on one bounded scale; every choice names the winning motive.
-  - Next (Agent Model Gaps 4–8): tasks/planning, affect decay & missing feelings + skills growth,
+  - Implemented (Stage 4 / Gap 3): Motive arbiter (`character::motive::MotiveArbiter`, local kind `motive`).
+    Deterministic, explainable ranking across emergencies, needs, promises/deadlines, routine slot, tasks, sheet goals,
+    and reaction brain proposals on a common 0..=100 bounded scale. Always names the winning motive and explains why it
+    won over runners-up with explicit tie-breaking and kind precedence. 25 conformance cases (5 malformed), 2,000 differential
+    parity workflows (seed 7, 0 mismatches).
+  - Next (Stage 5 / Gap 4): Tasks and planning. Task object (id, owner, assigned_by/for, motive ref, action steps,
+    preconditions, status, progress, deadline, priority, reserved resources, on_fail/on_block, outcome history); deterministic
+    planner first, host-validated model proposals second.
+  - Next (Agent Model Gaps 6–8): affect decay & missing feelings + skills growth,
     model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.

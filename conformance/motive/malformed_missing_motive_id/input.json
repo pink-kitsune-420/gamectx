@@ -1,0 +1,18 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "kind": "need",
+              "score": 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

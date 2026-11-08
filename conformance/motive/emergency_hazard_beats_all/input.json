@@ -1,0 +1,35 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "health": 80,
+            "fatigue": 50,
+            "needs": [
+              {
+                "id": "hunger",
+                "level": 85,
+                "threshold": 70
+              }
+            ]
+          },
+          "routine": {
+            "id": "patrol",
+            "priority": 60
+          },
+          "emergencies": [
+            {
+              "id": "bakery_fire",
+              "label": "Fire spreading in bakery oven",
+              "severity": 90,
+              "action": "douse_fire"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

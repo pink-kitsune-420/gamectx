@@ -1,0 +1,24 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "task_flour",
+              "kind": "task",
+              "priority": 65,
+              "action": "barter_flour"
+            }
+          ],
+          "routine": {
+            "id": "wait",
+            "priority": 30
+          }
+        }
+      }
+    ]
+  }
+}

@@ -7,6 +7,7 @@ pub mod dialogue;
 pub mod fitness;
 pub mod life;
 pub mod living;
+pub mod motive;
 pub mod party;
 pub mod roleplay;
 pub mod routine;

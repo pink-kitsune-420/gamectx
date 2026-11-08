@@ -1,0 +1,32 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "m_explore",
+              "kind": "goal",
+              "score": 45,
+              "action": "walk"
+            },
+            {
+              "id": "m_shelter",
+              "kind": "need",
+              "score": 75,
+              "action": "find_roof"
+            },
+            {
+              "id": "m_alarm",
+              "kind": "emergency",
+              "score": 90,
+              "action": "flee"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

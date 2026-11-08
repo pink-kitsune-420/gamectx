@@ -1,0 +1,28 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "needs": [
+              {
+                "id": "thirst",
+                "level": 85,
+                "threshold": 70
+              }
+            ]
+          },
+          "brains": [
+            {
+              "id": "idle_chatter",
+              "score": 95,
+              "action": "chat"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

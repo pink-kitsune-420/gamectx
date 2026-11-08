@@ -1,0 +1,36 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "health": 100,
+            "fatigue": 40,
+            "needs": [
+              {
+                "id": "hunger",
+                "label": "Hunger",
+                "level": 80,
+                "threshold": 70,
+                "satisfiers": [
+                  {
+                    "action": "eat",
+                    "amount": 30
+                  }
+                ]
+              }
+            ]
+          },
+          "routine": {
+            "id": "bake_shift",
+            "label": "Morning baking",
+            "priority": 50,
+            "window_active": true
+          }
+        }
+      }
+    ]
+  }
+}

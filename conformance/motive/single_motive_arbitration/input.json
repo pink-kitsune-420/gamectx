@@ -1,0 +1,17 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "routine": {
+            "id": "rest_quietly",
+            "priority": 40,
+            "window_active": true
+          }
+        }
+      }
+    ]
+  }
+}

@@ -66,7 +66,8 @@ and recipes (crafting, cooking, building, repairing, and dismantling), species
 fitness in character biography (strength, endurance, agility, condition, carry limits and travel fatigue),
 an [action catalog](docs/guides/WORLD.md#actions) (read-only metadata over all 11 operational surfaces),
 a [witness bridge](docs/characters/LIFE.md#witness-bridge-gap-1) (turning timeline entries and events into sensory Life experiences),
-and [body and need dynamics](docs/characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12) (tick rates, satisfiers, fatigue build/recovery, health, injuries, and condition effects).
+[body and need dynamics](docs/characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12) (tick rates, satisfiers, fatigue build/recovery, health, injuries, and condition effects),
+and a [motive arbiter](docs/characters/LIFE.md#motive-arbiter-gap-3) (deterministic, explainable ranking across emergencies, needs, promises, routines, goals, and brain impulses on a common 0..=100 scale).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

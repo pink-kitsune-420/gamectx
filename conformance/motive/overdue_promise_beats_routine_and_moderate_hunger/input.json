@@ -1,0 +1,38 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "health": 100,
+            "fatigue": 20,
+            "needs": [
+              {
+                "id": "hunger",
+                "level": 60,
+                "threshold": 70
+              }
+            ]
+          },
+          "routine": {
+            "id": "shop_duty",
+            "priority": 55,
+            "window_active": true
+          },
+          "promises": [
+            {
+              "id": "deliver_flour",
+              "task": "Deliver flour to baker",
+              "priority": 70,
+              "remaining_ticks": 0,
+              "overdue": true,
+              "action": "deliver"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

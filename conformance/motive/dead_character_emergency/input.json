@@ -1,0 +1,20 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "health": 0,
+            "fatigue": 0
+          },
+          "routine": {
+            "id": "work",
+            "priority": 50
+          }
+        }
+      }
+    ]
+  }
+}

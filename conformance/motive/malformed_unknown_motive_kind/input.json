@@ -1,0 +1,18 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "bad_kind",
+              "kind": "supernatural"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

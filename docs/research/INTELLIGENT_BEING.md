@@ -204,7 +204,7 @@ state that accumulates and recovers.
 body state record (fatigue, health, injuries, hunger-like needs) that actions update and
 rest restores. Species should be able to declare their own needs.
 
-### Gap 3: no single motive ranking
+### Gap 3: no single motive ranking — **DONE** ([Evidence](../characters/LIFE.md#motive-arbiter-gap-3))
 
 Routines rank activities, initiative ranks candidates, sheet goals have priorities, needs
 have thresholds, promises have deadlines and brains rank outputs. Each ranking is
@@ -322,7 +322,7 @@ Ordered by how much each unblocks the others, not by size.
 2. **Witness bridge** (gap 1) — **DONE** ([Evidence](../characters/LIFE.md#witness-bridge-gap-1)). Small, deterministic, high value: the world starts reaching
    memory without per-host glue.
 3. **Body and need dynamics** (gaps 2, 12) — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12)). Rates, satisfiers, rest and conditions.
-4. **Motive arbiter** (gap 3). One explainable ranking over needs, routine, goals, tasks,
+4. **Motive arbiter** (gap 3) — **DONE** ([Evidence](../characters/LIFE.md#motive-arbiter-gap-3)). One explainable ranking over needs, routine, goals, tasks,
    promises and emergencies.
 5. **Tasks and planning** (gap 4). Task object, deterministic planner, model proposals
    validated by the host.

@@ -1,0 +1,24 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "hunger_urgent",
+              "kind": "need",
+              "score": 85
+            },
+            {
+              "id": "danger_threat",
+              "kind": "emergency",
+              "score": 85
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

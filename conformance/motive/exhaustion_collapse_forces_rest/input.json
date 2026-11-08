@@ -1,0 +1,20 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "health": 80,
+            "fatigue": 100
+          },
+          "routine": {
+            "id": "guard_shift",
+            "priority": 65
+          }
+        }
+      }
+    ]
+  }
+}

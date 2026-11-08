@@ -350,4 +350,25 @@ homeostatic needs over time:
 **Evidence:** 25 cases (`conformance/body/`, 5 malformed), 2,000 differential parity
 workflows (`eval/character/body_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
+## Motive arbiter (Gap 3)
+
+`gamectx::character::motive` (`MotiveArbiter`, local kind `motive`) resolves competing motives
+across all character subsystems onto one unified, explainable 0..=100 bounded scale:
+- **Unified scale & categories:**
+  - *Emergencies (80..100):* immediate danger, critical health ($\le 25$), or total exhaustion collapse.
+  - *Needs (0..92):* homeostatic drives scaled sharply above threshold ($50..90$, capped at 92 on starvation).
+  - *Promises & Deadlines (20..95):* commitments scaled by remaining ticks ($70..85$ impending, $80..95$ overdue).
+  - *Routine slot (10..75):* scheduled daily shift activities ($30..75$ active window, penalized when upcoming).
+  - *Tasks (30..80):* active planning and execution tasks.
+  - *Goals (20..70):* authored sheet goals when condition `when` matches (0 when inactive).
+  - *Reaction brains (0..65):* situational impulses treated as candidate inputs, bounded so they never override emergencies or critical needs on their own.
+- **Deterministic arbitration:**
+  - Sorted by score descending, then kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
+  - Returns `winner` naming the winning motive, full explainable `winning_reason` citing why the winner beat the runner-up, and the complete `ranked` motive list.
+- **Operations:** `arbitrate {body?, routine?, goals?, promises?, emergencies?, brains?, motives?}`.
+
+**Evidence:** 25 cases (`conformance/motive/`, 5 malformed), 2,000 differential parity
+workflows (`eval/character/motive_cases.py`, seed 7, 0 mismatches), $0 API spend.
+
+
 

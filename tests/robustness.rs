@@ -1799,4 +1799,36 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     ops_65.push_str("]}");
     assert!(clean_mgr2.workflow(&parse(&ops_65, 1 << 20).unwrap()).is_err());
+
+    // 7. MotiveArbiter mutation fuzzing & boundaries
+    use gamectx::character::motive::MotiveArbiter;
+    let arbiter = MotiveArbiter::new();
+    let sample_motive_req = r#"{"ops":[{"op":"arbitrate","args":{"body":{"health":100,"needs":[{"id":"hunger","level":80,"threshold":70}]},"routine":{"id":"bake","priority":50}}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_motive_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = arbiter.workflow(&v);
+        }
+    }
+
+    // Boundary test: MotiveArbiter accepts up to 64 motives and rejects 65
+    let mut motives_64 = String::from(r#"{"ops":[{"op":"arbitrate","args":{"motives":["#);
+    for i in 0..64 {
+        if i > 0 {
+            motives_64.push(',');
+        }
+        motives_64.push_str(&format!(r#"{{"id":"m_{i}","kind":"goal","score":50}}"#));
+    }
+    motives_64.push_str("]}}]}");
+    assert!(arbiter.workflow(&parse(&motives_64, 1 << 20).unwrap()).is_ok());
+
+    let mut motives_65 = String::from(r#"{"ops":[{"op":"arbitrate","args":{"motives":["#);
+    for i in 0..65 {
+        if i > 0 {
+            motives_65.push(',');
+        }
+        motives_65.push_str(&format!(r#"{{"id":"m_{i}","kind":"goal","score":50}}"#));
+    }
+    motives_65.push_str("]}}]}");
+    assert!(arbiter.workflow(&parse(&motives_65, 1 << 20).unwrap()).is_err());
 }

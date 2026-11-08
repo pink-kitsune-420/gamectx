@@ -1,0 +1,26 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "routine": {
+            "id": "sweep_floor",
+            "priority": 55,
+            "window_active": true
+          },
+          "promises": [
+            {
+              "id": "repair_gate",
+              "task": "Fix the front latch",
+              "priority": 70,
+              "remaining_ticks": 2,
+              "action": "repair"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

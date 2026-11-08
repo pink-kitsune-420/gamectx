@@ -1,0 +1,24 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "z_chore",
+              "kind": "routine",
+              "score": 50
+            },
+            {
+              "id": "a_chore",
+              "kind": "routine",
+              "score": 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

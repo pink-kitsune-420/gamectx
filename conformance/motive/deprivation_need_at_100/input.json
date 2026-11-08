@@ -1,0 +1,25 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "body": {
+            "needs": [
+              {
+                "id": "starvation",
+                "level": 100,
+                "threshold": 70
+              }
+            ]
+          },
+          "routine": {
+            "id": "harvest",
+            "priority": 60
+          }
+        }
+      }
+    ]
+  }
+}

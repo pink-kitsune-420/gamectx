@@ -754,6 +754,10 @@ module (`character::body::BodyManager` or local kind `body`). Needs advance over
 by actions or items. Fatigue accumulates with action costs and recovers during awake rest and sleep.
 Active conditions (`asleep`, `sick`, `unconscious`, `dead`) enforce physical action constraints, silence
 characters during sleep or incapacity, and override daily routines with forced rest.
+To resolve competing drives when needs, scheduled routines, promises, sheet goals, and emergencies
+conflict, the [motive arbiter](characters/LIFE.md#motive-arbiter-gap-3) (`character::motive::MotiveArbiter`
+or local kind `motive`) maps them onto a bounded 0..=100 scale, selects the winning motive deterministically,
+and explains the choice.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 
