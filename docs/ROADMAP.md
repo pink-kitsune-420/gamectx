@@ -13,10 +13,34 @@ noted; "3 models" adds Llama 3.3 70B.
   Examples, docs and eval grouped to match, with indexes. No behavior/format change: all
   conformance cases and frozen artifacts byte-identical; pre-0.4 evidence verified through
   `eval/common/provenance.py`. Breaking import paths are listed in the changelog.
-- Phase 2, next: a universal, configurable character runtime that ports Lantern Vault's
-  character/roleplay behavior (scene awareness, greetings, recall, reactions, expression,
-  viewpoints, deliberation, visual descriptions/art bibles and more) into the library as
-  opt-in features with tunable values, so any game can use them without demo code.
+- Phase 2, stage 2.1 done: `character::roleplay::engine`, a configurable roleplay engine
+  with 12 switchable stages, a line book (English pack plus host phrases and lines), and
+  new host-owned props (`knowledge::props`) that people can look at and interact with.
+  62 additive conformance cases. Rust is byte-identical to the Python reference on those
+  cases and on 1,500 randomized differential cases. All 108 Lantern Vault greeting and
+  social lines are in the pack. Zero model calls. [Guide](characters/ROLEPLAY_ENGINE.md).
+- Phase 2, stage 2.1b done: character sheets (persona, speech, services, goals, needs,
+  relationships, factions, secrets, opinions), a world codex (places with spots, ambience
+  and norms; entrances; factions; events; quests), content settings and host `state`
+  flags, as 12 more switchable engine features. 104 engine cases (the 62 stage 2.1
+  outcomes are unchanged), byte-identical to the Python reference on 2,800 randomized
+  cases. `kit::save` packs a game data file and a multi-state save file (named, forkable
+  states with digests and a game link): 22 cases, 2,932 of 3,000 randomized workflows
+  byte-identical, the other 68 being stricter Rust validation of nested lore/memory.
+  Zero model calls. [Guide](characters/ROLEPLAY_ENGINE.md#character-sheet).
+- Phase 2, next:
+  - 2.2: model request compile/validate behind the `model` outcome, plus expression,
+    tales, viewpoints, reactions, deliberation and wording as engine stages; prop
+    interactions proposed by characters; a persona/speech/content brief compiled from the
+    sheet (style fields are validated and stored today but not yet used).
+  - 2.3: a visual director with tiered art bibles, format profiles, host-supplied visual
+    fact selectors and an approval/repair/fallback workflow.
+  - 2.4: migrate Lantern Vault onto the engine, keeping its frozen host checks
+    byte-identical.
+  - Follow-up: save files could gain optional per-state compression and an in-place
+    migration hook for game data updates; both need measurements first.
+  - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`
+    for `door:vault`); removing it is a format change for `studio-command`.
 
 ## Implemented locally for v0.3.1a
 

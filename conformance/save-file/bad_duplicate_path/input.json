@@ -1,0 +1,1 @@
+{"kind":"save-file","args":{"ops":[{"op":"pack_data","args":{"title":"Ember Bakery","sections":[{"path":"host/settings","kind":"host","data":{"difficulty":"gentle","music":0.6}},{"path":"host/settings","kind":"host","data":{"difficulty":"gentle","music":0.6}}]}}]}}

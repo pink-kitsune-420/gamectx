@@ -32,3 +32,6 @@ pub(crate) use viewpoints::fixture as viewpoints_fixture;
 pub use viewpoints::{validate_viewpoint_line, Viewpoints};
 mod commands;
 pub use commands::resolve_command;
+pub mod engine;
+pub(crate) use engine::fixture as engine_fixture;
+pub use engine::{EngineConfig, Feature, RoleplayEngine};

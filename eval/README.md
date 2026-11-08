@@ -14,6 +14,7 @@ artifacts, grouped by topic. Run every script from the repository root with
 | `knowledge/` | Lore, information/inventory tools, conversation tools, location and world |
 | `character/` | Life, continuity, initiative, routines, archetypes, parties, living world, opinions |
 | `media/` | Visual compiler and asset registry |
+| `kit/` | Game data and multi-state save files |
 | `lantern-vault/` | The dungeon example: rules, social/knowledge/trade routing, natural speech |
 | `studio/` | Studio host, roleplay features, voice, model manager, browser drivers |
 | `overnight/` | Overnight deep-evaluation campaigns and audits |

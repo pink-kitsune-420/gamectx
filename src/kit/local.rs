@@ -69,6 +69,8 @@ pub fn process(v: &Value) -> Result<Value> {
         "character-context" => crate::character::life::context_fixture(a),
         "archetype" => crate::character::archetype::Blueprint::from_value(a).map(|b| b.to_value()),
         "studio-command" => crate::character::roleplay::resolve_command(a),
+        "roleplay-engine" => crate::character::roleplay::engine_fixture(a),
+        "save-file" => crate::kit::save::workflow(a),
         "studio-routing" => crate::media::providers::routing_workflow(a),
         "studio-voice" => crate::media::voice::voice_workflow(a),
         "visual-spec" => crate::media::visual::compile_fixture(a).map(|s| s.to_value()),

@@ -41,6 +41,30 @@ shared `fixtures/` and the `lantern-vault/` game, [`docs/`](docs/README.md) by p
 The [dynamic character guide](docs/characters/LIFE.md) records the five implementation stages from
 [the agent brief](docs/research/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
 
+## Configurable roleplay engine, world definitions and saves (0.4.0a)
+
+[`character::roleplay::engine`](docs/characters/ROLEPLAY_ENGINE.md) gives any game one
+roleplay brain per AI character. It handles greetings that remember encounters, social
+lines, remembered names and preferences, perception, stage actions and directions,
+commands over the turn's legal choices, and a model hand-off for everything else. Every
+stage can be switched on or off and tuned, and all wording comes from a line book you
+can extend or replace. Locations can host [props](docs/characters/ROLEPLAY_ENGINE.md#props)
+with descriptions and registered interactions.
+
+A [character sheet](docs/characters/ROLEPLAY_ENGINE.md#character-sheet) adds persona,
+services, goals and needs, relationships, factions, trust-gated secrets and opinions. A
+shared [world codex](docs/characters/ROLEPLAY_ENGINE.md#world-codex) adds places with
+spots, ambience and house rules, entrances with open/locked/hidden states, factions,
+timed events and quests. [`kit::save`](docs/characters/ROLEPLAY_ENGINE.md#saving-game-data-and-saves)
+packs the authored side into one game data file and runtime memory into one save file
+with any number of named, forkable states.
+
+The engine only proposes; your game validates and executes. 104 engine and 22 save-file
+conformance cases. The Rust output is byte-identical to independent Python references on
+4,300 randomized engine cases (1,500 in stage 2.1, 2,800 in 2.1b) and on 2,932 of 3,000
+randomized save workflows. The other 68 are stricter Rust validation of nested
+lore/memory data, a documented difference. Zero model calls.
+
 ## Optional local RPG, voice and art studio (unreleased v0.3.1a)
 
 Run `cargo run --example dungeon -- --web --cap 0` and open the printed loopback URL.

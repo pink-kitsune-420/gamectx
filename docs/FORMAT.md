@@ -2095,3 +2095,138 @@ See [exact fields, bounds and speech authority](studio/STUDIO_EXPRESSION.md).
 accepts a structured tale while retaining legacy arrays. Example delivery event `blocked`
 requires zero played/heard offsets and issues a fresh ticket; state adds `playback_blocked`.
 [Bounds, source authority and compatibility](studio/SCENE_SOCIAL_REPAIR.md).
+
+## Roleplay engine v1
+
+`roleplay-engine` (JSON-lines `local` kind) runs `{config, state, ops}`, where `state` is
+`null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered", args}`
+entries. It returns `{config, results, state}`. 104 additive cases live in
+`conformance/roleplay-engine/` (62 from stage 2.1, 42 from stage 2.1b), and no output
+outside that folder changes. See the
+[roleplay engine guide](characters/ROLEPLAY_ENGINE.md) for behavior.
+
+**Config** `{version:1, character:{id,name≤32}, features?, variety?:{recent 0–8 = 2},
+pack?: "en"|"none", phrases?: {intent: matcher} (≤64), lines?: [rule] (≤128),
+lists?: {separator,final}|null, articles?: [word]|null, sheet?: Sheet, codex?: Codex}`.
+- `features` may set any of `chunks{max_chars 512–4096 = 1024}`, `out_of_character`,
+  `stage_actions{actions: RoleplayActions}`, `props{registry: Props}`, `directions`,
+  `perception`, `commands`, `disclosures{max_preferences 1–16 = 3}`, `recall`,
+  `greetings{long_gap_turns 1–1000000 = 12}`, `social`, `model`,
+  `content{rating: all|teen|mature = teen, avoid: ≤32 [{id, phrases 1–16}]}`, `entrances`,
+  `scenery`, `persona`, `services`, `secrets`, `opinions`, `relationships`, `factions`,
+  `events{soon_turns 1–1000000 = 10}`, `quests` and `goals`. Each also takes `enabled`
+  (default `true`).
+- The output `config` echoes `sheet` and `codex` (empty `{"version":1}` when absent).
+- Unknown keys are errors. The output `config` writes every default out.
+
+**Matcher** `{exact?, prefix?, contains?, unless?}`. Each is 1–32 phrases of at most 128
+bytes, compared after lowercasing and mapping non-alphanumerics to spaces.
+
+**Rule** `{id, intent, variants: 1–8 templates ≤240 chars, when?: Conditions,
+introduces?: bool}`. **Conditions** are ≤8 entries `{key: [1–16 values] | {min?,max?}}`;
+values are strings ≤64 chars, booleans or integers within ±10⁹, and a range needs an
+integer. Keys are template variables or host flags `state.<id>`; a missing variable fails
+its condition. Templates may contain only `{var}` names from the
+fixed set listed in the guide. The merged pack and config line book holds at most 256
+lines.
+
+**Props** `{version:1, props: ≤128 [{id, label ≤48, aliases ≤8 (≤48 each),
+description ≤240, interactions ≤8 [{id, phrases 1–8 (≤128 bytes), decision:
+{action,target}|null, narration ≤240}]}]}`. Normalized names and interaction phrases
+are unique across the registry.
+
+**Turn** `{listener, text, at, token ≥1, scene:{id, label ≤48, place: workplace|social|
+private|other|hazard, atmosphere: calm|busy|tense|emergency, visit, sight? ≤160,
+sound? ≤160, props?: ≤64 [{id, note ≤160|null}]}, trust? −100–100, choices?: ≤128,
+labels?: ≤32 [{id, aliases ≤4 (≤48 chars, ≤96 bytes)}], focus?, reason? ≤240,
+targets?: ≤64 [{kind: character|place, id, names 1–8 (≤48)}], entrances?: ≤64 [{id,
+status: open|closed|locked|blocked|hidden, note? ≤160}], needs?: ≤16 {need_id: 0–100},
+quests?: ≤64 {quest_id: stage_id}, state?: ≤64 {id: string ≤64 | bool | integer}}`.
+Each listed entrance must have a side at `scene.id`; needs and quests must exist in the
+sheet and codex.
+- Every result starts with `route` and `kind`.
+- `reply` and `clarify` results add `intent`, `line` and `text`. A clarification with no
+  matching line has `null` for both `line` and `text`.
+- `action` results add `decision`, plus `id` or `prop`/`interaction`, and `narration`
+  for stage actions and props; entrance and service actions add `entrance` or `service`.
+  Any action may end with `norm: {id, reaction}`.
+- Replies may add the subject: `topic`, `entrance`, `spot`, `service`, `secret`,
+  `opinion`, `person`, `faction`, `event`, `quest` or `goal`. Sheet-authored replies use
+  `line` ids `secret:<id>`, `cover:<id>`, `opinion:<id>` and `goal:<id>`.
+- A direction to a spot adds `spot: true`; an unanswered secret is
+  `{route:"secrets", kind:"silent", secret}`.
+- Other kinds: `direction {verb, target}`, `note {note}`,
+  `model {input, long, expression, topic}` and `silent`.
+
+**Delivered** `{token, listener, text, heard}` returns one of:
+- `{recorded:false, reason:"unknown"}` for a token with no pending reply;
+- `{recorded:false, reason:"partial"}` when the listener did not hear it all;
+- `{recorded:true, greeting: <studio-greetings confirm result>|null}` for a full
+  delivery.
+
+**Checkpoint** `{version:1, greetings: <studio-greetings state>, listeners: ≤256
+[{id, name, preferences ≤max [{value,polarity}], recent ≤variety.recent, topic,
+revealed ≤32 unique ids}],
+pending: ≤16 [{token, listener, text, scene, visit, at, greeting, introduced}]}`.
+
+**Codex** `{version:1, places?, entrances?, factions?, events?, quests?}` (names and
+aliases are unique per category):
+- `places` ≤128 `[{id, label ≤48, aliases?, spots? ≤16 [{id, label, description ≤240,
+  aliases?}], ambience? ≤8 [{when?, smell?, light?, sound?, temperature? (≤160, at least
+  one)}], norms? ≤16 [{id, actions 1–8 [{action, target|null}], reaction ≤240}]}]`;
+- `entrances` ≤256 `[{id, label, sides 1–2 [{place, description ≤240, travel?}], kind?,
+  aliases?, passage?: both|one_way = both, carries?: {sound?, sight?: none|when_open|always
+  = when_open}}]`, with distinct side places that exist;
+- `factions` ≤64 `[{id, label, description, aliases?, relations? ≤32 [{faction (another listed
+  faction, once), stance: allied|friendly|neutral|wary|hostile}]}]`;
+- `events` ≤128 `[{id, label, description, start, end ≥ start, aliases?, place?}]`;
+- `quests` ≤128 `[{id, label, stages 1–32 [{id, description}], aliases?, givers? ≤16}]`.
+
+**Sheet** `{version:1, persona?, speech?, services?, goals?, needs?, relationships?,
+factions?, secrets?, opinions?}`:
+- `persona {pronouns ≤32, role ≤80, summary ≤240, appearance ≤480, values/fears/desires
+  ≤8 × ≤80}`; `speech {formality: casual|neutral|formal, verbosity: terse|normal|chatty,
+  quirks/catchphrases ≤8 × ≤120, avoid_words ≤32 × ≤40}`;
+- `services` ≤32 `[{id, label ≤48, description ≤240, phrases? ≤8, decision?, when?}]`;
+  `goals` ≤16 `[{id, description, priority 0–100, when?}]`; `needs` ≤16 `[{id, label ≤48,
+  threshold 0–100}]`;
+- `relationships` ≤64 `[{with (unique), name, kind ≤32, aliases?, description?}]`;
+  `factions` ≤16 `[{faction (in the codex), role?}]`;
+- `secrets` ≤32 `[{id, phrases 1–16, reveal ≤240, when (required), cover?}]`;
+  `opinions` ≤64 `[{id, phrases 1–16, variants 1–8 × ≤240, when?}]`.
+
+## Game data and save files v1
+
+`gamectx::kit::save` reads and writes two documents with one container shape. The
+`save-file` JSON-lines `local` kind runs `{ops: 1–32 [{op, args}]}` over one working data
+file and one save file and returns `{results}`, each `{ok: …}` or `{error: <op>}` (a
+failed op changes nothing). Ops: `pack_data {title, sections:[{path,kind,data}]}`,
+`put_data {path,kind,data}`, `remove_data {path}`, `load_data <data file>`, `link {}`,
+`save {name, saved_at, sections, label?, parent?}`, `fork {from, name, saved_at, label?}`,
+`remove_state {name}`, `export_save {}`, `load_save <save file>`. 22 additive cases live
+in `conformance/save-file/`.
+
+**Data file** `{format:"gamectx-data", version:1, title 1–120, sections, digest}`.
+**Save file** `{format:"gamectx-save", version:1, game: {title, digest}|null, states ≤256
+[{name, label 1–120|null, parent|null, saved_at 0–2⁵³−1, sections, digest}], digest}`,
+states sorted by name. `parent` is any other state name (it may since have been removed).
+
+**Section** `{path, kind, digest, data}`, ≤4096 per file or state, sorted by path with no
+duplicates, data ≤16 MiB. A path is 2–4 identifier segments under `world/`,
+`characters/<id>/` or `host/`. Kinds:
+- data files: `codex`, `props`, `sheet`, `engine-config`, `lore`, `cast-pack`, `host`;
+- save states: `engine`, `memory`, `journal`, `facts`, `brain`, `inventory`, `host`.
+
+`sheet`, `engine-config` and `engine` live at exactly `characters/<id>/<name>`; an engine
+config's character id must equal `<id>`. Sheets are validated against the data file's
+`world/codex` (or an empty codex), and removing or replacing that codex re-checks them.
+`host` data is any bounded JSON; every other kind is validated by its own parser. An
+`engine` section is checked for shape on its own and restored in full against the data
+file's `engine-config` at the same path.
+
+**Digests** are 16 lowercase hex FNV-1a (`gamectx::fingerprint`) of compact JSON:
+section = `data`; data file = `{format, version, title, sections:[{path,kind,digest}]}`;
+state = `{name, label, parent, saved_at, sections:[{path,kind,digest}]}`; save file =
+`{format, version, game, states:[{name,digest}]}`. Loading recomputes and compares every
+digest. `load_save` reports `game_matches`: `true`/`false` against the loaded data file,
+or `null` when either side has no game.

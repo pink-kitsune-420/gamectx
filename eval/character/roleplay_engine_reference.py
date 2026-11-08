@@ -1,0 +1,552 @@
+"""Independent reference for the configurable roleplay engine (0.4.0a, stages 2.1 and 2.1b).
+
+Zero model calls. Composes the existing independent oracles (message chunks, expressive
+routing and claims, registered stage actions, the command grammar, social routing and
+greeting memory) and adds the engine's own contracts: config defaults, the line book,
+phrase matchers, props, stage directions, per-listener state and delivery receipts.
+
+Predeclared expectations (written before the Rust implementation existed):
+  1. Every stage answers only when one of its line rules matches; otherwise the turn falls
+     through, so `pack: "none"` with no lines sends every conversational turn to the model.
+  2. Disabling a feature never changes the outcome of an earlier stage in the cascade.
+  3. Prop interactions and stage actions only propose host decisions; a decision that is not
+     one of the turn's legal choices is blocked, never executed.
+  4. Variety only counts fully heard replies; a partial delivery changes nothing but
+     removes the pending reply.
+  5. With the default English pack, Lantern Vault's greeting and social wording is
+     reproduced line for line (checked against the frozen web host wording in stage 2.4).
+
+Stage 2.1b (definitions; predeclared before the Rust implementation):
+  6. With an empty character sheet and codex, every 2.1 outcome is unchanged; only the
+     normalized config echo and the listener record (new `revealed` list) grow.
+  7. A secret is spoken only when its `when` conditions hold for this turn; otherwise
+     its cover story (or a withheld line) is spoken and the secret text never appears.
+  8. Hidden entrances are never listed, described or traversed; traversal proposes the
+     side's travel decision only when the entrance is open and the decision is legal.
+  9. A norm reaction is attached only to action outcomes whose decision matches the
+     current place's norm; it never blocks or changes the decision.
+"""
+import copy, json, pathlib, re
+import pathlib as _pl, sys as _sys; _sys.path[1:1] = [str(d) for d in sorted(_pl.Path(__file__).resolve().parents[1].iterdir()) if d.is_dir()]  # every eval/ topic folder
+import roleplay_definitions_reference as defs
+import expression_cases, greeting_memory_cases, message_chunks_cases, overnight_input_cases, roleplay_actions_cases, social_routing_cases
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[])}
+FEATURES = ['chunks', 'out_of_character', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
+            'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals']
+PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)))
+VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
+           'exits status destination through heard smell light temperature role summary services label text need has_need person kind faction stance event events timing quest stage'.split())
+MATCHERS = ['exact', 'contains', 'prefix', 'unless']
+U32 = 4294967295
+
+
+def enc(v): return json.dumps(v, ensure_ascii=False, separators=(',', ':'))
+def control(s): return any(ord(c) < 32 or 127 <= ord(c) <= 159 for c in s)
+def text(s, chars, nbytes=None):
+    assert isinstance(s, str) and 1 <= len(s) <= chars and not control(s)
+    if nbytes is not None: assert len(s.encode()) <= nbytes
+    return s
+def ident(s): assert isinstance(s, str) and re.fullmatch('[A-Za-z0-9_:-]{1,64}', s); return s
+def uint(n, lo=0, hi=U32): assert type(n) is int and lo <= n <= hi; return n
+def boolean(b): assert type(b) is bool; return b
+def keys(v, required, optional=()):
+    assert isinstance(v, dict) and set(required) <= set(v) <= set(required) | set(optional)
+def norm(s): return ' '.join(''.join(c if c.isalnum() else ' ' for c in s.lower()).split())
+def decision(d):
+    if d is not None:
+        keys(d, ['action', 'target']); ident(d['action'])
+        if d['target'] is not None: ident(d['target'])
+    return d
+
+
+def template(t):
+    text(t, 240); names = []; rest = t
+    while rest:
+        i = min([x for x in (rest.find('{'), rest.find('}')) if x >= 0], default=-1)
+        if i < 0: break
+        assert rest[i] == '{'; j = rest.find('}', i); assert j > i
+        name = rest[i + 1:j]; assert name in VARS; names.append(name); rest = rest[j + 1:]
+    return names
+def render(t, v):
+    out = ''; rest = t
+    while '{' in rest:
+        i = rest.index('{'); j = rest.index('}', i); name = rest[i + 1:j]
+        if name not in v: return None
+        x = v[name]; out += rest[:i] + ('true' if x is True else 'false' if x is False else str(x)); rest = rest[j + 1:]
+    return out + rest
+
+
+def matcher(m):
+    assert isinstance(m, dict) and m and set(m) <= set(MATCHERS); out = {}
+    for k in MATCHERS:
+        if k in m:
+            assert isinstance(m[k], list) and 1 <= len(m[k]) <= 32; out[k] = []
+            for p in m[k]: text(p, 128, 128); q = norm(p); assert q; out[k].append(q)
+    return out
+def match(m, q):
+    """(matched, remainder): unless vetoes; then exact, prefix (word boundary), contains."""
+    if m is None: return False, ''
+    padded = ' ' + q + ' '
+    if any(' ' + p + ' ' in padded for p in m.get('unless', [])): return False, ''
+    if q in m.get('exact', []): return True, ''
+    for p in m.get('prefix', []):
+        if q == p or q.startswith(p + ' '): return True, q[len(p):].strip()
+    if any(' ' + p + ' ' in padded for p in m.get('contains', [])): return True, ''
+    return False, ''
+
+
+def rule(r):
+    keys(r, ['id', 'intent', 'variants'], ['when', 'introduces']); ident(r['id']); ident(r['intent'])
+    assert isinstance(r['variants'], list) and 1 <= len(r['variants']) <= 8
+    for t in r['variants']: template(t)
+    boolean(r.get('introduces', False)); when = r.get('when', {}); assert isinstance(when, dict) and len(when) <= 8
+    defs.conditions(when, VARS)
+    return r
+def when_ok(when, v):
+    for k, c in when.items():
+        if k not in v: return False
+        x = v[k]
+        if isinstance(c, dict):
+            if type(x) is not int or x < c.get('min', x) or x > c.get('max', x): return False
+        elif not any(type(y) is type(x) and y == x for y in c): return False
+    return True
+
+
+def props_registry(v):
+    keys(v, ['version', 'props']); assert v['version'] == 1 and isinstance(v['props'], list) and len(v['props']) <= 128
+    ids, names, phrases = [], [], []
+    for p in v['props']:
+        keys(p, ['id', 'label', 'aliases', 'description', 'interactions']); ident(p['id']); assert p['id'] not in ids; ids.append(p['id'])
+        text(p['label'], 48); text(p['description'], 240); assert isinstance(p['aliases'], list) and len(p['aliases']) <= 8
+        for n in [p['label']] + p['aliases']:
+            text(n, 48); q = norm(n); assert q and q not in names; names.append(q)
+        assert isinstance(p['interactions'], list) and len(p['interactions']) <= 8; seen = []
+        for i in p['interactions']:
+            keys(i, ['id', 'phrases', 'decision', 'narration']); ident(i['id']); assert i['id'] not in seen; seen.append(i['id'])
+            decision(i['decision']); text(i['narration'], 240); assert isinstance(i['phrases'], list) and 1 <= len(i['phrases']) <= 8
+            for ph in i['phrases']: text(ph, 128, 128); q = norm(ph); assert q and q not in phrases; phrases.append(q)
+    return v
+
+
+def config(c):
+    keys(c, ['version', 'character'], ['features', 'variety', 'pack', 'phrases', 'lines', 'lists', 'articles', 'sheet', 'codex'])
+    uint(c['version'], 1, 1); keys(c['character'], ['id', 'name']); ident(c['character']['id']); text(c['character']['name'], 32)
+    fin = c.get('features', {}); assert isinstance(fin, dict) and set(fin) <= set(FEATURES); features = {}
+    for f in FEATURES:
+        v = fin.get(f, {})
+        if f == 'content': features[f] = defs.content(v); continue
+        extra = list(PARAMS.get(f, {})) + (['actions'] if f == 'stage_actions' else ['registry'] if f == 'props' else [])
+        keys(v, [], ['enabled'] + extra); out = dict(enabled=boolean(v.get('enabled', True)))
+        for k, (lo, hi, d) in PARAMS.get(f, {}).items(): out[k] = uint(v.get(k, d), lo, hi)
+        if f == 'stage_actions':
+            out['actions'] = v.get('actions', dict(version=1, entries=[])); roleplay_actions_cases.oracle(dict(registry=out['actions'], input='x', choices=[]))
+        if f == 'props': out['registry'] = props_registry(v.get('registry', dict(version=1, props=[])))
+        features[f] = out
+    variety = c.get('variety', {}); keys(variety, [], ['recent']); variety = dict(recent=uint(variety.get('recent', 2), 0, 8))
+    pack = c.get('pack', 'en'); assert pack in PACKS
+    phrases = c.get('phrases', {}); assert isinstance(phrases, dict) and len(phrases) <= 64
+    for k, m in phrases.items(): ident(k); matcher(m)
+    lines = c.get('lines', []); assert isinstance(lines, list) and len(lines) <= 128; seen = []
+    for r in lines: rule(r); assert r['id'] not in seen; seen.append(r['id'])
+    lists = c.get('lists'); articles = c.get('articles')
+    if lists is not None: keys(lists, ['separator', 'final']); [assert_sep(lists[k]) for k in ['separator', 'final']]
+    if articles is not None:
+        assert isinstance(articles, list) and len(articles) <= 8
+        for a in articles: text(a, 16); assert norm(a) == a
+    cdx = defs.codex(c.get('codex', dict(version=1)), VARS); sh = defs.sheet(c.get('sheet', dict(version=1)), cdx, VARS)
+    return dict(version=1, character=dict(c['character']), features=features, variety=variety, pack=pack, phrases=phrases, lines=lines, lists=lists, articles=articles, sheet=sh, codex=cdx)
+def assert_sep(s): assert isinstance(s, str) and len(s) <= 16 and not control(s)
+
+
+class Engine:
+    def __init__(self, cfg, state=None):
+        self.cfg = config(cfg); p = PACKS[self.cfg['pack']]
+        self.phrases = {k: matcher(m) for k, m in p['phrases'].items()}
+        for k, m in self.cfg['phrases'].items(): self.phrases[k] = matcher(m)
+        own = {r['id']: r for r in self.cfg['lines']}; merged = [own.pop(r['id']) if r['id'] in own else r for r in p['lines']]
+        self.lines = [r for r in self.cfg['lines'] if r['id'] in own] + merged; assert len(self.lines) <= 256
+        self.lists = self.cfg['lists'] if self.cfg['lists'] is not None else p['lists']
+        self.articles = self.cfg['articles'] if self.cfg['articles'] is not None else p['articles']
+        self.gcfg = dict(version=1, long_gap_turns=self.cfg['features']['greetings']['long_gap_turns'])
+        self.codex = self.cfg['codex']; self.sheet = self.cfg['sheet']
+        self.avoid = [norm(w) for w in self.sheet.get('speech', {}).get('avoid_words', [])]
+        self.state = self.restore(state) if state is not None else dict(version=1, greetings=dict(version=1, revision=0, entries=[]), listeners=[], pending=[])
+
+    def on(self, f): return self.cfg['features'][f]['enabled']
+
+    def restore(self, s):
+        keys(s, ['version', 'greetings', 'listeners', 'pending']); uint(s['version'], 1, 1)
+        greeting_memory_cases.recover(s['greetings'])
+        for e in s['greetings']['entries']: assert e['actor'] == self.cfg['character']['id']
+        assert isinstance(s['listeners'], list) and len(s['listeners']) <= 256; ids = []
+        for l in s['listeners']:
+            keys(l, ['id', 'name', 'preferences', 'recent', 'topic', 'revealed']); ident(l['id']); assert l['id'] not in ids and l['id'] != self.cfg['character']['id']; ids.append(l['id'])
+            if l['name'] is not None: text(l['name'], 40, 160)
+            assert isinstance(l['preferences'], list) and len(l['preferences']) <= self.cfg['features']['disclosures']['max_preferences']; seen = []
+            for p in l['preferences']:
+                keys(p, ['value', 'polarity']); text(p['value'], 120, 240); assert p['polarity'] in ['like', 'dislike', 'prefer'] and p['value'].lower() not in seen; seen.append(p['value'].lower())
+            assert isinstance(l['recent'], list) and len(l['recent']) <= self.cfg['variety']['recent']
+            for r in l['recent']: text(r, 240, 1024)
+            if l['topic'] is not None: ident(l['topic'])
+            assert isinstance(l['revealed'], list) and len(l['revealed']) <= 32 and len(set(l['revealed'])) == len(l['revealed'])
+            for x in l['revealed']: ident(x)
+        assert isinstance(s['pending'], list) and len(s['pending']) <= 16; tokens = []
+        for p in s['pending']:
+            keys(p, ['token', 'listener', 'text', 'scene', 'visit', 'at', 'greeting', 'introduced'])
+            uint(p['token'], 1); assert p['token'] not in tokens; tokens.append(p['token']); ident(p['listener']); text(p['text'], 240, 1024); ident(p['scene'])
+            uint(p['visit']); uint(p['at']); boolean(p['greeting']); boolean(p['introduced']); assert p['greeting'] or not p['introduced']
+        return copy.deepcopy(s)
+
+    def listener(self, who, create=False):
+        l = next((l for l in self.state['listeners'] if l['id'] == who), None)
+        if l is None and create:
+            assert len(self.state['listeners']) < 256; l = dict(id=who, name=None, preferences=[], recent=[], topic=None, revealed=[]); self.state['listeners'].append(l)
+        return l
+
+    def say(self, intent, v, recent):
+        for r in self.lines:
+            if r['intent'] != intent or not when_ok(r.get('when', {}), v): continue
+            cands = [x for t in r['variants'] if (x := render(t, v)) is not None and 1 <= len(x) <= 240 and not self.avoided(x)]
+            if cands: return r, next((x for x in cands if x not in recent), cands[0])
+        return None
+
+    def avoided(self, s):
+        padded = ' ' + norm(s) + ' '
+        return any(' ' + w + ' ' in padded for w in self.avoid)
+
+    def bare(self, q):
+        w = q.split()
+        return ' '.join(w[1:]) if len(w) > 1 and w[0] in self.articles else q
+
+    def joined(self, labels):
+        if self.lists is None: return None
+        if len(labels) == 1: return labels[0]
+        return self.lists['separator'].join(labels[:-1]) + self.lists['final'] + labels[-1]
+
+    def turn(self, t):
+        cfg = self.cfg; me = cfg['character']
+        keys(t, ['listener', 'text', 'at', 'token', 'scene'], ['trust', 'choices', 'labels', 'focus', 'reason', 'targets', 'entrances', 'needs', 'quests', 'state'])
+        who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
+        assert all(p['token'] != token for p in self.state['pending'])
+        sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props'])
+        ident(sc['id']); text(sc['label'], 48); uint(sc['visit'])
+        assert sc['place'] in ['workplace', 'social', 'private', 'other', 'hazard'] and sc['atmosphere'] in ['calm', 'busy', 'tense', 'emergency']
+        for k in ['sight', 'sound']:
+            if sc.get(k) is not None: text(sc[k], 160)
+        present = sc.get('props', []); assert isinstance(present, list) and len(present) <= 64; seen = []
+        for p in present:
+            keys(p, ['id', 'note']); ident(p['id']); assert p['id'] not in seen; seen.append(p['id'])
+            if p['note'] is not None: text(p['note'], 160)
+        trust = t.get('trust', 0); assert type(trust) is int and -100 <= trust <= 100
+        choices = t.get('choices', []); assert isinstance(choices, list) and len(choices) <= 128
+        for i, d in enumerate(choices): assert d is not None; decision(d); assert d not in choices[:i]
+        labels = t.get('labels', []); assert isinstance(labels, list) and len(labels) <= 32; lids = []
+        for l in labels:
+            keys(l, ['id', 'aliases']); ident(l['id']); assert l['id'] not in lids; lids.append(l['id']); assert isinstance(l['aliases'], list) and len(l['aliases']) <= 4
+            for a in l['aliases']: text(a, 48, 96)
+        focus = t.get('focus');
+        if focus is not None: ident(focus)
+        reason = t.get('reason')
+        if reason is not None: text(reason, 240)
+        targets = t.get('targets', []); assert isinstance(targets, list) and len(targets) <= 64; tids = []
+        for g in targets:
+            keys(g, ['kind', 'id', 'names']); assert g['kind'] in ['character', 'place']; ident(g['id']); assert (g['kind'], g['id']) not in tids; tids.append((g['kind'], g['id']))
+            assert isinstance(g['names'], list) and 1 <= len(g['names']) <= 8
+            for n in g['names']: text(n, 48); assert norm(n)
+        cdx = self.codex; sh = self.sheet
+        place = next((x for x in cdx.get('places', []) if x['id'] == sc['id']), None)
+        listed = defs.lst(t.get('entrances', []), 0, 64); eids = []; visible = []
+        for x in listed:
+            keys(x, ['id', 'status'], ['note']); assert x['id'] not in eids; eids.append(x['id']); assert x['status'] in defs.STATUSES
+            if x.get('note') is not None: text(x['note'], 160)
+            e = next(e for e in cdx.get('entrances', []) if e['id'] == x['id']); side = next(sd for sd in e['sides'] if sd['place'] == sc['id'])
+            other = next((sd for sd in e['sides'] if sd is not side), None)
+            dest = None if other is None else next(pl['label'] for pl in cdx['places'] if pl['id'] == other['place'])
+            if x['status'] != 'hidden':
+                visible.append(dict(d=e, status=x['status'], note=x.get('note'), side=side, other=other, dest=dest, names=[norm(n) for n in [e['label']] + e.get('aliases', [])]))
+        needs = t.get('needs', {}); assert isinstance(needs, dict) and len(needs) <= 16
+        for k, n in needs.items(): assert any(x['id'] == k for x in sh.get('needs', [])); uint(n, 0, 100)
+        quests = t.get('quests', {}); assert isinstance(quests, dict) and len(quests) <= 64
+        for k, st in quests.items():
+            qd = next(x for x in cdx.get('quests', []) if x['id'] == k); assert isinstance(st, str) and any(x['id'] == st for x in qd['stages'])
+        flags = t.get('state', {}); assert isinstance(flags, dict) and len(flags) <= 64
+        for k, x in flags.items(): ident(k); assert type(x) is bool or type(x) is int and -1000000000 <= x <= 1000000000 or isinstance(x, str) and len(x) <= 64 and not control(x)
+        registry = cfg['features']['props']['registry']['props']
+        if self.on('props'):
+            present = [dict(prop=next(r for r in registry if r['id'] == p['id']), note=p['note']) for p in present]
+        else: present = []
+
+        raw = t['text']
+        if self.on('chunks'):
+            chunks = message_chunks_cases.oracle(dict(op='player', args=dict(text=raw, max_chars=cfg['features']['chunks']['max_chars'])))['chunks']
+            line = ''.join(chunks); long = len(chunks) > 1
+        else:
+            text(raw, 1024, 1024); line = raw; long = False
+        q = norm(line); stripped = line.strip(); starred = len(stripped) >= 3 and stripped.startswith('*') and stripped.endswith('*')
+        l = self.listener(who); recent = l['recent'] if l else []
+        rel = 'guarded' if trust < 0 else 'warm' if trust >= 25 else 'reserved'
+        base = dict(name=me['name'], scene=sc['label'], place=sc['place'], atmosphere=sc['atmosphere'], trust=trust, relationship=rel)
+        for k, x in flags.items(): base['state.' + k] = x
+        if self.on('goals'):
+            urgent = [(needs[n['id']], -i, n) for i, n in enumerate(sh.get('needs', [])) if n['id'] in needs and needs[n['id']] >= n['threshold']]
+            base['has_need'] = bool(urgent)
+            if urgent: base['need'] = max(urgent, key=lambda u: (u[0], u[1]))[2]['label']
+        soon = cfg['features']['events']['soon_turns']
+        def timing(e): return ('soon' if e['start'] - at <= soon else 'later') if at < e['start'] else 'now' if at <= e['end'] else 'over'
+        def contains(ps): return any(' ' + norm(p) + ' ' in ' ' + q + ' ' for p in ps)
+        expressive = None
+        def expression():
+            nonlocal expressive
+            if expressive is None: expressive = expression_cases.oracle(dict(op='route', args=dict(input=line, style='expressive')))
+            return expressive
+        def reply(route, intent, v, extra=None, greeting=False, kind='reply'):
+            got = self.say(intent, v, recent)
+            if got is None: return None
+            r, s = got; out = dict(route=route, kind=kind, intent=intent, line=r['id'], text=s); out.update(extra or {})
+            if kind == 'reply':
+                introduced = greeting and r.get('introduces', False)
+                if greeting: out['introduced'] = introduced
+                if len(self.state['pending']) == 16: self.state['pending'].pop(0)
+                self.state['pending'].append(dict(token=token, listener=who, text=s, scene=sc['id'], visit=sc['visit'], at=at, greeting=greeting, introduced=introduced))
+            return out
+        def authored(route, intent, line_id, texts, extra):
+            s = next((x for x in texts if x not in recent), texts[0]); out = dict(route=route, kind='reply', intent=intent, line=line_id, text=s); out.update(extra)
+            if len(self.state['pending']) == 16: self.state['pending'].pop(0)
+            self.state['pending'].append(dict(token=token, listener=who, text=s, scene=sc['id'], visit=sc['visit'], at=at, greeting=False, introduced=False))
+            return out
+        def normed(out):
+            d = out.get('decision')
+            if self.on('scenery') and place is not None and d is not None:
+                for n in place.get('norms', []):
+                    if any(a['action'] == d['action'] and (a['target'] is None or a['target'] == d['target']) for a in n['actions']):
+                        out['norm'] = dict(id=n['id'], reaction=n['reaction']); break
+            return out
+        def clarify(route, intent, extra=None, v=None):
+            got = self.say(intent, base if v is None else v, [])
+            out = dict(route=route, kind='clarify', intent=intent, line=got[0]['id'] if got else None, text=got[1] if got else None); out.update(extra or {})
+            return out
+
+        if self.on('out_of_character') and expression()['mode'] == 'ooc':
+            return dict(route='out_of_character', kind='note', note=expression()['note'])
+        if self.on('content'):
+            hit = next((a for a in cfg['features']['content']['avoid'] if contains(a['phrases'])), None)
+            if hit is not None: return reply('content', 'content_redirect', base, dict(topic=hit['id'])) or clarify('content', 'content_redirect', dict(topic=hit['id']))
+        key = norm(stripped[1:-1]) if starred else q
+        if self.on('stage_actions') and starred and len(stripped.encode()) <= 1024:
+            s = roleplay_actions_cases.oracle(dict(registry=cfg['features']['stage_actions']['actions'], input=stripped, choices=choices))
+            if s['status'] == 'proposed': return normed(dict(route='stage_action', kind='action', id=s['id'], decision=s['decision'], narration=s['narration']))
+            if s['status'] == 'blocked': return clarify('stage_action', 'stage_action_blocked', dict(id=s['id']))
+        if self.on('props'):
+            for p in present:
+                i = next((i for i in p['prop']['interactions'] if key in [norm(x) for x in i['phrases']]), None)
+                if i is None: continue
+                extra = dict(prop=p['prop']['id'], interaction=i['id'])
+                if i['decision'] is not None and i['decision'] not in choices: return clarify('props', 'stage_action_blocked', extra)
+                return normed(dict(route='props', kind='action', **extra, decision=i['decision'], narration=i['narration']))
+        if self.on('entrances'):
+            ok, rest = match(self.phrases.get('traverse'), key)
+            hits = [e for e in visible if ok and rest and self.bare(rest) in [self.bare(n) for n in e['names']]]
+            if len(hits) == 1:
+                e = hits[0]; d = e['side'].get('travel'); extra = dict(entrance=e['d']['id'])
+                if e['d'].get('passage', 'both') == 'one_way' and e['side'] is not e['d']['sides'][0]: d = None
+                if e['status'] != 'open' or d is None or d not in choices:
+                    v = dict(base, label=e['d']['label'], status=e['status'])
+                    if e['dest'] is not None: v['destination'] = e['dest']
+                    return clarify('entrances', 'entrance_blocked', extra, v)
+                return normed(dict(route='entrances', kind='action', **extra, decision=d))
+        if self.on('services'):
+            for x in sh.get('services', []):
+                if key in [norm(p) for p in x.get('phrases', [])] and when_ok(x.get('when', {}), base):
+                    d = x.get('decision'); extra = dict(service=x['id'])
+                    if d is not None and d not in choices: return clarify('services', 'service_unavailable', extra)
+                    return normed(dict(route='services', kind='action', **extra, decision=d))
+        if self.on('directions') and starred:
+            body = norm(stripped[1:-1])
+            for verb, kind in [('approach', 'character'), ('enter', 'place')]:
+                ok, rest = match(self.phrases.get(verb), body)
+                if not ok: continue
+                hits = [g['id'] for g in targets if g['kind'] == kind and rest and self.bare(rest) in [self.bare(norm(n)) for n in g['names']]]
+                spots = [x['id'] for x in (place or {}).get('spots', []) if verb == 'approach' and self.on('scenery') and rest and self.bare(rest) in [self.bare(norm(n)) for n in [x['label']] + x.get('aliases', [])]]
+                if len(hits) + len(spots) == 1:
+                    return dict(route='direction', kind='direction', verb=verb, target=(hits + spots)[0], **(dict(spot=True) if spots else {}))
+                break
+            return clarify('direction', 'direction_unsupported')
+        def ambience(pl, k):
+            return next((a[k] for a in (pl or {}).get('ambience', []) if k in a and when_ok(a.get('when', {}), base)), None)
+        asks = ([('perception', i) for i in ['ask_location', 'ask_sight', 'ask_hearing', 'ask_name']] if self.on('perception') else []) + \
+            ([('entrances', 'ask_exits')] if self.on('entrances') and cdx.get('entrances') else []) + \
+            ([('scenery', i) for i in ['ask_smell', 'ask_light', 'ask_temperature']] if self.on('scenery') and place is not None else []) + \
+            ([('persona', i) for i in ['ask_role', 'ask_self']] if self.on('persona') else [])
+        if asks and not long:
+            sound = sc.get('sound') if sc.get('sound') is not None else ambience(place, 'sound') if self.on('scenery') else None
+            v = dict(base, has_sight=sc.get('sight') is not None, has_sound=sound is not None, has_props=bool(present))
+            if sc.get('sight') is not None: v['sight'] = sc['sight']
+            if sound is not None: v['sound'] = sound
+            if present and (j := self.joined([p['prop']['label'] for p in present])) is not None and len(j) <= 240: v['props'] = j
+            if self.on('scenery'):
+                for k in ['smell', 'light', 'temperature']:
+                    if (a := ambience(place, k)) is not None: v[k] = a
+            if self.on('entrances'):
+                if visible and (j := self.joined([e['d']['label'] for e in visible])) is not None and len(j) <= 240: v['exits'] = j
+                for e in visible:
+                    mode = e['d'].get('carries', {}).get('sound', 'when_open')
+                    if e['other'] is None or not (mode == 'always' or mode == 'when_open' and e['status'] == 'open'): continue
+                    heard = ambience(next(pl for pl in cdx['places'] if pl['id'] == e['other']['place']), 'sound')
+                    if heard is not None: v.update(through=e['d']['label'], heard=heard); break
+            if self.on('persona'):
+                for k in ['role', 'summary']:
+                    if k in sh.get('persona', {}): v[k] = sh['persona'][k]
+            for route_name, intent in asks:
+                if match(self.phrases.get(intent), q)[0] and (out := reply(route_name, intent, v)): return out
+        if not long and (self.on('props') or self.on('entrances') or self.on('scenery')):
+            ok, rest = match(self.phrases.get('describe_prop'), q)
+            if ok and rest:
+                hits = [p for p in present if self.bare(rest) in [self.bare(norm(n)) for n in [p['prop']['label']] + p['prop']['aliases']]]
+                if len(hits) == 1:
+                    p = hits[0]; v = dict(base, prop=p['prop']['label'], description=p['prop']['description'], has_note=p['note'] is not None)
+                    if p['note'] is not None: v['note'] = p['note']
+                    if out := reply('props', 'describe_prop', v, dict(prop=p['prop']['id'])): return out
+                hits = [e for e in visible if self.on('entrances') and self.bare(rest) in [self.bare(n) for n in e['names']]]
+                if len(hits) == 1:
+                    e = hits[0]; v = dict(base, label=e['d']['label'], description=e['side']['description'], status=e['status'], has_note=e['note'] is not None)
+                    if e['note'] is not None: v['note'] = e['note']
+                    if e['dest'] is not None: v['destination'] = e['dest']
+                    if out := reply('entrances', 'describe_entrance', v, dict(entrance=e['d']['id'])): return out
+                hits = [x for x in (place or {}).get('spots', []) if self.on('scenery') and self.bare(rest) in [self.bare(norm(n)) for n in [x['label']] + x.get('aliases', [])]]
+                if len(hits) == 1:
+                    v = dict(base, label=hits[0]['label'], description=hits[0]['description'])
+                    if out := reply('scenery', 'describe_spot', v, dict(spot=hits[0]['id'])): return out
+        if self.on('commands') and not long:
+            # A null focus never matches a null target (the Rust grammar checks focus only for targeted pairs).
+            r = overnight_input_cases.resolve(line, choices, {l['id']: l['aliases'] for l in labels}, focus if focus is not None else '\0none')
+            if r['status'] == 'resolved' and r['decision']['action'] != 'talk': return normed(dict(route='command', kind='action', decision=r['decision']))
+            if r['status'] == 'clarify': return clarify('command', 'command_clarify')
+        if self.on('disclosures') and len(line.encode()) <= 2048:
+            c = expression_cases.claim(line)
+            if c is not None and not any(x in line.rstrip('.!?') for x in '.!?'):
+                v = dict(base, slot=c['slot'], value=c['value'], corrects=c['corrects'] is not None)
+                if c['corrects'] is not None: v['old'] = c['corrects']
+                if c['polarity'] is not None: v['polarity'] = c['polarity']
+                if out := reply('disclosure', 'disclosure', v):
+                    l = self.listener(who, True)
+                    if c['slot'] == 'name': l['name'] = c['value']
+                    else:
+                        l['preferences'] = [dict(value=c['value'], polarity=c['polarity'])] + [p for p in l['preferences'] if p['value'].lower() != c['value'].lower()]
+                        del l['preferences'][cfg['features']['disclosures']['max_preferences']:]
+                    return out
+        if self.on('recall'):
+            l = self.listener(who)
+            if match(self.phrases.get('recall_name'), q)[0]:
+                v = dict(base, known=bool(l and l['name']))
+                if v['known']: v['value'] = l['name']
+                if out := reply('recall', 'recall_name', v): return out
+            if match(self.phrases.get('recall_preference'), q)[0]:
+                v = dict(base, known=bool(l and l['preferences']))
+                if v['known']: v.update(value=l['preferences'][0]['value'], polarity=l['preferences'][0]['polarity'])
+                if out := reply('recall', 'recall_preference', v): return out
+        if self.on('secrets'):
+            for x in sh.get('secrets', []):
+                if not contains(x['phrases']): continue
+                extra = dict(secret=x['id'])
+                if when_ok(x['when'], base):
+                    out = authored('secrets', 'reveal', 'secret:' + x['id'], [x['reveal']], extra); l = self.listener(who, True)
+                    if x['id'] not in l['revealed']: l['revealed'].append(x['id'])
+                    return out
+                if x.get('cover') is not None: return authored('secrets', 'cover', 'cover:' + x['id'], [x['cover']], extra)
+                return reply('secrets', 'secret_withheld', base, extra) or dict(route='secrets', kind='silent', secret=x['id'])
+        if self.on('opinions'):
+            for x in sh.get('opinions', []):
+                if contains(x['phrases']) and when_ok(x.get('when', {}), base): return authored('opinions', 'opinion', 'opinion:' + x['id'], x['variants'], dict(opinion=x['id']))
+        if not long and any(self.on(f) for f in ['relationships', 'factions', 'events', 'quests']):
+            ok, rest = match(self.phrases.get('ask_about'), q)
+            if ok and rest:
+                want = self.bare(rest)
+                def hit(items, label='label'):
+                    hs = [x for x in items if want in [self.bare(norm(n)) for n in [x[label]] + x.get('aliases', [])]]
+                    return hs[0] if len(hs) == 1 else None
+                if self.on('relationships') and (r := hit(sh.get('relationships', []), 'name')):
+                    v = dict(base, person=r['name'], kind=r['kind'])
+                    if 'description' in r: v['text'] = r['description']
+                    if out := reply('relationships', 'person', v, dict(person=r['with'])): return out
+                if self.on('factions') and (f := hit(cdx.get('factions', []))):
+                    if out := reply('factions', 'faction', dict(base, faction=f['label'], text=f['description'], stance=self.stance(f['id'])), dict(faction=f['id'])): return out
+                if self.on('events') and (e := hit(cdx.get('events', []))):
+                    if out := reply('events', 'event', dict(base, event=e['label'], text=e['description'], timing=timing(e)), dict(event=e['id'])): return out
+                if self.on('quests') and (qd := hit([x for x in cdx.get('quests', []) if me['id'] in x.get('givers', []) and x['id'] in quests])):
+                    st = next(x for x in qd['stages'] if x['id'] == quests[qd['id']])
+                    if out := reply('quests', 'quest', dict(base, quest=qd['label'], text=st['description'], stage=st['id']), dict(quest=qd['id'])): return out
+        if not long:
+            if self.on('services') and sh.get('services') and match(self.phrases.get('ask_services'), q)[0]:
+                v = dict(base); avail = [x['label'] for x in sh['services'] if when_ok(x.get('when', {}), base)]
+                if avail and (j := self.joined(avail)) is not None and len(j) <= 240: v['services'] = j
+                if out := reply('services', 'ask_services', v): return out
+            if self.on('goals') and sh.get('goals') and match(self.phrases.get('ask_goals'), q)[0]:
+                cands = [g for g in sh['goals'] if when_ok(g.get('when', {}), base)]
+                if cands:
+                    g = max(cands, key=lambda g: g['priority']); return authored('goals', 'goal', 'goal:' + g['id'], [g['description']], dict(goal=g['id']))
+                if out := reply('goals', 'no_goal', base): return out
+            if self.on('events') and cdx.get('events') and match(self.phrases.get('ask_events'), q)[0]:
+                v = dict(base); live = [e['label'] for e in cdx['events'] if timing(e) in ['now', 'soon']]
+                if live and (j := self.joined(live)) is not None and len(j) <= 240: v['events'] = j
+                if out := reply('events', 'ask_events', v): return out
+        previous = (self.listener(who) or {}).get('topic')
+        if long: route = dict(kind='other', topic=None)
+        else:
+            said = line
+            for opener in ['hello', 'hi', 'hey', 'greetings']:
+                if q in [opener + ' ' + w for w in [norm(me['name']), norm(me['id']), 'the ' + norm(me['id'])]]: said = opener
+            route = social_routing_cases.route(dict(input=said, previous=previous))
+        if route['topic'] is not None or previous is not None: self.listener(who, True)['topic'] = route['topic']
+        kind = route['kind']
+        if kind == 'greeting':
+            if self.on('greetings'):
+                res = greeting_memory_cases.oracle(dict(config=self.gcfg, state=self.state['greetings'], ops=[dict(op='plan', args=dict(actor=me['id'], listener=who, scene=sc['id'], visit=sc['visit'], at=at, trust=trust, atmosphere=sc['atmosphere'], place=sc['place']))]))
+                plan = res['results'][0]
+                if out := reply('greeting', 'greeting', dict(base, meeting=plan['meeting'], needs_introduction=plan['needs_introduction']), greeting=True): return out
+            if self.on('social') and (out := reply('social', 'social_greeting', base, greeting=True)): return out
+        if self.on('social'):
+            if kind in ['thanks', 'farewell', 'wellbeing'] and (out := reply('social', kind, base)): return out
+            if kind == 'elaborate':
+                intent = 'clarify_topic' if previous is None else 'mood_reason' if previous == 'wellbeing' else 'elaborate'
+                v = dict(base, has_reason=reason is not None)
+                if reason is not None: v['reason'] = reason
+                if out := reply('social', intent, v): return out
+        if self.on('model'): return dict(route='model', kind='model', input=line, long=long, expression=expression(), topic=route['topic'])
+        if self.on('social') and (out := reply('fallback', 'unknown', base)): return out
+        return dict(route='none', kind='silent')
+
+    def stance(self, fid):
+        member = [m['faction'] for m in self.sheet.get('factions', [])]
+        if fid in member: return 'member'
+        for m in member:
+            f = next(f for f in self.codex['factions'] if f['id'] == m)
+            r = next((r for r in f.get('relations', []) if r['faction'] == fid), None)
+            if r is not None: return r['stance']
+        return 'neutral'
+
+    def delivered(self, d):
+        keys(d, ['token', 'listener', 'text', 'heard']); uint(d['token'], 1); ident(d['listener']); text(d['text'], 240, 1024); uint(d['heard'], 0, len(d['text']))
+        p = next((p for p in self.state['pending'] if p['token'] == d['token']), None)
+        if p is None: return dict(recorded=False, reason='unknown')
+        assert p['listener'] == d['listener'] and p['text'] == d['text']; self.state['pending'].remove(p)
+        if d['heard'] != len(d['text']): return dict(recorded=False, reason='partial')
+        n = self.cfg['variety']['recent']
+        if n:
+            l = self.listener(d['listener'], True); l['recent'] = (l['recent'] + [d['text']])[-n:]
+        greeting = None
+        if self.on('greetings'):
+            me = self.cfg['character']['id']; e = next((e for e in self.state['greetings']['entries'] if e['actor'] == me and e['listener'] == d['listener']), None)
+            receipt = dict(actor=me, listener=d['listener'], scene=p['scene'], visit=p['visit'], at=p['at'], token=p['token'], greeting=p['greeting'], introduced=p['introduced'], text=d['text'], heard=d['heard'], expected=None if e is None else e['token'])
+            res = greeting_memory_cases.oracle(dict(config=self.gcfg, state=self.state['greetings'], ops=[dict(op='confirm', args=receipt)]))
+            self.state['greetings'] = res['state']; greeting = res['results'][0]
+        return dict(recorded=True, greeting=greeting)
+
+
+def oracle(a):
+    keys(a, ['config', 'state', 'ops']); e = Engine(a['config'], a['state']); assert isinstance(a['ops'], list) and len(a['ops']) <= 64; out = []
+    for op in a['ops']:
+        keys(op, ['op', 'args']); assert op['op'] in ['turn', 'delivered']
+        out.append(e.turn(op['args']) if op['op'] == 'turn' else e.delivered(op['args']))
+    return dict(config=e.cfg, results=out, state=e.state)

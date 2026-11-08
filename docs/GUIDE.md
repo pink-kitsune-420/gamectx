@@ -816,6 +816,30 @@ With personality turns enabled, try “Hello”, “How are you today?” and, a
 
 With personality turns enabled, travel to a character's room to see an arrival and contextual greeting; **Approach** engages without speaking for the player. Typed `*enters the workshop*` still needs a legal route. Read/Play confirms an introduction. Settings → Characters → Greeting behavior adjusts quiet turns. [Memory, venue, party and save behavior](characters/CONTEXTUAL_GREETINGS.md).
 
+## Give any character a configurable roleplay engine
+
+Use `character::roleplay::engine::RoleplayEngine` when you want Lantern Vault-style
+roleplay without writing it yourself. You get greetings that remember encounters, social
+lines, remembered names and preferences, perception, props, stage actions and
+directions, and commands. Build an `EngineConfig` (JSON or builder) and switch off the
+stages you do not need. Each turn, send the player's text with the current scene and
+legal choices. Execute only the `action` decisions you validate, compile a model request
+for `model` outcomes, and call `delivered` with what the listener actually heard. See the
+[roleplay engine guide](characters/ROLEPLAY_ENGINE.md).
+
+Give the character depth with a **character sheet** (persona, services, goals, needs,
+relationships, factions, secrets gated by trust or your own flags, opinions) and the
+world with a shared **codex** (places with spots, ambience and house rules, entrances
+with open/locked/hidden states, factions, timed events, quests). Send live values with
+each turn: `trust`, `needs`, `quests`, `entrances` and your own `state` flags such as
+`{"time":"morning"}`, which any `when` condition can test.
+
+Pack the authored side into one **game data file** and runtime memory into one **save
+file** with as many named states as you like (`slot-1`, `autosave`, a fork made before a
+risky choice). `gamectx::kit::save::{GameData, SaveFile, SaveState}`; see
+[saving](characters/ROLEPLAY_ENGINE.md#saving-game-data-and-saves) and the
+[file format](FORMAT.md#game-data-and-save-files-v1).
+
 ## Studio reasoning and speech
 
 See [deliberation controls](studio/STUDIO_DELIBERATION.md) for opt-in, capability-aware native reasoning, unverified notes and per-browser automatic playback. Existing formats and default outputs are retained.

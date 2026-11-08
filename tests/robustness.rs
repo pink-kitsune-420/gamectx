@@ -1506,3 +1506,97 @@ fn tale_parts_and_rotation_remain_bounded_under_mutation() {
         }
     }
 }
+
+#[test]
+fn roleplay_engine_player_text_configs_and_states_survive_mutation_atomically() {
+    use gamectx::character::roleplay::engine::{EngineConfig, RoleplayEngine};
+    let mut rng = Rng(0x726f6c65_706c6179);
+    for seed in [
+        include_str!("../conformance/roleplay-engine/disclosure_recall/input.json"),
+        include_str!("../conformance/roleplay-engine/prop_interaction/input.json"),
+        include_str!("../conformance/roleplay-engine/restore_continues/input.json"),
+        include_str!("../conformance/roleplay-engine/custom_line_first/input.json"),
+        include_str!("../conformance/roleplay-engine/greeting_continuing/input.json"),
+        include_str!("../conformance/roleplay-engine/b_secret_reveal/input.json"),
+        include_str!("../conformance/roleplay-engine/b_hear_through/input.json"),
+        include_str!("../conformance/roleplay-engine/b_quest/input.json"),
+        include_str!("../conformance/roleplay-engine/b_norm/input.json"),
+        include_str!("../conformance/roleplay-engine/b_services_member/input.json"),
+    ] {
+        for _ in 0..600 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 262144) {
+                let _ = gamectx::kit::local::process(&v);
+            }
+        }
+    }
+    // A rejected turn or delivery never partially updates the engine.
+    let input = parse(include_str!("../conformance/roleplay-engine/disclosure_recall/input.json"), 65536).unwrap();
+    let args = input.get("args").unwrap();
+    let config = EngineConfig::from_value(args.get("config").unwrap()).unwrap();
+    let mut engine = RoleplayEngine::new(config);
+    let turn = args.get("ops").unwrap().as_array().unwrap()[0].get("args").unwrap().to_json();
+    for i in 0..2000 {
+        let before = engine.checkpoint();
+        if let Ok(v) = parse(&mutate(&mut rng, &turn), 65536) {
+            if engine.turn(&v).is_err() {
+                assert_eq!(engine.checkpoint(), before, "failed turn {i} changed state");
+            }
+            let receipt = gamectx::obj! {"token"=>v.get("token").cloned(),"listener"=>"player_1","text"=>"Arin; thank you.","heard"=>999};
+            let before = engine.checkpoint();
+            assert!(engine.delivered(&receipt).is_err());
+            assert_eq!(engine.checkpoint(), before);
+        }
+    }
+    // The same holds for turns that carry entrances, needs, quests and host flags.
+    let input = parse(include_str!("../conformance/roleplay-engine/b_secret_reveal/input.json"), 262144).unwrap();
+    let args = input.get("args").unwrap();
+    let mut engine = RoleplayEngine::new(EngineConfig::from_value(args.get("config").unwrap()).unwrap());
+    let mut turn = args.get("ops").unwrap().as_array().unwrap()[0].get("args").unwrap().clone();
+    if let gamectx::Value::Object(fields) = &mut turn {
+        fields.push(("needs".into(), gamectx::obj! {"rest"=>80}));
+        fields.push(("quests".into(), gamectx::obj! {"lost_ring"=>"asked"}));
+        fields.push(("state".into(), gamectx::obj! {"time"=>"morning","trusted_friend"=>true}));
+    }
+    let turn = turn.to_json();
+    assert!(engine.clone().turn(&parse(&turn, 65536).unwrap()).is_ok());
+    for i in 0..2000 {
+        let before = engine.checkpoint();
+        if let Ok(v) = parse(&mutate(&mut rng, &turn), 65536) {
+            if engine.turn(&v).is_err() {
+                assert_eq!(engine.checkpoint(), before, "failed extended turn {i} changed state");
+            }
+        }
+    }
+}
+
+#[test]
+fn save_and_game_data_files_survive_mutation() {
+    use gamectx::kit::save::{GameData, SaveFile};
+    let mut rng = Rng(0x7361_7665_6669_6c65);
+    let expected = parse(include_str!("../conformance/save-file/slots_and_fork/expected.json"), 1 << 24).unwrap();
+    let results = expected.get("results").unwrap().as_array().unwrap();
+    let data = results[0].get("ok").unwrap().to_json();
+    let save = results[5].get("ok").unwrap().to_json();
+    let game = GameData::parse(&data).unwrap();
+    assert!(SaveFile::parse(&save).unwrap().check(&game).unwrap());
+    for _ in 0..1500 {
+        let _ = GameData::parse(&mutate(&mut rng, &data));
+        if let Ok(s) = SaveFile::parse(&mutate(&mut rng, &save)) {
+            // Anything that still parses kept every digest consistent; a re-serialized copy
+            // parses back to the same value.
+            assert_eq!(SaveFile::parse(&s.to_json()).unwrap(), s);
+            let _ = s.check(&game);
+        }
+    }
+    for seed in [
+        include_str!("../conformance/save-file/slots_and_fork/input.json"),
+        include_str!("../conformance/save-file/load_round_trip/input.json"),
+        include_str!("../conformance/save-file/put_and_remove_data/input.json"),
+    ] {
+        for _ in 0..300 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 1 << 24) {
+                let _ = gamectx::kit::local::process(&v);
+            }
+        }
+    }
+}

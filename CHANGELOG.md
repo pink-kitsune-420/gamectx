@@ -27,10 +27,62 @@
 - Repository folders follow the same grouping. `examples/` has domain folders, shared
   `fixtures/` and `lantern-vault/` (formerly `dungeon/`); every `cargo run --example NAME`
   keeps its name. `docs/` has `guides/`, `characters/`, `studio/`, `evidence/` and
-  `research/` with an index; `eval/` has nine topic folders. Frozen evidence keeps its
+  `research/` with an index; `eval/` has ten topic folders (`kit/` added with save files). Frozen evidence keeps its
   recorded paths and digests: `eval/common/provenance.py` maps them to current files and
   checks digests of edited runners/sources against the last pre-0.4 commit, so CI checks
   out full history. Evaluation scripts need Python 3.12+.
+- Added `character::roleplay::engine`: `RoleplayEngine`, `EngineConfig` (JSON v1 plus a
+  typed builder) and `Feature`. It is one configurable roleplay brain per character that
+  combines the Lantern Vault roleplay policies, including chunks, out-of-character notes,
+  stage actions, directions, perception, commands, disclosures, recall, greetings and
+  social lines.
+  - Each of its 12 stages can be switched on or off and tuned.
+  - All wording is in a line book: the English pack, which holds all 108 Lantern Vault
+    greeting and social lines, plus your own phrases and lines, or `pack: "none"`.
+  - It only proposes: actions must be the turn's legal choices, model hand-offs are
+    returned to the host, and replies count only after a full `delivered` receipt.
+- Added `knowledge::props::Props`, a registry of described props that a location can
+  host. A turn's scene lists the props present, with optional state notes; players can
+  look at them, see them listed, and use registered interactions that propose host
+  decisions.
+- [format] Additive JSON-lines `local` kind `roleplay-engine` with 62 new conformance
+  cases (`conformance/roleplay-engine/`). No existing case changed. The Rust output is
+  byte-identical to the independent Python reference
+  (`eval/character/roleplay_engine_reference.py`) on all 62 cases and on 1,500 randomized
+  differential cases; both made zero model calls. See
+  [the guide](docs/characters/ROLEPLAY_ENGINE.md) and [FORMAT](docs/FORMAT.md#roleplay-engine-v1).
+- Added character and world definitions for the roleplay engine (stage 2.1b):
+  - `character::sheet::CharacterSheet`: persona, speech style (avoided words are never
+    spoken), services, goals, needs, relationships, faction memberships, secrets (spoken
+    only when their `when` holds; otherwise a cover story or a refusal) and opinions.
+  - `knowledge::codex::Codex`: places with spots, conditional ambience and house-rule
+    norms, entrances between places (open/closed/locked/blocked/hidden, one-way, sound
+    carrying through), factions with stances, timed events and staged quests.
+  - `data::conditions`: shared `when` conditions over template variables and host flags
+    (`state.<id>`).
+  - 12 new switchable engine features: `content`, `entrances`, `scenery`, `persona`,
+    `services`, `secrets`, `opinions`, `relationships`, `factions`, `events`, `quests` and
+    `goals`. Turns accept `entrances`, `needs`, `quests` and `state`.
+- [format] `roleplay-engine` gains 42 conformance cases (104 in total). The 62 stage 2.1
+  cases were re-blessed and reviewed by hand. Their outcomes are unchanged; only additive
+  fields grew: the config echo (12 feature entries, `sheet`, `codex`) and a listener
+  `revealed` list. The two restore inputs that embed a checkpoint gained that list too.
+  The kind is unreleased, so no released output changed. The Rust output is
+  byte-identical to the Python reference on all 104 cases and on 2,800 randomized
+  differential cases covering every new route.
+- Added `kit::save`: `GameData` (a `gamectx-data` file of authored definitions: codex,
+  props, lore, cast packs, sheets, engine configs, host data) and `SaveFile` /
+  `SaveState` (a `gamectx-save` file holding any number of named states). Each state
+  records its parent, `saved_at` value and digest and is organized as
+  `characters/<id>/<kind>` and `world/<kind>`. Every section is validated by its own
+  parser. Packing is canonical, FNV-1a digests catch edits and a save made against other
+  game data, and engine memory is restored against the matching engine config.
+- [format] Additive JSON-lines `local` kind `save-file` with 22 new conformance cases
+  (`conformance/save-file/`). The Rust output is byte-identical to
+  `eval/kit/save_reference.py` on all 22 cases and on 2,932 of 3,000 randomized
+  workflows. The other 68 are documented: Rust also deep-validates nested lore and
+  memory data that the reference only shape-checks. See
+  [FORMAT](docs/FORMAT.md#game-data-and-save-files-v1).
 
 - [api] Add bounded least-recent tale seed selection and ordered fictional tale parts.
 - [format] Add sixteen expression cases; optional structured example tale responses and

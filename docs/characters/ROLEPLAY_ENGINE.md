@@ -1,0 +1,338 @@
+# Roleplay engine (0.4.0a, stages 2.1 and 2.1b)
+
+`gamectx::character::roleplay::engine` gives any game one configurable roleplay brain per
+AI character. It brings together the roleplay policies first built for Lantern Vault:
+message chunks, out-of-character notes, stage actions, the command grammar, disclosures
+and recall, encounter-aware greetings and social lines. It adds **props**, a **world codex** (places, entrances, factions,
+events, quests) and a **character sheet** (persona, speech style, services, goals, needs,
+relationships, secrets, opinions). Every part is switchable and reworded through
+configuration instead of game code.
+
+The engine never executes a game action and never calls a model. It returns an
+*outcome*: a reply to speak, a proposed host decision, a clarification, a stage
+direction, an out-of-character note, or a request for a model reply that your host
+compiles. Your host validates and executes; the engine only proposes.
+
+## The cascade
+
+Each player message passes through these stages in order. A stage answers only when one
+of its line rules matches. Otherwise the message falls through to the next stage.
+Turning a stage off never changes what an earlier stage does.
+
+| # | Feature | Answers | Outcome `route` / `kind` |
+|---|---|---|---|
+| 1 | `chunks` | Slices long messages (`max_chars` 512–4096, default 1024); a multi-chunk message is *long* and skips the question stages | — |
+| 2 | `out_of_character` | `OOC: …`, `out of character: …`, `((…))` | `out_of_character` / `note` |
+| 3 | `content` | Your content settings: a topic on the `avoid` list is redirected, never answered | `content` / `reply` or `clarify` |
+| 4 | `stage_actions` | `*registered stage action*` from your [`RoleplayActions`](../studio/STUDIO_CONVERSATION_EXTENSIONS.md) registry | `stage_action` / `action` or `clarify` |
+| 5 | `props` | A present prop's interaction phrase, starred or plain (`*rings the bell*`, `ring the bell`) | `props` / `action` or `clarify` |
+| 6 | `entrances` | "Go / walk / leave through the door" for a visible entrance | `entrances` / `action` or `clarify` |
+| 7 | `services` | A service request phrase ("sell me bread") whose `when` holds | `services` / `action` or `clarify` |
+| 8 | `directions` | `*approaches X*`, `*enters Y*` against host-listed `targets` (and, with `scenery`, the place's spots) | `direction` / `direction` or `clarify` |
+| 9 | `perception`, `entrances`, `scenery`, `persona` | Where are we / what do you see / hear / your name; how do I get out; smell, light, temperature; what do you do, tell me about yourself | `perception`, `entrances`, `scenery`, `persona` / `reply` |
+| 10 | `props`, `entrances`, `scenery` | Look at / describe / what is a present prop, a visible entrance, or a spot | `props`, `entrances`, `scenery` / `reply` |
+| 11 | `commands` | The bounded English command grammar over this turn's legal `choices` | `command` / `action` or `clarify` |
+| 12 | `disclosures` | A single-sentence "My name is …", "Call me …, not …", "I like …" (remembered per listener, `max_preferences` 1–16, default 3) | `disclosure` / `reply` |
+| 13 | `recall` | "What is my name?", "What do I like?" | `recall` / `reply` |
+| 14 | `secrets` | A secret's phrases: the secret when its `when` holds, else its cover story or a refusal | `secrets` / `reply` |
+| 15 | `opinions` | An opinion's phrases ("taxes") | `opinions` / `reply` |
+| 16 | `relationships`, `factions`, `events`, `quests` | "Who is / tell me about / what about X" for a known person, faction, event, or a quest this character gives | same as the feature / `reply` |
+| 17 | `services`, `goals`, `events` | "What do you offer?", "What do you want?", "Any news?" | same as the feature / `reply` |
+| 18 | `greetings` | Greetings planned from confirmed encounters (`long_gap_turns`, default 12) | `greeting` / `reply` |
+| 19 | `social` | Greetings (when `greetings` is off), thanks, farewells, wellbeing (with `goals`: pressing needs), "why?" | `social` / `reply` |
+| 20 | `model` | Everything else | `model` / `model` |
+| 21 | `social` | The authored fallback line when `model` is off | `fallback` / `reply` |
+| — | — | Nothing answered | `none` / `silent` |
+
+Action outcomes (stage actions, props, entrances, services, commands) also carry a `norm`
+when the current place has a matching [place norm](#world-codex); the decision is never
+blocked or changed by it.
+
+## Configure it
+
+As JSON (every part except `version` and `character` is optional):
+
+```json
+{"version":1,"character":{"id":"baker","name":"Mira"},
+ "features":{"greetings":{"enabled":true,"long_gap_turns":20},"model":{"enabled":false},
+             "props":{"registry":{"version":1,"props":[]}}},
+ "variety":{"recent":2},
+ "pack":"en",
+ "phrases":{"ask_name":{"exact":["who are you","what are you called"]}},
+ "lines":[{"id":"thanks","intent":"thanks","variants":["Any time, friend."]}]}
+```
+
+Or with the typed builder, which validates every step against the same rules:
+
+```rust
+use gamectx::character::roleplay::engine::{EngineConfig, Feature, RoleplayEngine};
+let config = EngineConfig::new("baker", "Mira")?
+    .with_feature(Feature::Model, false)?
+    .with_setting(Feature::Greetings, "long_gap_turns", 20)?
+    .with_recent(3)?;
+let engine = RoleplayEngine::new(config);
+# Ok::<(), gamectx::Error>(())
+```
+
+`EngineConfig::to_value()` returns the normalized JSON with every default written out,
+and `from_value` reads it back unchanged. Both snippets above run as tests in
+`tests/roleplay_engine.rs`.
+
+## Wording: packs, phrases and lines
+
+All wording lives in a **line book**. `pack: "en"` loads the built-in English pack
+(`src/character/roleplay/engine/en.json`). It contains all 108 Lantern Vault greeting
+and social lines, checked offline by `eval/character/roleplay_engine_cases.py`. Use
+`pack: "none"` to supply only your own phrases and lines, for example in another
+language. With no lines, every conversational turn goes to `model`.
+
+- **Phrases** decide which intent a message has. A matcher is
+  `{exact, prefix, contains, unless}`. Each is a list of phrases, compared after
+  lowercasing and replacing punctuation with spaces. `unless` vetoes the match, `prefix`
+  yields the rest of the message (a prop or target name), and `contains` matches whole
+  words. A config entry replaces the pack's matcher for that intent.
+- **Lines** are `{id, intent, when?, variants, introduces?}`. The first rule for the
+  intent whose `when` conditions hold answers. A `when` condition is a list of allowed
+  values (strings, booleans or integers), or `{"min","max"}` for an integer such as
+  `trust`. Conditions may also test your own live flags as `state.<id>` (see
+  [a turn](#a-turn)). Templates use `{var}` names from a fixed set (`name, scene, place,
+  atmosphere, trust, relationship, meeting, needs_introduction, sight, sound, props,
+  prop, description, note, slot, value, old, corrects, polarity, known, reason, exits,
+  status, destination, through, heard, smell, light, temperature, role, summary,
+  services, label, text, need, person, kind, faction, stance, event, events, timing,
+  quest, stage` and the `has_*` flags). A variant using a variable that this turn lacks
+  is skipped. A config line with a pack line's id replaces that line in place; new
+  ids are tried before every pack line.
+- **Variety:** the engine speaks the first variant that is not one of the listener's
+  last `variety.recent` *fully heard* replies. Variants containing one of the sheet's
+  `speech.avoid_words` are never spoken.
+
+## Props
+
+A location can host props: described objects that people can look at and interact
+with. Register them once in a [`Props`](../FORMAT.md#roleplay-engine-v1) registry. Each
+turn's scene lists which props are present now, each with an optional current-state
+note:
+
+```json
+{"id":"bell","label":"the brass bell","aliases":["bell"],
+ "description":"A small brass bell hangs above the door.",
+ "interactions":[{"id":"ring","phrases":["rings the bell","ring the bell"],
+   "decision":{"action":"use","target":"prop:bell"},"narration":"rings the brass bell"}]}
+```
+
+Real outcomes from `conformance/roleplay-engine/`:
+
+```text
+What is the bell?   → {"route":"props","kind":"reply","intent":"describe_prop","line":"prop_note","text":"A small brass bell hangs above the door. It rang twice this morning.","prop":"bell"}
+*stokes the oven*   → {"route":"props","kind":"action","prop":"oven","interaction":"stoke","decision":{"action":"use","target":"prop:oven"},"narration":"stokes the oven"}
+*rings the bell*    → {"route":"props","kind":"clarify","intent":"stage_action_blocked","line":"stage_action_blocked","text":"That action is not available here.","prop":"bell","interaction":"ring"}
+What do you see?    → "I can see the brick oven and the brass bell."
+```
+
+An interaction proposes its decision only when that decision is one of the turn's
+`choices`, and is blocked otherwise (the bell above: `use prop:bell` was not offered). A
+`null` decision is a pure gesture (`*warms their hands by the oven*`) that you can narrate
+or record. Absent props are never described or used.
+
+## Character sheet
+
+A sheet is fixed, authored content about one character. Put it in the config as `sheet`
+(or pack it in a [game data file](#saving-game-data-and-saves)). Everything is optional:
+
+```json
+{"version":1,
+ "persona":{"role":"the town baker","summary":"I have baked bread here for twenty years, and I know every regular by name.","values":["honest work"]},
+ "speech":{"formality":"casual","avoid_words":["sir"]},
+ "services":[{"id":"sell_bread","label":"fresh bread","description":"A loaf of the day's bread.",
+   "phrases":["sell me bread","i want to buy bread"],"decision":{"action":"buy","target":"item:bread"}}],
+ "goals":[{"id":"find_ring","description":"Honestly, I just want my ring back.","priority":80,"when":{"state.ring_lost":[true]}}],
+ "needs":[{"id":"rest","label":"a good night's sleep","threshold":70}],
+ "relationships":[{"with":"tovin","name":"Tovin","kind":"brother","description":"Tovin is my younger brother; he keeps the old cistern."}],
+ "factions":[{"faction":"bakers_guild","role":"member"}],
+ "secrets":[{"id":"flour_debt","phrases":["debt","owe"],"when":{"trust":{"min":50}},
+   "reveal":"Between us, I owe the mill for three months of flour.","cover":"My accounts are in perfect order, thank you."}],
+ "opinions":[{"id":"taxes","phrases":["taxes","tax"],"variants":["The new taxes hit small bakeries hardest.","Taxes again? Do not get me started."]}]}
+```
+
+- **Secrets** are spoken only when their `when` holds for this turn (here: trust ≥ 50).
+  Otherwise the cover story is spoken, or a refusal line, and the secret text never
+  appears. A revealed secret is remembered per listener (`revealed` in the checkpoint).
+- **Services** propose their `decision` only when it is one of the turn's `choices`;
+  otherwise the character says it can't right now. A service whose `when` fails is
+  neither offered nor listed.
+- **Goals** answer "what do you want?" with the highest-priority goal whose `when`
+  holds. **Needs** are thresholds: send live levels each turn (`needs`), and a need at or
+  above its threshold colours the wellbeing reply.
+- **Factions** must name factions in the codex; the character's stance toward any other
+  faction comes from its own factions' `relations`.
+- `speech` (`formality`, `verbosity`, `quirks`, `catchphrases`) and the rest of
+  `persona` (`pronouns`, `appearance`, `fears`, `desires`) are stored and validated now
+  for the model brief that arrives in stage 2.2.
+
+## World codex
+
+The codex is shared world content: `places` (with `spots`, conditional `ambience` and
+`norms`), `entrances` between places, `factions`, `events` and `quests`. Put it in the
+config as `codex`, or pack it once in a game data file for every character:
+
+```json
+{"version":1,
+ "places":[{"id":"bakery","label":"the bakery",
+   "spots":[{"id":"counter","label":"the counter","description":"A flour-dusted oak counter with a brass till."}],
+   "ambience":[{"when":{"state.time":["morning"]},"smell":"fresh rye bread","sound":"the oven fire crackling"},
+               {"smell":"cooling loaves","light":"dim lamplight"}],
+   "norms":[{"id":"no_fighting","actions":[{"action":"attack","target":null}],"reaction":"Not in my bakery! Take that outside."}]},
+  {"id":"market_street","label":"the market street","ambience":[{"sound":"traders calling out prices"}]}],
+ "entrances":[{"id":"front_door","label":"the green front door","aliases":["door"],"carries":{"sound":"always"},
+   "sides":[{"place":"bakery","description":"A green door with a brass bell above it.","travel":{"action":"go","target":"room:street"}},
+            {"place":"market_street","description":"The bakery's green door; it smells of bread."}]}],
+ "factions":[{"id":"bakers_guild","label":"the Bakers Guild","description":"The guild sets fair prices for bread in town.",
+   "relations":[{"faction":"night_market","stance":"wary"}]},
+  {"id":"night_market","label":"the Night Market","description":"Traders who sell after dark, few questions asked."}],
+ "events":[{"id":"harvest_fair","label":"the harvest fair","description":"Stalls fill the square for three days.","start":20,"end":25}],
+ "quests":[{"id":"lost_ring","label":"the lost ring","givers":["baker"],
+   "stages":[{"id":"asked","description":"My ring slipped off while I was kneading. Please look around the cellar."}]}]}
+```
+
+- **Entrances** have one side per place (a `one_way` passage can only be travelled from
+  its first side). Each turn lists the current `entrances` with a status: `open`,
+  `closed`, `locked`, `blocked` or `hidden`. Hidden entrances are never listed, described
+  or travelled. Travel proposes the side's `travel` decision only when the entrance is
+  open and the decision is legal this turn. `carries.sound` (`none`, `when_open`,
+  `always`) lets a character hear the other side's ambience.
+- **Ambience** entries are tried in order; the first whose `when` holds supplies smell,
+  light, sound and temperature.
+- **Events** run from `start` to `end` in your own turn units (`at`); "soon" means within
+  `events.soon_turns` (default 10).
+- **Quests** are discussed only by their `givers`, and only when the turn's `quests` says
+  which stage the player is at.
+
+Real outcomes from `conformance/roleplay-engine/` (bakery fixture):
+
+```text
+Do you owe anyone money?          → "My accounts are in perfect order, thank you."           (secrets, cover)
+Do you owe anyone money? trust 60 → "Between us, I owe the mill for three months of flour."  (secrets, reveal)
+What do you hear?                 → "Through the green front door, I can hear traders calling out prices."
+What do you smell? time=morning   → "I can smell fresh rye bread."
+How do I get out?                 → "You can leave by the green front door and the cellar hatch."
+go through the cellar hatch       → {"route":"entrances","kind":"clarify","line":"way_locked","text":"It's locked.","entrance":"cellar_hatch"}
+*walks through the front door*    → {"route":"entrances","kind":"action","entrance":"front_door","decision":{"action":"go","target":"room:street"}}
+attack the rat                    → {"route":"command","kind":"action","decision":{"action":"attack","target":"npc:rat"},
+                                     "norm":{"id":"no_fighting","reaction":"Not in my bakery! Take that outside."}}
+What about the night market?      → "I'm wary of the Night Market. Traders who sell after dark, few questions asked."
+Tell me about the fair.  at 15    → "Soon there will be the harvest fair. Stalls fill the square for three days."
+How are you?  needs rest 85       → "I'm managing, though I could really use a good night's sleep."
+What do you want?  ring_lost      → "Honestly, I just want my ring back."
+```
+
+## Content settings
+
+`features.content` takes `rating` (`all`, `teen`, `mature`; default `teen`) and an `avoid`
+list of `{id, phrases}` topics. A message that mentions an avoided topic is redirected
+("I'd rather not talk about that.", outcome `topic` = the id) before any other stage,
+so it never reaches the model. `rating` is recorded for the stage 2.2 model brief.
+
+## A turn
+
+```text
+input  {listener, text, at, token, scene:{id,label,place,atmosphere,visit,sight?,sound?,props?},
+        trust?, choices?, labels?, focus?, reason?, targets?,
+        entrances?, needs?, quests?, state?}
+output {route, kind, ...}
+```
+
+- `token` is your unique, increasing id for this reply.
+- `choices` are this turn's legal `{action,target}` decisions.
+- `labels` and `focus` feed the command grammar.
+- `reason` is the character's current reason, used for "why?".
+- `targets` are `{kind: character|place, id, names}` for stage directions.
+- `entrances` are `[{id, status, note?}]` for the codex entrances at this scene.
+- `needs` are live levels `{need_id: 0–100}`; `quests` are `{quest_id: stage_id}`.
+- `state` holds your own flags `{id: string | bool | integer}` (≤64), tested by any
+  `when` as `state.<id>`: time of day, story progress, membership, anything.
+
+After you play a `reply`, report what the listener heard:
+
+```text
+engine.delivered({"token":1,"listener":"player_1","text":"<the reply text>","heard":<characters heard>})
+```
+
+Only a full delivery counts toward variety and encounter memory. A partial delivery
+just drops the pending reply. `checkpoint()` and `restore()` save and load claims,
+recent replies, topics, revealed secrets, encounters and pending replies. A failed `turn`
+or `delivered` call changes nothing.
+
+## Saving: game data and saves
+
+[`gamectx::kit::save`](../FORMAT.md#game-data-and-save-files-v1) packs everything into two
+organized files:
+
+- a **game data file** (`gamectx-data`) with your authored definitions: codex, props,
+  lore, cast packs, character sheets and engine configs;
+- a **save file** (`gamectx-save`) with any number of named states (slots, autosaves,
+  forks). Each state holds every character's engine memory, long-term memory, journals,
+  facts, brains, inventories and your own data, organized as `characters/<id>/<kind>`
+  and `world/<kind>`.
+
+```rust
+use gamectx::character::roleplay::engine::{EngineConfig, RoleplayEngine};
+use gamectx::kit::save::{GameData, SaveFile, SaveState};
+let config = r#"{"version":1,"character":{"id":"baker","name":"Mira"}}"#;
+let mut game = GameData::new("Ember Bakery")?;
+game.insert("characters/baker/engine", "engine-config", &gamectx::data::json::parse(config, 4096)?)?;
+let engine = RoleplayEngine::new(game.engine_config("baker")?);
+
+let mut slot = SaveState::new("slot-1", 40)?.with_label("Before the cellar")?;
+slot.put_engine(&engine)?;
+let mut save = SaveFile::new(Some(&game));
+save.put(slot, Some(&game))?;
+save.fork("slot-1", "autosave", 41)?;          // a copy that records its parent
+let text = save.to_json();                      // write this to disk
+
+let loaded = SaveFile::parse(&text)?;           // every section and digest revalidated
+assert!(loaded.check(&game)?);                  // false: made against other game data
+let mira = loaded.state("autosave").unwrap().engine("baker", &game)?;
+# let _ = mira;
+# Ok::<(), gamectx::Error>(())
+```
+
+Sections are sorted by path, so the same content always packs to the same bytes. Each
+section, state and file carries a 16-hex FNV-1a digest that catches edits, damage and
+a save made against different game data. Digests are not authentication: a save is a
+player file and is revalidated in full on load.
+
+## Evidence and limits
+
+All measurements are offline and made zero model calls:
+
+- **104 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1 and 42
+  for the codex and sheet), each with predeclared expected fields. One stage 2.1
+  prediction was wrong and is recorded in the cases script: "Look at the bell" with no
+  bell present reaches the command grammar (`look` is a command verb) instead of the
+  model, the same as Lantern Vault. With an empty sheet and codex, the 62 stage 2.1
+  outcomes are unchanged; only the config echo and the listener record (`revealed`) grew.
+- **Byte-identical output** between the Rust engine and the independent Python
+  reference (`eval/character/roleplay_engine_reference.py`) on those cases and on
+  randomized differential cases: 1,500 in stage 2.1, and 2,800 in stage 2.1b covering
+  every new route with feature mixes, host flags, needs, quests, entrance states,
+  one-way passages, deliveries, restores and mutated inputs (0 mismatches).
+- **Save files:** 22 conformance cases (`conformance/save-file/`) and 3,000 randomized
+  save workflows (about 12,800 operations) against `eval/kit/save_reference.py`: 2,932
+  byte-identical. The other 68 are a documented difference: Rust also deep-validates
+  lore, cast-pack, memory, journal, facts, brain and inventory sections with their own
+  parsers, and rejected section data that the Python reference only shape-checks.
+- **Mutation fuzzing** in `tests/robustness.rs` checks that failed turns and deliveries
+  are atomic and that mutated game data and save files never panic.
+
+Limits in this stage:
+
+- The `model` outcome is only a hand-off. Compiling and validating model requests, plus
+  expression, tales, viewpoints, reactions, deliberation and wording, arrive in stage
+  2.2.
+- Phrase matching, the command grammar and the conversation router are English-only.
+  For other languages use `pack: "none"` with your own phrases and turn `commands` off.
+- Lantern Vault itself still runs on its own host code until stage 2.4 migrates it.
+- Persona details beyond `role`/`summary`, the speech style and the content `rating` are
+  validated and stored but only used by the model brief in stage 2.2.
+- Save digests detect accidental change, not tampering; there is no encryption.
