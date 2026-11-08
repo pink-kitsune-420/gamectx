@@ -1,0 +1,51 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [],
+          "world": {
+            "grudge_total": 90,
+            "rumor_total": 40
+          }
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 2,
+          "beings": [],
+          "world": {
+            "grudge_total": 110,
+            "rumor_total": 60
+          }
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 3,
+          "beings": [],
+          "world": {
+            "grudge_total": 140,
+            "rumor_total": 60
+          }
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 4,
+          "beings": [],
+          "world": {
+            "grudge_total": 180,
+            "rumor_total": 70
+          }
+        }
+      }
+    ]
+  }
+}

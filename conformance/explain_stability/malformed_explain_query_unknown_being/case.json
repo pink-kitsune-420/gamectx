@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a query for a being with no recorded history.",
+  "error": true
+}

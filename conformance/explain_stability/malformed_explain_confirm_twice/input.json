@@ -1,0 +1,31 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "motive": {
+            "id": "routine_bake",
+            "kind": "routine",
+            "score": 50,
+            "reason": "the dawn bake shift is active"
+          },
+          "outcome": {
+            "status": "success"
+          }
+        }
+      },
+      {
+        "op": "confirm_outcome",
+        "args": {
+          "being": "baker",
+          "id": "tr_1",
+          "status": "failure"
+        }
+      }
+    ]
+  }
+}

@@ -10,6 +10,8 @@
 //! 5. Back home, baker is hungry and tired; motive arbiter picks eating before baking.
 //! 6. Baking succeeds; flour consumed; bread exists.
 //! 7. Player arrives; speech is strictly grounded in confirmed state.
+//! 8. Pass 2: an explain trace answers "why did the baker eat?" (D4) and the stability
+//!    monitors audit the scene's turns and report it healthy (D1).
 //!
 //! Asserts byte-identical replay.
 
@@ -17,12 +19,14 @@ use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
 use gamectx::character::curiosity::CuriosityManager;
 use gamectx::character::deception::DeceptionLedger;
+use gamectx::character::explain::ExplainTracer;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::mind::MindManager;
 use gamectx::character::motive::MotiveArbiter;
 use gamectx::character::offscreen::OffscreenResolver;
 use gamectx::character::relationship::RelationshipManager;
 use gamectx::character::skills::SkillsManager;
+use gamectx::character::stability::StabilityMonitor;
 use gamectx::character::task::TaskManager;
 use gamectx::data::json::{parse, Value};
 use gamectx::knowledge::action_catalog::ActionCatalog;
@@ -545,6 +549,69 @@ fn run_baker_scene() -> String {
     assert_eq!(candidates[0].get("kind"), Some(&Value::str("ask")));
     assert_eq!(candidates[1].get("kind"), Some(&Value::str("activity")));
 
+    // 6. Explain trace (pass 2, D4): why did the baker eat before baking?
+    let ranked = arbiter_res.get("results").unwrap().as_array().unwrap()[0].get("ranked").unwrap().as_array().unwrap();
+    let runner_up = &ranked[1];
+    let mut tracer = ExplainTracer::new();
+    let record_req = obj! {
+        "ops" => Value::Array(vec![
+            obj! {
+                "op" => "record_trace",
+                "args" => obj! {
+                    "being" => "baker",
+                    "action" => "eat",
+                    "at" => 15u64,
+                    "perceptions" => Value::Array(vec![obj! { "source" => "body", "text" => "stomach growling after the mill walk" }]),
+                    "beliefs" => Value::Array(vec![obj! { "about" => "player", "fact" => "the player promised flour", "source" => "told" }]),
+                    "motive" => obj! {
+                        "id" => winning_motive.get("id").unwrap().clone(),
+                        "kind" => winning_motive.get("kind").unwrap().clone(),
+                        "score" => winning_motive.get("score").unwrap().clone(),
+                        "reason" => winning_motive.get("reason").unwrap().clone(),
+                        "rank" => 1u64,
+                        "runner_up" => obj! { "id" => runner_up.get("id").unwrap().clone(), "score" => runner_up.get("score").unwrap().clone() },
+                    },
+                    "task" => obj! { "id" => "bake_bread_task", "step" => "bake", "index" => 3u64 },
+                },
+            },
+            obj! { "op" => "confirm_outcome", "args" => obj! { "being" => "baker", "id" => "tr_1", "status" => "success", "summary" => "hunger fell by 50" } },
+        ])
+    };
+    tracer.workflow(&record_req).unwrap();
+    let trace_out = tracer
+        .workflow(&parse(r#"{"ops":[{"op":"query_trace","args":{"being":"baker","action":"eat"}}]}"#, 4096).unwrap())
+        .unwrap();
+    let trace = &trace_out.get("results").unwrap().as_array().unwrap()[0].get("traces").unwrap().as_array().unwrap()[0];
+    let why = trace.get("why").and_then(Value::as_str).unwrap();
+    assert!(why.starts_with("baker did eat because"), "{why}");
+    assert!(why.contains("need motive need_hunger"), "{why}");
+    assert_eq!(trace.get("chain").unwrap().as_array().unwrap().len(), 6);
+
+    // 7. Stability monitors (pass 2, D1): the scene's turns stay healthy
+    let mut monitor = StabilityMonitor::new();
+    let stability_req = parse(
+        r#"{
+        "ops": [
+            {"op":"audit_turn","args":{"turn":1,"beings":[
+                {"being":"baker","motive":"routine_bake","activity":"bake","score":50},
+                {"being":"apprentice","motive":"routine_chores","activity":"sweep","score":40}]}},
+            {"op":"audit_turn","args":{"turn":7,"beings":[
+                {"being":"baker","motive":"task_bake_bread","activity":"travel","score":70,"runner_up":50,"holds":["bread"],"wants":["flour"]},
+                {"being":"apprentice","motive":"routine_chores","activity":"sweep","score":40}]}},
+            {"op":"audit_turn","args":{"turn":15,"beings":[
+                {"being":"baker","motive":"need_hunger","activity":"eat","score":80,"runner_up":70,"needs":[{"id":"hunger","level":80}],"recovering":true},
+                {"being":"apprentice","motive":"routine_chores","activity":"sweep","score":40}],
+                "world":{"grudge_total":0,"rumor_total":1}}},
+            {"op":"assess_health"}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let stability_out = monitor.workflow(&stability_req).unwrap();
+    let health = &stability_out.get("results").unwrap().as_array().unwrap()[3];
+    assert_eq!(health.get("status"), Some(&Value::str("healthy")));
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -564,8 +631,15 @@ fn run_baker_scene() -> String {
     let final_cur_state =
         cur_mgr.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
+    let final_explain_state =
+        tracer.workflow(&parse(r#"{"ops":[{"op":"query_trace","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+    let final_stability_state =
+        monitor.workflow(&parse(r#"{"ops":[{"op":"assess_health"},{"op":"get_warnings"}]}"#, 4096).unwrap()).unwrap();
+
     let composite_output = obj! {
         "final_curiosity" => final_cur_state,
+        "final_explain" => final_explain_state,
+        "final_stability" => final_stability_state,
         "final_offscreen" => final_off_state,
         "final_task" => final_task_state,
         "final_body" => final_body_state,

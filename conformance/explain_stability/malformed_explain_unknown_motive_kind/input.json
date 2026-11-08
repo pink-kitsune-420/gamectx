@@ -1,0 +1,20 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "motive": {
+            "id": "whim_dance",
+            "kind": "whim",
+            "score": 50,
+            "reason": "felt like it"
+          }
+        }
+      }
+    ]
+  }
+}

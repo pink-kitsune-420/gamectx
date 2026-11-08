@@ -1,0 +1,21 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 5,
+          "beings": []
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 5,
+          "beings": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "porter",
+              "motive": "routine_haul",
+              "activity": "haul",
+              "score": 40,
+              "fatigue": 82,
+              "recovering": false,
+              "needs": [
+                {
+                  "id": "hunger",
+                  "level": 80
+                },
+                {
+                  "id": "thirst",
+                  "level": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 2,
+          "beings": [
+            {
+              "being": "porter",
+              "motive": "routine_haul",
+              "activity": "haul",
+              "score": 40,
+              "fatigue": 85,
+              "recovering": false,
+              "needs": [
+                {
+                  "id": "hunger",
+                  "level": 83
+                },
+                {
+                  "id": "thirst",
+                  "level": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 3,
+          "beings": [
+            {
+              "being": "porter",
+              "motive": "routine_haul",
+              "activity": "haul",
+              "score": 40,
+              "fatigue": 85,
+              "recovering": false,
+              "needs": [
+                {
+                  "id": "hunger",
+                  "level": 83
+                },
+                {
+                  "id": "thirst",
+                  "level": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 4,
+          "beings": [
+            {
+              "being": "porter",
+              "motive": "routine_haul",
+              "activity": "haul",
+              "score": 40,
+              "fatigue": 90,
+              "recovering": false,
+              "needs": [
+                {
+                  "id": "hunger",
+                  "level": 88
+                },
+                {
+                  "id": "thirst",
+                  "level": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      }
+    ]
+  }
+}

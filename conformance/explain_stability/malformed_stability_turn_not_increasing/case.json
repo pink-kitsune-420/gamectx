@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject an audit whose turn does not advance.",
+  "error": true
+}

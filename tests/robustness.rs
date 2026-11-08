@@ -2116,3 +2116,53 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     cur_ops_65.push_str("]}");
     assert!(clean_cur2.workflow(&parse(&cur_ops_65, 1 << 20).unwrap()).is_err());
 }
+
+#[test]
+fn explain_and_stability_survive_mutation_and_boundaries() {
+    use gamectx::character::explain::ExplainTracer;
+    use gamectx::character::stability::StabilityMonitor;
+    let mut rng = Rng(0xD4D1_0E8A_1A57_2026);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+
+    // 16. ExplainTracer mutation fuzzing & boundaries
+    let sample_ex = r#"{"ops":[{"op":"record_trace","args":{"being":"baker","action":"barter","target":"miller","at":9,"perceptions":[{"source":"pantry","text":"the flour bin is empty"}],"beliefs":[{"about":"miller","fact":"the mill sells flour","source":"told","confidence":70}],"motive":{"id":"task_bake","kind":"task","score":70,"reason":"bread is promised","rank":1,"runner_up":{"id":"routine_bake","score":50}},"task":{"id":"bake_task","step":"barter_flour","index":1},"outcome":{"status":"pending"}}},{"op":"confirm_outcome","args":{"being":"baker","id":"tr_1","status":"success","summary":"got flour"}},{"op":"query_trace","args":{"being":"baker","action":"barter","limit":4}},{"op":"init","args":{"being":"baker"}}]}"#;
+    let mut tracer = ExplainTracer::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_ex);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = tracer.workflow(&v);
+        }
+    }
+    let rec = r#"{"op":"record_trace","args":{"being":"baker","action":"bake","motive":{"id":"routine_bake","kind":"routine","score":50,"reason":"shift"}}}"#;
+    assert!(ExplainTracer::new().workflow(&parse(&ops(64, rec), 1 << 20).unwrap()).is_ok());
+    assert!(ExplainTracer::new().workflow(&parse(&ops(65, rec), 1 << 20).unwrap()).is_err());
+    let mut ring = ExplainTracer::new();
+    for _ in 0..2 {
+        ring.workflow(&parse(&ops(64, rec), 1 << 20).unwrap()).unwrap();
+    }
+    let full = ring.workflow(&parse(&ops(1, rec), 1 << 20).unwrap()).unwrap().to_json();
+    assert!(full.contains(r#""evicted":1"#) && full.contains(r#""stored":128"#), "{full}");
+
+    // 17. StabilityMonitor mutation fuzzing & boundaries
+    let sample_st = r#"{"ops":[{"op":"init","args":{"window":4,"dither_switches":2,"herd_min":2,"herd_pct":60,"spiral_turns":1}},{"op":"audit_turn","args":{"turn":1,"beings":[{"being":"a","motive":"m1","activity":"x","score":50,"runner_up":45,"fatigue":90,"needs":[{"id":"hunger","level":85}],"recovering":false,"holds":["oven"],"wants":["flour"]},{"being":"b","motive":"m2","activity":"x","holds":["flour"],"wants":["oven"]}],"world":{"grudge_total":120,"rumor_total":5}}},{"op":"assess_health","args":{}},{"op":"get_warnings","args":{"kind":"deadlock","being":"a","since_turn":0,"limit":4}}]}"#;
+    let mut mon = StabilityMonitor::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_st);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = mon.workflow(&v);
+        }
+    }
+    let health = r#"{"op":"assess_health"}"#;
+    assert!(StabilityMonitor::new().workflow(&parse(&ops(64, health), 1 << 20).unwrap()).is_ok());
+    assert!(StabilityMonitor::new().workflow(&parse(&ops(65, health), 1 << 20).unwrap()).is_err());
+    let audit = |n: usize| {
+        let beings: Vec<String> =
+            (0..n).map(|i| format!(r#"{{"being":"b{i}","motive":"m","activity":"a{i}"}}"#)).collect();
+        format!(r#"{{"ops":[{{"op":"audit_turn","args":{{"turn":1,"beings":[{}]}}}}]}}"#, beings.join(","))
+    };
+    assert!(StabilityMonitor::new().workflow(&parse(&audit(64), 1 << 20).unwrap()).is_ok());
+    assert!(StabilityMonitor::new().workflow(&parse(&audit(65), 1 << 20).unwrap()).is_err());
+}

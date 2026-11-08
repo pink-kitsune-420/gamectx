@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject dither_switches that can never fit in the window.",
+  "error": true
+}

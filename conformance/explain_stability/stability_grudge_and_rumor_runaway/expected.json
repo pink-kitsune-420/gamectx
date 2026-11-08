@@ -1,0 +1,1 @@
+{"version":1,"results":[{"count":0,"status":"ok","turn":1,"warnings":[]},{"count":0,"status":"ok","turn":2,"warnings":[]},{"count":0,"status":"ok","turn":3,"warnings":[]},{"count":1,"status":"warn","turn":4,"warnings":[{"beings":[],"detail":"grudge total rose 3 turns in a row to 180","id":"w_1","kind":"grudge_runaway","streak":3,"total":180,"turn":4}]}]}

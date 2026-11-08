@@ -1,0 +1,21 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "window": 6,
+          "dither_switches": 2,
+          "dither_margin": 5,
+          "critical": 90,
+          "herd_pct": 60
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      }
+    ]
+  }
+}

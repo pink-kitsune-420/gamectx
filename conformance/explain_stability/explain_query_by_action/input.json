@@ -1,0 +1,60 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "at": 1,
+          "motive": {
+            "id": "routine_bake",
+            "kind": "routine",
+            "score": 50,
+            "reason": "the dawn bake shift is active"
+          }
+        }
+      },
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "eat",
+          "at": 2,
+          "motive": {
+            "id": "need_hunger",
+            "kind": "need",
+            "score": 80,
+            "reason": "hunger 80 is past threshold 70",
+            "runner_up": {
+              "id": "task_bake_bread",
+              "score": 70
+            }
+          }
+        }
+      },
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "at": 3,
+          "motive": {
+            "id": "routine_bake",
+            "kind": "routine",
+            "score": 50,
+            "reason": "the dawn bake shift is active"
+          }
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake"
+        }
+      }
+    ]
+  }
+}

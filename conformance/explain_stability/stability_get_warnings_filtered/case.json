@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Warnings filter by kind, being and turn; limit keeps the most recent.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "init replaces the thresholds and returns the full config.",
+  "error": false
+}

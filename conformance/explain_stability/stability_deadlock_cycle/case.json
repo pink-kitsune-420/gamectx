@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Three beings in a wait-for cycle plus a bystander waiting on the cycle; four idle waiters also trip herding.",
+  "error": false
+}

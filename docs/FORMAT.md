@@ -2507,6 +2507,11 @@ Ops:
     - `reaction` (0..65): situational impulses from reaction brains (bounded input, never sole arbiter).
   - Deterministic tie-breaking: score descending, kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
   - Generates clear explainable `winning_reason` detailing why the winning motive defeated the runner-up.
+  - Optional `commitment {motive ident, inertia 0–50 (10)}` (pass 2, D1): when the committed motive is a
+    candidate, is not already first, the first is not an `emergency`, and `first.score < committed.score + inertia`,
+    the committed motive moves to the front of `ranked`, becomes `winner`, and `winning_reason` reads
+    `<id> (score <n>) held over <id> (score <n>) by commitment inertia <i> because <reason>`. The result then
+    also carries `commitment {held, inertia, motive, present}`; without `commitment` the output is unchanged.
 
 ## Task planning v1
 
@@ -2599,6 +2604,58 @@ Ops:
   - `practice {being, skill, practice, success, label?, action?}` → `{being, skill, level, practice, threshold, effective_gain, leveled_up, success}`.
   - `evaluate_action {being, action, base_duration, base_risk, skill?, quality_bonus?}` → `{being, action, skill, level, base_duration, duration, duration_discount_percent, base_risk, risk, quality_score, quality_tier}`.
   - `teach {teacher, student, skill, hours?, same_place?}` → `{ok, teacher, student, skill, teacher_level, student_level, student_practice, practice_gained, leveled_up, relationship_effects}`.
+
+## Explain trace v1 (pass 2, D4)
+
+`gamectx::character::explain` (guide: [Life](characters/LIFE.md#explain-trace-pass-2-d4)). The
+`explain` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
+Optional fields given as `null` count as absent. 25 additive cases (shared with stability) live in
+`conformance/explain_stability/`.
+
+- `record_trace {being, action, motive, target?, at? 0–10¹², perceptions? ≤8, beliefs? ≤8, task?, outcome?}`
+  → `{being, evicted 0|1, id "tr_<seq>", ok, stored}`. `perceptions` are `{source ident, text 1–160}`;
+  `beliefs` are `{about ident, fact 1–160, source seen|told|inferred|authored, confidence? 0–100 (100)}`;
+  `motive` is `{id, kind (an arbiter kind), score 0–100, reason 1–200, rank? 1–64 (1), runner_up? {id, score}}`;
+  `task` is `{id, step ident, index 0–63}`; `outcome` is `{status pending|success|failure|interrupted, summary? 1–200}`
+  (default `pending`). At most 128 traces per being (oldest evicted) and 64 beings.
+- `confirm_outcome {being, id, status success|failure|interrupted, summary?}` → `{being, id, ok, status}`;
+  refused unless the trace exists and is still `pending`.
+- `query_trace {being, id?, action?, limit? 1–128 (8)}` → `{being, count, total, traces}`, newest first;
+  refused for a being with no history. Each trace echoes its fields plus `chain` (ordered
+  `{stage, detail}` for `perception`*, `belief`*, `motive`, `task`?, `action`, `outcome`) and `why`, one sentence:
+  `<being> did <action>[ to <target>] because <reason> (<kind> motive <id>, score <n>[, beating <id> at <n>]).`
+  then ` Triggered by: …;` ` Believed: …;` ` Step <i> of task <id>.` when present, and ` Outcome: <status>[ (<summary>)].`
+- `init {being?}` → `{cleared, ok}`: clears one being's history, or all.
+
+## Stability monitors v1 (pass 2, D1)
+
+`gamectx::character::stability` (guide: [Life](characters/LIFE.md#stability-monitors-pass-2-d1)). The
+`stability` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
+
+- `init {window 2–32 (8), dither_switches 1–31 (3) < window, dither_margin 0–100 (10), critical 1–100 (80),
+  spiral_turns 1–64 (3), herd_min 2–64 (3), herd_pct 51–100 (80), runaway_turns 1–64 (3), runaway_floor 0–10⁹ (100)}`
+  → `{config, ok}`; resets all monitor state.
+- `audit_turn {turn 0–10¹² (strictly increasing), beings ≤64, world? {grudge_total?, rumor_total? 0–10⁹}}` →
+  `{count, status ok|warn, turn, warnings}`. A being report is `{being, motive, activity, score? 0–100 (0),
+  runner_up? 0–100, needs? ≤16 [{id ≠ "fatigue", level 0–100}], fatigue? 0–100 (0), recovering? bool,
+  holds? ≤8, wants? ≤8}`; each being at most once per turn, ≤256 tracked beings in total. Margin is
+  `score − runner_up` (saturating), or 100 without a runner-up. Warnings, in this order:
+  - `dithering` per being (by name): within the last `window` motives, at least `dither_switches` changes
+    whose new margin is ≤ `dither_margin`, among exactly two motives → `{motives, switches}`;
+  - `starvation_spiral` per being: severity = max(fatigue, need levels) (ties → lowest id); the streak grows
+    while severity ≥ `critical`, not `recovering` and not lower than last turn, else resets →
+    `{need, severity, streak}` once streak ≥ `spiral_turns`;
+  - `deadlock`: each strongly connected group (≥2) of the wait-for graph (`a → b` when `a` wants what `b`
+    holds) → `{resources}`;
+  - `herding`: with ≥ `herd_min` reports, the most common activity (ties → lowest name) when
+    `count·100 ≥ herd_pct·total` → `{activity, count, total}`;
+  - `grudge_runaway`, `rumor_runaway`: the total rose `runaway_turns` audits in a row and is ≥ `runaway_floor`
+    → `{streak, total}`.
+  Every warning also has `{beings, detail, id "w_<n>", kind, turn}`; the log keeps the last 256.
+- `assess_health {}` → `{active, beings_tracked, last_turn, status healthy|recovered|unstable, totals (all six kinds),
+  turns_audited, warnings_logged}`; `unstable` when the last audit warned, `recovered` when an earlier one did.
+- `get_warnings {kind?, being?, since_turn?, limit? 1–256 (32)}` → `{count, warnings}`, the most recent matches
+  in log order.
 
 ## Game data and save files v1
 

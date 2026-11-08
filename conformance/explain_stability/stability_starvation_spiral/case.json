@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Fatigue stays critical and worsens for three turns without recovery.",
+  "error": false
+}

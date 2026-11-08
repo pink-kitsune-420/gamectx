@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A pending trace is confirmed later by the host; the chain and why sentence follow.",
+  "error": false
+}

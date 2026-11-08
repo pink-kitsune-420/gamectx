@@ -1,0 +1,13 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "ghost"
+        }
+      }
+    ]
+  }
+}

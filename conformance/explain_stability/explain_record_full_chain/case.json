@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Full perception -> belief -> motive -> task step -> action -> outcome chain with a target.",
+  "error": false
+}

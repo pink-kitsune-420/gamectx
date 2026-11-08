@@ -2,6 +2,15 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Explain trace (`character::explain`, local kind `explain`, pass 2 D4):
+  - `record_trace` links perceptions, sourced beliefs, the winning motive (score, rank, reason, runner-up), the task step, the action and its outcome; `confirm_outcome` settles `pending` traces; `query_trace` returns traces newest first with an ordered `chain` and a deterministic `why` sentence.
+  - Bounded: 128 traces per being (oldest evicted), 64 beings, 8 perceptions and 8 beliefs per trace. Ops: `init`, `record_trace`, `confirm_outcome`, `query_trace`.
+- Motive arbiter commitment inertia (pass 2 D1): optional `commitment {motive, inertia? 0–50 (10)}` on `arbitrate` keeps the committed motive unless a challenger leads by at least `inertia`; emergencies always override. Additive: results gain `commitment {held, inertia, motive, present}` only when it is supplied, and all 25 earlier `conformance/motive/` cases are byte-identical. 5 new cases (1 malformed); 2,000 differential workflows (seed 7, 0 mismatches).
+- Stability monitors (`character::stability`, local kind `stability`, pass 2 D1):
+  - `audit_turn` over strictly increasing turns reports dithering (close switches between two motives, with the motive to hold), starvation spirals (critical need or fatigue not improving without recovery), deadlocks (wait-for cycles), herding (shared activity share) and grudge/rumor runaways (rising world totals). Thresholds are `init` options.
+  - `assess_health` (`healthy`/`recovered`/`unstable`, per-kind totals) and `get_warnings` (kind, being, turn filters; last 256 kept). Ops: `init`, `audit_turn`, `assess_health`, `get_warnings`.
+  - 25 conformance cases (6 malformed) in `conformance/explain_stability/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
+- Fix: `eval/character/affect_skills_cases.py --cap 0` (a CI step) rewrote 20 `conformance/affect_skills/*/expected.json` files pretty-printed, so the byte comparison in `tests/conformance.rs` failed after it ran. The generator now writes compact JSON and the files are re-blessed; every one is JSON-equal to the previous content (no format change).
 - Off-screen life resolution (`character::offscreen`, local kind `offscreen`, Gap 10):
   - Coarse resolution when activity windows close unobserved (`observed: false`), applying Action Catalog expected effects once: resources consumed (`inputs`) and produced (`outputs`), fatigue delta, and skill practice gained.
   - Timeline entry (`private` or `witnessed`) and direct Life experience generation for the actor, ensuring the world changes and characters remember activities performed while the player is away.

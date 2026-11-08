@@ -1,0 +1,25 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "bake"
+            },
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "eat"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "routine_festival",
+              "activity": "festival"
+            },
+            {
+              "being": "miller",
+              "motive": "routine_festival",
+              "activity": "festival"
+            },
+            {
+              "being": "guard",
+              "motive": "goal_patrol",
+              "activity": "patrol"
+            },
+            {
+              "being": "smith",
+              "motive": "routine_festival",
+              "activity": "festival"
+            },
+            {
+              "being": "carter",
+              "motive": "routine_festival",
+              "activity": "festival"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "task_bake",
+              "activity": "wait",
+              "holds": [
+                "oven"
+              ],
+              "wants": [
+                "flour"
+              ]
+            },
+            {
+              "being": "miller",
+              "motive": "task_mill",
+              "activity": "wait",
+              "holds": [
+                "flour"
+              ],
+              "wants": [
+                "cart"
+              ]
+            },
+            {
+              "being": "carter",
+              "motive": "task_haul",
+              "activity": "wait",
+              "holds": [
+                "cart"
+              ],
+              "wants": [
+                "oven"
+              ]
+            },
+            {
+              "being": "apprentice",
+              "motive": "task_sweep",
+              "activity": "wait",
+              "wants": [
+                "oven",
+                "broom"
+              ]
+            },
+            {
+              "being": "smith",
+              "motive": "routine_forge",
+              "activity": "forge",
+              "holds": [
+                "anvil"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

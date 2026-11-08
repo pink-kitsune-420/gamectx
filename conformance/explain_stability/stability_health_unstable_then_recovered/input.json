@@ -1,0 +1,62 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "herd_min": 2,
+          "herd_pct": 100
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 10,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "market"
+            },
+            {
+              "being": "smith",
+              "motive": "m",
+              "activity": "market"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 11,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "bake"
+            },
+            {
+              "being": "smith",
+              "motive": "m",
+              "activity": "forge"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      }
+    ]
+  }
+}

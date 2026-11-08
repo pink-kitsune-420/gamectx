@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A calm turn with defaults reports nothing; null optionals are treated as absent.",
+  "error": false
+}

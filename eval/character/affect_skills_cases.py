@@ -777,8 +777,7 @@ def generate_conformance_suite():
         if not is_malformed:
             expected = py_workflow(c["input"])
             with open(case_dir / "expected.json", "w") as f:
-                json.dump(expected, f, indent=2)
-                f.write("\n")
+                f.write(json.dumps(expected, separators=(",", ":")) + "\n")
         else:
             exp_file = case_dir / "expected.json"
             if exp_file.exists():

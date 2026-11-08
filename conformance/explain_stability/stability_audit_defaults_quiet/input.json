@@ -1,0 +1,40 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 0,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "routine_bake",
+              "activity": "bake",
+              "score": 50,
+              "runner_up": null,
+              "needs": null
+            },
+            {
+              "being": "miller",
+              "motive": "routine_mill",
+              "activity": "mill",
+              "score": 45,
+              "runner_up": 20,
+              "fatigue": 30
+            }
+          ],
+          "world": null
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      },
+      {
+        "op": "get_warnings",
+        "args": {}
+      }
+    ]
+  }
+}

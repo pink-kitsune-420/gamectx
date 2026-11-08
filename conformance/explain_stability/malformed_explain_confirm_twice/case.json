@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject confirming an outcome that is no longer pending.",
+  "error": true
+}

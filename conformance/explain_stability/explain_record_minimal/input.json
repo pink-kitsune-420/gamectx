@@ -1,0 +1,26 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "motive": {
+            "id": "routine_bake",
+            "kind": "routine",
+            "score": 50,
+            "reason": "the dawn bake shift is active"
+          }
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

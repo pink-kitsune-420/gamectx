@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a motive kind the arbiter does not define.",
+  "error": true
+}

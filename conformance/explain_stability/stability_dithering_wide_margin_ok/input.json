@@ -1,0 +1,67 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "bake",
+              "activity": "bake",
+              "score": 60,
+              "runner_up": 25
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 2,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "eat",
+              "activity": "eat",
+              "score": 58,
+              "runner_up": 24
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 3,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "bake",
+              "activity": "bake",
+              "score": 61,
+              "runner_up": 27
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 4,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "eat",
+              "activity": "eat",
+              "score": 59,
+              "runner_up": 26
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

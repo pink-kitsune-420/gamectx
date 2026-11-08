@@ -1,0 +1,14 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "window": 4,
+          "dither_switches": 4
+        }
+      }
+    ]
+  }
+}

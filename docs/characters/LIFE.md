@@ -365,9 +365,14 @@ across all character subsystems onto one unified, explainable 0..=100 bounded sc
 - **Deterministic arbitration:**
   - Sorted by score descending, then kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
   - Returns `winner` naming the winning motive, full explainable `winning_reason` citing why the winner beat the runner-up, and the complete `ranked` motive list.
-- **Operations:** `arbitrate {body?, routine?, goals?, promises?, emergencies?, brains?, motives?}`.
+- **Commitment inertia (pass 2, D1):** pass `commitment {motive, inertia? 0–50 (10)}` with the motive the being is
+  already pursuing. It stays the winner unless a challenger beats its score by at least `inertia`; emergencies
+  always override. The result gains `commitment {held, inertia, motive, present}` and, when held, a reason like
+  `routine_bake (score 55) held over need_hunger (score 58) by commitment inertia 10 because bake shift active`.
+  Without `commitment` the output is unchanged.
+- **Operations:** `arbitrate {body?, routine?, goals?, promises?, emergencies?, brains?, motives?, commitment?}`.
 
-**Evidence:** 25 cases (`conformance/motive/`, 5 malformed), 2,000 differential parity
+**Evidence:** 30 cases (`conformance/motive/`, 6 malformed; 5 added for commitment inertia), 2,000 differential parity
 workflows (`eval/character/motive_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ## Tasks and planning (Gap 4)
@@ -478,6 +483,56 @@ and motives into concrete, committed multi-step plans executed through the Actio
 - **Operations:** `init`, `evaluate_novelty`, `generate_candidates`, `mark_familiar`, `assess`.
 
 **Evidence:** 25 conformance cases (`conformance/offscreen_curiosity/`, 6 malformed), 2,000 differential parity workflows (`eval/character/offscreen_curiosity_cases.py`, seed 7, 0 mismatches), acceptance scene replay verification (`tests/acceptance_baker.rs`), $0 API spend.
+
+## Explain trace (pass 2, D4)
+
+`gamectx::character::explain` (`ExplainTracer`, local kind `explain`) answers "why did she do
+that?". The host records one trace per decision with `record_trace`: what the being
+perceived, what it believed (source and confidence), the motive that won arbitration (score,
+rank, reason, runner-up), the task step it served, the action and its outcome. Outcomes can be
+confirmed later with `confirm_outcome` (only from `pending`). `query_trace` returns traces
+newest first, filtered by `id` or `action`, each with an ordered `chain` and a `why` sentence.
+History is a ring of 128 traces per being across at most 64 beings. Nothing is inferred: the
+trace only links what the host already decided. Real output from
+`conformance/explain_stability/explain_record_full_chain`:
+
+```text
+baker did barter to miller because bread is promised for the market (task motive
+task_bake_bread, score 70, beating routine_bake at 50). Triggered by: the flour bin is
+empty. Believed: the mill sells flour. Step 1 of task bake_bread_task. Outcome: success
+(traded two loaves for a sack of flour).
+```
+
+## Stability monitors (pass 2, D1)
+
+`gamectx::character::stability` (`StabilityMonitor`, local kind `stability`) watches
+host-reported turns (`audit_turn`, strictly increasing) and reports five failure modes:
+- **Dithering:** at least 3 close switches (margin ≤ 10) between exactly two motives in the
+  last 8 turns. The warning names the current motive to hold; pass it to the arbiter as
+  `commitment` (see [commitment inertia](#motive-arbiter-gap-3)) to damp the switching.
+- **Starvation spiral:** a need or fatigue ≥ 80 that does not improve for 3 turns while the
+  being makes no recovery attempt (`recovering: true` resets the streak).
+- **Deadlock:** beings in a wait-for cycle (each wants a resource another holds), reported once
+  per strongly connected group with the contested resources.
+- **Herding:** 3 or more beings audited and ≥ 80% on the same activity.
+- **Grudge and rumor runaways:** a world total that rose 3 audits in a row and is ≥ 100.
+
+All thresholds are `init` options (see [FORMAT](../FORMAT.md#stability-monitors-v1-pass-2-d1)).
+`assess_health` reports `healthy`, `recovered` or `unstable` with per-kind totals, and
+`get_warnings` filters the last 256 warnings by kind, being and turn. Monitors only report;
+the host decides whether to intervene. Real output from
+`conformance/explain_stability/stability_dithering_detected`:
+
+```text
+baker switched 3 times between bake and eat in 4 turns; hold eat for commitment inertia
+```
+
+**Evidence:** 25 conformance cases (`conformance/explain_stability/`, 6 malformed), 2,000
+differential parity workflows (`eval/character/explain_stability_cases.py`, seed 7,
+0 mismatches: 1,545 accepted, 455 refused, 181 with warnings), 1,000 mutations per engine
+plus 64/65-op, 128/129-trace and 64/65-being boundaries (`tests/robustness.rs`), acceptance
+scene replay (`tests/acceptance_baker.rs`), $0 API spend. These are correctness checks; no
+soak-test failure rates have been measured yet.
 
 
 

@@ -1,0 +1,42 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "apprentice",
+          "action": "sweep",
+          "at": 18,
+          "perceptions": [
+            {
+              "source": "baker",
+              "text": "the baker asked for a clean floor"
+            }
+          ],
+          "motive": {
+            "id": "routine_chores",
+            "kind": "routine",
+            "score": 40,
+            "reason": "the chores slot is active"
+          }
+        }
+      },
+      {
+        "op": "confirm_outcome",
+        "args": {
+          "being": "apprentice",
+          "id": "tr_1",
+          "status": "failure",
+          "summary": "the broom snapped"
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

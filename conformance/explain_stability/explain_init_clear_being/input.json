@@ -1,0 +1,49 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "bake",
+          "motive": {
+            "id": "routine_bake",
+            "kind": "routine",
+            "score": 50,
+            "reason": "the dawn bake shift is active"
+          }
+        }
+      },
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "miller",
+          "action": "mill",
+          "motive": {
+            "id": "routine_mill",
+            "kind": "routine",
+            "score": 45,
+            "reason": "the mill runs at dawn"
+          }
+        }
+      },
+      {
+        "op": "init",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "miller"
+        }
+      },
+      {
+        "op": "init",
+        "args": {}
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Explain one specific trace by id; an unmatched id yields an empty list.",
+  "error": false
+}

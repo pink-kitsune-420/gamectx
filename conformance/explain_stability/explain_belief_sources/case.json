@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Beliefs carry source and confidence (seen/told/inferred/authored; default 100).",
+  "error": false
+}

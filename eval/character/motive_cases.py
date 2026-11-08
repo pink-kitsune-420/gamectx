@@ -571,6 +571,42 @@ def make_cases() -> List[Dict[str, Any]]:
         },
     })
 
+    # Pass 2 (D1): commitment inertia. Additive cases; earlier cases are unchanged.
+    def commit_case(cid, description, motives, commitment):
+        cases.append({
+            "id": cid,
+            "description": description,
+            "input": {"kind": "motive", "args": {"ops": [
+                {"op": "arbitrate", "args": {"motives": motives, "commitment": commitment}}]}},
+        })
+
+    close = [
+        {"id": "need_hunger", "kind": "need", "score": 58, "reason": "hunger rising"},
+        {"id": "routine_bake", "kind": "routine", "score": 55, "reason": "bake shift active"},
+    ]
+    commit_case("commitment_holds_close_challenger",
+                "Committed routine (55) holds against hunger (58) within the default inertia of 10.",
+                close, {"motive": "routine_bake"})
+    commit_case("commitment_yields_to_wide_margin",
+                "A challenger 10 or more points ahead overrides the commitment.",
+                [{"id": "need_hunger", "kind": "need", "score": 70, "reason": "hunger urgent"},
+                 {"id": "routine_bake", "kind": "routine", "score": 60, "reason": "bake shift active"}],
+                {"motive": "routine_bake", "inertia": 10})
+    commit_case("commitment_emergency_overrides",
+                "Emergencies ignore commitment inertia.",
+                [{"id": "fire", "kind": "emergency", "score": 82, "reason": "the oven caught fire"},
+                 {"id": "task_bake", "kind": "task", "score": 80, "reason": "bread is promised"}],
+                {"motive": "task_bake", "inertia": 30})
+    commit_case("commitment_absent_motive_ignored",
+                "A committed motive that is no longer a candidate changes nothing.",
+                close, {"motive": "task_gone", "inertia": 20})
+    cases.append({
+        "id": "malformed_commitment_inertia_too_high",
+        "description": "Malformed: inertia above 50.",
+        "input": {"kind": "motive", "args": {"ops": [
+            {"op": "arbitrate", "args": {"motives": close, "commitment": {"motive": "routine_bake", "inertia": 51}}}]}},
+    })
+
     return cases
 
 
@@ -668,6 +704,11 @@ def run_random_parity(count: int = 2000, seed: int = 7) -> None:
             args: Dict[str, Any] = {"motives": motives}
             if body_state:
                 args["body"] = body_state
+            if random.random() < 0.4:
+                commitment: Dict[str, Any] = {"motive": random.choice(motives)["id"] if random.random() < 0.85 else "m_gone"}
+                if random.random() < 0.7:
+                    commitment["inertia"] = random.choice([0, 5, 10, 20, 50, 51])
+                args["commitment"] = commitment
 
             ops.append({"op": "arbitrate", "args": args})
 

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Health is unstable on a warning turn and recovered once a quiet turn follows.",
+  "error": false
+}

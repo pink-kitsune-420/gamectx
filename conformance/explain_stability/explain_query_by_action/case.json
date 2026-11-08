@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Filter history by action name.",
+  "error": false
+}

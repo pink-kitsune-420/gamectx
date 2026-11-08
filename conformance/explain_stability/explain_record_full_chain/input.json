@@ -1,0 +1,56 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "baker",
+          "action": "barter",
+          "target": "miller",
+          "at": 9,
+          "perceptions": [
+            {
+              "source": "pantry",
+              "text": "the flour bin is empty"
+            }
+          ],
+          "beliefs": [
+            {
+              "about": "miller",
+              "fact": "the mill sells flour",
+              "source": "told",
+              "confidence": 70
+            }
+          ],
+          "motive": {
+            "id": "task_bake_bread",
+            "kind": "task",
+            "score": 70,
+            "reason": "bread is promised for the market",
+            "rank": 1,
+            "runner_up": {
+              "id": "routine_bake",
+              "score": 50
+            }
+          },
+          "task": {
+            "id": "bake_bread_task",
+            "step": "barter_flour",
+            "index": 1
+          },
+          "outcome": {
+            "status": "success",
+            "summary": "traded two loaves for a sack of flour"
+          }
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

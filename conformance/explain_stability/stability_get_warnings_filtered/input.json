@@ -1,0 +1,72 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "herd_min": 2,
+          "herd_pct": 100,
+          "spiral_turns": 1
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 1,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "market",
+              "fatigue": 95
+            },
+            {
+              "being": "smith",
+              "motive": "m",
+              "activity": "market"
+            }
+          ]
+        }
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 2,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "market",
+              "fatigue": 96
+            },
+            {
+              "being": "smith",
+              "motive": "m",
+              "activity": "forge"
+            }
+          ]
+        }
+      },
+      {
+        "op": "get_warnings",
+        "args": {
+          "kind": "herding"
+        }
+      },
+      {
+        "op": "get_warnings",
+        "args": {
+          "being": "baker",
+          "limit": 1
+        }
+      },
+      {
+        "op": "get_warnings",
+        "args": {
+          "since_turn": 2
+        }
+      }
+    ]
+  }
+}

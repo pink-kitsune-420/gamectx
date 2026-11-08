@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "init with a being clears only that being; init without one clears everyone.",
+  "error": false
+}

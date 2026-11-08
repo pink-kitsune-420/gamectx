@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Switching between two motives with margins <= 10 three times flags dithering.",
+  "error": false
+}

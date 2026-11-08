@@ -182,7 +182,7 @@ created by everyone's needs and off-screen production. Without it, off-screen ef
 
 ### D. The system as a whole
 
-**D1. Stability.** Pass 1 adds many feedback loops. Expected failure modes:
+**D1. Stability.** — **DONE**. Pass 1 adds many feedback loops. Expected failure modes:
 - *Dithering:* switching between two close motives every tick. Needs commitment inertia
   in the arbiter (the brains already have hysteresis; the arbiter needs its own).
 - *Starvation spirals:* tired → cannot work → cannot buy food → more tired. Needs safety
@@ -191,6 +191,12 @@ created by everyone's needs and off-screen production. Without it, off-screen ef
 - *Rumor and grudge runaways:* bounded already per hop; check whole-world totals too.
 - *Deadlocks:* two tasks each holding what the other needs.
 Add world-level monitors that detect these in soak tests and report them.
+
+*Implemented (pass 2 stage 1):* `character::stability::StabilityMonitor` (local kind
+`stability`) detects all five modes over host-reported turns and names the motive to hold
+when dithering; the arbiter's optional `commitment` input supplies the inertia. A soak test
+is still open.
+[Evidence](../characters/LIFE.md#stability-monitors-pass-2-d1).
 
 **D2. Level of detail for minds.** The scheduler already budgets updates. Add explicit
 mind detail levels: full loop near the player, coarse needs/routine/effects far away,
@@ -201,9 +207,12 @@ state.
 and lie ledgers all grow. Each needs bounds, pruning rules and a save-format migration
 path (this links to the roadmap's in-place migration follow-up).
 
-**D4. Explaining behavior.** A "why did she do that?" trace for any action: perception →
+**D4. Explaining behavior.** — **DONE**. A "why did she do that?" trace for any action: perception →
 belief → motive scores → chosen task step → outcome. This is the main authoring and
 debugging tool for everything above, and the inspection profilers are the place to start.
+
+*Implemented (pass 2 stage 1):* `character::explain::ExplainTracer` (local kind `explain`).
+[Evidence](../characters/LIFE.md#explain-trace-pass-2-d4).
 
 **D5. Default packs.** Each faculty adds authoring work. Ship original default packs
 (needs and actions per species, common tasks, norm sets, temperament presets) so a
@@ -228,7 +237,7 @@ packet and budget modules already do.
 ## 5. Suggested order after pass 1
 
 1. **D4 explain trace** and **D1 stability monitors.** Build these first so that every later
-   step can be seen and checked.
+   step can be seen and checked. — **DONE** ([Evidence](../characters/LIFE.md#explain-trace-pass-2-d4)).
 2. **A1 subjective knowledge** and **B1 communication as action.** Together these make
    asking, telling, teaching and lying matter.
 3. **A3 expectations** and **A2 attention.** Cheap, deterministic, and they create many

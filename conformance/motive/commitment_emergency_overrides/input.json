@@ -1,0 +1,30 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "fire",
+              "kind": "emergency",
+              "score": 82,
+              "reason": "the oven caught fire"
+            },
+            {
+              "id": "task_bake",
+              "kind": "task",
+              "score": 80,
+              "reason": "bread is promised"
+            }
+          ],
+          "commitment": {
+            "motive": "task_bake",
+            "inertia": 30
+          }
+        }
+      }
+    ]
+  }
+}

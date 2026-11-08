@@ -1,0 +1,52 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "record_trace",
+        "args": {
+          "being": "guard",
+          "action": "warn",
+          "target": "innkeeper",
+          "perceptions": [
+            {
+              "source": "street",
+              "text": "a hooded figure left the inn"
+            }
+          ],
+          "beliefs": [
+            {
+              "about": "thief",
+              "fact": "the thief took the silver",
+              "source": "seen"
+            },
+            {
+              "about": "innkeeper",
+              "fact": "she did not see the theft",
+              "source": "inferred",
+              "confidence": 85
+            },
+            {
+              "about": "thief",
+              "fact": "thieves return at night",
+              "source": "authored",
+              "confidence": 40
+            }
+          ],
+          "motive": {
+            "id": "goal_protect",
+            "kind": "goal",
+            "score": 65,
+            "reason": "the guard protects the innkeeper"
+          }
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

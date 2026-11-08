@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Three traces; query with limit 2 returns the two newest, newest first.",
+  "error": false
+}

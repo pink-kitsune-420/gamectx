@@ -1,0 +1,1 @@
+{"version":1,"results":[{"count":1,"status":"warn","turn":1,"warnings":[{"activity":"festival","beings":["baker","carter","miller","smith"],"count":4,"detail":"4 of 5 beings chose festival in the same turn","id":"w_1","kind":"herding","total":5,"turn":1}]}]}

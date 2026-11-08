@@ -75,7 +75,9 @@ a [motive arbiter](docs/characters/LIFE.md#motive-arbiter-gap-3) (deterministic,
 a [deception ledger](docs/characters/LIFE.md#deception-ledger-gap-13) (told-ledger per listener, pre-speech consistency checking, and contradiction appraisal on exposure),
 [relationship reconciliation](docs/characters/LIFE.md#relationship-reconciliation-gap-9) (precedence across Life attitudes, Sheet relations, and community standing with unified action appraisal and community trust aggregation),
 [off-screen life resolution](docs/characters/LIFE.md#off-screen-life-resolution-gap-10) (coarse unobserved activity resolution with Action Catalog expected effects, timeline entries, and Life experiences),
-and a [curiosity and exploration model](docs/characters/LIFE.md#curiosity-and-exploration-model-gap-11) (novelty signals across people/things/places/facts, temperament scaling, and 10-field initiative candidate generation).
+a [curiosity and exploration model](docs/characters/LIFE.md#curiosity-and-exploration-model-gap-11) (novelty signals across people/things/places/facts, temperament scaling, and 10-field initiative candidate generation),
+an [explain trace](docs/characters/LIFE.md#explain-trace-pass-2-d4) (a "why did she do that?" chain from perception and belief through motive and task step to the confirmed outcome),
+and [stability monitors](docs/characters/LIFE.md#stability-monitors-pass-2-d1) (dithering, starvation spiral, deadlock, herding and grudge/rumor runaway warnings over host-reported turns).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

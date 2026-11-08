@@ -1,0 +1,30 @@
+{
+  "kind": "motive",
+  "args": {
+    "ops": [
+      {
+        "op": "arbitrate",
+        "args": {
+          "motives": [
+            {
+              "id": "need_hunger",
+              "kind": "need",
+              "score": 58,
+              "reason": "hunger rising"
+            },
+            {
+              "id": "routine_bake",
+              "kind": "routine",
+              "score": 55,
+              "reason": "bake shift active"
+            }
+          ],
+          "commitment": {
+            "motive": "task_gone",
+            "inertia": 20
+          }
+        }
+      }
+    ]
+  }
+}

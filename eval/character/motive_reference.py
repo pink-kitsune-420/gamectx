@@ -295,12 +295,44 @@ class MotiveReference:
             else:
                 winning_reason = f"{winner['id']} (score {winner['score']}) won because {winner['reason']}"
 
-        return {
+        out = {
             "winner": winner,
             "winning_reason": winning_reason,
             "ranked": evaluated,
             "count": len(evaluated),
         }
+        cm = args.get("commitment")
+        if cm is not None:
+            # Commitment inertia (pass 2, D1).
+            if not isinstance(cm, dict) or "motive" not in cm or any(k not in ("motive", "inertia") for k in cm):
+                raise ValueError("invalid commitment")
+            cid = cm["motive"]
+            if not isinstance(cid, str) or not (0 < len(cid) <= 64) or not all(
+                ch.isascii() and (ch.isalnum() or ch in "_:-") for ch in cid
+            ):
+                raise ValueError("invalid commitment motive")
+            inertia = cm.get("inertia")
+            if inertia is None:
+                inertia = 10
+            if not isinstance(inertia, int) or isinstance(inertia, bool) or not (0 <= inertia <= 50):
+                raise ValueError("invalid inertia")
+            ids = [m["id"] for m in evaluated]
+            present = cid in ids
+            held = False
+            if present and ids.index(cid) > 0:
+                top = evaluated[0]
+                kept = evaluated[ids.index(cid)]
+                if top["kind"] != "emergency" and top["score"] < kept["score"] + inertia:
+                    held = True
+                    evaluated.remove(kept)
+                    evaluated.insert(0, kept)
+                    out["winner"] = kept
+                    out["winning_reason"] = (
+                        f"{kept['id']} (score {kept['score']}) held over {top['id']} (score {top['score']})"
+                        f" by commitment inertia {inertia} because {kept['reason']}"
+                    )
+            out["commitment"] = {"held": held, "inertia": inertia, "motive": cid, "present": present}
+        return out
 
     def workflow(self, req: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(req, dict):

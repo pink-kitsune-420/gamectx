@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject an audit that reports the same being twice.",
+  "error": true
+}

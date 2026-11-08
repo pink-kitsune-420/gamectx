@@ -776,6 +776,10 @@ Unobserved background activities are coarsely resolved via [off-screen life reso
 (`character::offscreen::OffscreenResolver` or local kind `offscreen`), applying Action Catalog expected effects, timeline entries, and Life experiences within bounded work per tick.
 Novel perceptions and exploration drivers are evaluated via the [curiosity and exploration model](characters/LIFE.md#curiosity-and-exploration-model-gap-11)
 (`character::curiosity::CuriosityManager` or local kind `curiosity`), computing temperament-scaled novelty signals across unencountered people, things, places, and facts, and generating validated host initiative candidates.
+Any decision can be explained with the [explain trace](characters/LIFE.md#explain-trace-pass-2-d4)
+(`character::explain::ExplainTracer` or local kind `explain`), which links perceptions, beliefs, the winning motive, the task step and the confirmed outcome into a `chain` and a one-sentence `why`.
+Whole-world turns can be audited with the [stability monitors](characters/LIFE.md#stability-monitors-pass-2-d1)
+(`character::stability::StabilityMonitor` or local kind `stability`), which report dithering, starvation spirals, deadlocks, herding and grudge/rumor runaways.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

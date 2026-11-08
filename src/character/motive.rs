@@ -44,6 +44,8 @@ use crate::{obj, Result};
 
 pub const MAX_MOTIVES: usize = 64;
 pub const MAX_OPS: usize = 64;
+pub const DEFAULT_INERTIA: u64 = 10;
+pub const MAX_INERTIA: u64 = 50;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum MotiveKind {
@@ -263,7 +265,21 @@ impl MotiveArbiter {
     }
 
     pub fn op_arbitrate(&self, args: &Value) -> Result<Value> {
-        keys(args, &[], &["body", "routine", "goals", "promises", "emergencies", "brains", "motives"])?;
+        keys(args, &[], &["body", "routine", "goals", "promises", "emergencies", "brains", "motives", "commitment"])?;
+        let commitment = match args.get("commitment").filter(|x| **x != Value::Null) {
+            Some(cm) => {
+                keys(cm, &["motive"], &["inertia"])?;
+                let motive = ident_bound(c::get(cm, "motive")?)?.to_string();
+                let inertia = cm
+                    .get("inertia")
+                    .filter(|x| **x != Value::Null)
+                    .map(|v| uint_bound(v, 0, MAX_INERTIA))
+                    .transpose()?
+                    .unwrap_or(DEFAULT_INERTIA);
+                Some((motive, inertia))
+            }
+            None => None,
+        };
 
         let mut candidates: Vec<Value> = Vec::new();
 
@@ -441,12 +457,34 @@ impl MotiveArbiter {
             b.score.cmp(&a.score).then(b.kind.precedence().cmp(&a.kind.precedence())).then(a.id.cmp(&b.id))
         });
 
+        // Commitment inertia (pass 2, D1): keep the committed motive unless a challenger beats
+        // it by at least `inertia` points. Emergencies always override.
+        let mut held_over: Option<(String, u64)> = None;
+        let mut present = false;
+        if let Some((cid, inertia)) = &commitment {
+            if let Some(pos) = evaluated.iter().position(|m| &m.id == cid) {
+                present = true;
+                let top = &evaluated[0];
+                if pos > 0 && top.kind != MotiveKind::Emergency && top.score < evaluated[pos].score + inertia {
+                    held_over = Some((top.id.clone(), top.score));
+                    let kept = evaluated.remove(pos);
+                    evaluated.insert(0, kept);
+                }
+            }
+        }
+
         let winner_val = match evaluated.first() {
             Some(w) => w.to_value(),
             None => Value::Null,
         };
 
-        let winning_reason = if evaluated.is_empty() {
+        let winning_reason = if let (Some((challenger, ch_score)), Some((_, inertia))) = (&held_over, &commitment) {
+            let w = &evaluated[0];
+            format!(
+                "{} (score {}) held over {} (score {}) by commitment inertia {} because {}",
+                w.id, w.score, challenger, ch_score, inertia, w.reason
+            )
+        } else if evaluated.is_empty() {
             "".to_string()
         } else if evaluated.len() == 1 {
             let w = &evaluated[0];
@@ -462,12 +500,24 @@ impl MotiveArbiter {
 
         let ranked_arr: Vec<Value> = evaluated.into_iter().map(|m| m.to_value()).collect();
 
-        Ok(obj! {
+        let mut out = obj! {
             "winner" => winner_val,
             "winning_reason" => winning_reason,
             "ranked" => Value::Array(ranked_arr),
             "count" => candidates.len(),
-        })
+        };
+        if let (Some((cid, inertia)), Value::Object(fields)) = (&commitment, &mut out) {
+            fields.push((
+                "commitment".to_string(),
+                obj! {
+                    "held" => held_over.is_some(),
+                    "inertia" => *inertia,
+                    "motive" => cid.as_str(),
+                    "present" => present,
+                },
+            ));
+        }
+        Ok(out)
     }
 
     pub fn workflow(&self, req: &Value) -> Result<Value> {

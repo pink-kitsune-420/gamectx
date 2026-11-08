@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Record a trace with only being, action and motive; query renders a pending chain.",
+  "error": false
+}
