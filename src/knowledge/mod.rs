@@ -11,6 +11,7 @@ pub mod observation;
 pub mod places;
 pub mod props;
 pub mod recall;
+pub mod recipes;
 pub mod selection;
 pub mod temporal;
 pub mod things;

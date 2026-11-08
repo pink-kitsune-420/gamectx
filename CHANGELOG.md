@@ -2,6 +2,19 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Recipes (`knowledge::recipes`, local kind `recipes`): crafting, cooking, building,
+  repairing, and dismantling.
+  - Recipes declare inputs (concrete kind or broad material tag with quantity), tool
+    functions with minimum power, optional workstations in place, optional character bio
+    skills, outputs, and time.
+  - Building recipes mutate the world codex: placing structures, adding spots, creating
+    travel links, opening entrances, or updating place kinds and tags.
+  - Checks feasibility first with structured diagnostics (`missing_skill`, `missing_tool`,
+    `missing_station`, `missing_input`, `missing_target`, `target_not_found`,
+    `target_not_accessible`, `target_already_repaired`), then executes atomically
+    (reverting on failure). Emits timeline-ready entries for all completions.
+  - 25 cases (9 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows.
 - Things (`knowledge::things`, local kind `things`): materials, thing kinds and instances.
   - Materials define elemental matter with weights and values. Kinds define categories
     (tool, weapon, furniture, container, food, material, clothing, vehicle, structure,

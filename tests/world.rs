@@ -109,3 +109,68 @@ fn things_guide_output_is_real() -> gamectx::Result<()> {
     assert_eq!(Things::from_value(&world_things.to_value())?, world_things);
     Ok(())
 }
+
+#[test]
+fn recipes_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::recipes::Recipes;
+    let mut recipes = Recipes::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "execute", "args": {
+          "recipe": "forge_pickaxe",
+          "actor": "smith",
+          "place": "forge",
+          "new_ids": ["pickaxe_1"]
+        }}
+      ],
+      "recipes": [
+        {
+          "id": "forge_pickaxe",
+          "label": "Forge Pickaxe",
+          "category": "crafting",
+          "inputs": [
+            {"kind": "iron_ingot", "quantity": 2},
+            {"tag": "timber", "quantity": 1}
+          ],
+          "tools": [
+            {"function": "hammer", "power": 3}
+          ],
+          "station": "anvil",
+          "outputs": [
+            {"kind": "pickaxe", "quantity": 1, "condition": 100}
+          ],
+          "time": 25
+        }
+      ],
+      "things": {
+        "version": 1,
+        "materials": [
+          {"id": "iron", "label": "Iron"},
+          {"id": "wood", "label": "Timber"}
+        ],
+        "kinds": [
+          {"id": "iron_ingot", "label": "Iron Ingot", "category": "material", "materials": [], "functions": [], "weight": 5, "base_value": 10, "durability": 100, "stackable": true},
+          {"id": "wood_handle", "label": "Wood Handle", "category": "material", "materials": [], "functions": [], "weight": 2, "base_value": 2, "durability": 80, "stackable": true, "tags": ["timber"]},
+          {"id": "smith_hammer", "label": "Smith Hammer", "category": "tool", "materials": [], "functions": [{"function": "hammer", "power": 5}], "weight": 5, "base_value": 15, "durability": 200, "stackable": false},
+          {"id": "iron_anvil", "label": "Iron Anvil", "category": "furniture", "materials": [], "functions": [{"function": "anvil", "power": 10}], "weight": 150, "base_value": 80, "durability": 1000, "stackable": false},
+          {"id": "pickaxe", "label": "Iron Pickaxe", "category": "tool", "materials": [], "functions": [{"function": "dig", "power": 4}], "weight": 8, "base_value": 25, "durability": 120, "stackable": false}
+        ],
+        "things": [
+          {"id": "hammer_1", "kind": "smith_hammer", "location": {"holder": "smith"}, "condition": 100, "owner": "smith", "quantity": 1, "passengers": []},
+          {"id": "anvil_1", "kind": "iron_anvil", "location": {"place": "forge"}, "condition": 100, "owner": "smith", "quantity": 1, "passengers": []},
+          {"id": "ingots_1", "kind": "iron_ingot", "location": {"place": "forge"}, "condition": 100, "owner": "smith", "quantity": 4, "passengers": []},
+          {"id": "handles_1", "kind": "wood_handle", "location": {"holder": "smith"}, "condition": 100, "owner": "smith", "quantity": 2, "passengers": []}
+        ]
+      }
+    }"#,
+        4096,
+    )?;
+    let out = recipes.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That recipe execution returns a timeline-ready entry"), 65536)?.to_json()
+    );
+    Ok(())
+}

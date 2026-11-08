@@ -2351,6 +2351,27 @@ Ops:
 - `best_tool {holder, function}` → `{thing, kind, power}`.
 - `whats_here {place}` → `{place, total, things}`.
 
+## World recipes v1
+
+`gamectx::knowledge::recipes` (guide: [World model](guides/WORLD.md#recipes)). The `recipes`
+JSON-lines `local` kind runs `{recipes? ≤256, things?, codex?, bio?, ops ≤64 [{op, args, at?}]}` and returns
+`{results, recipes, things, codex}`; each result is `{ok:true, result}` or `{ok:false, missing?}`, and a failed op
+reverts state atomically. 25 additive cases live in `conformance/recipes/`.
+
+**Recipe** `{id, label ≤48, category, inputs ≤16, tools ≤8, station?, skill?, outputs ≤16, time 1–10⁹, building?}`:
+- `category`: crafting, cooking, building, repairing, dismantling.
+- `inputs`: `[{kind? id, tag? id, quantity 1–10⁹}]` (exclusive kind or tag).
+- `tools`: `[{function, power 1–10⁹}]` (unique functions per recipe).
+- `station`: optional function required on a furniture/structure in place.
+- `skill`: optional `{id, level 0–100}` checked against actor bio skills.
+- `outputs`: `[{kind, quantity 1–10⁹, condition? 0–100}]`.
+- `time`: uint 1–10⁹.
+- `building`: only on `building` recipes: `{structure_kind?, add_spots? ≤8 [{id, label ≤48, description ≤240}], open_entrance? id, add_link? ≤4 [{place, distance, direction?}], patch_place? {kind?, add_tags? ≤8 ids}}`.
+
+Ops:
+- `check {recipe, actor, place, target_thing?}` → `{feasible: bool, missing: [{reason, details}], time}`.
+- `execute {recipe, actor, place, target_thing?, new_ids?}` → `{ok: true, recipe, created: [things], entry: timeline_entry}` or `{ok: false, missing: [{reason, details}]}`.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

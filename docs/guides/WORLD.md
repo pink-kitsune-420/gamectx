@@ -235,3 +235,88 @@ expectations written before running. Rust matches the Python reference
 (`eval/knowledge/things_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
 
+## Recipes
+
+`gamectx::knowledge::recipes` models crafting, cooking, building, repairing, and dismantling.
+Recipes specify inputs (by specific kinds or broad material tags), required tool functions with minimum power, optional workstations in the current place, optional character bio skills, outputs, and time.
+Building recipes can also mutate the world codex: placing structures, adding spots, creating travel links, opening entrances, or updating place kinds and tags.
+
+Recipes check feasibility first—returning exact missing reasons if tools, skills, stations, inputs, or targets are lacking—and execute atomically (reverting state on failure).
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::knowledge::recipes::Recipes;
+
+let mut recipes = Recipes::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "execute", "args": {
+      "recipe": "forge_pickaxe",
+      "actor": "smith",
+      "place": "forge",
+      "new_ids": ["pickaxe_1"]
+    }}
+  ],
+  "recipes": [
+    {
+      "id": "forge_pickaxe",
+      "label": "Forge Pickaxe",
+      "category": "crafting",
+      "inputs": [
+        {"kind": "iron_ingot", "quantity": 2},
+        {"tag": "timber", "quantity": 1}
+      ],
+      "tools": [
+        {"function": "hammer", "power": 3}
+      ],
+      "station": "anvil",
+      "outputs": [
+        {"kind": "pickaxe", "quantity": 1, "condition": 100}
+      ],
+      "time": 25
+    }
+  ],
+  "things": {
+    "version": 1,
+    "materials": [
+      {"id": "iron", "label": "Iron"},
+      {"id": "wood", "label": "Timber"}
+    ],
+    "kinds": [
+      {"id": "iron_ingot", "label": "Iron Ingot", "category": "material", "materials": [], "functions": [], "weight": 5, "base_value": 10, "durability": 100, "stackable": true},
+      {"id": "wood_handle", "label": "Wood Handle", "category": "material", "materials": [], "functions": [], "weight": 2, "base_value": 2, "durability": 80, "stackable": true, "tags": ["timber"]},
+      {"id": "smith_hammer", "label": "Smith Hammer", "category": "tool", "materials": [], "functions": [{"function": "hammer", "power": 5}], "weight": 5, "base_value": 15, "durability": 200, "stackable": false},
+      {"id": "iron_anvil", "label": "Iron Anvil", "category": "furniture", "materials": [], "functions": [{"function": "anvil", "power": 10}], "weight": 150, "base_value": 80, "durability": 1000, "stackable": false},
+      {"id": "pickaxe", "label": "Iron Pickaxe", "category": "tool", "materials": [], "functions": [{"function": "dig", "power": 4}], "weight": 8, "base_value": 25, "durability": 120, "stackable": false}
+    ],
+    "things": [
+      {"id": "hammer_1", "kind": "smith_hammer", "location": {"holder": "smith"}, "condition": 100, "owner": "smith", "quantity": 1, "passengers": []},
+      {"id": "anvil_1", "kind": "iron_anvil", "location": {"place": "forge"}, "condition": 100, "owner": "smith", "quantity": 1, "passengers": []},
+      {"id": "ingots_1", "kind": "iron_ingot", "location": {"place": "forge"}, "condition": 100, "owner": "smith", "quantity": 4, "passengers": []},
+      {"id": "handles_1", "kind": "wood_handle", "location": {"holder": "smith"}, "condition": 100, "owner": "smith", "quantity": 2, "passengers": []}
+    ]
+  }
+}"#, 4096)?;
+
+let out = recipes.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That recipe execution returns a timeline-ready entry (real output):
+
+```json
+{"ok":true,"result":{"ok":true,"recipe":"forge_pickaxe","created":[{"id":"pickaxe_1","kind":"pickaxe","location":{"holder":"smith"},"condition":100,"owner":"smith","quantity":1,"passengers":[]}],"entry":{"at":0,"kind":"crafting_recipe","summary":"smith completed Forge Pickaxe (crafting).","actors":["smith"],"place":"forge","things":["pickaxe_1"],"tags":["recipes","crafting"],"visibility":"public","witnesses":[],"phrases":["Forge Pickaxe","forge_pickaxe"],"facts":{"recipe":"forge_pickaxe","time":25}}}}
+```
+
+- **Categories:** `crafting` (produces items in actor holder), `cooking` (produces food in actor holder), `building` (places structures, updates places and entrances in the codex), `repairing` (restores target thing condition to 100), and `dismantling` (reclaims materials or components from target thing).
+- **Inputs & Tags:** inputs specify required quantities of either a concrete `kind` or an authored `tag` (e.g. `timber`, `ore`, `dough`), allowing recipes to accept flexible materials.
+- **Feasibility Checking:** `check` returns structured missing diagnostics (`missing_skill`, `missing_tool`, `missing_station`, `missing_input`, `missing_target`, `target_not_found`, `target_not_accessible`, `target_already_repaired`).
+- **World Mutability:** building recipes seamlessly integrate with the codex, adding spots, modifying links, opening entrances, and tagging places upon completion.
+
+**Evidence:** 25 cases (`conformance/recipes/`, 9 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/knowledge/recipes_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+

@@ -64,9 +64,9 @@ noted; "3 models" adds Llama 3.3 70B.
     nesting, links with distances and directions, and `Codex::nearby`; 30 cases.
   - Done: things (`knowledge::things`, guide `docs/guides/WORLD.md`): materials, kinds,
     instances, salvage, containers, carriers, best_tool, whats_here; 42 cases.
+  - Done: recipes (`knowledge::recipes`, guide `docs/guides/WORLD.md`): crafting, cooking,
+    building (changing the world), repairing and dismantling, tools, stations, skills; 25 cases.
   - Next, the world model (in this order):
-    - recipes: crafting, cooking, building (changing the world), repairing and
-      dismantling, using tools, stations and skills;
     - species: animals, plants and hybrids, temperaments, animal interactions;
     - communities: relations, markets and bartering;
     - fitness in `bio`, feeding carry capacity and travel.

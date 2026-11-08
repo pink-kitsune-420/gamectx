@@ -59,7 +59,8 @@ timed events and quests. [`kit::save`](docs/characters/ROLEPLAY_ENGINE.md#saving
 packs the authored side into one game data file and runtime memory into one save file
 with any number of named, forkable states. The [world model](docs/guides/WORLD.md) adds
 a timeline (the game's own record of what happened and who knows it), places (kinds,
-nesting, and a nearby-places query) and things (materials, tools, containers, and carriers).
+nesting, and a nearby-places query), things (materials, tools, containers, and carriers),
+and recipes (crafting, cooking, building, repairing, and dismantling).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the
