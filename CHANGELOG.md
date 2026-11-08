@@ -2,6 +2,10 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- World model dialogue & shadow gap closure (`character::roleplay`, local kind `roleplay-engine`) [format]:
+  - Integrates world model topics directly into conversational routing: `timeline` (recent public or actor-known events), `places` (nearby connected places and route directions via visible entrances), `things` (scene items and matter/materials queries), `recipes` (crafting feasibility, requirements and inputs), `communities` (market trade availability and local currency), and `species` (animal temperament non-verbal replies).
+  - Closes measured shadow gaps with Lantern Vault: `reactions` (loans, gifts, support, repayment, and debt queries), `viewpoints` (character stances on dreams/hobbies), `stock` wares query fallback in services, `persona` role fallback, and direction travel decisions (`go` for room entry, `approach` for character interaction).
+  - Format change `[format]`: adds 8 features to engine `config.features` (`timeline`, `places`, `things`, `recipes`, `communities`, `species`, `reactions`, `viewpoints`) and 10 template vars to `VARS` (`news`, `nearby`, `things`, `recipe`, `inputs`, `community`, `currency`, `resource`, `temperament`, `entrance`). Conformance tests expanded to 226 workflows (18 new Stage E1 cases) and reblessed. 2,000 differential parity fuzzing workflows (seed 42, 0 mismatches).
 - Fitness (`character::fitness`, local kind `fitness`): physical attributes and exertion.
   - Adds `fitness` (strength, endurance, agility, condition 0–100) to character `bio`, feeding
     maximum carry capacity, travel pacing across place links, and exertion fatigue.

@@ -94,6 +94,11 @@ pub(crate) fn compile(t: &Compile) -> Value {
             put(&mut brief, "bio", b);
         }
     }
+    if on(Feature::Species) {
+        if let Some(sp) = non_empty(sheet.to_value().get("species")) {
+            put(&mut brief, "species", sp.clone());
+        }
+    }
     let relationships = sheet.all("relationships");
     if on(Feature::Relationships) && !relationships.is_empty() {
         let list = relationships.iter().map(|r| obj! {"name"=>r.get("name").cloned(),"kind"=>r.get("kind").cloned()});

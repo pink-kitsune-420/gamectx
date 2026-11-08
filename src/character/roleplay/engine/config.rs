@@ -63,9 +63,25 @@ pub enum Feature {
     Goals,
     /// Sheet `bio`: age, birthday, profession, skills, knowledge, health and family.
     Bio,
+    /// World timeline: news and history queries from known timeline entries.
+    Timeline,
+    /// World places: nearby places and route directions.
+    Places,
+    /// World things: present items and matter/materials.
+    Things,
+    /// World recipes: crafting, cooking, building, repairing feasibility.
+    Recipes,
+    /// World communities: trade and market bartering.
+    Communities,
+    /// Species and animal behaviour non-verbal replies.
+    Species,
+    /// Reaction policy: gift, loan, help, repay, debt query.
+    Reactions,
+    /// Viewpoints: saved stances between actor and listener.
+    Viewpoints,
 }
 impl Feature {
-    pub const ALL: [Feature; 26] = [
+    pub const ALL: [Feature; 34] = [
         Feature::Chunks,
         Feature::OutOfCharacter,
         Feature::Addressing,
@@ -92,6 +108,14 @@ impl Feature {
         Feature::Quests,
         Feature::Goals,
         Feature::Bio,
+        Feature::Timeline,
+        Feature::Places,
+        Feature::Things,
+        Feature::Recipes,
+        Feature::Communities,
+        Feature::Species,
+        Feature::Reactions,
+        Feature::Viewpoints,
     ];
     pub fn as_str(self) -> &'static str {
         match self {
@@ -121,6 +145,14 @@ impl Feature {
             Feature::Quests => "quests",
             Feature::Goals => "goals",
             Feature::Bio => "bio",
+            Feature::Timeline => "timeline",
+            Feature::Places => "places",
+            Feature::Things => "things",
+            Feature::Recipes => "recipes",
+            Feature::Communities => "communities",
+            Feature::Species => "species",
+            Feature::Reactions => "reactions",
+            Feature::Viewpoints => "viewpoints",
         }
     }
     /// Numeric settings: (name, low, high, default).

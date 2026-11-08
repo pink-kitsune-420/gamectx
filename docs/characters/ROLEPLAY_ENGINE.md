@@ -25,21 +25,28 @@ Turning a stage off never changes what an earlier stage does.
 | 2 | `out_of_character` | `OOC: …`, `out of character: …`, `((…))` | `out_of_character` / `note` |
 | 2a | `addressing` | Turns [not meant for this character](#addressing): out of earshot, too far to follow, spoken to someone else, or left unfinished | `addressing` / `silent`, `gesture`, `action` or `pause` |
 | 3 | `content` | Your content settings: a topic on the `avoid` list is redirected, never answered | `content` / `reply` or `clarify` |
+| 3a | `species` | Animal non-verbal responses based on temperament (`calm`, `wary`, `friendly`) | `species` / `reply` |
 | 4 | `stage_actions` | `*registered stage action*` from your [`RoleplayActions`](../studio/STUDIO_CONVERSATION_EXTENSIONS.md) registry | `stage_action` / `action` or `clarify` |
 | 5 | `props` | A present prop's interaction phrase, starred or plain (`*rings the bell*`, `ring the bell`) | `props` / `action` or `clarify` |
 | 6 | `entrances` | "Go / walk / leave through the door" for a visible entrance | `entrances` / `action` or `clarify` |
 | 7 | `services` | A service request phrase ("sell me bread") whose `when` holds | `services` / `action` or `clarify` |
-| 8 | `directions` | `*approaches X*`, `*enters Y*` against host-listed `targets` (and, with `scenery`, the place's spots) | `direction` / `direction` or `clarify` |
+| 8 | `directions` | `*approaches X*`, `*enters Y*` against host-listed `targets` (and attaches travel decisions when matching listed choices) | `direction` / `direction` or `clarify` |
+| 8a | `reactions` | Loans, gifts, support, loan repayment and debt queries ("what do I owe?") | `reactions` / `reply` |
 | 9 | `perception`, `entrances`, `scenery`, `persona` | Where are we / what do you see / hear / your name; how do I get out; smell, light, temperature; what do you do, tell me about yourself | `perception`, `entrances`, `scenery`, `persona` / `reply` |
 | 9a | `bio` | How old are you, when is your birthday, what is your trade, what are you good at / are you good at X, what do you know about X, are you hurt, do you have family | `bio` / `reply` |
+| 9b | `places` | "What is nearby?", "How do I get to X?" (navigates via connected visible entrances) | `places` / `reply` |
+| 9c | `things` | "What is here?", "What is X made of?" (describes present scene items and materials) | `things` / `reply` |
 | 10 | `props`, `entrances`, `scenery` | Look at / describe / what is a present prop, a visible entrance, or a spot | `props`, `entrances`, `scenery` / `reply` |
 | 11 | `commands` | The bounded English command grammar over this turn's legal `choices` | `command` / `action` or `clarify` |
 | 12 | `disclosures` | A single-sentence "My name is …", "Call me …, not …", "I like …" (remembered per listener, `max_preferences` 1–16, default 3) | `disclosure` / `reply` |
 | 13 | `recall` | "What is my name?", "What do I like?" | `recall` / `reply` |
 | 14 | `secrets` | A secret's phrases: the secret when its `when` holds, else its cover story or a refusal | `secrets` / `reply` |
 | 15 | `opinions` | An opinion's phrases ("taxes") | `opinions` / `reply` |
+| 15a | `viewpoints` | Stances on specific topics ("Tell me your dreams / hobbies") | `viewpoints` / `reply` |
 | 16 | `relationships`, `factions`, `events`, `quests` | "Who is / tell me about / what about X" for a known person, faction, event, or a quest this character gives | same as the feature / `reply` |
-| 17 | `services`, `goals`, `events` | "What do you offer?", "What do you want?", "Any news?" | same as the feature / `reply` |
+| 16a | `recipes` | "Can you make X?" (reports crafting feasibility, requirements and inputs) | `recipes` / `reply` |
+| 16b | `communities` | "Will you trade?" (reports market trading availability and local currency) | `communities` / `reply` |
+| 17 | `services`, `goals`, `timeline`, `events` | "What do you offer / sell?", "What do you want?", "What is the news?", "Any events?" | same as the feature / `reply` |
 | 18 | `greetings` | Greetings planned from confirmed encounters (`long_gap_turns`, default 12) | `greeting` / `reply` |
 | 19 | `social` | Greetings (when `greetings` is off), thanks, farewells, wellbeing (with `goals`: pressing needs), "why?" | `social` / `reply` |
 | 20 | `model` | Everything else, with a ready-to-send [model request](#model-requests-and-replies) | `model` / `model` |

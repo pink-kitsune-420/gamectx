@@ -64,6 +64,10 @@ impl CharacterSheet {
                 "tags",
                 "attributes",
                 "bio",
+                "reactions",
+                "viewpoints",
+                "species",
+                "recipes",
             ],
         )?;
         c::uint(c::get(v, "version")?, 1, 1)?;
@@ -256,6 +260,9 @@ impl CharacterSheet {
     /// skills, knowledge and family.
     pub fn bio(&self) -> Option<&Value> {
         self.value.get("bio").filter(|x| **x != Value::Null)
+    }
+    pub fn species(&self) -> Option<&Value> {
+        self.value.get("species").filter(|x| **x != Value::Null)
     }
     pub fn attributes(&self) -> Option<&Value> {
         self.value.get("attributes")

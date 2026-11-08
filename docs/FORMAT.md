@@ -2117,9 +2117,9 @@ requires zero played/heard offsets and issues a fresh ticket; state adds `playba
 
 `roleplay-engine` (JSON-lines `local` kind) runs `{config, state, ops}`, where `state` is
 `null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered" | "reply",
-args}` entries. It returns `{config, results, state}`. 208 additive cases live in
+args}` entries. It returns `{config, results, state}`. 226 additive cases live in
 `conformance/roleplay-engine/` (62 from stage 2.1, 42 from 2.1b, 26 from 2.2, 47 for
-embodiment, matter and addressing, 31 for `bio`). See the
+embodiment, matter and addressing, 31 for `bio`, 18 for world model dialogue and reactions). See the
 [roleplay engine guide](characters/ROLEPLAY_ENGINE.md) for behavior.
 
 **Config** `{version:1, character:{id,name≤32}, features?, variety?:{recent 0–8 = 2},
@@ -2133,7 +2133,8 @@ model_rules?: 1–8 templates|null}`.
   max_sentences 1–4 = 3, max_chars 40–240 = 240, brief_chars 512–16384 = 4096}`,
   `content{rating: all|teen|mature = teen, avoid: ≤32 [{id, phrases 1–16}]}`, `entrances`,
   `scenery`, `persona`, `services`, `secrets`, `opinions`, `relationships`, `factions`,
-  `events{soon_turns 1–1000000 = 10}`, `quests`, `goals` and `bio`. Each also takes `enabled`
+  `events{soon_turns 1–1000000 = 10}`, `quests`, `goals`, `bio`, `timeline`, `places`,
+  `things`, `recipes`, `communities`, `species`, `reactions` and `viewpoints`. Each also takes `enabled`
   (default `true`).
 - The output `config` echoes `sheet` and `codex` (empty `{"version":1}` when absent)
   and `model_rules` (`null` means the pack's). A pack holds `model_rules` (1–8

@@ -46,15 +46,17 @@ import expression_cases, greeting_memory_cases, message_chunks_cases, overnight_
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[], model_rules=[])}
 FEATURES = ['chunks', 'out_of_character', 'addressing', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
-            'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals', 'bio']
+            'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals', 'bio',
+            'timeline', 'places', 'things', 'recipes', 'communities', 'species', 'reactions', 'viewpoints']
 PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), addressing=dict(action_turns=(0, 100, 3), conversational_distance=(1, 100, 5), max_distance=(1, 1000, 20)),
               disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)),
               model=dict(max_tokens=(16, 1024, 160), max_sentences=(1, 4, 3), max_chars=(40, 240, 240), brief_chars=(512, 16384, 4096)))
 VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
-           'exits status destination through heard smell light temperature floor has_floor ceiling has_ceiling exterior role summary services label text need has_need person kind faction stance event events timing quest stage sentences facing spot '
+           'exits status destination entrance through heard smell light temperature floor has_floor ceiling has_ceiling exterior role summary services label text need has_need person kind faction stance event events timing quest stage sentences facing spot '
            'material color texture clothing eyes hair skin posture activity awareness expression scent '
            'held has_held has_posture gaze has_gaze has_clothing has_activity has_material has_color has_texture has_matter state '
-           'age has_age birthday has_birthday birth_month birth_day is_birthday profession has_profession health has_health conditions has_conditions skills has_skills skill skill_level knowledge knowledge_topic knowledge_level family has_family relation member family_status species'.split())
+           'age has_age birthday has_birthday birth_month birth_day is_birthday profession has_profession health has_health conditions has_conditions skills has_skills skill skill_level knowledge knowledge_topic knowledge_level family has_family relation member family_status species '
+           'news nearby things recipe inputs community currency resource temperament'.split())
 MATCHERS = ['exact', 'contains', 'prefix', 'unless']
 U32 = 4294967295
 
@@ -484,7 +486,8 @@ class Engine:
                                                                'audience', 'distance', 'facing', 'spot', 'coords', 'speaker_facing', 'speaker_spot', 'speaker_coords',
                                                                'line_of_sight', 'blocked_by', 'behind', 'dimensions',
                                                                'features', 'clothing', 'sensory', 'habits', 'tags', 'attributes',
-                                                               'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent', 'health', 'date'])
+                                                               'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent', 'health', 'date',
+                                                               'timeline', 'things', 'recipes', 'communities', 'species', 'reactions', 'viewpoints', 'loan'])
         if t.get('health') is not None: defs.health(t['health'])
         if t.get('date') is not None: defs.day(t['date'])
         who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
@@ -536,7 +539,7 @@ class Engine:
                 assert len(t['held']) <= 8
                 for x in t['held']: text(x, 64)
             else: assert False
-        sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props', 'floor', 'ceiling', 'exterior'])
+        sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props', 'floor', 'ceiling', 'exterior', 'things'])
         ident(sc['id']); text(sc['label'], 48); uint(sc['visit'])
         assert sc['place'] in ['workplace', 'social', 'private', 'other', 'hazard'] and sc['atmosphere'] in ['calm', 'busy', 'tense', 'emergency']
         for k in ['sight', 'sound', 'floor', 'ceiling']:
@@ -754,6 +757,12 @@ class Engine:
         if self.on('content'):
             hit = next((a for a in cfg['features']['content']['avoid'] if contains(a['phrases'])), None)
             if hit is not None: return reply('content', 'content_redirect', base, dict(topic=hit['id'])) or clarify('content', 'content_redirect', dict(topic=hit['id']))
+        if self.on('species'):
+            sp = t.get('species') or sh.get('species') or {}
+            if sp.get('kind') == 'animal' or sp.get('temperament'):
+                temp = sp.get('temperament', 'calm')
+                v = dict(base, temperament=temp)
+                if out := reply('species', 'animal_behavior', v): return out
         key = norm(stripped[1:-1]) if starred else q
         if self.on('stage_actions') and starred and len(stripped.encode()) <= 1024:
             if t.get('line_of_sight') is False:
@@ -793,9 +802,41 @@ class Engine:
                 hits = [g['id'] for g in targets if g['kind'] == kind and rest and self.bare(rest) in [self.bare(norm(n)) for n in g['names']]]
                 spots = [x['id'] for x in (place or {}).get('spots', []) if verb == 'approach' and self.on('scenery') and rest and self.bare(rest) in [self.bare(norm(n)) for n in [x['label']] + x.get('aliases', [])]]
                 if len(hits) + len(spots) == 1:
-                    return dict(route='direction', kind='direction', verb=verb, target=(hits + spots)[0], **(dict(spot=True) if spots else {}))
+                    target_id = (hits + spots)[0]
+                    d = None
+                    if verb == 'enter':
+                        d = next((c for c in choices if c.get('action') == 'go' and c.get('target') in [f"room:{target_id}", target_id]), None)
+                    elif verb == 'approach':
+                        d = next((c for c in choices if c.get('action') == 'approach' and c.get('target') in [f"npc:{target_id}", target_id]), None)
+                    return normed(dict(route='direction', kind='direction', verb=verb, target=target_id, **(dict(decision=d) if d else {}), **(dict(spot=True) if spots else {})))
                 break
             return clarify('direction', 'direction_unsupported')
+        if self.on('reactions') and not long:
+            if match(self.phrases.get('reaction_debt'), q)[0]:
+                loan = (l or {}).get('loan') or t.get('loan') or (sh.get('state') or {}).get('loan')
+                v = dict(base)
+                if loan: v['resource'] = loan if isinstance(loan, str) else '1 coin'
+                if out := reply('reactions', 'reaction_debt', v): return out
+            if match(self.phrases.get('reaction_repay'), q)[0]:
+                loan = (l or {}).get('loan') or t.get('loan') or (sh.get('state') or {}).get('loan')
+                v = dict(base)
+                if loan:
+                    v['resource'] = loan if isinstance(loan, str) else '1 coin'
+                    if l: l['loan'] = None
+                if out := reply('reactions', 'reaction_repay', v): return out
+            is_loan = match(self.phrases.get('reaction_loan'), q)[0]
+            is_gift = match(self.phrases.get('reaction_gift'), q)[0]
+            is_help = match(self.phrases.get('reaction_help'), q)[0]
+            if is_loan or is_gift or is_help:
+                hostile = any(w in line.lower() for w in ["kill", "hurt", "stab", "or else", "attack you"])
+                if hostile:
+                    if out := reply('reactions', 'reaction_hostile', base): return out
+                elif trust >= 0:
+                    res = '1 coin' if ('coin' in q or 'money' in q) else 'support' if is_help else 'item'
+                    intent = 'reaction_loan' if is_loan else 'reaction_gift' if is_gift else 'reaction_help'
+                    if out := reply('reactions', intent, dict(base, resource=res)): return out
+                else:
+                    if out := reply('reactions', 'reaction_refuse', base): return out
         def ambience(pl, k):
             return next((a[k] for a in (pl or {}).get('ambience', []) if k in a and when_ok(a.get('when', {}), base)), None)
         asks = ([('perception', i) for i in ['ask_location', 'ask_sight', 'ask_hearing', 'ask_name']] if self.on('perception') else []) + \
@@ -829,6 +870,33 @@ class Engine:
                     if k in sh.get('persona', {}): v[k] = sh['persona'][k]
             for route_name, intent in asks:
                 if match(self.phrases.get(intent), q)[0] and (out := reply(route_name, intent, v)): return out
+        if not long and self.on('places'):
+            if match(self.phrases.get('ask_nearby'), q)[0]:
+                import places_reference
+                try:
+                    res_nb = places_reference.nearby(cdx, {'from': sc['id']})
+                    nb_labels = [p['label'] for p in res_nb.get('routes', []) + res_nb.get('around', []) if p.get('place') != sc['id']]
+                except Exception: nb_labels = []
+                v = dict(base)
+                if nb_labels and (j := self.joined(nb_labels)): v['nearby'] = j
+                if out := reply('places', 'ask_nearby', v): return out
+            ok, rest = match(self.phrases.get('ask_route'), q)
+            if ok and rest:
+                want = self.bare(rest)
+                target_p = next((p for p in cdx.get('places', []) if want in [self.bare(norm(n)) for n in [p['label']] + p.get('aliases', [])]), None)
+                if target_p:
+                    dest_label = target_p['label']
+                    ent = next((e['d']['label'] for e in visible if e.get('dest') == dest_label), None)
+                    v = dict(base, destination=dest_label)
+                    if ent: v['entrance'] = ent
+                    if out := reply('places', 'ask_route', v): return out
+        if not long and self.on('things'):
+            if match(self.phrases.get('ask_things'), q)[0]:
+                th = sc.get('things') or t.get('things') or []
+                labels = [x['label'] if isinstance(x, dict) else str(x) for x in th]
+                v = dict(base)
+                if labels and (j := self.joined(labels)): v['things'] = j
+                if out := reply('things', 'ask_things', v): return out
         if self.on('bio') and not long and sh.get('bio') is not None:
             for intent in ['ask_age', 'ask_birthday', 'ask_profession', 'ask_skills', 'ask_health', 'ask_family']:
                 if match(self.phrases.get(intent), q)[0] and (out := reply('bio', intent, base)): return out
@@ -893,6 +961,14 @@ class Engine:
                     v['has_texture'] = tex is not None
                     v['has_matter'] = mat is not None or col is not None or tex is not None
                     if out := reply('props', 'ask_matter', v, dict(prop=p['prop']['id'])): return out
+                if self.on('things'):
+                    th_list = sc.get('things') or t.get('things') or []
+                    th_hits = [x for x in th_list if isinstance(x, dict) and self.bare(rest) in [self.bare(norm(n)) for n in [x.get('label', '')] + x.get('aliases', [])]]
+                    if len(th_hits) == 1:
+                        x = th_hits[0]; v = dict(base, prop=x.get('label', ''))
+                        mat = x.get('material')
+                        if mat: v['material'] = mat; v['has_material'] = True; v['has_matter'] = True
+                        if out := reply('things', 'ask_matter', v, dict(thing=x.get('id', ''))): return out
         if self.on('commands') and not long:
             # A null focus never matches a null target (the Rust grammar checks focus only for targeted pairs).
             r = overnight_input_cases.resolve(line, choices, {l['id']: l['aliases'] for l in labels}, focus if focus is not None else '\0none')
@@ -934,6 +1010,13 @@ class Engine:
         if self.on('opinions'):
             for x in sh.get('opinions', []):
                 if contains(x['phrases']) and when_ok(x.get('when', {}), base): return authored('opinions', 'opinion', 'opinion:' + x['id'], x['variants'], dict(opinion=x['id']))
+        if self.on('viewpoints') and not long:
+            topic = 'dreams' if any(w in q for w in ['dream', 'hope', 'aspiration']) else 'hobbies' if any(w in q for w in ['hobby', 'hobbies', 'for fun', 'spare time']) else None
+            if topic:
+                views = sh.get('viewpoints', []) + t.get('viewpoints', [])
+                vp = next((x for x in views if x.get('topic') == topic), None)
+                if vp:
+                    return authored('viewpoints', 'opinion', 'viewpoint:' + topic, [vp['stance']], dict(viewpoint=topic))
         if not long and any(self.on(f) for f in ['relationships', 'factions', 'events', 'quests']):
             ok, rest = match(self.phrases.get('ask_about'), q)
             if ok and rest:
@@ -952,6 +1035,31 @@ class Engine:
                 if self.on('quests') and (qd := hit([x for x in cdx.get('quests', []) if me['id'] in x.get('givers', []) and x['id'] in quests])):
                     st = next(x for x in qd['stages'] if x['id'] == quests[qd['id']])
                     if out := reply('quests', 'quest', dict(base, quest=qd['label'], text=st['description'], stage=st['id']), dict(quest=qd['id'])): return out
+        if self.on('recipes') and not long:
+            ok, rest = match(self.phrases.get('ask_recipe'), q)
+            if ok and rest:
+                want = self.bare(rest)
+                all_recs = sh.get('recipes', []) + cdx.get('recipes', [])
+                rec = next((r for r in all_recs if want in [self.bare(norm(n)) for n in [r.get('label', '')] + r.get('aliases', [])]), None)
+                v = dict(base)
+                if rec:
+                    v['recipe'] = rec.get('label', rest)
+                    in_labels = [x.get('label') or x.get('kind') or x.get('tag') or str(x) if isinstance(x, dict) else str(x) for x in rec.get('inputs', [])]
+                    v['inputs'] = self.joined(in_labels) or 'materials'
+                    if out := reply('recipes', 'ask_recipe', v, dict(recipe=rec.get('id', ''))): return out
+                else:
+                    v['recipe'] = rest
+                    if out := reply('recipes', 'ask_recipe', v): return out
+        if self.on('communities') and not long:
+            if match(self.phrases.get('ask_trade'), q)[0]:
+                comms = cdx.get('communities', [])
+                v = dict(base)
+                if comms or sh.get('factions') or any(c.get('action') in ['trade', 'buy'] for c in choices):
+                    comm = comms[0] if comms else dict(label='market', currency='coins')
+                    v.update(community=comm.get('label', 'here'), currency=comm.get('currency', 'coins'))
+                    if out := reply('communities', 'ask_trade', v): return out
+                else:
+                    if out := reply('communities', 'ask_trade', base): return out
         if not long:
             if self.on('services') and sh.get('services') and match(self.phrases.get('ask_services'), q)[0]:
                 v = dict(base); avail = [x['label'] for x in sh['services'] if when_ok(x.get('when', {}), base)]
@@ -962,7 +1070,15 @@ class Engine:
                 if cands:
                     g = max(cands, key=lambda g: g['priority']); return authored('goals', 'goal', 'goal:' + g['id'], [g['description']], dict(goal=g['id']))
                 if out := reply('goals', 'no_goal', base): return out
-            if self.on('events') and cdx.get('events') and match(self.phrases.get('ask_events'), q)[0]:
+            if self.on('timeline') and match(self.phrases.get('ask_news'), q)[0]:
+                tl = cdx.get('timeline', []) or t.get('timeline', [])
+                known = [e for e in tl if e.get('visibility') == 'public' or me['id'] in e.get('actors', []) or me['id'] in e.get('witnesses', []) or me['id'] in e.get('known_to', [])]
+                if known:
+                    recent_e = max(known, key=lambda e: (e.get('at', 0), e.get('seq', 0)))
+                    if out := reply('timeline', 'ask_news', dict(base, news=recent_e['summary'], at=recent_e.get('at', 0)), dict(news=recent_e.get('kind', 'news'))): return out
+                elif not self.on('events') or not cdx.get('events'):
+                    if out := reply('timeline', 'ask_news', base): return out
+            if self.on('events') and cdx.get('events') and (match(self.phrases.get('ask_events'), q)[0] or match(self.phrases.get('ask_news'), q)[0]):
                 v = dict(base); live = [e['label'] for e in cdx['events'] if timing(e) in ['now', 'soon']]
                 if live and (j := self.joined(live)) is not None and len(j) <= 240: v['events'] = j
                 if out := reply('events', 'ask_events', v): return out
@@ -1012,6 +1128,7 @@ class Engine:
             if sh.get('clothing'): brief['clothing'] = list(sh['clothing'])
             if sh.get('state'): brief['state'] = dict(sh['state'])
         if self.on('bio') and (b := self.bio_brief(health, base)) is not None: brief['bio'] = b
+        if self.on('species') and sh.get('species'): brief['species'] = dict(sh['species'])
         if self.on('relationships') and sh.get('relationships'): brief['relationships'] = [dict(name=r['name'], kind=r['kind']) for r in sh['relationships']]
         if self.on('factions') and sh.get('factions'):
             brief['factions'] = []

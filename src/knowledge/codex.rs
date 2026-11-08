@@ -99,7 +99,23 @@ impl Codex {
     }
     pub fn from_value(v: &Value) -> Result<Self> {
         crate::packet::request::bounded(v, 2_097_152)?;
-        keys(v, &["version"], &["places", "entrances", "factions", "events", "quests", "place_kinds"])?;
+        keys(
+            v,
+            &["version"],
+            &[
+                "places",
+                "entrances",
+                "factions",
+                "events",
+                "quests",
+                "place_kinds",
+                "timeline",
+                "things",
+                "recipes",
+                "communities",
+                "species",
+            ],
+        )?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         let places = list(v.get("places"), 0, 128)?;
         for p in places {
@@ -323,6 +339,15 @@ impl Codex {
     }
     pub fn events(&self) -> &[Value] {
         self.all("events")
+    }
+    pub fn recipes(&self) -> &[Value] {
+        self.all("recipes")
+    }
+    pub fn communities(&self) -> &[Value] {
+        self.all("communities")
+    }
+    pub fn timeline(&self) -> &[Value] {
+        self.all("timeline")
     }
     pub fn quests(&self) -> &[Value] {
         self.all("quests")

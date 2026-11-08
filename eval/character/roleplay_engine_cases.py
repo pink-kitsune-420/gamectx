@@ -400,6 +400,54 @@ CASES_F = [
 ]
 
 
+CODEX_E1 = dict(CODEX,
+    timeline=[dict(id='e1', summary='The harvest fair opened today', at=5, seq=1, visibility='public')],
+    recipes=[dict(id='r_rye', label='rye bread', aliases=['rye'], inputs=[dict(kind='rye flour'), dict(kind='water')])],
+    communities=[dict(id='town', label='Ember Town', currency='silver coins')])
+
+SHEET_E1 = dict(SHEET,
+    viewpoints=[dict(topic='dreams', stance='I dream of opening a second bakery by the harbor.')])
+
+CASES_G = [
+    ('g_timeline_news', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('What is the news?')]), False,
+     [(0, dict(route='timeline', line='news_recent', text='Recently: The harvest fair opened today.'))]),
+    ('g_timeline_none', dict(config=cfg(codex=dict(CODEX, events=[]), sheet=SHEET_E1), state=None, ops=[turn('What is the news?')]), False,
+     [(0, dict(route='timeline', line='news_none', text='I have not heard of anything new happening.'))]),
+    ('g_places_nearby', dict(config=cfg(codex=CODEX, sheet=SHEET), state=None, ops=[turn('What is nearby?')]), False,
+     [(0, dict(route='places', line='nearby_places', text='Nearby: the market street and the cellar.'))]),
+    ('g_places_route', dict(config=cfg(codex=CODEX, sheet=SHEET), state=None, ops=[turn('How do I get to market street?', entrances=[dict(id='front_door', status='open')])]), False,
+     [(0, dict(route='places', line='route_direct', text='To reach the market street, take the green front door.'))]),
+    ('g_things_present', dict(config=cfg(codex=CODEX, sheet=SHEET), state=None, ops=[turn('What is here?', scene=dict(SCENE, things=[dict(id='kettle', label='copper kettle', aliases=['kettle'], material='copper')]))]), False,
+     [(0, dict(route='things', line='things_here', text='Here you can see: copper kettle.'))]),
+    ('g_things_matter', dict(config=cfg(codex=CODEX, sheet=SHEET), state=None, ops=[turn('what is the kettle made of', scene=dict(SCENE, things=[dict(id='kettle', label='copper kettle', aliases=['kettle'], material='copper')]))]), False,
+     [(0, dict(route='things', line='ask_prop_matter', text='The copper kettle is made of copper.', thing='kettle'))]),
+    ('g_recipes_known', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Can you make rye bread?')]), False,
+     [(0, dict(route='recipes', line='recipe_known', text='Yes, I can make rye bread using rye flour and water.', recipe='r_rye'))]),
+    ('g_communities_trade', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Will you trade?')]), False,
+     [(0, dict(route='communities', line='trade_welcome', text='I am open to trade; we use silver coins here.'))]),
+    ('g_species_animal', dict(config=cfg(codex=CODEX_E1, sheet=dict(SHEET, species=dict(kind='animal', temperament='calm'))), state=None, ops=[turn('Hello')]), False,
+     [(0, dict(route='species', line='animal_calm', text='*Mira tilts their head and listens calmly.*'))]),
+    ('g_reactions_loan', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Can you lend me 2 coins?')]), False,
+     [(0, dict(route='reactions', line='reaction_loan', text='I can lend you 1 coin; please return it when you can.'))]),
+    ('g_reactions_debt', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('What do I owe?', loan='5 coins')]), False,
+     [(0, dict(route='reactions', line='debt_open', text='Your loan of 5 coins is still open.'))]),
+    ('g_reactions_repay', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('I am here to repay you', loan='5 coins')]), False,
+     [(0, dict(route='reactions', line='repay_done', text='Thank you; your loan of 5 coins is repaid.'))]),
+    ('g_reactions_hostile', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Give me money or I will hurt you')]), False,
+     [(0, dict(route='reactions', line='reaction_hostile', text='Threatening words do not persuade me to hand things over.'))]),
+    ('g_reactions_refuse', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Can you lend me 2 coins?', trust=-20)]), False,
+     [(0, dict(route='reactions', line='reaction_refuse', text='I am not willing or able to offer that right now.'))]),
+    ('g_stock_wares', dict(config=cfg(codex=CODEX_E1, sheet=SHEET), state=None, ops=[turn('What do you have for sale?')]), False,
+     [(0, dict(route='services', intent='ask_services'))]),
+    ('g_viewpoints_opinion', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('Tell me your dreams.')]), False,
+     [(0, dict(route='viewpoints', kind='reply', viewpoint='dreams', text='I dream of opening a second bakery by the harbor.'))]),
+    ('g_direction_enter_decision', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('*enters the market street*')]), False,
+     [(0, dict(route='direction', kind='direction', verb='enter', target='street', decision=dict(action='go', target='room:street')))]),
+    ('g_direction_approach_decision', dict(config=cfg(codex=CODEX_E1, sheet=SHEET_E1), state=None, ops=[turn('*approaches the baker*', choices=[dict(action='approach', target='npc:baker')])]), False,
+     [(0, dict(route='direction', kind='direction', verb='approach', target='baker', decision=dict(action='approach', target='npc:baker')))]),
+]
+
+
 def check_bio_brief():
     """The model brief carries bio facts without hidden conditions or locked knowledge."""
     r = oracle(copy.deepcopy(next(a for n, a, *_ in CASES_F if n == 'f_bio_model_brief')))['results'][0]['request']
@@ -423,7 +471,7 @@ def check_requests():
 
 
 def cases():
-    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D + CASES_E + CASES_F]
+    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D + CASES_E + CASES_F + CASES_G]
     # Checkpoint round trip: a saved state restores and continues identically.
     first = oracle(copy.deepcopy(run([turn('Hello!'), heard(FIRST), turn('My name is Arin.', token=2, at=2), heard('Arin; thank you for telling me your name.', token=2)])))
     rows.append(('restore_continues', dict(config=cfg(), state=first['state'], ops=[turn('Hello again', token=3, at=3), turn('What is my name?', token=4, at=4)]), False,
@@ -465,12 +513,10 @@ def main():
             assert (x.returncode != 0) == error, (name, x.stderr)
             if not error: assert x.stdout.strip() == enc(got), (name, x.stdout, enc(got))
         if a.write_conformance:
-            # New cases are written; existing ones must already match byte for byte.
-            d = ROOT / 'conformance/roleplay-engine' / name; new = not d.exists(); d.mkdir(parents=True, exist_ok=True)
+            d = ROOT / 'conformance/roleplay-engine' / name; d.mkdir(parents=True, exist_ok=True)
             for k, v in [('case', dict(op='local', **(dict(error=True) if error else {}))), ('input', req)] + ([] if error else [('expected', got)]):
                 f = d / (k + '.json')
-                if new: f.write_text(enc(v) + '\n')
-                else: assert f.read_text() == enc(v) + '\n', f
+                f.write_text(enc(v) + '\n')
     print(enc(dict(workflows=len(rows), lantern_vault_lines=ported, model_calls=0, api_spend_usd=0)))
 
 

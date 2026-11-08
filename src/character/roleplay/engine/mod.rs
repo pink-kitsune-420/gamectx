@@ -491,6 +491,14 @@ impl RoleplayEngine {
                 "scent",
                 "health",
                 "date",
+                "timeline",
+                "things",
+                "recipes",
+                "communities",
+                "species",
+                "reactions",
+                "viewpoints",
+                "loan",
             ],
         )?;
         if let Some(h) = opt(t, "health") {
@@ -591,7 +599,7 @@ impl RoleplayEngine {
         keys(
             sc,
             &["id", "label", "place", "atmosphere", "visit"],
-            &["sight", "sound", "props", "floor", "ceiling", "exterior"],
+            &["sight", "sound", "props", "floor", "ceiling", "exterior", "things"],
         )?;
         let scene_id = ident(c::get(sc, "id")?)?;
         let label = line(c::get(sc, "label")?, 48, usize::MAX)?;
@@ -1244,6 +1252,19 @@ impl RoleplayEngine {
                     .unwrap_or_else(|| notice(book, "content", "content_redirect", &base, extra)));
             }
         }
+        if on(Feature::Species) {
+            let sp = opt(t, "species").or_else(|| sheet.species());
+            if sp.is_some_and(|s| {
+                s.get("kind").and_then(Value::as_str) == Some("animal") || s.get("temperament").is_some()
+            }) {
+                let temp = sp.and_then(|s| s.get("temperament")).and_then(Value::as_str).unwrap_or("calm");
+                let mut v = base.clone();
+                v.text("temperament", temp);
+                if let Some(out) = say(pending, "species", "animal_behavior", &v, Vec::new()) {
+                    return Ok(out);
+                }
+            }
+        }
         if on(Feature::StageActions) && starred && stripped.len() <= 1024 {
             if opt(t, "line_of_sight") == Some(&Value::Bool(false)) {
                 return Ok(obj! {"route"=>"stage_action","kind"=>"silent","reason"=>"occluded"});
@@ -1347,16 +1368,109 @@ impl RoleplayEngine {
                     }
                 }
                 if hits.len() == 1 {
+                    let target_id = hits[0].as_str().unwrap_or_default();
+                    let d = if verb == "enter" {
+                        choices
+                            .iter()
+                            .find(|c| {
+                                c.get("action").and_then(Value::as_str) == Some("go")
+                                    && c.get("target")
+                                        .and_then(Value::as_str)
+                                        .is_some_and(|t| t == target_id || t == format!("room:{target_id}"))
+                            })
+                            .cloned()
+                    } else if verb == "approach" {
+                        choices
+                            .iter()
+                            .find(|c| {
+                                c.get("action").and_then(Value::as_str) == Some("approach")
+                                    && c.get("target")
+                                        .and_then(Value::as_str)
+                                        .is_some_and(|t| t == target_id || t == format!("npc:{target_id}"))
+                            })
+                            .cloned()
+                    } else {
+                        None
+                    };
                     let mut out =
                         obj! {"route"=>"direction","kind"=>"direction","verb"=>verb,"target"=>hits[0].clone()};
+                    if let Some(dec) = d {
+                        set(&mut out, "decision", dec);
+                    }
                     if targets_found == 0 {
                         set(&mut out, "spot", true.into());
                     }
-                    return Ok(out);
+                    return Ok(normed(out));
                 }
                 break;
             }
             return Ok(notice(book, "direction", "direction_unsupported", &base, Vec::new()));
+        }
+        if on(Feature::Reactions) && !long {
+            if book.matcher("reaction_debt").is_some_and(|m| m.hit(&q).is_some()) {
+                let loan = find(listeners, who)
+                    .and_then(|l| l.get("loan"))
+                    .or_else(|| opt(t, "loan"))
+                    .or_else(|| sheet.char_state().and_then(|s| s.get("loan")));
+                let mut v = base.clone();
+                if let Some(res) = loan.and_then(Value::as_str) {
+                    v.text("resource", res);
+                }
+                if let Some(out) = say(pending, "reactions", "reaction_debt", &v, Vec::new()) {
+                    return Ok(out);
+                }
+            }
+            if book.matcher("reaction_repay").is_some_and(|m| m.hit(&q).is_some()) {
+                let loan = find(listeners, who)
+                    .and_then(|l| l.get("loan"))
+                    .or_else(|| opt(t, "loan"))
+                    .or_else(|| sheet.char_state().and_then(|s| s.get("loan")));
+                let mut v = base.clone();
+                if let Some(res) = loan.and_then(Value::as_str) {
+                    v.text("resource", res);
+                    if let Some(l) = find_mut(listeners, who) {
+                        set(l, "loan", Value::Null);
+                    }
+                }
+                if let Some(out) = say(pending, "reactions", "reaction_repay", &v, Vec::new()) {
+                    return Ok(out);
+                }
+            }
+            let is_loan = book.matcher("reaction_loan").is_some_and(|m| m.hit(&q).is_some());
+            let is_gift = book.matcher("reaction_gift").is_some_and(|m| m.hit(&q).is_some());
+            let is_help = book.matcher("reaction_help").is_some_and(|m| m.hit(&q).is_some());
+            if is_loan || is_gift || is_help {
+                let hostile = ["kill", "hurt", "stab", "or else", "attack you"].iter().any(|w| q.contains(w));
+                if hostile {
+                    if let Some(out) = say(pending, "reactions", "reaction_hostile", &base, Vec::new()) {
+                        return Ok(out);
+                    }
+                } else if trust >= 0 {
+                    let mut v = base.clone();
+                    let res = if q.contains("coin") || q.contains("money") {
+                        "1 coin"
+                    } else if is_help {
+                        "support"
+                    } else {
+                        "item"
+                    };
+                    v.text("resource", res);
+                    let intent = if is_loan {
+                        "reaction_loan"
+                    } else if is_gift {
+                        "reaction_gift"
+                    } else {
+                        "reaction_help"
+                    };
+                    if let Some(out) = say(pending, "reactions", intent, &v, Vec::new()) {
+                        return Ok(out);
+                    }
+                } else {
+                    if let Some(out) = say(pending, "reactions", "reaction_refuse", &base, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
         }
         let mut asks = Vec::new();
         if on(Feature::Perception) {
@@ -1466,6 +1580,78 @@ impl RoleplayEngine {
                         return Ok(out);
                     }
                 }
+            }
+        }
+        if !long && on(Feature::Places) {
+            if book.matcher("ask_nearby").and_then(|m| m.hit(&q)).is_some() {
+                let mut v = base.clone();
+                if let Ok(res_nb) = codex.nearby(&obj! {"from"=>scene_id}) {
+                    let mut labels = Vec::new();
+                    if let Some(arr) = res_nb.get("routes").and_then(Value::as_array) {
+                        for p in arr {
+                            if p.get("place").and_then(Value::as_str) != Some(scene_id) {
+                                if let Some(l) = p.get("label").and_then(Value::as_str) {
+                                    labels.push(l);
+                                }
+                            }
+                        }
+                    }
+                    if let Some(arr) = res_nb.get("around").and_then(Value::as_array) {
+                        for p in arr {
+                            if p.get("place").and_then(Value::as_str) != Some(scene_id) {
+                                if let Some(l) = p.get("label").and_then(Value::as_str) {
+                                    if !labels.contains(&l) {
+                                        labels.push(l);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if !labels.is_empty() {
+                        if let Some(j) = book.joined(&labels) {
+                            v.text("nearby", &j);
+                        }
+                    }
+                }
+                if let Some(out) = say(pending, "places", "ask_nearby", &v, Vec::new()) {
+                    return Ok(out);
+                }
+            }
+            if let Some(rest) = book.matcher("ask_route").and_then(|m| m.hit(&q)) {
+                let want = book.bare(&rest);
+                let target_p = codex.places().iter().find(|p| {
+                    let idx = codex.places().iter().position(|x| x.same(p)).unwrap();
+                    codex.names("places", idx).iter().any(|n| book.bare(n) == want)
+                });
+                if let Some(tp) = target_p {
+                    let dest_label = tp.get("label").and_then(Value::as_str).unwrap_or_default();
+                    let dest_id = tp.get("id").and_then(Value::as_str);
+                    let ent = visible.iter().find(|e| e.other_place == dest_id).map(|e| e.label);
+                    let mut v = base.clone();
+                    v.text("destination", dest_label);
+                    if let Some(e) = ent {
+                        v.text("entrance", e);
+                    }
+                    if let Some(out) = say(pending, "places", "ask_route", &v, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
+        }
+        if !long && on(Feature::Things) && book.matcher("ask_things").and_then(|m| m.hit(&q)).is_some() {
+            let th = opt(sc, "things").or_else(|| opt(t, "things")).and_then(Value::as_array);
+            let mut v = base.clone();
+            if let Some(arr) = th {
+                let labels: Vec<&str> =
+                    arr.iter().filter_map(|x| x.get("label").and_then(Value::as_str).or_else(|| x.as_str())).collect();
+                if !labels.is_empty() {
+                    if let Some(j) = book.joined(&labels) {
+                        v.text("things", &j);
+                    }
+                }
+            }
+            if let Some(out) = say(pending, "things", "ask_things", &v, Vec::new()) {
+                return Ok(out);
             }
         }
         if !long && (on(Feature::Props) || on(Feature::Entrances) || on(Feature::Scenery)) {
@@ -1594,6 +1780,42 @@ impl RoleplayEngine {
                         }
                         if let Some(out) = say(pending, "props", "ask_matter", &v, vec![("prop", Value::str(p.id))]) {
                             return Ok(out);
+                        }
+                    }
+                    if on(Feature::Things) {
+                        let th_list = opt(sc, "things").or_else(|| opt(t, "things")).and_then(Value::as_array);
+                        if let Some(arr) = th_list {
+                            let th_hits = arr
+                                .iter()
+                                .filter(|x| {
+                                    let mut names = vec![x.get("label").and_then(Value::as_str).unwrap_or_default()];
+                                    if let Some(aliases) = x.get("aliases").and_then(Value::as_array) {
+                                        for a in aliases {
+                                            if let Some(s) = a.as_str() {
+                                                names.push(s);
+                                            }
+                                        }
+                                    }
+                                    names.into_iter().any(|n| book.bare(&normalize(n)) == want)
+                                })
+                                .collect::<Vec<_>>();
+                            if let [x] = th_hits[..] {
+                                let mut v = base.clone();
+                                let l = x.get("label").and_then(Value::as_str).unwrap_or_default();
+                                v.text("prop", l);
+                                let material = x.get("material").and_then(Value::as_str);
+                                v.flag("has_material", material.is_some())
+                                    .flag("has_color", false)
+                                    .flag("has_texture", false)
+                                    .flag("has_matter", material.is_some());
+                                if let Some(m) = material {
+                                    v.text("material", m);
+                                }
+                                let id = x.get("id").cloned().unwrap_or(Value::Null);
+                                if let Some(out) = say(pending, "things", "ask_matter", &v, vec![("thing", id)]) {
+                                    return Ok(out);
+                                }
+                            }
                         }
                     }
                 }
@@ -1741,6 +1963,35 @@ impl RoleplayEngine {
                 }
             }
         }
+        if on(Feature::Viewpoints) && !long {
+            let topic = if ["dream", "hope", "aspiration"].iter().any(|w| q.contains(w)) {
+                Some("dreams")
+            } else if ["hobby", "hobbies", "for fun", "spare time"].iter().any(|w| q.contains(w)) {
+                Some("hobbies")
+            } else {
+                None
+            };
+            if let Some(top) = topic {
+                let views = if !sheet.all("viewpoints").is_empty() {
+                    sheet.all("viewpoints")
+                } else {
+                    opt(t, "viewpoints").and_then(Value::as_array).unwrap_or(&[])
+                };
+                if let Some(vp) = views.iter().find(|v| v.get("topic").and_then(Value::as_str) == Some(top)) {
+                    if let Some(stance) = vp.get("stance").and_then(Value::as_str) {
+                        return Ok(authored(
+                            pending,
+                            &turn,
+                            "viewpoints",
+                            "opinion",
+                            &format!("viewpoint:{top}"),
+                            &[Value::str(stance)],
+                            vec![("viewpoint", Value::str(top))],
+                        ));
+                    }
+                }
+            }
+        }
         let about = [Feature::Relationships, Feature::Factions, Feature::Events, Feature::Quests];
         if !long && about.iter().any(|f| on(*f)) {
             if let Some(rest) = book.matcher("ask_about").and_then(|m| m.hit(&q)).filter(|r| !r.is_empty()) {
@@ -1836,12 +2087,85 @@ impl RoleplayEngine {
                 }
             }
         }
+        if on(Feature::Recipes) && !long {
+            if let Some(rest) = book.matcher("ask_recipe").and_then(|m| m.hit(&q)).filter(|r| !r.is_empty()) {
+                let want = book.bare(&rest);
+                let mut all_recs = sheet.all("recipes").iter().chain(codex.recipes().iter());
+                let rec = all_recs.find(|r| {
+                    let mut names = vec![r.get("label").and_then(Value::as_str).unwrap_or_default()];
+                    if let Some(aliases) = r.get("aliases").and_then(Value::as_array) {
+                        for a in aliases {
+                            if let Some(s) = a.as_str() {
+                                names.push(s);
+                            }
+                        }
+                    }
+                    names.into_iter().any(|n| book.bare(&normalize(n)) == want)
+                });
+                let mut v = base.clone();
+                if let Some(r) = rec {
+                    let label = r.get("label").and_then(Value::as_str).unwrap_or(&rest);
+                    v.text("recipe", label);
+                    let mut in_labels = Vec::new();
+                    if let Some(inputs) = r.get("inputs").and_then(Value::as_array) {
+                        for x in inputs {
+                            if let Some(l) = x
+                                .get("label")
+                                .or_else(|| x.get("kind"))
+                                .or_else(|| x.get("tag"))
+                                .and_then(Value::as_str)
+                            {
+                                in_labels.push(l);
+                            } else if let Some(s) = x.as_str() {
+                                in_labels.push(s);
+                            }
+                        }
+                    }
+                    let joined = if in_labels.is_empty() {
+                        "materials".to_string()
+                    } else {
+                        book.joined(&in_labels).unwrap_or_else(|| "materials".to_string())
+                    };
+                    v.text("inputs", &joined);
+                    let rid = r.get("id").cloned().unwrap_or(Value::Null);
+                    if let Some(out) = say(pending, "recipes", "ask_recipe", &v, vec![("recipe", rid)]) {
+                        return Ok(out);
+                    }
+                } else {
+                    v.text("recipe", &rest);
+                    if let Some(out) = say(pending, "recipes", "ask_recipe", &v, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
+        }
+        if on(Feature::Communities) && !long && book.matcher("ask_trade").and_then(|m| m.hit(&q)).is_some() {
+            let comms = codex.communities();
+            let has_fac = !sheet.all("factions").is_empty();
+            let has_trade_choice = choices
+                .iter()
+                .any(|c| c.get("action").and_then(Value::as_str).is_some_and(|a| a == "trade" || a == "buy"));
+            let mut v = base.clone();
+            if !comms.is_empty() || has_fac || has_trade_choice {
+                let first = comms.first();
+                let comm_label = first.and_then(|c| c.get("label")).and_then(Value::as_str).unwrap_or("here");
+                let currency = first.and_then(|c| c.get("currency")).and_then(Value::as_str).unwrap_or("coins");
+                v.text("community", comm_label).text("currency", currency);
+                if let Some(out) = say(pending, "communities", "ask_trade", &v, Vec::new()) {
+                    return Ok(out);
+                }
+            } else {
+                if let Some(out) = say(pending, "communities", "ask_trade", &base, Vec::new()) {
+                    return Ok(out);
+                }
+            }
+        }
         if !long {
-            let services = sheet.all("services");
             if on(Feature::Services)
-                && !services.is_empty()
+                && !sheet.all("services").is_empty()
                 && book.matcher("ask_services").and_then(|m| m.hit(&q)).is_some()
             {
+                let services = sheet.all("services");
                 let mut v = base.clone();
                 let avail = services
                     .iter()
@@ -1883,9 +2207,58 @@ impl RoleplayEngine {
                     return Ok(out);
                 }
             }
+            if on(Feature::Timeline) && book.matcher("ask_news").and_then(|m| m.hit(&q)).is_some() {
+                let tl = if !codex.timeline().is_empty() {
+                    codex.timeline()
+                } else {
+                    opt(t, "timeline").and_then(Value::as_array).unwrap_or(&[])
+                };
+                let known: Vec<&Value> = tl
+                    .iter()
+                    .filter(|e| {
+                        if e.get("visibility").and_then(Value::as_str) == Some("public") {
+                            return true;
+                        }
+                        for list_key in &["actors", "witnesses", "known_to"] {
+                            if let Some(arr) = e.get(list_key).and_then(Value::as_array) {
+                                if arr.iter().any(|a| a.as_str() == Some(me)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        false
+                    })
+                    .collect();
+                if !known.is_empty() {
+                    let recent_e = known
+                        .iter()
+                        .max_by_key(|e| {
+                            let at = e.get("at").and_then(Value::as_usize).unwrap_or(0);
+                            let seq = e.get("seq").and_then(Value::as_usize).unwrap_or(0);
+                            (at, seq)
+                        })
+                        .unwrap();
+                    let mut v = base.clone();
+                    if let Some(sum) = recent_e.get("summary").and_then(Value::as_str) {
+                        v.text("news", sum);
+                    }
+                    if let Some(at) = recent_e.get("at").and_then(Value::as_usize) {
+                        v.int("at", at as i64);
+                    }
+                    let k = recent_e.get("kind").cloned().unwrap_or_else(|| Value::str("news"));
+                    if let Some(out) = say(pending, "timeline", "ask_news", &v, vec![("news", k)]) {
+                        return Ok(out);
+                    }
+                } else if !on(Feature::Events) || codex.events().is_empty() {
+                    if let Some(out) = say(pending, "timeline", "ask_news", &base, Vec::new()) {
+                        return Ok(out);
+                    }
+                }
+            }
             if on(Feature::Events)
                 && !codex.events().is_empty()
-                && book.matcher("ask_events").and_then(|m| m.hit(&q)).is_some()
+                && (book.matcher("ask_events").and_then(|m| m.hit(&q)).is_some()
+                    || book.matcher("ask_news").and_then(|m| m.hit(&q)).is_some())
             {
                 let mut v = base.clone();
                 let live = codex
@@ -2116,6 +2489,9 @@ fn spot_names(s: &Value) -> Vec<String> {
 }
 fn find<'a>(listeners: &'a [Value], who: &str) -> Option<&'a Value> {
     listeners.iter().find(|l| l.get("id").and_then(Value::as_str) == Some(who))
+}
+fn find_mut<'a>(listeners: &'a mut [Value], who: &str) -> Option<&'a mut Value> {
+    listeners.iter_mut().find(|l| l.get("id").and_then(Value::as_str) == Some(who))
 }
 fn listener_mut<'a>(listeners: &'a mut Vec<Value>, who: &str) -> Result<&'a mut Value> {
     let i = match listeners.iter().position(|l| l.get("id").and_then(Value::as_str) == Some(who)) {

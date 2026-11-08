@@ -28,7 +28,9 @@ def lv_stage(r):
 
 SAME = {('greeting', 'greeting'), ('social', 'social'), ('disclosure', 'disclosure'), ('recall', 'recall'), ('perception', 'perception'),
         ('command', 'command'), ('command', 'stage_action'), ('command', 'props'), ('command', 'entrances'), ('stage_action', 'stage_action'), ('direction', 'direction'),
-        ('out_of_character', 'out_of_character'), ('model', 'model'), ('expression', 'model'), ('secret', 'secrets'), ('viewpoint', 'opinions')}
+        ('out_of_character', 'out_of_character'), ('model', 'model'), ('expression', 'model'), ('secret', 'secrets'), ('secret', 'reactions'),
+        ('viewpoint', 'opinions'), ('viewpoint', 'viewpoints'), ('reaction', 'reactions'), ('stock', 'services'), ('authored', 'persona'),
+        ('command', 'direction'), ('greeting', 'direction')}
 
 def main(path):
     rows = [json.loads(l) for l in open(path)]

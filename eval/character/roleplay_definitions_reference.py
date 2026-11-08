@@ -118,7 +118,7 @@ def place_graph(v, places):
 
 
 def codex(v, vars_):
-    keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests', 'place_kinds']); uint(v['version'], 1, 1)
+    keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests', 'place_kinds', 'timeline', 'things', 'recipes', 'communities', 'species']); uint(v['version'], 1, 1)
     places = lst(v.get('places', []), 0, 128)
     for p in places:
         keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms', 'exterior', 'kind', 'within', 'tags', 'links'])
@@ -231,7 +231,8 @@ def bio(v, vars_):
 
 def sheet(v, cdx, vars_):
     keys(v, ['version'], ['persona', 'speech', 'services', 'goals', 'needs', 'relationships', 'factions', 'secrets', 'opinions',
-                          'features', 'clothing', 'state', 'sensory', 'habits', 'tags', 'attributes', 'bio']); uint(v['version'], 1, 1)
+                          'features', 'clothing', 'state', 'sensory', 'habits', 'tags', 'attributes', 'bio',
+                          'reactions', 'viewpoints', 'species', 'recipes']); uint(v['version'], 1, 1)
     p = v.get('persona', {}); keys(p, [], ['pronouns', 'role', 'summary', 'appearance', 'values', 'fears', 'desires'])
     for k, n in [('pronouns', 32), ('role', 80), ('summary', 240), ('appearance', 480)]:
         if k in p: text(p[k], n)

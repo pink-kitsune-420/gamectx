@@ -72,9 +72,12 @@ noted; "3 models" adds Llama 3.3 70B.
     home places, members, customs, trust relations, markets, bartering; 28 cases.
   - Done: fitness in `bio` (`character::fitness`, guide `docs/guides/WORLD.md`): strength,
     endurance, agility, condition, carry capacity, travel pacing, fatigue; 24 cases.
-  - Then one combined engine change so characters can answer from all of it (news,
-    nearby places, what's here, what something is made of, bartering, animal behaviour), so existing engine outputs
-    change only once. After that, the Lantern Vault migration.
+  - Done: combined engine change [format] for world model dialogue (timeline, places,
+    things, recipes, communities, species) and shadow gap closure (reactions, viewpoints,
+    stock wares, authored persona fallback, direction travel decisions); 226 engine cases,
+    2,000 parity fuzzing workflows (seed 42, 0 mismatches). Existing engine conformance outputs
+    reblessed once under `[format]`.
+  - Next: the Lantern Vault migration onto the engine and world model.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.
