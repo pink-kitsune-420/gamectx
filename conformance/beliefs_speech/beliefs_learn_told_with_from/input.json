@@ -1,0 +1,19 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "told",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour",
+          "from": "carter",
+          "at": 4
+        }
+      }
+    ]
+  }
+}

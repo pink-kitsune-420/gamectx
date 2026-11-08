@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Inform passes the speaker's belief at confidence scaled by the listener's trust.",
+  "error": false
+}

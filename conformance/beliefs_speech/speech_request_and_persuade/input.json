@@ -1,0 +1,51 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "trust": 45
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "act": "request",
+          "goal": "fetch_flour"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "carter",
+          "trust": 20
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "carter",
+          "act": "request",
+          "goal": "haul_flour"
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "carter",
+          "act": "persuade",
+          "goal": "haul_flour",
+          "strength": 90
+        }
+      }
+    ]
+  }
+}

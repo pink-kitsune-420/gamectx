@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Threat fear is 30 + strength/2; trust falls by 20, saturating at 0.",
+  "error": false
+}

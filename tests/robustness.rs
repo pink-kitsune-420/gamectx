@@ -2166,3 +2166,58 @@ fn explain_and_stability_survive_mutation_and_boundaries() {
     assert!(StabilityMonitor::new().workflow(&parse(&audit(64), 1 << 20).unwrap()).is_ok());
     assert!(StabilityMonitor::new().workflow(&parse(&audit(65), 1 << 20).unwrap()).is_err());
 }
+
+#[test]
+fn beliefs_and_speech_acts_survive_mutation_and_boundaries() {
+    use gamectx::character::beliefs::BeliefStore;
+    use gamectx::character::speech_act::SpeechActs;
+    let mut rng = Rng(0xA1B1_5EED_0BE1_1EF5);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+
+    // 18. BeliefStore mutation fuzzing & boundaries
+    let sample_bl = r#"{"ops":[{"op":"init","args":{"being":"baker","beliefs":[{"about":"baker","relation":"can","value":"bake"},{"about":"well","relation":"has","value":"water","holds":false,"source":"saw","confidence":70}]}},{"op":"learn","args":{"being":"baker","about":"mill","relation":"sells","value":"flour","source":"told","from":"carter","at":4,"holds":true,"confidence":60}},{"op":"outcome","args":{"being":"baker","action":"barter","success":false,"at":9,"relied_on":[{"about":"mill","relation":"sells","value":"flour"}]}},{"op":"query","args":{"being":"baker","about":"mill","min_confidence":10}},{"op":"known_actions","args":{"being":"baker","actions":["bake","mill"]}},{"op":"gaps","args":{"being":"baker","needs":[{"about":"mill","relation":"sells","value":"flour"}],"min_confidence":50}}]}"#;
+    let mut store = BeliefStore::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_bl);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = store.workflow(&v);
+        }
+    }
+    let q = r#"{"op":"query","args":{"being":"baker"}}"#;
+    assert!(BeliefStore::new().workflow(&parse(&ops(64, q), 1 << 20).unwrap()).is_ok());
+    assert!(BeliefStore::new().workflow(&parse(&ops(65, q), 1 << 20).unwrap()).is_err());
+    // 128 beliefs fill a being; the 129th evicts the weakest instead of growing.
+    let mut full = BeliefStore::new();
+    for chunk in 0..3 {
+        let learns: Vec<String> = (0..64)
+            .map(|i| format!(r#"{{"op":"learn","args":{{"being":"b","about":"x","relation":"r","value":"v{}","source":"told"}}}}"#, chunk * 64 + i))
+            .collect();
+        full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, learns.join(",")), 1 << 20).unwrap()).unwrap();
+    }
+    assert_eq!(full.beings["b"].len(), 128);
+
+    // 19. SpeechActs mutation fuzzing & boundaries
+    let sample_sp = r#"{"ops":[{"op":"learn","args":{"being":"miller","about":"mill","relation":"sells","value":"flour","source":"did"}},{"op":"relate","args":{"speaker":"miller","listener":"baker","trust":70,"authority":10}},{"op":"perform","args":{"speaker":"miller","listener":"baker","act":"warn","topic":{"about":"mill","relation":"sells","value":"flour"},"at":3}},{"op":"perform","args":{"speaker":"baker","listener":"miller","act":"threaten","goal":"lower_price","strength":80}},{"op":"check","args":{"speaker":"baker","listener":"miller","act":"comfort"}},{"op":"plan","args":{"speaker":"baker","intent":"get_help","goal":"carry","candidates":["miller","carter"],"strength":40}},{"op":"assess","args":{"being":"miller"}}]}"#;
+    let mut acts = SpeechActs::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_sp);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = acts.workflow(&v);
+        }
+    }
+    let a = r#"{"op":"assess","args":{"being":"baker"}}"#;
+    assert!(SpeechActs::new().workflow(&parse(&ops(64, a), 1 << 20).unwrap()).is_ok());
+    assert!(SpeechActs::new().workflow(&parse(&ops(65, a), 1 << 20).unwrap()).is_err());
+    let plan = |n: usize| {
+        let c: Vec<String> = (0..n).map(|i| format!(r#""c{i}""#)).collect();
+        format!(
+            r#"{{"ops":[{{"op":"plan","args":{{"speaker":"s","intent":"reassure","candidates":[{}]}}}}]}}"#,
+            c.join(",")
+        )
+    };
+    assert!(SpeechActs::new().workflow(&parse(&plan(16), 1 << 20).unwrap()).is_ok());
+    assert!(SpeechActs::new().workflow(&parse(&plan(17), 1 << 20).unwrap()).is_err());
+}

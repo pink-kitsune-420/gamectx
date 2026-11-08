@@ -1,0 +1,73 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "miller",
+          "listener": "baker",
+          "trust": 70
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "carter",
+          "listener": "baker",
+          "trust": 70
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "gossip",
+          "listener": "baker",
+          "trust": 20
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "baker",
+          "intent": "learn",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          },
+          "candidates": [
+            "gossip",
+            "miller",
+            "carter"
+          ]
+        }
+      },
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "saw",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour"
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "baker",
+          "intent": "learn",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          },
+          "candidates": [
+            "miller"
+          ]
+        }
+      }
+    ]
+  }
+}

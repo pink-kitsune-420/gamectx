@@ -1,0 +1,58 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "trust": 60
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "miller",
+          "listener": "apprentice",
+          "trust": 40,
+          "authority": 10
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "act": "request",
+          "goal": "sweep_floor"
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "miller",
+          "listener": "apprentice",
+          "act": "request",
+          "goal": "sweep_floor"
+        }
+      },
+      {
+        "op": "learn",
+        "args": {
+          "being": "apprentice",
+          "source": "saw",
+          "about": "oven",
+          "relation": "is",
+          "value": "hot"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

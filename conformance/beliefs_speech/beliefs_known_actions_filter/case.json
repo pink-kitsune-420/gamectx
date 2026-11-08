@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Catalog actions split into known and unknown for the planner.",
+  "error": false
+}

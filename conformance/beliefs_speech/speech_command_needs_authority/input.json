@@ -1,0 +1,49 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "check",
+        "args": {
+          "speaker": "captain",
+          "listener": "guard",
+          "act": "command",
+          "goal": "hold_gate"
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "captain",
+          "listener": "guard",
+          "act": "command",
+          "goal": "hold_gate"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "captain",
+          "listener": "guard",
+          "authority": 60
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "captain",
+          "listener": "guard",
+          "act": "command",
+          "goal": "hold_gate",
+          "at": 2
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

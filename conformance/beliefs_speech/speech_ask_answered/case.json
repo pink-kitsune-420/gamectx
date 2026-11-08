@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Asking fills a gap; the answer is weighted by the asker's trust in the listener.",
+  "error": false
+}

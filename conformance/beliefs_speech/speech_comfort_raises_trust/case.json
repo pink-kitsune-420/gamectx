@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Comfort eases fear by trust/2, adds gratitude trust/4 and +5 trust (capped at 100).",
+  "error": false
+}

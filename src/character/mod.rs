@@ -2,6 +2,7 @@
 //! loadouts, cast packs, the living world and opt-in roleplay policies.
 pub mod affect;
 pub mod archetype;
+pub mod beliefs;
 pub mod body;
 pub mod cast;
 pub mod curiosity;
@@ -20,6 +21,7 @@ pub mod roleplay;
 pub mod routine;
 pub mod sheet;
 pub mod skills;
+pub mod speech_act;
 pub mod stability;
 pub mod task;
 pub mod tools;

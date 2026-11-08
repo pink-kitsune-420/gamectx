@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Authored beliefs default to confidence 80; query filters by relation and confidence.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "get_help chooses command, request or persuade per listener and keeps the best; a distrusted listener only gets an unlikely persuade.",
+  "error": false
+}

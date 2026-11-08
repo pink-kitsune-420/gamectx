@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Needs report unknown, low_confidence, known_true and known_false; only the first two are gaps.",
+  "error": false
+}

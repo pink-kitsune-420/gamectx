@@ -534,6 +534,47 @@ plus 64/65-op, 128/129-trace and 64/65-being boundaries (`tests/robustness.rs`),
 scene replay (`tests/acceptance_baker.rs`), $0 API spend. These are correctness checks; no
 soak-test failure rates have been measured yet.
 
+## Subjective world knowledge (pass 2, A1)
+
+`gamectx::character::beliefs` (`BeliefStore`, local kind `beliefs`) gives each being its own,
+possibly wrong, picture of the world. A belief is a triple such as `mill sells flour` or
+`baker can bake`, held true or false, with a source (`did` > `saw` > `told` > `authored`), a
+confidence and, for hearsay, who said it.
+- **Learning:** matching evidence reinforces (highest confidence, stronger source). Contradicting
+  evidence replaces a belief only when its source ranks at least as high, so a rumor cannot
+  overturn what a being saw, but doing something can overturn any rumor.
+- **Doing corrects belief:** `outcome` records `<being> can <action>` after a success and marks the
+  beliefs a failed attempt relied on as false. Real output from
+  `conformance/beliefs_speech/beliefs_outcome_failure_corrects`: the told belief
+  `mill:sells:flour` (60, from `carter`) is `revised` to false, `did`, 100.
+- **Planning against belief:** `known_actions` filters catalog actions to those the being knows
+  how to do; `gaps` reports needed beliefs that are `unknown` or `low_confidence`, the cue to ask.
+
+## Communication as action (pass 2, B1)
+
+`gamectx::character::speech_act` (`SpeechActs`, local kind `speech_act`) makes speaking an act
+with preconditions and effects, over the same belief store:
+- `inform`, `warn` and `ask` move beliefs between beings, scaled by trust: a miller trusted at 70
+  informing the baker leaves the baker believing `mill:sells:flour` at confidence 70 (`told`,
+  from `miller`). `warn` also adds fear; asking someone who does not know gives `no_answer`.
+- `request`, `command`, `persuade` and `threaten` try to give the listener a want; `command` needs
+  authority ≥ 50, and `threaten` costs 20 trust. `comfort` eases fear and builds trust.
+- Every `perform` returns its effects, including `mind_record` entries that are exact
+  [theory of mind](#theory-of-mind-gap-7) `record` args, so the speaker's model of the listener
+  stays in step. Blocked acts report why (`performed: false`) rather than failing.
+- `plan` turns an intent into acts: `learn` (ask the most trusted), `share`/`alarm`, `get_help`
+  (command, request or persuade, whichever is most likely) and `reassure`.
+
+Acts are honest; lying stays with the [deception ledger](#deception-ledger-gap-13). Trust here is
+the pair state set by `relate`, not yet reconciled with
+[relationship reconciliation](#relationship-reconciliation-gap-9); the host passes it in.
+
+**Evidence:** 25 conformance cases (`conformance/beliefs_speech/`, 4 malformed), 2,000
+differential parity workflows (`eval/character/beliefs_speech_cases.py`, seed 7, 0 mismatches:
+1,891 accepted, 109 refused, 849 acts performed), 1,000 mutations per engine plus 64/65-op,
+128-belief and 16/17-candidate boundaries (`tests/robustness.rs`), acceptance scene replay
+(`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

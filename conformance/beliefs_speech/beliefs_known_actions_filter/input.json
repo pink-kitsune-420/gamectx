@@ -1,0 +1,43 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "smith",
+          "beliefs": [
+            {
+              "about": "smith",
+              "relation": "can",
+              "value": "forge"
+            },
+            {
+              "about": "smith",
+              "relation": "can",
+              "value": "repair"
+            },
+            {
+              "about": "smith",
+              "relation": "can",
+              "value": "bake",
+              "holds": false
+            }
+          ]
+        }
+      },
+      {
+        "op": "known_actions",
+        "args": {
+          "being": "smith",
+          "actions": [
+            "forge",
+            "bake",
+            "repair",
+            "sew"
+          ]
+        }
+      }
+    ]
+  }
+}

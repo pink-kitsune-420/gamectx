@@ -2,6 +2,14 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Subjective world knowledge (`character::beliefs`, local kind `beliefs`, pass 2 A1):
+  - Per-being triples (`about relation value`, held true or false) with source `did` > `saw` > `told` > `authored`, confidence and teller. Matching evidence reinforces; contradictions revise only from an equal or stronger source.
+  - `outcome` learns `<being> can <action>` on success and marks relied-on beliefs false on failure; `known_actions` and `gaps` let planning run against belief instead of the host catalog.
+  - Bounded: 128 beliefs per being, 64 beings. Ops: `init`, `learn`, `outcome`, `query`, `known_actions`, `gaps`.
+- Communication as action (`character::speech_act`, local kind `speech_act`, pass 2 B1):
+  - Eight acts (`inform`, `warn`, `ask`, `request`, `command`, `persuade`, `threaten`, `comfort`) with preconditions, trust/authority pair state (`relate`), belief, want and trust effects, and `mind_record` proposals in theory-of-mind `record` shape. `plan` picks act and listener for `learn`, `share`, `alarm`, `get_help` and `reassure`.
+  - Ops: belief ops plus `relate`, `check`, `perform`, `plan`, `assess`.
+  - 25 conformance cases (4 malformed) in `conformance/beliefs_speech/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Explain trace (`character::explain`, local kind `explain`, pass 2 D4):
   - `record_trace` links perceptions, sourced beliefs, the winning motive (score, rank, reason, runner-up), the task step, the action and its outcome; `confirm_outcome` settles `pending` traces; `query_trace` returns traces newest first with an ordered `chain` and a deterministic `why` sentence.
   - Bounded: 128 traces per being (oldest evicted), 64 beings, 8 perceptions and 8 beliefs per trace. Ops: `init`, `record_trace`, `confirm_outcome`, `query_trace`.

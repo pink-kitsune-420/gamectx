@@ -1,0 +1,44 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "apprentice",
+          "source": "told",
+          "about": "oven",
+          "relation": "needs",
+          "value": "firewood",
+          "from": "baker"
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "apprentice",
+          "action": "bake",
+          "success": true,
+          "at": 20,
+          "relied_on": [
+            {
+              "about": "oven",
+              "relation": "needs",
+              "value": "firewood"
+            }
+          ]
+        }
+      },
+      {
+        "op": "known_actions",
+        "args": {
+          "being": "apprentice",
+          "actions": [
+            "bake",
+            "mill"
+          ]
+        }
+      }
+    ]
+  }
+}

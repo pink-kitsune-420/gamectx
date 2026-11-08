@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Hearsay is stored with its teller and the default told confidence of 60.",
+  "error": false
+}

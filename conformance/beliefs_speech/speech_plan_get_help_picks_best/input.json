@@ -1,0 +1,57 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "authority": 55,
+          "trust": 30
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "miller",
+          "trust": 75
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "baker",
+          "intent": "get_help",
+          "goal": "carry_sacks",
+          "candidates": [
+            "apprentice",
+            "miller",
+            "carter"
+          ]
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "carter",
+          "trust": 20
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "baker",
+          "intent": "get_help",
+          "goal": "carry_sacks",
+          "candidates": [
+            "carter"
+          ],
+          "strength": 20
+        }
+      }
+    ]
+  }
+}

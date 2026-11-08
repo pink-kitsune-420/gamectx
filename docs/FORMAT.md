@@ -2657,6 +2657,66 @@ Optional fields given as `null` count as absent. 25 additive cases (shared with 
 - `get_warnings {kind?, being?, since_turn?, limit? 1–256 (32)}` → `{count, warnings}`, the most recent matches
   in log order.
 
+## Subjective beliefs v1 (pass 2, A1)
+
+`gamectx::character::beliefs` (guide: [Life](characters/LIFE.md#subjective-world-knowledge-pass-2-a1)).
+The `beliefs` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
+25 additive cases (shared with speech acts) live in `conformance/beliefs_speech/`.
+
+A belief is a triple `about relation value` (identifiers, key `about:relation:value` ≤64 chars) with
+`holds` bool, `source` `authored` < `told` < `saw` < `did`, `confidence` 0–100 (defaults 80/60/90/100),
+`from` (teller or `null`) and `at`. Views are `{about, at, confidence, from, holds, key, relation, source, value}`.
+Merge: no belief → `new`; same `holds` → `reinforced` (max confidence, stronger source and its `from`,
+latest `at`); different `holds` → `revised` (replaced) when the new source ranks ≥ the old, else `kept`.
+At 128 beliefs per being the lowest (confidence, at, triple) is evicted; at most 64 beings.
+
+- `init {being, beliefs? ≤64 [{about, relation, value, holds?, source? (authored), confidence?}]}` → `{being, count}`;
+  replaces that being's beliefs.
+- `learn {being, about, relation, value, source, holds? (true), confidence?, from?, at? 0–10¹²}` →
+  `{being, belief, key, result}`.
+- `outcome {being, action, success, relied_on? ≤8 triples, at?}` → `{action, being, success, updates}`;
+  success learns `<being>:can:<action>` and confirms each relied-on triple, failure marks each false; all `did`/100.
+- `query {being, about?, relation?, value?, min_confidence?}` → `{being, beliefs, count}` in triple order.
+- `known_actions {being, actions ≤64}` → `{being, known, unknown}` by `<being>:can:<action>` holding true.
+- `gaps {being, needs ≤16 triples, min_confidence? (50)}` → `{being, gaps, needs [{confidence|null, key,
+  status unknown|low_confidence|known_true|known_false}]}`; `gaps` counts the first two statuses.
+
+## Speech acts v1 (pass 2, B1)
+
+`gamectx::character::speech_act` (guide: [Life](characters/LIFE.md#communication-as-action-pass-2-b1)).
+The `speech_act` `local` kind runs the same op envelope and accepts every belief op above plus:
+
+- `relate {speaker, listener ≠ speaker, trust? 0–100, authority? 0–100}` → `{authority, listener, speaker, trust}`.
+  `trust` is how much the listener trusts the speaker (default 50); `authority` is the speaker's over the
+  listener (default 0). At most 256 pairs.
+- `check` / `perform {speaker, listener ≠ speaker, act, topic?, goal?, strength? 0–100 (50), at?}`. `inform`,
+  `warn`, `ask` take exactly a `topic` triple; `request`, `command`, `persuade`, `threaten` take exactly a
+  `goal`; only `persuade` and `threaten` take `strength`; `comfort` takes neither. Failed preconditions:
+  `speaker_does_not_know` / `speaker_unsure` (inform, warn: no belief / confidence < 50), `already_known`
+  (ask: confidence ≥ 50), `no_authority` (command: authority < 50), `not_trusted` (comfort: trust < 30).
+  `check` → `{act, failed, listener, ok, speaker}`. `perform` → `{act, effects, failed, listener, outcome,
+  performed, speaker}`; outcome `blocked` when a precondition fails, else:
+  - `inform`/`warn` → `informed`/`warned`: the listener learns the speaker's belief, `told`, confidence
+    `max(1, conf·trust/100)`; `warn` adds fear `conf/2` toward the topic's `about`.
+  - `ask` → `answered` (the speaker learns the listener's belief, scaled by the speaker's trust in the
+    listener) or `no_answer`.
+  - `request` (complies at trust ≥ 40, priority trust), `command` (priority authority), `persuade`
+    (score `(trust+strength)/2`, complies at ≥ 50), `threaten` (fear `min(100, 30+strength/2)`, trust −20
+    saturating, complies at fear ≥ 50) → `complied` (the listener wants the goal; a higher priority replaces
+    a lower one; 32 wants per being) or `refused`.
+  - `comfort` → `comforted`: fear `−trust/2`, gratitude `trust/4`, trust `+5` (≤100).
+  Effects, in order, are `belief {holder, key, result}`, `mind_record {args}` (exact
+  [theory of mind](characters/LIFE.md#theory-of-mind-gap-7) `record` args: `knows`/`wants` with `source` `inferred`
+  or `told`), `feels {delta, emotion, holder, toward}`, `trust {delta, holder, toward, value}` and
+  `wants {from, goal, holder, priority}`.
+- `plan {speaker, intent, candidates 1–16 distinct ≠ speaker, topic?, goal?, strength?}` →
+  `{count, intent, reason, speaker, steps [{act, expected, likely, listener}]}`. `learn` asks the candidate
+  the speaker trusts most (`already_known` when sure); `share`/`alarm` inform/warn every candidate
+  (`speaker_does_not_know`/`speaker_unsure` otherwise); `get_help` picks the best of command (authority ≥ 50),
+  request (trust ≥ 40) or persuade per candidate; `reassure` comforts the most trusting candidate with
+  trust ≥ 30 (`no_trusted_listener` otherwise). Ties go to the first name.
+- `assess {being}` → `{being, beliefs, trusts [{authority, speaker, trust}], wants [{from, goal, priority}]}`.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

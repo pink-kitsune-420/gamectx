@@ -1,0 +1,1 @@
+{"version":1,"results":[{"act":"ask","effects":[{"args":{"at":7,"category":"knows","fact":"mill:sells:flour","other":"apprentice","source":"told","status":false,"subject":"baker"},"kind":"mind_record"}],"failed":[],"listener":"apprentice","outcome":"no_answer","performed":true,"speaker":"baker"}]}

@@ -1,0 +1,64 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "miller",
+          "source": "did",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "miller",
+          "listener": "baker",
+          "trust": 90
+        }
+      },
+      {
+        "op": "gaps",
+        "args": {
+          "being": "baker",
+          "needs": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour"
+            }
+          ]
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "miller",
+          "act": "ask",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          }
+        }
+      },
+      {
+        "op": "gaps",
+        "args": {
+          "being": "baker",
+          "needs": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "assess lists who the being trusts, its wants (higher priority wins) and belief count.",
+  "error": false
+}

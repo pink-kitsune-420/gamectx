@@ -12,6 +12,8 @@
 //! 7. Player arrives; speech is strictly grounded in confirmed state.
 //! 8. Pass 2: an explain trace answers "why did the baker eat?" (D4) and the stability
 //!    monitors audit the scene's turns and report it healthy (D1).
+//! 9. Pass 2: the baker's hearsay about the mill is confirmed by doing (A1), and the baker
+//!    informs the apprentice about the crash they missed (B1).
 //!
 //! Asserts byte-identical replay.
 
@@ -26,6 +28,7 @@ use gamectx::character::motive::MotiveArbiter;
 use gamectx::character::offscreen::OffscreenResolver;
 use gamectx::character::relationship::RelationshipManager;
 use gamectx::character::skills::SkillsManager;
+use gamectx::character::speech_act::SpeechActs;
 use gamectx::character::stability::StabilityMonitor;
 use gamectx::character::task::TaskManager;
 use gamectx::data::json::{parse, Value};
@@ -612,6 +615,36 @@ fn run_baker_scene() -> String {
     let health = &stability_out.get("results").unwrap().as_array().unwrap()[3];
     assert_eq!(health.get("status"), Some(&Value::str("healthy")));
 
+    // 8. Subjective knowledge (pass 2, A1) and speech acts (pass 2, B1): the baker only
+    //    heard the mill sells flour; the barter confirms it first-hand. The apprentice was
+    //    indoors during the cart crash, so the baker tells them.
+    let mut speech = SpeechActs::new();
+    let speech_req = parse(
+        r#"{
+        "ops": [
+            {"op":"learn","args":{"being":"baker","about":"mill","relation":"sells","value":"flour","source":"told","from":"carter","at":3}},
+            {"op":"outcome","args":{"being":"baker","action":"barter","success":true,"at":9,
+                "relied_on":[{"about":"mill","relation":"sells","value":"flour"}]}},
+            {"op":"learn","args":{"being":"baker","about":"road","relation":"had","value":"cart_crash","source":"saw","at":6}},
+            {"op":"relate","args":{"speaker":"baker","listener":"apprentice","trust":70}},
+            {"op":"plan","args":{"speaker":"baker","intent":"share","candidates":["apprentice"],
+                "topic":{"about":"road","relation":"had","value":"cart_crash"}}},
+            {"op":"perform","args":{"speaker":"baker","listener":"apprentice","act":"inform","at":16,
+                "topic":{"about":"road","relation":"had","value":"cart_crash"}}},
+            {"op":"gaps","args":{"being":"apprentice","needs":[{"about":"road","relation":"had","value":"cart_crash"}]}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let speech_out = speech.workflow(&speech_req).unwrap();
+    let speech_results = speech_out.get("results").unwrap().as_array().unwrap();
+    let confirmed = &speech_results[1].get("updates").unwrap().as_array().unwrap()[1];
+    assert_eq!(confirmed.get("result"), Some(&Value::str("reinforced")));
+    assert_eq!(confirmed.get("belief").unwrap().get("source"), Some(&Value::str("did")));
+    assert_eq!(speech_results[5].get("outcome"), Some(&Value::str("informed")));
+    assert_eq!(speech_results[6].get("gaps"), Some(&Value::int(0)));
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -636,8 +669,19 @@ fn run_baker_scene() -> String {
     let final_stability_state =
         monitor.workflow(&parse(r#"{"ops":[{"op":"assess_health"},{"op":"get_warnings"}]}"#, 4096).unwrap()).unwrap();
 
+    let final_speech_state = speech
+        .workflow(
+            &parse(
+                r#"{"ops":[{"op":"assess","args":{"being":"apprentice"}},{"op":"query","args":{"being":"baker"}},{"op":"query","args":{"being":"apprentice"}}]}"#,
+                4096,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+
     let composite_output = obj! {
         "final_curiosity" => final_cur_state,
+        "final_speech" => final_speech_state,
         "final_explain" => final_explain_state,
         "final_stability" => final_stability_state,
         "final_offscreen" => final_off_state,

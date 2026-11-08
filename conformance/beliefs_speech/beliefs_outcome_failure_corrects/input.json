@@ -1,0 +1,47 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "told",
+          "about": "mill",
+          "relation": "sells",
+          "value": "flour",
+          "from": "carter"
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "baker",
+          "action": "barter",
+          "success": false,
+          "at": 9,
+          "relied_on": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour"
+            }
+          ]
+        }
+      },
+      {
+        "op": "gaps",
+        "args": {
+          "being": "baker",
+          "needs": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

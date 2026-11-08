@@ -282,6 +282,8 @@ jobs:
       - run: python3 -I eval/character/offscreen_curiosity_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/explain_stability_cases.py --cap 0
       - run: python3 -I eval/character/explain_stability_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/character/beliefs_speech_cases.py --cap 0
+      - run: python3 -I eval/character/beliefs_speech_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/studio/conversation_extensions_bindings.py --cap 0
       - run: node eval/studio/conversation_extensions_bindings.mjs --cap 0
       - run: python3 -I eval/studio/conversation_extensions_host.py --cap 0

@@ -1,0 +1,21 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "act": "ask",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          },
+          "at": 7
+        }
+      }
+    ]
+  }
+}

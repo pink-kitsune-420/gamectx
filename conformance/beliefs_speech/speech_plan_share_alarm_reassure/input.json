@@ -1,0 +1,94 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "guard",
+          "source": "saw",
+          "about": "thief",
+          "relation": "returns",
+          "value": "tonight"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "guard",
+          "listener": "innkeeper",
+          "trust": 80
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "alarm",
+          "topic": {
+            "about": "thief",
+            "relation": "returns",
+            "value": "tonight"
+          },
+          "candidates": [
+            "innkeeper",
+            "baker"
+          ]
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "share",
+          "topic": {
+            "about": "mill",
+            "relation": "sells",
+            "value": "flour"
+          },
+          "candidates": [
+            "baker"
+          ]
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "reassure",
+          "candidates": [
+            "baker",
+            "innkeeper"
+          ]
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "guard",
+          "listener": "baker",
+          "trust": 10
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "guard",
+          "listener": "innkeeper",
+          "trust": 20
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "reassure",
+          "candidates": [
+            "baker",
+            "innkeeper"
+          ]
+        }
+      }
+    ]
+  }
+}

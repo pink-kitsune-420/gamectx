@@ -1,0 +1,35 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "bandit",
+          "listener": "carter",
+          "trust": 10
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "bandit",
+          "listener": "carter",
+          "act": "threaten",
+          "goal": "hand_over_cart",
+          "strength": 60
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "bandit",
+          "listener": "carter",
+          "act": "threaten",
+          "goal": "leave_town",
+          "strength": 20
+        }
+      }
+    ]
+  }
+}

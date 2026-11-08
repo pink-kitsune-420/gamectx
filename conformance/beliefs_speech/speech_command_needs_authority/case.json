@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "check and perform report no_authority; with authority 60 the command complies.",
+  "error": false
+}

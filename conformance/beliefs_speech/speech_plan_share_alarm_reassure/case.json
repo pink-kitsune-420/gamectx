@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "share/alarm address every candidate; reassure picks the most trusting listener.",
+  "error": false
+}

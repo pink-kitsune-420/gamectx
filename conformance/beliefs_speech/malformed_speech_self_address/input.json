@@ -1,0 +1,15 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "baker",
+          "act": "comfort"
+        }
+      }
+    ]
+  }
+}

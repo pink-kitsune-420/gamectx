@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A listener who does not know gives no answer; the asker models that.",
+  "error": false
+}

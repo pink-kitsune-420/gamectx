@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Request complies at trust >= 40; persuade uses (trust + strength) / 2 >= 50.",
+  "error": false
+}

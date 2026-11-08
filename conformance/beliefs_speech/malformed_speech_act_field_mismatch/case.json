@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a goal on inform (acts take only their own fields).",
+  "error": true
+}

@@ -123,7 +123,9 @@ noted; "3 models" adds Llama 3.3 70B.
   - Implemented (Pass 2 Stage 1 / D4 & D1): Explain trace (D4: perception → belief → motive → task step → action → outcome chain with a `why` sentence; `character::explain::ExplainTracer`, local kind `explain`) + Stability monitors (D1: dithering, starvation spiral, deadlock, herding, grudge/rumor runaway warnings; `character::stability::StabilityMonitor`, local kind `stability`). Offline acceptance scene replay (§8) verified to byte-identical output. 25 conformance cases (6 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
   - Implemented (D1): commitment inertia in the motive arbiter (optional `commitment`, additive; existing motive cases byte-identical).
   - Follow-up (D1): a 30-day soak test that reports monitor counts.
-  - Next (Pass 2 Stage 2): A1 subjective world knowledge and B1 communication as action ([INTELLIGENT_BEING_2.md](research/INTELLIGENT_BEING_2.md) §5).
+  - Implemented (Pass 2 Stage 2 / A1 & B1): Subjective world knowledge (A1: sourced per-being beliefs, correction by doing, `known_actions` and `gaps`; `character::beliefs::BeliefStore`, local kind `beliefs`) + Communication as action (B1: eight speech acts with preconditions and listener effects, `mind_record` proposals, act planning; `character::speech_act::SpeechActs`, local kind `speech_act`). Offline acceptance scene replay (§8) verified to byte-identical output. 25 conformance cases (4 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
+  - Follow-up (A1/B1): planner (`character::task`) reading beliefs directly instead of the host catalog; speech-act trust reconciled with `relationship`.
+  - Next (Pass 2 Stage 3): diets and foods (per-food nutrition, personal diets and taboos, spoilage, cooking value, monotony), requested 2026-11-08, then A3 expectations and A2 attention.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

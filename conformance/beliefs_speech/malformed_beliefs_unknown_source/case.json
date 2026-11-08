@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a source outside did/saw/told/authored.",
+  "error": true
+}

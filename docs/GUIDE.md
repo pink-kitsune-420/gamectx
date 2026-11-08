@@ -780,6 +780,10 @@ Any decision can be explained with the [explain trace](characters/LIFE.md#explai
 (`character::explain::ExplainTracer` or local kind `explain`), which links perceptions, beliefs, the winning motive, the task step and the confirmed outcome into a `chain` and a one-sentence `why`.
 Whole-world turns can be audited with the [stability monitors](characters/LIFE.md#stability-monitors-pass-2-d1)
 (`character::stability::StabilityMonitor` or local kind `stability`), which report dithering, starvation spirals, deadlocks, herding and grudge/rumor runaways.
+What each being actually believes is kept by [subjective world knowledge](characters/LIFE.md#subjective-world-knowledge-pass-2-a1)
+(`character::beliefs::BeliefStore` or local kind `beliefs`): sourced triples learned by doing, seeing and being told, corrected when an action fails, with `known_actions` and `gaps` for planning.
+Speaking is an action through [speech acts](characters/LIFE.md#communication-as-action-pass-2-b1)
+(`character::speech_act::SpeechActs` or local kind `speech_act`): inform, warn, ask, request, command, persuade, threaten and comfort, with preconditions, effects on the listener's beliefs, wants and trust, `mind_record` proposals, and `plan` to choose the act.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

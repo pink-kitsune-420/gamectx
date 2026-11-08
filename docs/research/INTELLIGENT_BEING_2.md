@@ -83,13 +83,17 @@ Grouped by area. Each says why it matters once pass 1 is done.
 
 ### A. Cognition
 
-**A1. Subjective world knowledge.** After pass 1 the planner reads the host's action
+**A1. Subjective world knowledge.** — **DONE**. After pass 1 the planner reads the host's action
 catalog, so every being knows every precondition and effect exactly. A real being believes
 "the mill sells flour" and can be wrong. Needed: a per-being, sourced copy of the parts of
 the catalog it knows ("I know how to bake", "I heard the mill sells flour"), learned by
 doing, watching and being told. A failed action corrects the belief. This turns world
 knowledge from level 2 into 4, and it is what makes asking, teaching and exploring
 worth doing.
+
+*Implemented (pass 2 stage 2):* `character::beliefs::BeliefStore` (local kind `beliefs`).
+The planner still reads the host catalog; `known_actions` and `gaps` are the bridge until it
+reads beliefs directly. [Evidence](../characters/LIFE.md#subjective-world-knowledge-pass-2-a1).
 
 **A2. Attention and graded noticing.** The witness bridge says yes or no. Noticing should
 depend on distance, light, noise, what the being is doing, its skills and what it cares
@@ -130,10 +134,13 @@ testimonies possible.
 
 ### B. Social
 
-**B1. Communication as action.** After pass 1, speech is still mostly an answer. With a
+**B1. Communication as action.** — **DONE**. After pass 1, speech is still mostly an answer. With a
 model of others, speaking should be a planned action: inform, ask, request, persuade,
 warn, command, comfort, threaten. Each has preconditions and expected effects on the
 listener's knows/wants/feels. Asking becomes the way to fill knowledge gaps (A1).
+
+*Implemented (pass 2 stage 2):* `character::speech_act::SpeechActs` (local kind
+`speech_act`). [Evidence](../characters/LIFE.md#communication-as-action-pass-2-b1).
 
 **B2. Cooperation and shared tasks.** Tasks have one owner. Add joint tasks with roles,
 delegation, asking for help, hand-offs and shared reservations. Add promises between
@@ -239,7 +246,7 @@ packet and budget modules already do.
 1. **D4 explain trace** and **D1 stability monitors.** Build these first so that every later
    step can be seen and checked. — **DONE** ([Evidence](../characters/LIFE.md#explain-trace-pass-2-d4)).
 2. **A1 subjective knowledge** and **B1 communication as action.** Together these make
-   asking, telling, teaching and lying matter.
+   asking, telling, teaching and lying matter. — **DONE** ([Evidence](../characters/LIFE.md#subjective-world-knowledge-pass-2-a1)).
 3. **A3 expectations** and **A2 attention.** Cheap, deterministic, and they create many
    events from things that do *not* happen.
 4. **A4 goals from experience**, **A5 habits**, **A6 lessons**. This is the step to

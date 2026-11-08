@@ -1,0 +1,17 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "learn",
+        "args": {
+          "being": "baker",
+          "source": "did",
+          "about": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "relation": "sells",
+          "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      }
+    ]
+  }
+}

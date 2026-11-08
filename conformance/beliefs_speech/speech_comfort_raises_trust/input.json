@@ -1,0 +1,39 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "trust": 98
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "baker",
+          "listener": "apprentice",
+          "act": "comfort"
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "stranger",
+          "listener": "apprentice",
+          "trust": 10
+        }
+      },
+      {
+        "op": "perform",
+        "args": {
+          "speaker": "stranger",
+          "listener": "apprentice",
+          "act": "comfort"
+        }
+      }
+    ]
+  }
+}

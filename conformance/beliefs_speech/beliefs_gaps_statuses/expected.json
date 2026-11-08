@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"baker","count":3},{"being":"baker","gaps":2,"needs":[{"confidence":30,"key":"mill:sells:flour","status":"low_confidence"},{"confidence":80,"key":"baker:can:bake","status":"known_true"},{"confidence":80,"key":"well:has:water","status":"known_false"},{"confidence":null,"key":"market:opens:dawn","status":"unknown"}]}]}

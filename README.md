@@ -77,7 +77,9 @@ a [deception ledger](docs/characters/LIFE.md#deception-ledger-gap-13) (told-ledg
 [off-screen life resolution](docs/characters/LIFE.md#off-screen-life-resolution-gap-10) (coarse unobserved activity resolution with Action Catalog expected effects, timeline entries, and Life experiences),
 a [curiosity and exploration model](docs/characters/LIFE.md#curiosity-and-exploration-model-gap-11) (novelty signals across people/things/places/facts, temperament scaling, and 10-field initiative candidate generation),
 an [explain trace](docs/characters/LIFE.md#explain-trace-pass-2-d4) (a "why did she do that?" chain from perception and belief through motive and task step to the confirmed outcome),
-and [stability monitors](docs/characters/LIFE.md#stability-monitors-pass-2-d1) (dithering, starvation spiral, deadlock, herding and grudge/rumor runaway warnings over host-reported turns).
+[stability monitors](docs/characters/LIFE.md#stability-monitors-pass-2-d1) (dithering, starvation spiral, deadlock, herding and grudge/rumor runaway warnings over host-reported turns),
+[subjective world knowledge](docs/characters/LIFE.md#subjective-world-knowledge-pass-2-a1) (sourced per-being beliefs learned by doing, seeing and being told, corrected when an action fails),
+and [speech acts](docs/characters/LIFE.md#communication-as-action-pass-2-b1) (inform, warn, ask, request, command, persuade, threaten and comfort with preconditions, effects on the listener and act planning).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

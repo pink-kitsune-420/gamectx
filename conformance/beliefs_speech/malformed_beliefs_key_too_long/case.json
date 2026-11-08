@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a triple whose about:relation:value key exceeds 64 characters.",
+  "error": true
+}

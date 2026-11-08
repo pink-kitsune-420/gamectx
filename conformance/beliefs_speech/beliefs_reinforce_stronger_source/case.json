@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Matching evidence keeps the highest confidence and upgrades the source.",
+  "error": false
+}

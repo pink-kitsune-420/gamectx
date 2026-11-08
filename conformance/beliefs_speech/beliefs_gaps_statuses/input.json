@@ -1,0 +1,60 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "beliefs": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour",
+              "confidence": 30
+            },
+            {
+              "about": "baker",
+              "relation": "can",
+              "value": "bake"
+            },
+            {
+              "about": "well",
+              "relation": "has",
+              "value": "water",
+              "holds": false
+            }
+          ]
+        }
+      },
+      {
+        "op": "gaps",
+        "args": {
+          "being": "baker",
+          "needs": [
+            {
+              "about": "mill",
+              "relation": "sells",
+              "value": "flour"
+            },
+            {
+              "about": "baker",
+              "relation": "can",
+              "value": "bake"
+            },
+            {
+              "about": "well",
+              "relation": "has",
+              "value": "water"
+            },
+            {
+              "about": "market",
+              "relation": "opens",
+              "value": "dawn"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
