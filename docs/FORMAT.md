@@ -2372,6 +2372,27 @@ Ops:
 - `check {recipe, actor, place, target_thing?}` → `{feasible: bool, missing: [{reason, details}], time}`.
 - `execute {recipe, actor, place, target_thing?, new_ids?}` → `{ok: true, recipe, created: [things], entry: timeline_entry}` or `{ok: false, missing: [{reason, details}]}`.
 
+## World species v1
+
+`gamectx::knowledge::species` (guide: [World model](guides/WORLD.md#species)). The `species`
+JSON-lines `local` kind runs `{species? ≤256, animals? ≤256, things?, ops ≤64 [{op, args, at?}]}` and returns
+`{results, species, animals, things}`; each result is `{ok:true, result}` or `{ok:false, ...}`. 27 additive cases live in `conformance/species/`.
+
+**Species** `{id, label ≤48, kind ("animal"|"plant"|"person"|"hybrid"), parents? ≤2 [ids], diet? ("carnivore"|"herbivore"|"omivore"), habitats? ≤16 [ids], lifespan? 1–10⁹, temperament? {boldness, sociability, aggression, trainability 0–100}, tameable? bool, rideable? bool, carrier_capacity? 0–10⁹, produce? ≤8 [{kind, amount 1–10⁹, interval 1–10⁹}], sounds? ≤16 [str ≤32], gestures? ≤16 [str ≤48]}`.
+Hybrids resolve traits and averaged temperaments with deterministic cycle prevention.
+
+**Animal** `{id, species, tameness? 0–100, trust? {actor_id: -100..100}, lead_by? id|null, ridden_by? id|null, temperament? {boldness, sociability, aggression, trainability 0–100}, last_harvest? {produce_kind: at}}`.
+
+Ops:
+- `pet {actor, animal, place?}` → `{ok: bool, success: bool, trust: i64, sound?, gesture?, entry}`. Threat = aggression − trust − tameness/2; snaps if threat > 30, pets if threat ≤ 30.
+- `feed {actor, animal, food_thing, place?}` → `{ok: bool, consumed: id, trust: i64, tameness: u64, sound?, gesture?, entry}`. Consumes 1 food from holder or place, verifies diet.
+- `calm {actor, animal, place?}` → `{ok: true, trust: i64, sound?, gesture?, entry}`. Boosts trust by 5.
+- `lead {actor, animal, place?, stop? bool}` → `{ok: bool, lead_by: id|null, entry}`. Requires trust ≥ 10 or tameness ≥ 30.
+- `ride {actor, animal, place?, dismount? bool}` → `{ok: bool, ridden_by: id|null, entry}`. Requires rideable, trust ≥ 20, tameness ≥ 40.
+- `train {actor, animal, place?}` → `{ok: bool, tameness: u64, gain: u64, entry}`. Requires tameable, gains trainability / 10 tameness.
+- `harvest {actor, animal, place?, new_id?}` → `{ok: bool, produced: [things], entry}`. Checks produce interval and spawns produce into actor holder.
+- `behave {actor, animal, place?}` → `{ok: true, attitude: "affectionate"|"hostile"|"skittish"|"calm", sound?, gesture?}`. Emits non-verbal cues.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

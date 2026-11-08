@@ -2,6 +2,18 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Species (`knowledge::species`, local kind `species`): animals, plants, people, and hybrids.
+  - Species define diet (carnivore, herbivore, omnivore), habitats, lifespan, temperament
+    defaults (boldness, sociability, aggression, trainability 0–100), renewable produce,
+    carrier capacity, and authored sounds and gestures.
+  - Hybrids inherit traits and averaged temperaments from two parents with deterministic
+    cycle prevention and explicit overrides.
+  - Animals track individual tameness, actor trust relations (-100..100), leading and riding
+    mount status, and harvest timestamps.
+  - Ops: pet, feed, calm, lead, ride, train, harvest, and behave. State-changing interactions
+    emit timeline-ready entries.
+  - 27 cases (7 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches).
 - Recipes (`knowledge::recipes`, local kind `recipes`): crafting, cooking, building,
   repairing, and dismantling.
   - Recipes declare inputs (concrete kind or broad material tag with quantity), tool

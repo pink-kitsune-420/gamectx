@@ -319,4 +319,65 @@ expectations written before running. Rust matches the Python reference
 (`eval/knowledge/recipes_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
 
+## Species
+
+`gamectx::knowledge::species` models animals, plants, people, and hybrids.
+Species define diet, habitats, lifespan, temperament defaults (boldness, sociability, aggression, trainability), renewable produce, carrier capacity, and authored sounds and gestures.
+Hybrids blend traits from two parent species with deterministic cycle prevention and explicit overrides.
+
+Individual animals are tracked with tameness, trust relations per actor (-100..100), leading status, riding mount status, and harvest timestamps.
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::knowledge::species::SpeciesWorld;
+
+let mut sw = SpeciesWorld::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "pet", "at": 10, "args": {"animal": "dog_1", "actor": "hero", "place": "kennel"}}
+  ],
+  "species": [
+    {
+      "id": "canine",
+      "label": "Wolfhound",
+      "kind": "animal",
+      "tameable": true,
+      "temperament": {"boldness": 50, "sociability": 70, "aggression": 10, "trainability": 80},
+      "sounds": ["bark", "whimper"],
+      "gestures": ["wags tail", "pants"]
+    }
+  ],
+  "animals": [
+    {"id": "dog_1", "species": "canine", "tameness": 60, "trust": {"hero": 20}}
+  ]
+}"#, 4096)?;
+
+let out = sw.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That animal interaction returns a timeline-ready entry (real output):
+
+```json
+{"ok":true,"result":{"ok":true,"success":true,"trust":30,"sound":"bark","gesture":"wags tail","entry":{"at":10,"kind":"animal_interaction","summary":"hero petted dog_1 (wags tail).","actors":["hero","dog_1"],"place":"kennel","things":[],"tags":["species","animal","pet","success"],"visibility":"public","witnesses":[],"phrases":["Wolfhound","dog_1","pet"],"facts":{"interaction":"pet","success":true,"trust":30}}}}
+```
+
+- **Animal Interactions:**
+  - `pet`: evaluates threat (aggression minus trust and half-tameness); snaps on failure or bonds on success, raising trust and emitting a gesture.
+  - `feed`: verifies dietary compatibility (carnivore, herbivore, omnivore), consumes food from actor inventory or the place, and boosts both trust and tameness.
+  - `calm`: pacifies skittish or agitated creatures, boosting trust.
+  - `lead`: leads or unleashes an animal (requires trust ≥ 10 or tameness ≥ 30).
+  - `ride`: mounts or dismounts a rideable animal (requires rideable, trust ≥ 20, tameness ≥ 40).
+  - `train`: conducts training to increase tameness based on species trainability.
+  - `harvest`: gathers renewable produce (such as milk, wool, or feathers) into actor possession when the harvest interval has elapsed.
+  - `behave`: evaluates animal attitude (`affectionate`, `hostile`, `skittish`, or `calm`) towards an actor and outputs appropriate non-verbal sounds and physical gestures.
+- **Hybrids:** inheriting from two parents averages numeric temperament values, merges diets and habitats, and applies explicit authored overrides.
+
+**Evidence:** 27 cases (`conformance/species/`, 7 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/knowledge/species_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+
 

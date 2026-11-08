@@ -66,8 +66,9 @@ noted; "3 models" adds Llama 3.3 70B.
     instances, salvage, containers, carriers, best_tool, whats_here; 42 cases.
   - Done: recipes (`knowledge::recipes`, guide `docs/guides/WORLD.md`): crafting, cooking,
     building (changing the world), repairing and dismantling, tools, stations, skills; 25 cases.
+  - Done: species (`knowledge::species`, guide `docs/guides/WORLD.md`): animals, plants,
+    people, hybrids, temperaments, animal interactions (pet, feed, calm, lead, ride, train, harvest, behave); 27 cases.
   - Next, the world model (in this order):
-    - species: animals, plants and hybrids, temperaments, animal interactions;
     - communities: relations, markets and bartering;
     - fitness in `bio`, feeding carry capacity and travel.
   - Then one combined engine change so characters can answer from all of it (news,

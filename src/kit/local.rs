@@ -94,6 +94,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "timeline" => crate::knowledge::timeline::workflow(a),
         "things" => crate::knowledge::things::workflow(a),
         "recipes" => crate::knowledge::recipes::workflow(a),
+        "species" => crate::knowledge::species::workflow(a),
         "places" => crate::knowledge::places::workflow(a),
         "character-plan" => crate::character::tools::plan_fixture(a),
         "world" => crate::knowledge::world::process(a),

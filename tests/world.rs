@@ -174,3 +174,40 @@ fn recipes_guide_output_is_real() -> gamectx::Result<()> {
     );
     Ok(())
 }
+
+#[test]
+fn species_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::species::SpeciesWorld;
+    let mut sw = SpeciesWorld::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "pet", "at": 10, "args": {"animal": "dog_1", "actor": "hero", "place": "kennel"}}
+      ],
+      "species": [
+        {
+          "id": "canine",
+          "label": "Wolfhound",
+          "kind": "animal",
+          "tameable": true,
+          "temperament": {"boldness": 50, "sociability": 70, "aggression": 10, "trainability": 80},
+          "sounds": ["bark", "whimper"],
+          "gestures": ["wags tail", "pants"]
+        }
+      ],
+      "animals": [
+        {"id": "dog_1", "species": "canine", "tameness": 60, "trust": {"hero": 20}}
+      ]
+    }"#,
+        4096,
+    )?;
+    let out = sw.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That animal interaction returns a timeline-ready entry"), 65536)?.to_json()
+    );
+    // Round trip through a save section value.
+    assert_eq!(SpeciesWorld::from_value(&sw.to_value())?, sw);
+    Ok(())
+}
