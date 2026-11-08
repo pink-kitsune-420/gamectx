@@ -2,18 +2,17 @@
 //! `RoleplayEngine` on the same turn and appends one JSON line comparing the engine's
 //! outcome with what Lantern Vault did. Nothing here changes the game.
 use super::App;
-use gamectx::{
-    character::roleplay::{EngineConfig, RoleplayEngine},
-    obj, Value,
-};
+use gamectx::{obj, Value};
 use std::io::Write;
 
 impl App {
     pub(super) fn shadow_engine(&self, text: &str) -> Value {
         let run = || -> gamectx::Result<Value> {
-            let name = super::super::greetings::name(&self.npc)?;
-            let config = EngineConfig::new(&self.npc, name)?.with_actions(&self.roleplay)?;
-            let mut engine = RoleplayEngine::new(config);
+            let mut engine = match self.npc.as_str() {
+                "keeper" => self.engine_keeper.clone(),
+                "hound" => self.engine_hound.clone(),
+                _ => self.engine_merchant.clone(),
+            };
             let items = self.game.visible_items();
             let labels = items
                 .iter()
@@ -22,6 +21,7 @@ impl App {
             let mut targets = vec![
                 obj! {"kind"=>"character","id"=>"merchant","names"=>vec!["Ilen","merchant"]},
                 obj! {"kind"=>"character","id"=>"keeper","names"=>vec!["Tovin","keeper"]},
+                obj! {"kind"=>"character","id"=>"hound","names"=>vec!["Hound","hound"]},
             ];
             for c in self.game.choices() {
                 if c.get("action").and_then(Value::as_str) == Some("go") {
@@ -31,9 +31,30 @@ impl App {
                 }
             }
             let place = if self.game.room == "workshop" { "workplace" } else { "social" };
-            let turn = obj! {"listener"=>self.player.clone(),"text"=>text,"at"=>self.tick,"token"=>self.seq+1,
-            "scene"=>obj!{"id"=>self.game.room.clone(),"label"=>self.game.room.replace('_'," "),"place"=>place,"atmosphere"=>"calm","visit"=>1},
-            "choices"=>self.game.choices(),"labels"=>labels,"targets"=>targets};
+            let focus = self
+                .focus
+                .as_ref()
+                .filter(|(_, at)| self.tick.saturating_sub(*at) <= 4)
+                .map_or(Value::Null, |(id, _)| Value::str(id));
+            let trust = self.attitude_level("trust").unwrap_or(1);
+            let turn = obj! {
+                "listener"=>self.player.clone(),
+                "text"=>text,
+                "at"=>self.tick,
+                "token"=>self.seq+1,
+                "scene"=>obj!{
+                    "id"=>self.game.room.clone(),
+                    "label"=>self.game.room.replace('_'," "),
+                    "place"=>place,
+                    "atmosphere"=>"calm",
+                    "visit"=>1
+                },
+                "trust"=>trust,
+                "choices"=>self.game.choices(),
+                "labels"=>labels,
+                "focus"=>focus,
+                "targets"=>targets
+            };
             engine.turn(&turn)
         };
         match run() {

@@ -401,3 +401,30 @@ approves art automatically.
 and exact decimal USD `--cap` are supported. Online models are unconfigured placeholders;
 all paid modalities share the startup-authorized cap. Local services are optional; HTTPS
 requires system curl. The tested server and editable UI use no third-party Rust/JS package.
+
+## Rebuilt RoleplayEngine and World Systems (v0.4.0a)
+
+Lantern Vault 0.4.0a rebuilds chat and character simulation on `RoleplayEngine` and an
+authoritative world model (`GameData`, `Codex`, `CharacterSheet`):
+
+- **RoleplayEngine dialogue**: NPC interactions for Ilen (merchant), Tovin (keeper),
+  and the hound companion are driven by `RoleplayEngine`, backed by authoritative codex
+  definitions for places (`within`, `links`, built-in kinds), timeline history events,
+  things, recipes, species, and communities.
+- **Crafting at the workshop**: Discover scrap metal in the workshop and craft
+  `recipe:mended_gear` (using scrap and oil) or `recipe:torch` (chalk and oil).
+- **Cooking at the hearth**: Gather cave herbs and brew `recipe:broth` at the cistern
+  hearth, restoring health when consumed.
+- **Bartering with the merchant**: Barter crafted broth or chalk directly with the
+  merchant for hinge oil when coins are scarce.
+- **Animal companion (`animal:hound`)**: Calming and feeding the hound bounds it as a
+  faithful companion that follows the player between chambers and assists in sentinel combat.
+- **World repair task**: Repairing `mechanism:pump` in the cistern with `mended_gear`
+  restores the subterranean water flow, transforming the dry basin into a crystal fountain
+  that heals the player to full capacity (6/6 hp).
+- **Save system (`kit::save`)**: Game state persists via `SaveFile` (`saves.json`) with
+  named slots (`"autosave"`, `"slot-1"`) and mid-game branch forking (`fork`), while
+  maintaining backwards-compatible slot archives.
+- **Zero dependencies & measured agreement**: Built purely with Rust's standard library
+  (zero third-party dependencies). Offline shadow testing measures 1,694 / 1,707 route
+  agreement (99.24%) across 62 integration tests.

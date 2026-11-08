@@ -7,6 +7,8 @@ use gamectx::{
     character::dialogue::InteractionTools,
     character::living::LivingWorld,
     character::party::{ModelRoute, PartyScene},
+    character::roleplay::RoleplayEngine,
+    kit::save::{GameData, SaveFile, SaveState},
     media::providers::ProviderBudget,
     media::visual::{Activity, ArtBible, AssetRegistry, RegistryConfig, VisualSpec},
     media::voice::VoiceTurn,
@@ -96,6 +98,10 @@ pub struct App {
     approvals: Vec<Value>,
     repairs: Vec<Value>,
     applied_repairs: Vec<String>,
+    pub game_data: GameData,
+    pub engine_merchant: RoleplayEngine,
+    pub engine_keeper: RoleplayEngine,
+    pub engine_hound: RoleplayEngine,
 }
 fn array(v: &Value) -> Result<&[Value]> {
     v.as_array().ok_or_else(err)
@@ -172,11 +178,15 @@ impl App {
         if mind.enabled() {
             super::greetings::seed_legacy(&mut greetings, &[], &mind.views.checkpoint(), 0, &mut initial_seq)?;
         }
+        let game_data = super::super::world_model::build_game_data(Some(&roleplay))?;
+        let (engine_merchant, engine_keeper, engine_hound) = super::super::world_model::build_engines(&game_data)?;
+        let mut game = game::Game::new(seed)?;
+        game.enable_world_systems();
         let out = Self {
             config,
             budget,
             dir,
-            game: game::Game::new(seed)?,
+            game,
             epoch: 1,
             branch: 1,
             tick: 0,
@@ -225,6 +235,10 @@ impl App {
             approvals,
             repairs,
             applied_repairs: Vec::new(),
+            game_data,
+            engine_merchant,
+            engine_keeper,
+            engine_hound,
         };
         out.persist_budget()?;
         Ok(out)
@@ -248,7 +262,61 @@ impl App {
         self.seq
     }
     fn active(&self) -> bool {
-        self.npc == "merchant" && self.game.room == "workshop" || self.npc == "keeper" && self.game.room == "cistern"
+        self.npc == "merchant" && self.game.room == "workshop"
+            || self.npc == "keeper" && self.game.room == "cistern"
+            || self.npc == "hound" && (self.game.room == self.game.animal_room || self.game.animal_following)
+    }
+    pub fn engine_mut(&mut self) -> &mut RoleplayEngine {
+        match self.npc.as_str() {
+            "keeper" => &mut self.engine_keeper,
+            "hound" => &mut self.engine_hound,
+            _ => &mut self.engine_merchant,
+        }
+    }
+    pub fn engine_turn(&mut self, text: &str) -> Result<Value> {
+        let items = self.game.visible_items();
+        let labels = items
+            .iter()
+            .map(|i| obj! {"id"=>i.get("id").cloned().unwrap_or(Value::Null),"aliases"=>vec![i.get("label").cloned().unwrap_or(Value::Null)]})
+            .collect::<Vec<_>>();
+        let mut targets = vec![
+            obj! {"kind"=>"character","id"=>"merchant","names"=>vec!["Ilen","merchant"]},
+            obj! {"kind"=>"character","id"=>"keeper","names"=>vec!["Tovin","keeper"]},
+            obj! {"kind"=>"character","id"=>"hound","names"=>vec!["Hound","hound"]},
+        ];
+        for c in self.game.choices() {
+            if c.get("action").and_then(Value::as_str) == Some("go") {
+                if let Some(room) = c.get("target").and_then(Value::as_str).and_then(|t| t.strip_prefix("room:")) {
+                    targets.push(obj! {"kind"=>"place","id"=>room,"names"=>vec![room]});
+                }
+            }
+        }
+        let place = if self.game.room == "workshop" { "workplace" } else { "social" };
+        let turn = obj! {
+            "listener"=>self.player.clone(),
+            "text"=>text,
+            "at"=>self.tick,
+            "token"=>self.seq+1,
+            "scene"=>obj!{
+                "id"=>self.game.room.clone(),
+                "label"=>self.game.room.replace('_'," "),
+                "place"=>place,
+                "atmosphere"=>"calm",
+                "visit"=>1
+            },
+            "choices"=>self.game.choices(),
+            "labels"=>labels,
+            "targets"=>targets
+        };
+        self.engine_mut().turn(&turn)
+    }
+    fn load_or_new_save_file(&self) -> Result<SaveFile> {
+        let path = self.dir.join("saves.json");
+        if path.exists() {
+            SaveFile::parse(&read_file(&path, 8 * 1024 * 1024)?)
+        } else {
+            Ok(SaveFile::new(Some(&self.game_data)))
+        }
     }
     fn log(&mut self, speaker: &str, line: &str, kind: &str) {
         if self.transcript.len() >= 128 {
@@ -2483,7 +2551,8 @@ impl App {
                     .into_iter()
                     .map(|id| Ok((id.into(), InteractionTools::new("studio_save", id, &self.people)?)))
                     .collect::<Result<Vec<_>>>()?;
-                let game = game::Game::new(self.game.seed)?;
+                let mut game = game::Game::new(self.game.seed)?;
+                game.enable_world_systems();
                 self.stop(None)?;
                 self.epoch += 1;
                 self.branch += 1;
@@ -2751,106 +2820,120 @@ impl App {
                         self.say(&reply)?;
                         return Ok((obj! {"addressed"=>true,"current_perception"=>true}, jobs));
                     }
-                    if self.mind.enabled() {
-                        let claim =
-                            gamectx::character::roleplay::expression_claim(line).ok().filter(|v| *v != Value::Null);
-                        if let Some(claim) =
-                            claim.filter(|_| !line.trim_end_matches(['.', '!', '?']).contains(['.', '!', '?']))
-                        {
-                            let reply = if claim.get("slot") == Some(&Value::str("name")) {
-                                if let Some(old) = claim.get("corrects").and_then(Value::as_str) {
-                                    format!("{}, not {old}; thank you for correcting me.", text(&claim, "value")?)
-                                } else {
-                                    format!("{}; thank you for telling me your name.", text(&claim, "value")?)
-                                }
-                            } else {
-                                format!(
-                                    "You {} {}; thank you for telling me.",
-                                    if claim.get("polarity") == Some(&Value::str("dislike")) {
-                                        "dislike"
-                                    } else if claim.get("polarity") == Some(&Value::str("like")) {
-                                        "like"
-                                    } else {
-                                        "prefer"
-                                    },
-                                    text(&claim, "value")?
-                                )
-                            };
-                            if reply.chars().count() <= 240 {
-                                self.say(&reply)?;
-                                self.speech.as_mut().unwrap().origin = "authored_social".into();
-                                return Ok((obj! {"addressed"=>true,"disclosure_ack"=>true}, jobs));
-                            }
-                        }
-                        if let Some(reply) = self.roleplay_recall(line) {
-                            self.say(&reply)?;
-                            self.speech.as_mut().unwrap().origin = "authored_social".into();
-                            return Ok((obj! {"addressed"=>true,"scoped_recall"=>true}, jobs));
-                        }
-                    }
                     let previous = if self.mind.enabled() { self.previous_topic() } else { None };
-                    let route = if long {
+                    let conv_route = if long {
                         obj! {"kind"=>"other"}
                     } else {
                         gamectx::character::roleplay::conversation_route(
                             &obj! {"input"=>if self.mind.enabled(){super::greetings::addressed(line,&self.npc)}else{line.into()},"previous"=>previous.clone().map_or(Value::Null,Value::from)},
                         )?
                     };
-                    let kind = if self.mind.enabled() { text(&route, "kind")? } else { "other" };
-                    if self.mind.enabled() {
-                        let q = line.to_lowercase();
-                        let reply = if ["what do you see", "what can you see", "look around you"]
-                            .iter()
-                            .any(|p| q.trim_end_matches(['.', '!', '?']) == *p)
-                        {
-                            Some(
-                                if self.npc == "merchant" {
-                                    "I can see the counter and the goods still on offer here."
-                                } else {
-                                    "I can see the dry fountain and the writing on its stone."
-                                }
-                                .to_owned(),
-                            )
-                        } else if ["what do you hear", "what can you hear"]
-                            .iter()
-                            .any(|p| q.trim_end_matches(['.', '!', '?']) == *p)
-                        {
-                            Some("I can hear you; I have no other specific sound to report.".into())
-                        } else if ["what is your name", "what s your name", "what's your name"]
-                            .iter()
-                            .any(|p| q.trim_end_matches(['.', '!', '?']) == *p)
-                        {
-                            Some(format!("My name is {}.", super::greetings::name(&self.npc)?))
+                    let kind = if self.mind.enabled() { text(&conv_route, "kind")? } else { "other" };
+                    let topic = self.mind.topic(line, trust).or_else(|| {
+                        if self.mind.enabled() {
+                            conv_route.get("topic").and_then(Value::as_str).map(str::to_owned)
                         } else {
                             None
-                        };
-                        if let Some(reply) = reply {
-                            self.say(&reply)?;
-                            self.speech.as_mut().unwrap().origin = "authored_social".into();
-                            return Ok((obj! {"addressed"=>true,"perceived_or_public"=>true}, jobs));
                         }
-                    }
+                    });
 
-                    if kind == "greeting" {
+                    let engine_out = self.engine_turn(line);
+                    let engine_route = engine_out.as_ref().ok().and_then(|o| o.get("route")).and_then(Value::as_str);
+
+                    if self.mind.enabled() && (kind == "greeting" || matches!(engine_route, Some("greeting"))) {
                         return Ok((self.greet()?, jobs));
                     }
-                    if ["thanks", "farewell"].contains(&kind) {
+                    if super::followup::stock_query(line) || matches!(engine_route, Some("services")) {
+                        let reply = if self.npc == "merchant" {
+                            self.fallback_line(line)
+                        } else {
+                            engine_out
+                                .as_ref()
+                                .ok()
+                                .and_then(|o| o.get("text"))
+                                .and_then(Value::as_str)
+                                .unwrap_or("I have no listed stock here.")
+                                .to_owned()
+                        };
+                        self.say(&reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        self.notice = "Current stock and prices are ready.".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"stock_query"=>true}, jobs));
+                    }
+                    if matches!(engine_route, Some("secrets")) {
+                        let reply = engine_out
+                            .as_ref()
+                            .ok()
+                            .and_then(|o| o.get("text"))
+                            .and_then(Value::as_str)
+                            .unwrap_or("I have no open loan recorded for you.");
+                        self.say(reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true,"debt_query"=>true}, jobs));
+                    }
+                    if matches!(engine_route, Some("disclosure")) {
+                        let reply =
+                            engine_out.as_ref().ok().and_then(|o| o.get("text")).and_then(Value::as_str).unwrap_or("");
+                        self.say(reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"disclosure_ack"=>true}, jobs));
+                    }
+                    if matches!(engine_route, Some("recall")) {
+                        let recall_text = self.roleplay_recall(line);
+                        let reply = engine_out
+                            .as_ref()
+                            .ok()
+                            .and_then(|o| o.get("text"))
+                            .and_then(Value::as_str)
+                            .unwrap_or_else(|| recall_text.as_deref().unwrap_or(""));
+                        self.say(reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"scoped_recall"=>true}, jobs));
+                    }
+                    if matches!(engine_route, Some("perception" | "places")) {
+                        let reply =
+                            engine_out.as_ref().ok().and_then(|o| o.get("text")).and_then(Value::as_str).unwrap_or("");
+                        self.say(reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {"addressed"=>true,"perceived_or_public"=>true}, jobs));
+                    }
+                    if matches!(
+                        engine_route,
+                        Some(
+                            "timeline"
+                                | "things"
+                                | "recipes"
+                                | "communities"
+                                | "species"
+                                | "fitness"
+                                | "props"
+                                | "entrances"
+                        )
+                    ) {
+                        let reply =
+                            engine_out.as_ref().ok().and_then(|o| o.get("text")).and_then(Value::as_str).unwrap_or("");
+                        self.say(reply)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        self.notice = "Reply ready from the character's current role and visible scene.".into();
+                        return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
+                    }
+                    if self.mind.enabled() && ["thanks", "farewell"].contains(&kind) {
                         let response = self.social_fallback(kind, trust)?;
                         self.say(&response)?;
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>kind}, jobs));
                     }
-                    if kind == "wellbeing" {
+                    if self.mind.enabled() && kind == "wellbeing" {
                         let response = self.social_fallback("wellbeing", trust)?;
                         self.say(&response)?;
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>"wellbeing"}, jobs));
                     }
-                    if kind == "elaborate" && previous.is_none() {
+                    if self.mind.enabled() && kind == "elaborate" && previous.is_none() {
                         self.say("Which part would you like me to explain?")?;
                         return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>"clarify_topic"}, jobs));
                     }
-                    if kind == "elaborate" {
+                    if self.mind.enabled() && kind == "elaborate" {
                         let response = if previous.as_deref() == Some("wellbeing") {
                             self.social_fallback("mood_reason", trust)?
                         } else {
@@ -2897,13 +2980,6 @@ impl App {
                         }
                     }
                     let ephemeral = kind == "social";
-                    let topic = self.mind.topic(line, trust).or_else(|| {
-                        if self.mind.enabled() {
-                            route.get("topic").and_then(Value::as_str).map(str::to_owned)
-                        } else {
-                            None
-                        }
-                    });
                     let ephemeral = ephemeral && (kind != "social" || topic.as_deref() == Some("conversation"));
                     if let Some(saved) = topic
                         .as_ref()
@@ -2958,10 +3034,6 @@ impl App {
                         fallback = format!("Briefly: {fallback}");
                     }
                     self.say(&fallback)?;
-                    if super::followup::stock_query(line) {
-                        self.notice = "Current stock and prices are ready.".into();
-                        return Ok((obj! {"addressed"=>true,"direct"=>true,"stock_query"=>true}, jobs));
-                    }
                     if chosen.is_some() {
                         self.notice = "Reply ready from the character's current role and visible scene.".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true}, jobs));
@@ -2984,7 +3056,7 @@ impl App {
                             .map(|v| get(v, "stance").cloned())
                             .transpose()?
                             .unwrap_or(Value::Null);
-                        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>obj!{"turn_kind"=>if ephemeral{kind}else{"viewpoint"},"reply_speaker"=>self.npc.clone(),"addressed_listener"=>self.player.clone(),"npc_trust_toward_listener"=>trust,"perspective"=>"In your reply I means the named NPC, and you means the addressed listener. Host/engine/source labels are application metadata, not people in this world. Never mention them or invent their personalities. A reason should come from your disposition or supplied heard experience.","established_viewpoint"=>established,"recent_confirmed_replies"=>self.recent_replies(),"direction"=>"Answer the current personal question; do not repeat an earlier reply or invent a past event, weather or world action."}.to_json()});
+                        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>obj!{"turn_kind"=>"viewpoint","reply_speaker"=>self.npc.clone(),"addressed_listener"=>self.player.clone(),"npc_trust_toward_listener"=>trust,"perspective"=>"In your reply I means the named NPC, and you means the addressed listener. Host/engine/source labels are application metadata, not people in this world. Never mention them or invent their personalities. A reason should come from your disposition or supplied heard experience.","established_viewpoint"=>established,"recent_confirmed_replies"=>self.recent_replies(),"direction"=>"Answer the current personal question; do not repeat an earlier reply or invent a past event, weather or world action."}.to_json()});
                         set(&mut payload, "messages", messages.into());
                         set(
                             &mut payload,
@@ -3387,8 +3459,40 @@ impl App {
             }
             "save" => {
                 fields(v, &["slot"])?;
-                let slot = num(v, "slot", 3)?;
+                let (slot_num, slot_name) = match v.get("slot") {
+                    Some(Value::Number(_)) => {
+                        let n = num(v, "slot", 32)?;
+                        (Some(n), format!("slot-{n}"))
+                    }
+                    Some(Value::String(s)) => (None, s.clone()),
+                    _ => return Err(err()),
+                };
                 self.stop(None)?;
+                let mut save_file = self.load_or_new_save_file()?;
+                let mut state = SaveState::new(&slot_name, self.tick)?;
+                state.put_engine(&self.engine_merchant)?;
+                state.put_engine(&self.engine_keeper)?;
+                state.put_engine(&self.engine_hound)?;
+                state.insert("host/game", "host", &self.game.public())?;
+                state.insert(
+                    "host/app",
+                    "host",
+                    &obj! {
+                        "player" => self.player.clone(),
+                        "npc" => self.npc.clone(),
+                        "seq" => self.seq,
+                        "counters" => self.counters.to_vec(),
+                        "fulfilled" => self.fulfilled.to_vec(),
+                        "counter_seq" => self.counter_seq,
+                        "transcript" => self.transcript.clone(),
+                        "actions" => self.actions.clone(),
+                        "world_ops" => self.world_ops.clone(),
+                        "receipts" => self.receipts.clone(),
+                    },
+                )?;
+                save_file.put(state, Some(&self.game_data))?;
+                atomic(&self.dir.join("saves.json"), save_file.to_json().as_bytes())?;
+
                 let mut saved = obj! {"version"=>1,"pack_digest"=>gamectx::media::visual::content_digest(self.pack.to_value().to_json().as_bytes())?,"seed"=>self.game.seed,"actions"=>self.actions.clone(),"world_ops"=>self.world_ops.clone(),"receipts"=>self.receipts.clone(),"interactions"=>self.interactions.iter().map(|(_,i)|i.checkpoint()).collect::<Vec<_>>(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"tick"=>self.tick,"seq"=>self.seq,"counters"=>self.counters.to_vec(),"fulfilled"=>self.fulfilled.to_vec(),"counter_seq"=>self.counter_seq,"transcript"=>self.transcript.clone()};
                 if self.mind.enabled() || !self.greetings.is_empty() {
                     set(&mut saved, "encounters", self.greetings.checkpoint());
@@ -3399,16 +3503,63 @@ impl App {
                 if self.mind.enabled() || !array(get(&self.mind.views.checkpoint(), "entries")?)?.is_empty() {
                     set(&mut saved, "viewpoints", self.mind.views.checkpoint());
                 }
-                atomic(&self.dir.join(format!("branch-{slot}.json")), saved.to_json().as_bytes())?;
-                self.notice = format!("Branch {} saved.", char::from(b'A' + slot as u8));
-                obj! {"saved"=>slot}
+                if let Some(n) = slot_num {
+                    atomic(&self.dir.join(format!("branch-{n}.json")), saved.to_json().as_bytes())?;
+                    self.notice = format!("Branch {} saved.", char::from(b'A' + n as u8));
+                    obj! {"saved"=>n, "slot"=>slot_name}
+                } else {
+                    self.notice = format!("Slot '{slot_name}' saved.");
+                    obj! {"saved"=>true, "slot"=>slot_name}
+                }
             }
             "load" => {
                 fields(v, &["slot"])?;
-                let slot = num(v, "slot", 3)?;
-                let saved = parse(&read_file(&self.dir.join(format!("branch-{slot}.json")), 8 * 1024 * 1024)?)?;
-                self.restore(&saved)?;
-                obj! {"loaded"=>slot}
+                let (slot_num, slot_name) = match v.get("slot") {
+                    Some(Value::Number(_)) => {
+                        let n = num(v, "slot", 32)?;
+                        (Some(n), format!("slot-{n}"))
+                    }
+                    Some(Value::String(s)) => (None, s.clone()),
+                    _ => return Err(err()),
+                };
+                if let Some(n) = slot_num {
+                    let path = self.dir.join(format!("branch-{n}.json"));
+                    if path.exists() {
+                        let saved = parse(&read_file(&path, 8 * 1024 * 1024)?)?;
+                        self.restore(&saved)?;
+                    }
+                }
+                let saves_path = self.dir.join("saves.json");
+                if saves_path.exists() {
+                    if let Ok(save_file) = SaveFile::parse(&read_file(&saves_path, 8 * 1024 * 1024)?) {
+                        if let Some(state) = save_file.state(&slot_name) {
+                            if let Ok(e) = state.engine("merchant", &self.game_data) {
+                                self.engine_merchant = e;
+                            }
+                            if let Ok(e) = state.engine("keeper", &self.game_data) {
+                                self.engine_keeper = e;
+                            }
+                            if let Ok(e) = state.engine("hound", &self.game_data) {
+                                self.engine_hound = e;
+                            }
+                        }
+                    }
+                }
+                if let Some(n) = slot_num {
+                    obj! {"loaded"=>n, "slot"=>slot_name}
+                } else {
+                    obj! {"loaded"=>true, "slot"=>slot_name}
+                }
+            }
+            "fork" => {
+                fields(v, &["from", "to"])?;
+                let from = text(v, "from")?;
+                let to = text(v, "to")?;
+                let mut save_file = self.load_or_new_save_file()?;
+                save_file.fork(from, to, self.tick)?;
+                atomic(&self.dir.join("saves.json"), save_file.to_json().as_bytes())?;
+                self.notice = format!("Forked '{from}' into '{to}'.");
+                obj! {"forked"=>true, "from"=>from, "to"=>to}
             }
             _ => return Err(err()),
         };
@@ -3489,8 +3640,9 @@ impl App {
         if actions.len() > 256 {
             return Err(err());
         }
-        let (reactions, game) =
+        let (reactions, mut game) =
             self.reactions.replay(v.get("npc_reactions"), num(v, "seed", 65535)? as u32, &actions)?;
+        game.enable_world_systems();
         let world_ops = array(get(v, "world_ops")?)?.to_vec();
         if world_ops.len() > 8192 {
             return Err(err());

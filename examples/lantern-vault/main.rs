@@ -11,6 +11,7 @@ mod routines;
 mod social;
 mod trade;
 mod web;
+pub mod world_model;
 use game::{fields, get, text, uint, GOAL};
 use gamectx::{data::json, obj, Error, Result, Value};
 use std::io::{self, BufRead, Read, Write};
