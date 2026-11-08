@@ -147,6 +147,45 @@ pub unsafe extern "C" fn gamectx_session_free(session: *mut gamectx::kit::Sessio
         drop(unsafe { Box::from_raw(session) });
     }
 }
+/// Compiles an image generation prompt description from a JSON request.
+///
+/// Request JSON can be:
+/// - `{"spec": ...}`
+/// - `{"bible": ..., "anchor": "...", "model": "sdxl"}`
+/// - `{"bible": ..., "frame": ..., "activity": ..., "life": ...}`
+///
+/// Returns an owned NUL-terminated JSON string `{"prompt": "...", "negative_prompt": "..."}`
+/// or null on error. Free with `gamectx_string_free`.
+/// # Safety
+/// `bytes` must be non-null and readable for `len` bytes for this call.
+#[no_mangle]
+pub unsafe extern "C" fn gamectx_visual_describe(bytes: *const u8, len: usize) -> *mut c_char {
+    guard(
+        || {
+            let Some(text) = (unsafe { input(bytes, len, MAX_REQUEST_BYTES) }) else { return ptr::null_mut() };
+            let val = match gamectx::data::json::parse(text, MAX_REQUEST_BYTES) {
+                Ok(v) => v,
+                Err(e) => {
+                    error(&e.to_string());
+                    return ptr::null_mut();
+                }
+            };
+            let a = if val.get("op").and_then(gamectx::Value::as_str) == Some("visual-describe") {
+                val.get("args").unwrap_or(&val)
+            } else {
+                &val
+            };
+            match gamectx::media::visual::describe_fixture(a) {
+                Ok(res) => CString::new(res.to_json()).expect("escaped JSON").into_raw(),
+                Err(e) => {
+                    error(&e.to_string());
+                    ptr::null_mut()
+                }
+            }
+        },
+        ptr::null_mut(),
+    )
+}
 
 #[cfg(test)]
 mod tests {
@@ -170,6 +209,20 @@ mod tests {
             let e = gamectx_last_error();
             assert!(!CStr::from_ptr(e).to_bytes().is_empty());
             gamectx_string_free(e);
+
+            // Test gamectx_visual_describe native C ABI
+            let art_json = include_str!("../../../examples/lantern-vault/web/art.json");
+            let desc_req = format!(
+                r#"{{"bible":{},"anchor":"keeper","model":"sdxl"}}"#,
+                art_json
+            );
+            let desc_reply = gamectx_visual_describe(desc_req.as_ptr(), desc_req.len());
+            assert!(!desc_reply.is_null());
+            let reply_str = CStr::from_ptr(desc_reply).to_str().unwrap();
+            assert!(reply_str.contains("\"prompt\""));
+            assert!(reply_str.contains("\"negative_prompt\""));
+            assert!(reply_str.contains("keeper"));
+            gamectx_string_free(desc_reply);
         }
     }
 }

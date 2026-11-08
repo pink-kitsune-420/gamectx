@@ -398,6 +398,14 @@ impl VisualSpec {
     pub fn to_value(&self) -> Value {
         obj! {"key"=>self.key.clone(),"spec"=>self.data.clone(),"inspection"=>self.inspection.clone()}
     }
+    pub fn from_value(v: &Value) -> Result<Self> {
+        bounded(v, 65536)?;
+        if let (Some(data), Some(insp)) = (v.get("spec"), v.get("inspection")) {
+            Self::new(data.clone(), insp.clone())
+        } else {
+            Self::new(v.clone(), obj! {})
+        }
+    }
     pub fn render(&self) -> Result<Value> {
         let d = &self.data;
         let mut positive = vec![
@@ -745,4 +753,39 @@ pub fn compile_fixture(a: &Value) -> Result<VisualSpec> {
         Some(life)
     };
     VisualSpec::compile(&bible, get(a, "frame")?, life.as_ref(), &activity)
+}
+
+/// Describe a visual spec or ArtBible anchor for image generation models.
+pub fn describe_fixture(a: &Value) -> Result<Value> {
+    bounded(a, crate::kit::MAX_REQUEST_BYTES)?;
+    let describer = if let Some(d) = a.get("describer") {
+        VisualDescriber::new(DescriberConfig::from_value(d)?)
+    } else if let Some(m) = a.get("model").and_then(Value::as_str) {
+        let cfg = match m.to_lowercase().as_str() {
+            "sdxl" => DescriberConfig::sdxl(),
+            "flux" => DescriberConfig::flux(),
+            "midjourney" | "mj" => DescriberConfig::midjourney(),
+            "dalle" | "dall-e" | "dalle3" | "dall-e-3" => DescriberConfig::dalle(),
+            "sd15" | "sd" | "stablediffusion" => DescriberConfig::sd15(),
+            _ => DescriberConfig::default(),
+        };
+        VisualDescriber::new(cfg)
+    } else {
+        VisualDescriber::default()
+    };
+
+    if let Some(spec_val) = a.get("spec") {
+        let spec = VisualSpec::from_value(spec_val)?;
+        describer.describe(&spec)
+    } else if let Some(bible_val) = a.get("bible") {
+        let bible = ArtBible::from_value(bible_val)?;
+        if let Some(anchor) = a.get("anchor").and_then(Value::as_str) {
+            describer.describe_anchor(&bible, anchor)
+        } else {
+            let spec = compile_fixture(a)?;
+            describer.describe(&spec)
+        }
+    } else {
+        Err(c::bad())
+    }
 }

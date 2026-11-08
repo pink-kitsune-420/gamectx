@@ -394,3 +394,36 @@ fn art_bible_malformed_embodiment_and_matter_rejection() {
     set(&mut b, "anchors", anchors.into());
     assert!(ArtBible::from_value(&b).is_err());
 }
+
+#[test]
+fn visual_describer_cli_and_session_export() {
+    let art_val: Value =
+        gamectx::data::json::parse(include_str!("../examples/lantern-vault/web/art.json"), 1_048_576).unwrap();
+
+    // 1. kit::local::process with kind "visual-describe"
+    let local_req = obj! {
+        "kind" => "visual-describe",
+        "args" => obj! {
+            "bible" => art_val.clone(),
+            "anchor" => "merchant",
+            "model" => "flux"
+        }
+    };
+    let local_res = gamectx::kit::local::process(&local_req).unwrap();
+    let prompt = local_res.get("prompt").and_then(Value::as_str).unwrap();
+    assert!(prompt.contains("amber eyes") || prompt.contains("copper stitching"));
+    assert_eq!(local_res.get("target"), Some(&Value::str("flux")));
+
+    // 2. Direct VisualSpec description through CLI
+    let spec = spec("neutral_portrait");
+    let spec_req = obj! {
+        "kind" => "visual-describe",
+        "args" => obj! {
+            "spec" => spec.to_value(),
+            "model" => "sdxl"
+        }
+    };
+    let spec_res = gamectx::kit::local::process(&spec_req).unwrap();
+    assert_eq!(spec_res.get("target"), Some(&Value::str("sdxl")));
+    assert!(spec_res.get("negative_prompt").and_then(Value::as_str).unwrap().contains("blurry"));
+}

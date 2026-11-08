@@ -71,6 +71,31 @@ pub(super) fn execute(s: &Session, op: &str, a: &Value) -> Result<Value> {
                 r.registry.inspect(text(a, "key")?)
             }
         }
+        "visual_describe" => {
+            c::fields(a, &["id", "target"])?;
+            let target = c::get(a, "target")?;
+            let describer = if let Some(m) = a.get("model").and_then(Value::as_str) {
+                let cfg = match m.to_lowercase().as_str() {
+                    "sdxl" => crate::media::visual::DescriberConfig::sdxl(),
+                    "flux" => crate::media::visual::DescriberConfig::flux(),
+                    "midjourney" | "mj" => crate::media::visual::DescriberConfig::midjourney(),
+                    "dalle" | "dalle3" | "dall-e" => crate::media::visual::DescriberConfig::dalle(),
+                    "sd15" | "sd" => crate::media::visual::DescriberConfig::sd15(),
+                    _ => crate::media::visual::DescriberConfig::default(),
+                };
+                crate::media::visual::VisualDescriber::new(cfg)
+            } else if let Some(d) = a.get("describer") {
+                crate::media::visual::VisualDescriber::new(crate::media::visual::DescriberConfig::from_value(d)?)
+            } else {
+                crate::media::visual::VisualDescriber::default()
+            };
+            if let Some(anchor) = target.as_str() {
+                describer.describe_anchor(&r.bible, anchor)
+            } else {
+                let spec = VisualSpec::from_value(target)?;
+                describer.describe(&spec)
+            }
+        }
         _ => Err(bad()),
     }
 }
