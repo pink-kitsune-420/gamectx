@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"entry":{"at":115,"kind":"feed","summary":"hero fed canine_1 at kennel.","place":"kennel","actors":["hero"],"witnesses":["kennel_master"],"visibility":"witnessed","noise":10},"ok":true,"op":"feed"},"beings":[{"id":"hero","place":"kennel","token":10},{"id":"kennel_master","place":"kennel","token":11}]}}]}}

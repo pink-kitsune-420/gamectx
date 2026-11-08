@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":105,"kind":"alarm_bell","summary":"The town alarm bell rang furiously.","place":"belltower","actors":["watchman"],"visibility":"public","noise":75},"beings":[{"id":"villager","place":"farmland","senses":{"hearing":true},"token":5}]}}]}}

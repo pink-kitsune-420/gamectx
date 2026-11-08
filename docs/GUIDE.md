@@ -745,6 +745,10 @@ For ordinary heard dialogue, `LivingWorld::record(actor, event)` accepts a host-
 non-retained event without reserving a rumor slot. `Life::trim_transient(keep)` preserves
 retained/appraisal evidence and its complete active causal groups. Use `observe` for
 consequential shareable experiences; it retains its explicit bounded-root contract.
+To transform timeline entries and world events into sensory Life experiences automatically,
+use the [witness bridge](characters/LIFE.md#witness-bridge-gap-1) (`character::life::witness::WitnessBridge`
+or local kind `witness`), which enforces line of sight, hearing thresholds, sleep/unconscious states,
+and provenance (`direct` vs `report`).
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

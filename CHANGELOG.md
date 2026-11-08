@@ -2,6 +2,18 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Witness bridge (`character::life::witness`, local kind `witness`, Gap 1): world events to Life experiences.
+  - Automatically bridges timeline entries and module outcomes (recipes, species, barter, things)
+    into direct Life experiences for perceiving witnesses, and report experiences when told.
+  - Evaluates each being's physical capacity (refuses if dead or unconscious), sleep state (requires loud
+    noise >= 80 to wake and perceive), co-location, visual occlusion, and distant public sounds (noise >= 60).
+  - Produces valid `direct` experiences (`{token, at, kind: "direct", tag, subject, source, audience: [being], text, causes: [], retain: true}`)
+    that can be directly ingested via `life.experience(&exp)`.
+  - Provides `tell` operation to share known events between co-located beings, emitting valid `report`
+    experiences with attributed teller provenance and causal token tracking.
+  - Ops: `witness`, `tell`.
+  - 25 cases (10 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Action catalog (`knowledge::action_catalog`, local kind `actions`, Gap 5): read-only description over existing operations.
   - Adds a host-authoritative metadata catalog over all 11 simulated operational surfaces:
     things, recipes, species, communities, inventory, fitness, props, services, reactions,

@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"entry":{"at":125,"kind":"barter","summary":"hero bartered with merchants at square.","place":"square","actors":["hero","merchants"],"visibility":"witnessed","noise":20},"ok":true},"beings":[{"id":"hero","place":"square","token":15},{"id":"merchants","place":"square","token":16}]}}]}}

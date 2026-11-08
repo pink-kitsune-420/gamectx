@@ -181,7 +181,7 @@ now, and what would it change?", which no single module answers today.
 These are the places where the world model and the mind do not reach each other. Each was
 checked by reading the source; "none found" means a search of `src/` found no code for it.
 
-### Gap 1: world events do not become experience automatically
+### Gap 1: world events do not become experience automatically — **DONE** ([Evidence](../characters/LIFE.md#witness-bridge-gap-1))
 
 The timeline records `actors`, `witnesses` and `visibility`, and Life accepts host
 experiences, but no bridge in `character/life` or `character/living` turns a witnessed
@@ -319,7 +319,7 @@ Ordered by how much each unblocks the others, not by size.
 
 1. **Action catalog** (gap 5) — **DONE** ([Evidence](../guides/WORLD.md#actions)). Read-only description over existing ops. Unblocks planning,
    motive ranking, skills and off-screen effects. No behaviour change.
-2. **Witness bridge** (gap 1). Small, deterministic, high value: the world starts reaching
+2. **Witness bridge** (gap 1) — **DONE** ([Evidence](../characters/LIFE.md#witness-bridge-gap-1)). Small, deterministic, high value: the world starts reaching
    memory without per-host glue.
 3. **Body and need dynamics** (gaps 2, 12). Rates, satisfiers, rest and conditions.
 4. **Motive arbiter** (gap 3). One explainable ranking over needs, routine, goals, tasks,

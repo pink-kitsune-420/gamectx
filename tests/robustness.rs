@@ -1732,4 +1732,37 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     too_many_actions.push_str("]}");
     assert!(ActionCatalog::parse(&too_many_actions).is_err());
+
+    // 5. WitnessBridge mutation fuzzing & boundaries
+    use gamectx::character::life::witness::WitnessBridge;
+    let mut bridge = WitnessBridge::new();
+    let sample_witness_req = r#"{"ops":[{"op":"witness","args":{"entry":{"at":10,"kind":"test","summary":"test"},"beings":[{"id":"baker","place":"road"}]}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_witness_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = bridge.workflow(&v);
+        }
+    }
+    // Boundary test: WitnessBridge accepts up to 64 beings and rejects 65
+    let mut beings_64 =
+        String::from(r#"{"ops":[{"op":"witness","args":{"entry":{"at":10,"kind":"test","summary":"test"},"beings":["#);
+    for i in 0..64 {
+        if i > 0 {
+            beings_64.push(',');
+        }
+        beings_64.push_str(&format!(r#"{{"id":"b_{i}","place":"road"}}"#));
+    }
+    beings_64.push_str("]}}]}");
+    assert!(bridge.workflow(&parse(&beings_64, 1 << 20).unwrap()).is_ok());
+
+    let mut beings_65 =
+        String::from(r#"{"ops":[{"op":"witness","args":{"entry":{"at":10,"kind":"test","summary":"test"},"beings":["#);
+    for i in 0..65 {
+        if i > 0 {
+            beings_65.push(',');
+        }
+        beings_65.push_str(&format!(r#"{{"id":"b_{i}","place":"road"}}"#));
+    }
+    beings_65.push_str("]}}]}");
+    assert!(bridge.workflow(&parse(&beings_65, 1 << 20).unwrap()).is_err());
 }

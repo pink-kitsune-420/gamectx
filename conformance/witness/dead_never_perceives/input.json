@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":95,"kind":"ceremony","summary":"A solemn chant.","place":"tomb","actors":["priest"],"visibility":"public","noise":50},"beings":[{"id":"ghost","place":"tomb","senses":{"conditions":["dead"]},"token":4}]}}]}}

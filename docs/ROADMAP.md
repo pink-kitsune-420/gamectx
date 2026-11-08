@@ -94,10 +94,14 @@ noted; "3 models" adds Llama 3.3 70B.
     Schema: actor requirements, typed target slots, preconditions, cost, effects, perception, risk,
     duration, interruptibility. 25 cases (9 malformed), 2,000 differential parity workflows (seed 7,
     0 mismatches), zero model spend, zero behavior changes.
-  - Next (Stage 2 / Gap 1): Witness bridge: timeline entry + witnesses + senses → direct Life
-    experience for perceiving witnesses; reports when told. Deterministic and bounded.
-  - Next (Agent Model Gaps 3–13): body/needs dynamics, motive arbiter, tasks/planning, affect decay,
-    model of others / lie ledger, off-screen effects / curiosity.
+  - Implemented (Stage 2 / Gap 1): Witness bridge (`character::life::witness::WitnessBridge`, local kind `witness`).
+    Transforms timeline events, craft outcomes, and barter interactions into `direct` Life experiences for
+    witnesses with sensory access (sight, hearing noise thresholds, sleep/unconsciousness checks) and `report`
+    experiences when told. 25 conformance cases (10 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
+  - Next (Stage 3 / Gaps 2 & 12): Body and needs that change over time. Need definitions with tick rates,
+    satisfiers; body state (fatigue, health, conditions: asleep, sick, unconscious, dead) affecting actions, routines, and speech.
+  - Next (Agent Model Gaps 3–8): motive arbiter, tasks/planning, affect decay & missing feelings + skills growth,
+    model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

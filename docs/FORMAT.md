@@ -2451,6 +2451,20 @@ Ops:
 - `check {action, actor, bindings?, place?}` → `{feasible: bool, action, cost?, effects?, perception?, duration?, interruptible?, reason?}`.
 - `register {action}` → `{registered: id}`. Dynamically registers or overrides an action definition.
 
+## Witness bridge v1
+
+`gamectx::character::life::witness` (guide: [Life](characters/LIFE.md#witness-bridge-gap-1)). The `witness`
+JSON-lines `local` kind runs `{beings?, ops ≤64 [{op, args}]}` and returns `{results}`.
+25 additive cases live in `conformance/witness/`.
+
+Ops:
+- `witness {entry, beings?, base_token?}` → `{entry_kind, outcomes: [{being, perceived: bool, reason, experience?}], perceived_count}`.
+  - Ingests timeline entries or module outcomes (recipes, species, barter, things).
+  - Evaluates each being's physical capacity (refuses if dead/unconscious), sleep state (requires noise ≥ 80), co-location, line of sight (occlusion), and loud distant public sounds (noise ≥ 60).
+  - Emits a valid `direct` Life experience (`{token, at, kind: "direct", tag, subject, source, audience: [being], text, causes: [], retain: true}`) for each perceiving witness.
+- `tell {teller, listener, event, at?, token?, teller_place?, listener_place?}` → `{ok: true, teller, listener, experience}`.
+  - Generates a valid `report` Life experience (`{token, at, kind: "report", tag, subject, source: {id, speaker: teller, text}, audience: [listener, teller], text, causes: [event.token], retain: true}`) when told in person.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

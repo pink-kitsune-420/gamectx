@@ -10,10 +10,12 @@ mod party;
 mod selection;
 mod speech;
 mod storage;
+pub mod witness;
 pub use continuity::{Coordinator, SpeechTransport};
 pub use initiative::{Initiative, InitiativePolicy};
 pub use speech::{assess_sentence, SentenceAssessment, SpeechTurn};
 pub use storage::{FileStore, Storage};
+pub use witness::WitnessBridge;
 pub const MAX_BYTES: usize = 524_288;
 pub(crate) fn get<'a>(v: &'a Value, k: &str) -> Result<&'a Value> {
     c::get(v, k)

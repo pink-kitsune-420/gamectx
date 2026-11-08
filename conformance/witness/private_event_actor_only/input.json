@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":70,"kind":"secret_pact","summary":"A quiet whispered promise.","place":"tavern_corner","actors":["spy_1","spy_2"],"visibility":"private","noise":5},"beings":[{"id":"spy_1","place":"tavern_corner","token":10},{"id":"eavesdropper","place":"tavern_corner","token":11}]}}]}}

@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":150,"kind":"song","summary":"A minstrel sang a ballad.","place":"tavern","actors":["minstrel"],"visibility":"public","noise":30},"beings":[{"id":"patron_a","place":"tavern"},{"id":"patron_b","place":"tavern"}]}}]}}

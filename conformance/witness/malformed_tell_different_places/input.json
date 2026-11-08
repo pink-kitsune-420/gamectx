@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"tell","args":{"teller":"alice","listener":"bob","event":{"summary":"Hello."},"teller_place":"castle","listener_place":"forest"}}]}}

@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"entry":{"at":130,"kind":"create","summary":"smith created iron_anvil at forge.","place":"forge","actors":["smith"],"visibility":"witnessed","noise":30},"ok":true},"beings":[{"id":"smith","place":"forge","token":20}]}}]}}

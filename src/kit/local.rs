@@ -88,6 +88,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "episodes" => crate::character::life::episodes_fixture(a),
         "continuity" => crate::character::life::continuity_fixture(a),
         "life" => crate::character::life::workflow(a),
+        "witness" => crate::character::life::witness::workflow(a),
         "interactions" => crate::character::dialogue::interaction_workflow(a),
         "info" => crate::knowledge::info::workflow(a),
         "inventory" => crate::knowledge::inventory::workflow(a),

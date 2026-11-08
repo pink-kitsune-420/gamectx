@@ -305,3 +305,22 @@ pass ordinary direct/outcome appraisal. Chronological effective group levels and
 reasons live beside the base Life state; old checkpoints remain unchanged. Use the world
 compiler and gate-aware dispatcher for these effective levels. Retention, save replay and
 erasure must cover provenance/influence ledgers together, not restore a base checkpoint alone.
+
+## Witness bridge (Gap 1)
+
+`gamectx::character::life::witness` (`WitnessBridge`, local kind `witness`) turns world events
+and module outcomes into Life experiences:
+- Timeline entries and module outcomes (from recipes, species, barter, things) produce a
+  `direct` Life experience for each perceiving witness.
+- When an informed character shares an event with another, `tell` produces a `report` Life
+  experience for the listener with attributed provenance.
+- Deterministic sensory evaluation: checks physical capacity (dead/unconscious), sleep
+  state (wakes only on loud noise >= 80), co-location, line-of-sight occlusion, and distant
+  public sound propagation.
+
+All produced experiences strictly conform to `validate_event` and can be immediately ingested
+via `life.experience(&exp)`.
+
+**Evidence:** 25 cases (`conformance/witness/`, 10 malformed), 2,000 differential parity
+workflows (`eval/character/witness_cases.py`, seed 7, 0 mismatches), $0 API spend.
+

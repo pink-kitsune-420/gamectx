@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":90,"kind":"gong","summary":"A loud gong rang out.","place":"temple","actors":["monk"],"visibility":"public","noise":95},"beings":[{"id":"patient","place":"temple","senses":{"conditions":["unconscious"]},"token":3}]}}]}}

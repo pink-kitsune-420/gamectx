@@ -1,0 +1,1 @@
+{"kind":"witness","args":{"ops":[{"op":"witness","args":{"entry":{"at":110,"kind":"rattle","summary":"A wooden box rattled.","place":"cellar","actors":["rat"],"visibility":"witnessed","noise":25},"beings":[{"id":"deaf_worker","place":"cellar","senses":{"hearing":false,"occluded":true},"token":6}]}}]}}
