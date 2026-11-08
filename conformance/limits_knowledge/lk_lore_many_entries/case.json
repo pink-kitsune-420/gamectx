@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising entries to 600 loads 540 lore entries (the old bound was 512).",
+  "error": false
+}

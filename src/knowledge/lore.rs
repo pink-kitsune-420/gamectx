@@ -1,6 +1,13 @@
 //! Validated authored lore, selected only after host-provided knowledge/visibility gates.
 use crate::{checked as c, obj, packet::request::bounded, Result, Value};
 use std::io::Read;
+/// Host-set limits (defaults are the earlier fixed bounds): most lore `entries` and the most
+/// serialized `bytes` in a lore document.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "entries", default: 512, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "bytes", default: 262_144, ceiling: 268_435_456 },
+];
+crate::character::limits::module_limits!(LoreLimits, LIMITS);
 fn text<'a>(v: &'a Value, k: &str) -> Result<&'a str> {
     c::text(c::get(v, k)?)
 }
@@ -43,21 +50,26 @@ impl Lore {
         Self::parse(&input)
     }
     pub fn from_value(v: &Value) -> Result<Self> {
-        bounded(v, 262144)?;
+        Self::from_value_within(v, &LoreLimits::default())
+    }
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS).
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
+        bounded(v, l.get("bytes"))?;
         c::fields(v, &["version", "entries"])?;
         let version = c::uint(c::get(v, "version")?, 1, 2)?;
         let rows = c::list(c::get(v, "entries")?)?;
-        if rows.len() > 512 {
+        if rows.len() > l.get("entries") {
             return Err(c::bad());
         }
         let mut index = Vec::new();
-        for (i, e) in rows.iter().enumerate() {
+        let mut seen = std::collections::BTreeSet::new();
+        for e in rows {
             let payload = if version == 1 { "text" } else { "value" };
             c::fields(e, &["id", "subject", "topic", payload, "tags", "known_by", "requires"])?;
             for k in ["id", "subject", "topic"] {
                 c::scope(text(e, k)?)?;
             }
-            if rows[..i].iter().any(|v| v.get("id") == e.get("id")) {
+            if !seen.insert(text(e, "id")?) {
                 return Err(c::bad());
             }
             let body = if version == 1 {
@@ -178,4 +190,15 @@ impl Lore {
             obj! {"packet"=>packet.clone(),"receipt"=>obj! {"bytes"=>packet.json_len(),"selected"=>ids,"omitted"=>omitted}},
         )
     }
+}
+
+/// The `lore` local kind: `{world, select, limits?}` → `{limits?, packet, receipt}`. `limits`
+/// are the lore document's [host-set limits](LIMITS), echoed when supplied.
+pub fn workflow(a: &Value) -> Result<Value> {
+    let mut limits = LoreLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let a = stripped.as_ref().unwrap_or(a);
+    c::fields(a, &["world", "select"])?;
+    let out = Lore::from_value_within(c::get(a, "world")?, &limits)?.select(c::get(a, "select")?)?;
+    Ok(crate::character::limits::echo(out, &limits, stripped.is_some()))
 }

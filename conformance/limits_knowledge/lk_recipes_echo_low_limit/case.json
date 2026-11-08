@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A low recipes limit is echoed and an empty book still answers.",
+  "error": false
+}

@@ -2,7 +2,9 @@
 members, customs (norms), relations with numeric trust, markets, and bartering.
 Python standard library only; nothing here calls a model.
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_COMMUNITIES = 64
 MAX_MEMBERS = 64
@@ -11,6 +13,9 @@ MAX_RELATIONS = 64
 MAX_RULES = 32
 MAX_OPS = 64
 MAX_SAFE = 9007199254740991
+SPEC = [('communities', MAX_COMMUNITIES, 65536), ('members', MAX_MEMBERS, 65536), ('customs', MAX_CUSTOMS, 1024),
+        ('relations', MAX_RELATIONS, 65536), ('rules', MAX_RULES, 1024)]
+LIM = Limits(SPEC)  # the limits of the workflow being run (set by `workflow`)
 
 STANCES = ['allied', 'friendly', 'neutral', 'wary', 'hostile']
 STANCE_DEFAULTS = {
@@ -59,10 +64,10 @@ def validate_rule(r):
 def validate_market(m):
     keys(m, [], ['buys', 'sells'])
     if 'buys' in m and m['buys'] is not None:
-        assert isinstance(m['buys'], list) and len(m['buys']) <= MAX_RULES
+        assert isinstance(m['buys'], list) and len(m['buys']) <= LIM['rules']
         for r in m['buys']: validate_rule(r)
     if 'sells' in m and m['sells'] is not None:
-        assert isinstance(m['sells'], list) and len(m['sells']) <= MAX_RULES
+        assert isinstance(m['sells'], list) and len(m['sells']) <= LIM['rules']
         for r in m['sells']: validate_rule(r)
 
 
@@ -84,13 +89,13 @@ def validate_community(c):
         assert isinstance(c['home_places'], list) and len(c['home_places']) <= 16
         for p in c['home_places']: ident(p)
     if 'members' in c and c['members'] is not None:
-        assert isinstance(c['members'], list) and len(c['members']) <= MAX_MEMBERS
+        assert isinstance(c['members'], list) and len(c['members']) <= LIM['members']
         for m in c['members']: ident(m)
     if 'customs' in c and c['customs'] is not None:
-        assert isinstance(c['customs'], list) and len(c['customs']) <= MAX_CUSTOMS
+        assert isinstance(c['customs'], list) and len(c['customs']) <= LIM['customs']
         for cust in c['customs']: text(cust, 120)
     if 'relations' in c and c['relations'] is not None:
-        assert isinstance(c['relations'], list) and len(c['relations']) <= MAX_RELATIONS
+        assert isinstance(c['relations'], list) and len(c['relations']) <= LIM['relations']
         targets = set()
         for r in c['relations']:
             validate_relation(r)
@@ -104,7 +109,7 @@ class CommunityWorld:
     def __init__(self, communities=None):
         self.communities = {}
         if communities is not None:
-            assert isinstance(communities, list) and len(communities) <= MAX_COMMUNITIES
+            assert isinstance(communities, list) and len(communities) <= LIM['communities']
             for c in communities:
                 validate_community(c)
                 assert c['id'] not in self.communities
@@ -251,7 +256,7 @@ class CommunityWorld:
                 found = True
                 break
         if not found:
-            assert len(comm['relations']) < MAX_RELATIONS
+            assert len(comm['relations']) < LIM['relations']
             comm['relations'].append(dict(target=target, stance=stance, trust=trust))
 
         entry = dict(
@@ -277,7 +282,7 @@ class CommunityWorld:
         if 'members' not in comm or comm['members'] is None:
             comm['members'] = []
         if actor not in comm['members']:
-            assert len(comm['members']) < MAX_MEMBERS
+            assert len(comm['members']) < LIM['members']
             comm['members'].append(actor)
         entry = dict(
             at=at,
@@ -319,7 +324,7 @@ class CommunityWorld:
     def op_set_customs(self, at, community, customs, place=None):
         ident(community)
         if place is not None: ident(place)
-        assert isinstance(customs, list) and len(customs) <= MAX_CUSTOMS
+        assert isinstance(customs, list) and len(customs) <= LIM['customs']
         for cust in customs: text(cust, 120)
         comm = self.get_community(community)
         assert comm is not None
@@ -554,7 +559,7 @@ class CommunityWorld:
             comm_list = req['communities']
             self.communities = {}
             if comm_list is not None:
-                assert isinstance(comm_list, list) and len(comm_list) <= MAX_COMMUNITIES
+                assert isinstance(comm_list, list) and len(comm_list) <= LIM['communities']
                 for c in comm_list:
                     validate_community(c)
                     assert c['id'] not in self.communities
@@ -637,6 +642,10 @@ class CommunityWorld:
 
 
 def workflow(a):
-    keys(a, ['ops'], ['communities', 'things'])
-    cw = CommunityWorld(a.get('communities'))
-    return cw.workflow(a)
+    global LIM
+    LIM = Limits(SPEC)
+
+    def inner(b):
+        keys(b, ['ops'], ['communities', 'things'])
+        return CommunityWorld(b.get('communities')).workflow(b)
+    return limited(a, LIM, inner)

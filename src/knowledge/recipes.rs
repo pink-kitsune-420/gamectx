@@ -11,6 +11,10 @@ use crate::{obj, Result, Value};
 pub const MAX_RECIPES: usize = 256;
 pub const MAX_OPS: usize = 64;
 const MAX_SAFE: u64 = 9_007_199_254_740_991;
+/// Host-set limits (default is the earlier fixed bound): most `recipes`.
+pub const LIMITS: &[crate::character::limits::Limit] =
+    &[crate::character::limits::Limit { name: "recipes", default: MAX_RECIPES, ceiling: 65_536 }];
+crate::character::limits::module_limits!(RecipesLimits, LIMITS);
 
 pub const CATEGORIES: [&str; 5] = ["crafting", "cooking", "building", "repairing", "dismantling"];
 pub const DIRECTIONS: [&str; 10] =
@@ -406,16 +410,22 @@ impl RecipeDef {
 #[derive(Debug, Clone, Default)]
 pub struct Recipes {
     pub recipes: Vec<RecipeDef>,
+    limits: RecipesLimits,
 }
 
 impl Recipes {
     pub fn new() -> Self {
-        Self { recipes: Vec::new() }
+        Self::default()
     }
 
     pub fn from_value(v: &Value) -> Result<Self> {
+        Self::from_value_within(v, &RecipesLimits::default())
+    }
+
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS); the result keeps them.
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
         let arr = v.as_array().ok_or_else(c::bad)?;
-        if arr.len() > MAX_RECIPES {
+        if arr.len() > l.get("recipes") {
             return Err(c::bad());
         }
         let mut recipes = Vec::new();
@@ -426,7 +436,7 @@ impl Recipes {
             }
             recipes.push(r);
         }
-        Ok(Self { recipes })
+        Ok(Self { recipes, limits: RecipesLimits(l.clone()) })
     }
 
     pub fn to_value(&self) -> Value {
@@ -944,7 +954,22 @@ impl Recipes {
         })
     }
 
+    /// Runs `{ops, recipes?, things?, codex?, bio?, limits?}`. `limits` (host-set
+    /// [limits](LIMITS)) apply first and are echoed in the output.
     pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+        let stripped = crate::character::limits::take(req, &mut self.limits)?;
+        let out = self.run_workflow(stripped.as_ref().unwrap_or(req))?;
+        Ok(crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+    }
+
+    /// A recipe book with host limits applied up front.
+    pub fn with_limits(v: &Value) -> Result<Self> {
+        let mut r = Self::new();
+        r.limits.apply(v)?;
+        Ok(r)
+    }
+
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &["recipes", "things", "codex", "bio"])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.len() > MAX_OPS {
@@ -952,7 +977,7 @@ impl Recipes {
         }
 
         if let Some(r_val) = req.get("recipes").filter(|x| **x != Value::Null) {
-            *self = Self::from_value(r_val)?;
+            *self = Self::from_value_within(r_val, &self.limits)?;
         }
 
         let mut things_state = if let Some(th) = req.get("things").filter(|x| **x != Value::Null) {
@@ -1067,12 +1092,8 @@ impl Recipes {
     }
 }
 
+/// The `recipes` local kind: `{ops, recipes?, things?, codex?, bio?, limits?}` →
+/// `{limits?, results, ...}`.
 pub fn workflow(a: &Value) -> Result<Value> {
-    keys(a, &["ops"], &["recipes", "things", "codex", "bio"])?;
-    let mut rec = if let Some(r_val) = a.get("recipes").filter(|x| **x != Value::Null) {
-        Recipes::from_value(r_val)?
-    } else {
-        Recipes::new()
-    };
-    rec.workflow(a)
+    Recipes::new().workflow(a)
 }

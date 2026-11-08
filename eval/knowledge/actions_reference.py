@@ -20,11 +20,14 @@ Schema per action:
   duration: int
   interruptible: bool
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_ACTIONS = 256
 MAX_OPS = 64
 MAX_SAFE = 9007199254740991
+SPEC = [('actions', MAX_ACTIONS, 65536)]
 
 CATEGORIES = [
     'things',
@@ -1184,7 +1187,8 @@ BUILTIN_ACTIONS = [
 
 
 class ActionCatalog:
-    def __init__(self, actions=None):
+    def __init__(self, actions=None, cap=MAX_ACTIONS):
+        self.cap = cap
         self.actions = {act['id']: copy.deepcopy(act) for act in BUILTIN_ACTIONS}
         if actions:
             for act in actions:
@@ -1216,7 +1220,7 @@ class ActionCatalog:
 
     def op_register(self, action):
         validate_action(action)
-        assert len(self.actions) < MAX_ACTIONS or action['id'] in self.actions
+        assert len(self.actions) < self.cap or action['id'] in self.actions
         self.actions[action['id']] = copy.deepcopy(action)
         return {'registered': action['id']}
 
@@ -1366,6 +1370,7 @@ class ActionCatalog:
             for act in req['actions']:
                 validate_action(act)
                 self.actions[act['id']] = copy.deepcopy(act)
+            assert len(self.actions) <= self.cap
 
         results = []
         for op_call in ops:
@@ -1421,5 +1426,5 @@ class ActionCatalog:
 
 
 def workflow(req):
-    cat = ActionCatalog()
-    return cat.workflow(req)
+    lim = Limits(SPEC)
+    return limited(req, lim, lambda b: ActionCatalog(None, lim['actions']).workflow(b))

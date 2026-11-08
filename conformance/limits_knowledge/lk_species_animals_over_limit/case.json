@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A herd larger than the animals limit is refused at load.",
+  "error": true
+}

@@ -95,9 +95,13 @@ def query_template(a):
     return {'tool':{'name':t['name'],'description':t['description'],'parameters':{'type':'object','properties':properties,
         'required':[p['name'] for p in params],'additionalProperties':False}},'result':result}
 
+EVIDENCE_SPEC=[('records',128,1024),('bytes',262144,4194304)]
 def evidence(a):
+    from limits_reference import Limits,limited
+    lim=Limits(EVIDENCE_SPEC);return limited(a,lim,lambda b:evidence_within(b,lim.values))
+def evidence_within(a,lim):
     fields(a,['records','max_bytes']);cap=uint(a['max_bytes'],262144)
-    rows=a['records'];need(isinstance(rows,list) and len(rows)<=128 and len(encode(rows).encode())<=262144)
+    rows=a['records'];need(isinstance(rows,list) and len(rows)<=lim['records'] and len(encode(rows).encode())<=lim['bytes'])
     ids=[]
     for row in rows:
         fields(row,['id','value','depends','priority','required']);name(row['id']);need(row['id'] not in ids);ids.append(row['id'])

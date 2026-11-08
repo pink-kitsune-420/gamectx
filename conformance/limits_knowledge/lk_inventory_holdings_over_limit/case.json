@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A snapshot with more holdings than the limit is refused.",
+  "error": true
+}

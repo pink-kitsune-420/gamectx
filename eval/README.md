@@ -1326,6 +1326,15 @@ gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fre
 and method limits. Audit with `--check eval/character/scale-timing.json`; CI compiles and runs the
 harness but enforces no timing thresholds. [Results](../docs/characters/LIFE.md#host-set-limits).
 
+`knowledge/limits_knowledge_cases.py --cap 0` checks 25 cases (`conformance/limits_knowledge/`, 6 malformed)
+for the knowledge kinds (places, timeline, things, species, recipes, communities, actions, lore, inventory,
+evidence, info); `--random 2000 --seed 7` runs eleven generators with random limits near each fixture's size
+against `gamectx local -` (0 mismatches: 1,472 accepted, 528 refused, 1,196 with limits). The module
+references take their limits from `character/limits_reference.py`. `knowledge/scale_measure.rs` loads
+1,000 and 10,000 entries per kind (evidence 256/1,024, facts 1,000/4,096) and times 1,000 queries; build and
+retain it like the character harness, with `knowledge/scale_measure_check.py` and
+`--check eval/knowledge/scale-timing.json`. [Results](../docs/characters/LIFE.md#knowledge-modules).
+
 ## Visual compiler and approved asset metadata (offline)
 
 `visual_reference.py` independently prototypes bounded art contracts, live expression/pose

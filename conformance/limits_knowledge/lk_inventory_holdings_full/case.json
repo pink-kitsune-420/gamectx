@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A transfer that would add a holding past the limit fails atomically.",
+  "error": false
+}

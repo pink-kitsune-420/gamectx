@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At a full members limit an existing member is a no-op; a smaller community still takes a new member.",
+  "error": false
+}

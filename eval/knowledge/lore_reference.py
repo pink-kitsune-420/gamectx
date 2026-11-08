@@ -12,15 +12,17 @@ def strings(v,maximum):
     return v
 
 def body(v,maximum):need(isinstance(v,str) and 0<len(v)<=maximum and not any(ord(c)<32 or 127<=ord(c)<=159 for c in v))
+SPEC=[('entries',512,65536),('bytes',262144,268435456)]
 class Lore:
-    def __init__(self,v):
-        fields(v,['version','entries']);need(type(v['version']) is int and v['version'] in [1,2] and len(encode(v).encode())<=262144)
-        need(isinstance(v['entries'],list) and len(v['entries'])<=512);ids=[]
+    def __init__(self,v,lim=None):
+        lim=lim or {'entries':512,'bytes':262144}
+        fields(v,['version','entries']);need(type(v['version']) is int and v['version'] in [1,2] and len(encode(v).encode())<=lim['bytes'])
+        need(isinstance(v['entries'],list) and len(v['entries'])<=lim['entries']);ids=set()
         for e in v['entries']:
             payload='text' if v['version']==1 else 'value'
             fields(e,['id','subject','topic',payload,'tags','known_by','requires'])
             for k in ['id','subject','topic']:scope(e[k])
-            need(e['id'] not in ids);ids.append(e['id'])
+            need(e['id'] not in ids);ids.add(e['id'])
             if v['version']==1:body(e['text'],1024)
             else:need(len(encode(e['value']).encode())<=4096)
             strings(e['tags'],16);strings(e['known_by'],16);strings(e['requires'],16)
@@ -62,7 +64,10 @@ class Answers:
         return {'status':'answered','text':text,'sources':[source]}
 def process(v):
     if v['kind']=='lore':
-        a=v['args'];fields(a,['world','select']);return Lore(a['world']).select(a['select'])
+        from limits_reference import Limits,limited
+        lim=Limits(SPEC)
+        def run(a):fields(a,['world','select']);return Lore(a['world'],lim.values).select(a['select'])
+        return limited(v['args'],lim,run)
     a=v['args'];fields(a,['definition','calls']);answers=Answers(a['definition']);need(isinstance(a['calls'],list) and len(a['calls'])<=8);results=[]
     for call in a['calls']:
         fields(call,['text','context','available']);need(isinstance(call['available'],list) and len(call['available'])<=32)

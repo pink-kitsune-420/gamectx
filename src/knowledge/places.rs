@@ -29,6 +29,8 @@
 //! assert_eq!(woods.get("distance").and_then(|v| v.as_usize()), Some(5));
 //! # Ok::<(), gamectx::Error>(())
 //! ```
+use std::cmp::Reverse;
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 use std::sync::OnceLock;
 
 use crate::knowledge::codex::{keys, list, unique_ids, Codex};
@@ -82,8 +84,8 @@ pub(crate) fn validate(v: &Value, places: &[Value]) -> Result<()> {
         c::boolean(c::get(k, "indoor")?)?;
     }
     unique_ids(custom)?;
-    let ids = places.iter().map(id_of).collect::<Vec<_>>();
-    let mut pairs: Vec<(&str, &str)> = Vec::new();
+    let ids = places.iter().map(id_of).collect::<BTreeSet<_>>();
+    let mut pairs: BTreeSet<(&str, &str)> = BTreeSet::new();
     for p in places {
         let me = id_of(p);
         if let Some(k) = p.get("kind") {
@@ -118,14 +120,14 @@ pub(crate) fn validate(v: &Value, places: &[Value]) -> Result<()> {
                 }
             }
             let pair = if me < other { (me, other) } else { (other, me) };
-            if pairs.contains(&pair) {
+            if !pairs.insert(pair) {
                 return Err(c::bad());
             }
-            pairs.push(pair);
         }
     }
-    let parent =
-        |id: &str| places.iter().find(|p| id_of(p) == id).and_then(|p| p.get("within")).and_then(Value::as_str);
+    let within: BTreeMap<&str, &str> =
+        places.iter().filter_map(|p| p.get("within").and_then(Value::as_str).map(|w| (id_of(p), w))).collect();
+    let parent = |id: &str| within.get(id).copied();
     for p in places {
         let (mut x, mut depth) = (id_of(p), 0);
         while let Some(up) = parent(x) {
@@ -139,47 +141,40 @@ pub(crate) fn validate(v: &Value, places: &[Value]) -> Result<()> {
     Ok(())
 }
 
-struct Edge<'a> {
+#[derive(Clone, Copy, Debug)]
+struct Edge {
     to: usize,
     cost: u64,
-    entrance: Option<&'a str>,
+    /// Index into the codex entrances (`None` for a link).
+    entrance: Option<usize>,
     direction: Option<&'static str>,
 }
 
-/// Where a character in `from` is, what they can reach and what else is around:
-/// `{from, closed? ≤256 entrance ids, max_distance? 0–10⁹ = 10⁹, limit? 1–64 = 16}` →
-/// `{here, routes, total_routes, around, total_around}`.
-pub fn nearby(codex: &Codex, q: &Value) -> Result<Value> {
-    keys(q, &["from"], &["closed", "max_distance", "limit"])?;
+/// Static place graph of a codex: entrance and link edges per place (entrances first, in
+/// codex order, then links), each place's container and contained places. Closed entrances
+/// are skipped per query.
+#[derive(Clone, Debug)]
+pub(crate) struct Graph {
+    adj: Vec<Vec<Edge>>,
+    parent: Vec<Option<usize>>,
+    children: Vec<Vec<usize>>,
+}
+
+fn graph(codex: &Codex) -> Graph {
     let places = codex.places();
-    let index = |id: &str| places.iter().position(|p| id_of(p) == id);
-    let start = index(ident(c::get(q, "from")?)?).ok_or_else(c::bad)?;
-    let closed = list(q.get("closed"), 0, 256)?;
-    for (i, x) in closed.iter().enumerate() {
-        ident(x)?;
-        if closed[..i].contains(x) {
-            return Err(c::bad());
-        }
-    }
-    let max = q.get("max_distance").map(|v| c::uint(v, 0, MAX_DISTANCE)).transpose()?.unwrap_or(MAX_DISTANCE);
-    let limit = q.get("limit").map(|v| c::uint(v, 1, 64)).transpose()?.unwrap_or(16) as usize;
-    let parent = |i: usize| text(&places[i], "within").and_then(index);
-    let mut chain = vec![start];
-    while let Some(up) = parent(chain[chain.len() - 1]) {
-        chain.push(up);
-    }
+    let index = |id: &str| codex.position("places", id);
     let mut adj: Vec<Vec<Edge>> = places.iter().map(|_| Vec::new()).collect();
-    for e in codex.entrances() {
+    for (k, e) in codex.entrances().iter().enumerate() {
         let sides = e.get("sides").and_then(Value::as_array).unwrap_or(&[]);
-        if closed.iter().any(|x| x.as_str() == Some(id_of(e))) || sides.len() < 2 {
+        if sides.len() < 2 {
             continue;
         }
         let side = |i: usize| text(&sides[i], "place").and_then(index);
         let (Some(a), Some(b)) = (side(0), side(1)) else { continue };
         let cost = e.get("distance").and_then(Value::as_usize).unwrap_or(1) as u64;
-        adj[a].push(Edge { to: b, cost, entrance: Some(id_of(e)), direction: None });
+        adj[a].push(Edge { to: b, cost, entrance: Some(k), direction: None });
         if text(e, "passage") != Some("one_way") {
-            adj[b].push(Edge { to: a, cost, entrance: Some(id_of(e)), direction: None });
+            adj[b].push(Edge { to: a, cost, entrance: Some(k), direction: None });
         }
     }
     for (a, p) in places.iter().enumerate() {
@@ -191,42 +186,77 @@ pub fn nearby(codex: &Codex, q: &Value) -> Result<Value> {
             adj[b].push(Edge { to: a, cost, entrance: None, direction: way.map(opposite) });
         }
     }
-    // best[i] = (distance, source in chain, steps as (to, entrance, direction)).
-    type Step<'a> = (usize, Option<&'a str>, Option<&'static str>);
-    let mut best: Vec<Option<(u64, usize, Vec<Step>)>> = places.iter().map(|_| None).collect();
-    for &x in &chain {
-        best[x] = Some((0, x, Vec::new()));
+    let parent: Vec<Option<usize>> = places.iter().map(|p| text(p, "within").and_then(index)).collect();
+    let mut children = vec![Vec::new(); places.len()];
+    for (i, p) in parent.iter().enumerate() {
+        if let Some(p) = p {
+            children[*p].push(i);
+        }
     }
-    let mut done = vec![false; places.len()];
-    loop {
-        let next = (0..places.len()).filter(|&i| !done[i]).filter_map(|i| best[i].as_ref().map(|b| (b.0, i))).min();
-        let Some((du, u)) = next else { break };
-        done[u] = true;
-        let (src, steps) = best[u].as_ref().map(|b| (b.1, b.2.clone())).unwrap_or_default();
-        for e in &adj[u] {
+    Graph { adj, parent, children }
+}
+
+/// Where a character in `from` is, what they can reach and what else is around:
+/// `{from, closed? ≤256 entrance ids, max_distance? 0–10⁹ = 10⁹, limit? 1–64 = 16}` →
+/// `{here, routes, total_routes, around, total_around}`. Work grows with the places reached
+/// (the codex's place graph is built once, on the first query).
+pub fn nearby(codex: &Codex, q: &Value) -> Result<Value> {
+    keys(q, &["from"], &["closed", "max_distance", "limit"])?;
+    let places = codex.places();
+    let entrances = codex.entrances();
+    let start = codex.position("places", ident(c::get(q, "from")?)?).ok_or_else(c::bad)?;
+    let closed = list(q.get("closed"), 0, 256)?;
+    for (i, x) in closed.iter().enumerate() {
+        ident(x)?;
+        if closed[..i].contains(x) {
+            return Err(c::bad());
+        }
+    }
+    let closed_ids = closed.iter().filter_map(Value::as_str).collect::<BTreeSet<_>>();
+    let max = q.get("max_distance").map(|v| c::uint(v, 0, MAX_DISTANCE)).transpose()?.unwrap_or(MAX_DISTANCE);
+    let limit = q.get("limit").map(|v| c::uint(v, 1, 64)).transpose()?.unwrap_or(16) as usize;
+    let g = codex.graph.get_or_init(|| graph(codex));
+    let mut chain = vec![start];
+    while let Some(up) = g.parent[chain[chain.len() - 1]] {
+        chain.push(up);
+    }
+    let open = |e: &Edge| e.entrance.is_none_or(|k| !closed_ids.contains(id_of(&entrances[k])));
+    // best[i] = (distance, source in chain, steps as (to, entrance, direction)).
+    type Step = (usize, Option<usize>, Option<&'static str>);
+    let mut best: BTreeMap<usize, (u64, usize, Vec<Step>)> = BTreeMap::new();
+    for &x in &chain {
+        best.insert(x, (0, x, Vec::new()));
+    }
+    // Settle places in (distance, index) order; stale heap entries are skipped.
+    let mut done = BTreeSet::new();
+    let mut heap: BinaryHeap<Reverse<(u64, usize)>> = chain.iter().map(|&x| Reverse((0, x))).collect();
+    while let Some(Reverse((du, u))) = heap.pop() {
+        if done.contains(&u) || best.get(&u).is_none_or(|b| b.0 != du) {
+            continue;
+        }
+        done.insert(u);
+        let (src, steps) = best.get(&u).map(|b| (b.1, b.2.clone())).unwrap_or_default();
+        for e in g.adj[u].iter().filter(|e| open(e)) {
             let nd = du + e.cost;
-            if nd <= max && best[e.to].as_ref().is_none_or(|b| nd < b.0) {
+            if nd <= max && best.get(&e.to).is_none_or(|b| nd < b.0) {
                 let mut s = steps.clone();
                 s.push((e.to, e.entrance, e.direction));
-                best[e.to] = Some((nd, src, s));
+                best.insert(e.to, (nd, src, s));
+                heap.push(Reverse((nd, e.to)));
             }
         }
     }
-    let mut routes = (0..places.len()).filter(|i| !chain.contains(i) && best[*i].is_some()).collect::<Vec<_>>();
-    routes.sort_by_key(|&i| (best[i].as_ref().map_or(0, |b| b.0), i));
+    let mut routes = best.keys().copied().filter(|i| !chain.contains(i)).collect::<Vec<_>>();
+    routes.sort_by_key(|&i| (best.get(&i).map_or(0, |b| b.0), i));
     let around = chain
         .iter()
-        .flat_map(|&a| (0..places.len()).filter(move |&i| parent(i) == Some(a)))
-        .filter(|i| !chain.contains(i) && best[*i].is_none())
+        .flat_map(|a| g.children[*a].iter().copied())
+        .filter(|i| !chain.contains(i) && !best.contains_key(i))
         .collect::<Vec<_>>();
     let id = |i: usize| Value::str(id_of(&places[i]));
     let label = |i: usize| places[i].get("label").cloned().unwrap_or(Value::Null);
     let kind = |i: usize| places[i].get("kind").cloned().unwrap_or(Value::Null);
-    let kinds = builtin_kinds()
-        .iter()
-        .chain(codex.to_value().get("place_kinds").and_then(Value::as_array).unwrap_or(&[]))
-        .cloned()
-        .collect::<Vec<_>>();
+    let kinds = builtin_kinds().iter().chain(codex.place_kinds()).collect::<Vec<_>>();
     let scale = |i: usize| {
         let k = text(&places[i], "kind");
         kinds.iter().find(|x| k == Some(id_of(x))).and_then(|x| x.get("scale")).cloned().unwrap_or(Value::Null)
@@ -239,10 +269,10 @@ pub fn nearby(codex: &Codex, q: &Value) -> Result<Value> {
         .iter()
         .take(limit)
         .map(|&i| {
-            let (d, src, steps) = best[i].clone().unwrap_or_default();
+            let (d, src, steps) = best.get(&i).cloned().unwrap_or_default();
             let steps = steps
                 .into_iter()
-                .map(|(to, ent, dir)| obj! {"to"=>id(to),"entrance"=>ent.map_or(Value::Null, Value::str),"direction"=>dir.map_or(Value::Null, Value::str)})
+                .map(|(to, ent, dir)| obj! {"to"=>id(to),"entrance"=>ent.map_or(Value::Null, |k| Value::str(id_of(&entrances[k]))),"direction"=>dir.map_or(Value::Null, Value::str)})
                 .collect::<Vec<_>>();
             obj! {"place"=>id(i),"label"=>label(i),"kind"=>kind(i),"distance"=>d,"from"=>id(src),"steps"=>Value::Array(steps)}
         })
@@ -261,10 +291,14 @@ pub fn nearby(codex: &Codex, q: &Value) -> Result<Value> {
     })
 }
 
-/// The `places` local kind: `{codex, queries ≤64}` → `{results: [{ok, result}|{ok:false}]}`.
+/// The `places` local kind: `{codex, queries ≤64, limits?}` → `{limits?, results: [{ok, result}|{ok:false}]}`.
+/// `limits` are the codex's [host-set limits](crate::knowledge::codex::LIMITS), echoed when supplied.
 pub fn workflow(a: &Value) -> Result<Value> {
+    let mut limits = crate::knowledge::codex::CodexLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let a = stripped.as_ref().unwrap_or(a);
     keys(a, &["codex", "queries"], &[])?;
-    let codex = Codex::from_value(c::get(a, "codex")?)?;
+    let codex = Codex::from_value_within(c::get(a, "codex")?, &limits)?;
     let queries = list(Some(c::get(a, "queries")?), 0, 64)?;
     let results = queries
         .iter()
@@ -273,5 +307,5 @@ pub fn workflow(a: &Value) -> Result<Value> {
             Err(_) => obj! {"ok"=>false},
         })
         .collect::<Vec<_>>();
-    Ok(obj! {"results"=>Value::Array(results)})
+    Ok(crate::character::limits::echo(obj! {"results"=>Value::Array(results)}, &limits, stripped.is_some()))
 }

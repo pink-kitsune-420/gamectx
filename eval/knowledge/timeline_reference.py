@@ -6,9 +6,12 @@ history), retracts mistakes (kept, hidden from queries by default), compacts old
 into one summary when it chooses (never automatically) and queries what a character
 knows: public entries, entries they acted in, and witnessed entries they witnessed.
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_ENTRIES, MAX_SAFE = 4096, 9007199254740991
+SPEC = [('entries', MAX_ENTRIES, 1000000), ('bytes', 16777216, 268435456)]
 VISIBILITY = ['public', 'witnessed', 'private']
 ORDERS = ['newest', 'oldest']
 ENTRY = ['seq', 'at', 'kind', 'summary', 'actors', 'place', 'things', 'tags', 'visibility', 'witnesses', 'phrases', 'facts', 'retracted', 'covers']
@@ -71,11 +74,19 @@ def stored(e):
     return out
 
 
+def size(v):
+    """Serialized compact JSON length in bytes (the `bytes` limit's measure)."""
+    return len(enc(v).encode())
+
+
 class Timeline:
-    def __init__(self, v=None):
+    def __init__(self, v=None, lim=None):
+        lim = Limits(SPEC) if lim is None else lim
+        self.max = lim['entries']
         if v is None: self.next, self.entries = 1, []; return
+        assert size(v) <= lim['bytes']
         keys(v, ['version', 'next', 'entries']); assert v['version'] == 1 and type(v['version']) is int
-        self.next = uint(v['next'], 1); assert isinstance(v['entries'], list) and len(v['entries']) <= MAX_ENTRIES
+        self.next = uint(v['next'], 1); assert isinstance(v['entries'], list) and len(v['entries']) <= self.max
         self.entries = [stored(e) for e in v['entries']]
         seqs = [e['seq'] for e in self.entries]; assert seqs == sorted(set(seqs)) and all(s < self.next for s in seqs)
 
@@ -84,7 +95,7 @@ class Timeline:
     def find(self, seq): return next(e for e in self.entries if e['seq'] == uint(seq, 1))
 
     def record(self, e):
-        assert len(self.entries) < MAX_ENTRIES and self.next < MAX_SAFE
+        assert len(self.entries) < self.max and self.next < MAX_SAFE
         out = recorded(self.next, e); self.entries.append(out); self.next += 1
         return dict(seq=out['seq'])
 
@@ -133,8 +144,14 @@ def words_in(needle, hay): return (' ' + needle + ' ') in (' ' + hay + ' ')
 
 
 def workflow(a):
+    lim = Limits(SPEC)
+    return limited(a, lim, lambda b: run_workflow(b, lim))
+
+
+def run_workflow(a, lim):
+    assert size(a) <= lim['bytes']
     keys(a, ['timeline', 'ops']); assert isinstance(a['ops'], list) and len(a['ops']) <= 64
-    t = Timeline(a['timeline']); results = []
+    t = Timeline(a['timeline'], lim); results = []
     for op in a['ops']:
         before = copy.deepcopy((t.next, t.entries))
         try:

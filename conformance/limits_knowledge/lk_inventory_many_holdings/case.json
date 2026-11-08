@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising holdings to 400 loads 301 holdings and transfers into a new one.",
+  "error": false
+}

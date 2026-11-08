@@ -8,6 +8,7 @@ import copy
 import roleplay_definitions_reference as defs
 import roleplay_engine_reference as eng
 from roleplay_definitions_reference import ident, keys, lst, uint
+from limits_reference import Limits, limited
 
 OPPOSITE = dict(north='south', northeast='southwest', east='west', southeast='northwest', south='north', southwest='northeast', west='east',
                 northwest='southeast', up='down', down='up')
@@ -58,8 +59,17 @@ def nearby(codex, q):
         total_around=len(around))
 
 
+CODEX_SPEC = [('places', 128, 65536), ('entrances', 256, 262144), ('factions', 64, 4096), ('events', 128, 65536),
+              ('quests', 128, 65536), ('bytes', 2097152, 268435456)]
+
+
 def workflow(a):
-    keys(a, ['codex', 'queries']); codex = a['codex']; defs.codex(codex, eng.VARS)
+    lim = Limits(CODEX_SPEC)
+    return limited(a, lim, lambda b: workflow_inner(b, lim))
+
+
+def workflow_inner(a, lim):
+    keys(a, ['codex', 'queries']); codex = a['codex']; defs.codex(codex, eng.VARS, lim.values)
     assert isinstance(a['queries'], list) and len(a['queries']) <= 64; results = []
     for q in a['queries']:
         try: results.append(dict(ok=True, result=nearby(codex, q)))

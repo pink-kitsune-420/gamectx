@@ -33,11 +33,23 @@ pub struct Notes {
     scope: String,
     sequence: u32,
     notes: Vec<Value>,
+    limits: NotesLimits,
 }
+/// Host-set limits (defaults are the earlier fixed bounds): most `notes` in a notebook and
+/// the most serialized `bytes` in a recovered checkpoint.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "notes", default: 64, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "bytes", default: 131_072, ceiling: 268_435_456 },
+];
+crate::character::limits::module_limits!(NotesLimits, LIMITS);
 impl Notes {
     pub fn new(scope: &str) -> Result<Self> {
+        Self::within(scope, &NotesLimits::default())
+    }
+    /// An empty notebook with host-set [limits](LIMITS).
+    pub fn within(scope: &str, l: &crate::character::limits::Limits) -> Result<Self> {
         c::scope(scope)?;
-        Ok(Self { scope: scope.into(), sequence: 0, notes: Vec::new() })
+        Ok(Self { scope: scope.into(), sequence: 0, notes: Vec::new(), limits: NotesLimits(l.clone()) })
     }
     /// Original source IDs and text come from the host, outside model arguments.
     /// Source availability establishes provenance, not entailment of the model's claim.
@@ -67,7 +79,7 @@ impl Notes {
                 }
                 bounded(c::get(&a, "value")?, 1024)?;
                 let source = evidence.iter().find(|s| s.get("id") == a.get("source")).ok_or_else(c::bad)?;
-                if self.notes.len() >= 64 {
+                if self.notes.len() >= self.limits.get("notes") {
                     return Err(c::bad());
                 }
                 let id = self.sequence.checked_add(1).ok_or_else(c::bad)?;
@@ -109,10 +121,18 @@ impl Notes {
         self.notes.clear();
     }
 }
+/// The `info` local kind: `{scope, calls ≤128, limits?}` → `{limits?, scope, notes, results}`.
+/// `limits` are the notebook's [host-set limits](LIMITS), echoed when supplied.
 pub fn workflow(a: &Value) -> Result<Value> {
+    let mut limits = NotesLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let out = run_workflow(stripped.as_ref().unwrap_or(a), &limits)?;
+    Ok(crate::character::limits::echo(out, &limits, stripped.is_some()))
+}
+fn run_workflow(a: &Value, l: &crate::character::limits::Limits) -> Result<Value> {
     bounded(a, 1_048_576)?;
     c::fields(a, &["scope", "calls"])?;
-    let mut notes = Notes::new(text(a, "scope")?)?;
+    let mut notes = Notes::within(text(a, "scope")?, l)?;
     let calls = c::list(c::get(a, "calls")?)?;
     if calls.len() > 128 {
         return Err(c::bad());
@@ -136,7 +156,16 @@ impl Notes {
         obj! {"version"=>1,"scope"=>self.scope.clone(),"sequence"=>self.sequence,"notes"=>self.notes.clone()}
     }
     pub fn recover(scope: &str, v: &Value, min_sequence: u32) -> Result<Self> {
-        bounded(v, 131072)?;
+        Self::recover_within(scope, v, min_sequence, &NotesLimits::default())
+    }
+    /// [`recover`](Self::recover) with host-set [limits](LIMITS).
+    pub fn recover_within(
+        scope: &str,
+        v: &Value,
+        min_sequence: u32,
+        l: &crate::character::limits::Limits,
+    ) -> Result<Self> {
+        bounded(v, l.get("bytes"))?;
         c::fields(v, &["version", "scope", "sequence", "notes"])?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         if text(v, "scope")? != scope {
@@ -144,10 +173,10 @@ impl Notes {
         }
         let sequence = c::uint(c::get(v, "sequence")?, u64::from(min_sequence), u32::MAX as u64)? as u32;
         let rows = c::list(c::get(v, "notes")?)?;
-        if rows.len() > 64 {
+        if rows.len() > l.get("notes") {
             return Err(c::bad());
         }
-        let mut out = Self::new(scope)?;
+        let mut out = Self::within(scope, l)?;
         let mut last = 0;
         for n in rows {
             c::fields(n, &["id", "subject", "attribute", "value", "status", "source"])?;

@@ -117,9 +117,14 @@ def place_graph(v, places):
         while parent[x] is not None: x = parent[x]; depth += 1; assert depth <= 8
 
 
-def codex(v, vars_):
+CODEX_LIMITS = dict(places=128, entrances=256, factions=64, events=128, quests=128, bytes=2097152)
+
+
+def codex(v, vars_, lim=None):
+    lim = CODEX_LIMITS if lim is None else lim
+    assert len(json.dumps(v, ensure_ascii=False, separators=(',', ':')).encode()) <= lim['bytes']
     keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests', 'place_kinds', 'timeline', 'things', 'recipes', 'communities', 'species']); uint(v['version'], 1, 1)
-    places = lst(v.get('places', []), 0, 128)
+    places = lst(v.get('places', []), 0, lim['places'])
     for p in places:
         keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms', 'exterior', 'kind', 'within', 'tags', 'links'])
         if 'exterior' in p and p['exterior'] is not None: boolean(p['exterior'])
@@ -153,7 +158,7 @@ def codex(v, vars_):
             for d in lst(n['actions'], 1, 8): assert d is not None; decision(d)
         unique_ids(norms)
     place_ids = [p['id'] for p in places]
-    entrances = lst(v.get('entrances', []), 0, 256)
+    entrances = lst(v.get('entrances', []), 0, lim['entrances'])
     for e in entrances: keys(e, ['id', 'label', 'sides'], ['kind', 'aliases', 'passage', 'carries', 'distance'])
     unique_ids(entrances); seen = []
     for e in entrances:
@@ -168,20 +173,20 @@ def codex(v, vars_):
         assert len({s['place'] for s in sides}) == len(sides)
         if 'distance' in e: uint(e['distance'], 0, 1000000000)
     place_graph(v, places)
-    factions = lst(v.get('factions', []), 0, 64)
+    factions = lst(v.get('factions', []), 0, lim['factions'])
     for f in factions: keys(f, ['id', 'label', 'description'], ['aliases', 'relations']); text(f['description'], 240)
     unique_ids(factions); seen = []; fids = [f['id'] for f in factions]
     for f in factions:
         names(f, seen); others = []
         for r in lst(f.get('relations', []), 0, 32):
             keys(r, ['faction', 'stance']); assert r['faction'] in fids and r['faction'] != f['id'] and r['faction'] not in others and r['stance'] in STANCES; others.append(r['faction'])
-    events = lst(v.get('events', []), 0, 128)
+    events = lst(v.get('events', []), 0, lim['events'])
     for e in events:
         keys(e, ['id', 'label', 'description', 'start', 'end'], ['aliases', 'place']); text(e['description'], 240); uint(e['start']); uint(e['end']); assert e['start'] <= e['end']
         if 'place' in e: assert e['place'] in place_ids
     unique_ids(events); seen = []
     for e in events: names(e, seen)
-    quests = lst(v.get('quests', []), 0, 128)
+    quests = lst(v.get('quests', []), 0, lim['quests'])
     for q in quests:
         keys(q, ['id', 'label', 'stages'], ['aliases', 'givers'])
         for g in lst(q.get('givers', []), 0, 16): ident(g)

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising notes to 100 keeps 70 notes (the old bound was 64).",
+  "error": false
+}

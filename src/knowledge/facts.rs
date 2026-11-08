@@ -5,7 +5,11 @@ use crate::{
     data::json::{parse, Error, Result, Value},
     obj,
 };
+/// Most facts one packet may list (and the registry capacity before host-set capacities).
 pub const MAX_FACTS: usize = 256;
+/// Ceiling on a registry's host-set `capacity`. Dependency checks recurse once per link,
+/// and the serialized state stays within [`MAX_STATE_BYTES`].
+pub const MAX_CAPACITY: usize = 4096;
 pub const MAX_STATE_BYTES: usize = 4_194_304;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Authority {
@@ -94,6 +98,8 @@ pub struct FactRegistry {
     generation: u64,
     clock: u64,
     facts: Vec<Fact>,
+    /// (scope, key) → position in `facts`, rebuilt whenever facts are removed.
+    index: std::collections::BTreeMap<(String, String), usize>,
 }
 fn bad(s: &str) -> Error {
     Error::new(s)
@@ -226,13 +232,25 @@ fn equivalent(a: &Value, b: &Value) -> bool {
 }
 impl FactRegistry {
     pub fn new(capacity: usize) -> Result<Self> {
-        if !(1..=MAX_FACTS).contains(&capacity) {
-            return Err(bad("fact capacity must be 1..256"));
+        if !(1..=MAX_CAPACITY).contains(&capacity) {
+            return Err(bad("fact capacity must be 1..4096"));
         }
-        Ok(Self { capacity, generation: 0, clock: 0, facts: Vec::new() })
+        Ok(Self { capacity, generation: 0, clock: 0, facts: Vec::new(), index: Default::default() })
     }
     fn find(&self, scope: &str, key: &str) -> Option<usize> {
-        self.facts.iter().position(|f| f.reference.scope == scope && f.reference.key == key)
+        self.index.get(&(scope.to_owned(), key.to_owned())).copied()
+    }
+    fn put(&mut self, fact: Fact) {
+        self.index.insert((fact.reference.scope.clone(), fact.reference.key.clone()), self.facts.len());
+        self.facts.push(fact);
+    }
+    fn reindex(&mut self) {
+        self.index = self
+            .facts
+            .iter()
+            .enumerate()
+            .map(|(i, f)| ((f.reference.scope.clone(), f.reference.key.clone()), i))
+            .collect();
     }
     fn time(&self, now: u64) -> Result<()> {
         if now < self.clock || now > u32::MAX as u64 {
@@ -244,21 +262,44 @@ impl FactRegistry {
         self.time(now)?;
         privacy(denied, 32)
     }
-    fn active(&self, index: usize, now: u64, denied: &[String], cache: &mut [u8; MAX_FACTS]) -> bool {
+    /// Whether a fact is current: unexpired, not denied, and every dependency exists at the
+    /// exact revision and is itself active. `cache` holds 0 unseen, 1 in progress, 2 active,
+    /// 3 inactive. The walk keeps its own stack, so a chain as long as the capacity cannot
+    /// exhaust the thread stack. Dependencies always name strictly older revisions, so the
+    /// result does not depend on visiting order.
+    fn active(&self, index: usize, now: u64, denied: &[String], cache: &mut [u8]) -> bool {
         if cache[index] != 0 {
             return cache[index] == 2;
         }
-        cache[index] = 1;
-        let f = &self.facts[index];
-        let active = f.expires.is_none_or(|t| now < t)
-            && !f.privacy.iter().any(|p| denied.contains(p))
-            && f.dependencies.iter().all(|r| {
-                self.find(&r.scope, &r.key).is_some_and(|i| {
-                    self.facts[i].reference.revision == r.revision && self.active(i, now, denied, cache)
-                })
-            });
-        cache[index] = if active { 2 } else { 3 };
-        active
+        let local = |i: usize| {
+            let f = &self.facts[i];
+            f.expires.is_none_or(|t| now < t) && !f.privacy.iter().any(|p| denied.contains(p))
+        };
+        cache[index] = if local(index) { 1 } else { 3 };
+        // (fact, next dependency to check)
+        let mut stack = vec![(index, 0usize)];
+        while let Some(&(i, d)) = stack.last() {
+            if cache[i] == 3 {
+                stack.pop();
+                continue;
+            }
+            let Some(r) = self.facts[i].dependencies.get(d) else {
+                cache[i] = 2;
+                stack.pop();
+                continue;
+            };
+            let dep = self.find(&r.scope, &r.key).filter(|j| self.facts[*j].reference.revision == r.revision);
+            match dep.map(|j| (j, cache[j])) {
+                Some((_, 2)) => stack.last_mut().expect("frame").1 += 1,
+                Some((j, 0)) => {
+                    cache[j] = if local(j) { 1 } else { 3 };
+                    stack.push((j, 0));
+                }
+                // Missing, stale, inactive or (impossible with older revisions) cyclic.
+                _ => cache[i] = 3,
+            }
+        }
+        cache[index] == 2
     }
     fn advance(&mut self) -> Result<()> {
         if self.generation >= 2_147_483_647 {
@@ -299,7 +340,7 @@ impl FactRegistry {
             return Err(bad("fact creation/capacity mismatch"));
         }
         let mut labels = options.privacy.clone();
-        let mut cache = [0; MAX_FACTS];
+        let mut cache = vec![0; self.facts.len()];
         for (i, r) in options.dependencies.iter().enumerate() {
             if r.scope == scope && r.key == key
                 || options.dependencies[..i].iter().any(|old| old.scope == r.scope && old.key == r.key)
@@ -323,8 +364,9 @@ impl FactRegistry {
         let reference = FactRef { scope: scope.into(), key: key.into(), revision: next.generation };
         if let Some(i) = old {
             next.facts.remove(i);
+            next.reindex();
         }
-        next.facts.push(Fact {
+        next.put(Fact {
             reference: reference.clone(),
             value,
             authority: options.authority,
@@ -333,7 +375,7 @@ impl FactRegistry {
             privacy: labels,
             dependencies: options.dependencies,
         });
-        if !next.active(next.facts.len() - 1, options.now, &[], &mut [0; MAX_FACTS]) {
+        if !next.active(next.facts.len() - 1, options.now, &[], &mut vec![0; next.facts.len()]) {
             return Err(bad("fact replacement would invalidate its own basis"));
         }
         if next.to_value().json_len() > MAX_STATE_BYTES {
@@ -347,7 +389,10 @@ impl FactRegistry {
         name_str(key)?;
         self.time(now)?;
         privacy(denied, 32)?;
-        Ok(self.find(scope, key).filter(|i| self.active(*i, now, denied, &mut [0; MAX_FACTS])).map(|i| &self.facts[i]))
+        Ok(self
+            .find(scope, key)
+            .filter(|i| self.active(*i, now, denied, &mut vec![0; self.facts.len()]))
+            .map(|i| &self.facts[i]))
     }
     /// Structural comparison only; does not verify arbitrary natural-language claims.
     /// Decimal numbers compare exactly without f64 rounding, and object order is ignored.
@@ -382,6 +427,7 @@ impl FactRegistry {
         }
         self.advance()?;
         self.facts.remove(i);
+        self.reindex();
         Ok(())
     }
     pub fn forget_privacy(&mut self, denied: &[String]) -> Result<()> {
@@ -389,6 +435,7 @@ impl FactRegistry {
         if self.facts.iter().any(|f| f.privacy.iter().any(|p| denied.contains(p))) {
             self.advance()?;
             self.facts.retain(|f| !f.privacy.iter().any(|p| denied.contains(p)));
+            self.reindex();
         }
         Ok(())
     }
@@ -400,7 +447,7 @@ impl FactRegistry {
         if count > MAX_FACTS || !(1..=16_384).contains(&max_bytes) {
             return Err(bad("fact packet bounds"));
         }
-        let mut cache = [0; MAX_FACTS];
+        let mut cache = vec![0; self.facts.len()];
         let mut selected: Vec<_> = self
             .facts
             .iter()
@@ -452,7 +499,7 @@ impl FactRegistry {
     pub fn restore(v: &Value) -> Result<Self> {
         fields(v, &["version", "capacity", "generation", "clock", "facts"])?;
         uint(get(v, "version")?, 1, 1)?;
-        let mut out = Self::new(uint(get(v, "capacity")?, 1, MAX_FACTS as u64)? as usize)?;
+        let mut out = Self::new(uint(get(v, "capacity")?, 1, MAX_CAPACITY as u64)? as usize)?;
         out.generation = uint(get(v, "generation")?, 0, 2_147_483_647)?;
         out.clock = uint(get(v, "clock")?, 0, u32::MAX as u64)?;
         let rows = get(v, "facts")?.as_array().ok_or_else(|| bad("fact array required"))?;
@@ -500,7 +547,7 @@ impl FactRegistry {
             } else {
                 Some(uint(get(row, "expires")?, 1, u32::MAX as u64)?)
             };
-            out.facts.push(Fact {
+            out.put(Fact {
                 reference,
                 value,
                 authority: Authority::parse(get(row, "authority")?)?,

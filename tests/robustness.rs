@@ -2613,3 +2613,128 @@ fn character_modules_take_host_limits_and_survive_mutation() {
     let lower = r#"{"limits":{"beings":10},"ops":[{"op":"assess","args":{"being":"b2999"}}]}"#;
     assert!(body.workflow(&parse(lower, 4096).unwrap()).is_ok(), "lowering keeps existing bodies");
 }
+
+#[test]
+fn knowledge_modules_take_host_limits_and_survive_mutation() {
+    use gamectx::character::limits::Limit;
+    use gamectx::knowledge::{
+        action_catalog, codex, communities, info, inventory, lore, recipes, selection, species, things, timeline,
+    };
+    fn spec(kind: &str) -> &'static [Limit] {
+        match kind {
+            "places" => codex::LIMITS,
+            "timeline" => timeline::LIMITS,
+            "things" => things::LIMITS,
+            "species" => species::LIMITS,
+            "recipes" => recipes::LIMITS,
+            "communities" => communities::LIMITS,
+            "actions" => action_catalog::LIMITS,
+            "lore" => lore::LIMITS,
+            "inventory" => inventory::LIMITS,
+            "evidence" => selection::LIMITS,
+            _ => info::LIMITS,
+        }
+    }
+    let run = |kind: &str, args: &Value| {
+        gamectx::kit::local::process(&Value::Object(vec![
+            ("kind".into(), Value::str(kind)),
+            ("args".into(), args.clone()),
+        ]))
+    };
+    let samples = [
+        include_str!("../conformance/limits_knowledge/lk_places_echo_defaults/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_timeline_entries_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_things_things_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_species_animals_over_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_recipes_echo_low_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_communities_members_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_actions_register_within_limit/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_inventory_holdings_full/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_evidence_above_ceiling/input.json"),
+        include_str!("../conformance/limits_knowledge/lk_info_notes_limit/input.json"),
+    ];
+    // Mutated limit-carrying knowledge workflows never panic.
+    let mut rng = Rng(0x0C0D_E7C5_2026_1108);
+    for _ in 0..300 {
+        for s in samples {
+            if let Ok(v) = parse(&mutate(&mut rng, s), 1 << 22) {
+                let _ = gamectx::kit::local::process(&v);
+            }
+        }
+    }
+    let lore_sample = include_str!("../conformance/limits_knowledge/lk_lore_many_entries/input.json");
+    for s in samples.iter().chain([&lore_sample]) {
+        let v = parse(s, 1 << 22).unwrap();
+        let kind = v.get("kind").and_then(Value::as_str).unwrap();
+        let Some(Value::Object(fields)) = v.get("args") else { panic!("{kind}") };
+        let body: Vec<(String, Value)> = fields.iter().filter(|(k, _)| k != "limits").cloned().collect();
+        let with = |lim: &str| {
+            let mut f = vec![("limits".to_string(), parse(lim, 4096).unwrap())];
+            f.extend(body.clone());
+            run(kind, &Value::Object(f))
+        };
+        let spec = spec(kind);
+        // Every ceiling at once is accepted and echoed; ceiling + 1, zero, unknown names and
+        // non-objects are refused.
+        let all: Vec<String> = spec.iter().map(|l| format!(r#""{}":{}"#, l.name, l.ceiling)).collect();
+        let lim_all = format!("{{{}}}", all.join(","));
+        if let Ok(out) = with(&lim_all) {
+            assert!(out.to_json().starts_with(&format!(r#"{{"limits":{lim_all}"#)), "{kind}");
+        }
+        for l in spec {
+            assert!(l.default >= 1 && l.default <= l.ceiling, "{kind}.{}", l.name);
+            assert!(with(&format!(r#"{{"{}":{}}}"#, l.name, l.ceiling + 1)).is_err(), "{kind}.{}", l.name);
+            assert!(with(&format!(r#"{{"{}":0}}"#, l.name)).is_err(), "{kind}.{}", l.name);
+        }
+        assert!(with(r#"{"not_a_limit":1}"#).is_err(), "{kind}");
+        assert!(with("[1]").is_err(), "{kind}");
+        // Null limits echo the defaults; without limits nothing is echoed and the output is
+        // exactly the null-limits output minus the echo.
+        let defaults: Vec<String> = spec.iter().map(|l| format!(r#""{}":{}"#, l.name, l.default)).collect();
+        let echo = format!(r#"{{"limits":{{{}}},"#, defaults.join(","));
+        match (with("null"), run(kind, &Value::Object(body.clone()))) {
+            (Ok(a), Ok(b)) => {
+                let (a, b) = (a.to_json(), b.to_json());
+                assert!(a.starts_with(&echo), "{kind}: {a}");
+                assert_eq!(&a[echo.len()..], &b[1..], "{kind}");
+            }
+            (Err(_), Err(_)) => {}
+            other => panic!("{kind}: null limits and no limits disagree: {other:?}"),
+        }
+    }
+
+    // A long fact dependency chain at the raised capacity checks without exhausting the stack.
+    use gamectx::knowledge::facts::{FactOptions, FactRegistry, MAX_CAPACITY};
+    let mut facts = FactRegistry::new(MAX_CAPACITY).unwrap();
+    assert!(FactRegistry::new(MAX_CAPACITY + 1).is_err());
+    let mut last = None;
+    for i in 0..512 {
+        let options = FactOptions { now: 1, dependencies: last.into_iter().collect(), ..Default::default() };
+        last = Some(facts.register("world", &format!("link_{i}"), i as u64, options).unwrap());
+    }
+    assert!(facts.get("world", "link_511", 1, &[]).unwrap().is_some());
+    let first = facts.get("world", "link_0", 1, &[]).unwrap().unwrap().reference.clone();
+    facts.forget(&first, gamectx::knowledge::facts::Authority::Host).unwrap();
+    assert!(facts.get("world", "link_511", 1, &[]).unwrap().is_none(), "a broken basis hides its dependents");
+    // A saved registry at full capacity whose facts form one chain: checking the newest link
+    // walks all 4,096 links on the heap, not the thread stack.
+    let n = MAX_CAPACITY;
+    let rows: Vec<String> = (0..n)
+        .map(|i| {
+            let dep = if i == 0 {
+                String::new()
+            } else {
+                format!(r#"{{"scope":"world","key":"link_{}","revision":{i}}}"#, i - 1)
+            };
+            format!(
+                r#"{{"scope":"world","key":"link_{i}","revision":{},"value":{i},"authority":"host","pinned":false,"expires":null,"privacy":[],"dependencies":[{dep}]}}"#,
+                i + 1
+            )
+        })
+        .collect();
+    let saved = format!(r#"{{"version":1,"capacity":{n},"generation":{n},"clock":1,"facts":[{}]}}"#, rows.join(","));
+    let chain = FactRegistry::restore_json(&saved).unwrap();
+    assert!(chain.get("world", &format!("link_{}", n - 1), 1, &[]).unwrap().is_some());
+    let packet = chain.packet(1, 256, 16_384, &[]).unwrap();
+    assert!(packet.get("rows").and_then(Value::as_array).is_some_and(|r| !r.is_empty()), "{}", packet.to_json());
+}

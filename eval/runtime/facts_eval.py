@@ -70,7 +70,7 @@ def equivalent(a,z):
 
 class Facts:
     def __init__(self,capacity):
-        b.integer(capacity,1,256);self.capacity=capacity;self.generation=0;self.clock=0;self.facts=[]
+        b.integer(capacity,1,4096);self.capacity=capacity;self.generation=0;self.clock=0;self.facts=[]
     def find(self,scope,key):return next((f for f in self.facts if (f['scope'],f['key'])==(scope,key)),None)
     def active(self,f,now,denied,seen=None):
         seen=set() if seen is None else seen

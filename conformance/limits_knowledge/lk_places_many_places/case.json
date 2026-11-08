@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising places to 200 accepts a codex with 154 places (the old bound was 128).",
+  "error": false
+}

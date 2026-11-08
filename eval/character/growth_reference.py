@@ -32,8 +32,8 @@ class Limits:
 
 def run_limited(request: Any, limits: Limits, f) -> Dict[str, Any]:
     keys(request, ["ops"], ["limits"])
-    supplied = request.get("limits") is not None
-    if supplied:
+    supplied = "limits" in request
+    if request.get("limits") is not None:
         limits.apply(request["limits"])
     out = run_ops({"ops": request["ops"]}, f)
     return {"limits": limits.view(), **out} if supplied else out

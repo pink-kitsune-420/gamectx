@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising kinds to 600 loads 520 thing kinds (the old bound was 512).",
+  "error": false
+}

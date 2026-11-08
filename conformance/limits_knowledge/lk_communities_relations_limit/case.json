@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At a full relations limit an existing relation still updates.",
+  "error": false
+}

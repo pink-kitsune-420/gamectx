@@ -706,26 +706,26 @@ off-screen record or task), then given 1,000 single-op queries spread over them:
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.4 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.4 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.5 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.7 | 1.7 / 1.9 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
+| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.2 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.6 | 1.7 | 613 |
+| `creed` (`judge`) | 1.5 / 1.6 | 1.6 / 1.8 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.1 / 3.2 | 4.2 / 5.0 | 3.3 | 2,283 |
 | `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.2 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.8 / 0.8 | 1.0 / 1.4 | 2.5 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.3 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.8 | 1,314 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.7 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.8 | 1.8 / 2.0 | 0.8 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.3 | 2.3 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.6 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.6 / 2.1 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.9 | 1,314 |
 | `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.5 / 2.2 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.1 / 1.5 | 1.9 / 2.9 | 2.1 | 884 |
-| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.7 / 4.8 | 5.3 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.8 | 590 |
-| `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.8 | 3.8 | 1,417 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.9 / 3.1 | 2.1 | 884 |
+| `relationship` (`assess`) | 0.9 / 1.0 | 1.4 / 1.9 | 2.7 | 349 |
+| `offscreen` (`assess` one being) | 1.9 / 2.0 | 3.7 / 4.8 | 5.2 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.0 / 1.1 | 1.3 / 1.7 | 0.7 | 590 |
+| `task` (`get`) | 1.5 / 1.5 | 2.3 / 3.0 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps). Memory is linear: these minimal entries take 239 MB across all twenty modules at 10,000
@@ -737,6 +737,63 @@ relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and 
 and model calls are excluded; one desktop run with uncontrolled scheduling, not a realtime
 guarantee. Listing ops without a filter (`assess` on the whole deception ledger or off-screen
 history, task `list`) still return, and so walk, every entry.
+
+### Knowledge modules
+
+The world's tables take limits the same way (pass 2 stage 7c): `places` (the codex: `places`,
+`entrances`, `factions`, `events`, `quests` and its serialized `bytes`), `timeline` (`entries`,
+`bytes`), `things` (`materials`, `kinds`, `things`, `bytes`), `species` (`species`, `animals`),
+`recipes`, `communities` (`communities`, `members`, `customs`, `relations`, market `rules`),
+`actions`, `lore` (`entries`, `bytes`), `inventory` (`items`, `holdings`, snapshot `bytes`),
+`evidence` (`records`, `bytes`) and attributed notes, the `info` kind (`notes`, checkpoint
+`bytes`). Stateless kinds take `limits` next to their other fields (`{"limits": {"places": 2000},
+"codex": ..., "queries": [...]}`); `Things`, `SpeciesWorld`, `Recipes`, `CommunityWorld` and
+`ActionCatalog` also have `with_limits`, and loaders have `*_within` variants (`Codex::from_value_within`,
+`Timeline::within`, `Lore::from_value_within`, `Inventory::from_value_within`, `Notes::within`).
+Ceilings: places, events, quests, kinds, species, recipes, communities, actions and lore entries
+up to 65,536; timeline entries, things, animals and holdings up to 1,000,000; evidence records up
+to 1,024 (a selected packet stays within 262,144 bytes); document bytes up to 256 MiB (inventory
+64 MiB, evidence 4 MiB). Facts already had a host-set `capacity`; its ceiling rose from 256 to
+4,096 (serialized state still within 4 MiB), and dependency checks walk chains on the heap, so a
+4,096-link chain cannot exhaust the thread stack. `conformance/limits_knowledge/` shows 154
+places, 520 thing kinds, 263 animals, 263 recipes, 70 communities, 540 lore entries, 301
+holdings, 200 evidence records and 70 notes past their old bounds, and refusals at a limit.
+
+Defaults are the earlier bounds, with one tightening: request `actions` given to the `actions`
+kind may no longer grow the catalog past the `actions` limit (256, built-ins included).
+
+Measured host work (`eval/knowledge/scale_measure.rs`, retained in
+`eval/knowledge/scale-timing.json`; same machine and method as above, loading pre-built values):
+
+| module (query) | entries (small / large) | median / p95 µs, small | median / p95 µs, large | load µs per entry (large) | heap bytes per entry |
+|---|---|---|---|---|---|
+| `places` (`nearby`) | 1,000 / 10,000 places | 39.5 / 49.7 | 132 / 160 | 3.4 | 747 |
+| `timeline` (`query` known_to) | 1,000 / 10,000 entries | 53.4 / 57.3 | 1,195 / 1,392 | 1.5 | 1,085 |
+| `lore` (`select`) | 1,000 / 10,000 entries | 107 / 111 | 1,330 / 1,464 | 1.8 | 833 |
+| `inventory` (`rows` one owner) | 1,000 / 10,000 holdings | 4.2 / 4.4 | 31.3 / 32.3 | 0.5 | 105 |
+| `info` (`info_lookup`) | 1,000 / 10,000 notes | 12.5 / 12.9 | 130 / 136 | 1.9 | 657 |
+| `evidence` (`select`) | 256 / 1,024 records | 82.1 / 86.0 | 389 / 397 | 0.8 | 432 |
+| `facts` (`check`) | 1,000 / 4,096 facts | 0.9 / 1.0 | 1.1 / 1.4 | 2,307.1 | 570 |
+| `things` (`move` workflow) | 1,000 / 10,000 things | 658 / 671 | 6,349 / 7,339 | 14.4 | 261 |
+| `species` (`pet` workflow) | 1,000 / 10,000 animals | 698 / 798 | 5,502 / 5,743 | 14.3 | 349 |
+| `recipes` (`check` workflow) | 1,000 / 10,000 recipes | 1,151 / 1,176 | 16,343 / 23,494 | 17.3 | 1,026 |
+| `communities` (`check_relation` workflow) | 1,000 / 10,000 communities | 1,044 / 1,077 | 10,895 / 12,058 | 15.4 | 746 |
+| `actions` (`describe` workflow) | 1,000 / 10,000 actions | 3,729 / 4,197 | 54,233 / 57,685 | 425.6 | 3,294 |
+
+Facts `check` answers from an index (1.1 µs at 4,096 facts). Queries that filter or rank every
+entry grow linearly: inventory `rows` (31 µs at 10,000 holdings), timeline `query` (1.2 ms at
+10,000 entries), lore `select` (1.3 ms at 10,000), `info_lookup` (0.13 ms at
+10,000 notes), evidence `select` (0.39 ms at 1,024 records). `nearby` builds the codex's place
+graph once and then grows with the places it reaches; in this test every field sits in one
+valley, so each answer also counts all 10,000 siblings (0.13 ms). The measurement found
+`nearby` copying the whole codex and rebuilding every edge on each query (10.7 ms at 10,000
+places before) and a per-entry allocation in timeline queries; both are fixed with unchanged
+output. The things, species, recipes, communities and actions workflows return their whole
+table on every call (that is their format), so a call costs time in proportion to the table:
+6.3 ms for one `move` among 10,000 things and 54 ms for one `describe` among 10,000 actions,
+whose entries are large. Facts are registered one at a time and each registration copies and
+re-measures the registry (2.3 ms each at 4,096 facts). Limits: one desktop run with uncontrolled
+scheduling; JSON text parsing, the CLI and model calls are excluded; not a realtime guarantee.
 
 ## Goals from experience (pass 2, A4)
 

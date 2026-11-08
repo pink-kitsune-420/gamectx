@@ -35,6 +35,17 @@ pub const MAX_CUSTOMS: usize = 32;
 pub const MAX_RELATIONS: usize = 64;
 pub const MAX_RULES: usize = 32;
 pub const MAX_OPS: usize = 64;
+/// Host-set limits (defaults are the earlier fixed bounds): most `communities`, `members`,
+/// `customs` and `relations` per community, and market `rules` per side.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "communities", default: MAX_COMMUNITIES, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "members", default: MAX_MEMBERS, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "customs", default: MAX_CUSTOMS, ceiling: 1024 },
+    crate::character::limits::Limit { name: "relations", default: MAX_RELATIONS, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "rules", default: MAX_RULES, ceiling: 1024 },
+];
+crate::character::limits::module_limits!(CommunityLimits, LIMITS);
+type Lim = crate::character::limits::Limits;
 
 pub const STANCES: [&str; 5] = ["allied", "friendly", "neutral", "wary", "hostile"];
 
@@ -219,11 +230,16 @@ pub struct MarketDef {
 
 impl MarketDef {
     pub fn parse(v: &Value) -> Result<Self> {
+        Self::parse_within(v, &CommunityLimits::default())
+    }
+
+    /// [`parse`](Self::parse) with host-set [limits](LIMITS).
+    pub fn parse_within(v: &Value, l: &Lim) -> Result<Self> {
         keys(v, &[], &["buys", "sells"])?;
 
         let buys = if let Some(bv) = v.get("buys").filter(|x| **x != Value::Null) {
             let arr = bv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_RULES {
+            if arr.len() > l.get("rules") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -237,7 +253,7 @@ impl MarketDef {
 
         let sells = if let Some(sv) = v.get("sells").filter(|x| **x != Value::Null) {
             let arr = sv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_RULES {
+            if arr.len() > l.get("rules") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -315,6 +331,11 @@ pub struct CommunityDef {
 
 impl CommunityDef {
     pub fn parse(v: &Value) -> Result<Self> {
+        Self::parse_within(v, &CommunityLimits::default())
+    }
+
+    /// [`parse`](Self::parse) with host-set [limits](LIMITS).
+    pub fn parse_within(v: &Value, l: &Lim) -> Result<Self> {
         keys(v, &["id", "label", "description"], &["home_places", "members", "customs", "relations", "market"])?;
         let id = ident_bound(c::get(v, "id")?)?.to_owned();
         let label = text_bound(c::get(v, "label")?, 48)?.to_owned();
@@ -336,7 +357,7 @@ impl CommunityDef {
 
         let members = if let Some(mv) = v.get("members").filter(|x| **x != Value::Null) {
             let arr = mv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_MEMBERS {
+            if arr.len() > l.get("members") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -350,7 +371,7 @@ impl CommunityDef {
 
         let customs = if let Some(cv) = v.get("customs").filter(|x| **x != Value::Null) {
             let arr = cv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_CUSTOMS {
+            if arr.len() > l.get("customs") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -364,7 +385,7 @@ impl CommunityDef {
 
         let relations = if let Some(rv) = v.get("relations").filter(|x| **x != Value::Null) {
             let arr = rv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_RELATIONS {
+            if arr.len() > l.get("relations") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -381,7 +402,7 @@ impl CommunityDef {
         };
 
         let market = if let Some(mv) = v.get("market").filter(|x| **x != Value::Null) {
-            Some(MarketDef::parse(mv)?)
+            Some(MarketDef::parse_within(mv, l)?)
         } else {
             None
         };
@@ -421,6 +442,7 @@ impl CommunityDef {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CommunityWorld {
     pub communities: Vec<CommunityDef>,
+    limits: CommunityLimits,
 }
 
 impl Default for CommunityWorld {
@@ -431,25 +453,30 @@ impl Default for CommunityWorld {
 
 impl CommunityWorld {
     pub fn new() -> Self {
-        Self { communities: Vec::new() }
+        Self { communities: Vec::new(), limits: CommunityLimits::default() }
     }
 
     pub fn parse(val: Option<&Value>) -> Result<Self> {
+        Self::parse_within(val, &CommunityLimits::default())
+    }
+
+    /// [`parse`](Self::parse) with host-set [limits](LIMITS); the result keeps them.
+    pub fn parse_within(val: Option<&Value>, l: &Lim) -> Result<Self> {
         let mut communities = Vec::new();
         if let Some(cv) = val.filter(|x| **x != Value::Null) {
             let arr = cv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_COMMUNITIES {
+            if arr.len() > l.get("communities") {
                 return Err(c::bad());
             }
             for item in arr {
-                let comm = CommunityDef::parse(item)?;
+                let comm = CommunityDef::parse_within(item, l)?;
                 if communities.iter().any(|old: &CommunityDef| old.id == comm.id) {
                     return Err(c::bad());
                 }
                 communities.push(comm);
             }
         }
-        Ok(Self { communities })
+        Ok(Self { communities, limits: CommunityLimits(l.clone()) })
     }
 
     pub fn to_value(&self) -> Value {
@@ -584,6 +611,7 @@ impl CommunityWorld {
             }
         };
 
+        let max_relations = self.limits.get("relations");
         let comm = self.get_community_mut(community).ok_or_else(c::bad)?;
         if comm.relations.is_none() {
             comm.relations = Some(Vec::new());
@@ -599,7 +627,7 @@ impl CommunityWorld {
             }
         }
         if !found {
-            if rels.len() >= MAX_RELATIONS {
+            if rels.len() >= max_relations {
                 return Err(c::bad());
             }
             rels.push(RelationDef { target: target.to_string(), stance: stance.clone(), trust: Some(trust) });
@@ -653,13 +681,14 @@ impl CommunityWorld {
             ident_bound(&Value::String(p.to_string()))?;
         }
 
+        let max_members = self.limits.get("members");
         let comm = self.get_community_mut(community).ok_or_else(c::bad)?;
         if comm.members.is_none() {
             comm.members = Some(Vec::new());
         }
         let mems = comm.members.as_mut().unwrap();
         if !mems.iter().any(|m| m == actor) {
-            if mems.len() >= MAX_MEMBERS {
+            if mems.len() >= max_members {
                 return Err(c::bad());
             }
             mems.push(actor.to_string());
@@ -773,7 +802,7 @@ impl CommunityWorld {
             ident_bound(&Value::String(p.to_string()))?;
         }
         let arr = customs_val.as_array().ok_or_else(c::bad)?;
-        if arr.len() > MAX_CUSTOMS {
+        if arr.len() > self.limits.get("customs") {
             return Err(c::bad());
         }
         let mut list = Vec::new();
@@ -1201,7 +1230,22 @@ impl CommunityWorld {
         })
     }
 
+    /// Runs `{ops, communities?, things?, limits?}`. `limits` (host-set [limits](LIMITS))
+    /// apply first and are echoed in the output.
     pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+        let stripped = crate::character::limits::take(req, &mut self.limits)?;
+        let out = self.run_workflow(stripped.as_ref().unwrap_or(req))?;
+        Ok(crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+    }
+
+    /// A community world with host limits applied up front.
+    pub fn with_limits(v: &Value) -> Result<Self> {
+        let mut w = Self::new();
+        w.limits.apply(v)?;
+        Ok(w)
+    }
+
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &["communities", "things"])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.len() > MAX_OPS {
@@ -1209,7 +1253,7 @@ impl CommunityWorld {
         }
 
         if req.get("communities").is_some() {
-            *self = Self::parse(req.get("communities"))?;
+            *self = Self::parse_within(req.get("communities"), &self.limits)?;
         }
 
         let mut things_state = if let Some(th) = req.get("things").filter(|x| **x != Value::Null) {
@@ -1351,8 +1395,7 @@ impl CommunityWorld {
     }
 }
 
+/// The `communities` local kind: `{ops, communities?, things?, limits?}` → `{limits?, results, ...}`.
 pub fn workflow(a: &Value) -> Result<Value> {
-    keys(a, &["ops"], &["communities", "things"])?;
-    let mut cw = CommunityWorld::parse(a.get("communities"))?;
-    cw.workflow(a)
+    CommunityWorld::new().workflow(a)
 }

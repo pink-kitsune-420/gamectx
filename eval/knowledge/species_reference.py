@@ -2,12 +2,15 @@
 temperament, and bounded animal interactions (pet, feed, calm, lead, ride, load, train, harvest).
 Python standard library only; nothing here calls a model.
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_SPECIES = 256
 MAX_ANIMALS = 256
 MAX_OPS = 64
 MAX_SAFE = 9007199254740991
+SPEC = [('species', MAX_SPECIES, 65536), ('animals', MAX_ANIMALS, 1000000)]
 
 KINDS = ['animal', 'plant', 'person', 'hybrid']
 DIETS = ['herbivore', 'carnivore', 'omnivore', 'photosynthetic', 'scavenger', 'mineral']
@@ -96,10 +99,10 @@ def validate_animal(a):
 
 
 class SpeciesCatalog:
-    def __init__(self, species=None):
+    def __init__(self, species=None, cap=MAX_SPECIES):
         self.species = {}
         if species is not None:
-            assert isinstance(species, list) and len(species) <= MAX_SPECIES
+            assert isinstance(species, list) and len(species) <= cap
             for s in species:
                 validate_species(s)
                 assert s['id'] not in self.species
@@ -175,10 +178,10 @@ class SpeciesCatalog:
 
 
 class Animals:
-    def __init__(self, animals=None):
+    def __init__(self, animals=None, cap=MAX_ANIMALS):
         self.animals = {}
         if animals is not None:
-            assert isinstance(animals, list) and len(animals) <= MAX_ANIMALS
+            assert isinstance(animals, list) and len(animals) <= cap
             for a in animals:
                 validate_animal(a)
                 assert a['id'] not in self.animals
@@ -213,9 +216,10 @@ class Animals:
 
 
 class SpeciesWorld:
-    def __init__(self, species=None, animals=None):
-        self.catalog = SpeciesCatalog(species)
-        self.animals = Animals(animals)
+    def __init__(self, species=None, animals=None, lim=None):
+        self.lim = Limits(SPEC) if lim is None else lim
+        self.catalog = SpeciesCatalog(species, self.lim['species'])
+        self.animals = Animals(animals, self.lim['animals'])
 
     def op_pet(self, at, actor, animal_id, place):
         an = self.animals.get(animal_id)
@@ -498,9 +502,9 @@ class SpeciesWorld:
         ops = req['ops']
         assert isinstance(ops, list) and len(ops) <= MAX_OPS
         if 'species' in req and req['species'] is not None:
-            self.catalog = SpeciesCatalog(req['species'])
+            self.catalog = SpeciesCatalog(req['species'], self.lim['species'])
         if 'animals' in req and req['animals'] is not None:
-            self.animals = Animals(req['animals'])
+            self.animals = Animals(req['animals'], self.lim['animals'])
         things_state = req.get('things', dict(version=1, materials=[], kinds=[], things=[]))
 
         results = []
@@ -578,7 +582,10 @@ class SpeciesWorld:
 
 
 def workflow(a):
-    assert isinstance(a, dict)
-    keys(a, ['ops'], ['species', 'animals', 'things'])
-    sw = SpeciesWorld(a.get('species'), a.get('animals'))
-    return sw.workflow(a)
+    lim = Limits(SPEC)
+
+    def inner(b):
+        assert isinstance(b, dict)
+        keys(b, ['ops'], ['species', 'animals', 'things'])
+        return SpeciesWorld(b.get('species'), b.get('animals'), lim).workflow(b)
+    return limited(a, lim, inner)

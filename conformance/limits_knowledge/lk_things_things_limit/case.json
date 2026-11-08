@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At the things limit, create fails while moves of existing things still work.",
+  "error": false
+}

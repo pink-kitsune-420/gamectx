@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A codex larger than the host's bytes limit is refused before any query.",
+  "error": true
+}

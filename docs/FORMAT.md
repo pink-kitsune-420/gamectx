@@ -969,7 +969,8 @@ observations, consent, clock progression and durable storage remain host respons
 ## Registered facts
 
 `facts::FactRegistry` is an explicit host/user assertion store, separate from observations
-and model hypotheses. Capacity is 1..256; full registration errors without eviction.
+and model hypotheses. Capacity is host-set, 1..4,096 (was 1..256); full registration errors
+without eviction, and serialized state stays within 4,194,304 bytes.
 Identity is `(scope,key)`, each 1..64 non-control Unicode characters, at most 256 UTF-8
 bytes. JSON values are typed, at most 4,096 serialized bytes, depth eight (root depth zero),
 256 nodes and 64 elements/members per container. Object keys are unique and at most
@@ -2903,6 +2904,32 @@ grows past them is refused where it used to be accepted.
 | `aspiration` | `beings` (1024, 10⁶), `pressures` per being (64, 4096), `goals` per being (16, 256) |
 | `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |
+
+### Knowledge kinds
+
+Knowledge kinds keep their own request shapes and take `limits` as one more top-level field
+(`{limits?, codex, queries}`, `{limits?, timeline, ops}`, `{limits?, snapshot, calls}`, …); with `limits` (even
+`null`) the output gains `limits` as its first field, otherwise it is byte-identical to before. `bytes` limits
+bound the compact serialized size of the loaded document (the inventory request may carry four times its snapshot
+`bytes`). 25 cases (6 malformed) live in `conformance/limits_knowledge/`.
+
+| kind | limit (default, ceiling) |
+|---|---|
+| `places` | codex `places` (128, 65536), `entrances` (256, 262144), `factions` (64, 4096), `events` (128, 65536), `quests` (128, 65536), `bytes` (2 MiB, 256 MiB) |
+| `timeline` | `entries` (4096, 10⁶), request `bytes` (16 MiB, 256 MiB) |
+| `things` | `materials` (256, 65536), `kinds` (512, 65536), `things` (4096, 10⁶; also bounds `create`), `bytes` (1 MiB, 256 MiB) |
+| `species` | `species` (256, 65536), `animals` (256, 10⁶) |
+| `recipes` | `recipes` (256, 65536) |
+| `communities` | `communities` (64, 65536), `members` (64, 65536), `customs` (32, 1024) and `relations` (64, 65536) per community, market `rules` per side (32, 1024) |
+| `actions` | `actions` (256, 65536; built-ins count; also bounds request `actions` and `register`) |
+| `lore` | `entries` (512, 65536), `bytes` (256 KiB, 256 MiB) |
+| `inventory` | `items` (128, 65536), `holdings` (256, 10⁶; also bounds transfers), snapshot `bytes` (256 KiB, 64 MiB) |
+| `evidence` | `records` (128, 1024), `bytes` (256 KiB, 4 MiB); `max_bytes` stays ≤ 262144 |
+| `info` | `notes` (64, 65536), checkpoint `bytes` for `Notes::recover_within` (128 KiB, 256 MiB) |
+
+Request `actions` on the `actions` kind used to be added without a bound; they now refuse the request when the
+catalog would exceed the `actions` limit. Facts keep their saved `capacity` field as their limit; its ceiling is
+now 4096 (was 256), and the fact packet still lists at most 256 rows.
 
 ## Goals from experience v1 (pass 2, A4)
 

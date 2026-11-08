@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With notes 2 the third remember fails; lookups still answer.",
+  "error": false
+}

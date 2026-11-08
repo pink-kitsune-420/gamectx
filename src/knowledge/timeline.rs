@@ -29,8 +29,15 @@ use crate::knowledge::props::{ident, line, normalize};
 use crate::packet::request::bounded;
 use crate::{checked as c, obj, Result, Value};
 
-/// Most entries one timeline holds.
+/// Most entries one timeline holds by default (the `entries` [limit](LIMITS)).
 pub const MAX_ENTRIES: usize = 4096;
+/// Host-set limits on a timeline (defaults are the earlier fixed bounds): most `entries`
+/// held, and the most serialized `bytes` a workflow request (with its timeline) may carry.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "entries", default: MAX_ENTRIES, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "bytes", default: 16_777_216, ceiling: 268_435_456 },
+];
+crate::character::limits::module_limits!(TimelineLimits, LIMITS);
 const MAX_SAFE: u64 = 9_007_199_254_740_991;
 const VISIBILITY: [&str; 3] = ["public", "witnessed", "private"];
 const ENTRY: [&str; 14] = [
@@ -229,6 +236,7 @@ fn words_in(needle: &str, hay: &str) -> bool {
 pub struct Timeline {
     next: u64,
     entries: Vec<Value>,
+    max: usize,
 }
 impl Default for Timeline {
     fn default() -> Self {
@@ -238,19 +246,28 @@ impl Default for Timeline {
 impl Timeline {
     /// An empty timeline.
     pub fn new() -> Self {
-        Self { next: 1, entries: Vec::new() }
+        Self::within(&TimelineLimits::default())
+    }
+    /// An empty timeline holding at most the `entries` [limit](LIMITS).
+    pub fn within(l: &crate::character::limits::Limits) -> Self {
+        Self { next: 1, entries: Vec::new(), max: l.get("entries") }
     }
     pub fn parse(input: &str) -> Result<Self> {
         Self::from_value(&crate::data::json::parse(input, 16_777_216)?)
     }
     /// Load and fully revalidate a saved timeline.
     pub fn from_value(v: &Value) -> Result<Self> {
-        bounded(v, 16_777_216)?;
+        Self::from_value_within(v, &TimelineLimits::default())
+    }
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS).
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
+        let max = l.get("entries");
+        bounded(v, l.get("bytes"))?;
         keys(v, &["version", "next", "entries"], &[])?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         let next = safe(c::get(v, "next")?, 1)?;
         let rows = c::list(c::get(v, "entries")?)?;
-        if rows.len() > MAX_ENTRIES {
+        if rows.len() > max {
             return Err(c::bad());
         }
         let entries = rows.iter().map(stored).collect::<Result<Vec<_>>>()?;
@@ -262,7 +279,7 @@ impl Timeline {
             }
             last = seq;
         }
-        Ok(Self { next, entries })
+        Ok(Self { next, entries, max })
     }
     pub fn to_value(&self) -> Value {
         obj! {"version"=>1u64,"next"=>self.next,"entries"=>Value::Array(self.entries.clone())}
@@ -273,12 +290,16 @@ impl Timeline {
     }
     /// The entry with this `seq`.
     pub fn entry(&self, seq: u64) -> Option<&Value> {
-        self.entries.iter().find(|e| num(e, "seq") == seq)
+        self.position(seq).map(|i| &self.entries[i])
+    }
+    /// Entries are kept in strictly increasing `seq` order, so lookups bisect.
+    fn position(&self, seq: u64) -> Option<usize> {
+        self.entries.binary_search_by_key(&seq, |e| num(e, "seq")).ok()
     }
     /// Record one entry (`{at, kind, summary, actors?, place?, things?, tags?, visibility?,
     /// witnesses?, phrases?, facts?}`) and return its `seq`.
     pub fn record(&mut self, entry: &Value) -> Result<u64> {
-        if self.entries.len() >= MAX_ENTRIES || self.next >= MAX_SAFE {
+        if self.entries.len() >= self.max || self.next >= MAX_SAFE {
             return Err(c::bad());
         }
         let out = recorded(self.next, entry)?;
@@ -290,7 +311,8 @@ impl Timeline {
     /// they ask for retracted entries. Retracting twice fails.
     pub fn retract(&mut self, seq: u64, reason: &str) -> Result<()> {
         let reason = line(&Value::str(reason), 120, usize::MAX)?.to_owned();
-        let e = self.entries.iter_mut().find(|e| num(e, "seq") == seq).ok_or_else(c::bad)?;
+        let i = self.position(seq).ok_or_else(c::bad)?;
+        let e = &mut self.entries[i];
         if !matches!(e.get("retracted"), Some(Value::Null)) {
             return Err(c::bad());
         }
@@ -345,7 +367,6 @@ impl Timeline {
             _ => return Err(c::bad()),
         };
         let retracted = f.get("include_retracted").map(c::boolean).transpose()?.unwrap_or(false);
-        let text = |e: &Value, k: &str| e.get(k).and_then(Value::as_str).map(str::to_owned);
         let ok = |e: &&Value| {
             if !retracted && !matches!(e.get("retracted"), Some(Value::Null)) {
                 return false;
@@ -354,7 +375,7 @@ impl Timeline {
             if at < since || at > until {
                 return false;
             }
-            let vis = text(e, "visibility").unwrap_or_default();
+            let vis = e.get("visibility").and_then(Value::as_str).unwrap_or("");
             if let Some(w) = known {
                 let public = vis == "public";
                 let acted = strs(e, "actors").any(|a| a == w);
@@ -380,23 +401,31 @@ impl Timeline {
     }
 }
 
-/// The `timeline` local kind: `{timeline: Timeline|null, ops: [{op, args}] ≤64}` →
-/// `{results, timeline}`. Ops are `record`, `retract {seq, reason}`,
-/// `compact {through, summary, kind?}` and `query`. A failed op changes nothing.
+/// The `timeline` local kind: `{timeline: Timeline|null, ops: [{op, args}] ≤64, limits?}` →
+/// `{limits?, results, timeline}`. Ops are `record`, `retract {seq, reason}`,
+/// `compact {through, summary, kind?}` and `query`. A failed op changes nothing. `limits`
+/// are the timeline's [host-set limits](LIMITS), echoed when supplied.
 pub fn workflow(a: &Value) -> Result<Value> {
-    bounded(a, 16_777_216)?;
+    let mut limits = TimelineLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let out = run_workflow(stripped.as_ref().unwrap_or(a), &limits)?;
+    Ok(crate::character::limits::echo(out, &limits, stripped.is_some()))
+}
+
+fn run_workflow(a: &Value, l: &crate::character::limits::Limits) -> Result<Value> {
+    bounded(a, l.get("bytes"))?;
     keys(a, &["timeline", "ops"], &[])?;
     let mut t = match c::get(a, "timeline")? {
-        Value::Null => Timeline::new(),
-        v => Timeline::from_value(v)?,
+        Value::Null => Timeline::within(l),
+        v => Timeline::from_value_within(v, l)?,
     };
     let ops = c::list(c::get(a, "ops")?)?;
     if ops.len() > 64 {
         return Err(c::bad());
     }
     let mut results = Vec::new();
+    // Every op validates before it changes anything, so a failed op leaves `t` as it was.
     for op in ops {
-        let before = t.clone();
         let out = (|| {
             keys(op, &["op", "args"], &[])?;
             let v = c::get(op, "args")?;
@@ -421,10 +450,7 @@ pub fn workflow(a: &Value) -> Result<Value> {
         })();
         results.push(match out {
             Ok(v) => obj! {"ok"=>true,"result"=>v},
-            Err(_) => {
-                t = before;
-                obj! {"ok"=>false}
-            }
+            Err(_) => obj! {"ok"=>false},
         });
     }
     Ok(obj! {"results"=>Value::Array(results),"timeline"=>t.to_value()})

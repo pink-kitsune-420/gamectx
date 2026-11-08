@@ -9,6 +9,15 @@ pub const MAX_KINDS: usize = 512;
 pub const MAX_THINGS: usize = 4096;
 pub const MAX_OPS: usize = 64;
 pub const MAX_SAFE: u64 = 9_007_199_254_740_991;
+/// Host-set limits (defaults are the earlier fixed bounds): most `materials`, `kinds` and
+/// `things`, and the most serialized `bytes` in a loaded things document.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "materials", default: MAX_MATERIALS, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "kinds", default: MAX_KINDS, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "things", default: MAX_THINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "bytes", default: 1_048_576, ceiling: 268_435_456 },
+];
+crate::character::limits::module_limits!(ThingsLimits, LIMITS);
 
 pub const CATEGORIES: [&str; 11] = [
     "tool",
@@ -128,6 +137,7 @@ pub struct Things {
     materials: Vec<MaterialDef>,
     kinds: Vec<KindDef>,
     things: Vec<ThingInstance>,
+    limits: ThingsLimits,
 }
 
 impl Things {
@@ -141,14 +151,19 @@ impl Things {
     }
 
     pub fn from_value(v: &Value) -> Result<Self> {
-        crate::packet::request::bounded(v, 1_048_576)?;
+        Self::from_value_within(v, &ThingsLimits::default())
+    }
+
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS); the result keeps them.
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
+        crate::packet::request::bounded(v, l.get("bytes"))?;
         crate::knowledge::codex::keys(v, &["version"], &["materials", "kinds", "things"])?;
         c::uint(c::get(v, "version")?, 1, 1)?;
 
         let mut materials = Vec::new();
         if let Some(mats) = v.get("materials").filter(|x| **x != Value::Null) {
             let list = mats.as_array().ok_or_else(c::bad)?;
-            if list.len() > MAX_MATERIALS {
+            if list.len() > l.get("materials") {
                 return Err(c::bad());
             }
             for m in list {
@@ -169,7 +184,7 @@ impl Things {
         let mut kinds = Vec::new();
         if let Some(k_list) = v.get("kinds").filter(|x| **x != Value::Null) {
             let list = k_list.as_array().ok_or_else(c::bad)?;
-            if list.len() > MAX_KINDS {
+            if list.len() > l.get("kinds") {
                 return Err(c::bad());
             }
             for k in list {
@@ -290,11 +305,11 @@ impl Things {
             }
         }
 
-        let mut instance = Self { materials, kinds, things: Vec::new() };
+        let mut instance = Self { materials, kinds, things: Vec::new(), limits: ThingsLimits(l.clone()) };
 
         if let Some(th_list) = v.get("things").filter(|x| **x != Value::Null) {
             let list = th_list.as_array().ok_or_else(c::bad)?;
-            if list.len() > MAX_THINGS {
+            if list.len() > l.get("things") {
                 return Err(c::bad());
             }
             for t in list {
@@ -584,7 +599,7 @@ impl Things {
 
     fn op_create(&mut self, at: u64, args: &Value) -> Result<Value> {
         crate::knowledge::codex::keys(args, &["id", "kind", "location"], &["condition", "owner", "quantity"])?;
-        if self.things.len() >= MAX_THINGS {
+        if self.things.len() >= self.limits.get("things") {
             return Err(c::bad());
         }
         let tid = ident_bound(c::get(args, "id")?)?.to_owned();
@@ -1111,10 +1126,25 @@ impl Things {
         })
     }
 
+    /// Runs `{ops, things?, limits?}`. `limits` (host-set [limits](LIMITS)) apply first and
+    /// are echoed in the output.
     pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+        let stripped = crate::character::limits::take(req, &mut self.limits)?;
+        let out = self.run_workflow(stripped.as_ref().unwrap_or(req))?;
+        Ok(crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+    }
+
+    /// A things world with host limits applied up front.
+    pub fn with_limits(v: &Value) -> Result<Self> {
+        let mut t = Self::new();
+        t.limits.apply(v)?;
+        Ok(t)
+    }
+
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         crate::knowledge::codex::keys(req, &["ops"], &["things"])?;
         if let Some(th) = req.get("things").filter(|x| **x != Value::Null) {
-            *self = Self::from_value(th)?;
+            *self = Self::from_value_within(th, &self.limits)?;
         }
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.len() > MAX_OPS {
@@ -1161,11 +1191,7 @@ impl Things {
     }
 }
 
+/// The `things` local kind: `{ops, things?, limits?}` → `{limits?, results, things}`.
 pub fn workflow(a: &Value) -> Result<Value> {
-    let mut inst = if let Some(th) = a.get("things").filter(|x| **x != Value::Null) {
-        Things::from_value(th)?
-    } else {
-        Things::new()
-    };
-    inst.workflow(a)
+    Things::new().workflow(a)
 }

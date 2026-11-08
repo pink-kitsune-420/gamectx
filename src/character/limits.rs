@@ -14,7 +14,7 @@ use crate::knowledge::codex::keys;
 use crate::{Result, Value};
 
 /// One configurable capacity.
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Limit {
     pub name: &'static str,
     pub default: usize,
@@ -22,7 +22,7 @@ pub struct Limit {
 }
 
 /// Current values for a module's limits, in declaration order.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Limits {
     spec: &'static [Limit],
     values: Vec<usize>,
@@ -99,13 +99,10 @@ pub fn run(
     f: impl FnMut(&str, &Value, &Limits) -> Result<Value>,
 ) -> Result<Value> {
     keys(request, &["ops"], &["limits"])?;
-    let supplied = match request.get("limits").filter(|x| **x != Value::Null) {
-        Some(v) => {
-            limits.apply(v)?;
-            true
-        }
-        None => false,
-    };
+    let supplied = request.get("limits").is_some();
+    if let Some(v) = request.get("limits").filter(|x| **x != Value::Null) {
+        limits.apply(v)?;
+    }
     let mut f = f;
     let snapshot = limits.clone();
     let ops_only = Value::Object(vec![("ops".to_string(), c::get(request, "ops")?.clone())]);
@@ -125,7 +122,7 @@ pub fn run(
 macro_rules! module_limits {
     ($name:ident, $spec:expr) => {
         /// This module's host-set limits (see [`crate::character::limits`]).
-        #[derive(Clone, Debug, PartialEq)]
+        #[derive(Clone, Debug, PartialEq, Eq)]
         pub struct $name(pub $crate::character::limits::Limits);
         impl Default for $name {
             fn default() -> Self {

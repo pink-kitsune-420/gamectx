@@ -1,0 +1,1 @@
+{"kind":"recipes","args":{"limits":{"recipes":1},"ops":[{"op":"check","args":{"recipe":"craft_sword","actor":"smith","place":"forge"}}]}}

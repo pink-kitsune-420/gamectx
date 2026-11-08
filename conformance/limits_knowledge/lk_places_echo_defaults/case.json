@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An empty limits object echoes the codex defaults; routes are unchanged.",
+  "error": false
+}

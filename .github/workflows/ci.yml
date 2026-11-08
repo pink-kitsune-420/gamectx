@@ -152,6 +152,8 @@ jobs:
       - run: ./target/upgrades-bench > /dev/null
       - run: rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/scale-measure
       - run: ./target/scale-measure > /dev/null
+      - run: rustc --edition=2021 -O eval/knowledge/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/knowledge-scale-measure
+      - run: ./target/knowledge-scale-measure > /dev/null
       - run: rustc --edition=2021 -O eval/runtime/facts_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/facts-check
       - run: python3 -I eval/runtime/facts_eval.py --check
       - run: rustc --edition=2021 -O eval/runtime/integration_check.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/integration-check
@@ -298,6 +300,9 @@ jobs:
       - run: python3 -I eval/character/limits_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/limits_character_cases.py --cap 0
       - run: python3 -I eval/character/limits_character_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/knowledge/limits_knowledge_cases.py --cap 0
+      - run: python3 -I eval/knowledge/limits_knowledge_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/knowledge/scale_measure_check.py --cap 0 --check eval/knowledge/scale-timing.json
       - run: python3 -I eval/character/scale_measure_check.py --cap 0 --check eval/character/scale-timing.json
       - run: python3 -I eval/studio/conversation_extensions_bindings.py --cap 0
       - run: node eval/studio/conversation_extensions_bindings.mjs --cap 0

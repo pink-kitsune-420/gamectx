@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A zero entries limit is outside 1..ceiling and refuses the request.",
+  "error": true
+}

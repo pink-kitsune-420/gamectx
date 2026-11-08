@@ -128,10 +128,7 @@ pub fn process(v: &Value) -> Result<Value> {
             c::fields(a, &["quote"])?;
             Ok(Value::str(crate::character::dialogue::render_quote(c::text(c::get(a, "quote")?)?)?))
         }
-        "lore" => {
-            c::fields(a, &["world", "select"])?;
-            crate::knowledge::lore::Lore::from_value(c::get(a, "world")?)?.select(c::get(a, "select")?)
-        }
+        "lore" => crate::knowledge::lore::workflow(a),
         "answers" => {
             c::fields(a, &["definition", "calls"])?;
             let answers = crate::character::dialogue::Answers::from_value(c::get(a, "definition")?)?;
@@ -221,14 +218,7 @@ pub fn process(v: &Value) -> Result<Value> {
             }
             Ok(session.state())
         }
-        "evidence" => {
-            c::fields(a, &["records", "max_bytes"])?;
-            crate::knowledge::selection::Evidence::from_value(c::get(a, "records")?)?.select(usize_arg(
-                a,
-                "max_bytes",
-                262144,
-            )?)
-        }
+        "evidence" => crate::knowledge::selection::workflow(a),
         "query-template" => {
             c::fields(a, &["template", "arguments", "rows"])?;
             let template = crate::data::query::Template::from_value(c::get(a, "template")?)?;

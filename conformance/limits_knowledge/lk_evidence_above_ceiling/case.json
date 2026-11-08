@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A records limit above its ceiling (1024) refuses the request.",
+  "error": true
+}

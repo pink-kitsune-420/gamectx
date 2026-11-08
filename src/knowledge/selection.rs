@@ -1,6 +1,14 @@
 //! Dependency-complete, bounded host evidence selection. It neither discovers
 //! dependencies nor certifies truth/privacy. Supply already authorized records.
 use crate::{checked as c, obj, packet::request::bounded, Result, Value};
+use std::collections::BTreeMap;
+/// Host-set limits (defaults are the earlier fixed bounds): most evidence `records` and the
+/// most serialized `bytes` in the record list. A selected packet stays within 262,144 bytes.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "records", default: 128, ceiling: 1024 },
+    crate::character::limits::Limit { name: "bytes", default: 262_144, ceiling: 4_194_304 },
+];
+crate::character::limits::module_limits!(EvidenceLimits, LIMITS);
 
 #[derive(Clone, Debug)]
 pub struct Evidence {
@@ -9,20 +17,23 @@ pub struct Evidence {
 }
 impl Evidence {
     pub fn from_value(v: &Value) -> Result<Self> {
-        bounded(v, 262_144)?;
+        Self::from_value_within(v, &EvidenceLimits::default())
+    }
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS).
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
+        bounded(v, l.get("bytes"))?;
         let rows = c::list(v)?;
-        if rows.len() > 128 {
+        if rows.len() > l.get("records") {
             return Err(c::bad());
         }
-        let mut ids = Vec::new();
+        let mut ids = BTreeMap::new();
         for row in rows {
             c::fields(row, &["id", "value", "depends", "priority", "required"])?;
             let id = c::text(c::get(row, "id")?)?;
             c::name(id)?;
-            if ids.contains(&id) {
+            if ids.insert(id, ids.len()).is_some() {
                 return Err(c::bad());
             }
-            ids.push(id);
             let p = c::get(row, "priority")?.to_json().parse::<i32>().map_err(|_| c::bad())?;
             if !(-1_000_000..=1_000_000).contains(&p) {
                 return Err(c::bad());
@@ -38,7 +49,7 @@ impl Evidence {
             let mut indices = Vec::new();
             for dep in deps {
                 let name = c::text(dep)?;
-                let i = ids.iter().position(|s| *s == name).ok_or_else(c::bad)?;
+                let i = *ids.get(name).ok_or_else(c::bad)?;
                 if indices.contains(&i) {
                     return Err(c::bad());
                 }
@@ -108,6 +119,24 @@ impl Evidence {
         if self.packet(&kept).json_len() > max_bytes {
             return Err(c::bad());
         }
+        // Packet bytes are summed per row (`"id":value` plus a comma between rows), so each
+        // candidate is priced without rebuilding the packet.
+        let row_bytes = self
+            .rows
+            .iter()
+            .map(|r| {
+                crate::data::json::string_len(r.get("id").and_then(Value::as_str).expect("id"))
+                    + 1
+                    + r.get("value").expect("value").json_len()
+            })
+            .collect::<Vec<_>>();
+        let (mut sum, mut count) = (0usize, 0usize);
+        for (i, k) in kept.iter().enumerate() {
+            if *k {
+                sum += row_bytes[i];
+                count += 1;
+            }
+        }
         let mut order = (0..self.rows.len()).collect::<Vec<_>>();
         order.sort_by_key(|&i| {
             std::cmp::Reverse(
@@ -115,12 +144,14 @@ impl Evidence {
             )
         });
         for i in order {
-            let mut candidate = kept.clone();
-            for &j in &self.closures[i] {
-                candidate[j] = true;
-            }
-            if self.packet(&candidate).json_len() <= max_bytes {
-                kept = candidate;
+            let new = self.closures[i].iter().filter(|j| !kept[**j]);
+            let (add, n) = new.fold((0usize, 0usize), |(s, n), j| (s + row_bytes[*j], n + 1));
+            if 2 + sum + add + (count + n).saturating_sub(1) <= max_bytes {
+                for &j in &self.closures[i] {
+                    kept[j] = true;
+                }
+                sum += add;
+                count += n;
             }
         }
         let packet = self.packet(&kept);
@@ -135,4 +166,17 @@ impl Evidence {
         };
         Ok(obj! {"packet"=>packet,"kept"=>names(true),"omitted"=>names(false),"bytes"=>bytes})
     }
+}
+
+/// The `evidence` local kind: `{records, max_bytes ≤262144, limits?}` →
+/// `{limits?, packet, kept, omitted, bytes}`. `limits` are the [host-set limits](LIMITS),
+/// echoed when supplied.
+pub fn workflow(a: &Value) -> Result<Value> {
+    let mut limits = EvidenceLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let a = stripped.as_ref().unwrap_or(a);
+    c::fields(a, &["records", "max_bytes"])?;
+    let max_bytes = c::uint(c::get(a, "max_bytes")?, 0, 262_144)? as usize;
+    let out = Evidence::from_value_within(c::get(a, "records")?, &limits)?.select(max_bytes)?;
+    Ok(crate::character::limits::echo(out, &limits, stripped.is_some()))
 }

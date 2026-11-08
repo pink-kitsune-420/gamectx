@@ -7,11 +7,14 @@ optional station (furniture function nearby in place), optional skill with minim
 Building changes the world: places a structure, adds spots or links, or patches place tags/kinds.
 Checks feasibility first (with missing reasons), then executes atomically.
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_RECIPES = 256
 MAX_OPS = 64
 MAX_SAFE = 9007199254740991
+SPEC = [('recipes', MAX_RECIPES, 65536)]
 
 CATEGORIES = ['crafting', 'cooking', 'building', 'repairing', 'dismantling']
 
@@ -99,10 +102,11 @@ def validate_recipe(r):
 
 
 class Recipes:
-    def __init__(self, recipes=None):
+    def __init__(self, recipes=None, cap=MAX_RECIPES):
+        self.cap = cap
         self.recipes = {}
         if recipes is not None:
-            assert isinstance(recipes, list) and len(recipes) <= MAX_RECIPES
+            assert isinstance(recipes, list) and len(recipes) <= cap
             for r in recipes:
                 validate_recipe(r)
                 assert r['id'] not in self.recipes
@@ -319,7 +323,7 @@ class Recipes:
         assert isinstance(ops, list) and len(ops) <= MAX_OPS
         recipes_val = req.get('recipes')
         if recipes_val is not None:
-            self.__init__(recipes_val)
+            self.__init__(recipes_val, self.cap)
         things_state = req.get('things', dict(version=1, materials=[], kinds=[], things=[]))
         codex_state = req.get('codex')
         bio_state = req.get('bio')
@@ -360,6 +364,9 @@ class Recipes:
 
 def workflow(a):
     assert isinstance(a, dict)
-    keys(a, ['ops'], ['recipes', 'things', 'codex', 'bio'])
-    rec = Recipes(a.get('recipes'))
-    return rec.workflow(a)
+    lim = Limits(SPEC)
+
+    def inner(b):
+        keys(b, ['ops'], ['recipes', 'things', 'codex', 'bio'])
+        return Recipes(b.get('recipes'), lim['recipes']).workflow(b)
+    return limited(a, lim, inner)

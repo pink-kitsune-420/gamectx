@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising communities to 80 loads 70 (the old bound was 64).",
+  "error": false
+}

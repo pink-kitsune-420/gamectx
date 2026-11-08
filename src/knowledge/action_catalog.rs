@@ -35,6 +35,11 @@ use crate::{obj, Result};
 
 pub const MAX_ACTIONS: usize = 256;
 pub const MAX_OPS: usize = 64;
+/// Host-set limits (default is the earlier fixed bound): most `actions` in a catalog,
+/// built-ins included (a loaded document may list at most this many of its own).
+pub const LIMITS: &[crate::character::limits::Limit] =
+    &[crate::character::limits::Limit { name: "actions", default: MAX_ACTIONS, ceiling: 65_536 }];
+crate::character::limits::module_limits!(ActionLimits, LIMITS);
 
 pub const CATEGORIES: [&str; 11] = [
     "things",
@@ -337,6 +342,7 @@ fn validate_action(act: &Value) -> Result<()> {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ActionCatalog {
     actions: BTreeMap<String, Value>,
+    limits: ActionLimits,
 }
 
 impl Default for ActionCatalog {
@@ -356,7 +362,7 @@ impl ActionCatalog {
                 }
             }
         }
-        ActionCatalog { actions }
+        ActionCatalog { actions, limits: ActionLimits::default() }
     }
 
     pub fn parse(input: &str) -> Result<Self> {
@@ -365,12 +371,18 @@ impl ActionCatalog {
     }
 
     pub fn from_value(v: &Value) -> Result<Self> {
+        Self::from_value_within(v, &ActionLimits::default())
+    }
+
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS); the result keeps them.
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
         keys(v, &["version"], &["categories", "actions"])?;
         uint_bound(c::get(v, "version")?, 1, 1)?;
         let mut cat = ActionCatalog::new();
+        cat.limits = ActionLimits(l.clone());
         if let Some(acts) = v.get("actions").filter(|x| **x != Value::Null) {
             let arr = acts.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_ACTIONS {
+            if arr.len() > l.get("actions") {
                 return Err(c::bad());
             }
             for act in arr {
@@ -427,7 +439,8 @@ impl ActionCatalog {
 
     pub fn op_register(&mut self, action: &Value) -> Result<Value> {
         validate_action(action)?;
-        if self.actions.len() >= MAX_ACTIONS && !self.actions.contains_key(action.get("id").unwrap().as_str().unwrap())
+        if self.actions.len() >= self.limits.get("actions")
+            && !self.actions.contains_key(action.get("id").unwrap().as_str().unwrap())
         {
             return Err(c::bad());
         }
@@ -657,7 +670,23 @@ impl ActionCatalog {
         })
     }
 
+    /// Runs `{ops, actions?, catalog?, limits?}`. `limits` (host-set [limits](LIMITS)) apply
+    /// first and are echoed in the output. Request `actions` may not grow the catalog past
+    /// the `actions` limit.
     pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+        let stripped = crate::character::limits::take(req, &mut self.limits)?;
+        let out = self.run_workflow(stripped.as_ref().unwrap_or(req))?;
+        Ok(crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+    }
+
+    /// A built-in catalog with host limits applied up front.
+    pub fn with_limits(v: &Value) -> Result<Self> {
+        let mut a = Self::new();
+        a.limits.apply(v)?;
+        Ok(a)
+    }
+
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &["catalog", "actions"])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.len() > MAX_OPS {
@@ -670,6 +699,9 @@ impl ActionCatalog {
                 validate_action(act)?;
                 let id = act.get("id").unwrap().as_str().unwrap().to_string();
                 self.actions.insert(id, act.clone());
+            }
+            if self.actions.len() > self.limits.get("actions") {
+                return Err(c::bad());
             }
         }
 
@@ -739,9 +771,9 @@ impl ActionCatalog {
     }
 }
 
+/// The `actions` local kind: `{ops, actions?, catalog?, limits?}` → `{limits?, results, ...}`.
 pub fn workflow(a: &Value) -> Result<Value> {
-    let mut catalog = ActionCatalog::new();
-    catalog.workflow(a)
+    ActionCatalog::new().workflow(a)
 }
 
 #[cfg(test)]

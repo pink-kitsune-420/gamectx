@@ -5,19 +5,25 @@ sys.path.insert(0,str(pathlib.Path(__file__).resolve().parent))
 from conversation_reference import fields,need,uint,scope,strict
 from dungeon_reference import encode
 from lore_reference import strings
+from limits_reference import Limits,limited
 MAX=2**32-1
+SPEC=[('items',128,65536),('holdings',256,1000000),('bytes',262144,67108864)]
+DEFAULT={'items':128,'holdings':256,'bytes':262144}
 class Inventory:
-    def __init__(self,v):
-        fields(v,['version','revision','items','holdings']);need(v['version']==1 and type(v['version']) is int and len(encode(v).encode())<=262144);uint(v['revision'],MAX)
-        need(isinstance(v['items'],list) and len(v['items'])<=128 and isinstance(v['holdings'],list) and len(v['holdings'])<=256)
-        ids=[]
+    def __init__(self,v,lim=DEFAULT):
+        self.lim=lim
+        fields(v,['version','revision','items','holdings']);need(v['version']==1 and type(v['version']) is int and len(encode(v).encode())<=lim['bytes']);uint(v['revision'],MAX)
+        need(isinstance(v['items'],list) and len(v['items'])<=lim['items'] and isinstance(v['holdings'],list) and len(v['holdings'])<=lim['holdings'])
+        ids=set()
         for i in v['items']:
-            fields(i,['id','label','tags']+(['unique'] if 'unique' in i else []));need('unique' not in i or type(i['unique']) is bool);scope(i['id']);scope(i['label']);strings(i['tags'],16);need(i['id'] not in ids);ids.append(i['id'])
-        seen=[]
+            fields(i,['id','label','tags']+(['unique'] if 'unique' in i else []));need('unique' not in i or type(i['unique']) is bool);scope(i['id']);scope(i['label']);strings(i['tags'],16);need(i['id'] not in ids);ids.add(i['id'])
+        seen=set()
         for h in v['holdings']:
-            fields(h,['owner','item','quantity']);scope(h['owner']);need(h['item'] in ids);uint(h['quantity'],MAX);need(h['quantity']>0 and (h['owner'],h['item']) not in seen);seen.append((h['owner'],h['item']))
+            fields(h,['owner','item','quantity']);scope(h['owner']);need(h['item'] in ids);uint(h['quantity'],MAX);need(h['quantity']>0 and (h['owner'],h['item']) not in seen);seen.add((h['owner'],h['item']))
+        units={}
+        for h in v['holdings']:units[h['item']]=units.get(h['item'],0)+h['quantity']
         for i in v['items']:
-            if i.get('unique'):need(sum(h['quantity'] for h in v['holdings'] if h['item']==i['id'])<=1)
+            if i.get('unique'):need(units.get(i['id'],0)<=1)
         self.v=copy.deepcopy(v)
     def rows(self,owners,tags):
         strings(owners,32);strings(tags,16)
@@ -32,13 +38,16 @@ class Inventory:
             else:draft['holdings'].append({'owner':m['to'],'item':m['item'],'quantity':m['quantity']})
             src['quantity']-=m['quantity']
         draft['holdings']=[h for h in draft['holdings'] if h['quantity']];draft['revision']+=1
-        Inventory(draft);self.v=draft
+        need(len(draft['holdings'])<=self.lim['holdings']);self.v=draft  # moves conserve units, so uniqueness holds
         return copy.deepcopy(self.v)
     def propose(self,owner,text,allow):
         need(len(text.encode())<=4096);a=strict(text);fields(a,['revision','item','to','quantity'])
         return self.transfer(a['revision'],[{'item':a['item'],'from':owner,'to':a['to'],'quantity':a['quantity']}],allow)
 def process(a):
-    fields(a,['snapshot','calls']);need(isinstance(a['calls'],list) and len(a['calls'])<=64);inv=Inventory(a['snapshot']);out=[]
+    lim=Limits(SPEC);return limited(a,lim,lambda b:run(b,lim.values))
+def run(a,lim):
+    need(len(encode(a).encode())<=4*lim['bytes'])
+    fields(a,['snapshot','calls']);need(isinstance(a['calls'],list) and len(a['calls'])<=64);inv=Inventory(a['snapshot'],lim);out=[]
     for c in a['calls']:
         try:
             if c['op']=='rows':fields(c,['op','owners','tags']);v=inv.rows(c['owners'],c['tags'])

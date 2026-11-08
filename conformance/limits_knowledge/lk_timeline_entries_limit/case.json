@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With entries 2 the third record fails and changes nothing; queries still run.",
+  "error": false
+}

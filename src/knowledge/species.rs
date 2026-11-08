@@ -13,6 +13,12 @@ pub const MAX_SPECIES: usize = 256;
 pub const MAX_ANIMALS: usize = 256;
 pub const MAX_OPS: usize = 64;
 const MAX_SAFE: u64 = 9_007_199_254_740_991;
+/// Host-set limits (defaults are the earlier fixed bounds): most `species` and `animals`.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "species", default: MAX_SPECIES, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "animals", default: MAX_ANIMALS, ceiling: 1_000_000 },
+];
+crate::character::limits::module_limits!(SpeciesLimits, LIMITS);
 
 pub const KINDS: [&str; 4] = ["animal", "plant", "person", "hybrid"];
 pub const DIETS: [&str; 6] = ["herbivore", "carnivore", "omnivore", "photosynthetic", "scavenger", "mineral"];
@@ -501,6 +507,7 @@ pub struct SpeciesWorld {
     pub species: Vec<SpeciesDef>,
     pub resolved_species: Vec<SpeciesDef>,
     pub animals: Vec<AnimalDef>,
+    limits: SpeciesLimits,
 }
 
 impl Default for SpeciesWorld {
@@ -511,7 +518,12 @@ impl Default for SpeciesWorld {
 
 impl SpeciesWorld {
     pub fn new() -> Self {
-        Self { species: Vec::new(), resolved_species: Vec::new(), animals: Vec::new() }
+        Self {
+            species: Vec::new(),
+            resolved_species: Vec::new(),
+            animals: Vec::new(),
+            limits: SpeciesLimits::default(),
+        }
     }
 
     pub fn to_value(&self) -> Value {
@@ -527,10 +539,19 @@ impl SpeciesWorld {
     }
 
     pub fn parse(s_val: Option<&Value>, a_val: Option<&Value>) -> Result<Self> {
+        Self::parse_within(s_val, a_val, &SpeciesLimits::default())
+    }
+
+    /// [`parse`](Self::parse) with host-set [limits](LIMITS); the result keeps them.
+    pub fn parse_within(
+        s_val: Option<&Value>,
+        a_val: Option<&Value>,
+        l: &crate::character::limits::Limits,
+    ) -> Result<Self> {
         let mut raw_species = Vec::new();
         if let Some(sv) = s_val.filter(|x| **x != Value::Null) {
             let arr = sv.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_SPECIES {
+            if arr.len() > l.get("species") {
                 return Err(c::bad());
             }
             for s in arr {
@@ -547,7 +568,7 @@ impl SpeciesWorld {
         let mut animals = Vec::new();
         if let Some(av) = a_val.filter(|x| **x != Value::Null) {
             let arr = av.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_ANIMALS {
+            if arr.len() > l.get("animals") {
                 return Err(c::bad());
             }
             for a in arr {
@@ -559,7 +580,7 @@ impl SpeciesWorld {
             }
         }
 
-        Ok(Self { species: raw_species, resolved_species: resolved, animals })
+        Ok(Self { species: raw_species, resolved_species: resolved, animals, limits: SpeciesLimits(l.clone()) })
     }
 
     fn resolve_all(species_list: &[SpeciesDef]) -> Result<Vec<SpeciesDef>> {
@@ -1292,7 +1313,22 @@ impl SpeciesWorld {
         })
     }
 
+    /// Runs `{ops, species?, animals?, things?, limits?}`. `limits` (host-set [limits](LIMITS))
+    /// apply first and are echoed in the output.
     pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+        let stripped = crate::character::limits::take(req, &mut self.limits)?;
+        let out = self.run_workflow(stripped.as_ref().unwrap_or(req))?;
+        Ok(crate::character::limits::echo(out, &self.limits, stripped.is_some()))
+    }
+
+    /// A species world with host limits applied up front.
+    pub fn with_limits(v: &Value) -> Result<Self> {
+        let mut w = Self::new();
+        w.limits.apply(v)?;
+        Ok(w)
+    }
+
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &["species", "animals", "things"])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.len() > MAX_OPS {
@@ -1300,7 +1336,7 @@ impl SpeciesWorld {
         }
 
         if req.get("species").is_some() || req.get("animals").is_some() {
-            *self = Self::parse(req.get("species"), req.get("animals"))?;
+            *self = Self::parse_within(req.get("species"), req.get("animals"), &self.limits)?;
         }
 
         let mut things_state = if let Some(th) = req.get("things").filter(|x| **x != Value::Null) {
@@ -1506,8 +1542,8 @@ impl SpeciesWorld {
     }
 }
 
+/// The `species` local kind: `{ops, species?, animals?, things?, limits?}` →
+/// `{limits?, results, ...}`.
 pub fn workflow(a: &Value) -> Result<Value> {
-    keys(a, &["ops"], &["species", "animals", "things"])?;
-    let mut sw = SpeciesWorld::parse(a.get("species"), a.get("animals"))?;
-    sw.workflow(a)
+    SpeciesWorld::new().workflow(a)
 }

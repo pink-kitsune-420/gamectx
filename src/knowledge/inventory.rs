@@ -1,6 +1,15 @@
 //! Optional integer inventory snapshots and atomic transfers. Hosts own visibility,
 //! permissions, prices, persistence and item semantics; proposals grant no authority.
 use crate::{checked as c, obj, packet::request::bounded, Result, Value};
+use std::collections::{BTreeMap, BTreeSet};
+/// Host-set limits (defaults are the earlier fixed bounds): most `items` and `holdings`, and
+/// the most serialized `bytes` in a snapshot (a workflow request may carry four times that).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "items", default: 128, ceiling: 65_536 },
+    crate::character::limits::Limit { name: "holdings", default: 256, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "bytes", default: 262_144, ceiling: 67_108_864 },
+];
+crate::character::limits::module_limits!(InventoryLimits, LIMITS);
 fn text<'a>(v: &'a Value, key: &str) -> Result<&'a str> {
     c::text(c::get(v, key)?)
 }
@@ -38,21 +47,30 @@ pub struct Inventory {
     revision: u32,
     items: Vec<Value>,
     holdings: Vec<Holding>,
+    /// Item id → position in `items` (items never change after loading).
+    index: BTreeMap<String, usize>,
+    max_holdings: usize,
 }
 impl Inventory {
     pub fn parse(input: &str) -> Result<Self> {
         Self::from_value(&crate::data::json::parse(input, 262144)?)
     }
     pub fn from_value(v: &Value) -> Result<Self> {
-        bounded(v, 262144)?;
+        Self::from_value_within(v, &InventoryLimits::default())
+    }
+    /// [`from_value`](Self::from_value) with host-set [limits](LIMITS); the result keeps the
+    /// `holdings` limit for later transfers.
+    pub fn from_value_within(v: &Value, l: &crate::character::limits::Limits) -> Result<Self> {
+        bounded(v, l.get("bytes"))?;
         c::fields(v, &["version", "revision", "items", "holdings"])?;
         c::uint(c::get(v, "version")?, 1, 1)?;
         let revision = c::uint(c::get(v, "revision")?, 0, u32::MAX as u64)? as u32;
         let items = c::list(c::get(v, "items")?)?;
         let rows = c::list(c::get(v, "holdings")?)?;
-        if items.len() > 128 || rows.len() > 256 {
+        if items.len() > l.get("items") || rows.len() > l.get("holdings") {
             return Err(c::bad());
         }
+        let mut index = BTreeMap::new();
         for (n, i) in items.iter().enumerate() {
             let keys = if i.get("unique").is_some() {
                 vec!["id", "label", "tags", "unique"]
@@ -66,37 +84,33 @@ impl Inventory {
             c::scope(text(i, "id")?)?;
             c::scope(text(i, "label")?)?;
             strings(c::get(i, "tags")?, 16)?;
-            if items[..n].iter().any(|old| old.get("id") == i.get("id")) {
+            if index.insert(text(i, "id")?.to_owned(), n).is_some() {
                 return Err(c::bad());
             }
         }
         let mut holdings: Vec<Holding> = Vec::new();
+        let mut pairs = BTreeSet::new();
+        let mut units: BTreeMap<&str, u64> = BTreeMap::new();
         for h in rows {
             c::fields(h, &["owner", "item", "quantity"])?;
             let owner = text(h, "owner")?;
             let item = text(h, "item")?;
             c::scope(owner)?;
             let quantity = c::uint(c::get(h, "quantity")?, 1, u32::MAX as u64)? as u32;
-            if !items.iter().any(|i| i.get("id").and_then(Value::as_str) == Some(item))
-                || holdings.iter().any(|h| h.owner == owner && h.item == item)
-            {
+            if !index.contains_key(item) || !pairs.insert((owner, item)) {
                 return Err(c::bad());
             }
+            *units.entry(item).or_default() += u64::from(quantity);
             holdings.push(Holding { owner: owner.into(), item: item.into(), quantity });
         }
         for i in items {
-            if i.get("unique") == Some(&Value::Bool(true)) {
-                let total: u64 = holdings
-                    .iter()
-                    .filter(|h| Some(h.item.as_str()) == i.get("id").and_then(Value::as_str))
-                    .map(|h| u64::from(h.quantity))
-                    .sum();
-                if total > 1 {
-                    return Err(c::bad());
-                }
+            if i.get("unique") == Some(&Value::Bool(true))
+                && i.get("id").and_then(Value::as_str).and_then(|id| units.get(id)).is_some_and(|n| *n > 1)
+            {
+                return Err(c::bad());
             }
         }
-        Ok(Self { revision, items: items.to_vec(), holdings })
+        Ok(Self { revision, items: items.to_vec(), holdings, index, max_holdings: l.get("holdings") })
     }
     pub fn to_value(&self) -> Value {
         obj! {"version"=>1,"revision"=>self.revision,"items"=>self.items.clone(),"holdings"=>self.holdings.iter().map(Holding::value).collect::<Vec<_>>()}
@@ -116,11 +130,7 @@ impl Inventory {
             if !owners.contains(&h.owner) {
                 continue;
             }
-            let i = self
-                .items
-                .iter()
-                .find(|i| i.get("id").and_then(Value::as_str) == Some(&h.item))
-                .expect("validated item");
+            let i = &self.items[self.index[&h.item]];
             let available = c::list(c::get(i, "tags")?)?;
             if tags.iter().all(|t| available.iter().any(|v| v.as_str() == Some(t))) {
                 rows.push(obj!{"id"=>h.item.clone(),"label"=>c::get(i,"label")?.clone(),"tags"=>c::get(i,"tags")?.clone(),"owner"=>h.owner.clone(),"count"=>h.quantity});
@@ -183,7 +193,7 @@ impl Inventory {
             draft.holdings[src].quantity -= quantity;
         }
         draft.holdings.retain(|h| h.quantity > 0);
-        if draft.holdings.len() > 256 {
+        if draft.holdings.len() > self.max_holdings {
             return Err(c::bad());
         }
         draft.revision = next;
@@ -204,12 +214,21 @@ impl Inventory {
         self.transfer(revision,&vec![obj!{"item"=>c::get(&a,"item")?.clone(),"from"=>owner,"to"=>c::get(&a,"to")?.clone(),"quantity"=>c::get(&a,"quantity")?.clone()}].into(),allowed)
     }
 }
-/// Bounded stateless CLI/conformance adapter; `allow` is a host-provided exact move
-/// allowlist, not part of a model call. Invalid calls are isolated and leave state intact.
+/// Bounded stateless CLI/conformance adapter: `{snapshot, calls ≤64, limits?}` →
+/// `{limits?, snapshot, results}`. `allow` is a host-provided exact move allowlist, not part
+/// of a model call. Invalid calls are isolated and leave state intact. `limits` are the
+/// [host-set limits](LIMITS), echoed when supplied.
 pub fn workflow(a: &Value) -> Result<Value> {
-    bounded(a, 1_048_576)?;
+    let mut limits = InventoryLimits::default();
+    let stripped = crate::character::limits::take(a, &mut limits)?;
+    let out = run_workflow(stripped.as_ref().unwrap_or(a), &limits)?;
+    Ok(crate::character::limits::echo(out, &limits, stripped.is_some()))
+}
+
+fn run_workflow(a: &Value, l: &crate::character::limits::Limits) -> Result<Value> {
+    bounded(a, l.get("bytes").saturating_mul(4))?;
     c::fields(a, &["snapshot", "calls"])?;
-    let mut inv = Inventory::from_value(c::get(a, "snapshot")?)?;
+    let mut inv = Inventory::from_value_within(c::get(a, "snapshot")?, l)?;
     let calls = c::list(c::get(a, "calls")?)?;
     if calls.len() > 64 {
         return Err(c::bad());

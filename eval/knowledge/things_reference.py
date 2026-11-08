@@ -6,10 +6,14 @@ functions with power levels, base value, weight, durability, and stackability.
 Containers have capacity and accepted tags; carriers have load capacity and seats.
 Instances have condition, owner, quantity and sit in a place, container, holder or carrier.
 """
-import copy, json, re
+import copy, json, pathlib, re, sys
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1] / 'character'))
+from limits_reference import Limits, limited
 
 MAX_MATERIALS, MAX_KINDS, MAX_THINGS, MAX_OPS = 256, 512, 4096, 64
 MAX_SAFE = 9007199254740991
+SPEC = [('materials', MAX_MATERIALS, 65536), ('kinds', MAX_KINDS, 65536), ('things', MAX_THINGS, 1000000), ('bytes', 1048576, 268435456)]
+def size(v): return len(json.dumps(v, ensure_ascii=False, separators=(',', ':')).encode())
 
 CATEGORIES = [
     'tool', 'weapon', 'furniture', 'container', 'food',
@@ -81,9 +85,11 @@ def location_kind(loc):
 
 
 class Things:
-    def __init__(self, v=None):
+    def __init__(self, v=None, lim=None):
+        self.lim = Limits(SPEC) if lim is None else lim
         if v is None:
             v = dict(version=1, materials=[], kinds=[], things=[])
+        assert size(v) <= self.lim['bytes']
         assert isinstance(v, dict)
         keys(v, ['version'], ['materials', 'kinds', 'things'])
         uint(v['version'], 1, 1)
@@ -92,17 +98,17 @@ class Things:
             validate_material(m)
             assert m['id'] not in self.materials
             self.materials[m['id']] = copy.deepcopy(m)
-        assert len(self.materials) <= MAX_MATERIALS
+        assert len(self.materials) <= self.lim['materials']
         self.kinds = {}
         for k in v.get('kinds', []):
             validate_kind(k, self.materials)
             assert k['id'] not in self.kinds
             self.kinds[k['id']] = copy.deepcopy(k)
-        assert len(self.kinds) <= MAX_KINDS
+        assert len(self.kinds) <= self.lim['kinds']
         self.things = {}
         for t in v.get('things', []):
             self._validate_and_add_thing(t)
-        assert len(self.things) <= MAX_THINGS
+        assert len(self.things) <= self.lim['things']
         self._check_all_containers_and_carriers()
 
     def to_value(self):
@@ -224,7 +230,7 @@ class Things:
 
     def op_create(self, at, args):
         keys(args, ['id', 'kind', 'location'], ['condition', 'owner', 'quantity'])
-        assert len(self.things) < MAX_THINGS
+        assert len(self.things) < self.lim['things']
         tid = ident(args['id'])
         assert tid not in self.things
         assert args['kind'] in self.kinds
@@ -551,9 +557,14 @@ class Things:
 
 
 def workflow(a):
+    lim = Limits(SPEC)
+    return limited(a, lim, lambda b: run_workflow(b, lim))
+
+
+def run_workflow(a, lim):
     assert isinstance(a, dict)
     keys(a, ['ops'], ['things'])
     th_val = a.get('things')
-    inst = Things(copy.deepcopy(th_val)) if th_val is not None else Things()
+    inst = Things(copy.deepcopy(th_val), lim) if th_val is not None else Things(None, lim)
     return inst.workflow(a)
 
