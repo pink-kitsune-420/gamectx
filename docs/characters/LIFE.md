@@ -598,6 +598,40 @@ workflows (`eval/character/diet_cases.py`, seed 7, 0 mismatches: 1,399 accepted,
 1,748 meals eaten), 1,000 mutations plus 64/65-op, 16/17-option and 256/257-food boundaries
 (`tests/robustness.rs`), acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Creeds and conscience (pass 2, stage 4 and B5)
+
+`gamectx::character::creed` (`CreedManager`, local kind `creed`) gives beings shared belief
+systems and a conscience of their own:
+- **Creeds** are a `religion`, `ideology`, `philosophy` or `tradition`. Each has **tenets**
+  (a forbidden action, optionally only against its `sacred` places and things, or a forbidden
+  food tag), timed **observances** (do an action within a window of every period) and stances
+  toward **rival** creeds (`hostile`, `wary`, `tolerant`). Stances are one-sided: in
+  `conformance/creed/creed_regard_stances` the Keepers of the Hearth are `wary` of the Free
+  Tillers, who are `hostile` back.
+- **Adherents** hold at most one creed with a **devotion** 0–100, plus up to 16 **personal norms**
+  (B5) that weigh at full strength. Keeping an observance raises devotion and standing by 1.
+- **`judge`** an act: the actor feels **guilt** (the largest broken norm's severity × devotion /
+  100) and **shame** (half the guilt) when a witness disapproves; each disapproving witness feels
+  **indignation** by its own norms; the actor loses **standing** in the witnesses' creeds. A devout
+  baker (devotion 90) seen stealing by a fellow keeper feels guilt 72 and shame 36, the witness
+  resents the thief by 40 and the baker's standing falls from 50 to 42
+  (`creed_judge_witnessed_shame_and_indignation`); seen by a Free Tiller, who has no theft tenet,
+  the baker feels guilt alone. Effects are affect `set_mood` and `appraise` (`resentment`)
+  proposals in their exact argument shapes.
+- **`due`** turns open observance windows into motive arbiter `goal` candidates (score severity ×
+  devotion / 100, clamped to 20–70) and charges guilt and standing once for each window missed
+  since joining.
+- **`food_taboos`** gives the tags for diet `forbids`: creed food tenets bind from devotion 30,
+  personal ones always. In the acceptance scene the baker, a keeper, eats meat stew in front of
+  the apprentice (guilt 28, shame 14, applied to the affect engine), and the creed's taboo fed
+  to the diet steers the next meal to bread.
+
+**Evidence:** 25 conformance cases (`conformance/creed/`, 4 malformed), 2,000 differential parity
+workflows (`eval/character/creed_cases.py`, seed 7, 0 mismatches: 1,835 accepted, 165 refused,
+106 verdicts with guilt), 1,000 mutations plus 64/65-op, 16/17-witness, 32/33-creed and
+128/129-being boundaries (`tests/robustness.rs`), acceptance scene replay
+(`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

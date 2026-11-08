@@ -786,6 +786,8 @@ Speaking is an action through [speech acts](characters/LIFE.md#communication-as-
 (`character::speech_act::SpeechActs` or local kind `speech_act`): inform, warn, ask, request, command, persuade, threaten and comfort, with preconditions, effects on the listener's beliefs, wants and trust, `mind_record` proposals, and `plan` to choose the act.
 Meals go through [diets and foods](characters/LIFE.md#diets-and-foods-pass-2-stage-3)
 (`character::diet::DietManager` or local kind `diet`): registered foods (or the original `village` pack), per-being diet profiles, freshness, refusals, fill, sickness and joy with a monotony penalty, and body/affect proposals when a being eats.
+Belief systems and conscience go through [creeds](characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5)
+(`character::creed::CreedManager` or local kind `creed`): religions, ideologies, philosophies and traditions with tenets, observances and rival stances; adherents with devotion and standing; personal norms; `judge` for guilt, shame and indignation as affect proposals; `due` for observance motives; `food_taboos` for diet `forbids`.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

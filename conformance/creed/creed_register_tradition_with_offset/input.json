@@ -1,0 +1,48 @@
+{
+  "kind": "creed",
+  "args": {
+    "ops": [
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "harvest_rites",
+            "label": "Harvest Rites",
+            "kind": "tradition",
+            "observances": [
+              {
+                "id": "first_sheaf",
+                "action": "offer_sheaf",
+                "every": 720,
+                "window": 48,
+                "offset": 600,
+                "severity": 40,
+                "label": "Offer the first sheaf"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "adhere",
+        "args": {
+          "being": "reeve",
+          "creed": "harvest_rites",
+          "devotion": 70
+        }
+      },
+      {
+        "op": "due",
+        "args": {
+          "at": 599
+        }
+      },
+      {
+        "op": "due",
+        "args": {
+          "at": 600
+        }
+      }
+    ]
+  }
+}

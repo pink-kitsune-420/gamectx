@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Open observances become goal motives scored severity x devotion / 100, clamped to 20..70; once the window closes unkept, each adherent is charged.",
+  "error": false
+}

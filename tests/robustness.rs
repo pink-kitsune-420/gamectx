@@ -2260,3 +2260,52 @@ fn diet_survives_mutation_and_boundaries() {
     let extra = r#"{"ops":[{"op":"register_food","args":{"foods":[{"id":"one_more","tags":["grain"],"hunger":1}]}}]}"#;
     assert!(full.workflow(&parse(extra, 1 << 20).unwrap()).is_err());
 }
+
+#[test]
+fn creed_survives_mutation_and_boundaries() {
+    use gamectx::character::creed::CreedManager;
+    let mut rng = Rng(0xC7EE_D5A1_2026_0B5E);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+
+    // 21. CreedManager mutation fuzzing & boundaries
+    let sample = r#"{"ops":[{"op":"register_creed","args":{"creed":{"id":"hearthkeepers","label":"Keepers of the Hearth","kind":"religion","tenets":[{"id":"no_theft","action":"steal","severity":80,"label":"Take nothing"},{"id":"no_ash","action":"scatter","sacred_only":true,"severity":60,"label":"Keep the ash"},{"id":"no_flesh","food_tag":"meat","severity":40,"label":"No flesh"}],"observances":[{"id":"tend_flame","action":"tend_hearth","every":24,"window":4,"offset":6,"severity":50,"label":"Tend the flame"}],"sacred":["great_hearth"],"rivals":[{"creed":"free_tillers","stance":"wary"}]}}},{"op":"adhere","args":{"being":"baker","creed":"hearthkeepers","devotion":90,"at":2}},{"op":"adhere","args":{"being":"miller","creed":"hearthkeepers"}},{"op":"set_norms","args":{"being":"miller","norms":[{"id":"no_lies","action":"lie","severity":40,"label":"Speak plainly"}]}},{"op":"judge","args":{"actor":"baker","action":"steal","target":"great_hearth","witnesses":["miller"],"food_tags":["meat"],"at":9}},{"op":"observe","args":{"being":"baker","observance":"tend_flame","at":7}},{"op":"due","args":{"at":40,"being":"baker"}},{"op":"food_taboos","args":{"being":"baker"}},{"op":"regard","args":{"being":"baker","other":"miller"}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    let mut creeds = CreedManager::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = creeds.workflow(&v);
+        }
+    }
+    let reg =
+        r#"{"op":"register_creed","args":{"creed":{"id":"stillwater","label":"Stillwater","kind":"philosophy"}}}"#;
+    assert!(CreedManager::new().workflow(&parse(&ops(64, reg), 1 << 20).unwrap()).is_ok());
+    assert!(CreedManager::new().workflow(&parse(&ops(65, reg), 1 << 20).unwrap()).is_err());
+    let judge = |n: usize| {
+        let w: Vec<String> = (0..n).map(|i| format!(r#""w{i}""#)).collect();
+        format!(
+            r#"{{"ops":[{reg},{{"op":"judge","args":{{"actor":"a","action":"boast","witnesses":[{}]}}}}]}}"#,
+            w.join(",")
+        )
+    };
+    assert!(CreedManager::new().workflow(&parse(&judge(16), 1 << 20).unwrap()).is_ok());
+    assert!(CreedManager::new().workflow(&parse(&judge(17), 1 << 20).unwrap()).is_err());
+    // 32 creeds fill the registry; the 33rd is refused, re-registering one is not.
+    let creed = |i: usize| {
+        format!(r#"{{"op":"register_creed","args":{{"creed":{{"id":"c{i}","label":"C","kind":"tradition"}}}}}}"#)
+    };
+    let all: Vec<String> = (0..32).map(creed).collect();
+    let mut full = CreedManager::new();
+    full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, all.join(",")), 1 << 20).unwrap()).unwrap();
+    assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, creed(32)), 1 << 20).unwrap()).is_err());
+    assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, creed(5)), 1 << 20).unwrap()).is_ok());
+    // 128 beings fill adherence; the 129th is refused.
+    let norms = |b: usize| format!(r#"{{"op":"set_norms","args":{{"being":"b{b}","norms":[]}}}}"#);
+    for chunk in 0..2 {
+        let batch: Vec<String> = (0..64).map(|i| norms(chunk * 64 + i)).collect();
+        full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, batch.join(",")), 1 << 20).unwrap()).unwrap();
+    }
+    assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, norms(128)), 1 << 20).unwrap()).is_err());
+}

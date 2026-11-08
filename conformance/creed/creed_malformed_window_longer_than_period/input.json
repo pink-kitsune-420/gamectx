@@ -1,0 +1,27 @@
+{
+  "kind": "creed",
+  "args": {
+    "ops": [
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "lopsided",
+            "label": "Lopsided",
+            "kind": "tradition",
+            "observances": [
+              {
+                "id": "feast",
+                "action": "feast",
+                "every": 10,
+                "window": 11,
+                "severity": 10,
+                "label": "Feast"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

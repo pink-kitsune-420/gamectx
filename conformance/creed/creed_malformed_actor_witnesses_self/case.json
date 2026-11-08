@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An actor cannot witness their own act.",
+  "error": true
+}

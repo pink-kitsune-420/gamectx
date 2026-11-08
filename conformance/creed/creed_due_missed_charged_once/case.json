@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A missed window charges guilt and standing once; a kept window is cleared silently.",
+  "error": false
+}

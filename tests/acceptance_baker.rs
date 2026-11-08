@@ -16,11 +16,15 @@
 //!    informs the apprentice about the crash they missed (B1).
 //! 10. Pass 2: the hungry baker picks cooked stew over day-old bread and raw trout; the diet
 //!     module's `satisfy` proposal is applied to the body engine.
+//! 11. Pass 2: the stew had meat, and the baker keeps the hearth creed; the apprentice saw.
+//!     Conscience (B5) turns guilt and shame into a mood proposal applied to the affect
+//!     engine, and the creed's food taboo is fed to the diet so tomorrow's choice is bread.
 //!
 //! Asserts byte-identical replay.
 
 use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
+use gamectx::character::creed::CreedManager;
 use gamectx::character::curiosity::CuriosityManager;
 use gamectx::character::deception::DeceptionLedger;
 use gamectx::character::diet::DietManager;
@@ -679,6 +683,65 @@ fn run_baker_scene() -> String {
     }]) };
     body_mgr.workflow(&apply).unwrap();
 
+    // 10. Creeds and conscience (pass 2, stage 4 and B5): the stew had meat and the baker is
+    //     a Keeper of the Hearth; the apprentice saw. The guilt/shame mood proposal goes to
+    //     the affect engine and the creed's food taboo goes to the diet, so the next meal
+    //     the baker chooses is bread.
+    let mut creeds = CreedManager::new();
+    let creed_req = parse(
+        r#"{
+        "ops": [
+            {"op":"register_creed","args":{"creed":{"id":"hearthkeepers","label":"Keepers of the Hearth","kind":"religion",
+                "tenets":[{"id":"no_flesh","food_tag":"meat","severity":40,"label":"Eat nothing that bled"}],
+                "observances":[{"id":"tend_flame","action":"tend_hearth","every":24,"window":4,"offset":6,"severity":50,"label":"Tend the flame at dawn"}]}}},
+            {"op":"adhere","args":{"being":"baker","creed":"hearthkeepers","devotion":70}},
+            {"op":"adhere","args":{"being":"apprentice","creed":"hearthkeepers","devotion":90}},
+            {"op":"judge","args":{"actor":"baker","action":"eat","food_tags":["meat","vegetable"],"witnesses":["apprentice"],"at":16}},
+            {"op":"food_taboos","args":{"being":"baker"}},
+            {"op":"due","args":{"at":30}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let creed_out = creeds.workflow(&creed_req).unwrap();
+    let creed_results = creed_out.get("results").unwrap().as_array().unwrap();
+    let verdict = &creed_results[3];
+    assert_eq!(verdict.get("guilt"), Some(&Value::int(28)));
+    assert_eq!(verdict.get("shame"), Some(&Value::int(14)));
+    let remorse = &verdict.get("effects").unwrap().as_array().unwrap()[0];
+    assert_eq!(remorse.get("op"), Some(&Value::str("set_mood")));
+    affect_mgr
+        .workflow(&obj! { "ops" => Value::Array(vec![obj! {
+            "op" => remorse.get("op").unwrap().clone(),
+            "args" => remorse.get("args").unwrap().clone(),
+        }]) })
+        .unwrap();
+    let forbids = creed_results[4].get("forbids").unwrap().clone();
+    assert_eq!(forbids.to_json(), r#"["meat"]"#);
+    let due = creed_results[5].get("due").unwrap().as_array().unwrap();
+    assert_eq!(due.len(), 2, "both keepers should tend the flame at dawn");
+    let next_meal = diet
+        .workflow(&obj! { "ops" => Value::Array(vec![
+            obj! { "op" => "set_diet", "args" => obj! {
+                "being" => "baker",
+                "forbids" => forbids,
+                "likes" => Value::strings(&["grain"]),
+                "dislikes" => Value::strings(&["fish"]),
+            } },
+            obj! { "op" => "choose", "args" => obj! {
+                "being" => "baker",
+                "hunger_level" => 60u64,
+                "options" => Value::Array(vec![
+                    obj! { "food" => "hearty_stew", "cooked" => true },
+                    obj! { "food" => "rye_bread" },
+                ]),
+            } },
+        ]) })
+        .unwrap();
+    let next_choice = &next_meal.get("results").unwrap().as_array().unwrap()[1];
+    assert_eq!(next_choice.get("best"), Some(&Value::int(1)), "the creed taboo should steer the baker to bread");
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -716,7 +779,11 @@ fn run_baker_scene() -> String {
     let final_diet_state =
         diet.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
+    let final_creed_state =
+        creeds.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+
     let composite_output = obj! {
+        "final_creed" => final_creed_state,
         "final_curiosity" => final_cur_state,
         "final_diet" => final_diet_state,
         "final_speech" => final_speech_state,

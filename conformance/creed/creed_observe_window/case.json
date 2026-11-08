@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Observing outside the window does nothing; inside it raises devotion and standing once per period.",
+  "error": false
+}

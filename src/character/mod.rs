@@ -5,6 +5,7 @@ pub mod archetype;
 pub mod beliefs;
 pub mod body;
 pub mod cast;
+pub mod creed;
 pub mod curiosity;
 pub mod deception;
 pub mod dialogue;

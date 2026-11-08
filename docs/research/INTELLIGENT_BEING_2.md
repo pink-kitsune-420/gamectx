@@ -156,9 +156,11 @@ able to shift values and temperament slightly, with a hard cap, a reason chain a
 author switch to turn it off. Without it, a betrayed character can be angry but never
 becomes more guarded.
 
-**B5. Conscience and norms.** Communities have customs. Add a personal side: which norms
+**B5. Conscience and norms.** — **DONE**. Communities have customs. Add a personal side: which norms
 the being holds, guilt or shame when it breaks one, indignation when others do, and
 sanctions through reputation. This connects lying (pass 1 gap 13) to a cost.
+*Implemented (pass 2 stage 4, with creeds):* `character::creed::CreedManager` (local kind
+`creed`). [Evidence](../characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5).
 
 **B6. Character-to-character conversation off-screen.** Rumors spread as records. Beings
 should also hold short exchanges with each other when they meet, chosen from what each
@@ -192,6 +194,13 @@ created by everyone's needs and off-screen production. Without it, off-screen ef
 body allows, what they refuse, what makes them ill and what they like.
 *Implemented (pass 2 stage 3):* `character::diet::DietManager` (local kind `diet`).
 [Evidence](../characters/LIFE.md#diets-and-foods-pass-2-stage-3).
+
+**C6 (added during pass 2). Creeds.** Communities had customs but no shared belief systems.
+Religions, ideologies, philosophies and traditions now give beings tenets, timed
+observances, sacred places and things, devotion, standing and stances toward rival creeds;
+creed food taboos feed diet `forbids`.
+*Implemented (pass 2 stage 4):* `character::creed::CreedManager` (local kind `creed`).
+[Evidence](../characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5).
 
 ### D. The system as a whole
 
@@ -258,7 +267,7 @@ packet and budget modules already do.
 4. **A4 goals from experience**, **A5 habits**, **A6 lessons**. This is the step to
    level 4–5.
 5. **B2/B3 cooperation and conflict**, **B7 roles**, **C4 economy**, **C3 space**.
-6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience**,
+6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk**.
 7. **C1 life cycle**, **C2 threat**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
 

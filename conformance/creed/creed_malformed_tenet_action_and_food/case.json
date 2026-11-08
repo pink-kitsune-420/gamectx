@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A tenet must name exactly one of action or food_tag.",
+  "error": true
+}

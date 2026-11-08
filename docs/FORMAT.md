@@ -2757,6 +2757,58 @@ preserved? (false), at? 0–10¹² (0), made_at? ≤ at (at)}`.
 - `assess {being}` → `{allergies, being, diet, dislikes, forbids, likes, meals, recent [{at, food}]}`; refused for
   a being with no profile.
 
+## Creeds and conscience v1 (pass 2, stage 4 and B5)
+
+`gamectx::character::creed` (guide: [Life](characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5)).
+The `creed` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. 25
+additive cases live in `conformance/creed/`.
+
+**Norm** (a creed tenet or a personal norm) `{id, label 1–80, severity 1–100, action? id | food_tag? food tag,
+sacred_only? bool (false)}`: exactly one of `action` or `food_tag`; `sacred_only` needs an `action` and is
+allowed only in creed tenets. An action norm is broken by that action (with `sacred_only`, only when the
+target is one of the creed's `sacred` ids); a food norm by `eat` with that tag among `food_tags`.
+Views list `{action|null, food_tag|null, id, label, sacred_only, severity}`.
+
+**Creed** `{id, label 1–80, kind "ideology"|"philosophy"|"religion"|"tradition", tenets? ≤16 distinct ids,
+observances? ≤8 [{id ≤56, action, every 1–10⁶, window 1–every, offset? 0–every−1 (0), severity 1–100,
+label 1–80}], sacred? ≤16 ids, rivals? ≤8 [{creed ≠ id, stance "hostile"|"tolerant"|"wary"}]}`. At most 32
+creeds and 128 beings. Observance period `p` covers `[offset + p·every, offset + (p+1)·every)`; its window is
+the first `window` ticks.
+
+- `register_creed {creed}` → `{creed, observances, tenets, total}`; same id replaces.
+- `adhere {being, creed: id|null, devotion? 0–100 (50; not allowed with null), at? 0–10¹² (0)}` →
+  `{being, creed, devotion, previous}`. Joining (or leaving) clears observed and settled periods and sets
+  `joined_at`; standing and personal norms are kept.
+- `set_norms {being, norms ≤16}` → `{being, norms}`; replaces the being's personal norms.
+- `judge {actor, action, target?, food_tags? ≤8, witnesses? ≤16 distinct ≠ actor, at?}` →
+  `{action, actor, broken [{id, severity, source: creed id|"personal", weight}], effects, guilt, indignant
+  [{being, indignation}], shame, standing [{creed, delta, value}]}`.
+  - Weight is the adherent's devotion for creed tenets and 100 for personal norms. `guilt` is the largest
+    `severity·weight/100` over the actor's broken norms; a witness's `indignation` likewise over its own.
+  - `shame` is `guilt/2` when guilt > 0 and any witness is indignant, else 0.
+  - `effects`: first `{engine: "affect", op: "set_mood", args: {being: actor, reason: "broke <ids>",
+    valence_delta: −min(100, guilt+shame)}}` when guilt + shame > 0, then per indignant witness (sorted)
+    `{engine: "affect", op: "appraise", args: {being, delta: indignation, kind: "resentment", reason:
+    "saw <actor> <action>", subject: actor}}`.
+  - For each creed whose tenets an indignant witness holds broken, the actor's standing in it (default 50)
+    falls by `max(1, level/5)`, level being the largest `severity·devotion/100` among those witnesses.
+- `observe {being, observance, at?}` → `{being, devotion, observance, result "done"|"already_done"|
+  "not_in_window", standing}`; refused unless the being adheres to a creed with that observance. `done`
+  marks the period and adds 1 to devotion and standing (each ≤ 100).
+- `due {at, being?}` → `{at, due [{being, creed, motive, observance}], effects, missed [{being, guilt,
+  observance, period, standing}]}`.
+  - An open, unobserved window yields `motive {action, id: "observe_<id>", kind: "goal", label, reason,
+    score: clamp(severity·devotion/100, 20, 70)}` for the [motive arbiter](#motive-arbiter-v1).
+  - The most recent closed period that started at or after `joined_at` and was not settled before is
+    settled; if unobserved, standing falls by `max(1, severity/10)` and `guilt` is `severity·devotion/100`,
+    with `set_mood` (`reason: "missed <id>"`) when guilt > 0.
+- `food_taboos {being}` → `{being, forbids}` (sorted tags for diet `forbids`): creed food tenets from
+  devotion 30, personal food norms always; an unknown being forbids nothing.
+- `regard {being, other ≠ being}` → `{being, creed, other, other_creed, stance}`: `kin` for the same creed,
+  the being's creed's stance toward the other's, else `neutral`.
+- `assess {being}` → `{being, creed, devotion, joined_at, norms, observed [{observance, period}], standing
+  [{creed, value}]}`; refused for an unknown being.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

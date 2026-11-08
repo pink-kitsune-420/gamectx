@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Windows that began before a being joined are never charged.",
+  "error": false
+}

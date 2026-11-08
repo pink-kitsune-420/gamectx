@@ -2,6 +2,11 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Creeds and conscience (`character::creed`, local kind `creed`, pass 2 stage 4 and B5):
+  - Creeds of kind `religion`, `ideology`, `philosophy` or `tradition` with tenets (forbidden actions, optionally only against sacred places and things, or forbidden food tags), timed observances, sacred ids and one-sided rival stances (`hostile`, `wary`, `tolerant`).
+  - Adherents with devotion and per-creed standing, plus up to 16 personal norms at full weight. `judge` reports guilt, shame, witness indignation and standing loss, and proposes affect `set_mood`/`appraise` in their exact argument shapes.
+  - `due` lists open observances as motive arbiter `goal` candidates and charges each missed window once; `food_taboos` gives diet `forbids`; `regard` gives `kin`, a rival stance or `neutral`. Ops: `register_creed`, `adhere`, `set_norms`, `judge`, `observe`, `due`, `food_taboos`, `regard`, `assess`.
+  - 25 conformance cases (4 malformed) in `conformance/creed/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Diets and foods (`character::diet`, local kind `diet`, pass 2 stage 3):
   - Foods with tags, hunger/thirst fill, joy, shelf life (fresh/stale/spoiled, longer preserved), raw risk and cooking bonus; an original 12-food `village` pack.
   - Diet profiles: species diet, `forbids` (taboos), allergies (tags or food ids), likes and dislikes. Meals report refusals, fill, sickness and joy with a monotony penalty for repeats.

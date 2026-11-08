@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Adhering reports the previous creed (devotion defaults to 50); leaving with a null creed zeroes devotion.",
+  "error": false
+}

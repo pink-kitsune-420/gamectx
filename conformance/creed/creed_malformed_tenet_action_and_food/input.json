@@ -1,0 +1,26 @@
+{
+  "kind": "creed",
+  "args": {
+    "ops": [
+      {
+        "op": "register_creed",
+        "args": {
+          "creed": {
+            "id": "muddled",
+            "label": "Muddled",
+            "kind": "religion",
+            "tenets": [
+              {
+                "id": "both",
+                "action": "eat",
+                "food_tag": "meat",
+                "severity": 10,
+                "label": "Both"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

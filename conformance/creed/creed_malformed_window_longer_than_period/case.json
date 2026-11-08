@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An observance window cannot exceed its period, and a creed cannot rival itself.",
+  "error": true
+}

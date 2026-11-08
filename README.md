@@ -80,7 +80,8 @@ an [explain trace](docs/characters/LIFE.md#explain-trace-pass-2-d4) (a "why did 
 [stability monitors](docs/characters/LIFE.md#stability-monitors-pass-2-d1) (dithering, starvation spiral, deadlock, herding and grudge/rumor runaway warnings over host-reported turns),
 [subjective world knowledge](docs/characters/LIFE.md#subjective-world-knowledge-pass-2-a1) (sourced per-being beliefs learned by doing, seeing and being told, corrected when an action fails),
 [speech acts](docs/characters/LIFE.md#communication-as-action-pass-2-b1) (inform, warn, ask, request, command, persuade, threaten and comfort with preconditions, effects on the listener and act planning),
-and [diets and foods](docs/characters/LIFE.md#diets-and-foods-pass-2-stage-3) (food values, spoilage, cooking, species diets, taboos, allergies, tastes and monotony, with an original village food pack).
+[diets and foods](docs/characters/LIFE.md#diets-and-foods-pass-2-stage-3) (food values, spoilage, cooking, species diets, taboos, allergies, tastes and monotony, with an original village food pack),
+and [creeds and conscience](docs/characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5) (religions, ideologies, philosophies and traditions with tenets, observances, sacred places, devotion, standing and rival stances; personal norms with guilt, shame and indignation).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the
