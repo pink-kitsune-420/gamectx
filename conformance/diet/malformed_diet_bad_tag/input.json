@@ -1,0 +1,21 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "moonbread",
+              "tags": [
+                "magic"
+              ],
+              "hunger": 10
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

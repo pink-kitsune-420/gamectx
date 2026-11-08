@@ -1,0 +1,29 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "hearty_stew",
+          "cooked": true,
+          "made_at": 10,
+          "at": 12
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

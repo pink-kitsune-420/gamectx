@@ -1,0 +1,43 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "goat",
+          "diet": "herbivore"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "goat",
+          "food": "hearty_stew",
+          "cooked": true
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "goat",
+          "food": "river_trout",
+          "cooked": true
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "goat",
+          "food": "bramble_berries"
+        }
+      }
+    ]
+  }
+}

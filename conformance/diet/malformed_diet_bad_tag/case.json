@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a food tag outside the fixed list.",
+  "error": true
+}

@@ -1,0 +1,35 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "hound",
+          "diet": "carnivore"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "hound",
+          "food": "rye_bread"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "hound",
+          "food": "hearty_stew",
+          "cooked": true
+        }
+      }
+    ]
+  }
+}

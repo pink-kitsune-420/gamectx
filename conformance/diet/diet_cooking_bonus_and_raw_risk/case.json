@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raw trout is unsafe (sickness 35); cooking adds 20% fill and removes the risk.",
+  "error": false
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "mossling",
+          "diet": "photosynthetic"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "stonekin",
+          "diet": "mineral"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "mossling",
+          "food": "orchard_apple"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "stonekin",
+          "food": "salt_lick"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "stonekin",
+          "food": "rye_bread"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "salt_lick"
+        }
+      }
+    ]
+  }
+}

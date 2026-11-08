@@ -575,6 +575,29 @@ differential parity workflows (`eval/character/beliefs_speech_cases.py`, seed 7,
 128-belief and 16/17-candidate boundaries (`tests/robustness.rs`), acceptance scene replay
 (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Diets and foods (pass 2, stage 3)
+
+`gamectx::character::diet` (`DietManager`, local kind `diet`) decides what a being can, will
+and likes to eat:
+- **Foods** carry tags, how much hunger and thirst a serving fills, enjoyment, a shelf life (longer
+  when preserved), raw risk and a cooking bonus. The original `village` pack gives a small game
+  twelve foods with no authoring.
+- **Diet profiles** combine what the body allows (the species diet), what the being refuses on
+  principle (`forbids`, for example a vow or a creed's taboo), allergies, and likes and dislikes.
+- **Meals** are judged for freshness, refusals, fill, sickness and joy. Eating the same thing again
+  and again gets duller (3 joy per repeat in the last 8 meals, up to 15). `choose` weighs fill
+  against enjoyment by hunger: in `conformance/diet/diet_choose_ranks_by_hunger` a starving being
+  picks cooked stew (score 67 over 40) and a sated one picks honey cake (20 over 12).
+- **Eating** records the meal and returns proposals in the exact argument shapes of body `satisfy`
+  / `set_condition` and affect `set_mood`; the acceptance scene applies the `satisfy` proposal to
+  the body engine directly. A refused meal is eaten only with `force` (a starving being eating
+  spoiled porridge gets half the fill and falls `sick`).
+
+**Evidence:** 25 conformance cases (`conformance/diet/`, 4 malformed), 2,000 differential parity
+workflows (`eval/character/diet_cases.py`, seed 7, 0 mismatches: 1,399 accepted, 601 refused,
+1,748 meals eaten), 1,000 mutations plus 64/65-op, 16/17-option and 256/257-food boundaries
+(`tests/robustness.rs`), acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

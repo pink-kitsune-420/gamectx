@@ -1,0 +1,36 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "ferrin",
+          "forbids": [
+            "alcohol"
+          ]
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "ferrin",
+          "food": "barley_ale"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "ferrin",
+          "food": "spring_water"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "river_trout"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "river_trout",
+          "cooked": true
+        }
+      }
+    ]
+  }
+}

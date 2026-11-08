@@ -1,0 +1,28 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "stranger",
+          "food": "hearty_stew",
+          "cooked": true
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "stranger",
+          "food": "salt_lick"
+        }
+      }
+    ]
+  }
+}

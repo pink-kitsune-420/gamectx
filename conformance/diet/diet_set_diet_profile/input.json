@@ -1,0 +1,33 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "ferrin",
+          "forbids": [
+            "alcohol"
+          ],
+          "allergies": [
+            "nut",
+            "honey_cake"
+          ],
+          "likes": [
+            "fruit",
+            "dairy"
+          ],
+          "dislikes": [
+            "fish"
+          ]
+        }
+      }
+    ]
+  }
+}

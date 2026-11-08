@@ -1,0 +1,20 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "dragon_fruit"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Allergies match a food id or any of its tags; sickness is 40.",
+  "error": false
+}

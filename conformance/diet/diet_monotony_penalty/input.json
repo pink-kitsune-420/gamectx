@@ -1,0 +1,53 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 1
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 2
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 3
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 4
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 4
+        }
+      }
+    ]
+  }
+}

@@ -125,7 +125,9 @@ noted; "3 models" adds Llama 3.3 70B.
   - Follow-up (D1): a 30-day soak test that reports monitor counts.
   - Implemented (Pass 2 Stage 2 / A1 & B1): Subjective world knowledge (A1: sourced per-being beliefs, correction by doing, `known_actions` and `gaps`; `character::beliefs::BeliefStore`, local kind `beliefs`) + Communication as action (B1: eight speech acts with preconditions and listener effects, `mind_record` proposals, act planning; `character::speech_act::SpeechActs`, local kind `speech_act`). Offline acceptance scene replay (§8) verified to byte-identical output. 25 conformance cases (4 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
   - Follow-up (A1/B1): planner (`character::task`) reading beliefs directly instead of the host catalog; speech-act trust reconciled with `relationship`.
-  - Next (Pass 2 Stage 3): diets and foods (per-food nutrition, personal diets and taboos, spoilage, cooking value, monotony), requested 2026-11-08, then A3 expectations and A2 attention.
+  - Implemented (Pass 2 Stage 3 / diets and foods, requested 2026-11-08): foods with fill, joy, spoilage, raw risk and cooking; diet profiles (species diet, taboos, allergies, tastes); meal evaluation, choice and eating with monotony and body/affect proposals; original `village` pack (`character::diet::DietManager`, local kind `diet`). Offline acceptance scene replay (§8) verified to byte-identical output. 25 conformance cases (4 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
+  - Follow-up (diet): food stock in `inventory`/`things` aging by itself, and market prices for food (C4).
+  - Next (Pass 2 Stage 4): creeds (religions and ideologies: tenets, observances, adherents and devotion, rival creeds; requested 2026-11-08) with B5 conscience and norms; creed food taboos feed diet `forbids`. Then A3 expectations and A2 attention.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

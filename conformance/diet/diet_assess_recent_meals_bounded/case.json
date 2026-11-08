@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Recent meals keep the last 16; the meal count keeps going.",
+  "error": false
+}

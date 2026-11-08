@@ -1,0 +1,45 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "hunger_level": 100,
+          "options": [
+            {
+              "food": "honey_cake"
+            },
+            {
+              "food": "hearty_stew",
+              "cooked": true
+            }
+          ]
+        }
+      },
+      {
+        "op": "choose",
+        "args": {
+          "being": "baker",
+          "hunger_level": 0,
+          "options": [
+            {
+              "food": "honey_cake"
+            },
+            {
+              "food": "hearty_stew",
+              "cooked": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

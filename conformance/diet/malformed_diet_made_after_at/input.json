@@ -1,0 +1,22 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "made_at": 9,
+          "at": 5
+        }
+      }
+    ]
+  }
+}

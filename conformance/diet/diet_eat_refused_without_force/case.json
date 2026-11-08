@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A refused serving is not eaten and not recorded.",
+  "error": false
+}

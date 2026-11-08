@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Each liked tag adds 5 joy and each disliked tag removes 5.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being with no profile is evaluated as an omnivore with no preferences.",
+  "error": false
+}

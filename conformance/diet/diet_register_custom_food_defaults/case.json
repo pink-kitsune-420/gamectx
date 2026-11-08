@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A custom food defaults its label to its id and its preserved shelf life to four times fresh.",
+  "error": false
+}

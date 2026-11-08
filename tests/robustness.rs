@@ -2221,3 +2221,42 @@ fn beliefs_and_speech_acts_survive_mutation_and_boundaries() {
     assert!(SpeechActs::new().workflow(&parse(&plan(16), 1 << 20).unwrap()).is_ok());
     assert!(SpeechActs::new().workflow(&parse(&plan(17), 1 << 20).unwrap()).is_err());
 }
+
+#[test]
+fn diet_survives_mutation_and_boundaries() {
+    use gamectx::character::diet::DietManager;
+    let mut rng = Rng(0xD1E7_F00D_5A1D_2026);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+
+    // 20. DietManager mutation fuzzing & boundaries
+    let sample = r#"{"ops":[{"op":"register_food","args":{"pack":"village","foods":[{"id":"smoked_eel","label":"smoked eel","tags":["fish"],"hunger":28,"thirst":2,"joy":3,"spoils_after":30,"preserved_spoils_after":400,"raw_risk":20,"cooked_bonus":10}]}},{"op":"set_diet","args":{"being":"ferrin","diet":"omnivore","forbids":["alcohol"],"allergies":["nut"],"likes":["fish"],"dislikes":["egg"]}},{"op":"evaluate","args":{"being":"ferrin","food":"smoked_eel","cooked":true,"preserved":true,"made_at":5,"at":90}},{"op":"choose","args":{"being":"ferrin","hunger_level":70,"options":[{"food":"honey_cake"},{"food":"river_trout","cooked":true}]}},{"op":"eat","args":{"being":"ferrin","food":"oat_porridge","made_at":0,"at":60,"force":true}},{"op":"assess","args":{"being":"ferrin"}}]}"#;
+    let mut diet = DietManager::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = diet.workflow(&v);
+        }
+    }
+    let reg = r#"{"op":"register_food","args":{"pack":"village"}}"#;
+    assert!(DietManager::new().workflow(&parse(&ops(64, reg), 1 << 20).unwrap()).is_ok());
+    assert!(DietManager::new().workflow(&parse(&ops(65, reg), 1 << 20).unwrap()).is_err());
+    let choose = |n: usize| {
+        let o: Vec<&str> = vec![r#"{"food":"rye_bread"}"#; n];
+        format!(r#"{{"ops":[{reg},{{"op":"choose","args":{{"being":"b","options":[{}]}}}}]}}"#, o.join(","))
+    };
+    assert!(DietManager::new().workflow(&parse(&choose(16), 1 << 20).unwrap()).is_ok());
+    assert!(DietManager::new().workflow(&parse(&choose(17), 1 << 20).unwrap()).is_err());
+    // 256 foods fill the registry; the 257th is refused.
+    let mut full = DietManager::new();
+    for chunk in 0..4 {
+        let foods: Vec<String> =
+            (0..64).map(|i| format!(r#"{{"id":"f{}","tags":["grain"],"hunger":10}}"#, chunk * 64 + i)).collect();
+        let req = format!(r#"{{"ops":[{{"op":"register_food","args":{{"foods":[{}]}}}}]}}"#, foods.join(","));
+        full.workflow(&parse(&req, 1 << 20).unwrap()).unwrap();
+    }
+    let extra = r#"{"ops":[{"op":"register_food","args":{"foods":[{"id":"one_more","tags":["grain"],"hunger":1}]}}]}"#;
+    assert!(full.workflow(&parse(extra, 1 << 20).unwrap()).is_err());
+}

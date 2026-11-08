@@ -1,0 +1,44 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "foods": [
+            {
+              "id": "smoked_eel",
+              "tags": [
+                "fish"
+              ],
+              "hunger": 28,
+              "spoils_after": 30,
+              "raw_risk": 20
+            }
+          ]
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "miller",
+          "food": "smoked_eel",
+          "cooked": true,
+          "preserved": true,
+          "made_at": 0,
+          "at": 100
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "miller",
+          "food": "smoked_eel",
+          "cooked": true,
+          "made_at": 0,
+          "at": 100
+        }
+      }
+    ]
+  }
+}

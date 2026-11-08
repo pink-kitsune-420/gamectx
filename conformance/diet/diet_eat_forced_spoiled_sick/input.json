@@ -1,0 +1,23 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "porter",
+          "food": "oat_porridge",
+          "made_at": 0,
+          "at": 50,
+          "force": true
+        }
+      }
+    ]
+  }
+}

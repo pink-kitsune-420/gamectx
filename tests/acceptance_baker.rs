@@ -14,6 +14,8 @@
 //!    monitors audit the scene's turns and report it healthy (D1).
 //! 9. Pass 2: the baker's hearsay about the mill is confirmed by doing (A1), and the baker
 //!    informs the apprentice about the crash they missed (B1).
+//! 10. Pass 2: the hungry baker picks cooked stew over day-old bread and raw trout; the diet
+//!     module's `satisfy` proposal is applied to the body engine.
 //!
 //! Asserts byte-identical replay.
 
@@ -21,6 +23,7 @@ use gamectx::character::affect::AffectManager;
 use gamectx::character::body::BodyManager;
 use gamectx::character::curiosity::CuriosityManager;
 use gamectx::character::deception::DeceptionLedger;
+use gamectx::character::diet::DietManager;
 use gamectx::character::explain::ExplainTracer;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::mind::MindManager;
@@ -645,6 +648,37 @@ fn run_baker_scene() -> String {
     assert_eq!(speech_results[5].get("outcome"), Some(&Value::str("informed")));
     assert_eq!(speech_results[6].get("gaps"), Some(&Value::int(0)));
 
+    // 9. Diets and foods (pass 2, stage 3): the hungry baker chooses between day-old bread
+    //    and a cooked stew, eats, and the diet proposal is applied to the body engine.
+    let mut diet = DietManager::new();
+    let diet_req = parse(
+        r#"{
+        "ops": [
+            {"op":"register_food","args":{"pack":"village"}},
+            {"op":"set_diet","args":{"being":"baker","likes":["grain"],"dislikes":["fish"]}},
+            {"op":"choose","args":{"being":"baker","hunger_level":80,"options":[
+                {"food":"rye_bread","made_at":0,"at":16},
+                {"food":"hearty_stew","cooked":true,"made_at":14,"at":16},
+                {"food":"river_trout","made_at":0,"at":16}]}},
+            {"op":"eat","args":{"being":"baker","food":"hearty_stew","cooked":true,"made_at":14,"at":16}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let diet_out = diet.workflow(&diet_req).unwrap();
+    let diet_results = diet_out.get("results").unwrap().as_array().unwrap();
+    assert_eq!(diet_results[2].get("best"), Some(&Value::int(1)));
+    let meal = &diet_results[3];
+    assert_eq!(meal.get("eaten"), Some(&Value::Bool(true)));
+    let satisfy = &meal.get("effects").unwrap().as_array().unwrap()[0];
+    assert_eq!(satisfy.get("engine"), Some(&Value::str("body")));
+    let apply = obj! { "ops" => Value::Array(vec![obj! {
+        "op" => satisfy.get("op").unwrap().clone(),
+        "args" => satisfy.get("args").unwrap().clone(),
+    }]) };
+    body_mgr.workflow(&apply).unwrap();
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -679,8 +713,12 @@ fn run_baker_scene() -> String {
         )
         .unwrap();
 
+    let final_diet_state =
+        diet.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+
     let composite_output = obj! {
         "final_curiosity" => final_cur_state,
+        "final_diet" => final_diet_state,
         "final_speech" => final_speech_state,
         "final_explain" => final_explain_state,
         "final_stability" => final_stability_state,

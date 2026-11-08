@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Repeating a meal costs 3 joy per recent repeat.",
+  "error": false
+}

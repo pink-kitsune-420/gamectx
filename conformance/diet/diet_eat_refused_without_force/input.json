@@ -1,0 +1,36 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "ferrin",
+          "forbids": [
+            "meat"
+          ]
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "ferrin",
+          "food": "hearty_stew",
+          "cooked": true
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ferrin"
+        }
+      }
+    ]
+  }
+}

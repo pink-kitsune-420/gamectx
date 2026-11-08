@@ -2717,6 +2717,46 @@ The `speech_act` `local` kind runs the same op envelope and accepts every belief
   trust ≥ 30 (`no_trusted_listener` otherwise). Ties go to the first name.
 - `assess {being}` → `{being, beliefs, trusts [{authority, speaker, trust}], wants [{from, goal, priority}]}`.
 
+## Diets and foods v1 (pass 2, stage 3)
+
+`gamectx::character::diet` (guide: [Life](characters/LIFE.md#diets-and-foods-pass-2-stage-3)). The `diet`
+`local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. 25 additive cases
+live in `conformance/diet/`.
+
+**Food** `{id, tags 1–8 distinct of alcohol|dairy|egg|fish|fruit|grain|herb|meat|mineral|nut|sweet|vegetable|water,
+hunger 0–100, label? 1–48 (id), thirst? 0–100 (0), joy? −20–20 (0), spoils_after? 0–10⁶ (0 = never),
+preserved_spoils_after? 0–10⁶ (4 × spoils_after, capped), raw_risk? 0–100 (0), cooked_bonus? 0–100 (0)}`;
+views list every field with sorted `tags`. At most 256 foods. **Serving** `{food, cooked? (false),
+preserved? (false), at? 0–10¹² (0), made_at? ≤ at (at)}`.
+
+- `register_food {foods? ≤64, pack? "village"}` (at least one food) → `{registered, total}`; same id replaces.
+  The original `village` pack has 12 foods (`rye_bread`, `oat_porridge`, `orchard_apple`, `hard_cheese`,
+  `river_trout`, `hearty_stew`, `bramble_berries`, `honey_cake`, `barley_ale`, `spring_water`,
+  `roasted_nuts`, `salt_lick`).
+- `set_diet {being, diet? species diet (omnivore), forbids? tags, allergies? ≤8 tags or food ids, likes? tags,
+  dislikes? tags}` → the `assess` view; likes and dislikes may not overlap; keeps meal history; 64 beings.
+- `evaluate {being, …serving}` → `{being, edible, food, freshness, hunger, joy, refusals, repeats, sickness,
+  thirst}`. A being without a profile is an omnivore with no preferences.
+  - Freshness by age `at − made_at` against the shelf life (preserved or not): `fresh` while `2·age < shelf`
+    (or shelf 0), `stale` while `age < shelf`, else `spoiled`.
+  - Refusals, in order: `species_diet` (herbivore: no meat/fish/mineral; carnivore: needs meat or fish;
+    photosynthetic: nothing; mineral: only mineral; omnivore/scavenger: no mineral), `forbidden` (a forbidden
+    tag), `allergy` (id or tag), `spoiled`, `unsafe_raw` (not cooked and `raw_risk > 0`).
+  - `hunger`: cooked adds `hunger·cooked_bonus/100` (≤100); stale ×3/4, spoiled ×1/2 (also `thirst`).
+    `sickness`: the largest of allergy 40, spoiled 30, raw `raw_risk`.
+  - `joy`: food joy + 5 per liked tag − 5 per disliked tag − min(15, 3 × `repeats`) − 3 stale / 10 spoiled,
+    clamped to ±50; `repeats` counts this food in the last 8 meals.
+- `choose {being, options 1–16 servings, hunger_level? 0–100 (50)}` → `{being, best index|null, ranked
+  [{food, freshness, hunger, index, joy, score}], refused [{food, index, refusals}]}`; score
+  `hunger·hunger_level/100 + 2·joy`, ties by food id then index.
+- `eat {being, …serving, force?}` → the evaluation plus `{eaten, effects, forced}`. Refused servings are eaten only
+  with `force`. Eating records the meal (16 most recent kept, `meals` counts all) and proposes, in order,
+  `{engine: "body", op: "satisfy", args: {amount, being, need: hunger|thirst}}` for non-zero fill,
+  `{engine: "body", op: "set_condition", args: {being, condition: "sick"}}` when sickness ≥ 30, and
+  `{engine: "affect", op: "set_mood", args: {being, reason: "ate <label>", valence_delta: joy}}` when joy ≠ 0.
+- `assess {being}` → `{allergies, being, diet, dislikes, forbids, likes, meals, recent [{at, food}]}`; refused for
+  a being with no profile.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

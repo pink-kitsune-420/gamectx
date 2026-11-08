@@ -1,0 +1,43 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "river_trout",
+          "cooked": true,
+          "made_at": 90,
+          "at": 100
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "river_trout",
+          "cooked": true,
+          "made_at": 80,
+          "at": 100
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "river_trout",
+          "cooked": true,
+          "made_at": 70,
+          "at": 100
+        }
+      }
+    ]
+  }
+}

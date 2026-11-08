@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject a profile that both likes and dislikes a tag.",
+  "error": true
+}

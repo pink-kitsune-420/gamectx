@@ -8,6 +8,7 @@ pub mod cast;
 pub mod curiosity;
 pub mod deception;
 pub mod dialogue;
+pub mod diet;
 pub mod explain;
 pub mod fitness;
 pub mod life;

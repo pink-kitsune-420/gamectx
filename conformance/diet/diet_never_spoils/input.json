@@ -1,0 +1,22 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "baker",
+          "food": "barley_ale",
+          "made_at": 0,
+          "at": 1000000
+        }
+      }
+    ]
+  }
+}

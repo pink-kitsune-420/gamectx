@@ -79,7 +79,8 @@ a [curiosity and exploration model](docs/characters/LIFE.md#curiosity-and-explor
 an [explain trace](docs/characters/LIFE.md#explain-trace-pass-2-d4) (a "why did she do that?" chain from perception and belief through motive and task step to the confirmed outcome),
 [stability monitors](docs/characters/LIFE.md#stability-monitors-pass-2-d1) (dithering, starvation spiral, deadlock, herding and grudge/rumor runaway warnings over host-reported turns),
 [subjective world knowledge](docs/characters/LIFE.md#subjective-world-knowledge-pass-2-a1) (sourced per-being beliefs learned by doing, seeing and being told, corrected when an action fails),
-and [speech acts](docs/characters/LIFE.md#communication-as-action-pass-2-b1) (inform, warn, ask, request, command, persuade, threaten and comfort with preconditions, effects on the listener and act planning).
+[speech acts](docs/characters/LIFE.md#communication-as-action-pass-2-b1) (inform, warn, ask, request, command, persuade, threaten and comfort with preconditions, effects on the listener and act planning),
+and [diets and foods](docs/characters/LIFE.md#diets-and-foods-pass-2-stage-3) (food values, spoilage, cooking, species diets, taboos, allergies, tastes and monotony, with an original village food pack).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

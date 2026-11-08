@@ -187,6 +187,12 @@ or a counter is a large source of natural behavior.
 created by everyone's needs and off-screen production. Without it, off-screen effects
 (pass 1 gap 10) never show up as a reason to act.
 
+**C5 (added during pass 2). Diets and foods.** Hunger was one number satisfied by a flat
+`eat`. Foods now differ in fill, taste, freshness and safety, and beings differ in what their
+body allows, what they refuse, what makes them ill and what they like.
+*Implemented (pass 2 stage 3):* `character::diet::DietManager` (local kind `diet`).
+[Evidence](../characters/LIFE.md#diets-and-foods-pass-2-stage-3).
+
 ### D. The system as a whole
 
 **D1. Stability.** — **DONE**. Pass 1 adds many feedback loops. Expected failure modes:

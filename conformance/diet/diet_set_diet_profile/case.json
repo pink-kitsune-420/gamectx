@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "set_diet stores a sorted profile; diet defaults to omnivore.",
+  "error": false
+}

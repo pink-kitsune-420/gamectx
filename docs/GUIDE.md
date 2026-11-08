@@ -784,6 +784,8 @@ What each being actually believes is kept by [subjective world knowledge](charac
 (`character::beliefs::BeliefStore` or local kind `beliefs`): sourced triples learned by doing, seeing and being told, corrected when an action fails, with `known_actions` and `gaps` for planning.
 Speaking is an action through [speech acts](characters/LIFE.md#communication-as-action-pass-2-b1)
 (`character::speech_act::SpeechActs` or local kind `speech_act`): inform, warn, ask, request, command, persuade, threaten and comfort, with preconditions, effects on the listener's beliefs, wants and trust, `mind_record` proposals, and `plan` to choose the act.
+Meals go through [diets and foods](characters/LIFE.md#diets-and-foods-pass-2-stage-3)
+(`character::diet::DietManager` or local kind `diet`): registered foods (or the original `village` pack), per-being diet profiles, freshness, refusals, fill, sickness and joy with a monotony penalty, and body/affect proposals when a being eats.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

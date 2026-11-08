@@ -1,0 +1,40 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "set_diet",
+        "args": {
+          "being": "ferrin",
+          "likes": [
+            "sweet",
+            "grain"
+          ],
+          "dislikes": [
+            "egg"
+          ]
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "ferrin",
+          "food": "honey_cake"
+        }
+      },
+      {
+        "op": "evaluate",
+        "args": {
+          "being": "ferrin",
+          "food": "rye_bread"
+        }
+      }
+    ]
+  }
+}

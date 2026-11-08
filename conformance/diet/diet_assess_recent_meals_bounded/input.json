@@ -1,0 +1,163 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "register_food",
+        "args": {
+          "pack": "village"
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 0
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 1
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 2
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 3
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 4
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 5
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 6
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 7
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 8
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 9
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 10
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 11
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 12
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 13
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 14
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 15
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 16
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 17
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

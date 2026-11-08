@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refused options are listed with reasons; no edible option gives best null.",
+  "error": false
+}

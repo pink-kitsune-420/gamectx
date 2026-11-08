@@ -2,6 +2,11 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Diets and foods (`character::diet`, local kind `diet`, pass 2 stage 3):
+  - Foods with tags, hunger/thirst fill, joy, shelf life (fresh/stale/spoiled, longer preserved), raw risk and cooking bonus; an original 12-food `village` pack.
+  - Diet profiles: species diet, `forbids` (taboos), allergies (tags or food ids), likes and dislikes. Meals report refusals, fill, sickness and joy with a monotony penalty for repeats.
+  - `choose` ranks servings for a hunger level; `eat` records the meal and proposes body `satisfy`/`set_condition` and affect `set_mood` in their exact argument shapes. Ops: `register_food`, `set_diet`, `evaluate`, `choose`, `eat`, `assess`.
+  - 25 conformance cases (4 malformed) in `conformance/diet/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Subjective world knowledge (`character::beliefs`, local kind `beliefs`, pass 2 A1):
   - Per-being triples (`about relation value`, held true or false) with source `did` > `saw` > `told` > `authored`, confidence and teller. Matching evidence reinforces; contradictions revise only from an equal or stronger source.
   - `outcome` learns `<being> can <action>` on success and marks relied-on beliefs false on failure; `known_actions` and `gaps` let planning run against belief instead of the host catalog.

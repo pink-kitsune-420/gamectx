@@ -1,0 +1,1 @@
+{"version":1,"results":[{"registered":["smoked_eel"],"total":1},{"being":"miller","edible":true,"food":"smoked_eel","freshness":"stale","hunger":21,"joy":-3,"refusals":[],"repeats":0,"sickness":0,"thirst":0},{"being":"miller","edible":false,"food":"smoked_eel","freshness":"spoiled","hunger":14,"joy":-10,"refusals":["spoiled"],"repeats":0,"sickness":30,"thirst":0}]}
