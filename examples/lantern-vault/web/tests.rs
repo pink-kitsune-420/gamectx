@@ -1632,3 +1632,25 @@ fn blocked_audio_reissues_only_the_unheard_ticket_and_keeps_the_ending() {
     assert_eq!(s.get("segment"), Some(&2.into()));
     assert!(text(&s, "text").unwrap().contains("duet"));
 }
+
+#[test]
+fn timeline_journal_entries_and_api_endpoints_expose_world_lore_and_milestones() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let journal = a.journal().unwrap();
+    assert_eq!(journal.get("ok"), Some(&true.into()));
+    let entries = journal.get("journal").and_then(Value::as_array).unwrap();
+    assert!(entries.len() >= 5);
+    assert!(entries.iter().any(|e| text(e, "id") == Ok("vault_built")));
+    assert!(entries.iter().any(|e| text(e, "id") == Ok("aqueduct_dry")));
+    assert!(entries.iter().any(|e| text(e, "id") == Ok("descent")));
+    let state = a.state().unwrap();
+    let state_journal = state.get("journal").and_then(Value::as_array).unwrap();
+    assert_eq!(state_journal.len(), entries.len());
+
+    // Repair pump milestone
+    a.game.pump_repaired = true;
+    let updated = a.journal().unwrap();
+    let updated_entries = updated.get("journal").and_then(Value::as_array).unwrap();
+    assert!(updated_entries.iter().any(|e| text(e, "id") == Ok("pump_repaired")));
+}

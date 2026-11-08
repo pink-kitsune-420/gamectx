@@ -10,7 +10,7 @@
     "limits": "Offline routing and receipt metadata only. No installed provider/browser audio quality, physical heard-character accuracy or frame-rate measurement."
   },
   "http": {
-    "http_checks": 85,
+    "http_checks": 87,
     "actual_provider_calls": 0,
     "api_spend_usd": 0,
     "limits": "Loopback endpoints and deterministic browser/provider fixtures; no real microphone or installed-model quality evaluation."

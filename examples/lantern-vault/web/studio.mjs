@@ -127,6 +127,147 @@ function drawAsset(){
     candidate.removeAttribute('src');
   }
 }
+function initTheme(){
+  const toggle=$('theme-toggle');
+  if(!toggle)return;
+  let current='dark';
+  try{current=localStorage.getItem('lantern-theme')||'dark';}catch{}
+  document.documentElement.dataset.theme=current;
+  toggle.textContent=current==='dark'?'☀️ Light':'🌙 Dark';
+  toggle.onclick=()=>{
+    const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+    document.documentElement.dataset.theme=next;
+    try{localStorage.setItem('lantern-theme',next);}catch{}
+    toggle.textContent=next==='dark'?'☀️ Light':'🌙 Dark';
+  };
+}
+initTheme();
+
+function drawInventory(s){
+  const container=$('inventory-items');
+  if(!container)return;
+  const carried=(s.game?.items||[]).filter(i=>i.owner==='player');
+  if(!carried.length){
+    container.innerHTML='<span class="muted empty-note">No items carried yet.</span>';
+    return;
+  }
+  container.replaceChildren(...carried.map(item=>{
+    const row=document.createElement('div');
+    row.className='inventory-item-row';
+    const info=document.createElement('div');
+    const name=document.createElement('strong');
+    name.textContent=item.label||item.id.replace('item:','').replaceAll('_',' ');
+    const tag=document.createElement('span');
+    tag.className='item-tag';
+    tag.textContent=item.kind||'item';
+    info.append(name,document.createTextNode(' '),tag);
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent='Inspect';
+    btn.onclick=async()=>{
+      try{
+        await player.interrupt();
+        await invoke('act',{revision:s.game.revision,decision:{action:'inspect',target:item.id}},s.generation);
+      }catch(e){$('notice').textContent=e.message;}
+    };
+    row.append(info,btn);
+    return row;
+  }));
+}
+
+function drawCharactersPresent(s){
+  const container=$('characters-list');
+  if(!container)return;
+  const list=[];
+  const room=s.game?.room||'';
+  if(room==='room:workshop'){
+    const div=document.createElement('div');
+    div.className='character-item';
+    div.innerHTML='<div><strong>Ilen the Merchant</strong><br><span>Trading supplies at the counter</span></div>';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent='Speak';
+    btn.onclick=async()=>{
+      try{
+        await player.interrupt();
+        let gen=s.generation;
+        if(s.npc!=='merchant'){
+          const rec=await invoke('select',{player:s.player,npc:'merchant'},gen);
+          gen=rec.generation;
+        }
+        await invoke('approach',{npc:'merchant'},gen);
+        $('input').focus();
+      }catch{}
+    };
+    div.append(btn);
+    list.push(div);
+  } else if(room==='room:cistern'){
+    const div=document.createElement('div');
+    div.className='character-item';
+    div.innerHTML='<div><strong>Keeper of the Seals</strong><br><span>Guarding the cistern inscription</span></div>';
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.textContent='Speak';
+    btn.onclick=async()=>{
+      try{
+        await player.interrupt();
+        let gen=s.generation;
+        if(s.npc!=='keeper'){
+          const rec=await invoke('select',{player:s.player,npc:'keeper'},gen);
+          gen=rec.generation;
+        }
+        await invoke('approach',{npc:'keeper'},gen);
+        $('input').focus();
+      }catch{}
+    };
+    div.append(btn);
+    list.push(div);
+  }
+  if(s.game?.animal_following||(room==='room:cistern'&&s.game?.animal_friendly)){
+    const div=document.createElement('div');
+    div.className='character-item';
+    div.innerHTML=`<div><strong>Cave Hound</strong><br><span>${s.game?.animal_following?'Faithful companion walking at your side':'Friendly creature resting by the fountain'}</span></div>`;
+    list.push(div);
+  }
+  if(!list.length){
+    container.innerHTML='<span class="muted" style="font-size:12px;padding:4px 0;">No characters currently in this chamber.</span>';
+  } else {
+    container.replaceChildren(...list);
+  }
+}
+
+let lastJournal='';
+function drawJournal(s){
+  const container=$('journal-entries');
+  if(!container)return;
+  const entries=s.journal||[];
+  const key=JSON.stringify(entries);
+  if(key===lastJournal)return;
+  lastJournal=key;
+  if(!entries.length){
+    container.innerHTML='<span class="muted" style="font-size:12px;">No chronicle entries recorded yet.</span>';
+    return;
+  }
+  container.replaceChildren(...entries.map(entry=>{
+    const card=document.createElement('div');
+    card.className='journal-entry';
+    const header=document.createElement('div');
+    header.className='journal-header';
+    const badge=document.createElement('span');
+    badge.className=`journal-badge ${entry.kind||'history'}`;
+    badge.textContent=entry.epoch?`Year ${entry.epoch}`:(entry.kind||'chronicle');
+    const title=document.createElement('strong');
+    title.className='journal-title';
+    title.textContent=entry.title||entry.id;
+    header.append(badge,title);
+    const summary=document.createElement('p');
+    summary.className='journal-summary';
+    summary.textContent=entry.summary||'';
+    card.append(header,summary);
+    return card;
+  }));
+}
+
 async function loadState(){
     const response=await fetch('/api/state');
     if(!response.ok)throw Error('Host state unavailable.');
@@ -178,6 +319,9 @@ async function loadState(){
     };
     $('quick-actions').replaceChildren(...s.game.choices.filter(c=>['go','talk'].includes(c.action)).map(actionButton));
     $('actions').replaceChildren(...s.game.choices.map(actionButton));
+    drawInventory(s);
+    drawCharactersPresent(s);
+    drawJournal(s);
     const transcript=JSON.stringify(s.transcript);
     if(transcript!==lastTranscript){
       lastTranscript=transcript;

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -8,20 +8,38 @@
 </head>
 <body>
 <header>
+<div class="brand">
+<span class="sigil" aria-hidden="true">◈</span>
 <div>
-<span class="sigil">◈</span>
 <strong>LANTERN VAULT</strong>
 <small>LOCAL PLAY &amp; CHARACTER STUDIO</small>
 </div>
-<div class="header-actions"><span id="spend" role="status">Local · $0 cap</span><button id="show-debug">Debug</button><button id="show-setup">Settings</button><button id="new-game">New game</button></div>
+</div>
+<div class="header-actions">
+<span id="spend" role="status" aria-label="Spending budget status">Local · $0 cap</span>
+<button id="theme-toggle" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">🌙 Dark</button>
+<button id="show-debug" type="button" aria-label="Open diagnostics profiler">Debug</button>
+<button id="show-setup" type="button" class="primary-btn" aria-label="Open settings and model configuration">⚙ Settings</button>
+<button id="new-game" type="button" aria-label="Start a new game">New game</button>
+</div>
 </header>
-<section class="setup-banner" aria-label="Provider status"><div><strong id="setup-title">Play now, add models whenever you like.</strong><p id="setup-help">Offline play needs no setup. Settings affect the next message, not your current location.</p></div><div id="channel-status" aria-live="polite"></div></section>
-<main>
-<aside class="stage">
-<div class="eyebrow">THE VISIBLE WORLD</div>
+
+<section class="setup-banner" aria-label="Provider status">
+<div>
+<strong id="setup-title">Play now, add models whenever you like.</strong>
+<p id="setup-help">Offline play needs no setup. Settings affect the next message, not your current location.</p>
+</div>
+<div id="channel-status" aria-live="polite"></div>
+</section>
+
+<main class="play-layout" id="play-screen">
+<!-- Left Column: Scene, Room Art & Characters Present -->
+<aside class="play-sidebar">
+<section class="card scene-card" aria-labelledby="room-title">
+<div class="card-eyebrow">THE VISIBLE WORLD</div>
 <div class="art scene">
 <img id="scene-image" alt="Approved room scene" hidden>
-<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored scene placeholder">
+<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored scene placeholder" role="img">
 <path d="M0 245V125L200 15l200 110v120"/>
 <path d="M65 245V140l135-75 135 75v105M150 245V150q50-65 100 0v95"/>
 <circle cx="200" cy="123" r="13"/>
@@ -29,203 +47,600 @@
 </svg>
 <span class="art-label" id="room-label">The descending stair</span>
 </div>
+<div class="room-copy">
+<h1 id="room-title">Lantern Vault</h1>
+<p id="description">Loading the host's current view…</p>
+</div>
+</section>
+
+<section class="card characters-card" id="characters-present-card" aria-label="Characters in this chamber">
+<div class="card-eyebrow">CHARACTERS PRESENT</div>
 <div class="art portrait">
 <img id="portrait-image" alt="Approved NPC portrait" hidden>
-<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored character placeholder">
+<svg class="placeholder" viewBox="0 0 400 245" aria-label="Authored character placeholder" role="img">
 <circle cx="200" cy="74" r="35"/>
 <path d="M119 230v-63q81-70 162 0v63M167 127l33 38 33-38M200 165v65"/>
 <path d="M154 59q50-55 86 10M135 200h130"/>
 </svg>
 <span class="art-label" id="npc-label">Merchant</span>
 </div>
-</aside>
-<section class="play">
-<div class="eyebrow">A SHARED PURSE. TWO PERSPECTIVES.</div>
-<div class="party">
-<label>Playing as<select id="player">
+<div class="presence-badge" id="presence" role="status">Checking presence…</div>
+<div id="characters-list" class="characters-list" aria-label="Characters present in this room"></div>
+</section>
+
+<section class="card inventory-card" id="inventory-card" aria-label="Party purse and gear">
+<div class="card-eyebrow">SHARED PURSE &amp; EXPEDITION GEAR</div>
+<div id="stats" class="stats-bar" role="status">Party health 6/6 · Shared coins 5</div>
+<div class="party-controls">
+<label>Playing as
+<select id="player" aria-label="Active player">
 <option>player_1</option>
 <option>player_2</option>
 </select>
 </label>
-<label>Addressing<select id="npc">
+<label>Addressing
+<select id="npc" aria-label="NPC to address">
 <option>merchant</option>
 <option>keeper</option>
 </select>
 </label>
-<label>Branch<select id="slot">
+<label>Branch
+<select id="slot" aria-label="Save slot">
 <option value="0">A</option>
 <option value="1">B</option>
 <option value="2">C</option>
 <option value="3">D</option>
 </select>
 </label>
-<button id="save">Save</button>
-<button id="load">Load</button>
-</div>
-<div class="room-copy">
-<h1 id="room-title">Lantern Vault</h1>
-<p id="description">Loading the host's current view…</p>
-<div id="stats">
+<div class="party-save-buttons">
+<button id="save" type="button">Save</button>
+<button id="load" type="button">Load</button>
 </div>
 </div>
-<div id="notice" role="status"></div>
-<div class="actions" id="quick-actions" aria-label="Travel and trade"></div>
-<details class="explore"><summary>Trade, inspect &amp; inventory actions</summary><div class="actions" id="actions" aria-label="All available actions"></div></details>
-<p id="work-status" class="muted" role="status">No model requests yet.</p>
-<section id="reply-thinking" role="status" aria-live="polite" hidden><p>Thinking…</p><button id="use-instant-reply">Use instant reply</button></section>
-<section class="speech" id="current-reply">
+<div class="inventory-items-container">
+<div class="sub-heading">CARRIED INVENTORY</div>
+<div id="inventory-items" class="inventory-items" role="list" aria-label="Player carried items">
+<span class="muted empty-note">No items carried yet.</span>
+</div>
+</div>
+</section>
+</aside>
+
+<!-- Center Column: Dialogue, Word/Action Input, Voice Controls & Transcript -->
+<section class="play-center">
+<section class="card dialogue-card" aria-label="Character dialogue and speech">
+<div class="card-eyebrow">CONVERSATION &amp; ENCOUNTERS</div>
+
+<section id="reply-thinking" class="thinking-state" role="status" aria-live="polite" hidden>
+<div class="thinking-spinner" aria-hidden="true"></div>
+<p>Thinking… The model is preparing a character reply.</p>
+<button id="use-instant-reply" type="button">Use instant reply</button>
+</section>
+
+<section class="speech" id="current-reply" aria-label="Current character voice reply">
 <div class="speech-heading">
 <span id="speaker">CHARACTER VOICE</span>
 <span id="voice-status">Ready</span>
-<span id="reply-origin">Offline reply</span>
+<span id="reply-origin" class="origin-badge">Offline reply</span>
 </div>
-<p id="speech-text">
-</p>
-<progress id="voice-progress" max="1" value="0">
-</progress>
-<div class="button-row">
-<button id="play">Read / Play reply</button>
-<button id="replay-current" type="button" hidden>Replay recording</button>
-<button id="interrupt" class="danger">■ Interrupt</button>
+<p id="speech-text">Speak to a nearby character to start a conversation.</p>
+<progress id="voice-progress" max="1" value="0" aria-label="Speech playback progress"></progress>
+<div class="button-row speech-actions">
+<button id="play" type="button" class="action-btn">Read / Play reply</button>
+<button id="replay-current" type="button" class="action-btn secondary" hidden>Replay recording</button>
+<button id="interrupt" type="button" class="danger">■ Interrupt</button>
 </div>
-<small>Replies remain visible without audio. Read / Play acknowledges this reply.</small>
+<small class="speech-hint">Replies remain visible without audio. Read / Play acknowledges this reply.</small>
 </section>
-<section id="reaction-options" hidden><div class="eyebrow">Character offers</div><div id="reaction-buttons" class="button-row"></div><p id="loan-status" class="muted"></p></section>
-<form id="chat">
+
+<section id="reaction-options" class="reactions-box" hidden>
+<div class="sub-heading">CHARACTER OFFERS &amp; REQUESTS</div>
+<div id="reaction-buttons" class="button-row"></div>
+<p id="loan-status" class="muted" role="status"></p>
+</section>
+
+<form id="chat" class="chat-form">
 <label for="input">Your words or actions</label>
 <div class="compose">
-<textarea id="input" maxlength="2048" rows="2" placeholder="Speak, or act: *approaches the merchant*"></textarea>
-<button type="submit">Send ↗</button>
-<button type="button" id="mic">🎙 Mic</button>
+<textarea id="input" maxlength="2048" rows="2" placeholder="Speak, or describe an action: *approaches the merchant*"></textarea>
+<div class="compose-actions">
+<button type="submit" class="primary-btn send-btn" aria-label="Send message">Send ↗</button>
+<button type="button" id="mic" class="mic-btn" aria-label="Microphone input">🎙 Mic</button>
 </div>
-<small id="input-count" class="muted"></small>
+</div>
+<small id="input-count" class="muted" aria-live="polite"></small>
 </form>
-<details class="history"><summary>Recent events &amp; conversation</summary><div id="transcript" role="log" aria-live="polite"></div></details>
 
-<div id="mic-monitor" hidden><meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter><span id="mic-feedback" role="status"></span></div>
-<details id="voice-history-panel"><summary>Voice recordings <span id="voice-history-count"></span></summary><p class="muted">Replay for review; it does not add heard memories.</p><audio id="review-audio" controls hidden></audio><div id="voice-history-list"></div><p id="voice-history-warning" role="status"></p></details>
-<div id="interim" role="status">
-</div>
-<div class="button-row">
-<button id="stock">Stock &amp; Trade</button>
-<button id="promise">Promise to bring chalk</button>
-<span id="presence">
-</span>
+<div id="notice" class="notice-bar" role="status"></div>
+<div id="interim" class="interim-bar" role="status"></div>
+
+<div id="mic-monitor" class="mic-monitor" hidden>
+<meter id="mic-level" min="0" max="1" value="0" aria-label="Microphone input level"></meter>
+<span id="mic-feedback" role="status"></span>
 </div>
 
+<details class="history" open>
+<summary>Recent events &amp; conversation</summary>
+<div id="transcript" role="log" aria-live="polite"></div>
+</details>
+
+<details id="voice-history-panel" class="voice-panel">
+<summary>Voice recordings <span id="voice-history-count"></span></summary>
+<p class="muted">Replay for review; it does not add heard memories.</p>
+<audio id="review-audio" controls hidden></audio>
+<div id="voice-history-list"></div>
+<p id="voice-history-warning" role="status"></p>
+</details>
+</section>
 </section>
 
+<!-- Right Column: Available Actions Hub & World Timeline Journal -->
+<aside class="play-actions-column">
+<section class="card actions-hub-card" aria-label="Available world actions">
+<div class="card-eyebrow">AVAILABLE ACTIONS</div>
+<div class="action-shortcuts">
+<button id="stock" type="button" class="action-btn">Stock &amp; Trade</button>
+<button id="promise" type="button" class="action-btn">Promise to bring chalk</button>
+</div>
+<div class="actions-section-title">Navigation &amp; Immediate Choices</div>
+<div class="actions" id="quick-actions" aria-label="Travel and trade"></div>
+
+<details class="explore" open>
+<summary>All available actions (craft, trade, inspect, interact)</summary>
+<div class="actions" id="actions" aria-label="All available actions"></div>
+</details>
+
+<p id="work-status" class="muted work-status" role="status">No model requests yet.</p>
+</section>
+
+<section class="card journal-card" id="journal-card" aria-label="Chronicle and timeline journal">
+<div class="card-eyebrow">TIMELINE CHRONICLE</div>
+<div class="journal-intro">
+<p class="journal-description">Historical lore, world incidents, and expedition milestones recorded in the codex.</p>
+</div>
+<div id="journal-entries" class="journal-timeline" role="feed" aria-label="Journal entries">
+<div class="journal-entry">
+<div class="journal-header">
+<span class="journal-badge epoch">Epoch 100</span>
+<strong class="journal-title">The Age of Light</strong>
+</div>
+<p class="journal-summary">An era of open gates and lantern keepers across the subterranean realm.</p>
+</div>
+</div>
+</section>
+</aside>
 </main>
-<section id="debug-window" class="debug-window" aria-labelledby="debug-title" hidden><div id="debug-titlebar"><strong id="debug-title">Diagnostics &amp; profiler</strong><button id="debug-minimize" aria-label="Minimize diagnostics">Minimize</button></div><nav class="settings-tabs" aria-label="Diagnostic views"><button data-debug-tab="state">State</button><button data-debug-tab="context">Context</button><button data-debug-tab="execution">Execution</button></nav><div id="debug-state" class="debug-page"><aside class="inspector">
+
+<!-- Floating Diagnostics Window -->
+<section id="debug-window" class="debug-window" aria-labelledby="debug-title" hidden>
+<div id="debug-titlebar">
+<strong id="debug-title">Diagnostics &amp; profiler</strong>
+<button id="debug-minimize" type="button" aria-label="Minimize diagnostics">Minimize</button>
+</div>
+<nav class="settings-tabs" aria-label="Diagnostic views">
+<button data-debug-tab="state" type="button">State</button>
+<button data-debug-tab="context" type="button">Context</button>
+<button data-debug-tab="execution" type="button">Execution</button>
+</nav>
+<div id="debug-state" class="debug-page">
+<aside class="inspector">
 <div class="eyebrow">LIVE INSPECTOR</div>
-<details id="activity-panel" open><summary>What is running?</summary><p class="muted">One shared worker handles local requests in order. Checks do not generate text, pictures or audio.</p><div id="activity" role="log" aria-live="polite">No model requests yet.</div></details>
+<details id="activity-panel" open>
+<summary>What is running?</summary>
+<p class="muted">One shared worker handles local requests in order. Checks do not generate text, pictures or audio.</p>
+<div id="activity" role="log" aria-live="polite">No model requests yet.</div>
+</details>
 <details open>
 <summary>Attitudes toward this player</summary>
-<div id="attitudes">
-</div>
+<div id="attitudes"></div>
 </details>
 <details>
 <summary>Promises &amp; Recalled Episodes</summary>
-<pre id="memories">
-</pre>
+<pre id="memories"></pre>
 </details>
 <details>
 <summary>Rumors, Habits &amp; Atmosphere</summary>
-<pre id="living">
-</pre>
+<pre id="living"></pre>
 </details>
 <details>
-<summary>Greeting &amp; encounter context</summary><pre id="greeting-debug"></pre></details><details><summary>Saved character viewpoints</summary><pre id="viewpoints"></pre></details><details><summary>Reaction receipts &amp; NPC resources</summary><pre id="reaction-debug"></pre></details><details><summary>Spending Receipts</summary>
-<pre id="receipts">
-</pre>
+<summary>Greeting &amp; encounter context</summary>
+<pre id="greeting-debug"></pre>
 </details>
-</aside></div><div id="debug-context" class="debug-page" hidden><h3>Compiled context</h3><details><summary>Reasoning &amp; unverified hypotheses</summary><pre id="reasoning-debug"></pre></details><label class="check"><input id="capture-prompts" type="checkbox">Capture prompt text for subsequent requests</label><div id="context-profiler"></div></div><div id="debug-execution" class="debug-page" hidden><h3>Execution</h3><p>One provider worker. A skipped local text reply is cancelled and its controlled model is released before voice runs.</p><button id="cancel-local-text">Cancel active local reply</button><div id="execution-profiler"></div></div></section>
-<dialog id="settings-dialog" aria-labelledby="settings-title">
-<div class="settings-heading"><div><h2 id="settings-title">Game settings</h2><p class="muted">Choose how your host creates replies, pictures and voices.</p></div><button id="settings-close" aria-label="Close settings">Done</button></div>
-<nav class="settings-tabs" role="tablist" aria-label="Settings sections">
-<button data-settings-tab="models" role="tab" aria-selected="true">Models</button><button data-settings-tab="characters" role="tab" aria-selected="false">Characters</button><button data-settings-tab="voice" role="tab" aria-selected="false">Voice</button><button data-settings-tab="connections" role="tab" aria-selected="false">Connections &amp; spending</button><button data-settings-tab="art" role="tab" aria-selected="false">Artwork</button><button data-settings-tab="session" role="tab" aria-selected="false">Play together</button>
-</nav>
-<section id="settings-models" class="settings-page"><details id="models-panel" open><summary>Models &amp; Services</summary>
-<p id="manager-state" role="status">Model manager is off.</p><p id="manager-memory" class="muted"></p><p id="manager-reason" class="muted"></p>
-<div class="button-row"><button id="manager-scan">Scan models / services</button><button id="manager-apply" class="primary">Apply model policy</button><span id="manager-draft">Applied</span></div>
-<details><summary>Optional reasoning &amp; hypotheses</summary><label>Native reasoning<select id="reasoning-mode"><option value="off">Off · provider default</option><option value="auto">Auto · difficult turns only</option></select></label><label>Effort<select id="reasoning-effort"><option>low</option><option>medium</option><option>high</option></select></label><label>Shared reasoning + answer token ceiling<input id="reasoning-tokens" type="number" min="128" max="4096" value="768"></label><label class="check"><input id="reasoning-hypotheses" type="checkbox">Unverified hypotheses for expanded planning turns</label><p class="muted">Auto uses only model-advertised controls. Routine greetings remain immediate. Missing metadata does not prove a model never reasons. Notes stay in Debug and never authorize actions.</p><details><summary>Online provider capability declarations</summary><p>Exact model IDs and supported reasoning_effort values; check your provider documentation.</p><textarea id="reasoning-online" rows="4" aria-label="Online reasoning declarations">[]</textarea></details><button id="reasoning-apply">Apply reasoning policy</button><pre id="reasoning-status"></pre></details>
-<div id="manager-settings">
-<label class="check"><input id="manager-enabled" type="checkbox">Enable model profiles &amp; automatic loading</label>
-<label>Scene mode<select id="manager-mode"><option value="auto">Auto · use scene rules</option><option value="normal">Everyday · force normal profiles</option><option value="dramatic">Dramatic · manual override</option></select></label>
-<div class="button-row"><label class="check"><input id="manager-text-dramatic" type="checkbox">Escalate text</label><label class="check"><input id="manager-image-dramatic" type="checkbox">Escalate images</label></div>
-<label>Keep models in RAM<select id="manager-residency"><option value="on_demand">Only while needed · free text/images after use</option><option value="warm">Keep briefly for reuse · unload when idle</option></select></label>
-<div class="button-row"><label>Idle seconds<input id="manager-idle" type="number" min="1" max="3600"></label><label>Model RAM allowance (MiB)<input id="manager-ram" type="number" min="256" max="65536"></label><label>Leave free (MiB)<input id="manager-reserve" type="number" min="128" max="8192"></label></div>
-<label class="check"><input id="manager-prewarm" type="checkbox">Prewarm likely upcoming conversations / microphone use</label>
-<p class="muted">Local models share one worker. Prewarming loads weights without generating a reply. Online APIs run only for real requests under the spending cap.</p>
-<details><summary>What counts as dramatic?</summary>
-<div class="button-row"><label class="check"><input id="mr-combat" type="checkbox">Combat</label><label class="check"><input id="mr-emergency" type="checkbox">Emergency</label><label class="check"><input id="mr-conflict" type="checkbox">Participant conflict</label></div>
-<div class="button-row"><label>Health at or below<input id="mr-low_health" type="number" min="0" max="100"></label><label>Event significance at least<input id="mr-significance" type="number" min="0" max="100"></label><label>Attitude change at least<input id="mr-attitude_change" type="number" min="0" max="200"></label></div>
-<div class="button-row"><label>Hold for turns<input id="mr-hold_turns" type="number" min="0" max="100"></label><label>Cooldown turns<input id="mr-cooldown_turns" type="number" min="0" max="100"></label></div><p class="muted">Zero disables a numeric trigger. Rules use host-confirmed signals, not dramatic words in a player's message. Emergency can bypass cooldown.</p>
-</details></div>
-<div id="manager-profiles"></div><datalist id="manager-text-list"></datalist>
-<details><summary>Image weight catalog</summary><pre id="manager-files"></pre></details>
-<details><summary>Dramatic art bible</summary><p class="muted">Detailed art uses its own model and richer art direction while keeping character anchors and perceived facts. Approved everyday art stays visible during generation.</p><textarea id="manager-art" rows="12" spellcheck="false"></textarea><button id="manager-art-apply">Validate &amp; apply art bible</button></details>
-<details><summary>Service ownership</summary><pre id="manager-loaded"></pre><p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p></details>
-<p id="manager-message" role="status"></p></details>
+<details>
+<summary>Saved character viewpoints</summary>
+<pre id="viewpoints"></pre>
+</details>
+<details>
+<summary>Reaction receipts &amp; NPC resources</summary>
+<pre id="reaction-debug"></pre>
+</details>
+<details>
+<summary>Spending Receipts</summary>
+<pre id="receipts"></pre>
+</details>
+</aside>
+</div>
+<div id="debug-context" class="debug-page" hidden>
+<h3>Compiled context</h3>
+<details>
+<summary>Reasoning &amp; unverified hypotheses</summary>
+<pre id="reasoning-debug"></pre>
+</details>
+<label class="check"><input id="capture-prompts" type="checkbox">Capture prompt text for subsequent requests</label>
+<div id="context-profiler"></div>
+</div>
+<div id="debug-execution" class="debug-page" hidden>
+<h3>Execution</h3>
+<p>One provider worker. A skipped local text reply is cancelled and its controlled model is released before voice runs.</p>
+<button id="cancel-local-text" type="button">Cancel active local reply</button>
+<div id="execution-profiler"></div>
+</div>
 </section>
-<section id="settings-characters" class="settings-page" hidden><details><summary>Conversation length</summary><label class="check"><input id="ai-wording" type="checkbox">Let the connected AI word all character replies</label><p class="muted">Facts and permissions stay with the game. Reuse requires the same situation; authored lines are fallback for offline play or failed validation.</p><label>Reply sentences<select id="reply-sentences"><option value="1">Brief · one sentence</option><option value="2">Up to two sentences</option><option value="3">Up to three sentences</option></select></label><label>Player message character limit<input id="player-message-limit" type="number" min="512" max="4096" value="2048"></label><label class="check"><input id="player-summary" type="checkbox">Ask for a short summary before answering long messages</label><p class="muted">One shared model request. The original message is retained; summaries remain unverified in Debug. Longer replies are complete sentence chunks; Interrupt discards the remaining chunks. Greetings and known single-fact answers stay brief.</p><button id="conversation-apply">Apply conversation length</button><p id="conversation-state"></p></details><details><summary>Registered roleplay actions</summary><p>Host-authored aliases map wrapped stage directions to current host actions, or to a visible emote. Registration proposes actions; it grants no resources or permissions.</p><textarea id="roleplay-registry" rows="10" aria-label="Roleplay action registry"></textarea><button id="roleplay-apply">Register roleplay actions</button><p id="roleplay-status"></p></details><h3>Character personality</h3><p>Enable saved opinions and aspirations. Views belong to a character and listener, and are saved after the complete reply is heard. World permissions still come from host rules.</p><label class="check"><input type="checkbox" id="mind-enabled">Enable personality turns</label><label>Editable personality profiles (JSON)<textarea id="mind-profiles" rows="14" spellcheck="false"></textarea></label><p class="muted">Traits guide subjective speech; generosity and prudence are host-authored 0–100 values. Existing viewpoints remain stable after profile edits. New game clears them; branches restore them.</p><button id="mind-apply">Apply character settings</button><p id="mind-status" role="status"></p><details><summary>Greeting behavior</summary><p>Characters remember who heard an introduction, distinguish a return from the same conversation, and use the current place, trust and urgency. Encounter state needs no model; AI character wording lets the connected model phrase the greeting.</p><label>Quiet turns before reconnecting<input id="greeting-gap" type="number" min="1" max="1000000" value="12"></label><p class="muted">Measured per NPC and player in game turns, not wall-clock time. Leaving and returning is a separate encounter. New game clears encounter memory; branch loads restore it.</p><button id="greeting-apply">Apply greeting behavior</button><p id="greeting-status" role="status"></p></details><details><summary>Optional world reactions</summary><label class="check"><input type="checkbox" id="reactions-enabled">Enable host-approved favors and reactions</label><label>Editable host rules and NPC resources (JSON)<textarea id="reaction-rules" rows="14" spellcheck="false"></textarea></label><p class="muted">Only eligible offers appear in play. Rules use trust, personality, real resources and host-confirmed reasons. Existing action history locks rules/resources until New game; enable/off can change anytime. No models grant permissions.</p><button id="reactions-apply">Apply reaction rules</button><p id="reactions-status" role="status"></p></details></section><section id="settings-voice" class="settings-page" hidden><label class="check"><input id="auto-speak" type="checkbox">Automatically speak new replies</label><p class="muted">Applies in this browser. Interrupt and microphone barge-in remain available. Your browser may require Play once to permit audio.</p><h3>Speech &amp; microphone</h3><p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p><p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p><div class="button-row"><button id="voice-native-preset">Use installed Piper + Whisper</button><button id="voice-apply" class="primary">Apply voice profiles</button></div><p id="voice-message" role="status"></p><label>Microphone input<select id="mic-device"><option value="">System default microphone</option></select></label><button id="mic-find">Find microphones</button><p class="muted">Allow microphone access when you press Mic. The input meter shows whether this browser receives your voice; recordings are transcribed on the host.</p><details open><summary>Voice archive</summary><label class="check"><input id="archive-enabled" type="checkbox">Keep generated replies until New game</label><label>Keep the last N recordings<input id="archive-limit" type="number" min="1" max="128" value="32"></label><p class="muted">Optional, up to 32 MiB. Older entries are removed when the backlog fills. Turning this off clears saved recordings.</p><button id="archive-apply">Apply archive settings</button><p id="archive-state" role="status"></p></details><div id="voice-profiles"></div><details open><summary>Current character voice</summary><label>Voice ID<input id="voice-id" maxlength="128"></label>
-<div class="button-row"><label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label><label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label></div>
-<button id="voice-character-apply">Save character voice</button></details><p id="native-voice-help" class="muted"></p></section>
-<section id="settings-connections" class="settings-page" hidden><details id="provider-panel">
+
+<!-- Settings Modal Dialog -->
+<dialog id="settings-dialog" aria-labelledby="settings-title">
+<div class="settings-heading">
+<div>
+<h2 id="settings-title">Game settings</h2>
+<p class="muted">Choose how your host creates replies, pictures and voices.</p>
+</div>
+<button id="settings-close" type="button" aria-label="Close settings">Done</button>
+</div>
+<nav class="settings-tabs" role="tablist" aria-label="Settings sections">
+<button data-settings-tab="models" role="tab" aria-selected="true" type="button">Models</button>
+<button data-settings-tab="characters" role="tab" aria-selected="false" type="button">Characters</button>
+<button data-settings-tab="voice" role="tab" aria-selected="false" type="button">Voice</button>
+<button data-settings-tab="connections" role="tab" aria-selected="false" type="button">Connections &amp; spending</button>
+<button data-settings-tab="art" role="tab" aria-selected="false" type="button">Artwork</button>
+<button data-settings-tab="session" role="tab" aria-selected="false" type="button">Play together</button>
+</nav>
+
+<section id="settings-models" class="settings-page">
+<details id="models-panel" open>
+<summary>Models &amp; Services</summary>
+<p id="manager-state" role="status">Model manager is off.</p>
+<p id="manager-memory" class="muted"></p>
+<p id="manager-reason" class="muted"></p>
+<div class="button-row">
+<button id="manager-scan" type="button">Scan models / services</button>
+<button id="manager-apply" class="primary" type="button">Apply model policy</button>
+<span id="manager-draft">Applied</span>
+</div>
+<details>
+<summary>Optional reasoning &amp; hypotheses</summary>
+<label>Native reasoning
+<select id="reasoning-mode">
+<option value="off">Off · provider default</option>
+<option value="auto">Auto · difficult turns only</option>
+</select>
+</label>
+<label>Effort
+<select id="reasoning-effort">
+<option>low</option>
+<option>medium</option>
+<option>high</option>
+</select>
+</label>
+<label>Shared reasoning + answer token ceiling
+<input id="reasoning-tokens" type="number" min="128" max="4096" value="768">
+</label>
+<label class="check">
+<input id="reasoning-hypotheses" type="checkbox">Unverified hypotheses for expanded planning turns
+</label>
+<p class="muted">Auto uses only model-advertised controls. Routine greetings remain immediate. Missing metadata does not prove a model never reasons. Notes stay in Debug and never authorize actions.</p>
+<details>
+<summary>Online provider capability declarations</summary>
+<p>Exact model IDs and supported reasoning_effort values; check your provider documentation.</p>
+<textarea id="reasoning-online" rows="4" aria-label="Online reasoning declarations">[]</textarea>
+</details>
+<button id="reasoning-apply" type="button">Apply reasoning policy</button>
+<pre id="reasoning-status"></pre>
+</details>
+<div id="manager-settings">
+<label class="check">
+<input id="manager-enabled" type="checkbox">Enable model profiles &amp; automatic loading
+</label>
+<label>Scene mode
+<select id="manager-mode">
+<option value="auto">Auto · use scene rules</option>
+<option value="normal">Everyday · force normal profiles</option>
+<option value="dramatic">Dramatic · manual override</option>
+</select>
+</label>
+<div class="button-row">
+<label class="check"><input id="manager-text-dramatic" type="checkbox">Escalate text</label>
+<label class="check"><input id="manager-image-dramatic" type="checkbox">Escalate images</label>
+</div>
+<label>Keep models in RAM
+<select id="manager-residency">
+<option value="on_demand">Only while needed · free text/images after use</option>
+<option value="warm">Keep briefly for reuse · unload when idle</option>
+</select>
+</label>
+<div class="button-row">
+<label>Idle seconds<input id="manager-idle" type="number" min="1" max="3600"></label>
+<label>Model RAM allowance (MiB)<input id="manager-ram" type="number" min="256" max="65536"></label>
+<label>Leave free (MiB)<input id="manager-reserve" type="number" min="128" max="8192"></label>
+</div>
+<label class="check">
+<input id="manager-prewarm" type="checkbox">Prewarm likely upcoming conversations / microphone use
+</label>
+<p class="muted">Local models share one worker. Prewarming loads weights without generating a reply. Online APIs run only for real requests under the spending cap.</p>
+<details>
+<summary>What counts as dramatic?</summary>
+<div class="button-row">
+<label class="check"><input id="mr-combat" type="checkbox">Combat</label>
+<label class="check"><input id="mr-emergency" type="checkbox">Emergency</label>
+<label class="check"><input id="mr-conflict" type="checkbox">Participant conflict</label>
+</div>
+<div class="button-row">
+<label>Health at or below<input id="mr-low_health" type="number" min="0" max="100"></label>
+<label>Event significance at least<input id="mr-significance" type="number" min="0" max="100"></label>
+<label>Attitude change at least<input id="mr-attitude_change" type="number" min="0" max="200"></label>
+</div>
+<div class="button-row">
+<label>Hold for turns<input id="mr-hold_turns" type="number" min="0" max="100"></label>
+<label>Cooldown turns<input id="mr-cooldown_turns" type="number" min="0" max="100"></label>
+</div>
+<p class="muted">Zero disables a numeric trigger. Rules use host-confirmed signals, not dramatic words in a player's message. Emergency can bypass cooldown.</p>
+</details>
+</div>
+<div id="manager-profiles"></div>
+<datalist id="manager-text-list"></datalist>
+<details>
+<summary>Image weight catalog</summary>
+<pre id="manager-files"></pre>
+</details>
+<details>
+<summary>Dramatic art bible</summary>
+<p class="muted">Detailed art uses its own model and richer art direction while keeping character anchors and perceived facts. Approved everyday art stays visible during generation.</p>
+<textarea id="manager-art" rows="12" spellcheck="false"></textarea>
+<button id="manager-art-apply" type="button">Validate &amp; apply art bible</button>
+</details>
+<details>
+<summary>Service ownership</summary>
+<pre id="manager-loaded"></pre>
+<p class="muted">Unload releases weights. Stop closes only a server started by this manager. Host-owned launchers configure executable paths; larger model weights are never downloaded automatically.</p>
+</details>
+<p id="manager-message" role="status"></p>
+</details>
+</section>
+
+<section id="settings-characters" class="settings-page" hidden>
+<details>
+<summary>Conversation length</summary>
+<label class="check"><input id="ai-wording" type="checkbox">Let the connected AI word all character replies</label>
+<p class="muted">Facts and permissions stay with the game. Reuse requires the same situation; authored lines are fallback for offline play or failed validation.</p>
+<label>Reply sentences
+<select id="reply-sentences">
+<option value="1">Brief · one sentence</option>
+<option value="2">Up to two sentences</option>
+<option value="3">Up to three sentences</option>
+</select>
+</label>
+<label>Player message character limit
+<input id="player-message-limit" type="number" min="512" max="4096" value="2048">
+</label>
+<label class="check"><input id="player-summary" type="checkbox">Ask for a short summary before answering long messages</label>
+<p class="muted">One shared model request. The original message is retained; summaries remain unverified in Debug. Longer replies are complete sentence chunks; Interrupt discards the remaining chunks. Greetings and known single-fact answers stay brief.</p>
+<button id="conversation-apply" type="button">Apply conversation length</button>
+<p id="conversation-state"></p>
+</details>
+<details>
+<summary>Registered roleplay actions</summary>
+<p>Host-authored aliases map wrapped stage directions to current host actions, or to a visible emote. Registration proposes actions; it grants no resources or permissions.</p>
+<textarea id="roleplay-registry" rows="10" aria-label="Roleplay action registry"></textarea>
+<button id="roleplay-apply" type="button">Register roleplay actions</button>
+<p id="roleplay-status"></p>
+</details>
+<h3>Character personality</h3>
+<p>Enable saved opinions and aspirations. Views belong to a character and listener, and are saved after the complete reply is heard. World permissions still come from host rules.</p>
+<label class="check"><input type="checkbox" id="mind-enabled">Enable personality turns</label>
+<label>Editable personality profiles (JSON)
+<textarea id="mind-profiles" rows="14" spellcheck="false"></textarea>
+</label>
+<p class="muted">Traits guide subjective speech; generosity and prudence are host-authored 0–100 values. Existing viewpoints remain stable after profile edits. New game clears them; branches restore them.</p>
+<button id="mind-apply" type="button">Apply character settings</button>
+<p id="mind-status" role="status"></p>
+<details>
+<summary>Greeting behavior</summary>
+<p>Characters remember who heard an introduction, distinguish a return from the same conversation, and use the current place, trust and urgency. Encounter state needs no model; AI character wording lets the connected model phrase the greeting.</p>
+<label>Quiet turns before reconnecting
+<input id="greeting-gap" type="number" min="1" max="1000000" value="12">
+</label>
+<p class="muted">Measured per NPC and player in game turns, not wall-clock time. Leaving and returning is a separate encounter. New game clears encounter memory; branch loads restore it.</p>
+<button id="greeting-apply" type="button">Apply greeting behavior</button>
+<p id="greeting-status" role="status"></p>
+</details>
+<details>
+<summary>Optional world reactions</summary>
+<label class="check"><input type="checkbox" id="reactions-enabled">Enable host-approved favors and reactions</label>
+<label>Editable host rules and NPC resources (JSON)
+<textarea id="reaction-rules" rows="14" spellcheck="false"></textarea>
+</label>
+<p class="muted">Only eligible offers appear in play. Rules use trust, personality, real resources and host-confirmed reasons. Existing action history locks rules/resources until New game; enable/off can change anytime. No models grant permissions.</p>
+<button id="reactions-apply" type="button">Apply reaction rules</button>
+<p id="reactions-status" role="status"></p>
+</details>
+</section>
+
+<section id="settings-voice" class="settings-page" hidden>
+<label class="check"><input id="auto-speak" type="checkbox">Automatically speak new replies</label>
+<p class="muted">Applies in this browser. Interrupt and microphone barge-in remain available. Your browser may require Play once to permit audio.</p>
+<h3>Speech &amp; microphone</h3>
+<p>Install Piper / whisper.cpp separately, then register their executables and weights in the host's native-voice.json. No engine or voice weights are included or downloaded.</p>
+<p class="muted">Native engines launch for each request and exit afterward. Stop disables that adapter until Start / Connect. Browser voice and typing remain available.</p>
+<div class="button-row">
+<button id="voice-native-preset" type="button">Use installed Piper + Whisper</button>
+<button id="voice-apply" class="primary" type="button">Apply voice profiles</button>
+</div>
+<p id="voice-message" role="status"></p>
+<label>Microphone input
+<select id="mic-device">
+<option value="">System default microphone</option>
+</select>
+</label>
+<button id="mic-find" type="button">Find microphones</button>
+<p class="muted">Allow microphone access when you press Mic. The input meter shows whether this browser receives your voice; recordings are transcribed on the host.</p>
+<details open>
+<summary>Voice archive</summary>
+<label class="check"><input id="archive-enabled" type="checkbox">Keep generated replies until New game</label>
+<label>Keep the last N recordings
+<input id="archive-limit" type="number" min="1" max="128" value="32">
+</label>
+<p class="muted">Optional, up to 32 MiB. Older entries are removed when the backlog fills. Turning this off clears saved recordings.</p>
+<button id="archive-apply" type="button">Apply archive settings</button>
+<p id="archive-state" role="status"></p>
+</details>
+<div id="voice-profiles"></div>
+<details open>
+<summary>Current character voice</summary>
+<label>Voice ID<input id="voice-id" maxlength="128"></label>
+<div class="button-row">
+<label>Pitch<input id="pitch" type="number" min="0.5" max="2" step="0.05" value="1"></label>
+<label>Rate<input id="rate" type="number" min="0.5" max="2" step="0.05" value="1"></label>
+</div>
+<button id="voice-character-apply" type="button">Save character voice</button>
+</details>
+<p id="native-voice-help" class="muted"></p>
+</section>
+
+<section id="settings-connections" class="settings-page" hidden>
+<details id="provider-panel">
 <summary>Connections, voices &amp; spending</summary>
 <p class="muted">You can explore and trade offline. For AI replies, choose a backend and an actual installed model.</p>
-<label>Text replies<select id="text-backend"><option value="0b_fallback">Offline · no model needed</option><option value="local_ollama">Ollama · local model</option><option value="online_openai_compatible">Online · configured API</option></select></label>
-<div class="button-row"><label>Model tier<select id="size"><option>1</option><option>1.5</option><option selected>3</option><option>8</option><option>30</option><option>70</option></select></label><label class="model-field">Model name<input id="model" list="installed-models" maxlength="128" placeholder="Choose or enter a model ID"><datalist id="installed-models"></datalist></label></div>
-<div class="setup-actions"><button id="settings" class="primary">Apply changes</button><button id="resume-local" hidden>Resume local requests</button><span id="settings-state" role="status">Settings applied</span></div>
-<button id="check-providers">Check local servers / Find models</button>
-<label id="installed-label" hidden>Installed models<select id="installed-choice"><option value="">Choose an installed model…</option></select></label>
-<p id="model-detail" class="muted" role="status"></p><p class="muted">Match the tier to your model. Choosing a tier does not download a model.</p>
-
-<details><summary>Fallback pictures &amp; browser voice</summary><p class="muted">These defaults apply when model profiles are off, or a profile inherits its connection settings.</p>
-<label>Pictures<select id="image-backend"><option value="cached_only">Cached / placeholders</option><option value="local_sd_cpp">Local Stable Diffusion</option><option value="online_image_api">Online image API</option></select></label>
-<label>Voice playback<select id="tts-backend"><option value="off">Off · text only</option><option value="browser_web_speech">Browser voices</option><option value="local_tts_http">Local voice server</option><option value="online_tts_api">Online voice API</option></select></label>
-<label>Microphone transcription<select id="stt-backend"><option value="off">Off · type instead</option><option value="browser_speech_recognition">Browser recognition (browser dependent)</option><option value="local_stt_http">Local transcription server</option><option value="online_stt_api">Online transcription API</option></select></label>
+<label>Text replies
+<select id="text-backend">
+<option value="0b_fallback">Offline · no model needed</option>
+<option value="local_ollama">Ollama · local model</option>
+<option value="online_openai_compatible">Online · configured API</option>
+</select>
+</label>
+<div class="button-row">
+<label>Model tier
+<select id="size">
+<option>1</option>
+<option>1.5</option>
+<option selected>3</option>
+<option>8</option>
+<option>30</option>
+<option>70</option>
+</select>
+</label>
+<label class="model-field">Model name
+<input id="model" list="installed-models" maxlength="128" placeholder="Choose or enter a model ID">
+<datalist id="installed-models"></datalist>
+</label>
+</div>
+<div class="setup-actions">
+<button id="settings" class="primary" type="button">Apply changes</button>
+<button id="resume-local" type="button" hidden>Resume local requests</button>
+<span id="settings-state" role="status">Settings applied</span>
+</div>
+<button id="check-providers" type="button">Check local servers / Find models</button>
+<label id="installed-label" hidden>Installed models
+<select id="installed-choice">
+<option value="">Choose an installed model…</option>
+</select>
+</label>
+<p id="model-detail" class="muted" role="status"></p>
+<p class="muted">Match the tier to your model. Choosing a tier does not download a model.</p>
+<details>
+<summary>Fallback pictures &amp; browser voice</summary>
+<p class="muted">These defaults apply when model profiles are off, or a profile inherits its connection settings.</p>
+<label>Pictures
+<select id="image-backend">
+<option value="cached_only">Cached / placeholders</option>
+<option value="local_sd_cpp">Local Stable Diffusion</option>
+<option value="online_image_api">Online image API</option>
+</select>
+</label>
+<label>Voice playback
+<select id="tts-backend">
+<option value="off">Off · text only</option>
+<option value="browser_web_speech">Browser voices</option>
+<option value="local_tts_http">Local voice server</option>
+<option value="online_tts_api">Online voice API</option>
+</select>
+</label>
+<label>Microphone transcription
+<select id="stt-backend">
+<option value="off">Off · type instead</option>
+<option value="browser_speech_recognition">Browser recognition (browser dependent)</option>
+<option value="local_stt_http">Local transcription server</option>
+<option value="online_stt_api">Online transcription API</option>
+</select>
+</label>
 <div id="audio-checks" class="muted"></div>
 <p class="muted">Local voice uses separately installed native engines or compatible HTTP servers; choosing a model does not install it. Browser features depend on your browser. Pictures generate only when you click Generate.</p>
 </details>
-<details><summary>Reply policy &amp; spending</summary>
-<label>Reply policy<select id="speech-mode"><option value="grounded">Safe replies · host-approved facts</option><option value="dialogue">Free dialogue · experimental</option></select></label>
+<details>
+<summary>Reply policy &amp; spending</summary>
+<label>Reply policy
+<select id="speech-mode">
+<option value="grounded">Safe replies · host-approved facts</option>
+<option value="dialogue">Free dialogue · experimental</option>
+</select>
+</label>
 <p class="muted">Safe replies let the model choose approved wording. Free dialogue allows original phrasing and can invent details. Models never execute game actions.</p>
-<label>Spending limit (USD)<input id="cap" type="number" min="0" step="0.000001" value="0"></label>
+<label>Spending limit (USD)
+<input id="cap" type="number" min="0" step="0.000001" value="0">
+</label>
 <p class="muted">The launch-time cap is the maximum. Local models work at $0.</p>
 </details>
 </details>
 </section>
-<section id="settings-art" class="settings-page" hidden><details id="asset-drawer">
-<summary>Asset Debug &amp; Repair <span>⌄</span>
-</summary>
-<label>Inspect / generate<select id="asset-target">
+
+<section id="settings-art" class="settings-page" hidden>
+<details id="asset-drawer">
+<summary>Asset Debug &amp; Repair <span>⌄</span></summary>
+<label>Inspect / generate
+<select id="asset-target">
 <option value="portrait">Active NPC portrait</option>
 <option value="scene">Current room scene</option>
 </select>
 </label>
 <div class="button-row">
-<button id="generate">Generate</button>
-<button id="approve">Approve &amp; Cache</button>
-<button id="reroll">Re-roll Seed</button>
+<button id="generate" type="button">Generate</button>
+<button id="approve" type="button">Approve &amp; Cache</button>
+<button id="reroll" type="button">Re-roll Seed</button>
 </div>
 <label class="check">
-<input type="checkbox" id="preview-candidate">Preview unapproved candidate in drawer</label>
+<input type="checkbox" id="preview-candidate">Preview unapproved candidate in drawer
+</label>
 <img id="candidate" alt="Unapproved candidate preview" hidden>
-<pre id="asset-inspection">
-</pre>
-<label>Repair patch JSON<textarea id="patch" rows="6" spellcheck="false">{"replace_tokens":[],"add_tokens":[],"negative_tokens":[],"forbid_props":[],"seed_delta":1,"asset":null}</textarea>
+<pre id="asset-inspection"></pre>
+<label>Repair patch JSON
+<textarea id="patch" rows="6" spellcheck="false">{"replace_tokens":[],"add_tokens":[],"negative_tokens":[],"forbid_props":[],"seed_delta":1,"asset":null}</textarea>
 </label>
-<label>Optional reviewed hand edit (PNG)<input type="file" accept="image/png" id="pin-file">
+<label>Optional reviewed hand edit (PNG)
+<input type="file" accept="image/png" id="pin-file">
 </label>
-<button id="repair">Apply Repair / Pin Hand Edit</button>
+<button id="repair" type="button">Apply Repair / Pin Hand Edit</button>
 </details>
 </section>
-<section id="settings-session" class="settings-page" hidden><h3>Play together</h3><p id="session-info">Local play. Start the host with an explicit LAN address to invite another player.</p><div id="session-controls"></div></section>
+
+<section id="settings-session" class="settings-page" hidden>
+<h3>Play together</h3>
+<p id="session-info">Local play. Start the host with an explicit LAN address to invite another player.</p>
+<div id="session-controls"></div>
+</section>
 </dialog>
-<dialog id="reset-dialog"><h2>Start a new game?</h2><p>This resets the current room, inventory, conversations and character memories.</p><p>Model settings, saved branches, approved pictures and spending receipts are kept.</p><div class="button-row"><button id="cancel-reset">Keep playing</button><button id="confirm-reset" class="primary">Start new game</button></div></dialog>
-<footer>Original Lantern Vault · Host rules own truth · One model worker · No paid calls at cap zero</footer>
-<script type="module" src="/studio.mjs">
-</script>
+
+<dialog id="reset-dialog">
+<h2>Start a new game?</h2>
+<p>This resets the current room, inventory, conversations and character memories.</p>
+<p>Model settings, saved branches, approved pictures and spending receipts are kept.</p>
+<div class="button-row">
+<button id="cancel-reset" type="button">Keep playing</button>
+<button id="confirm-reset" class="primary" type="button">Start new game</button>
+</div>
+</dialog>
+
+<footer>
+<div>Original Lantern Vault · Host rules own truth · One model worker · Zero paid calls at cap zero · Zero 3rd-party dependencies</div>
+</footer>
+
+<script type="module" src="/studio.mjs"></script>
 </body>
 </html>

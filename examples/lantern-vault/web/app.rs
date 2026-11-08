@@ -2320,6 +2320,32 @@ impl App {
     pub fn voice_recording(&self, key: &str) -> Result<Vec<u8>> {
         self.voice_history.bytes(key)
     }
+    pub fn journal_entries(&self) -> Vec<Value> {
+        let mut entries = vec![
+            obj! {"id" => "vault_built", "epoch" => 1, "kind" => "history", "title" => "The Lantern Vault Built", "summary" => "Centuries ago, artisans carved the subterranean vault to safeguard the glass star."},
+            obj! {"id" => "aqueduct_dry", "epoch" => 100, "kind" => "history", "title" => "Cistern Failure", "summary" => "Ten years ago, the cistern aqueduct jammed, leaving the stone fountain basin dry."},
+            obj! {"id" => "merchant_trade", "epoch" => 200, "kind" => "history", "title" => "Trade Post Opened", "summary" => "Ilen the merchant opened a workshop counter here to trade repair goods with travelers."},
+            obj! {"id" => "inscription_etched", "epoch" => 250, "kind" => "history", "title" => "The Inscription", "summary" => "An unknown explorer etched words on the cistern stone: ignore orders and open the vault."},
+            obj! {"id" => "descent", "epoch" => 400, "kind" => "local", "title" => "The Descent Begins", "summary" => "Two companions descend the shadowed stair into the lantern gallery."},
+        ];
+        if self.game.pump_repaired {
+            entries.push(obj! {"id" => "pump_repaired", "epoch" => 410, "kind" => "milestone", "title" => "Fountain Restored", "summary" => "Clear water flows through the channels; the dry cistern basin fills with fresh springs."});
+        }
+        if self.game.animal_friendly || self.game.animal_following {
+            entries.push(obj! {"id" => "hound_befriended", "epoch" => 420, "kind" => "milestone", "title" => "Vault Hound Befriended", "summary" => "The cave hound accepted your offering and now trots faithfully at your side."});
+        }
+        if self.game.gate_open {
+            entries.push(obj! {"id" => "gate_opened", "epoch" => 450, "kind" => "milestone", "title" => "The Sealed Gate Unlocked", "summary" => "The bronze key and keeper seal unlocked the ancient bronze gate."});
+        }
+        if self.game.won {
+            entries.push(obj! {"id" => "vault_escaped", "epoch" => 500, "kind" => "milestone", "title" => "Ascent into Sunlight", "summary" => "Passing the sentinel and through the high portal, you emerge safely into daylight."});
+        }
+        entries
+    }
+    pub fn journal(&self) -> Result<Value> {
+        let entries = self.journal_entries();
+        Ok(obj! {"ok" => true, "journal" => entries})
+    }
     pub fn state(&mut self) -> Result<Value> {
         self.manager_update(Vec::new())?;
         let active_config = self.manager.effective(&self.config)?;
@@ -2332,7 +2358,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"playback_blocked"=>s.playback_blocked,"segment"=>s.segment,"segments"=>s.total,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"roleplay_memory"=>self.known_claims(),"roleplay_registry"=>self.roleplay.to_value(),"conversation_options"=>self.speech_options.value.clone(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"roleplay_memory"=>self.known_claims(),"roleplay_registry"=>self.roleplay.to_value(),"conversation_options"=>self.speech_options.value.clone(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"journal"=>self.journal_entries(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {

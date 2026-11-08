@@ -240,6 +240,11 @@ fn handle(
             let v = current.state()?;
             return response(stream, 200, "application/json", v.to_json().as_bytes());
         }
+        if request.path == "/api/journal" || request.path == "/api/timeline" {
+            let current = app.lock().map_err(|_| err())?;
+            let v = current.journal()?;
+            return response(stream, 200, "application/json", v.to_json().as_bytes());
+        }
         if let Some(key) = request.path.strip_prefix("/api/voice/") {
             return match app.lock().map_err(|_| err())?.voice_recording(key) {
                 Ok(bytes) => response(stream, 200, "audio/wav", &bytes),

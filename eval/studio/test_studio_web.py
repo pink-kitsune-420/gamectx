@@ -29,6 +29,8 @@ def main():
    assert call('mic',origin='https://example.invalid')[0]==403
    assert call('mic',custom=False)[0]==403
    assert call(path='/api/state',host='example.invalid')[0]==403
+   status,j=call(path='/api/journal');assert status==200 and j['ok'] and len(j['journal'])>=5
+   status,t=call(path='/api/timeline');assert status==200 and t['ok'] and len(t['journal'])>=5
    s=state();assert s['game']['room']=='room:entry' and s['spending']['cap_micros']==0 and s['pending_jobs']==0
    assert s['portraits']['selection']['generation'] is None
    def act(action,target):
