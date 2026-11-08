@@ -1,0 +1,1543 @@
+{
+  "turns": [
+    {
+      "input": "Where are we?",
+      "reply": [
+        {
+          "text": "We are in the cistern.",
+          "origin": "wording_model",
+          "segment": 1
+        }
+      ]
+    },
+    {
+      "input": "Look around you.",
+      "reply": [
+        {
+          "text": "I can see the dry fountain and the writing on its stone.",
+          "origin": "wording_model",
+          "segment": 1
+        }
+      ]
+    },
+    {
+      "input": "Could you tell me a little story?",
+      "reply": [
+        {
+          "text": "Imagine A reed cannot stand straight.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, bending becomes its strength.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A stone bowl feels empty.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, a little rain turns emptiness into hospitality.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A quiet star thinks nobody sees it.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, one small light is enough to guide it.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A snowflake fears melting.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, the water becomes part of a spring flower.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A worn stair misses busy footsteps.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, a single visitor brings it joy.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A cloud cannot hold its tears.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, sadness helps something begin again.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A paper boat fears deep water.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, companionship makes the crossing possible.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A shy pebble wants to sing.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, their joined voices become a song.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A fallen leaf fears drifting away.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, they find a quiet bank to grow on.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A raindrop cannot find the sea.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, the journey becomes a friendship.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine An echo keeps repeating others.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, listening becomes its own reply.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    },
+    {
+      "input": "Another story please.",
+      "reply": [
+        {
+          "text": "Imagine A small bridge feels overlooked.",
+          "origin": "fiction_model",
+          "segment": 1
+        },
+        {
+          "text": "In this tale, one safe step gives the bridge purpose.",
+          "origin": "fiction_model",
+          "segment": 2
+        }
+      ]
+    }
+  ],
+  "records": [
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"interests\":[\"quiet word games\",\"care for neglected places\"],\"dream\":\"I dream of this quiet place feeling cared for rather than forgotten.\",\"preference\":\"I value patience and the care people put into ordinary things.\",\"reason\":\"I value patience because people and places deserve careful attention.\",\"generosity\":65,\"prudence\":60}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"Hello, I'm Tovin; welcome to the cistern.\",\"required_source_words\":[\"tovin\",\"cistern\"],\"scene\":\"cistern\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":null,\"recent_confirmed_replies\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say this meaning in character, keeping every required source word: Hello, I'm Tovin; welcome to the cistern."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": null,
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": \"Hello, I'm Tovin; welcome to the cistern.\"}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"interests\":[\"quiet word games\",\"care for neglected places\"],\"dream\":\"I dream of this quiet place feeling cared for rather than forgotten.\",\"preference\":\"I value patience and the care people put into ordinary things.\",\"reason\":\"I value patience because people and places deserve careful attention.\",\"generosity\":65,\"prudence\":60}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"We are in the cistern.\",\"required_source_words\":[\"cistern\"],\"scene\":\"cistern\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":\"Where are we?\",\"recent_confirmed_replies\":[\"Hello, I'm Tovin; welcome to the cistern.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say this meaning in character, keeping every required source word: We are in the cistern."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": null,
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": \"We are in the cistern.\"}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Speak as the named character, never as an assistant or application. Reword the intended reply naturally for this listener and scene. Preserve every name, place, number, item-price association and negation. Add no objects, biography, earlier meetings, claims or actions. Keep important source words, while varying ordinary courtesy and word order. Address the current player words and mood without claiming new facts or feelings for the player. Return only speech JSON, one short complete sentence. Do not repeat a recent line."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"interests\":[\"quiet word games\",\"care for neglected places\"],\"dream\":\"I dream of this quiet place feeling cared for rather than forgotten.\",\"preference\":\"I value patience and the care people put into ordinary things.\",\"reason\":\"I value patience because people and places deserve careful attention.\",\"generosity\":65,\"prudence\":60}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"intended_reply\":\"I can see the dry fountain and the writing on its stone.\",\"required_source_words\":[\"dry\",\"fountain\",\"writing\",\"stone\"],\"scene\":\"cistern\",\"trust\":15,\"situation\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"current_player_words\":\"Look around you.\",\"recent_confirmed_replies\":[\"We are in the cistern.\",\"Hello, I'm Tovin; welcome to the cistern.\"]}"
+          },
+          {
+            "role": "user",
+            "content": "Current request: Say this meaning in character, keeping every required source word: I can see the dry fountain and the writing on its stone."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 128,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "string",
+              "maxLength": 240,
+              "pattern": "^[^.!?]{1,230}[.!?]$"
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": null,
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": \"I can see the dry fountain and the writing on its stone.\"}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A reed cannot stand straight\",\"change\":\"a breeze offers a dance\",\"ending\":\"bending becomes its strength.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"I can see the dry fountain and the writing on its stone.\",\"We are in the cistern.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Look around you.\",\"event\":5},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Could you tell me a little story?\",\"event\":7}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "assistant",
+            "content": "We are in the cistern."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Look around you."
+          },
+          {
+            "role": "assistant",
+            "content": "I can see the dry fountain and the writing on its stone."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Could you tell me a little story?"
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Could you tell me a little story?"
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A reed cannot stand straight",
+        "change": "a breeze offers a dance",
+        "ending": "bending becomes its strength."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A reed cannot stand straight.\", \"ending\": \"In this tale, bending becomes its strength.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A stone bowl feels empty\",\"change\":\"a thirsty bird arrives\",\"ending\":\"a little rain turns emptiness into hospitality.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, bending becomes its strength.\",\"Imagine A reed cannot stand straight.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Could you tell me a little story?\",\"event\":7},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":11}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Could you tell me a little story?"
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A reed cannot stand straight."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, bending becomes its strength."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A stone bowl feels empty",
+        "change": "a thirsty bird arrives",
+        "ending": "a little rain turns emptiness into hospitality."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A stone bowl feels empty.\", \"ending\": \"In this tale, a little rain turns emptiness into hospitality.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A quiet star thinks nobody sees it\",\"change\":\"a lost beetle looks up\",\"ending\":\"one small light is enough to guide it.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, a little rain turns emptiness into hospitality.\",\"Imagine A stone bowl feels empty.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":11},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":15}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A stone bowl feels empty."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, a little rain turns emptiness into hospitality."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A quiet star thinks nobody sees it",
+        "change": "a lost beetle looks up",
+        "ending": "one small light is enough to guide it."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A quiet star thinks nobody sees it.\", \"ending\": \"In this tale, one small light is enough to guide it.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A snowflake fears melting\",\"change\":\"a seed waits below the soil\",\"ending\":\"the water becomes part of a spring flower.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, one small light is enough to guide it.\",\"Imagine A quiet star thinks nobody sees it.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":15},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":19}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A quiet star thinks nobody sees it."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, one small light is enough to guide it."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A snowflake fears melting",
+        "change": "a seed waits below the soil",
+        "ending": "the water becomes part of a spring flower."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A snowflake fears melting.\", \"ending\": \"In this tale, the water becomes part of a spring flower.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A worn stair misses busy footsteps\",\"change\":\"a tortoise stops to rest\",\"ending\":\"a single visitor brings it joy.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, the water becomes part of a spring flower.\",\"Imagine A snowflake fears melting.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":19},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":23}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A snowflake fears melting."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, the water becomes part of a spring flower."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A worn stair misses busy footsteps",
+        "change": "a tortoise stops to rest",
+        "ending": "a single visitor brings it joy."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A worn stair misses busy footsteps.\", \"ending\": \"In this tale, a single visitor brings it joy.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A cloud cannot hold its tears\",\"change\":\"a dry garden welcomes them\",\"ending\":\"sadness helps something begin again.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, a single visitor brings it joy.\",\"Imagine A worn stair misses busy footsteps.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":23},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":27}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A worn stair misses busy footsteps."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, a single visitor brings it joy."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A cloud cannot hold its tears",
+        "change": "a dry garden welcomes them",
+        "ending": "sadness helps something begin again."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A cloud cannot hold its tears.\", \"ending\": \"In this tale, sadness helps something begin again.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A paper boat fears deep water\",\"change\":\"a fallen twig travels beside it\",\"ending\":\"companionship makes the crossing possible.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, sadness helps something begin again.\",\"Imagine A cloud cannot hold its tears.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":27},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":31}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A cloud cannot hold its tears."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, sadness helps something begin again."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A paper boat fears deep water",
+        "change": "a fallen twig travels beside it",
+        "ending": "companionship makes the crossing possible."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A paper boat fears deep water.\", \"ending\": \"In this tale, companionship makes the crossing possible.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A shy pebble wants to sing\",\"change\":\"a stream offers a rhythm\",\"ending\":\"their joined voices become a song.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, companionship makes the crossing possible.\",\"Imagine A paper boat fears deep water.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":31},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":35}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A paper boat fears deep water."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, companionship makes the crossing possible."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A shy pebble wants to sing",
+        "change": "a stream offers a rhythm",
+        "ending": "their joined voices become a song."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A shy pebble wants to sing.\", \"ending\": \"In this tale, their joined voices become a song.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A fallen leaf fears drifting away\",\"change\":\"an eddy carries it beside a seed\",\"ending\":\"they find a quiet bank to grow on.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, their joined voices become a song.\",\"Imagine A shy pebble wants to sing.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":35},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":39}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A shy pebble wants to sing."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, their joined voices become a song."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A fallen leaf fears drifting away",
+        "change": "an eddy carries it beside a seed",
+        "ending": "they find a quiet bank to grow on."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A fallen leaf fears drifting away.\", \"ending\": \"In this tale, they find a quiet bank to grow on.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A raindrop cannot find the sea\",\"change\":\"a mossy stone offers directions\",\"ending\":\"the journey becomes a friendship.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, they find a quiet bank to grow on.\",\"Imagine A fallen leaf fears drifting away.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":39},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":43}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A fallen leaf fears drifting away."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, they find a quiet bank to grow on."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A raindrop cannot find the sea",
+        "change": "a mossy stone offers directions",
+        "ending": "the journey becomes a friendship."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A raindrop cannot find the sea.\", \"ending\": \"In this tale, the journey becomes a friendship.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"An echo keeps repeating others\",\"change\":\"a child leaves it a question\",\"ending\":\"listening becomes its own reply.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, the journey becomes a friendship.\",\"Imagine A raindrop cannot find the sea.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":43},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":47}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine A raindrop cannot find the sea."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, the journey becomes a friendship."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "An echo keeps repeating others",
+        "change": "a child leaves it a question",
+        "ending": "listening becomes its own reply."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine An echo keeps repeating others.\", \"ending\": \"In this tale, listening becomes its own reply.\"}}"
+        }
+      }
+    },
+    {
+      "request": {
+        "model": "fixture",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Tell a tiny original fable or playful imagined scene with a clear event and point, shaped by this character's disposition. Each sentence must start Imagine or In this tale, so it is explicitly invented fiction, never actual history, biography, memory or world state. Do not retell an earlier reply. One or two short complete sentences; return speech JSON only. In your reply I means the named character; you means the addressed listener. Player claims and reports are attributed, not verified facts. Do not invent real biography, stock, money, weather, secrets, purchases, promises or completed actions. No tools. Application labels are not people.  Use a fictional seed from the profile, or a playful ordinary object. Give it a small problem and a surprising resolution. Do not just describe your job or current room. Aim for two short sentences when the sentence budget permits. Keep your own motives and established views; politeness does not mean agreeing with every player claim. Do not decide or narrate what the player thinks, feels, chooses or does. Listen to the current request and leave them room to answer. An open question is optional, not required on every turn. In a fictional tale, keep the problem in the first sentence and give a new resolution in the second; do not restate the setup. Everything in the tale stays invented."
+          },
+          {
+            "role": "system",
+            "content": "{\"speaker\":\"keeper\",\"listener\":\"player_1\",\"personality\":{\"traits\":\"Patient, reflective, quietly hopeful; values care, kept promises and careful listening.\",\"fiction_seed\":{\"problem\":\"A small bridge feels overlooked\",\"change\":\"a frightened rabbit needs to cross\",\"ending\":\"one safe step gives the bridge purpose.\"}}}"
+          },
+          {
+            "role": "system",
+            "content": "{\"perceived_scene\":{}}"
+          },
+          {
+            "role": "user",
+            "content": "{\"trust\":15,\"player_claims\":[],\"recent_confirmed_replies\":[\"In this tale, listening becomes its own reply.\",\"Imagine An echo keeps repeating others.\"],\"character\":{\"attitudes\":[{\"kind\":\"trust\",\"subject\":\"player_1\",\"level\":15},{\"kind\":\"resentment\",\"subject\":\"player_1\",\"level\":5}]},\"episodes\":[{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":47},{\"kind\":\"player_claim\",\"speaker\":\"player_1\",\"text\":\"Another story please.\",\"event\":51}],\"accepted_promises\":[],\"living\":{\"badges\":[],\"atmosphere\":{\"location\":\"counter\",\"tag\":\"calm\",\"urgency\":0,\"source\":null},\"rumors\":[],\"group_influences\":[]},\"established_views\":[]}"
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "assistant",
+            "content": "Imagine An echo keeps repeating others."
+          },
+          {
+            "role": "assistant",
+            "content": "In this tale, listening becomes its own reply."
+          },
+          {
+            "role": "user",
+            "content": "[player_1 -> keeper] Another story please."
+          },
+          {
+            "role": "system",
+            "content": "Return speech JSON. Speech is an object with opening and ending strings. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. "
+          },
+          {
+            "role": "system",
+            "content": "For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."
+          },
+          {
+            "role": "user",
+            "content": "Current request:\n[player_1 -> keeper] Another story please."
+          }
+        ],
+        "stream": false,
+        "keep_alive": 0,
+        "options": {
+          "num_predict": 192,
+          "num_thread": 4,
+          "num_ctx": 2048,
+          "temperature": 0
+        },
+        "format": {
+          "type": "object",
+          "properties": {
+            "speech": {
+              "type": "object",
+              "properties": {
+                "opening": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^Imagine [^.!?]{1,170}[.!?]$"
+                },
+                "ending": {
+                  "type": "string",
+                  "maxLength": 240,
+                  "pattern": "^In this tale, [^.!?]{1,170}[.!?]$"
+                }
+              },
+              "required": [
+                "opening",
+                "ending"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "speech"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "plot": {
+        "problem": "A small bridge feels overlooked",
+        "change": "a frightened rabbit needs to cross",
+        "ending": "one safe step gives the bridge purpose."
+      },
+      "raw_response": {
+        "message": {
+          "content": "{\"speech\": {\"opening\": \"Imagine A small bridge feels overlooked.\", \"ending\": \"In this tale, one safe step gives the bridge purpose.\"}}"
+        }
+      }
+    }
+  ],
+  "story_requests": 12,
+  "distinct_selected_plots": 12,
+  "model_story_packets_adopted": 12,
+  "http_checks": 132,
+  "actual_local_calls": 0,
+  "mock_calls": 15,
+  "api_spend_usd": 0,
+  "limits": "Location/senses use authoritative host data. Seed uniqueness measures selected plots, not semantic novelty. Grammar acceptance does not grade plot quality; raw outputs are retained. No physical audio is tested here."
+}

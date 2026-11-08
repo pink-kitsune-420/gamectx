@@ -2089,3 +2089,9 @@ example `conversation.json` boolean `ai_wording` is false when absent; GUI model
 configuration enables it. Personality profiles may add bounded `interests`/`story_seeds`.
 No required checkpoint field is added; claims derive from existing confirmed operations.
 See [exact fields, bounds and speech authority](STUDIO_EXPRESSION.md).
+
+`studio-expression` adds `seed:{candidates,recent,offset}` and
+`tale:{opening,ending}` operations with sixteen additive conformance cases. The Studio
+accepts a structured tale while retaining legacy arrays. Example delivery event `blocked`
+requires zero played/heard offsets and issues a fresh ticket; state adds `playback_blocked`.
+[Bounds, source authority and compatibility](SCENE_SOCIAL_REPAIR.md).

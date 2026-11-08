@@ -43,6 +43,14 @@ impl Options {
             );
             set(binding, "sentence_chunks", cap.into());
         }
+        if cap > 1 && binding.get("expression") == Some(&Value::str("fiction")) {
+            set(
+                &mut props,
+                "speech",
+                obj! {"type"=>"object","properties"=>obj!{"opening"=>obj!{"type"=>"string","maxLength"=>240,"pattern"=>"^Imagine [^.!?]{1,170}[.!?]$"},"ending"=>obj!{"type"=>"string","maxLength"=>240,"pattern"=>"^In this tale, [^.!?]{1,170}[.!?]$"}},"required"=>vec!["opening","ending"],"additionalProperties"=>false},
+            );
+            set(binding, "tale_parts", true.into());
+        }
         if summary {
             set(&mut props, "player_summary", obj! {"type"=>"string","minLength"=>1,"maxLength"=>240});
             let mut required = get(&schema, "required")?.as_array().ok_or_else(err)?.to_vec();
@@ -56,9 +64,9 @@ impl Options {
         set(&mut schema, "properties", props);
         set(payload, "speech_schema", schema);
         let mut messages = get(payload, "messages")?.as_array().ok_or_else(err)?.to_vec();
-        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>format!("Return speech JSON. Speech {}. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. {}",if cap>1{format!("is an array of 1 to {cap} sentences")}else{"is a string".into()},if summary{"First produce player_summary, a brief account of what the PLAYER SAID, preserving names, corrections, negations and unresolved questions. It is an unverified aid, not a fact or action; then answer the original message."}else{""})});
+        messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>format!("Return speech JSON. Speech {}. Each item must be one complete sentence under 180 characters, independently grounded in supplied facts or the requested personal stance. No repeated or rephrased duplicates; one sentence is sufficient when there is nothing more to add. {}",if binding.get("tale_parts")==Some(&true.into()) {"is an object with opening and ending strings".into()}else if cap>1{format!("is an array of 1 to {cap} sentences")}else{"is a string".into()},if summary{"First produce player_summary, a brief account of what the PLAYER SAID, preserving names, corrections, negations and unresolved questions. It is an unverified aid, not a fact or action; then answer the original message."}else{""})});
         if binding.get("expression") == Some(&Value::str("fiction")) && cap > 1 {
-            messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>"For the fable return exactly two short complete sentences: Imagine starts the problem, In this tale, starts its resolution. Follow the supplied plot seed. This is invented, not your biography or the current room."});
+            messages.insert(messages.len()-1,obj!{"role"=>"system","content"=>"For the fable speech is an object with opening and ending, each one short complete sentence. Opening begins Imagine and sets up the problem; ending begins In this tale, and resolves that problem with a clear consequence. Do not add another setup at the end. Use the plot seed as inspiration; invent your own wording and fictional details. This is invented, not your biography or the current room."});
         }
         set(payload, "messages", messages.into());
         let tokens = num(payload, "max_tokens", 4096)?;

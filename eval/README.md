@@ -1455,3 +1455,10 @@ check and new novelty filter with zero model calls. `roleplayer-review.json` sep
 mechanical adoption, manual quality observations and remaining limitations, including
 an aborted four-call attempt that wrote no raw artifact. AI wording's `--holdout` uses
 a different name and request phrasing; capture `--tokens-only` first.
+
+Scene/story repairs: `story_scene_cases.py --cap 0` checks sixteen additive Python/Rust
+fixtures. `scene_story_host.py --cap 0` tests twelve selected plots; `--restore-check`
+also checks checkpointed rotation. Local `--model` requires a prior `--tokens-only` run.
+`scene_voice_check.mjs --cap 0` tests wait state and exclusive ownership;
+`scene_voice_browser.py --cap 0` requires isolated Firefox BiDi 9223, and simulates
+Piper audio-start refusal plus delivery across two tabs. Existing artifacts remain frozen.

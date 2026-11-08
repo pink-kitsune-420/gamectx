@@ -6,8 +6,8 @@ pub use wording::{validate_wording, wording_anchors};
 mod expression;
 pub(crate) use expression::fixture as expression_fixture;
 pub use expression::{
-    distinct_expression, expression_claim, expression_packet, expression_route, expression_route_expanded,
-    validate_expression,
+    choose_tale_seed, distinct_expression, expression_claim, expression_packet, expression_route,
+    expression_route_expanded, tale_sentences, validate_expression,
 };
 mod roleplay_actions;
 pub(crate) use roleplay_actions::fixture as roleplay_actions_fixture;

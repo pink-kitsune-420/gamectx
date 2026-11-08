@@ -1539,3 +1539,94 @@ fn maximum_authored_interests_and_seeds_fit_the_selected_profile_cap() {
         }
     }
 }
+
+#[test]
+fn characters_know_the_current_place_without_private_player_inventory() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    for q in ["Where are we?", "where am I?", "Which room are we in?"] {
+        command(&mut a, "chat", obj! {"text"=>q});
+        assert_eq!(a.state().unwrap().get("speech").unwrap().get("text"), Some(&"We are in the workshop.".into()));
+    }
+    for room in ["gallery", "cistern"] {
+        let revision = a.game.revision;
+        command(
+            &mut a,
+            "act",
+            obj! {"revision"=>revision,"decision"=>obj!{"action"=>"go","target"=>format!("room:{room}")}},
+        );
+    }
+    command(&mut a, "select", obj! {"player"=>"player_1","npc"=>"keeper"});
+    command(&mut a, "chat", obj! {"text"=>"Where are we?"});
+    assert_eq!(a.state().unwrap().get("speech").unwrap().get("text"), Some(&"We are in the cistern.".into()));
+    command(&mut a, "chat", obj! {"text"=>"Look around you."});
+    assert!(a.state().unwrap().get("speech").unwrap().get("text").unwrap().as_str().unwrap().contains("dry fountain"));
+}
+#[test]
+fn heard_tale_seeds_rotate_without_remembering_unheard_endings() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let mut heard = Vec::new();
+    for _ in 0..12 {
+        let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Tell me a story."});
+        let j = &jobs[0];
+        let req = parse(std::str::from_utf8(&j.request.body).unwrap()).unwrap();
+        let plot = array(req.get("messages").unwrap())
+            .unwrap()
+            .iter()
+            .filter_map(|m| m.get("content").and_then(Value::as_str))
+            .filter_map(|raw| parse(raw).ok())
+            .find_map(|v| v.get("personality").and_then(|p| p.get("fiction_seed")).cloned())
+            .unwrap();
+        let seed = plot.to_json();
+        assert!(!heard.contains(&seed));
+        heard.push(seed);
+        assert!(a.before_dispatch(j).unwrap());
+        let opening = format!("Imagine {}.", text(&plot, "problem").unwrap().trim_end_matches('.'));
+        let ending = format!("In this tale, {}.", text(&plot, "ending").unwrap().trim_end_matches('.'));
+        a.complete(
+            j,
+            Ok(obj! {"message"=>obj!{"content"=>obj!{"speech"=>obj!{"opening"=>opening,"ending"=>ending}}.to_json()}}
+                .to_json()
+                .into_bytes()),
+        )
+        .unwrap();
+        let state = a.state().unwrap();
+        let s = state.get("speech").unwrap();
+        let id = s.get("id").unwrap().clone();
+        let n = text(s, "text").unwrap().chars().count();
+        command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+        command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>n,"heard"=>n});
+        // Opening confirms seed use; the ending remains a separate undelivered ticket.
+        let state = a.state().unwrap();
+        assert_eq!(state.get("speech").unwrap().get("segment"), Some(&2.into()));
+        assert_eq!(state.get("speech").unwrap().get("origin"), Some(&"fiction_model".into()));
+        command(&mut a, "chat", obj! {"text"=>"Hello."});
+    }
+}
+
+#[test]
+fn blocked_audio_reissues_only_the_unheard_ticket_and_keeps_the_ending() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    let (_, jobs) = command(&mut a, "chat", obj! {"text"=>"Tell me a story."});
+    let j = &jobs[0];
+    assert!(a.before_dispatch(j).unwrap());
+    a.complete(j,Ok(obj!{"message"=>obj!{"content"=>obj!{"speech"=>obj!{"opening"=>"Imagine a bell afraid to ring alone.","ending"=>"In this tale, a leaf tapped along until their duet welcomed a traveler."}}.to_json()}}.to_json().into_bytes())).unwrap();
+    let s = a.state().unwrap().get("speech").unwrap().clone();
+    let id = s.get("id").unwrap().clone();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"blocked","through"=>0,"heard"=>0});
+    let s = a.state().unwrap().get("speech").unwrap().clone();
+    assert_ne!(s.get("id"), Some(&id));
+    assert_eq!(s.get("playback_blocked"), Some(&true.into()));
+    assert_eq!(s.get("segments"), Some(&2.into()));
+    assert_eq!(s.get("delivery").unwrap().get("stage"), Some(&"validated".into()));
+    let id = s.get("id").unwrap().clone();
+    let n = text(&s, "text").unwrap().chars().count();
+    command(&mut a, "delivery", obj! {"id"=>id.clone(),"event"=>"queued","through"=>0,"heard"=>0});
+    command(&mut a, "delivery", obj! {"id"=>id,"event"=>"finished","through"=>n,"heard"=>n});
+    let s = a.state().unwrap().get("speech").unwrap().clone();
+    assert_eq!(s.get("segment"), Some(&2.into()));
+    assert!(text(&s, "text").unwrap().contains("duet"));
+}

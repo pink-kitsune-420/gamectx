@@ -1,0 +1,12 @@
+{
+  "workflows": 5,
+  "blocked_ending_retried": true,
+  "ending_retained": true,
+  "two_tabs_completed_both_sentences": true,
+  "thinking_cleared_after_delivery": true,
+  "page_console_errors": 0,
+  "mock_text_calls": 3,
+  "real_model_calls": 0,
+  "api_spend_usd": 0,
+  "limits": "Real Firefox DOM/Web Locks and host/native adapter, original mock CLI/model and simulated audio. No physical Piper quality or autoplay-policy guarantee."
+}

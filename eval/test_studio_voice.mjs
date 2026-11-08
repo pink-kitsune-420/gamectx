@@ -28,3 +28,8 @@ await h.chunk({id:5,audio:{audio:'UklGRg==',mime:'audio/wav',start:0,through:4}}
 await h.interrupt();assert(stopped);await ended();assert(!chunks.some(x=>x.event==='finished'||x.event==='played'));assert.equal(chunks.at(-1).through,0);
 
 console.log(JSON.stringify({browser_lifecycle_checks:5,actual_provider_calls:0,api_spend_usd:0,limits:'Fake browser event/device harness; physical playback and microphone accuracy unmeasured.'}));
+// A browser refusing to start audio must reissue an unheard ticket, not end the tale.
+const blockedReceipts=[];const denied=new VoicePlayer({post:async(op,a)=>{blockedReceipts.push({op,...a});return {result:{queued:true}};},synth,Utterance,audioFactory:()=>({play:async()=>{throw Error('blocked');},pause(){}})});
+await denied.start({id:44,text:'An unheard ending.'},'local_tts_http',v);
+await denied.chunk({id:44,audio:{audio:'UklGRg==',mime:'audio/wav',start:0,through:18}});
+assert.equal(blockedReceipts.at(-1).event,'blocked');assert.equal(blockedReceipts.at(-1).heard,0);assert(!blockedReceipts.some(r=>r.event==='interrupted'||r.event==='finished'));

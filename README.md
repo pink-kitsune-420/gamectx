@@ -1040,3 +1040,8 @@ scoped name/preference disclosures and oversized-request negotiation have separa
 contracts. Try `cargo run --bin gamectx -- local examples/cast/expression-fixture.json`;
 that editable packet is checked in the API tests. See the [roleplay investigation](docs/ROLEPLAY_RESEARCH.md)
 for public research, original implementation choices and measured limitations.
+
+Current-place dialogue, twelve plot seeds per NPC with heard-history rotation, and retryable
+unheard audio are documented in [scene/delivery repairs](docs/SCENE_SOCIAL_REPAIR.md).
+The [social-character audit](docs/SOCIAL_CHARACTER_GAPS.md) maps identity, senses,
+implicit memory, relationships, motives, actions and society to current capabilities and gaps.

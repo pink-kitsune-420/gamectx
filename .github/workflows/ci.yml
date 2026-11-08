@@ -230,6 +230,9 @@ jobs:
       - run: python3 -I eval/deliberation_bindings.py --cap 0
       - run: node eval/deliberation_bindings.mjs --cap 0
       - run: python3 -I eval/expression_cases.py --cap 0
+      - run: python3 -I eval/story_scene_cases.py --cap 0
+      - run: python3 -I eval/scene_story_host.py --cap 0
+      - run: node eval/scene_voice_check.mjs --cap 0
       - run: python3 -I eval/wording_cases.py --cap 0
       - run: python3 -I eval/expression_bindings.py --cap 0
       - run: node eval/expression_bindings.mjs --cap 0

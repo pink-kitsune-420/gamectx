@@ -8,6 +8,14 @@ noted; "3 models" adds Llama 3.3 70B.
 
 ## Implemented locally for v0.3.1a
 
+- Scene/voice follow-up: reuse current location lookup, distinguish NPC sight questions,
+  twelve plot seeds per character with confirmed heard-history rotation/restore,
+  structured story opening/ending, cross-tab audio ownership and retryable audio-start
+  refusal. Six local 3B calls adopt all three tale packets; factual wording still has
+  conservative rejection. Sixteen additive cases, ninety shared binding fixtures,
+  cap0/$0. [Evidence](SCENE_SOCIAL_REPAIR.md). Larger remaining priorities: implicit
+  memory use, topic continuity and motivation-driven choices; [full audit](SOCIAL_CHARACTER_GAPS.md).
+
 - Connected character wording + bounded expression/fiction/short-scope negotiation,
   scoped disclosed names/preferences, explicit OOC, conservative repeat pruning and
   context-matched AI wording cache. 74 additive Python/Rust cases; 600 transient-turn

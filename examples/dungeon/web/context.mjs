@@ -26,3 +26,31 @@ export function coalescedRefresh(load,current){
   });
  };
 }
+
+// Pending is a current undelivered text request, never completed speech or TTS work.
+export function replyWaiting(state,starting=0,minimum=0){
+ const s=state?.speech;
+ return starting>0||(state?.generation||0)<minimum||Boolean(s?.pending&&!s.delivery.done&&s.delivery.stage==='validated');
+}
+// One browser tab drives live delivery. A second tab may inspect the same game
+// without queuing/interruption receipts that cancel the first tab's next sentence.
+export class AudioOwner{
+ constructor(locks=globalThis.navigator?.locks,visible=()=>globalThis.document?.visibilityState!=='hidden'){
+  Object.assign(this,{locks,visible,owned:false,claim:null,releaseLock:null});
+ }
+ async acquire(){
+  if(this.owned)return true;
+  if(!this.visible())return false;
+  if(!this.locks)return true;
+  if(this.claim)return this.claim;
+  let resolve;this.claim=new Promise(r=>resolve=r);const ready=this.claim;
+  this.locks.request('lantern-live-delivery',{ifAvailable:true},async lock=>{
+   if(!lock){this.claim=null;resolve(false);return;}
+   this.owned=true;resolve(true);
+   await new Promise(r=>this.releaseLock=r);
+   this.owned=false;this.releaseLock=null;this.claim=null;
+  }).catch(()=>{this.claim=null;resolve(false);});
+  return ready;
+ }
+ release(){const release=this.releaseLock;this.owned=false;this.claim=null;this.releaseLock=null;release?.();}
+}

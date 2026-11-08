@@ -838,3 +838,10 @@ Only pass host-selected facts/attitudes and actually heard history. A character'
 invented tale is not an observation, and a player's disclosed name is still a claim.
 See [formats, evidence and limitations](STUDIO_EXPRESSION.md) and the
 [short roleplay investigation](ROLEPLAY_RESEARCH.md).
+
+For current NPC location and perceived dialogue, reuse `Locations` with an actor-visible
+snapshot and the current revision. Do not give an NPC the player inventory to answer
+where it is. The Studio now demonstrates this path, heard-seed story rotation and
+retryable blocked audio; see [scene repairs](SCENE_SOCIAL_REPAIR.md). For a larger
+character implementation, use the [feature/gap map](SOCIAL_CHARACTER_GAPS.md) to
+distinguish storage mechanisms from implicit memory use and motivation-driven behavior.

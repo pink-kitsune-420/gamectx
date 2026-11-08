@@ -5,7 +5,7 @@ export class AutoSpeech {
   const speech=s.speech;
   if(!speech)return false;
   const key=`${s.generation}:${speech.id}`;
-  if(this.seen.has(key)||!enabled||busy||!host||speech.pending||speech.delivery.stage!=='validated'||speech.delivery.done||s.effective_backends.tts==='off')return false;
+  if(this.seen.has(key)||!enabled||busy||!host||speech.pending||speech.playback_blocked||speech.delivery.stage!=='validated'||speech.delivery.done||s.effective_backends.tts==='off')return false;
   this.seen.add(key);if(this.seen.size>256)this.seen.delete(this.seen.values().next().value);
   return true;
  }

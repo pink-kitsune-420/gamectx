@@ -1,5 +1,13 @@
 # Changelog
 
+- [api] Add bounded least-recent tale seed selection and ordered fictional tale parts.
+- [format] Add sixteen expression cases; optional structured example tale responses and
+  zero-offset `blocked` delivery retries preserve legacy arrays and prior conformance.
+- Studio: current-place lookup before generic fallback, explicit NPC sight questions,
+  twelve heard-history-aware plot seeds per NPC, cleared Thinking fences, one live voice
+  owner across tabs and recoverable unheard audio. See docs/SCENE_SOCIAL_REPAIR.md.
+- Document the broader social-character feature/gap map in docs/SOCIAL_CHARACTER_GAPS.md.
+
 - [api] Add bounded character expression, explicit disclosure parsing, conservative
   sentence novelty checks and source-bound AI wording through the generic bindings.
 - [format] Add 60 expression and 14 wording conformance cases; optional `ai_wording`,

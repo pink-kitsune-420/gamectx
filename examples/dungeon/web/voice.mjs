@@ -203,7 +203,12 @@ export class VoicePlayer {
     }
     catch {
       URL.revokeObjectURL(url);
-      await this.interrupt();
+      if(generation!==this.generation||c.closed)return;
+      this.audio?.pause();this.audio=null;c.closed=true;
+      if(c.through===0){
+        await this.post('delivery',{id:c.id,event:'blocked',through:0,heard:0});
+        this.emit({id:c.id,text:c.text,through:0,status:'Audio blocked · press Play reply'});
+      }else await this.receipt('interrupted',c.through);
     }
   }
   async finish() {

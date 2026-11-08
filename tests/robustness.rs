@@ -1481,3 +1481,18 @@ fn source_bound_wording_and_restatement_filters_reject_mutated_model_text() {
         }
     }
 }
+
+#[test]
+fn tale_parts_and_rotation_remain_bounded_under_mutation() {
+    let mut rng = Rng(0x74616c6573);
+    for seed in [
+        include_str!("../conformance/expression/story_tale/input.json"),
+        include_str!("../conformance/expression/story_least_recent/input.json"),
+    ] {
+        for _ in 0..1000 {
+            if let Ok(v) = parse(&mutate(&mut rng, seed), 8192) {
+                let _ = gamectx::local::process(&v);
+            }
+        }
+    }
+}

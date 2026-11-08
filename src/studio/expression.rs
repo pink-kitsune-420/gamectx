@@ -366,6 +366,8 @@ pub(crate) fn fixture(v: &Value) -> Result<Value> {
     let a = get(v, "args")?;
     match text(v, "op")? {
         "distinct" => distinct_expression(a),
+        "seed" => choose_tale_seed(a),
+        "tale" => tale_sentences(a),
         "route" => {
             if a.get("style") == Some(&Value::str("expressive")) {
                 c::fields(a, &["input", "style"])?;
@@ -499,4 +501,44 @@ pub fn distinct_expression(v: &Value) -> Result<Value> {
         }
     }
     Ok(obj! {"speech"=>out,"omitted"=>omitted})
+}
+
+/// Select an unheard candidate first, then the least recently heard candidate.
+/// Recent keys are newest first; confirmation and listener scoping belong to the host.
+pub fn choose_tale_seed(v: &Value) -> Result<Value> {
+    crate::request::bounded(v, 8192)?;
+    c::fields(v, &["candidates", "recent", "offset"])?;
+    let candidates = c::list(get(v, "candidates")?)?;
+    let recent = c::list(get(v, "recent")?)?;
+    let offset = c::uint(get(v, "offset")?, 0, 1_000_000)? as usize;
+    if candidates.is_empty() || candidates.len() > 32 || recent.len() > 32 {
+        return Err(c::bad());
+    }
+    for x in candidates.iter().chain(recent) {
+        ident(c::text(x)?)?;
+    }
+    for (i, x) in candidates.iter().enumerate() {
+        if candidates[..i].contains(x) {
+            return Err(c::bad());
+        }
+    }
+    let order = (0..candidates.len()).map(|i| (offset + i) % candidates.len()).collect::<Vec<_>>();
+    if let Some(i) = order.iter().find(|&&i| !recent.contains(&candidates[i])) {
+        return Ok(obj! {"index"=>*i,"reused"=>false});
+    }
+    let i = order.into_iter().max_by_key(|&i| recent.iter().position(|r| r == &candidates[i])).ok_or_else(c::bad)?;
+    Ok(obj! {"index"=>i,"reused"=>true})
+}
+/// Keep a tiny invented tale's setup and resolution in order. No world authority.
+pub fn tale_sentences(v: &Value) -> Result<Value> {
+    crate::request::bounded(v, 4096)?;
+    c::fields(v, &["opening", "ending"])?;
+    let opening = text(v, "opening")?;
+    let ending = text(v, "ending")?;
+    if !opening.starts_with("Imagine ") || !ending.starts_with("In this tale, ") {
+        return Err(c::bad());
+    }
+    validate_expression("fiction", opening)?;
+    validate_expression("fiction", ending)?;
+    Ok(obj! {"speech"=>vec![opening,ending]})
 }

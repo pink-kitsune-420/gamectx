@@ -4,10 +4,12 @@ import {attachModels} from './models.mjs';
 import {
   VoicePlayer,prefix}
 from './voice.mjs';
-import {makePost,coalescedRefresh,scopedOperations} from './context.mjs';
+import {makePost,coalescedRefresh,scopedOperations,replyWaiting,AudioOwner} from './context.mjs';
 import {selectedModel,channelLabel,channelNames,choiceLabel,draftKey,browserAvailability} from './setup.mjs';
 const $=id=>document.getElementById(id);
 const autoSpeech=new AutoSpeech();
+const audioOwner=new AudioOwner();
+addEventListener('pagehide',()=>audioOwner.release());
 try{$('auto-speak').checked=localStorage.getItem('lantern-auto-speak')==='true';}catch{}
 $('auto-speak').onchange=()=>{try{localStorage.setItem('lantern-auto-speak',String($('auto-speak').checked));}catch{}refresh();};
 $('roleplay-apply').onclick=async()=>{$('roleplay-apply').disabled=true;$('roleplay-status').textContent='Registering…';try{await invoke('roleplay_settings',JSON.parse($('roleplay-registry').value));$('roleplay-status').textContent='Registered';}catch(e){$('roleplay-status').textContent=e.message;}finally{$('roleplay-apply').disabled=false;}};
@@ -28,7 +30,7 @@ const post=async(op,args={},generation=state?.generation)=>{
   if(op==='chat'){chatStarting++;drawPending();try{const reply=await send(op,args,generation);requestedReplyGeneration=Math.max(requestedReplyGeneration,reply.generation||0);return reply;}finally{chatStarting--;drawPending();}}
   return send(op,args,generation);
 };
-function drawPending(){const waiting=chatStarting>0||(state?.generation||0)<requestedReplyGeneration||Boolean(state?.speech?.pending);$('reply-thinking').hidden=!waiting;$('current-reply').hidden=waiting||!state?.speech;$('use-instant-reply').hidden=chatStarting>0||!state?.speech?.pending;}
+function drawPending(){const waiting=replyWaiting(state,chatStarting,requestedReplyGeneration);$('reply-thinking').hidden=!waiting;$('current-reply').hidden=waiting||!state?.speech;$('use-instant-reply').hidden=chatStarting>0||!state?.speech?.pending;}
 $('use-instant-reply').onclick=()=>invoke('use_fallback').catch(()=>{});
 function voiceView(v) {
   if(v.status)$('voice-status').textContent=v.status;
@@ -57,6 +59,7 @@ async function invoke(op,args={},generation=state?.generation) {
     return result;
   }
   catch(e){
+    if(op==='chat')requestedReplyGeneration=0;
     await refresh(e.generation||0);
     clientNotice=e.message;
     $('notice').textContent=e.message;
@@ -129,6 +132,8 @@ async function loadState(){
     if(!response.ok)throw Error('Host state unavailable.');
     const s=await response.json();
     state=s;
+    if(s.generation>=requestedReplyGeneration)requestedReplyGeneration=0;
+    if(document.hidden&&(!player.current||player.current.closed))audioOwner.release();
     if(s.roleplay_registry&&!$('roleplay-registry').dataset.loaded){$('roleplay-registry').value=JSON.stringify(s.roleplay_registry,null,2);$('roleplay-registry').dataset.loaded='1';}
     if(s.conversation_options){const c=s.conversation_options;$('input').maxLength=c.max_player_chars;if(!$('reply-sentences').dataset.loaded){$('ai-wording').checked=Boolean(c.ai_wording);$('reply-sentences').value=c.max_sentences;$('player-message-limit').value=c.max_player_chars;$('player-summary').checked=c.summarize_long;$('reply-sentences').dataset.loaded='1';}inputCount();}
 
@@ -195,16 +200,17 @@ async function loadState(){
       if(s.speech.id!==lastSpeech){
         lastSpeech=s.speech.id;
         voiceView({
-          text:s.speech.text,through:s.speech.delivery.heard,status:s.speech.pending?'Model pending · fallback available':'Ready'}
+          text:s.speech.text,through:s.speech.delivery.heard,status:s.speech.playback_blocked?'Audio blocked · press Play reply':s.speech.pending?'Model pending · fallback available':'Ready'}
         );
       }
       if(!player.current||player.current.id!==s.speech.id||player.current.closed) {
         if(s.speech.delivery.stage==='validated')voiceView({
-          text:s.speech.text,through:0,status:s.speech.pending?'Model pending · fallback available':'Ready'}
+          text:s.speech.text,through:0,status:s.speech.playback_blocked?'Audio blocked · press Play reply':s.speech.pending?'Model pending · fallback available':'Ready'}
         );
       }
       await player.chunk(s.speech);
-      if(autoSpeech.take(s,{enabled:$('auto-speak').checked,host:!sessionInfo.enabled||s.speech.player!=='player_2',busy:Boolean(mic||micStarting||chatStarting)})){
+      const voiceAvailable=$('auto-speak').checked&&!mic&&!micStarting&&!chatStarting&&!s.speech.pending&&!s.speech.delivery.done&&s.speech.delivery.stage==='validated'?await audioOwner.acquire():audioOwner.owned;
+      if(autoSpeech.take(s,{enabled:$('auto-speak').checked,host:voiceAvailable&&(!sessionInfo.enabled||s.speech.player!=='player_2'),busy:Boolean(mic||micStarting||chatStarting)})){
         try{await player.start(s.speech,s.effective_backends.tts,s.providers.voices[s.speech.actor]);}catch(e){clientNotice='Automatic playback could not start; use Play reply. '+e.message;}
       }
     }
@@ -212,7 +218,7 @@ async function loadState(){
     drawPending();
     $('current-reply').classList.toggle('text-only',s.effective_backends.tts==='off');
     $('play').textContent=s.effective_backends.tts==='off'?'Read reply':'Play reply';
-    $('play').disabled=!s.speech||s.speech.delivery.done||Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
+    $('play').disabled=!s.speech||s.speech.delivery.done||(s.effective_backends.tts!=='off'&&s.speech.delivery.stage!=='validated')||Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
     $('stock').disabled=$('promise').disabled=!s.npc_present;
     const micUnsupported=s.effective_backends.stt==='browser_speech_recognition'&&!globalThis.SpeechRecognition&&!globalThis.webkitSpeechRecognition;
     $('mic').disabled=micStarting||s.effective_backends.stt==='off'||micUnsupported;
@@ -287,6 +293,7 @@ $('interrupt').onclick=()=>player.interrupt().then(refresh).catch(e=>$('notice')
 $('play').onclick=async()=>{
   try{
     if(!state.speech)return;
+    if(!await audioOwner.acquire())throw Error('Live voice is playing in another tab; it will continue there.');
     if(state.effective_backends.tts==='off'){
       if(!player.current||player.current.id!==state.speech.id||player.current.closed){
         if(state.speech.delivery.stage!=='validated')return;
