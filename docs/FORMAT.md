@@ -1938,6 +1938,18 @@ Inspection is outside the key. Registry outputs have stable
 `key,state,asset,exact,pending,generation,reason` order; submitted candidates remain
 unapproved. Repair outputs `key,state,invalidated`. No model-call schema is added.
 
+The additive `visual-director` local format (35 cases in `conformance/visual-director/`,
+8 malformed) runs `{config, registry, checkpoint, operations}` and returns
+`{results: [{ok, result?}], checkpoint, actual_model_calls: 0}`. A `direct` result is
+`{key, tier, requested_tier, profile, facts, selected_facts, status: exact|fallback|placeholder,
+asset, exact, pending, generation, reason, repaired, approval: null|verified|unverified|stale}`;
+`approve`, `submit` and `reject` return the registry's output; `repair` returns
+`{base, patches}`; `checkpoint` is `{version:1, approvals:[{key, asset_uri, digest}],
+repairs:[{base, patches}]}`, sorted by key. Selector facts are
+`{id, revision, observed_at: scene.at, source:{id:"director", speaker: observer, text},
+kind:"perceived", audience: participants, text}`. The registry's passive `lookup` now
+reports `not_requested`; its outputs are otherwise unchanged.
+
 ## Optional studio policies
 
 `studio-routing` accepts `{cap,operations}` with integer microdollars; `studio-voice`
@@ -2105,8 +2117,9 @@ requires zero played/heard offsets and issues a fresh ticket; state adds `playba
 
 `roleplay-engine` (JSON-lines `local` kind) runs `{config, state, ops}`, where `state` is
 `null` or a checkpoint and `ops` holds at most 64 `{op: "turn" | "delivered" | "reply",
-args}` entries. It returns `{config, results, state}`. 130 additive cases live in
-`conformance/roleplay-engine/` (62 from stage 2.1, 42 from 2.1b, 26 from 2.2). See the
+args}` entries. It returns `{config, results, state}`. 177 additive cases live in
+`conformance/roleplay-engine/` (62 from stage 2.1, 42 from 2.1b, 26 from 2.2, 47 for
+embodiment, matter and addressing). See the
 [roleplay engine guide](characters/ROLEPLAY_ENGINE.md) for behavior.
 
 **Config** `{version:1, character:{id,name≤32}, features?, variety?:{recent 0–8 = 2},
@@ -2149,7 +2162,9 @@ sound? ≤160, props?: ≤64 [{id, note ≤160|null}]}, trust? −100–100, cho
 labels?: ≤32 [{id, aliases ≤4 (≤48 chars, ≤96 bytes)}], focus?, reason? ≤240,
 targets?: ≤64 [{kind: character|place, id, names 1–8 (≤48)}], entrances?: ≤64 [{id,
 status: open|closed|locked|blocked|hidden, note? ≤160}], needs?: ≤16 {need_id: 0–100},
-quests?: ≤64 {quest_id: stage_id}, state?: ≤64 {id: string ≤64 | bool | integer}}`.
+quests?: ≤64 {quest_id: stage_id}, state?: ≤64 {id: string ≤64 | bool | integer},
+audience?: id | 1–16 distinct ids, distance?: 0–1000 | near|conversational|far|distant,
+coords?, speaker_coords?, speaker_facing? ≤48, ...}`.
 Each listed entrance must have a side at `scene.id`; needs and quests must exist in the
 sheet and codex.
 - Every result starts with `route` and `kind`.
@@ -2163,6 +2178,10 @@ sheet and codex.
   `line` ids `secret:<id>`, `cover:<id>`, `opinion:<id>` and `goal:<id>`.
 - A direction to a spot adds `spot: true`; an unanswered secret is
   `{route:"secrets", kind:"silent", secret}`.
+- `addressing` results: `silent {reason:"out_of_earshot"}`, `silent {audience}`,
+  `action {audience, action:"quirk", decision:null, narration}`,
+  `gesture {reason:"too_far", audience}` and `pause {reason:"unfinished"}`; `audience`
+  is an id or the host's group array.
 - Other kinds: `direction {verb, target}`, `note {note}`,
   `model {input, long, expression, topic, request}` and `silent`. `request` is
   `{messages: [{role, content}], response_format: {type:"json_schema", json_schema:

@@ -190,13 +190,72 @@ future expression of an entity. Change the bible for global identity/style chang
 Old approved refs can remain compatible fallbacks; retired candidates cannot be approved.
 Returning to an earlier key requires a fresh ticket, never the earlier worker's completion.
 
+## Direct pictures: tiers, profiles, selectors and approvals
+
+`VisualDirector` wraps the compiler and the registry into the loop a game runs every time it
+wants a picture. It never generates or loads an image either.
+
+```text
+config {version:1,
+        tiers:     [{id, bible}]                                 1–4, lowest first
+        profiles:  [{id, format: portrait|sprite|scene,          1–8
+                     framing|null, camera_angle|null, size: {width,height,aspect}|null}]
+        selectors: [{fact, when: {var: [values]}}]}              ≤32
+request {tier|null, profile, entity, scope, observer, listener, audience,
+         scene: {id, revision, epoch, at, participants}, vars: {var: value} (≤64),
+         life_revision: null, activity_revision: null, generate}
+```
+
+1. **Tier.** `tier: null` asks for the highest tier. If that bible has no anchor for the
+   entity (of the profile's kind), the next lower tier is used. The result says `tier` and
+   `requested_tier`, so a cheap tier can cover the whole cast and a detailed tier only
+   the leads.
+2. **Profile.** The profile overrides the bible's `format` and, when set, `framing`,
+   `camera_angle` and size before compiling. Every tier × profile pair is validated when
+   the director is built.
+3. **Selectors.** Each selector whose `when` holds over the host's `vars` adds one
+   perceived fact for the observer (values must match with the same JSON type: `true` is
+   not `1`). The bible still decides what is drawn: unmapped facts are left out and
+   occlusion groups keep only the highest priority (`facts` lists what was emitted,
+   `selected_facts` what the spec uses).
+4. **Repairs.** `queue_repair(base, patches)` stores 1–8 registry patches for a key. The
+   next `direct` that compiles that key applies them once and reports `repaired: true`.
+5. **Approvals.** `approve(key, uri, digest)` approves in the registry and saves the
+   approval. After a restore, the first `direct` of that key asks the host's
+   `verify(uri, digest)` callback. If it answers yes, the approval is re-applied
+   (`approval: "verified"`). Otherwise it is dropped (`"unverified"`). `reject` drops it
+   too.
+6. **Result.** `status` is `exact` (approved art for this key), `fallback` (approved art
+   for a compatible older key, for example the base of a seed-only repair) or
+   `placeholder`. With `generate: true` a missing key is queued exactly as by
+   `AssetRegistry::request`; `submit` is never an approval.
+
+`checkpoint()` saves `{version:1, approvals, repairs}` sorted by key; pass it to
+`VisualDirector::new` to restore. A failed `direct` (for example a stored repair whose patch
+no longer applies) changes nothing. Replace the repair to recover.
+
+```sh
+cargo run --bin gamectx -- local conformance/visual-director/repair_falls_back_to_base/input.json
+```
+
+Evidence: 35 workflows in `eval/media/visual_director_cases.py` (8 malformed). All but one
+expectation were written before the Rust director existed. The exception: a repair that
+adds tokens gets no base fallback, which was learned from a Rust test and then added. Rust
+is byte-identical to the independent Python reference on those workflows and on 3,000
+randomized ones (15,739 operations: 365 exact, 125 fallback, 5,654 placeholder, 7,588
+refused), 0 mismatches. Zero model calls, $0. The Python reference does not accept the
+newer optional bible fields (embodiment, matter), so those were not part of the comparison.
+
 ## CLI, bindings, and evidence
 
 `gamectx local <input.json>` supports `visual-spec` with
 `{bible,frame,life,activity}` (`life` is null or an explicit host Life fixture), and
 `visual-assets` with `{config,specs,operations}`. The latter replays bounded request,
 submit, approve, reject, repair and inspect actions; new conformance inputs are runnable
-examples. For a full debug/repair replay, run:
+examples. `visual-director` takes `{config, registry, checkpoint, operations}` with
+`direct{request, missing}` (URIs the host cannot verify), `approve`, `submit`, `reject`,
+`repair{base, patches}` and `checkpoint{}`, where keys and tickets are indexes into earlier
+`direct` results. For a full debug/repair replay, run:
 
 ```sh
 cargo run --bin gamectx -- local conformance/visual/repair_forbids_prop_and_cue/input.json

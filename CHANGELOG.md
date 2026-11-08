@@ -2,6 +2,31 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Added `media::visual::VisualDirector` (phase 2.3) and the `visual-director` local kind:
+  tiered art bibles (1–4, falling back to a lower tier that has the entity), format profiles
+  (format, framing, camera angle, size), host fact selectors (`when` over typed host
+  `vars`), and an approval/repair/fallback workflow over `AssetRegistry`. Saved approvals
+  are re-verified through a host callback after a restore, queued repairs apply once per
+  base key, and a failed `direct` changes nothing. `checkpoint()` saves approvals and
+  repairs. 35 additive conformance cases. Byte-identical to the Python reference on those
+  and on 3,000 randomized workflows. `AssetRegistry` is now `Clone`. All earlier visual
+  cases are unchanged. [Guide](docs/guides/VISUAL.md#direct-pictures-tiers-profiles-selectors-and-approvals).
+- Addressing: distance attenuation and group audiences (15 additive `e_*` cases; the
+  other 162 engine cases are byte-identical).
+  - A turn's `audience` may be a group of 1–16 distinct ids. A group that includes the
+    character counts as speaking to it; otherwise the outcome is `silent` (or a quirk
+    gesture) with the group as `audience`.
+  - Behaviour change: when nobody is named and the speaker is further than
+    `conversational_distance` (default 5) but within `max_distance`, the outcome is now
+    `{"route":"addressing","kind":"gesture","reason":"too_far","audience":<character>}`
+    instead of a normal reply. Naming the character or a host `audience` is still heard.
+  - Rust is byte-identical to the Python reference on 2,500 new randomized workflows.
+- **[format]** The English pack's default `model_rules` are now the measured strict brevity
+  rule: "one or two short sentences, never more than {sentences}" and "A catchphrase counts
+  as a sentence. Use one only when it fits, and never tack it onto the end of an answer."
+  Every compiled model `request` changes (30 `roleplay-engine` conformance cases reblessed;
+  only the first system message differs). On the v3 held-out probes this took Stheno 8B
+  from 74.1% to 88.9% accepted first try and Llama 3.2 3B from 88.9% to 100% ($0, local).
 - Added first-class living character embodiments, 3D physical matter, scenery depth, and spatial addressing:
   - Living character profiles: `features` (eyes, hair, skin, scars, build, height), `clothing`, `char_state` (posture, held items, gaze, activity, awareness, exposure, expression), `sensory` (scent, voice_tone), `habits`, `tags`, and `attributes`.
   - 3D physical matter: `dimensions` (`[width, length, height]`), `mass`, `state` (`solid`, `liquid`, `gas`), `material`, `color`, and `texture` on props and spots.

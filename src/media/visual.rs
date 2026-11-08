@@ -8,8 +8,10 @@ use crate::{
 };
 mod describer;
 mod digest;
+mod director;
 mod registry;
 pub use describer::{DescriberConfig, DescriberMode, ModelTarget, VisualDescriber};
+pub use director::{workflow as director_workflow, VisualDirector};
 pub use registry::{workflow as assets_workflow, AssetRef, AssetRegistry, RegistryConfig};
 pub(crate) fn canonical(v: &Value) -> Value {
     match v {

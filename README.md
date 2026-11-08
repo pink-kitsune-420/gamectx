@@ -99,6 +99,9 @@ attitudes/emotions and active routine/initiative poses, and include only perceiv
 cues. Content keys reuse approved/pinned assets; pending work returns compatible approved
 fallbacks. Host inspection, repair constraints, seed rotation and hand-edited pins invalidate
 stale candidates. Python, Node and native/C# sessions share the host controls.
+`VisualDirector` (0.4.0a) adds tiered art bibles, format profiles, host fact selectors and
+saved approvals that are re-verified after a restore: 35 cases and 3,000 randomized
+workflows byte-identical to the Python reference, $0.
 
 Run `cargo run --example visual`; edit [the art bible](examples/fixtures/visual/chime-art.json).
 **64 Python/Rust workflows**, including **13 malformed cases**, match with **0 model calls**

@@ -90,15 +90,15 @@ class Registry:
   rows=[r for r in self.rows.values() if r['state'] in ['approved','pinned'] and r['asset'] is not None and compatible(r['spec'],spec)]
   rows.sort(key=lambda r:(-(4*(r['spec']['expression']==spec['expression'])+2*(r['spec']['pose']==spec['pose'])+int(r['state']=='pinned')),r['key']))
   return None if not rows else rows[0]['asset']|dict(key=rows[0]['key'])
- def request(self,s):
+ def request(self,s,enqueue=True):
   key=self.resolve(s['key']);existing=self.rows.get(key)
   if existing is None and len(self.rows)<self.cfg['capacity']:existing=dict(key=s['key'],spec=copy.deepcopy(s['spec']),inspection=copy.deepcopy(s['inspection']),state='missing',asset=None,candidate=None,ticket=None,retired=False);self.rows[key]=existing
   if existing is None:return dict(key=key,state='missing',asset=self.fallback(s['spec']),exact=False,pending=False,generation=None,reason='capacity')
   if key==s['key']:assert existing['spec']==s['spec']
   existing['inspection']['state']=copy.deepcopy(s['inspection']['state'])
   if existing['state'] in ['approved','pinned']:return dict(key=key,state=existing['state'],asset=existing['asset']|dict(key=key),exact=True,pending=False,generation=None,reason='reuse')
-  fallback=self.fallback(existing['spec']);job=None;reason='pending' if existing['state']=='candidate' else 'rejected' if existing['state']=='rejected' else 'disabled' if not self.cfg['enabled'] else 'queue_limit'
-  if existing['state']=='missing' and self.cfg['enabled'] and sum(x['ticket'] is not None for x in self.rows.values())<self.cfg['queue_limit']:
+  fallback=self.fallback(existing['spec']);job=None;reason='pending' if existing['state']=='candidate' else 'rejected' if existing['state']=='rejected' else 'disabled' if not self.cfg['enabled'] else 'not_requested' if not enqueue else 'queue_limit'
+  if enqueue and existing['state']=='missing' and self.cfg['enabled'] and sum(x['ticket'] is not None for x in self.rows.values())<self.cfg['queue_limit']:
    self.next+=1;existing['ticket']=dict(epoch=self.cfg['epoch'],sequence=self.next);existing['state']='candidate';job=dict(key=key,ticket=existing['ticket'],spec=existing['spec']);reason='queued'
   return dict(key=key,state=existing['state'],asset=fallback,exact=False,pending=existing['state']=='candidate',generation=copy.deepcopy(job),reason=reason)
  def submit(self,key,ticket,uri,sha):

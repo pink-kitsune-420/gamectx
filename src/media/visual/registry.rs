@@ -72,7 +72,7 @@ impl Entry {
         obj! {"key"=>self.spec.key.clone(),"spec"=>self.spec.data.clone(),"inspection"=>self.spec.inspection.clone(),"state"=>self.state,"asset"=>self.asset.as_ref().map_or(Value::Null,AssetRef::to_value),"candidate"=>self.candidate.as_ref().map_or(Value::Null,AssetRef::to_value),"ticket"=>self.ticket.clone().unwrap_or(Value::Null),"retired"=>self.retired}
     }
 }
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct AssetRegistry {
     config: RegistryConfig,
     rows: Vec<Entry>,

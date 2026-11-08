@@ -76,6 +76,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "visual-spec" => crate::media::visual::compile_fixture(a).map(|s| s.to_value()),
         "visual-describe" => crate::media::visual::describe_fixture(a),
         "visual-assets" => crate::media::visual::assets_workflow(a),
+        "visual-director" => crate::media::visual::director_workflow(a),
         "cast-pack" => crate::character::cast::CastPack::from_value(a).map(|p| p.summary()),
         "living-world" => crate::character::living::workflow(a),
         "speech-tickets" => crate::character::living::speech_workflow(a),

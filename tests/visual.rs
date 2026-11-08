@@ -427,3 +427,148 @@ fn visual_describer_cli_and_session_export() {
     assert_eq!(spec_res.get("target"), Some(&Value::str("sdxl")));
     assert!(spec_res.get("negative_prompt").and_then(Value::as_str).unwrap().contains("blurry"));
 }
+
+mod director {
+    use gamectx::{
+        data::json,
+        media::visual::{RegistryConfig, VisualDirector},
+        obj, Value,
+    };
+    const URI: &str = "asset://chime/merchant.png";
+    fn sha() -> String {
+        "a".repeat(64)
+    }
+    fn bible() -> Value {
+        json::parse(include_str!("../examples/fixtures/visual/chime-art.json"), 65536).unwrap()
+    }
+    fn config() -> Value {
+        let mut detailed = bible();
+        let Value::Object(rows) = &mut detailed else { panic!() };
+        for (k, v) in rows.iter_mut() {
+            match k.as_str() {
+                "id" => *v = "chime_art_detailed".into(),
+                "style" => *v = "Original painterly ink illustration".into(),
+                "anchors" => {
+                    let Value::Array(a) = v else { panic!() };
+                    a.retain(|x| x.get("entity").and_then(Value::as_str) == Some("merchant"));
+                }
+                _ => {}
+            }
+        }
+        obj! {
+            "version"=>1,
+            "tiers"=>vec![obj!{"id"=>"basic","bible"=>bible()},obj!{"id"=>"detailed","bible"=>detailed}],
+            "profiles"=>vec![
+                obj!{"id"=>"portrait","format"=>"portrait","framing"=>Value::Null,"camera_angle"=>Value::Null,"size"=>Value::Null},
+                obj!{"id"=>"scene","format"=>"scene","framing"=>"wide room card","camera_angle"=>Value::Null,"size"=>Value::Null}
+            ],
+            "selectors"=>vec![
+                obj!{"fact"=>"shutters_closed","when"=>obj!{"shutters"=>vec![true]}},
+                obj!{"fact"=>"visible_sun","when"=>obj!{"weather"=>vec!["sunny"]}}
+            ]
+        }
+    }
+    fn registry() -> RegistryConfig {
+        RegistryConfig::from_value(&obj! {"enabled"=>true,"capacity"=>16,"queue_limit"=>2,"epoch"=>"director_test"})
+            .unwrap()
+    }
+    fn request(entity: &str, profile: &str, vars: Value, generate: bool) -> Value {
+        obj! {"tier"=>Value::Null,"profile"=>profile,"entity"=>entity,"scope"=>"counter","observer"=>"player","listener"=>"player","audience"=>vec!["player"],
+        "scene"=>obj!{"id"=>"counter","revision"=>1,"epoch"=>1,"at"=>10,"participants"=>vec!["merchant","player"]},
+        "vars"=>vars,"life_revision"=>Value::Null,"activity_revision"=>Value::Null,"generate"=>generate}
+    }
+    fn s<'a>(v: &'a Value, k: &str) -> &'a str {
+        v.get(k).and_then(Value::as_str).unwrap()
+    }
+
+    #[test]
+    fn tiers_fall_back_and_selectors_respect_occlusion() {
+        let mut d = VisualDirector::new(&config(), registry(), None).unwrap();
+        let portrait = d.direct(&request("merchant", "portrait", obj! {}, false), |_, _| true).unwrap();
+        assert_eq!((s(&portrait, "tier"), s(&portrait, "status")), ("detailed", "placeholder"));
+        let room = d
+            .direct(&request("counter", "scene", obj! {"shutters"=>true,"weather"=>"sunny"}, false), |_, _| true)
+            .unwrap();
+        assert_eq!(s(&room, "tier"), "basic");
+        assert_eq!(room.get("facts").unwrap().as_array().unwrap().len(), 2);
+        assert_eq!(room.get("selected_facts"), Some(&vec!["shutters_closed"].into()));
+    }
+
+    #[test]
+    fn approval_survives_restore_only_when_the_host_verifies_it() {
+        let mut d = VisualDirector::new(&config(), registry(), None).unwrap();
+        let q = request("merchant", "portrait", obj! {}, true);
+        let first = d.direct(&q, |_, _| true).unwrap();
+        let key = s(&first, "key").to_owned();
+        let ticket = first.get("generation").unwrap().get("ticket").unwrap().clone();
+        d.submit(&key, &ticket, URI, &sha()).unwrap();
+        assert_eq!(s(&d.direct(&q, |_, _| true).unwrap(), "status"), "placeholder");
+        d.approve(&key, URI, &sha()).unwrap();
+        assert_eq!(s(&d.direct(&q, |_, _| true).unwrap(), "status"), "exact");
+        let saved = d.checkpoint();
+
+        let mut verified = VisualDirector::new(&config(), registry(), Some(&saved)).unwrap();
+        let mut asked = Vec::new();
+        let out = verified
+            .direct(&q, |uri, digest| {
+                asked.push((uri.to_owned(), digest.to_owned()));
+                true
+            })
+            .unwrap();
+        assert_eq!((s(&out, "status"), s(&out, "approval")), ("exact", "verified"));
+        assert_eq!(asked, vec![(URI.to_owned(), sha())]);
+
+        let mut lost = VisualDirector::new(&config(), registry(), Some(&saved)).unwrap();
+        let out = lost.direct(&q, |_, _| false).unwrap();
+        assert_eq!((s(&out, "status"), s(&out, "approval")), ("placeholder", "unverified"));
+        assert_eq!(lost.checkpoint().get("approvals"), Some(&Vec::<Value>::new().into()));
+    }
+
+    #[test]
+    fn repairs_apply_once_fall_back_to_base_and_fail_atomically() {
+        let mut d = VisualDirector::new(&config(), registry(), None).unwrap();
+        let q = request("merchant", "portrait", obj! {}, false);
+        let base = s(&d.direct(&q, |_, _| true).unwrap(), "key").to_owned();
+        d.approve(&base, URI, &sha()).unwrap();
+        let bad = obj! {"replace_tokens"=>vec![obj!{"from"=>"missing token","to"=>"x"}],"add_tokens"=>Vec::<Value>::new(),"negative_tokens"=>Vec::<Value>::new(),"forbid_props"=>Vec::<Value>::new(),"seed_delta"=>0,"asset"=>Value::Null};
+        d.queue_repair(&base, &vec![bad].into()).unwrap();
+        let before = d.checkpoint();
+        assert!(d.direct(&q, |_, _| true).is_err());
+        assert!(d.checkpoint().same(&before));
+        assert_eq!(s(&d.registry().inspect(&base).unwrap(), "state"), "approved");
+
+        let good = obj! {"replace_tokens"=>Vec::<Value>::new(),"add_tokens"=>Vec::<Value>::new(),"negative_tokens"=>Vec::<Value>::new(),"forbid_props"=>Vec::<Value>::new(),"seed_delta"=>1,"asset"=>Value::Null};
+        d.queue_repair(&base, &vec![good].into()).unwrap();
+        // A new seed keeps the base art compatible, so it is the fallback until approved.
+        let repaired = d.direct(&q, |_, _| true).unwrap();
+        assert_eq!(repaired.get("repaired"), Some(&Value::Bool(true)));
+        assert_eq!(s(&repaired, "status"), "fallback");
+        assert_eq!(s(repaired.get("asset").unwrap(), "key"), base);
+        let again = d.direct(&q, |_, _| true).unwrap();
+        assert_eq!(again.get("repaired"), Some(&Value::Bool(false)));
+        assert_eq!(s(&again, "key"), s(&repaired, "key"));
+    }
+
+    #[test]
+    fn mutated_director_inputs_never_panic() {
+        let base = obj! {"config"=>config(),"registry"=>obj!{"enabled"=>true,"capacity"=>4,"queue_limit"=>1,"epoch"=>"fuzz"},"checkpoint"=>Value::Null,
+        "operations"=>vec![obj!{"op"=>"direct","args"=>obj!{"request"=>request("merchant","portrait",obj!{"weather"=>"sunny"},true),"missing"=>Vec::<Value>::new()}}]};
+        let text = base.to_json();
+        let bytes = text.as_bytes();
+        let mut seed = 0x9e37_79b9u32;
+        for _ in 0..3000 {
+            seed ^= seed << 13;
+            seed ^= seed >> 17;
+            seed ^= seed << 5;
+            let mut b = bytes.to_vec();
+            let i = seed as usize % b.len();
+            let alphabet = b"{}[],:\"0a-tfn ";
+            b[i] = alphabet[(seed >> 8) as usize % alphabet.len()];
+            if let Ok(s) = std::str::from_utf8(&b) {
+                if let Ok(v) = json::parse(s, 1 << 20) {
+                    let _ = gamectx::kit::local::process(&obj! {"kind"=>"visual-director","args"=>v});
+                }
+            }
+        }
+    }
+}

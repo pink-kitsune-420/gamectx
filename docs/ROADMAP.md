@@ -46,14 +46,23 @@ noted; "3 models" adds Llama 3.3 70B.
     brevity rule (98.1% with retry). 3B was ≥ 88.9% in every variant. Dropping
     catchphrases alone missed its bar (+9.2 against +10).
     [Guide](characters/ROLEPLAY_ENGINE.md#8b-follow-up-v3).
-  - Next: make the strict rule the default pack rule ([format] for requests).
-  - Next: `addressing`, an engine stage for turns not meant for this character, so the
-    character stays silent, waits or gestures. The host may name the audience; otherwise
-    names in the player's words decide.
-  - 2.3: a visual director with tiered art bibles, format profiles, host-supplied visual
-    fact selectors and an approval/repair/fallback workflow.
+  - Done: the strict rule is the default pack rule ([format] for requests; 30 cases reblessed).
+  - Done: `addressing`, an engine stage for turns not meant for this character (silent,
+    waits or gestures), with host audiences (one id or a group), named speech, facing,
+    nearest character, earshot and distance attenuation. 47 cases, 0 parity mismatches.
+    [Guide](characters/ROLEPLAY_ENGINE.md#addressing).
+  - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
+    fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
+    workflows byte-identical to the Python reference, 4 typed tests, $0.
+    [Guide](guides/VISUAL.md#direct-pictures-tiers-profiles-selectors-and-approvals).
   - 2.4: migrate Lantern Vault onto the engine, keeping its frozen host checks
-    byte-identical.
+    byte-identical. Blocked on 2.2 (rest): Lantern Vault's chat also routes reactions,
+    viewpoints, expression/tales, follow-ups and model planning, which are not engine
+    stages yet. The front stages differ at the edges: the engine needs a starred action
+    of at least 3 characters and measures 1024 bytes after trimming, and Lantern Vault
+    returns the raw resolve object for blocked actions. Greetings, disclosures and recall
+    keep Lantern Vault's own saved state. Next step: measure engine/Lantern Vault
+    agreement per stage on the existing chat tests before switching any stage.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`
