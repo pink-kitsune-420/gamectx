@@ -81,10 +81,24 @@ impl Props {
         }
         let (mut names, mut phrases) = (Vec::<(String, usize)>::new(), Vec::<(String, usize, usize)>::new());
         for (i, p) in props.iter().enumerate() {
-            c::fields(p, &["id", "label", "aliases", "description", "interactions"])?;
+            crate::knowledge::codex::keys(
+                p,
+                &["id", "label", "aliases", "description", "interactions"],
+                &["dimensions", "mass", "state", "material", "color", "texture", "tags", "attributes"],
+            )?;
             ident(c::get(p, "id")?)?;
             if props[..i].iter().any(|old| old.get("id") == p.get("id")) {
                 return Err(c::bad());
+            }
+            if let Some(d) = p.get("dimensions").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::dimensions_val(d)?;
+            }
+            crate::character::sheet::validate_matter(p)?;
+            if let Some(tg) = p.get("tags").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::validate_tags(tg)?;
+            }
+            if let Some(att) = p.get("attributes").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::validate_attributes(att)?;
             }
             line(c::get(p, "description")?, 240, usize::MAX)?;
             let aliases = c::list(c::get(p, "aliases")?)?;

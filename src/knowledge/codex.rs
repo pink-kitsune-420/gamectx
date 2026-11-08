@@ -20,7 +20,7 @@ use crate::{checked as c, Result, Value};
 pub(crate) const STATUSES: [&str; 5] = ["open", "closed", "locked", "blocked", "hidden"];
 const STANCES: [&str; 5] = ["allied", "friendly", "neutral", "wary", "hostile"];
 const CARRIES: [&str; 3] = ["none", "when_open", "always"];
-const AMBIENCE: [&str; 4] = ["smell", "light", "sound", "temperature"];
+const AMBIENCE: [&str; 6] = ["smell", "light", "sound", "temperature", "floor", "ceiling"];
 
 pub(crate) fn keys(v: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
     let rows = v.as_object().ok_or_else(c::bad)?;
@@ -102,7 +102,10 @@ impl Codex {
         c::uint(c::get(v, "version")?, 1, 1)?;
         let places = list(v.get("places"), 0, 128)?;
         for p in places {
-            keys(p, &["id", "label"], &["aliases", "spots", "ambience", "norms"])?;
+            keys(p, &["id", "label"], &["aliases", "spots", "ambience", "norms", "exterior"])?;
+            if let Some(e) = p.get("exterior").filter(|x| *x != &Value::Null) {
+                c::boolean(e)?;
+            }
         }
         unique_ids(places)?;
         let (mut seen, mut place_names, mut ambience) = (Vec::new(), Vec::new(), Vec::new());
@@ -110,7 +113,35 @@ impl Codex {
             place_names.push(names(p, "label", &mut seen)?);
             let spots = list(p.get("spots"), 0, 16)?;
             for s in spots {
-                keys(s, &["id", "label", "description"], &["aliases"])?;
+                keys(
+                    s,
+                    &["id", "label", "description"],
+                    &[
+                        "aliases",
+                        "dimensions",
+                        "coords",
+                        "mass",
+                        "state",
+                        "material",
+                        "color",
+                        "texture",
+                        "tags",
+                        "attributes",
+                    ],
+                )?;
+                if let Some(d) = s.get("dimensions").filter(|x| *x != &Value::Null) {
+                    crate::character::sheet::dimensions_val(d)?;
+                }
+                if let Some(cr) = s.get("coords").filter(|x| *x != &Value::Null) {
+                    crate::character::sheet::coords(cr)?;
+                }
+                crate::character::sheet::validate_matter(s)?;
+                if let Some(tg) = s.get("tags").filter(|x| *x != &Value::Null) {
+                    crate::character::sheet::validate_tags(tg)?;
+                }
+                if let Some(att) = s.get("attributes").filter(|x| *x != &Value::Null) {
+                    crate::character::sheet::validate_attributes(att)?;
+                }
                 line(c::get(s, "description")?, 240, usize::MAX)?;
             }
             unique_ids(spots)?;
@@ -120,7 +151,7 @@ impl Codex {
             }
             let mut conds = Vec::new();
             for a in list(p.get("ambience"), 0, 8)? {
-                keys(a, &[], &["when", "smell", "light", "sound", "temperature"])?;
+                keys(a, &[], &["when", "smell", "light", "sound", "temperature", "floor", "ceiling"])?;
                 conds.push(Conditions::field(a, "when", &VARS)?);
                 if !AMBIENCE.iter().any(|k| a.get(k).is_some()) {
                     return Err(c::bad());

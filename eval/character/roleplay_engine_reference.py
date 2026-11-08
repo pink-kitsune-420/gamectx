@@ -45,12 +45,14 @@ import expression_cases, greeting_memory_cases, message_chunks_cases, overnight_
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PACKS = {'en': json.loads((ROOT / 'src/character/roleplay/engine/en.json').read_text()), 'none': dict(version=1, language='none', phrases={}, lists=None, articles=[], lines=[], model_rules=[])}
-FEATURES = ['chunks', 'out_of_character', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
+FEATURES = ['chunks', 'out_of_character', 'addressing', 'stage_actions', 'props', 'directions', 'perception', 'commands', 'disclosures', 'recall', 'greetings', 'social', 'model',
             'content', 'entrances', 'scenery', 'persona', 'services', 'secrets', 'opinions', 'relationships', 'factions', 'events', 'quests', 'goals']
-PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)),
+PARAMS = dict(chunks=dict(max_chars=(512, 4096, 1024)), addressing=dict(action_turns=(0, 100, 3), conversational_distance=(1, 100, 5), max_distance=(1, 1000, 20)),
+              disclosures=dict(max_preferences=(1, 16, 3)), greetings=dict(long_gap_turns=(1, 1000000, 12)), events=dict(soon_turns=(1, 1000000, 10)),
               model=dict(max_tokens=(16, 1024, 160), max_sentences=(1, 4, 3), max_chars=(40, 240, 240), brief_chars=(512, 16384, 4096)))
 VARS = set('name scene place atmosphere trust relationship meeting needs_introduction sight sound has_sight has_sound props has_props prop description note has_note slot value old corrects polarity known reason has_reason '
-           'exits status destination through heard smell light temperature role summary services label text need has_need person kind faction stance event events timing quest stage sentences'.split())
+           'exits status destination through heard smell light temperature floor has_floor ceiling has_ceiling exterior role summary services label text need has_need person kind faction stance event events timing quest stage sentences facing spot '
+           'material color texture clothing eyes hair skin posture activity awareness expression scent'.split())
 MATCHERS = ['exact', 'contains', 'prefix', 'unless']
 U32 = 4294967295
 
@@ -63,6 +65,36 @@ def text(s, chars, nbytes=None):
     return s
 def ident(s): assert isinstance(s, str) and re.fullmatch('[A-Za-z0-9_:-]{1,64}', s); return s
 def uint(n, lo=0, hi=U32): assert type(n) is int and lo <= n <= hi; return n
+def coords_val(v):
+    assert isinstance(v, list) and len(v) in (2, 3)
+    for x in v: assert (type(x) is int or type(x) is float) and -1000000.0 <= x <= 1000000.0
+    return [float(x) for x in v]
+def dimensions_val(v):
+    if v is None: return None
+    if isinstance(v, list):
+        assert len(v) == 3
+        for x in v: assert (type(x) is int or type(x) is float) and 0.0 < x <= 100000.0
+        return [float(x) for x in v]
+    assert isinstance(v, dict)
+    keys(v, ['width', 'length', 'height'])
+    for k in ['width', 'length', 'height']:
+        x = v[k]; assert (type(x) is int or type(x) is float) and 0.0 < x <= 100000.0
+    return [float(v['width']), float(v['length']), float(v['height'])]
+def dist_val(v):
+    if v is None: return None
+    if type(v) is int or type(v) is float:
+        assert 0.0 <= v <= 1000.0; return float(v)
+    assert isinstance(v, str) and v in ('near', 'conversational', 'far', 'distant'); return v
+def calc_dist(d, c1, c2):
+    if d is not None:
+        if type(d) is int or type(d) is float: return float(d)
+        if d == 'near': return 1.0
+        if d == 'conversational': return 3.0
+        if d == 'far': return 10.0
+        if d == 'distant': return 30.0
+    if c1 is not None and c2 is not None and len(c1) == len(c2):
+        return sum((float(a) - float(b)) ** 2 for a, b in zip(c1, c2)) ** 0.5
+    return None
 def boolean(b): assert type(b) is bool; return b
 def keys(v, required, optional=()):
     assert isinstance(v, dict) and set(required) <= set(v) <= set(required) | set(optional)
@@ -165,7 +197,21 @@ def props_registry(v):
     keys(v, ['version', 'props']); assert v['version'] == 1 and isinstance(v['props'], list) and len(v['props']) <= 128
     ids, names, phrases = [], [], []
     for p in v['props']:
-        keys(p, ['id', 'label', 'aliases', 'description', 'interactions']); ident(p['id']); assert p['id'] not in ids; ids.append(p['id'])
+        keys(p, ['id', 'label', 'aliases', 'description', 'interactions'], ['dimensions', 'mass', 'state', 'material', 'color', 'texture', 'tags', 'attributes']); ident(p['id']); assert p['id'] not in ids; ids.append(p['id'])
+        if 'dimensions' in p and p['dimensions'] is not None: dimensions_val(p['dimensions'])
+        if 'mass' in p and p['mass'] is not None:
+            assert (type(p['mass']) is int or type(p['mass']) is float) and 0.0 < p['mass'] <= 1000000.0
+        if 'state' in p and p['state'] is not None: assert p['state'] in ['solid', 'liquid', 'gas']
+        for k in ['material', 'color', 'texture']:
+            if k in p and p[k] is not None: text(p[k], 48)
+        if 'tags' in p and p['tags'] is not None:
+            for tg in lst(p['tags'], 0, 32): text(tg, 48)
+        if 'attributes' in p and p['attributes'] is not None:
+            assert isinstance(p['attributes'], dict) and len(p['attributes']) <= 32
+            for k, val in p['attributes'].items():
+                ident(k)
+                if isinstance(val, str): text(val, 120)
+                else: assert type(val) in (int, float, bool)
         text(p['label'], 48); text(p['description'], 240); assert isinstance(p['aliases'], list) and len(p['aliases']) <= 8
         for n in [p['label']] + p['aliases']:
             text(n, 48); q = norm(n); assert q and q not in names; names.append(q)
@@ -281,20 +327,163 @@ class Engine:
         if len(labels) == 1: return labels[0]
         return self.lists['separator'].join(labels[:-1]) + self.lists['final'] + labels[-1]
 
+    def parse_vocative(self, line, me, targets, sh):
+        candidates = [(me['id'], {norm(me['name']), norm(me['id']), 'the ' + norm(me['id'])})]
+        for g in targets:
+            if g['kind'] == 'character':
+                candidates.append((g['id'], {norm(g['id'])} | {norm(n) for n in g['names']}))
+        for r in sh.get('relationships', []):
+            if not any(c[0] == r['with'] for c in candidates):
+                candidates.append((r['with'], {norm(r['with']), norm(r['name'])}))
+        stripped = line.strip()
+        if stripped.startswith('*') and '*' in stripped[1:]:
+            end_ast = stripped.index('*', 1)
+            act = norm(stripped[1:end_ast])
+            for prefix in ['turns to', 'turn to', 'looks at', 'look at', 'to']:
+                if act == prefix or act.startswith(prefix + ' '):
+                    target_name = act[len(prefix):].strip()
+                    for cid, names in candidates:
+                        if target_name in names: return cid
+        for sep in [',', ':']:
+            if sep in line:
+                prefix = norm(line.split(sep, 1)[0])
+                for opener in ['hey', 'hi', 'hello', 'greetings']:
+                    if prefix.startswith(opener + ' '):
+                        prefix = prefix[len(opener) + 1:].strip()
+                for cid, names in candidates:
+                    if prefix in names: return cid
+        if ',' in line:
+            tail = norm(line.rsplit(',', 1)[1].rstrip('.!?'))
+            for cid, names in candidates:
+                if tail in names: return cid
+        return None
+
+    def eval_addressing(self, t, line, me, targets, sh, at):
+        cfg = self.cfg['features']['addressing']
+        my_dist = calc_dist(t.get('distance'), t.get('coords'), t.get('speaker_coords'))
+        if my_dist is not None and my_dist > cfg['max_distance']:
+            return dict(route='addressing', kind='silent', reason='out_of_earshot')
+        audience = t.get('audience')
+        if audience is not None:
+            ident(audience)
+        else:
+            voc = self.parse_vocative(line, me, targets, sh)
+            if voc is not None:
+                audience = voc
+            else:
+                closest_id = me['id']
+                closest_dist = my_dist if my_dist is not None else float(cfg['conversational_distance'])
+                sp_facing = t.get('speaker_facing')
+                if sp_facing is not None:
+                    sp_norm = norm(sp_facing)
+                    if sp_norm in (norm(me['name']), norm(me['id'])):
+                        closest_id = me['id']; closest_dist = -1.0
+                for g in targets:
+                    if g['kind'] == 'character':
+                        if sp_facing is not None:
+                            sp_norm = norm(sp_facing)
+                            if sp_norm in [norm(n) for n in g['names']] or sp_norm == norm(g['id']):
+                                closest_id = g['id']; closest_dist = -1.0; continue
+                        gd = calc_dist(g.get('distance'), g.get('coords'), t.get('speaker_coords'))
+                        if gd is not None and gd < closest_dist:
+                            closest_dist = gd; closest_id = g['id']
+                audience = closest_id
+        if audience == me['id']:
+            stripped = line.strip()
+            if stripped.endswith(('...', '…', '--', '—', '–', ',')):
+                return dict(route='addressing', kind='pause', reason='unfinished')
+            return None
+        action_turns = cfg['action_turns']
+        quirks = sh.get('speech', {}).get('quirks', [])
+        if action_turns > 0 and at % action_turns == 0 and quirks:
+            narration = quirks[(at // action_turns) % len(quirks)]
+            return dict(route='addressing', kind='action', audience=audience, action='quirk', decision=None, narration=narration)
+        return dict(route='addressing', kind='silent', audience=audience)
+
     def turn(self, t):
         cfg = self.cfg; me = cfg['character']
-        keys(t, ['listener', 'text', 'at', 'token', 'scene'], ['trust', 'choices', 'labels', 'focus', 'reason', 'targets', 'entrances', 'needs', 'quests', 'state'])
+        keys(t, ['listener', 'text', 'at', 'token', 'scene'], ['trust', 'choices', 'labels', 'focus', 'reason', 'targets', 'entrances', 'needs', 'quests', 'state',
+                                                               'audience', 'distance', 'facing', 'spot', 'coords', 'speaker_facing', 'speaker_spot', 'speaker_coords',
+                                                               'line_of_sight', 'blocked_by', 'behind', 'dimensions',
+                                                               'features', 'clothing', 'sensory', 'habits', 'tags', 'attributes',
+                                                               'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent'])
         who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
         assert all(p['token'] != token for p in self.state['pending'] + self.state['asked'])
-        sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props'])
+        if t.get('audience') is not None: ident(t['audience'])
+        dist_val(t.get('distance'))
+        if t.get('facing') is not None: text(t['facing'], 48)
+        if t.get('spot') is not None: ident(t['spot'])
+        if t.get('coords') is not None: coords_val(t['coords'])
+        if t.get('speaker_facing') is not None: text(t['speaker_facing'], 48)
+        if t.get('speaker_spot') is not None: ident(t['speaker_spot'])
+        if t.get('speaker_coords') is not None: coords_val(t['speaker_coords'])
+        if t.get('line_of_sight') is not None: boolean(t['line_of_sight'])
+        if t.get('blocked_by') is not None: ident(t['blocked_by'])
+        if t.get('behind') is not None: ident(t['behind'])
+        if t.get('dimensions') is not None: dimensions_val(t['dimensions'])
+        if t.get('features') is not None:
+            f = t['features']; keys(f, [], ['eyes', 'hair', 'skin', 'scars', 'height', 'build'])
+            for k in ['eyes', 'hair', 'skin', 'build']:
+                if k in f and f[k] is not None: text(f[k], 48)
+            for sc_item in lst(f.get('scars', []), 0, 8): text(sc_item, 48)
+            if 'height' in f and f['height'] is not None:
+                assert (type(f['height']) is int or type(f['height']) is float) and 0.0 < f['height'] <= 100.0
+        if t.get('clothing') is not None:
+            for item in (t['clothing'] if isinstance(t['clothing'], list) else [t['clothing']]):
+                text(item, 48)
+        if t.get('sensory') is not None:
+            sn = t['sensory']; keys(sn, [], ['scent', 'voice_tone'])
+            for k in ['scent', 'voice_tone']:
+                if k in sn and sn[k] is not None: text(sn[k], 48)
+        if t.get('habits') is not None:
+            for h in lst(t['habits'], 0, 16): text(h, 80)
+        if t.get('tags') is not None:
+            for tg in lst(t['tags'], 0, 32): text(tg, 48)
+        if t.get('attributes') is not None:
+            att = t['attributes']; assert isinstance(att, dict) and len(att) <= 32
+            for k, val in att.items():
+                ident(k)
+                if isinstance(val, str): text(val, 120)
+                else: assert type(val) in (int, float, bool)
+        for k in ['posture', 'activity', 'awareness', 'expression', 'scent']:
+            if t.get(k) is not None: text(t[k], 80)
+        if t.get('gaze') is not None: ident(t['gaze'])
+        if t.get('held') is not None:
+            if isinstance(t['held'], dict):
+                assert len(t['held']) <= 8
+                for k, val in t['held'].items(): text(k, 32); text(val, 64)
+            elif isinstance(t['held'], list):
+                assert len(t['held']) <= 8
+                for x in t['held']: text(x, 64)
+            else: assert False
+        sc = t['scene']; keys(sc, ['id', 'label', 'place', 'atmosphere', 'visit'], ['sight', 'sound', 'props', 'floor', 'ceiling', 'exterior'])
         ident(sc['id']); text(sc['label'], 48); uint(sc['visit'])
         assert sc['place'] in ['workplace', 'social', 'private', 'other', 'hazard'] and sc['atmosphere'] in ['calm', 'busy', 'tense', 'emergency']
-        for k in ['sight', 'sound']:
+        for k in ['sight', 'sound', 'floor', 'ceiling']:
             if sc.get(k) is not None: text(sc[k], 160)
+        if sc.get('exterior') is not None: boolean(sc['exterior'])
         present = sc.get('props', []); assert isinstance(present, list) and len(present) <= 64; seen = []
         for p in present:
-            keys(p, ['id', 'note']); ident(p['id']); assert p['id'] not in seen; seen.append(p['id'])
+            keys(p, ['id', 'note'], ['spot', 'facing', 'coords', 'occludes', 'line_of_sight', 'blocked_by', 'behind', 'dimensions',
+                                     'mass', 'state', 'material', 'color', 'texture', 'tags', 'attributes']); ident(p['id']); assert p['id'] not in seen; seen.append(p['id'])
             if p['note'] is not None: text(p['note'], 160)
+            if p.get('spot') is not None: ident(p['spot'])
+            if p.get('facing') is not None: text(p['facing'], 48)
+            if p.get('coords') is not None: coords_val(p['coords'])
+            if p.get('occludes') is not None: boolean(p['occludes'])
+            if p.get('line_of_sight') is not None: boolean(p['line_of_sight'])
+            if p.get('blocked_by') is not None: ident(p['blocked_by'])
+            if p.get('behind') is not None: ident(p['behind'])
+            if p.get('dimensions') is not None: dimensions_val(p['dimensions'])
+            defs.validate_matter(p)
+            if p.get('tags') is not None:
+                for tg in lst(p['tags'], 0, 32): text(tg, 48)
+            if p.get('attributes') is not None:
+                att = p['attributes']; assert isinstance(att, dict) and len(att) <= 32
+                for k, val in att.items():
+                    ident(k)
+                    if isinstance(val, str): text(val, 120)
+                    else: assert type(val) in (int, float, bool)
         trust = t.get('trust', 0); assert type(trust) is int and -100 <= trust <= 100
         choices = t.get('choices', []); assert isinstance(choices, list) and len(choices) <= 128
         for i, d in enumerate(choices): assert d is not None; decision(d); assert d not in choices[:i]
@@ -308,9 +497,61 @@ class Engine:
         if reason is not None: text(reason, 240)
         targets = t.get('targets', []); assert isinstance(targets, list) and len(targets) <= 64; tids = []
         for g in targets:
-            keys(g, ['kind', 'id', 'names']); assert g['kind'] in ['character', 'place']; ident(g['id']); assert (g['kind'], g['id']) not in tids; tids.append((g['kind'], g['id']))
+            keys(g, ['kind', 'id', 'names'], ['distance', 'spot', 'facing', 'coords', 'occludes', 'line_of_sight', 'blocked_by', 'behind', 'dimensions',
+                                              'mass', 'state', 'material', 'color', 'texture', 'tags', 'attributes',
+                                              'features', 'clothing', 'sensory', 'habits', 'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent'])
+            assert g['kind'] in ['character', 'place']; ident(g['id']); assert (g['kind'], g['id']) not in tids; tids.append((g['kind'], g['id']))
             assert isinstance(g['names'], list) and 1 <= len(g['names']) <= 8
             for n in g['names']: text(n, 48); assert norm(n)
+            dist_val(g.get('distance'))
+            if g.get('spot') is not None: ident(g['spot'])
+            if g.get('facing') is not None: text(g['facing'], 48)
+            if g.get('coords') is not None: coords_val(g['coords'])
+            if g.get('occludes') is not None: boolean(g['occludes'])
+            if g.get('line_of_sight') is not None: boolean(g['line_of_sight'])
+            if g.get('blocked_by') is not None: ident(g['blocked_by'])
+            if g.get('behind') is not None: ident(g['behind'])
+            if g.get('dimensions') is not None: dimensions_val(g['dimensions'])
+            defs.validate_matter(g)
+            if g.get('features') is not None:
+                f = g['features']; keys(f, [], ['eyes', 'hair', 'skin', 'scars', 'height', 'build'])
+                for k in ['eyes', 'hair', 'skin', 'build']:
+                    if k in f and f[k] is not None: text(f[k], 48)
+                for sc_item in lst(f.get('scars', []), 0, 8): text(sc_item, 48)
+                if 'height' in f and f['height'] is not None:
+                    assert (type(f['height']) is int or type(f['height']) is float) and 0.0 < f['height'] <= 100.0
+            if g.get('clothing') is not None:
+                for item in (g['clothing'] if isinstance(g['clothing'], list) else [g['clothing']]):
+                    text(item, 48)
+            if g.get('sensory') is not None:
+                sn = g['sensory']; keys(sn, [], ['scent', 'voice_tone'])
+                for k in ['scent', 'voice_tone']:
+                    if k in sn and sn[k] is not None: text(sn[k], 48)
+            if g.get('habits') is not None:
+                for h in lst(g['habits'], 0, 16): text(h, 80)
+            if g.get('tags') is not None:
+                for tg in lst(g['tags'], 0, 32): text(tg, 48)
+            if g.get('attributes') is not None:
+                att = g['attributes']; assert isinstance(att, dict) and len(att) <= 32
+                for k, val in att.items():
+                    ident(k)
+                    if isinstance(val, str): text(val, 120)
+                    else: assert type(val) in (int, float, bool)
+            for k in ['posture', 'activity', 'awareness', 'expression', 'scent']:
+                if g.get(k) is not None: text(g[k], 80)
+            if g.get('gaze') is not None: ident(g['gaze'])
+            if g.get('held') is not None:
+                if isinstance(g['held'], dict):
+                    assert len(g['held']) <= 8
+                    for k, val in g['held'].items(): text(k, 32); text(val, 64)
+                elif isinstance(g['held'], list):
+                    assert len(g['held']) <= 8
+                    for x in g['held']: text(x, 64)
+                else: assert False
+            if g.get('line_of_sight') is not None: boolean(g['line_of_sight'])
+            if g.get('blocked_by') is not None: ident(g['blocked_by'])
+            if g.get('behind') is not None: ident(g['behind'])
+            if g.get('dimensions') is not None: dimensions_val(g['dimensions'])
         cdx = self.codex; sh = self.sheet
         place = next((x for x in cdx.get('places', []) if x['id'] == sc['id']), None)
         listed = defs.lst(t.get('entrances', []), 0, 64); eids = []; visible = []
@@ -331,7 +572,8 @@ class Engine:
         for k, x in flags.items(): ident(k); assert type(x) is bool or type(x) is int and -1000000000 <= x <= 1000000000 or isinstance(x, str) and len(x) <= 64 and not control(x)
         registry = cfg['features']['props']['registry']['props']
         if self.on('props'):
-            present = [dict(prop=next(r for r in registry if r['id'] == p['id']), note=p['note']) for p in present]
+            present = [dict(prop=next(r for r in registry if r['id'] == p['id']), note=p['note'], line_of_sight=p.get('line_of_sight', True),
+                            dimensions=dimensions_val(p.get('dimensions')), material=p.get('material'), color=p.get('color'), texture=p.get('texture')) for p in present]
         else: present = []
 
         raw = t['text']
@@ -343,7 +585,30 @@ class Engine:
         q = norm(line); stripped = line.strip(); starred = len(stripped) >= 3 and stripped.startswith('*') and stripped.endswith('*')
         l = self.listener(who); recent = l['recent'] if l else []
         rel = 'guarded' if trust < 0 else 'warm' if trust >= 25 else 'reserved'
-        base = dict(name=me['name'], scene=sc['label'], place=sc['place'], atmosphere=sc['atmosphere'], trust=trust, relationship=rel)
+        is_exterior = sc.get('exterior') if sc.get('exterior') is not None else (place or {}).get('exterior', False)
+        base = dict(name=me['name'], scene=sc['label'], place=sc['place'], atmosphere=sc['atmosphere'], trust=trust, relationship=rel, exterior=is_exterior)
+        if t.get('facing') is not None: base['facing'] = t['facing']
+        if t.get('spot') is not None: base['spot'] = t['spot']
+        feat = t.get('features') if t.get('features') is not None else sh.get('features')
+        if feat:
+            if feat.get('eyes'): base['eyes'] = feat['eyes']
+            if feat.get('hair'): base['hair'] = feat['hair']
+            if feat.get('skin'): base['skin'] = feat['skin']
+        clothing = t.get('clothing') if t.get('clothing') is not None else sh.get('clothing')
+        if clothing:
+            cl_list = [clothing] if isinstance(clothing, str) else [x for x in clothing if isinstance(x, str)]
+            if cl_list and (j := self.joined(cl_list)) is not None and len(j) <= 240:
+                base['clothing'] = j
+        posture = t.get('posture') if t.get('posture') is not None else (sh.get('state') or {}).get('posture')
+        if posture: base['posture'] = posture
+        activity = t.get('activity') if t.get('activity') is not None else (sh.get('state') or {}).get('activity')
+        if activity: base['activity'] = activity
+        awareness = t.get('awareness') if t.get('awareness') is not None else (sh.get('state') or {}).get('awareness')
+        if awareness: base['awareness'] = awareness
+        expr = t.get('expression') if t.get('expression') is not None else (sh.get('state') or {}).get('expression')
+        if expr: base['expression'] = expr
+        scent = t.get('scent') if t.get('scent') is not None else (t.get('sensory') or {}).get('scent') if (t.get('sensory') or {}).get('scent') is not None else (sh.get('sensory') or {}).get('scent')
+        if scent: base['scent'] = scent
         for k, x in flags.items(): base['state.' + k] = x
         if self.on('goals'):
             urgent = [(needs[n['id']], -i, n) for i, n in enumerate(sh.get('needs', [])) if n['id'] in needs and needs[n['id']] >= n['threshold']]
@@ -386,11 +651,16 @@ class Engine:
 
         if self.on('out_of_character') and expression()['mode'] == 'ooc':
             return dict(route='out_of_character', kind='note', note=expression()['note'])
+        if self.on('addressing'):
+            act = self.eval_addressing(t, line, me, targets, sh, at)
+            if act is not None: return act
         if self.on('content'):
             hit = next((a for a in cfg['features']['content']['avoid'] if contains(a['phrases'])), None)
             if hit is not None: return reply('content', 'content_redirect', base, dict(topic=hit['id'])) or clarify('content', 'content_redirect', dict(topic=hit['id']))
         key = norm(stripped[1:-1]) if starred else q
         if self.on('stage_actions') and starred and len(stripped.encode()) <= 1024:
+            if t.get('line_of_sight') is False:
+                return dict(route='stage_action', kind='silent', reason='occluded')
             s = roleplay_actions_cases.oracle(dict(registry=cfg['features']['stage_actions']['actions'], input=stripped, choices=choices))
             if s['status'] == 'proposed': return normed(dict(route='stage_action', kind='action', id=s['id'], decision=s['decision'], narration=s['narration']))
             if s['status'] == 'blocked': return clarify('stage_action', 'stage_action_blocked', dict(id=s['id']))
@@ -433,14 +703,20 @@ class Engine:
             return next((a[k] for a in (pl or {}).get('ambience', []) if k in a and when_ok(a.get('when', {}), base)), None)
         asks = ([('perception', i) for i in ['ask_location', 'ask_sight', 'ask_hearing', 'ask_name']] if self.on('perception') else []) + \
             ([('entrances', 'ask_exits')] if self.on('entrances') and cdx.get('entrances') else []) + \
-            ([('scenery', i) for i in ['ask_smell', 'ask_light', 'ask_temperature']] if self.on('scenery') and place is not None else []) + \
-            ([('persona', i) for i in ['ask_role', 'ask_self']] if self.on('persona') else [])
+            ([('scenery', i) for i in ['ask_smell', 'ask_light', 'ask_temperature', 'ask_floor', 'ask_ceiling']] if self.on('scenery') and place is not None else []) + \
+            ([('persona', i) for i in ['ask_role', 'ask_self', 'ask_clothing', 'ask_appearance', 'ask_activity']] if self.on('persona') else [])
         if asks and not long:
             sound = sc.get('sound') if sc.get('sound') is not None else ambience(place, 'sound') if self.on('scenery') else None
-            v = dict(base, has_sight=sc.get('sight') is not None, has_sound=sound is not None, has_props=bool(present))
+            floor = sc.get('floor') if sc.get('floor') is not None else ambience(place, 'floor') if self.on('scenery') else None
+            ceiling = sc.get('ceiling') if sc.get('ceiling') is not None else ambience(place, 'ceiling') if self.on('scenery') else None
+            visible_props = [p for p in present if p.get('line_of_sight') is not False]
+            v = dict(base, has_sight=sc.get('sight') is not None, has_sound=sound is not None, has_props=bool(visible_props),
+                     has_floor=floor is not None, has_ceiling=ceiling is not None)
             if sc.get('sight') is not None: v['sight'] = sc['sight']
             if sound is not None: v['sound'] = sound
-            if present and (j := self.joined([p['prop']['label'] for p in present])) is not None and len(j) <= 240: v['props'] = j
+            if floor is not None: v['floor'] = floor
+            if ceiling is not None: v['ceiling'] = ceiling
+            if visible_props and (j := self.joined([p['prop']['label'] for p in visible_props])) is not None and len(j) <= 240: v['props'] = j
             if self.on('scenery'):
                 for k in ['smell', 'light', 'temperature']:
                     if (a := ambience(place, k)) is not None: v[k] = a
@@ -459,10 +735,16 @@ class Engine:
         if not long and (self.on('props') or self.on('entrances') or self.on('scenery')):
             ok, rest = match(self.phrases.get('describe_prop'), q)
             if ok and rest:
-                hits = [p for p in present if self.bare(rest) in [self.bare(norm(n)) for n in [p['prop']['label']] + p['prop']['aliases']]]
+                hits = [p for p in present if p.get('line_of_sight') is not False and self.bare(rest) in [self.bare(norm(n)) for n in [p['prop']['label']] + p['prop']['aliases']]]
                 if len(hits) == 1:
                     p = hits[0]; v = dict(base, prop=p['prop']['label'], description=p['prop']['description'], has_note=p['note'] is not None)
                     if p['note'] is not None: v['note'] = p['note']
+                    mat = p.get('material') or p['prop'].get('material')
+                    if mat: v['material'] = mat
+                    col = p.get('color') or p['prop'].get('color')
+                    if col: v['color'] = col
+                    tex = p.get('texture') or p['prop'].get('texture')
+                    if tex: v['texture'] = tex
                     if out := reply('props', 'describe_prop', v, dict(prop=p['prop']['id'])): return out
                 hits = [e for e in visible if self.on('entrances') and self.bare(rest) in [self.bare(n) for n in e['names']]]
                 if len(hits) == 1:
@@ -473,6 +755,9 @@ class Engine:
                 hits = [x for x in (place or {}).get('spots', []) if self.on('scenery') and self.bare(rest) in [self.bare(norm(n)) for n in [x['label']] + x.get('aliases', [])]]
                 if len(hits) == 1:
                     v = dict(base, label=hits[0]['label'], description=hits[0]['description'])
+                    for k in ['material', 'color', 'texture']:
+                        if hits[0].get(k): v[k] = hits[0][k]
+                    if out := reply('scenery', 'describe_spot', v, dict(spot=hits[0]['id'])): return out
                     if out := reply('scenery', 'describe_spot', v, dict(spot=hits[0]['id'])): return out
         if self.on('commands') and not long:
             # A null focus never matches a null target (the Rust grammar checks focus only for targeted pairs).
@@ -604,7 +889,13 @@ class Engine:
         if self.on('scenery'):
             for k in ['smell', 'light', 'temperature']:
                 if (a := ambience(place, k)) is not None: scene[k] = a
-        if present: scene['props'] = [p['prop']['label'] for p in present]
+        floor = sc.get('floor') if sc.get('floor') is not None else ambience(place, 'floor') if self.on('scenery') else None
+        if floor is not None: scene['floor'] = floor
+        ceiling = sc.get('ceiling') if sc.get('ceiling') is not None else ambience(place, 'ceiling') if self.on('scenery') else None
+        if ceiling is not None: scene['ceiling'] = ceiling
+        if base.get('exterior'): scene['exterior'] = True
+        visible_props = [p for p in present if p.get('line_of_sight') is not False]
+        if visible_props: scene['props'] = [p['prop']['label'] for p in visible_props]
         if self.on('entrances') and visible: scene['exits'] = [e['d']['label'] for e in visible]
         l = self.listener(who); listener = dict(relationship=base['relationship'])
         if l and l['name']: listener['name'] = l['name']

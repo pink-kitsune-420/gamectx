@@ -6,8 +6,10 @@ use crate::{
     packet::request::bounded,
     Result, Value,
 };
+mod describer;
 mod digest;
 mod registry;
+pub use describer::{DescriberConfig, DescriberMode, ModelTarget, VisualDescriber};
 pub use registry::{workflow as assets_workflow, AssetRef, AssetRegistry, RegistryConfig};
 pub(crate) fn canonical(v: &Value) -> Value {
     match v {
@@ -62,6 +64,15 @@ pub(crate) fn tokens(v: &Value, cap: usize) -> Result<Vec<String>> {
 pub(crate) fn set(v: &mut Value, k: &str, x: Value) {
     crate::character::archetype::set_field(v, k, x);
 }
+fn keys(v: &Value, required: &[&str], optional: &[&str]) -> Result<()> {
+    let rows = v.as_object().ok_or_else(c::bad)?;
+    if required.iter().any(|k| v.get(k).is_none())
+        || rows.iter().any(|(k, _)| !required.contains(&k.as_str()) && !optional.contains(&k.as_str()))
+    {
+        return Err(c::bad());
+    }
+    Ok(())
+}
 #[derive(Clone, Debug)]
 pub struct ArtBible {
     value: Value,
@@ -73,7 +84,7 @@ impl ArtBible {
     }
     pub fn from_value(v: &Value) -> Result<Self> {
         bounded(v, 65536)?;
-        c::fields(
+        keys(
             v,
             &[
                 "version",
@@ -94,12 +105,25 @@ impl ArtBible {
                 "facts",
                 "max_fact_age",
             ],
+            &["lighting", "atmosphere", "tags", "attributes"],
         )?;
         c::uint(get(v, "version")?, 1, 1)?;
         c::name(text(v, "id")?)?;
         c::uint(get(v, "revision")?, 1, u32::MAX as u64)?;
         for k in ["style", "camera_angle", "framing"] {
             token(text(v, k)?)?;
+        }
+        if let Some(l) = v.get("lighting").filter(|x| *x != &Value::Null) {
+            token(c::text(l)?)?;
+        }
+        if let Some(a) = v.get("atmosphere").filter(|x| *x != &Value::Null) {
+            token(c::text(a)?)?;
+        }
+        if let Some(t) = v.get("tags").filter(|x| *x != &Value::Null) {
+            tokens(t, 32)?;
+        }
+        if let Some(attr) = v.get("attributes").filter(|x| *x != &Value::Null) {
+            crate::character::sheet::validate_attributes(attr)?;
         }
         if !matches!(text(v, "format")?, "portrait" | "sprite" | "scene") {
             return Err(c::bad());
@@ -122,7 +146,27 @@ impl ArtBible {
             return Err(c::bad());
         }
         for (i, a) in anchors.iter().enumerate() {
-            c::fields(a, &["entity", "kind", "silhouette", "attire", "props", "seed"])?;
+            keys(
+                a,
+                &["entity", "kind", "silhouette", "attire", "props", "seed"],
+                &[
+                    "features",
+                    "clothing",
+                    "material",
+                    "color",
+                    "texture",
+                    "mass",
+                    "state",
+                    "dimensions",
+                    "floor",
+                    "ceiling",
+                    "exterior",
+                    "tags",
+                    "attributes",
+                    "lighting",
+                    "atmosphere",
+                ],
+            )?;
             c::scope(text(a, "entity")?)?;
             if !matches!(text(a, "kind")?, "character" | "scene")
                 || anchors[..i].iter().any(|o| o.get("entity") == a.get("entity"))
@@ -133,6 +177,37 @@ impl ArtBible {
             token(text(a, "attire")?)?;
             tokens(get(a, "props")?, 16)?;
             num(a, "seed")?;
+            if let Some(feat) = a.get("features").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::validate_features(feat)?;
+            }
+            if let Some(clo) = a.get("clothing").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::validate_clothing(clo)?;
+            }
+            crate::character::sheet::validate_matter(a)?;
+            if let Some(d) = a.get("dimensions").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::dimensions_val(d)?;
+            }
+            if let Some(fl) = a.get("floor").filter(|x| *x != &Value::Null) {
+                token(c::text(fl)?)?;
+            }
+            if let Some(ce) = a.get("ceiling").filter(|x| *x != &Value::Null) {
+                token(c::text(ce)?)?;
+            }
+            if let Some(ex) = a.get("exterior").filter(|x| *x != &Value::Null) {
+                c::boolean(ex)?;
+            }
+            if let Some(t) = a.get("tags").filter(|x| *x != &Value::Null) {
+                tokens(t, 32)?;
+            }
+            if let Some(attr) = a.get("attributes").filter(|x| *x != &Value::Null) {
+                crate::character::sheet::validate_attributes(attr)?;
+            }
+            if let Some(l) = a.get("lighting").filter(|x| *x != &Value::Null) {
+                token(c::text(l)?)?;
+            }
+            if let Some(at) = a.get("atmosphere").filter(|x| *x != &Value::Null) {
+                token(c::text(at)?)?;
+            }
         }
         for (key, cap, id) in [("expressions", 32, "id"), ("poses", 32, "activity"), ("facts", 64, "id")] {
             let rows = c::list(get(v, key)?)?;
@@ -161,7 +236,11 @@ impl ArtBible {
                         c::fields(row, &["activity", "tokens"])?;
                     }
                     _ => {
-                        c::fields(row, &["id", "group", "priority", "tokens", "props"])?;
+                        keys(
+                            row,
+                            &["id", "group", "priority", "tokens", "props"],
+                            &["material", "color", "texture", "mass", "state", "dimensions", "tags", "attributes"],
+                        )?;
                         if get(row, "group")? != &Value::Null {
                             c::name(text(row, "group")?)?;
                         }
@@ -173,6 +252,16 @@ impl ArtBible {
                             {
                                 return Err(c::bad());
                             }
+                        }
+                        crate::character::sheet::validate_matter(row)?;
+                        if let Some(d) = row.get("dimensions").filter(|x| *x != &Value::Null) {
+                            crate::character::sheet::dimensions_val(d)?;
+                        }
+                        if let Some(t) = row.get("tags").filter(|x| *x != &Value::Null) {
+                            tokens(t, 32)?;
+                        }
+                        if let Some(attr) = row.get("attributes").filter(|x| *x != &Value::Null) {
+                            crate::character::sheet::validate_attributes(attr)?;
                         }
                     }
                 }
@@ -186,7 +275,7 @@ impl ArtBible {
             let mut rows = c::list(get(v, k)?)?.to_vec();
             rows.sort_by(|a, b| a.get(id).and_then(Value::as_str).cmp(&b.get(id).and_then(Value::as_str)));
             for row in &mut rows {
-                for key in ["props", "tokens"] {
+                for key in ["props", "tokens", "tags"] {
                     if let Some(xs) = row.get(key) {
                         let sorted = tokens(xs, 32)?;
                         set(row, key, sorted.into());
@@ -203,6 +292,30 @@ impl ArtBible {
     }
     pub fn digest(&self) -> &str {
         &self.digest
+    }
+    pub fn id(&self) -> Result<&str> {
+        text(&self.value, "id")
+    }
+    pub fn style(&self) -> Result<&str> {
+        text(&self.value, "style")
+    }
+    pub fn format(&self) -> Result<&str> {
+        text(&self.value, "format")
+    }
+    pub fn anchor(&self, entity: &str) -> Option<&Value> {
+        c::list(get(&self.value, "anchors").ok()?)
+            .ok()?
+            .iter()
+            .find(|a| a.get("entity").and_then(Value::as_str) == Some(entity))
+    }
+    pub fn anchors(&self) -> Result<&[Value]> {
+        c::list(get(&self.value, "anchors")?)
+    }
+    pub fn describe_anchor(&self, entity: &str) -> Result<Value> {
+        VisualDescriber::default().describe_anchor(self, entity)
+    }
+    pub fn describe_anchor_with(&self, entity: &str, config: &DescriberConfig) -> Result<Value> {
+        VisualDescriber::new(config.clone()).describe_anchor(self, entity)
     }
 }
 #[derive(Clone, Debug)]
@@ -295,6 +408,46 @@ impl VisualSpec {
             text(d, "silhouette")?.into(),
             text(d, "attire")?.into(),
         ];
+        if let Some(feat) = d.get("features").and_then(Value::as_object) {
+            for k in ["eyes", "hair", "skin", "build"] {
+                if let Some(v) =
+                    feat.iter().find(|(key, _)| key == k).and_then(|(_, v)| v.as_str()).filter(|s| !s.is_empty())
+                {
+                    positive.push(if k == "build" { format!("{v} build") } else { format!("{v} {k}") });
+                }
+            }
+            if let Some(scars) = feat.iter().find(|(k, _)| k == "scars").and_then(|(_, v)| v.as_array()) {
+                for s in scars {
+                    if let Some(scar) = s.as_str().filter(|x| !x.is_empty()) {
+                        positive.push(scar.to_owned());
+                    }
+                }
+            }
+        }
+        if let Some(clothing) = d.get("clothing").and_then(Value::as_array) {
+            for item in clothing {
+                if let Some(s) = item.as_str().filter(|x| !x.is_empty()) {
+                    positive.push(s.to_owned());
+                }
+            }
+        }
+        for k in ["color", "texture", "material"] {
+            if let Some(v) = d.get(k).and_then(Value::as_str).filter(|s| !s.is_empty()) {
+                positive.push(v.to_owned());
+            }
+        }
+        if let Some(fl) = d.get("floor").and_then(Value::as_str).filter(|s| !s.is_empty()) {
+            positive.push(format!("{fl} floor"));
+        }
+        if let Some(ce) = d.get("ceiling").and_then(Value::as_str).filter(|s| !s.is_empty()) {
+            positive.push(format!("{ce} ceiling"));
+        }
+        if let Some(l) = d.get("lighting").and_then(Value::as_str).filter(|s| !s.is_empty()) {
+            positive.push(l.to_owned());
+        }
+        if let Some(a) = d.get("atmosphere").and_then(Value::as_str).filter(|s| !s.is_empty()) {
+            positive.push(a.to_owned());
+        }
         for k in ["expression", "pose"] {
             positive.extend(tokens(get(get(d, k)?, "tokens")?, 64)?);
         }
@@ -303,9 +456,35 @@ impl VisualSpec {
         }
         positive.extend(tokens(get(d, "visible_props")?, 16)?);
         positive.extend(tokens(get(d, "extra_tokens")?, 64)?);
-        Ok(
-            obj! {"positive_tokens"=>positive,"negative_tokens"=>get(d,"negative_tokens")?.clone(),"palette"=>get(d,"palette")?.clone(),"width"=>get(d,"width")?.clone(),"height"=>get(d,"height")?.clone(),"seed"=>get(d,"seed")?.clone()},
-        )
+
+        let described = VisualDescriber::default().describe(self)?;
+        let prompt = described.get("prompt").cloned().unwrap_or_else(|| Value::str(""));
+        let negative_prompt = described.get("negative_prompt").cloned().unwrap_or_else(|| Value::str(""));
+
+        Ok(obj! {
+            "positive_tokens" => positive,
+            "negative_tokens" => get(d, "negative_tokens")?.clone(),
+            "palette" => get(d, "palette")?.clone(),
+            "width" => get(d, "width")?.clone(),
+            "height" => get(d, "height")?.clone(),
+            "seed" => get(d, "seed")?.clone(),
+            "prompt" => prompt,
+            "negative_prompt" => negative_prompt,
+        })
+    }
+    pub fn prompt(&self) -> Result<String> {
+        let desc = VisualDescriber::default().describe(self)?;
+        Ok(text(&desc, "prompt")?.to_owned())
+    }
+    pub fn negative_prompt(&self) -> Result<String> {
+        let desc = VisualDescriber::default().describe(self)?;
+        Ok(text(&desc, "negative_prompt")?.to_owned())
+    }
+    pub fn describe(&self) -> Result<Value> {
+        VisualDescriber::default().describe(self)
+    }
+    pub fn describe_with(&self, config: &DescriberConfig) -> Result<Value> {
+        VisualDescriber::new(config.clone()).describe(self)
     }
     pub fn compile(
         b: &ArtBible,
@@ -492,7 +671,28 @@ impl VisualSpec {
         environment = environment.iter().map(canonical).collect();
         environment.sort_by_key(Value::to_json);
         let seed=u32::from_str_radix(&hash(&obj!{"bible"=>get(&b.value,"id")?.clone(),"entity"=>get(f,"entity")?.clone(),"seed"=>get(anchor,"seed")?.clone()})[..8],16).expect("hash");
-        let data = obj! {"version"=>1,"bible_id"=>get(&b.value,"id")?.clone(),"art_bible_revision"=>get(&b.value,"revision")?.clone(),"bible_digest"=>b.digest.clone(),"scope"=>get(f,"scope")?.clone(),"observer"=>get(f,"observer")?.clone(),"audience"=>audience,"entity"=>get(f,"entity")?.clone(),"scene"=>get(scene,"id")?.clone(),"scene_epoch"=>get(scene,"epoch")?.clone(),"style"=>get(&b.value,"style")?.clone(),"format"=>get(&b.value,"format")?.clone(),"width"=>get(&b.value,"width")?.clone(),"height"=>get(&b.value,"height")?.clone(),"aspect"=>get(&b.value,"aspect")?.clone(),"camera_angle"=>get(&b.value,"camera_angle")?.clone(),"framing"=>get(&b.value,"framing")?.clone(),"palette"=>get(&b.value,"palette")?.clone(),"silhouette"=>get(anchor,"silhouette")?.clone(),"attire"=>get(anchor,"attire")?.clone(),"expression"=>expression,"pose"=>pose,"visible_props"=>props,"environment"=>environment,"seed"=>seed,"negative_tokens"=>get(&b.value,"negative_tokens")?.clone(),"extra_tokens"=>Vec::<Value>::new(),"forbidden_props"=>Vec::<Value>::new()};
+        let mut data = obj! {"version"=>1,"bible_id"=>get(&b.value,"id")?.clone(),"art_bible_revision"=>get(&b.value,"revision")?.clone(),"bible_digest"=>b.digest.clone(),"scope"=>get(f,"scope")?.clone(),"observer"=>get(f,"observer")?.clone(),"audience"=>audience,"entity"=>get(f,"entity")?.clone(),"scene"=>get(scene,"id")?.clone(),"scene_epoch"=>get(scene,"epoch")?.clone(),"style"=>get(&b.value,"style")?.clone(),"format"=>get(&b.value,"format")?.clone(),"width"=>get(&b.value,"width")?.clone(),"height"=>get(&b.value,"height")?.clone(),"aspect"=>get(&b.value,"aspect")?.clone(),"camera_angle"=>get(&b.value,"camera_angle")?.clone(),"framing"=>get(&b.value,"framing")?.clone(),"palette"=>get(&b.value,"palette")?.clone(),"silhouette"=>get(anchor,"silhouette")?.clone(),"attire"=>get(anchor,"attire")?.clone(),"expression"=>expression,"pose"=>pose,"visible_props"=>props,"environment"=>environment,"seed"=>seed,"negative_tokens"=>get(&b.value,"negative_tokens")?.clone(),"extra_tokens"=>Vec::<Value>::new(),"forbidden_props"=>Vec::<Value>::new()};
+        for k in [
+            "features",
+            "clothing",
+            "material",
+            "color",
+            "texture",
+            "mass",
+            "state",
+            "dimensions",
+            "floor",
+            "ceiling",
+            "exterior",
+            "tags",
+            "attributes",
+            "lighting",
+            "atmosphere",
+        ] {
+            if let Some(val) = anchor.get(k).filter(|x| *x != &Value::Null) {
+                set(&mut data, k, val.clone());
+            }
+        }
         let mut ids = selected.iter().map(|r| get(r, "id").expect("id").clone()).collect::<Vec<_>>();
         ids.sort_by(|a, b| a.as_str().cmp(&b.as_str()));
         omitted.sort_by(|a, b| a.get("id").and_then(Value::as_str).cmp(&b.get("id").and_then(Value::as_str)));

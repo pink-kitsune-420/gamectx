@@ -10,7 +10,11 @@ fn parse(s: &str) -> Value {
 }
 fn set(v: &mut Value, k: &str, x: Value) {
     let Value::Object(xs) = v else { panic!() };
-    xs.iter_mut().find(|(key, _)| key == k).unwrap().1 = x;
+    if let Some(entry) = xs.iter_mut().find(|(key, _)| key == k) {
+        entry.1 = x;
+    } else {
+        xs.push((k.to_string(), x));
+    }
 }
 fn fixture(name: &str) -> Value {
     parse(
@@ -192,4 +196,201 @@ fn disabled_registry_never_queues_and_uri_is_not_loaded() {
     assert_eq!(first.get("reason"), Some(&Value::str("disabled")));
     let asset = visual::AssetRef::from_bytes("asset://owned.png", b"owned bytes").unwrap();
     assert_eq!(asset.to_value().get("digest"), Some(&visual::content_digest(b"owned bytes").unwrap().into()));
+}
+
+#[test]
+fn art_bible_living_embodiment_and_physical_matter() {
+    let a = fixture("neutral_portrait");
+    let mut b = a.get("bible").unwrap().clone();
+
+    // Attach living character features and clothing to anchor
+    let mut anchors = b.get("anchors").unwrap().as_array().unwrap().to_vec();
+    let mut merchant_anchor = anchors[0].clone();
+    set(
+        &mut merchant_anchor,
+        "features",
+        obj! {
+            "eyes" => "amber",
+            "hair" => "raven black",
+            "skin" => "pale",
+            "scars" => vec!["thin scar on left cheek"],
+            "build" => "lean",
+            "height" => Value::Number("1.75".into())
+        },
+    );
+    set(
+        &mut merchant_anchor,
+        "clothing",
+        vec!["heavy woolen cloak", "tailored blue tunic", "sturdy leather boots"].into(),
+    );
+    set(&mut merchant_anchor, "material", "flesh and bone".into());
+    set(&mut merchant_anchor, "color", "copper-tinted".into());
+    set(&mut merchant_anchor, "texture", "weathered".into());
+    set(&mut merchant_anchor, "mass", Value::Number("68.5".into()));
+    set(&mut merchant_anchor, "state", "solid".into());
+    set(&mut merchant_anchor, "dimensions", vec![0.4, 0.3, 1.75].into());
+    set(&mut merchant_anchor, "tags", vec!["npc", "merchant", "artisan"].into());
+    set(&mut merchant_anchor, "attributes", obj! {"guild" => "lantern_keepers", "rank" => 3});
+    anchors[0] = merchant_anchor;
+
+    // Attach scenery depth to scene anchor
+    let mut counter_anchor = anchors[1].clone();
+    set(&mut counter_anchor, "floor", "cobblestone".into());
+    set(&mut counter_anchor, "ceiling", "vaulted oak beams".into());
+    set(&mut counter_anchor, "exterior", false.into());
+    set(&mut counter_anchor, "lighting", "warm lantern light".into());
+    set(&mut counter_anchor, "atmosphere", "cozy subterranean vault".into());
+    anchors[1] = counter_anchor;
+
+    set(&mut b, "anchors", anchors.into());
+    set(&mut b, "lighting", "soft ambient glow".into());
+    set(&mut b, "atmosphere", "mysterious vault".into());
+    set(&mut b, "tags", vec!["fantasy", "roleplay"].into());
+
+    let bible = ArtBible::from_value(&b).unwrap();
+    assert_eq!(bible.id().unwrap(), "chime_art");
+    assert_eq!(bible.style().unwrap(), "Original flat-color ink illustration");
+    assert_eq!(bible.format().unwrap(), "portrait");
+
+    let merchant = bible.anchor("merchant").unwrap();
+    assert!(merchant.get("features").is_some());
+    assert!(merchant.get("clothing").is_some());
+    assert_eq!(merchant.get("material"), Some(&Value::str("flesh and bone")));
+
+    // Direct anchor describe with default describer
+    let desc = bible.describe_anchor("merchant").unwrap();
+    let prompt = desc.get("prompt").unwrap().as_str().unwrap();
+    assert!(prompt.contains("amber eyes"));
+    assert!(prompt.contains("raven black hair"));
+    assert!(prompt.contains("pale skin"));
+    assert!(prompt.contains("thin scar on left cheek"));
+    assert!(prompt.contains("heavy woolen cloak"));
+    assert!(prompt.contains("weathered"));
+    assert!(prompt.contains("copper-tinted"));
+    assert!(prompt.contains("Palette: copper, deep blue, warm gray."));
+
+    // Verify structured descriptors
+    let descriptors = desc.get("descriptors").unwrap();
+    assert_eq!(descriptors.get("subject"), Some(&Value::str("slender figure with swept-back hair")));
+    assert!(descriptors.get("features").is_some());
+    assert!(descriptors.get("clothing").is_some());
+    assert!(descriptors.get("matter").is_some());
+
+    // Compile VisualSpec with enriched bible
+    let mut frame = a.get("frame").unwrap().clone();
+    set(&mut frame, "life_revision", Value::Null);
+    let spec = VisualSpec::compile(&bible, &frame, None, &Activity::idle()).unwrap();
+    let spec_desc = spec.describe().unwrap();
+    let spec_prompt = spec_desc.get("prompt").unwrap().as_str().unwrap();
+    assert!(spec_prompt.contains("amber eyes"));
+    assert!(spec_prompt.contains("heavy woolen cloak"));
+
+    // Render includes prompt and negative prompt
+    let rendered = spec.render().unwrap();
+    assert!(rendered.get("prompt").is_some());
+    assert!(rendered.get("negative_prompt").is_some());
+    assert_eq!(spec.prompt().unwrap(), spec_prompt);
+}
+
+#[test]
+fn visual_describer_model_presets_and_customization() {
+    let spec = spec("neutral_portrait");
+
+    // SDXL preset: tags mode, extra negative tokens
+    let sdxl_cfg = visual::DescriberConfig::sdxl();
+    let sdxl_res = spec.describe_with(&sdxl_cfg).unwrap();
+    assert_eq!(sdxl_res.get("target"), Some(&Value::str("sdxl")));
+    let neg = sdxl_res.get("negative_prompt").unwrap().as_str().unwrap();
+    assert!(neg.contains("blurry"));
+    assert!(neg.contains("watermark"));
+
+    // Flux preset: clean tags, empty negative guidance
+    let flux_cfg = visual::DescriberConfig::flux();
+    let flux_res = spec.describe_with(&flux_cfg).unwrap();
+    assert_eq!(flux_res.get("target"), Some(&Value::str("flux")));
+    assert_eq!(flux_res.get("negative_prompt").unwrap().as_str().unwrap(), "");
+
+    // Midjourney preset: prose mode, style first, aspect suffix
+    let mj_cfg = visual::DescriberConfig::midjourney();
+    let mj_res = spec.describe_with(&mj_cfg).unwrap();
+    assert_eq!(mj_res.get("target"), Some(&Value::str("midjourney")));
+    let mj_prompt = mj_res.get("prompt").unwrap().as_str().unwrap();
+    assert!(mj_prompt.starts_with("Original flat-color ink illustration"));
+    assert!(mj_prompt.contains("--v 6.1"));
+
+    // DALL-E preset: prose mode, descriptive sentences
+    let dalle_cfg = visual::DescriberConfig::dalle();
+    let dalle_res = spec.describe_with(&dalle_cfg).unwrap();
+    assert_eq!(dalle_res.get("target"), Some(&Value::str("dalle3")));
+    assert_eq!(dalle_res.get("negative_prompt").unwrap().as_str().unwrap(), "");
+
+    // Custom configuration: custom separator, prefix, suffix, extra tokens
+    let custom_cfg = visual::DescriberConfig::default()
+        .with_separator(" | ")
+        .with_prefix("MASTERPIECE:")
+        .with_suffix("[8k resolution]")
+        .with_extra_positive(vec!["highly detailed".into()])
+        .with_extra_negative(vec!["jpeg artifacts".into()]);
+    let custom_res = spec.describe_with(&custom_cfg).unwrap();
+    let custom_prompt = custom_res.get("prompt").unwrap().as_str().unwrap();
+    assert!(custom_prompt.starts_with("MASTERPIECE:"));
+    assert!(custom_prompt.contains(" | "));
+    assert!(custom_prompt.contains("highly detailed"));
+    assert!(custom_prompt.ends_with("[8k resolution]"));
+
+    // Dynamic configuration from Value
+    let dynamic_val = obj! {
+        "mode" => "prose",
+        "style_first" => true,
+        "target" => "dalle3",
+        "extra_positive" => vec!["breathtaking"],
+        "prefix" => "Cinematic:"
+    };
+    let dynamic_cfg = visual::DescriberConfig::from_value(&dynamic_val).unwrap();
+    let dynamic_res = spec.describe_with(&dynamic_cfg).unwrap();
+    let dyn_prompt = dynamic_res.get("prompt").unwrap().as_str().unwrap();
+    assert!(dyn_prompt.starts_with("Cinematic:"));
+    assert!(dyn_prompt.contains("breathtaking"));
+}
+
+#[test]
+fn art_bible_malformed_embodiment_and_matter_rejection() {
+    let a = fixture("neutral_portrait");
+    let mut b = a.get("bible").unwrap().clone();
+
+    // Reject unknown anchor field
+    let mut anchors = b.get("anchors").unwrap().as_array().unwrap().to_vec();
+    let mut bad_anchor = anchors[0].clone();
+    set(&mut bad_anchor, "unregistered_key", "forbidden".into());
+    anchors[0] = bad_anchor;
+    set(&mut b, "anchors", anchors.clone().into());
+    assert!(ArtBible::from_value(&b).is_err());
+
+    // Reject invalid feature key
+    let mut bad_anchor = anchors[0].clone();
+    set(&mut bad_anchor, "features", obj! {"laser_eyes" => true});
+    anchors[0] = bad_anchor;
+    set(&mut b, "anchors", anchors.clone().into());
+    assert!(ArtBible::from_value(&b).is_err());
+
+    // Reject negative mass
+    let mut bad_anchor = anchors[0].clone();
+    set(&mut bad_anchor, "mass", Value::Number("-10.0".into()));
+    anchors[0] = bad_anchor;
+    set(&mut b, "anchors", anchors.clone().into());
+    assert!(ArtBible::from_value(&b).is_err());
+
+    // Reject invalid physical state
+    let mut bad_anchor = anchors[0].clone();
+    set(&mut bad_anchor, "state", "plasma".into());
+    anchors[0] = bad_anchor;
+    set(&mut b, "anchors", anchors.clone().into());
+    assert!(ArtBible::from_value(&b).is_err());
+
+    // Reject invalid dimensions length
+    let mut bad_anchor = anchors[0].clone();
+    set(&mut bad_anchor, "dimensions", vec![1.0, 2.0].into());
+    anchors[0] = bad_anchor;
+    set(&mut b, "anchors", anchors.into());
+    assert!(ArtBible::from_value(&b).is_err());
 }

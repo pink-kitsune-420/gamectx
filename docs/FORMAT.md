@@ -1929,7 +1929,12 @@ The additive `visual-spec` / `visual-assets` local formats and persistent `visua
 host operations are specified in [VISUAL](guides/VISUAL.md). They add 64 conformance cases,
 including 13 malformed inputs; all 1,026 existing cases retain their bytes. Bible/spec
 objects use canonical lexical keys for SHA-256 identity (other formats retain their
-existing ordering). Inspection is outside the key. Registry outputs have stable
+existing ordering). Anchors optionally support living embodiment details (`features`, `clothing`),
+physical matter (`material`, `color`, `texture`, `mass`, `state`, `dimensions`), scenery depth
+(`floor`, `ceiling`, `exterior`), and metadata (`tags`, `attributes`). `VisualDescriber` provides
+first-class customizable prompt compilation (`prompt`, `negative_prompt`, structured descriptors)
+supporting Tags and Prose modes with presets for SDXL, Flux, Midjourney, and DALL-E 3.
+Inspection is outside the key. Registry outputs have stable
 `key,state,asset,exact,pending,generation,reason` order; submitted candidates remain
 unapproved. Repair outputs `key,state,invalidated`. No model-call schema is added.
 

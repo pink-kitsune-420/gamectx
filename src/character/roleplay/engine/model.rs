@@ -19,6 +19,9 @@ pub(crate) struct Compile<'a> {
     pub scene: &'a Value,
     pub sight: Option<&'a str>,
     pub sound: Option<&'a str>,
+    pub floor: Option<&'a str>,
+    pub ceiling: Option<&'a str>,
+    pub exterior: bool,
     pub ambience: &'a dyn Fn(&str) -> Option<&'a str>,
     pub present: &'a [&'a str],
     pub exits: &'a [&'a str],
@@ -111,6 +114,15 @@ pub(crate) fn compile(t: &Compile) -> Value {
         if let Some(a) = (t.ambience)(k) {
             put(&mut scene, k, Value::str(a));
         }
+    }
+    if let Some(f) = t.floor {
+        put(&mut scene, "floor", Value::str(f));
+    }
+    if let Some(c) = t.ceiling {
+        put(&mut scene, "ceiling", Value::str(c));
+    }
+    if t.exterior {
+        put(&mut scene, "exterior", Value::Bool(true));
     }
     if !t.present.is_empty() {
         put(&mut scene, "props", Value::strings(t.present));

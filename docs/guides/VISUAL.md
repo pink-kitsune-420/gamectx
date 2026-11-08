@@ -59,8 +59,53 @@ example's perceived `shutters_closed` defeats `visible_sun`, even when both are 
 Occlusion comes from authored rules; this compiler does not infer geometry or interpret prose.
 
 `VisualSpec::to_value()` returns `{key,spec,inspection}`. `render()` returns ordered positive
-tokens, negative tokens, palette, dimensions and seed for an external host adapter. Render
-only the selected spec; keep developer inspection out of image-model prompts.
+tokens, negative tokens, palette, dimensions, seed, and ready-to-run `"prompt"` and `"negative_prompt"`
+strings for an external host adapter. Render only the selected spec; keep developer inspection out of image-model prompts.
+
+## Living Embodiment, Physical Matter, and Scenery in Art Bible
+
+Anchors can optionally define living embodiment and physical matter details directly in the Art Bible:
+
+- **Character Features (`features`)**: `{eyes, hair, skin, scars, build, height}` (e.g. `{"eyes": "amber", "hair": "raven black", "skin": "pale", "scars": ["thin scar on left cheek"], "build": "lean", "height": 1.75}`).
+- **Clothing (`clothing`)**: List of clothing item tokens (e.g. `["heavy woolen cloak", "tailored blue tunic"]`).
+- **Physical Matter**: `material`, `color`, `texture`, `mass` (positive finite number), `state` (`solid`, `liquid`, `gas`), and `dimensions` (`[w, l, h]` in meters).
+- **Scenery Depth**: `floor` token, `ceiling` token, and `exterior` boolean.
+- **Atmosphere & Lighting**: Optional `lighting` and `atmosphere` on the anchor or bible top-level.
+- **Metadata**: `tags` (up to 32 tokens) and `attributes` key-value dictionary.
+
+When present on an anchor, these details are automatically compiled into the `VisualSpec` data and incorporated into prompt generation.
+
+## First-Class Visual Describer for Generative AI Models
+
+`gamectx::media::visual::VisualDescriber` compiles visual specs and art bible anchors directly into tailored, ready-to-dispatch prompts for modern AI image models:
+
+- **Tags Mode**: Standard comma-separated token prompting with color palette suffix (ideal for Stable Diffusion 1.5, SDXL, and Flux).
+- **Prose Mode**: Fluent, descriptive natural language sentences (ideal for Midjourney and DALL-E 3).
+- **Model Presets**:
+  - `DescriberConfig::sdxl()`: High-detail tag mode with negative quality and artifact suppressors.
+  - `DescriberConfig::flux()`: Clean tag layout with color palette and clean negative guidance (Flux requires no negative prompt).
+  - `DescriberConfig::midjourney()`: Prose mode, style-first, with aspect ratio flag (`--ar W:H`) and version flags.
+  - `DescriberConfig::dalle()`: Rich descriptive prose with sensory detail and no negative prompt.
+- **Full Customization**:
+  - Custom delimiters (`separator`, `negative_separator`)
+  - Prefix and suffix injection
+  - Style position control (`style_first`)
+  - Palette formatting (`include_palette`, `palette_prefix`, `palette_suffix`)
+  - Extra positive and negative prompt tokens
+  - Dynamic configuration via `DescriberConfig::from_value(...)`
+
+Convenience methods allow instant prompt generation from both live specs and raw art bibles:
+```rust
+// From a compiled VisualSpec:
+let prompt = spec.prompt()?;
+let negative = spec.negative_prompt()?;
+let description = spec.describe()?; // returns prompt, negative_prompt, dimensions, seed, and structured descriptors
+let flux_desc = spec.describe_with(&DescriberConfig::flux())?;
+
+// Directly from an ArtBible anchor without full scene/life runtime:
+let merchant_desc = bible.describe_anchor("merchant")?;
+let mj_desc = bible.describe_anchor_with("merchant", &DescriberConfig::midjourney())?;
+```
 
 ## Content identity and approval
 

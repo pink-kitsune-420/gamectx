@@ -259,6 +259,71 @@ CASES_C = [
     ('c_none_pack_no_rules', runb([turnb(ASK)], pack='none'), False, [(0, dict(route='model'))]),
 ]
 
+SHEET_D = dict(version=1, speech=dict(quirks=['adjusts her flour-dusted apron', 'taps the wooden counter']),
+               features=dict(eyes='hazel', hair='braided auburn', skin='fair', scars=['flour burn on left forearm'], height=1.68, build='slender'),
+               clothing=['a white flour-dusted apron', 'rolled canvas sleeves'],
+               state=dict(posture='standing behind the counter', activity='kneading a batch of sourdough', awareness='alert', expression='gentle smile'),
+               sensory=dict(scent='warm yeast and toasted grain', voice_tone='warm and soft'))
+
+CASES_D = [
+    ('d_addressing_pause_ellipsis', run([turn('I was just thinking...')]), False, [(0, dict(route='addressing', kind='pause', reason='unfinished'))]),
+    ('d_addressing_pause_dash', run([turn('Wait, let me--')]), False, [(0, dict(route='addressing', kind='pause', reason='unfinished'))]),
+    ('d_addressing_bystander_audience', run([turn('Hello there', audience='tovin')]), False, [(0, dict(route='addressing', kind='silent', audience='tovin'))]),
+    ('d_addressing_vocative_other', run([turn('Tovin, do you have the key?', targets=TARGETS + [dict(kind='character', id='tovin', names=['Tovin'])])]), False, [(0, dict(route='addressing', kind='silent', audience='tovin'))]),
+    ('d_addressing_vocative_self', run([turn('Hello, Mira')]), False, [(0, dict(route='greeting', introduced=True))]),
+    ('d_addressing_out_of_earshot_dist', run([turn('Hello!', distance='distant')]), False, [(0, dict(route='addressing', kind='silent', reason='out_of_earshot'))]),
+    ('d_addressing_out_of_earshot_coords', run([turn('Hello!', coords=[0.0, 0.0, 0.0], speaker_coords=[50.0, 0.0, 0.0])]), False, [(0, dict(route='addressing', kind='silent', reason='out_of_earshot'))]),
+    ('d_addressing_facing_other', run([turn('Hello there', speaker_facing='tovin', targets=[dict(kind='character', id='tovin', names=['Tovin'], distance='near')])]), False,
+     [(0, dict(route='addressing', kind='silent', audience='tovin'))]),
+    ('d_addressing_quirk_cadence', run([turn('Hello there', at=3, audience='tovin')], sheet=SHEET_D), False,
+     [(0, dict(route='addressing', kind='action', action='quirk', audience='tovin', narration='taps the wooden counter'))]),
+    ('d_stage_gesture_occluded', run([turn('*bows politely*', line_of_sight=False)]), False, [(0, dict(route='stage_action', kind='silent', reason='occluded'))]),
+    ('d_scenery_floor', runb([turnb('Look down.', scene=dict(SCENE, floor='worn oak floorboards'))]), False,
+     [(0, dict(route='scenery', intent='ask_floor', line='floor', text='The floor is worn oak floorboards.'))]),
+    ('d_scenery_floor_none', runb([turnb('What are we standing on?')]), False,
+     [(0, dict(route='scenery', intent='ask_floor', line='floor_none', text='Nothing unusual about the ground here.'))]),
+    ('d_scenery_ceiling', runb([turnb('Look up.', scene=dict(SCENE, ceiling='vaulted stone arches'))]), False,
+     [(0, dict(route='scenery', intent='ask_ceiling', line='ceiling', text='Above us is vaulted stone arches.'))]),
+    ('d_scenery_ceiling_sky', runb([turnb('Look at the sky.', scene=dict(SCENE, exterior=True))]), False,
+     [(0, dict(route='scenery', intent='ask_ceiling', line='ceiling_sky', text='The open sky stretches above.'))]),
+    ('d_scenery_ceiling_none', runb([turnb('What is above us?')]), False,
+     [(0, dict(route='scenery', intent='ask_ceiling', line='ceiling_none', text='Nothing unusual above us.'))]),
+    ('d_persona_clothing_turn', run([turn('What are you wearing?', clothing=['a woolen cloak', 'leather boots'])]), False,
+     [(0, dict(route='persona', intent='ask_clothing', line='clothing', text="I'm wearing a woolen cloak and leather boots."))]),
+    ('d_persona_clothing_sheet', run([turn('What are you wearing?')], sheet=SHEET_D), False,
+     [(0, dict(route='persona', intent='ask_clothing', line='clothing', text="I'm wearing a white flour-dusted apron and rolled canvas sleeves."))]),
+    ('d_persona_clothing_none', run([turn('What are you wearing?')]), False,
+     [(0, dict(route='persona', intent='ask_clothing', line='clothing_none', text="Nothing special about what I'm wearing."))]),
+    ('d_persona_appearance_sheet', run([turn('What do you look like?')], sheet=SHEET_D), False,
+     [(0, dict(route='persona', intent='ask_appearance', line='appearance', text='I have hazel eyes and braided auburn hair.'))]),
+    ('d_persona_appearance_none', run([turn('What do you look like?')]), False,
+     [(0, dict(route='persona', intent='ask_appearance', line='appearance_none', text='Just an ordinary look, really.'))]),
+    ('d_persona_activity_turn', run([turn('What are you doing?', activity='reading a recipe book')]), False,
+     [(0, dict(route='persona', intent='ask_activity', line='activity', text='I am reading a recipe book.'))]),
+    ('d_persona_activity_sheet', run([turn('What are you doing?')], sheet=SHEET_D), False,
+     [(0, dict(route='persona', intent='ask_activity', line='activity', text='I am kneading a batch of sourdough.'))]),
+    ('d_persona_activity_none', run([turn('What are you doing?')]), False,
+     [(0, dict(route='persona', intent='ask_activity', line='activity_none', text='Not doing much right now.'))]),
+    ('d_prop_matter_custom_line', run([turn('Look at the bell.', scene=dict(SCENE, props=[dict(id='bell', note=None)]))],
+                                      features=dict(props=dict(registry=dict(version=1, props=[
+                                          dict(id='bell', label='the brass bell', aliases=['bell'], description='A small brass bell.',
+                                               material='cast bronze', color='aged gold', texture='smooth', interactions=[])
+                                      ]))),
+                                      lines=[dict(id='prop_matter', intent='describe_prop', when=dict(material=['cast bronze']),
+                                                  variants=['{prop} is made of {material} with an {color} hue.'])]), False,
+     [(0, dict(route='props', line='prop_matter', text='the brass bell is made of cast bronze with an aged gold hue.'))]),
+    ('d_prop_occluded_los', run([turn('Look at the bell.', scene=dict(SCENE, props=[dict(id='oven', note=None), dict(id='bell', note=None, line_of_sight=False)]))]), False,
+     [(0, dict(route='command', kind='clarify'))]),
+    # Malformed schema cases
+    ('d_bad_dimensions_len', run([turn('Hi', dimensions=[1.0, 2.0])]), True, []),
+    ('d_bad_dimensions_negative', run([turn('Hi', dimensions=[-1.0, 2.0, 3.0])]), True, []),
+    ('d_bad_coords_len', run([turn('Hi', coords=[1.0])]), True, []),
+    ('d_bad_prop_mass', run([turn('Hi', scene=dict(SCENE, props=[dict(id='bell', note=None, mass=-2.0)]))]), True, []),
+    ('d_bad_prop_state', run([turn('Hi', scene=dict(SCENE, props=[dict(id='bell', note=None, state='energy')]))]), True, []),
+    ('d_bad_sheet_height', run([turn('Hi')], sheet=dict(version=1, features=dict(height=-1.5))), True, []),
+    ('d_bad_sheet_unknown_key', run([turn('Hi')], sheet=dict(version=1, aura='golden')), True, []),
+]
+
 
 def check_requests():
     """Expectation 10 on the reference itself: shape, order and secret gating."""
@@ -275,7 +340,7 @@ def check_requests():
 
 
 def cases():
-    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C]
+    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D]
     # Checkpoint round trip: a saved state restores and continues identically.
     first = oracle(copy.deepcopy(run([turn('Hello!'), heard(FIRST), turn('My name is Arin.', token=2, at=2), heard('Arin; thank you for telling me your name.', token=2)])))
     rows.append(('restore_continues', dict(config=cfg(), state=first['state'], ops=[turn('Hello again', token=3, at=3), turn('What is my name?', token=4, at=4)]), False,

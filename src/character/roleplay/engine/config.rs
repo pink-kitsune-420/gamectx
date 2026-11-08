@@ -15,6 +15,8 @@ pub enum Feature {
     Chunks,
     /// `OOC:` / `((...))` notes are kept out of character memory.
     OutOfCharacter,
+    /// Audience, spatial distance, facing and unfinished message pauses (`action_turns` 0–100, default 3; `conversational_distance` 1–100, default 5; `max_distance` 1–1000, default 20).
+    Addressing,
     /// Host-registered `*stage actions*` (`actions`: a [`RoleplayActions`] registry).
     StageActions,
     /// Present props: descriptions and interactions (`registry`: a [`Props`] registry).
@@ -61,9 +63,10 @@ pub enum Feature {
     Goals,
 }
 impl Feature {
-    pub const ALL: [Feature; 24] = [
+    pub const ALL: [Feature; 25] = [
         Feature::Chunks,
         Feature::OutOfCharacter,
+        Feature::Addressing,
         Feature::StageActions,
         Feature::Props,
         Feature::Directions,
@@ -91,6 +94,7 @@ impl Feature {
         match self {
             Feature::Chunks => "chunks",
             Feature::OutOfCharacter => "out_of_character",
+            Feature::Addressing => "addressing",
             Feature::StageActions => "stage_actions",
             Feature::Props => "props",
             Feature::Directions => "directions",
@@ -119,6 +123,9 @@ impl Feature {
     fn params(self) -> &'static [(&'static str, u64, u64, u64)] {
         match self {
             Feature::Chunks => &[("max_chars", 512, 4096, 1024)],
+            Feature::Addressing => {
+                &[("action_turns", 0, 100, 3), ("conversational_distance", 1, 100, 5), ("max_distance", 1, 1000, 20)]
+            }
             Feature::Disclosures => &[("max_preferences", 1, 16, 3)],
             Feature::Greetings => &[("long_gap_turns", 1, 1_000_000, 12)],
             Feature::Events => &[("soon_turns", 1, 1_000_000, 10)],

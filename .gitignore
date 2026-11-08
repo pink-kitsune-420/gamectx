@@ -3,3 +3,8 @@
 __pycache__/
 
 /bindings/native/target/
+
+.tickets/
+AGENTS.md
+TRACKER.md
+

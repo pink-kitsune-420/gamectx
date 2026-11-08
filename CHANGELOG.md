@@ -2,6 +2,26 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Added first-class living character embodiments, 3D physical matter, scenery depth, and spatial addressing:
+  - Living character profiles: `features` (eyes, hair, skin, scars, build, height), `clothing`, `char_state` (posture, held items, gaze, activity, awareness, exposure, expression), `sensory` (scent, voice_tone), `habits`, `tags`, and `attributes`.
+  - 3D physical matter: `dimensions` (`[width, length, height]`), `mass`, `state` (`solid`, `liquid`, `gas`), `material`, `color`, and `texture` on props and spots.
+  - Scenery depth: `floor`, `ceiling`, and `exterior` on ambience, codex places, spots, and scenery queries.
+  - Spatial addressing and interaction: `Feature::Addressing` (action turns, conversational distance, max distance), bystander detection, vocatives, gestures, line-of-sight occlusion, and cadence quirk processing.
+  - 19 new line template variables (70 in total) and expanded matchers in English pack.
+  - 32 new conformance cases (`d_*`) with 0 errors across 162 total roleplay engine workflows and 500 randomized differential cases with byte-for-byte parity against Python reference.
+- Added living embodiment and physical matter schema extensions to `media::visual::ArtBible`:
+  - `ArtBible` anchors optionally accept `features`, `clothing`, `material`, `color`, `texture`, `mass`, `state`, `dimensions`, `floor`, `ceiling`, `exterior`, `tags`, `attributes`, `lighting`, and `atmosphere`.
+  - `ArtBible` facts optionally accept physical matter and attribute fields.
+  - Optional top-level `lighting`, `atmosphere`, `tags`, and `attributes` on the art bible.
+  - `ArtBible` convenience inspection and query methods: `id()`, `style()`, `format()`, `anchor()`, `anchors()`, `describe_anchor()`, and `describe_anchor_with()`.
+  - Compiled `VisualSpec` data embeds anchor physical matter and living embodiment fields while preserving strict content-addressed digest stability across all legacy visual conformance cases.
+- Added first-class `media::visual::VisualDescriber` for generative AI image models:
+  - Compiles ready-to-run positive and negative prompts directly from `VisualSpec` or `ArtBible` anchors with full customization.
+  - `DescriberMode`: Comma-separated `Tags` mode (SD 1.5, SDXL, Flux) and fluent descriptive `Prose` mode (Midjourney, DALL-E 3).
+  - Target model presets: `DescriberConfig::sdxl()`, `DescriberConfig::flux()`, `DescriberConfig::midjourney()`, and `DescriberConfig::dalle()`.
+  - Full customization: configurable delimiters, palette formatters, style positioning (`style_first`), prefix/suffix injection, extra positive/negative tokens, and dynamic JSON deserialization via `DescriberConfig::from_value()`.
+  - `VisualSpec::render()` augmented with `"prompt"` and `"negative_prompt"`, plus convenience methods `spec.prompt()`, `spec.negative_prompt()`, and `spec.describe()`.
+
 - [api] **Breaking: library modules are grouped by domain.** No behavior, output or
   format changed: every conformance case and frozen evaluation artifact is byte-identical.
   Update imports with this table; `Context`, `Table`, `Turn`, `Value`, `Error`, `Result`,

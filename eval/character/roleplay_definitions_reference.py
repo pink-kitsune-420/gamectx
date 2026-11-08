@@ -19,6 +19,29 @@ CARRIES = ['none', 'when_open', 'always']
 RATINGS = ['all', 'teen', 'mature']
 
 
+def boolean(b): assert type(b) is bool; return b
+def coords_val(v):
+    assert isinstance(v, list) and len(v) in (2, 3)
+    for x in v: assert (type(x) is int or type(x) is float) and -1000000.0 <= x <= 1000000.0
+    return [float(x) for x in v]
+def dimensions_val(v):
+    if v is None: return None
+    if isinstance(v, list):
+        assert len(v) == 3
+        for x in v: assert (type(x) is int or type(x) is float) and 0.0 < x <= 100000.0
+        return [float(x) for x in v]
+    if isinstance(v, dict):
+        assert set(v.keys()) == {'width', 'length', 'height'}
+        for k in ['width', 'length', 'height']: assert (type(v[k]) is int or type(v[k]) is float) and 0.0 < v[k] <= 100000.0
+        return [float(v['width']), float(v['length']), float(v['height'])]
+    assert False
+def validate_matter(v):
+    if 'mass' in v and v['mass'] is not None:
+        assert (type(v['mass']) is int or type(v['mass']) is float) and 0.0 < v['mass'] <= 1000000.0
+    if 'state' in v and v['state'] is not None: assert v['state'] in ['solid', 'liquid', 'gas']
+    for k in ['material', 'color', 'texture']:
+        if k in v and v[k] is not None: text(v[k], 48)
+
 def control(s): return any(ord(c) < 32 or 127 <= ord(c) <= 159 for c in s)
 def text(s, chars, nbytes=None):
     assert isinstance(s, str) and 1 <= len(s) <= chars and not control(s)
@@ -71,17 +94,32 @@ def unique_ids(items):
 def codex(v, vars_):
     keys(v, ['version'], ['places', 'entrances', 'factions', 'events', 'quests']); uint(v['version'], 1, 1)
     places = lst(v.get('places', []), 0, 128)
-    for p in places: keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms'])
+    for p in places:
+        keys(p, ['id', 'label'], ['aliases', 'spots', 'ambience', 'norms', 'exterior'])
+        if 'exterior' in p and p['exterior'] is not None: boolean(p['exterior'])
     unique_ids(places); seen = []
     for p in places:
         names(p, seen); spots = lst(p.get('spots', []), 0, 16)
-        for s in spots: keys(s, ['id', 'label', 'description'], ['aliases']); text(s['description'], 240)
+        for s in spots:
+            keys(s, ['id', 'label', 'description'], ['aliases', 'dimensions', 'coords', 'mass', 'state', 'material', 'color', 'texture', 'tags', 'attributes'])
+            text(s['description'], 240)
+            if 'dimensions' in s and s['dimensions'] is not None: dimensions_val(s['dimensions'])
+            if 'coords' in s and s['coords'] is not None: coords_val(s['coords'])
+            validate_matter(s)
+            if 'tags' in s and s['tags'] is not None:
+                for tg in lst(s['tags'], 0, 32): text(tg, 48)
+            if 'attributes' in s and s['attributes'] is not None:
+                assert isinstance(s['attributes'], dict) and len(s['attributes']) <= 32
+                for k, val in s['attributes'].items():
+                    ident(k)
+                    if isinstance(val, str): text(val, 120)
+                    else: assert type(val) in (int, float, bool)
         unique_ids(spots); spot_names = []
         for s in spots: names(s, spot_names)
         for a in lst(p.get('ambience', []), 0, 8):
-            keys(a, [], ['when', 'smell', 'light', 'sound', 'temperature']); conditions(a.get('when', {}), vars_)
-            assert any(k in a for k in ['smell', 'light', 'sound', 'temperature'])
-            for k in ['smell', 'light', 'sound', 'temperature']:
+            keys(a, [], ['when', 'smell', 'light', 'sound', 'temperature', 'floor', 'ceiling']); conditions(a.get('when', {}), vars_)
+            assert any(k in a for k in ['smell', 'light', 'sound', 'temperature', 'floor', 'ceiling'])
+            for k in ['smell', 'light', 'sound', 'temperature', 'floor', 'ceiling']:
                 if k in a: text(a[k], 160)
         norms = lst(p.get('norms', []), 0, 16)
         for n in norms:
@@ -128,7 +166,8 @@ def codex(v, vars_):
 
 
 def sheet(v, cdx, vars_):
-    keys(v, ['version'], ['persona', 'speech', 'services', 'goals', 'needs', 'relationships', 'factions', 'secrets', 'opinions']); uint(v['version'], 1, 1)
+    keys(v, ['version'], ['persona', 'speech', 'services', 'goals', 'needs', 'relationships', 'factions', 'secrets', 'opinions',
+                          'features', 'clothing', 'state', 'sensory', 'habits', 'tags', 'attributes']); uint(v['version'], 1, 1)
     p = v.get('persona', {}); keys(p, [], ['pronouns', 'role', 'summary', 'appearance', 'values', 'fears', 'desires'])
     for k, n in [('pronouns', 32), ('role', 80), ('summary', 240), ('appearance', 480)]:
         if k in p: text(p[k], n)
@@ -171,6 +210,43 @@ def sheet(v, cdx, vars_):
         for t in lst(x['variants'], 1, 8): text(t, 240)
         conditions(x.get('when', {}), vars_)
     unique_ids(opinions)
+    if 'features' in v and v['features'] is not None:
+        f = v['features']; keys(f, [], ['eyes', 'hair', 'skin', 'scars', 'height', 'build'])
+        for k in ['eyes', 'hair', 'skin', 'build']:
+            if k in f and f[k] is not None: text(f[k], 48)
+        for sc in lst(f.get('scars', []), 0, 8): text(sc, 48)
+        if 'height' in f and f['height'] is not None:
+            assert (type(f['height']) is int or type(f['height']) is float) and 0.0 < f['height'] <= 100.0
+    if 'clothing' in v and v['clothing'] is not None:
+        for item in (v['clothing'] if isinstance(v['clothing'], list) else [v['clothing']]):
+            text(item, 48)
+    if 'state' in v and v['state'] is not None:
+        st = v['state']; keys(st, [], ['posture', 'held', 'gaze', 'activity', 'awareness', 'exposure', 'expression'])
+        for k in ['posture', 'activity', 'awareness', 'exposure', 'expression']:
+            if k in st and st[k] is not None: text(st[k], 80)
+        if 'gaze' in st and st['gaze'] is not None: ident(st['gaze'])
+        if 'held' in st and st['held'] is not None:
+            if isinstance(st['held'], dict):
+                assert len(st['held']) <= 8
+                for k, val in st['held'].items(): text(k, 32); text(val, 64)
+            elif isinstance(st['held'], list):
+                assert len(st['held']) <= 8
+                for x in st['held']: text(x, 64)
+            else: assert False
+    if 'sensory' in v and v['sensory'] is not None:
+        sn = v['sensory']; keys(sn, [], ['scent', 'voice_tone'])
+        for k in ['scent', 'voice_tone']:
+            if k in sn and sn[k] is not None: text(sn[k], 48)
+    if 'habits' in v and v['habits'] is not None:
+        for h in lst(v['habits'], 0, 16): text(h, 80)
+    if 'tags' in v and v['tags'] is not None:
+        for tg in lst(v['tags'], 0, 32): text(tg, 48)
+    if 'attributes' in v and v['attributes'] is not None:
+        att = v['attributes']; assert isinstance(att, dict) and len(att) <= 32
+        for k, val in att.items():
+            ident(k)
+            if isinstance(val, str): text(val, 120)
+            else: assert type(val) in (int, float, bool)
     return v
 
 

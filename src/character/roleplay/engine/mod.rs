@@ -74,6 +74,171 @@ fn strings(v: Option<&Value>) -> Vec<String> {
     v.and_then(Value::as_array).unwrap_or(&[]).iter().filter_map(Value::as_str).map(str::to_owned).collect()
 }
 
+fn coords(v: &Value) -> Result<Vec<f64>> {
+    let list = c::list(v)?;
+    if list.len() < 2 || list.len() > 3 {
+        return Err(c::bad());
+    }
+    let mut out = Vec::new();
+    for x in list {
+        let n = match x {
+            Value::Number(s) => s.parse::<f64>().ok().filter(|n| n.is_finite()).ok_or_else(c::bad)?,
+            _ => return Err(c::bad()),
+        };
+        if !(-1_000_000.0..=1_000_000.0).contains(&n) {
+            return Err(c::bad());
+        }
+        out.push(n);
+    }
+    Ok(out)
+}
+
+fn dimensions_val(v: &Value) -> Result<Vec<f64>> {
+    if let Some(list) = v.as_array() {
+        if list.len() != 3 {
+            return Err(c::bad());
+        }
+        let mut out = Vec::new();
+        for x in list {
+            let n = match x {
+                Value::Number(s) => {
+                    s.parse::<f64>().ok().filter(|n| n.is_finite() && *n > 0.0 && *n <= 100_000.0).ok_or_else(c::bad)?
+                }
+                _ => return Err(c::bad()),
+            };
+            out.push(n);
+        }
+        return Ok(out);
+    }
+    if let Some(map) = v.as_object() {
+        if map.len() != 3 {
+            return Err(c::bad());
+        }
+        let get_dim = |k: &str| -> Result<f64> {
+            match map.iter().find(|(key, _)| key.as_str() == k).map(|(_, v)| v) {
+                Some(Value::Number(s)) => {
+                    s.parse::<f64>().ok().filter(|n| n.is_finite() && *n > 0.0 && *n <= 100_000.0).ok_or_else(c::bad)
+                }
+                _ => Err(c::bad()),
+            }
+        };
+        return Ok(vec![get_dim("width")?, get_dim("length")?, get_dim("height")?]);
+    }
+    Err(c::bad())
+}
+
+fn dist_val(v: &Value) -> Result<Option<f64>> {
+    match v {
+        Value::Number(s) => {
+            let f = s.parse::<f64>().ok().filter(|n| n.is_finite()).ok_or_else(c::bad)?;
+            if (0.0..=1000.0).contains(&f) {
+                Ok(Some(f))
+            } else {
+                Err(c::bad())
+            }
+        }
+        Value::String(s) => match s.as_str() {
+            "near" => Ok(Some(1.0)),
+            "conversational" => Ok(Some(3.0)),
+            "far" => Ok(Some(10.0)),
+            "distant" => Ok(Some(30.0)),
+            _ => Err(c::bad()),
+        },
+        _ => Err(c::bad()),
+    }
+}
+
+fn calc_dist(d: Option<f64>, c1: Option<&[f64]>, c2: Option<&[f64]>) -> Option<f64> {
+    if let Some(d) = d {
+        return Some(d);
+    }
+    if let (Some(a), Some(b)) = (c1, c2) {
+        if a.len() == b.len() {
+            let sum: f64 = a.iter().zip(b.iter()).map(|(x, y)| (x - y) * (x - y)).sum();
+            return Some(sum.sqrt());
+        }
+    }
+    None
+}
+
+fn parse_vocative<'a>(
+    line: &'a str,
+    me_id: &'a str,
+    me_name: &'a str,
+    targets: &'a [Value],
+    sheet: &'a CharacterSheet,
+) -> Option<String> {
+    let mut candidates: Vec<(&str, Vec<String>)> = Vec::new();
+    candidates.push((me_id, vec![normalize(me_name), normalize(me_id), format!("the {}", normalize(me_id))]));
+    for g in targets {
+        if g.get("kind").and_then(Value::as_str) == Some("character") {
+            if let Some(id) = g.get("id").and_then(Value::as_str) {
+                let mut names = vec![normalize(id)];
+                if let Some(list) = g.get("names").and_then(Value::as_array) {
+                    for n in list {
+                        if let Some(s) = n.as_str() {
+                            names.push(normalize(s));
+                        }
+                    }
+                }
+                candidates.push((id, names));
+            }
+        }
+    }
+    for r in sheet.all("relationships") {
+        if let (Some(w), Some(n)) = (r.get("with").and_then(Value::as_str), r.get("name").and_then(Value::as_str)) {
+            if !candidates.iter().any(|c| c.0 == w) {
+                candidates.push((w, vec![normalize(w), normalize(n)]));
+            }
+        }
+    }
+
+    let stripped = line.trim();
+    if let Some(inner) = stripped.strip_prefix('*') {
+        if let Some(end) = inner.find('*') {
+            let act = normalize(&inner[..end]);
+            for prefix in ["turns to", "turn to", "looks at", "look at", "to"] {
+                if act == prefix || act.starts_with(&format!("{prefix} ")) {
+                    let target_name = act[prefix.len()..].trim();
+                    for (cid, names) in &candidates {
+                        if names.iter().any(|n| n == target_name) {
+                            return Some((*cid).to_owned());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    for sep in [',', ':'] {
+        if let Some(idx) = line.find(sep) {
+            let mut prefix = normalize(&line[..idx]);
+            for opener in ["hey", "hi", "hello", "greetings"] {
+                if prefix.starts_with(&format!("{opener} ")) {
+                    prefix = prefix[opener.len() + 1..].trim().to_owned();
+                    break;
+                }
+            }
+            for (cid, names) in &candidates {
+                if names.iter().any(|n| n == &prefix) {
+                    return Some((*cid).to_owned());
+                }
+            }
+        }
+    }
+
+    if let Some(idx) = line.rfind(',') {
+        let tail = normalize(line[idx + 1..].trim().trim_end_matches(['.', '!', '?']));
+        for (cid, names) in &candidates {
+            if names.iter().any(|n| n == &tail) {
+                return Some((*cid).to_owned());
+            }
+        }
+    }
+
+    None
+}
+
 /// One character's roleplay state machine: a config, encounter memory, per-listener
 /// claims/recent replies/topic, and up to 16 replies awaiting delivery receipts.
 #[derive(Clone, Debug)]
@@ -225,7 +390,43 @@ impl RoleplayEngine {
         keys(
             t,
             &["listener", "text", "at", "token", "scene"],
-            &["trust", "choices", "labels", "focus", "reason", "targets", "entrances", "needs", "quests", "state"],
+            &[
+                "trust",
+                "choices",
+                "labels",
+                "focus",
+                "reason",
+                "targets",
+                "entrances",
+                "needs",
+                "quests",
+                "state",
+                "audience",
+                "distance",
+                "facing",
+                "spot",
+                "coords",
+                "speaker_facing",
+                "speaker_spot",
+                "speaker_coords",
+                "line_of_sight",
+                "blocked_by",
+                "behind",
+                "dimensions",
+                "features",
+                "clothing",
+                "sensory",
+                "habits",
+                "tags",
+                "attributes",
+                "posture",
+                "activity",
+                "awareness",
+                "expression",
+                "held",
+                "gaze",
+                "scent",
+            ],
         )?;
         let RoleplayEngine { config, greetings, listeners, pending, asked } = self;
         let config: &EngineConfig = config;
@@ -236,13 +437,91 @@ impl RoleplayEngine {
         if who == me {
             return Err(c::bad());
         }
+        if let Some(aud) = opt(t, "audience") {
+            ident(aud)?;
+        }
+        let t_dist = opt(t, "distance").map(dist_val).transpose()?.flatten();
+        let my_coords = opt(t, "coords").map(coords).transpose()?;
+        let sp_coords = opt(t, "speaker_coords").map(coords).transpose()?;
+        let _my_dims = opt(t, "dimensions").map(dimensions_val).transpose()?;
+        if let Some(f) = opt(t, "facing") {
+            line(f, 48, usize::MAX)?;
+        }
+        if let Some(s) = opt(t, "spot") {
+            ident(s)?;
+        }
+        if let Some(f) = opt(t, "speaker_facing") {
+            line(f, 48, usize::MAX)?;
+        }
+        if let Some(s) = opt(t, "speaker_spot") {
+            ident(s)?;
+        }
+        if let Some(los) = opt(t, "line_of_sight") {
+            c::boolean(los)?;
+        }
+        if let Some(b) = opt(t, "blocked_by") {
+            ident(b)?;
+        }
+        if let Some(b) = opt(t, "behind") {
+            ident(b)?;
+        }
+        if let Some(f) = opt(t, "features") {
+            crate::character::sheet::validate_features(f)?;
+        }
+        if let Some(cl) = opt(t, "clothing") {
+            crate::character::sheet::validate_clothing(cl)?;
+        }
+        if let Some(sn) = opt(t, "sensory") {
+            crate::character::sheet::validate_sensory(sn)?;
+        }
+        if let Some(h) = opt(t, "habits") {
+            crate::character::sheet::validate_habits(h)?;
+        }
+        if let Some(tg) = opt(t, "tags") {
+            crate::character::sheet::validate_tags(tg)?;
+        }
+        if let Some(att) = opt(t, "attributes") {
+            crate::character::sheet::validate_attributes(att)?;
+        }
+        for k in ["posture", "activity", "awareness", "expression", "scent"] {
+            if let Some(val) = opt(t, k) {
+                line(val, 80, usize::MAX)?;
+            }
+        }
+        if let Some(g) = opt(t, "gaze") {
+            ident(g)?;
+        }
+        if let Some(held) = opt(t, "held") {
+            if let Some(map) = held.as_object() {
+                if map.len() > 8 {
+                    return Err(c::bad());
+                }
+                for (k, val) in map {
+                    line(&Value::str(k), 32, usize::MAX)?;
+                    line(val, 64, usize::MAX)?;
+                }
+            } else if let Some(arr) = held.as_array() {
+                if arr.len() > 8 {
+                    return Err(c::bad());
+                }
+                for x in arr {
+                    line(x, 64, usize::MAX)?;
+                }
+            } else {
+                return Err(c::bad());
+            }
+        }
         let at = uint(t, "at", 0)?;
         let token = uint(t, "token", 1)?;
         if pending.iter().chain(asked.iter()).any(|p| p.get("token") == t.get("token")) {
             return Err(c::bad());
         }
         let sc = c::get(t, "scene")?;
-        keys(sc, &["id", "label", "place", "atmosphere", "visit"], &["sight", "sound", "props"])?;
+        keys(
+            sc,
+            &["id", "label", "place", "atmosphere", "visit"],
+            &["sight", "sound", "props", "floor", "ceiling", "exterior"],
+        )?;
         let scene_id = ident(c::get(sc, "id")?)?;
         let label = line(c::get(sc, "label")?, 48, usize::MAX)?;
         uint(sc, "visit", 0)?;
@@ -253,17 +532,86 @@ impl RoleplayEngine {
         }
         let sight = opt(sc, "sight").map(|v| line(v, 160, usize::MAX)).transpose()?;
         let scene_sound = opt(sc, "sound").map(|v| line(v, 160, usize::MAX)).transpose()?;
+        let scene_floor = opt(sc, "floor").map(|v| line(v, 160, usize::MAX)).transpose()?;
+        let scene_ceiling = opt(sc, "ceiling").map(|v| line(v, 160, usize::MAX)).transpose()?;
+        if let Some(ext) = opt(sc, "exterior") {
+            c::boolean(ext)?;
+        }
         let no_list = Value::Array(Vec::new());
         let no_map = obj! {};
         let present_raw = list(sc.get("props"), 0, 64)?;
-        let mut present = Vec::<(&str, Option<&str>)>::new();
+        struct PresentProp<'a> {
+            id: &'a str,
+            note: Option<&'a str>,
+            line_of_sight: bool,
+            _dimensions: Option<Vec<f64>>,
+            material: Option<&'a str>,
+            color: Option<&'a str>,
+            texture: Option<&'a str>,
+        }
+        let mut present = Vec::<PresentProp<'_>>::new();
         for p in present_raw {
-            c::fields(p, &["id", "note"])?;
+            keys(
+                p,
+                &["id", "note"],
+                &[
+                    "spot",
+                    "facing",
+                    "coords",
+                    "occludes",
+                    "line_of_sight",
+                    "blocked_by",
+                    "behind",
+                    "dimensions",
+                    "mass",
+                    "state",
+                    "material",
+                    "color",
+                    "texture",
+                    "tags",
+                    "attributes",
+                ],
+            )?;
             let id = ident(c::get(p, "id")?)?;
-            if present.iter().any(|(old, _)| *old == id) {
+            if present.iter().any(|old| old.id == id) {
                 return Err(c::bad());
             }
-            present.push((id, opt(p, "note").map(|n| line(n, 160, usize::MAX)).transpose()?));
+            if let Some(s) = opt(p, "spot") {
+                ident(s)?;
+            }
+            if let Some(f) = opt(p, "facing") {
+                line(f, 48, usize::MAX)?;
+            }
+            if let Some(cr) = opt(p, "coords") {
+                coords(cr)?;
+            }
+            if let Some(occ) = opt(p, "occludes") {
+                c::boolean(occ)?;
+            }
+            let p_los = opt(p, "line_of_sight").map(c::boolean).transpose()?.unwrap_or(true);
+            if let Some(b) = opt(p, "blocked_by") {
+                ident(b)?;
+            }
+            if let Some(b) = opt(p, "behind") {
+                ident(b)?;
+            }
+            let p_dims = opt(p, "dimensions").map(dimensions_val).transpose()?;
+            crate::character::sheet::validate_matter(p)?;
+            if let Some(tg) = opt(p, "tags") {
+                crate::character::sheet::validate_tags(tg)?;
+            }
+            if let Some(att) = opt(p, "attributes") {
+                crate::character::sheet::validate_attributes(att)?;
+            }
+            present.push(PresentProp {
+                id,
+                note: opt(p, "note").map(|n| line(n, 160, usize::MAX)).transpose()?,
+                line_of_sight: p_los,
+                _dimensions: p_dims,
+                material: opt(p, "material").and_then(Value::as_str),
+                color: opt(p, "color").and_then(Value::as_str),
+                texture: opt(p, "texture").and_then(Value::as_str),
+            });
         }
         let trust = match t.get("trust") {
             None => 0,
@@ -307,13 +655,102 @@ impl RoleplayEngine {
             return Err(c::bad());
         }
         for (i, g) in targets.iter().enumerate() {
-            c::fields(g, &["kind", "id", "names"])?;
+            keys(
+                g,
+                &["kind", "id", "names"],
+                &[
+                    "distance",
+                    "spot",
+                    "facing",
+                    "coords",
+                    "occludes",
+                    "line_of_sight",
+                    "blocked_by",
+                    "behind",
+                    "dimensions",
+                    "mass",
+                    "state",
+                    "material",
+                    "color",
+                    "texture",
+                    "tags",
+                    "attributes",
+                    "features",
+                    "clothing",
+                    "sensory",
+                    "habits",
+                    "posture",
+                    "activity",
+                    "awareness",
+                    "expression",
+                    "held",
+                    "gaze",
+                    "scent",
+                ],
+            )?;
             if !["character", "place"].contains(&c::text(c::get(g, "kind")?)?) {
                 return Err(c::bad());
             }
             ident(c::get(g, "id")?)?;
             if targets[..i].iter().any(|old| old.get("kind") == g.get("kind") && old.get("id") == g.get("id")) {
                 return Err(c::bad());
+            }
+            if let Some(d) = opt(g, "distance") {
+                dist_val(d)?;
+            }
+            if let Some(s) = opt(g, "spot") {
+                ident(s)?;
+            }
+            if let Some(f) = opt(g, "facing") {
+                line(f, 48, usize::MAX)?;
+            }
+            if let Some(cr) = opt(g, "coords") {
+                coords(cr)?;
+            }
+            if let Some(occ) = opt(g, "occludes") {
+                c::boolean(occ)?;
+            }
+            if let Some(los) = opt(g, "line_of_sight") {
+                c::boolean(los)?;
+            }
+            if let Some(b) = opt(g, "blocked_by") {
+                ident(b)?;
+            }
+            if let Some(b) = opt(g, "behind") {
+                ident(b)?;
+            }
+            if let Some(d) = opt(g, "dimensions") {
+                dimensions_val(d)?;
+            }
+            crate::character::sheet::validate_matter(g)?;
+            if let Some(f) = opt(g, "features") {
+                crate::character::sheet::validate_features(f)?;
+            }
+            if let Some(cl) = opt(g, "clothing") {
+                crate::character::sheet::validate_clothing(cl)?;
+            }
+            if let Some(st) = opt(g, "state") {
+                crate::character::sheet::validate_char_state(st)?;
+            }
+            if let Some(sn) = opt(g, "sensory") {
+                crate::character::sheet::validate_sensory(sn)?;
+            }
+            if let Some(h) = opt(g, "habits") {
+                crate::character::sheet::validate_habits(h)?;
+            }
+            if let Some(tg) = opt(g, "tags") {
+                crate::character::sheet::validate_tags(tg)?;
+            }
+            if let Some(att) = opt(g, "attributes") {
+                crate::character::sheet::validate_attributes(att)?;
+            }
+            for k in ["posture", "activity", "awareness", "expression", "scent"] {
+                if let Some(val) = opt(g, k) {
+                    line(val, 80, usize::MAX)?;
+                }
+            }
+            if let Some(gz) = opt(g, "gaze") {
+                ident(gz)?;
             }
             let names = c::list(c::get(g, "names")?)?;
             if names.is_empty() || names.len() > 8 {
@@ -401,7 +838,7 @@ impl RoleplayEngine {
         let enabled = Feature::ALL.map(|f| config.enabled(f));
         let on = |f: Feature| Feature::ALL.iter().position(|x| *x == f).is_some_and(|i| enabled[i]);
         let present = if on(Feature::Props) {
-            if present.iter().any(|(id, _)| config.props.get(id).is_none()) {
+            if present.iter().any(|p| config.props.get(p.id).is_none()) {
                 return Err(c::bad());
             }
             present
@@ -441,6 +878,67 @@ impl RoleplayEngine {
             .text("atmosphere", atmosphere)
             .int("trust", trust)
             .text("relationship", relationship);
+        if let Some(f) = opt(t, "facing").and_then(Value::as_str) {
+            base.text("facing", f);
+        }
+        if let Some(s) = opt(t, "spot").and_then(Value::as_str) {
+            base.text("spot", s);
+        }
+        let feat = opt(t, "features").or_else(|| sheet.features());
+        if let Some(f) = feat {
+            if let Some(eyes) = f.get("eyes").and_then(Value::as_str) {
+                base.text("eyes", eyes);
+            }
+            if let Some(hair) = f.get("hair").and_then(Value::as_str) {
+                base.text("hair", hair);
+            }
+            if let Some(skin) = f.get("skin").and_then(Value::as_str) {
+                base.text("skin", skin);
+            }
+        }
+        let clothing_owned: Vec<String> = if let Some(cl) = opt(t, "clothing") {
+            if let Some(s) = cl.as_str() {
+                vec![s.to_owned()]
+            } else {
+                strings(Some(cl))
+            }
+        } else {
+            sheet.clothing().into_iter().map(str::to_owned).collect()
+        };
+        let clothing_refs: Vec<&str> = clothing_owned.iter().map(String::as_str).collect();
+        if !clothing_refs.is_empty() {
+            if let Some(j) = book.joined(&clothing_refs).filter(|j| j.chars().count() <= 240) {
+                base.text("clothing", &j);
+            }
+        }
+        let posture =
+            opt(t, "posture").or_else(|| sheet.char_state().and_then(|s| s.get("posture"))).and_then(Value::as_str);
+        if let Some(p) = posture {
+            base.text("posture", p);
+        }
+        let activity =
+            opt(t, "activity").or_else(|| sheet.char_state().and_then(|s| s.get("activity"))).and_then(Value::as_str);
+        if let Some(a) = activity {
+            base.text("activity", a);
+        }
+        let awareness =
+            opt(t, "awareness").or_else(|| sheet.char_state().and_then(|s| s.get("awareness"))).and_then(Value::as_str);
+        if let Some(a) = awareness {
+            base.text("awareness", a);
+        }
+        let expr = opt(t, "expression")
+            .or_else(|| sheet.char_state().and_then(|s| s.get("expression")))
+            .and_then(Value::as_str);
+        if let Some(e) = expr {
+            base.text("expression", e);
+        }
+        let scent = opt(t, "scent")
+            .or_else(|| opt(t, "sensory").and_then(|s| s.get("scent")))
+            .or_else(|| sheet.sensory().and_then(|s| s.get("scent")))
+            .and_then(Value::as_str);
+        if let Some(s) = scent {
+            base.text("scent", s);
+        }
         for (k, v) in flag_vars {
             base.set(&k, v);
         }
@@ -476,6 +974,23 @@ impl RoleplayEngine {
                 "over"
             }
         };
+        let floor =
+            scene_floor.or_else(|| if on(Feature::Scenery) { codex.ambience(scene_id, "floor", &base) } else { None });
+        let ceiling =
+            scene_ceiling
+                .or_else(|| if on(Feature::Scenery) { codex.ambience(scene_id, "ceiling", &base) } else { None });
+        let exterior = opt(sc, "exterior")
+            .map(c::boolean)
+            .transpose()?
+            .or_else(|| place.and_then(|p| p.get("exterior")).and_then(Value::as_bool))
+            .unwrap_or(false);
+        base.flag("exterior", exterior).flag("has_floor", floor.is_some()).flag("has_ceiling", ceiling.is_some());
+        if let Some(f) = floor {
+            base.text("floor", f);
+        }
+        if let Some(c) = ceiling {
+            base.text("ceiling", c);
+        }
         let ambience = |pl: Option<&str>, k: &str| pl.and_then(|p| codex.ambience(p, k, &base));
         let normed = |mut out: Value| -> Value {
             let d = out.get("decision").cloned().unwrap_or(Value::Null);
@@ -512,6 +1027,90 @@ impl RoleplayEngine {
                 return Ok(obj! {"route"=>"out_of_character","kind"=>"note","note"=>c::get(&e,"note")?.clone()});
             }
         }
+        if on(Feature::Addressing) {
+            let my_dist = calc_dist(t_dist, my_coords.as_deref(), sp_coords.as_deref());
+            let max_dist = config.setting(Feature::Addressing, "max_distance").unwrap_or(20) as f64;
+            if my_dist.is_some_and(|d| d > max_dist) {
+                return Ok(obj! {"route"=>"addressing","kind"=>"silent","reason"=>"out_of_earshot"});
+            }
+
+            let audience = if let Some(aud) = opt(t, "audience").and_then(Value::as_str) {
+                aud.to_owned()
+            } else if let Some(voc) = parse_vocative(input, me, name, targets, sheet) {
+                voc
+            } else {
+                let conv_dist = config.setting(Feature::Addressing, "conversational_distance").unwrap_or(5) as f64;
+                let mut closest_id = me.to_owned();
+                let mut closest_dist = my_dist.unwrap_or(conv_dist);
+                if let Some(sp_facing) = opt(t, "speaker_facing").and_then(Value::as_str) {
+                    let sp_norm = normalize(sp_facing);
+                    if sp_norm == normalize(name) || sp_norm == normalize(me) {
+                        closest_id = me.to_owned();
+                        closest_dist = -1.0;
+                    }
+                }
+                for g in targets {
+                    if g.get("kind").and_then(Value::as_str) == Some("character") {
+                        if let Some(gid) = g.get("id").and_then(Value::as_str) {
+                            if let Some(sp_facing) = opt(t, "speaker_facing").and_then(Value::as_str) {
+                                let sp_norm = normalize(sp_facing);
+                                let mut gnames = vec![normalize(gid)];
+                                if let Some(list) = g.get("names").and_then(Value::as_array) {
+                                    for n in list {
+                                        if let Some(s) = n.as_str() {
+                                            gnames.push(normalize(s));
+                                        }
+                                    }
+                                }
+                                if gnames.iter().any(|n| n == &sp_norm) {
+                                    closest_id = gid.to_owned();
+                                    closest_dist = -1.0;
+                                    continue;
+                                }
+                            }
+                            let gd_val = g.get("distance").map(dist_val).transpose()?.flatten();
+                            let g_coords = g.get("coords").map(coords).transpose()?;
+                            let gd = calc_dist(gd_val, g_coords.as_deref(), sp_coords.as_deref());
+                            if let Some(gd) = gd {
+                                if gd < closest_dist {
+                                    closest_dist = gd;
+                                    closest_id = gid.to_owned();
+                                }
+                            }
+                        }
+                    }
+                }
+                closest_id
+            };
+
+            if audience == me {
+                let stripped = input.trim();
+                if stripped.ends_with("...")
+                    || stripped.ends_with('…')
+                    || stripped.ends_with("--")
+                    || stripped.ends_with('—')
+                    || stripped.ends_with('–')
+                    || stripped.ends_with(',')
+                {
+                    return Ok(obj! {"route"=>"addressing","kind"=>"pause","reason"=>"unfinished"});
+                }
+            } else {
+                let action_turns = config.setting(Feature::Addressing, "action_turns").unwrap_or(3);
+                let quirks = sheet.quirks();
+                if action_turns > 0 && at % action_turns == 0 && !quirks.is_empty() {
+                    let idx = ((at / action_turns) as usize) % quirks.len();
+                    return Ok(obj! {
+                        "route"=>"addressing",
+                        "kind"=>"action",
+                        "audience"=>audience,
+                        "action"=>"quirk",
+                        "decision"=>Value::Null,
+                        "narration"=>quirks[idx]
+                    });
+                }
+                return Ok(obj! {"route"=>"addressing","kind"=>"silent","audience"=>audience});
+            }
+        }
         if on(Feature::Content) {
             if let Some((id, _)) = config.avoid.iter().find(|(_, ps)| contains(ps)) {
                 let extra = vec![("topic", Value::str(id))];
@@ -520,6 +1119,9 @@ impl RoleplayEngine {
             }
         }
         if on(Feature::StageActions) && starred && stripped.len() <= 1024 {
+            if opt(t, "line_of_sight") == Some(&Value::Bool(false)) {
+                return Ok(obj! {"route"=>"stage_action","kind"=>"silent","reason"=>"occluded"});
+            }
             let s = config.actions.resolve(stripped, &Value::Array(choices.to_vec()))?;
             match s.get("status").and_then(Value::as_str) {
                 Some("proposed") => {
@@ -540,7 +1142,7 @@ impl RoleplayEngine {
             }
         }
         if on(Feature::Props) {
-            let ids = present.iter().map(|(id, _)| *id).collect::<Vec<_>>();
+            let ids = present.iter().map(|p| p.id).collect::<Vec<_>>();
             if let Some((prop, x)) = config.props.interaction(&ids, input) {
                 let extra = vec![("prop", Value::str(prop)), ("interaction", c::get(x, "id")?.clone())];
                 let d = c::get(x, "decision")?;
@@ -638,26 +1240,31 @@ impl RoleplayEngine {
             asks.push(("entrances", "ask_exits"));
         }
         if on(Feature::Scenery) && place.is_some() {
-            asks.extend(["ask_smell", "ask_light", "ask_temperature"].map(|i| ("scenery", i)));
+            asks.extend(
+                ["ask_smell", "ask_light", "ask_temperature", "ask_floor", "ask_ceiling"].map(|i| ("scenery", i)),
+            );
         }
         if on(Feature::Persona) {
-            asks.extend(["ask_role", "ask_self"].map(|i| ("persona", i)));
+            asks.extend(
+                ["ask_role", "ask_self", "ask_clothing", "ask_appearance", "ask_activity"].map(|i| ("persona", i)),
+            );
         }
         if !asks.is_empty() && !long {
             let sound =
                 scene_sound.or_else(|| if on(Feature::Scenery) { ambience(Some(scene_id), "sound") } else { None });
+            let visible_props = present.iter().filter(|p| p.line_of_sight).collect::<Vec<_>>();
             let mut v = base.clone();
             v.flag("has_sight", sight.is_some())
                 .flag("has_sound", sound.is_some())
-                .flag("has_props", !present.is_empty());
+                .flag("has_props", !visible_props.is_empty());
             if let Some(s) = sight {
                 v.text("sight", s);
             }
             if let Some(s) = sound {
                 v.text("sound", s);
             }
-            if !present.is_empty() {
-                let labels = present.iter().filter_map(|(id, _)| config.props.label(id)).collect::<Vec<_>>();
+            if !visible_props.is_empty() {
+                let labels = visible_props.iter().filter_map(|p| config.props.label(p.id)).collect::<Vec<_>>();
                 if let Some(j) = book.joined(&labels).filter(|j| j.chars().count() <= 240) {
                     v.text("props", &j);
                 }
@@ -712,17 +1319,31 @@ impl RoleplayEngine {
                 let want = book.bare(&rest).to_owned();
                 let hits = present
                     .iter()
-                    .filter(|(id, _)| config.props.names(id).iter().any(|n| book.bare(n) == want))
+                    .filter(|p| p.line_of_sight && config.props.names(p.id).iter().any(|n| book.bare(n) == want))
                     .collect::<Vec<_>>();
-                if let [(id, note)] = hits[..] {
+                if let [p] = hits[..] {
                     let mut v = base.clone();
-                    v.text("prop", config.props.label(id).unwrap_or_default())
-                        .text("description", config.props.description(id).unwrap_or_default())
-                        .flag("has_note", note.is_some());
-                    if let Some(n) = note {
+                    v.text("prop", config.props.label(p.id).unwrap_or_default())
+                        .text("description", config.props.description(p.id).unwrap_or_default())
+                        .flag("has_note", p.note.is_some());
+                    if let Some(n) = p.note {
                         v.text("note", n);
                     }
-                    if let Some(out) = say(pending, "props", "describe_prop", &v, vec![("prop", Value::str(*id))]) {
+                    let prop_def = config.props.get(p.id);
+                    let material =
+                        p.material.or_else(|| prop_def.and_then(|d| d.get("material")).and_then(Value::as_str));
+                    let color = p.color.or_else(|| prop_def.and_then(|d| d.get("color")).and_then(Value::as_str));
+                    let texture = p.texture.or_else(|| prop_def.and_then(|d| d.get("texture")).and_then(Value::as_str));
+                    if let Some(m) = material {
+                        v.text("material", m);
+                    }
+                    if let Some(c) = color {
+                        v.text("color", c);
+                    }
+                    if let Some(t) = texture {
+                        v.text("texture", t);
+                    }
+                    if let Some(out) = say(pending, "props", "describe_prop", &v, vec![("prop", Value::str(p.id))]) {
                         return Ok(out);
                     }
                 }
@@ -757,6 +1378,11 @@ impl RoleplayEngine {
                     let mut v = base.clone();
                     v.text("label", s.get("label").and_then(Value::as_str).unwrap_or_default())
                         .text("description", s.get("description").and_then(Value::as_str).unwrap_or_default());
+                    for k in ["material", "color", "texture"] {
+                        if let Some(val) = s.get(k).and_then(Value::as_str) {
+                            v.text(k, val);
+                        }
+                    }
                     if let Some(out) = say(
                         pending,
                         "scenery",
@@ -1131,6 +1757,7 @@ impl RoleplayEngine {
             }
         }
         if on(Feature::Model) {
+            let visible_props = present.iter().filter(|p| p.line_of_sight).collect::<Vec<_>>();
             let request = compile(&Compile {
                 config,
                 input,
@@ -1139,8 +1766,11 @@ impl RoleplayEngine {
                 sight,
                 sound: scene_sound
                     .or_else(|| if on(Feature::Scenery) { ambience(Some(scene_id), "sound") } else { None }),
+                floor,
+                ceiling,
+                exterior,
                 ambience: &|k| if on(Feature::Scenery) { ambience(Some(scene_id), k) } else { None },
-                present: &present.iter().filter_map(|(id, _)| config.props.label(id)).collect::<Vec<_>>(),
+                present: &visible_props.iter().filter_map(|p| config.props.label(p.id)).collect::<Vec<_>>(),
                 exits: &if on(Feature::Entrances) { visible.iter().map(|e| e.label).collect() } else { Vec::new() },
                 listener: find(listeners, who),
                 recent: &recent,
