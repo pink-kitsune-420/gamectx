@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being's own place cannot be listed as near.",
+  "error": true
+}

@@ -19,15 +19,21 @@
 //! 11. Pass 2: the stew had meat, and the baker keeps the hearth creed; the apprentice saw.
 //!     Conscience (B5) turns guilt and shame into a mood proposal applied to the affect
 //!     engine, and the creed's food taboo is fed to the diet so tomorrow's choice is bread.
+//! 12. Pass 2: the baker expected the player's flour by noon (A3): worry, then a broken
+//!     promise whose resentment proposal is applied to the affect engine, then relief when the
+//!     player arrives late. Seeded attention (A2) has the baker on the road notice the crash
+//!     while the apprentice, out of range in the bakery, does not.
 //!
 //! Asserts byte-identical replay.
 
 use gamectx::character::affect::AffectManager;
+use gamectx::character::attention::AttentionModel;
 use gamectx::character::body::BodyManager;
 use gamectx::character::creed::CreedManager;
 use gamectx::character::curiosity::CuriosityManager;
 use gamectx::character::deception::DeceptionLedger;
 use gamectx::character::diet::DietManager;
+use gamectx::character::expectation::ExpectationBook;
 use gamectx::character::explain::ExplainTracer;
 use gamectx::character::life::witness::WitnessBridge;
 use gamectx::character::mind::MindManager;
@@ -742,6 +748,60 @@ fn run_baker_scene() -> String {
     let next_choice = &next_meal.get("results").unwrap().as_array().unwrap()[1];
     assert_eq!(next_choice.get("best"), Some(&Value::int(1)), "the creed taboo should steer the baker to bread");
 
+    // 11. Expectations (A3) and attention (A2): the broken flour promise produces worry,
+    //     disappointment and resentment (applied to the affect engine), and relief when the
+    //     player finally arrives. Seeded attention decides who noticed the road crash.
+    let mut book = ExpectationBook::new();
+    let expect_req = parse(
+        r#"{
+        "ops": [
+            {"op":"expect","args":{"being":"baker","id":"flour","about":"player","event":"bring_flour","due":12,"grace":2,"importance":80,"relies":true,"label":"the player brings flour by noon"}},
+            {"op":"tick","args":{"at":13}},
+            {"op":"tick","args":{"at":15}},
+            {"op":"happen","args":{"about":"player","event":"bring_flour","at":18}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let expect_out = book.workflow(&expect_req).unwrap();
+    let expect_results = expect_out.get("results").unwrap().as_array().unwrap();
+    assert!(expect_results[1].to_json().contains(r#""outcome":"worried""#));
+    assert!(expect_results[2].to_json().contains(r#""outcome":"disappointed""#));
+    assert!(expect_results[3].to_json().contains(r#""outcome":"late""#));
+    let grudge = expect_results[2]
+        .get("effects")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|e| e.get("op") == Some(&Value::str("appraise")))
+        .unwrap()
+        .clone();
+    affect_mgr
+        .workflow(&obj! { "ops" => Value::Array(vec![obj! {
+            "op" => grudge.get("op").unwrap().clone(),
+            "args" => grudge.get("args").unwrap().clone(),
+        }]) })
+        .unwrap();
+
+    let mut attention = AttentionModel::new();
+    let notice_req = parse(
+        r#"{
+        "ops": [
+            {"op":"profile","args":{"being":"baker","alertness":60,"cares":["accident"]}},
+            {"op":"notice","args":{"seed":2026,"at":100,
+                "events":[{"id":"cart_crash","kind":"accident","place":"road","salience":90,"noise":40,"subject":"carter"}],
+                "beings":[{"id":"baker","place":"road","busy":30},{"id":"apprentice","place":"bakery","busy":60}]}}
+        ]
+    }"#,
+        4096,
+    )
+    .unwrap();
+    let notice_out = attention.workflow(&notice_req).unwrap();
+    let noticed = &notice_out.get("results").unwrap().as_array().unwrap()[1];
+    assert!(noticed.to_json().contains(r#""noticed_by":["baker"]"#), "{}", noticed.to_json());
+
     let final_task_state =
         task_mgr.workflow(&parse(r#"{"ops":[{"op":"get","args":{"id":"bake_bread_task"}}]}"#, 4096).unwrap()).unwrap();
     let final_body_state =
@@ -782,7 +842,12 @@ fn run_baker_scene() -> String {
     let final_creed_state =
         creeds.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
 
+    let final_expect_state =
+        book.workflow(&parse(r#"{"ops":[{"op":"assess","args":{"being":"baker"}}]}"#, 4096).unwrap()).unwrap();
+
     let composite_output = obj! {
+        "final_expectations" => final_expect_state,
+        "final_attention" => noticed.clone(),
         "final_creed" => final_creed_state,
         "final_curiosity" => final_cur_state,
         "final_diet" => final_diet_state,

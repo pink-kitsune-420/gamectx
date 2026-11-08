@@ -1,0 +1,86 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "visit",
+          "about": "player",
+          "event": "arrive",
+          "due": 20,
+          "importance": 50
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "apprentice",
+          "id": "visit",
+          "about": "player",
+          "event": "arrive",
+          "due": 25,
+          "importance": 20
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "miller",
+          "id": "visit",
+          "about": "player",
+          "event": "arrive",
+          "due": 25,
+          "importance": 20
+        }
+      },
+      {
+        "op": "cancel",
+        "args": {
+          "being": "miller",
+          "id": "visit"
+        }
+      },
+      {
+        "op": "cancel",
+        "args": {
+          "being": "miller",
+          "id": "visit"
+        }
+      },
+      {
+        "op": "cancel",
+        "args": {
+          "being": "stranger",
+          "id": "visit"
+        }
+      },
+      {
+        "op": "happen",
+        "args": {
+          "about": "player",
+          "event": "arrive",
+          "at": 21,
+          "being": "apprentice"
+        }
+      },
+      {
+        "op": "happen",
+        "args": {
+          "about": "player",
+          "event": "arrive",
+          "at": 22
+        }
+      },
+      {
+        "op": "happen",
+        "args": {
+          "about": "player",
+          "event": "leave",
+          "at": 23
+        }
+      }
+    ]
+  }
+}

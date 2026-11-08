@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "kind must be hope or dread.",
+  "error": true
+}

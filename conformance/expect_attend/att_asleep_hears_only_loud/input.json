@@ -1,0 +1,41 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 13,
+          "events": [
+            {
+              "id": "bell",
+              "kind": "alarm",
+              "place": "square",
+              "salience": 100,
+              "noise": 100
+            },
+            {
+              "id": "lantern",
+              "kind": "light",
+              "place": "square",
+              "salience": 100
+            }
+          ],
+          "beings": [
+            {
+              "id": "sleeper",
+              "place": "square",
+              "asleep": true
+            },
+            {
+              "id": "deaf_sleeper",
+              "place": "square",
+              "asleep": true,
+              "hearing": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

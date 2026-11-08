@@ -1,0 +1,44 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 7,
+          "at": 100,
+          "events": [
+            {
+              "id": "crash",
+              "kind": "accident",
+              "place": "road",
+              "salience": 90,
+              "noise": 80,
+              "subject": "carter"
+            }
+          ],
+          "beings": [
+            {
+              "id": "baker",
+              "place": "road"
+            },
+            {
+              "id": "apprentice",
+              "place": "bakery",
+              "near": [
+                {
+                  "place": "road",
+                  "distance": 20
+                }
+              ]
+            },
+            {
+              "id": "miller",
+              "place": "mill"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

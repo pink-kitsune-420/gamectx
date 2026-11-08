@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Asleep, only sound counts and the score is halved; a deaf sleeper perceives nothing.",
+  "error": false
+}

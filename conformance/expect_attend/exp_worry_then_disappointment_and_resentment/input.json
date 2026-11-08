@@ -1,0 +1,57 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "flour",
+          "about": "player",
+          "event": "bring_flour",
+          "due": 12,
+          "grace": 2,
+          "importance": 80,
+          "relies": true,
+          "label": "the player brings flour by noon"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 12
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 13
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 14
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 15
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 16
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

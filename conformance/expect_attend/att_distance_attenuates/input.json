@@ -1,0 +1,68 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 21,
+          "events": [
+            {
+              "id": "shout",
+              "kind": "voice",
+              "place": "square",
+              "salience": 10,
+              "noise": 70
+            }
+          ],
+          "beings": [
+            {
+              "id": "listener1",
+              "place": "lane",
+              "near": [
+                {
+                  "place": "square",
+                  "distance": 1
+                }
+              ]
+            },
+            {
+              "id": "listener50",
+              "place": "lane",
+              "near": [
+                {
+                  "place": "square",
+                  "distance": 50
+                }
+              ]
+            },
+            {
+              "id": "listener150",
+              "place": "lane",
+              "near": [
+                {
+                  "place": "square",
+                  "distance": 150
+                }
+              ]
+            },
+            {
+              "id": "listener400",
+              "place": "lane",
+              "near": [
+                {
+                  "place": "square",
+                  "distance": 400
+                }
+              ]
+            },
+            {
+              "id": "listener0",
+              "place": "square"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

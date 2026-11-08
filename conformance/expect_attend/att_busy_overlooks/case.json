@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The same quiet event is scored lower for a busy being.",
+  "error": false
+}

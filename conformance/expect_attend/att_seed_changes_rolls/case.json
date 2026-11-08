@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The host seed decides borderline rolls; the same seed replays the same result.",
+  "error": false
+}

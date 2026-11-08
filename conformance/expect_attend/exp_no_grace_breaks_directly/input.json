@@ -1,0 +1,30 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "apprentice",
+          "id": "lesson",
+          "about": "baker",
+          "event": "teach",
+          "due": 8,
+          "importance": 30
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 8
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 9
+        }
+      }
+    ]
+  }
+}

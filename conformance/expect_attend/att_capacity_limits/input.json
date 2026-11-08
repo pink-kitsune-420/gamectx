@@ -1,0 +1,65 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "clerk",
+          "alertness": 100,
+          "perception": 100,
+          "capacity": 2
+        }
+      },
+      {
+        "op": "notice",
+        "args": {
+          "seed": 9,
+          "events": [
+            {
+              "id": "stall0",
+              "kind": "stall",
+              "place": "market",
+              "salience": 50,
+              "noise": 10
+            },
+            {
+              "id": "stall1",
+              "kind": "stall",
+              "place": "market",
+              "salience": 60,
+              "noise": 10
+            },
+            {
+              "id": "stall2",
+              "kind": "stall",
+              "place": "market",
+              "salience": 70,
+              "noise": 10
+            },
+            {
+              "id": "stall3",
+              "kind": "stall",
+              "place": "market",
+              "salience": 80,
+              "noise": 10
+            },
+            {
+              "id": "stall4",
+              "kind": "stall",
+              "place": "market",
+              "salience": 90,
+              "noise": 10
+            }
+          ],
+          "beings": [
+            {
+              "id": "clerk",
+              "place": "market"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

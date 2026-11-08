@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being notices at most its capacity (highest scores first); the rest are over capacity.",
+  "error": false
+}

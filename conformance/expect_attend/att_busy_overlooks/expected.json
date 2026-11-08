@@ -1,0 +1,1 @@
+{"version":1,"results":[{"at":0,"beings":[{"being":"idle","missed":[],"noticed":[{"clarity":"vague","event":"pickpocket","score":40}]},{"being":"haggler","missed":[{"event":"pickpocket","reason":"overlooked","score":10}],"noticed":[]}],"events":[{"event":"pickpocket","noticed_by":["idle"]}],"seed":3}]}

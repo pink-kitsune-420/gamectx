@@ -1,0 +1,130 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 1,
+          "events": [
+            {
+              "id": "rustle",
+              "kind": "sound",
+              "place": "woods",
+              "salience": 0,
+              "noise": 50
+            }
+          ],
+          "beings": [
+            {
+              "id": "hunter0",
+              "place": "woods"
+            },
+            {
+              "id": "hunter1",
+              "place": "woods"
+            },
+            {
+              "id": "hunter2",
+              "place": "woods"
+            },
+            {
+              "id": "hunter3",
+              "place": "woods"
+            },
+            {
+              "id": "hunter4",
+              "place": "woods"
+            },
+            {
+              "id": "hunter5",
+              "place": "woods"
+            }
+          ]
+        }
+      },
+      {
+        "op": "notice",
+        "args": {
+          "seed": 2,
+          "events": [
+            {
+              "id": "rustle",
+              "kind": "sound",
+              "place": "woods",
+              "salience": 0,
+              "noise": 50
+            }
+          ],
+          "beings": [
+            {
+              "id": "hunter0",
+              "place": "woods"
+            },
+            {
+              "id": "hunter1",
+              "place": "woods"
+            },
+            {
+              "id": "hunter2",
+              "place": "woods"
+            },
+            {
+              "id": "hunter3",
+              "place": "woods"
+            },
+            {
+              "id": "hunter4",
+              "place": "woods"
+            },
+            {
+              "id": "hunter5",
+              "place": "woods"
+            }
+          ]
+        }
+      },
+      {
+        "op": "notice",
+        "args": {
+          "seed": 1,
+          "events": [
+            {
+              "id": "rustle",
+              "kind": "sound",
+              "place": "woods",
+              "salience": 0,
+              "noise": 50
+            }
+          ],
+          "beings": [
+            {
+              "id": "hunter0",
+              "place": "woods"
+            },
+            {
+              "id": "hunter1",
+              "place": "woods"
+            },
+            {
+              "id": "hunter2",
+              "place": "woods"
+            },
+            {
+              "id": "hunter3",
+              "place": "woods"
+            },
+            {
+              "id": "hunter4",
+              "place": "woods"
+            },
+            {
+              "id": "hunter5",
+              "place": "woods"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

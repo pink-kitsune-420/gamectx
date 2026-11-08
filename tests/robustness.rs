@@ -2309,3 +2309,88 @@ fn creed_survives_mutation_and_boundaries() {
     }
     assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, norms(128)), 1 << 20).unwrap()).is_err());
 }
+
+#[test]
+fn expectation_and_attention_survive_mutation_and_boundaries() {
+    use gamectx::character::attention::AttentionModel;
+    use gamectx::character::expectation::ExpectationBook;
+    let mut rng = Rng(0xE7EC_7A77_E471_2026);
+
+    fn ops(n: usize, one: &str) -> String {
+        format!(r#"{{"ops":[{}]}}"#, vec![one; n].join(","))
+    }
+
+    // 22. ExpectationBook mutation fuzzing & boundaries
+    let sample = r#"{"ops":[{"op":"expect","args":{"being":"baker","id":"flour","about":"player","event":"bring_flour","due":12,"grace":2,"importance":80,"relies":true,"label":"flour by noon"}},{"op":"expect","args":{"being":"miller","id":"tax","about":"collector","event":"arrive","due":5,"importance":60,"kind":"dread","confidence":90}},{"op":"tick","args":{"at":13}},{"op":"tick","args":{"at":15,"being":"baker"}},{"op":"happen","args":{"about":"player","event":"bring_flour","at":20}},{"op":"happen","args":{"about":"collector","event":"arrive","at":4,"being":"miller"}},{"op":"cancel","args":{"being":"baker","id":"flour"}},{"op":"assess","args":{"being":"baker"}}]}"#;
+    let mut book = ExpectationBook::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = book.workflow(&v);
+        }
+    }
+    let tick = r#"{"op":"cancel","args":{"being":"b","id":"x"}}"#;
+    assert!(ExpectationBook::new().workflow(&parse(&ops(64, tick), 1 << 20).unwrap()).is_ok());
+    assert!(ExpectationBook::new().workflow(&parse(&ops(65, tick), 1 << 20).unwrap()).is_err());
+    let expect = |b: &str, id: &str, about: &str, due: u64| {
+        format!(
+            r#"{{"op":"expect","args":{{"being":"{b}","id":"{id}","about":"{about}","event":"e","due":{due},"importance":10}}}}"#
+        )
+    };
+    // 64 beings fill the book; the 65th is refused.
+    let mut full = ExpectationBook::new();
+    let beings: Vec<String> = (0..64).map(|i| expect(&format!("b{i}"), "x", "s", 0)).collect();
+    full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, beings.join(",")), 1 << 20).unwrap()).unwrap();
+    assert!(full
+        .workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, expect("b64", "x", "s", 0)), 1 << 20).unwrap())
+        .is_err());
+    // 64 subjects of reliability; the 65th forgets the least-observed (ties: smallest name).
+    let mut rel = ExpectationBook::new();
+    for i in 0..65 {
+        let about = format!("s{i:02}");
+        let mut req = vec![expect("b", "x", &about, 0), r#"{"op":"tick","args":{"at":1}}"#.to_string()];
+        if i == 0 {
+            // s00 is observed twice, so it survives the eviction.
+            req.push(expect("b", "y", "s00", 1));
+            req.push(r#"{"op":"tick","args":{"at":2}}"#.to_string());
+        }
+        rel.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, req.join(",")), 1 << 20).unwrap()).unwrap();
+    }
+    let r = &rel.beings["b"].reliability;
+    assert_eq!(r.len(), 64);
+    assert!(r.contains_key("s00") && !r.contains_key("s01") && r.contains_key("s64"));
+
+    // 23. AttentionModel mutation fuzzing & boundaries
+    let sample = r#"{"ops":[{"op":"profile","args":{"being":"guard","alertness":80,"perception":30,"cares":["theft","player"],"capacity":2}},{"op":"notice","args":{"seed":42,"at":7,"events":[{"id":"crash","kind":"accident","place":"road","salience":90,"noise":80,"subject":"carter"},{"id":"lift","kind":"theft","place":"market","salience":20,"subject":"player"}],"beings":[{"id":"guard","place":"market","near":[{"place":"road","distance":30}],"light":60,"busy":20},{"id":"sleeper","place":"road","asleep":true,"sight":true,"hearing":true}]}},{"op":"assess","args":{"being":"guard"}}]}"#;
+    let mut model = AttentionModel::new();
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = model.workflow(&v);
+        }
+    }
+    let assess = r#"{"op":"assess","args":{"being":"b"}}"#;
+    assert!(AttentionModel::new().workflow(&parse(&ops(64, assess), 1 << 20).unwrap()).is_ok());
+    assert!(AttentionModel::new().workflow(&parse(&ops(65, assess), 1 << 20).unwrap()).is_err());
+    let notice = |events: usize, beings: usize| {
+        let e: Vec<String> =
+            (0..events).map(|i| format!(r#"{{"id":"e{i}","kind":"k","place":"p","salience":50}}"#)).collect();
+        let b: Vec<String> = (0..beings).map(|i| format!(r#"{{"id":"b{i}","place":"p"}}"#)).collect();
+        format!(
+            r#"{{"ops":[{{"op":"notice","args":{{"seed":1,"events":[{}],"beings":[{}]}}}}]}}"#,
+            e.join(","),
+            b.join(",")
+        )
+    };
+    assert!(AttentionModel::new().workflow(&parse(&notice(16, 64), 1 << 20).unwrap()).is_ok());
+    assert!(AttentionModel::new().workflow(&parse(&notice(17, 1), 1 << 20).unwrap()).is_err());
+    assert!(AttentionModel::new().workflow(&parse(&notice(1, 65), 1 << 20).unwrap()).is_err());
+    assert!(AttentionModel::new().workflow(&parse(&notice(0, 1), 1 << 20).unwrap()).is_err());
+    // 64 profiles; the 65th is refused, re-profiling one is not.
+    let profile = |i: usize| format!(r#"{{"op":"profile","args":{{"being":"p{i}"}}}}"#);
+    let all: Vec<String> = (0..64).map(profile).collect();
+    let mut full = AttentionModel::new();
+    full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, all.join(",")), 1 << 20).unwrap()).unwrap();
+    assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, profile(64)), 1 << 20).unwrap()).is_err());
+    assert!(full.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, profile(3)), 1 << 20).unwrap()).is_ok());
+}

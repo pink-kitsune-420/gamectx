@@ -1,0 +1,38 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 11,
+          "events": [
+            {
+              "id": "figure",
+              "kind": "stranger",
+              "place": "lane",
+              "salience": 70
+            }
+          ],
+          "beings": [
+            {
+              "id": "day_watch",
+              "place": "lane",
+              "light": 100
+            },
+            {
+              "id": "dusk_watch",
+              "place": "lane",
+              "light": 40
+            },
+            {
+              "id": "night_watch",
+              "place": "lane",
+              "light": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

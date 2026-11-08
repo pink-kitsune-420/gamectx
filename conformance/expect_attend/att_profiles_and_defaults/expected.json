@@ -1,0 +1,1 @@
+{"version":1,"results":[{"alertness":50,"being":"guard","capacity":3,"cares":[],"perception":0},{"alertness":90,"being":"guard","capacity":5,"cares":["alarm","fire","thief"],"perception":40},{"alertness":90,"being":"guard","capacity":5,"cares":["alarm","fire","thief"],"perception":40}]}

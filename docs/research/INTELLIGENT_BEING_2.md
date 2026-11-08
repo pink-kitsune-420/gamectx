@@ -95,16 +95,18 @@ worth doing.
 The planner still reads the host catalog; `known_actions` and `gaps` are the bridge until it
 reads beliefs directly. [Evidence](../characters/LIFE.md#subjective-world-knowledge-pass-2-a1).
 
-**A2. Attention and graded noticing.** The witness bridge says yes or no. Noticing should
+**A2. Attention and graded noticing.** — **DONE**. The witness bridge says yes or no. Noticing should
 depend on distance, light, noise, what the being is doing, its skills and what it cares
 about. It should be deterministic (seeded by the host), so replay holds. Attention should
 also be limited, so a busy being misses things. Without this, everyone nearby notices
 everything, and secrets have nothing to work with.
+*Implemented (pass 2 stage 5):* `character::attention::AttentionModel` (local kind `attention`). [Evidence](../characters/LIFE.md#attention-and-graded-noticing-pass-2-a2).
 
-**A3. Expectation and surprise.** A being should expect things: "the player comes at noon",
+**A3. Expectation and surprise.** — **DONE**. A being should expect things: "the player comes at noon",
 "the oven takes an hour", "my friend will repay". Store these as expectations with a due
 time. When one is broken, that becomes an appraisal event (surprise, worry, relief).
 Without expectations, a missed meeting produces nothing, because nothing *happened*.
+*Implemented (pass 2 stage 5):* `character::expectation::ExpectationBook` (local kind `expectation`). [Evidence](../characters/LIFE.md#expectations-and-surprise-pass-2-a3).
 
 **A4. Goals that arise from experience.** After pass 1 every goal is still authored. Goals
 should form from motives: repeated hunger → "keep a food store"; repeated theft → "get a
@@ -263,7 +265,7 @@ packet and budget modules already do.
 2. **A1 subjective knowledge** and **B1 communication as action.** Together these make
    asking, telling, teaching and lying matter. — **DONE** ([Evidence](../characters/LIFE.md#subjective-world-knowledge-pass-2-a1)).
 3. **A3 expectations** and **A2 attention.** Cheap, deterministic, and they create many
-   events from things that do *not* happen.
+   events from things that do *not* happen. — **DONE** (stage 5).
 4. **A4 goals from experience**, **A5 habits**, **A6 lessons**. This is the step to
    level 4–5.
 5. **B2/B3 cooperation and conflict**, **B7 roles**, **C4 economy**, **C3 space**.

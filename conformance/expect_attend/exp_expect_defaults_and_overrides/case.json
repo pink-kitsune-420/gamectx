@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Defaults: a hope, no grace, confidence 70 for an unknown subject, label '<about> <event>'; explicit values override.",
+  "error": false
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 3,
+          "events": [
+            {
+              "id": "pickpocket",
+              "kind": "theft",
+              "place": "market",
+              "salience": 30,
+              "noise": 5
+            }
+          ],
+          "beings": [
+            {
+              "id": "idle",
+              "place": "market"
+            },
+            {
+              "id": "haggler",
+              "place": "market",
+              "busy": 90
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

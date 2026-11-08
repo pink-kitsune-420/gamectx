@@ -2,6 +2,12 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Expectations and surprise (`character::expectation`, local kind `expectation`, pass 2 A3):
+  - Hopes and dreads about a subject's event with a due time, grace, importance, confidence and `relies`. `tick` reports `worried` (past due, once), `disappointed` (past grace; resentment toward a relied-on subject) and `relieved` (a dread that never came); `happen` reports `kept`, `dread_met` and `late`. Strength is surprise = importance × confidence / 100; effects are affect `set_mood`/`appraise` proposals.
+  - Per-subject reliability (kept/broken) sets default confidence: 70 + 10 × kept − 15 × broken, within 10–95. Ops: `expect`, `tick`, `happen`, `cancel`, `assess`.
+- Attention and graded noticing (`character::attention`, local kind `attention`, pass 2 A2):
+  - `notice` scores each being×event from salience × light, noise, distance (own place or `near`), busyness, sleep, alertness, perception and cares, and notices when a host-seeded FNV-1a roll falls below the score; at most `capacity` events per being. `noticed_by` lists witnesses per event. Ops: `profile`, `notice`, `assess`.
+- 25 conformance cases (5 malformed) in `conformance/expect_attend/`. Rust matches the Python reference on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Creeds and conscience (`character::creed`, local kind `creed`, pass 2 stage 4 and B5):
   - Creeds of kind `religion`, `ideology`, `philosophy` or `tradition` with tenets (forbidden actions, optionally only against sacred places and things, or forbidden food tags), timed observances, sacred ids and one-sided rival stances (`hostile`, `wary`, `tolerant`).
   - Adherents with devotion and per-creed standing, plus up to 16 personal norms at full weight. `judge` reports guilt, shame, witness indignation and standing loss, and proposes affect `set_mood`/`appraise` in their exact argument shapes.

@@ -2809,6 +2809,62 @@ the first `window` ticks.
 - `assess {being}` → `{being, creed, devotion, joined_at, norms, observed [{observance, period}], standing
   [{creed, value}]}`; refused for an unknown being.
 
+## Expectations v1 (pass 2, A3)
+
+`gamectx::character::expectation` (guide: [Life](characters/LIFE.md#expectations-and-surprise-pass-2-a3)). The
+`expectation` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 13
+cases (3 malformed, prefix `exp_`) live in `conformance/expect_attend/`.
+
+At most 64 beings, 32 expectations and 64 reliability subjects per being. Surprise = `importance·confidence/100`.
+Effects are `{engine: "affect", op: "set_mood", args: {being, reason: "expected <label>", valence_delta}}` and,
+for relied-on subjects, `{engine: "affect", op: "appraise", args: {being, delta, kind: "resentment", reason,
+subject: about}}`.
+
+- `expect {being, id, about, event, due 0–10¹², importance 1–100, grace? 0–10⁶ (0), kind? "hope"|"dread"
+  ("hope"), relies? (false), confidence? 1–100, label? 1–80 ("<about> <event>")}` → `{being, confidence, due_by,
+  id, open}`. Same id replaces. Default confidence is `clamp(70 + 10·kept − 15·broken, 10, 95)` from the
+  subject's reliability. A full book drops the broken expectation with the smallest `due` (then id); with
+  none broken the call is refused.
+- `tick {at, being?}` → `{at, changes [{about, being, event, id, outcome, surprise}], effects}`, beings and ids
+  sorted. For each expectation not broken with `at > due`:
+  - `at > due + grace`: a hope becomes `broken`, outcome `disappointed`, `set_mood −max(1, surprise/2)` and, with
+    `relies`, `appraise` of the same amount; a dread is removed, outcome `relieved`, `set_mood +surprise/4` when
+    non-zero. Both count as broken for the subject.
+  - otherwise an `open` hope becomes `worried`, outcome `worried`, `set_mood −surprise/4` when non-zero.
+- `happen {about, event, at, being?}` → `{about, at, effects, event, resolved [{being, early: at < due, id,
+  outcome, surprise}]}`: every matching expectation is removed. A broken hope is `late` (`set_mood
+  +max(1, importance/4)`, surprise reported, no count); a dread is `dread_met` (`−max(1, importance/2)`) and a
+  hope `kept` (`+max(1, importance/10)`), both counted as kept.
+- `cancel {being, id}` → `{being, id, removed}`.
+- `assess {being}` → `{being, expectations [{about, confidence, due, event, grace, id, importance, kind, label,
+  relies, state "open"|"worried"|"broken"}], reliability [{about, broken, confidence, kept}]}`; refused for an
+  unknown being. A 65th subject forgets the one with the fewest observations (then smallest name).
+
+## Attention v1 (pass 2, A2)
+
+`gamectx::character::attention` (guide: [Life](characters/LIFE.md#attention-and-graded-noticing-pass-2-a2)). The
+`attention` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 12
+cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
+
+**Profile** `{alertness 0–100 (50), perception 0–100 (0), cares ≤16 ids, capacity 1–16 (3)}`; at most 64.
+
+- `profile {being, alertness?, perception?, cares?, capacity?}` → `{alertness, being, capacity, cares (sorted),
+  perception}`; replaces the profile.
+- `assess {being}` → the same view (defaults for an unprofiled being).
+- `notice {seed 0–2⁵³−1, at? (0), events 1–16 [{id, kind, place, salience 0–100, noise? 0–100 (0), subject?}],
+  beings 1–64 [{id, place, near? ≤16 [{place ≠ own, distance 1–1000}], light? 0–100 (100), busy? 0–100 (0),
+  asleep? (false), sight? (true), hearing? (true)}]}` → `{at, beings [{being, missed [{event, reason, score}],
+  noticed [{clarity, event, score}]}], events [{event, noticed_by}], seed}`. Ids are distinct.
+  - Distance is 0 at the being's place, the `near` distance elsewhere, and otherwise the event is missed as
+    `out_of_range`.
+  - `visual = salience·light/100` if sight and awake, `audible = noise` if hearing; `base = max`. Score
+    `clamp(base + alertness/5 + perception/5 + 25·cares − busy/3 (0 asleep) − distance/5, 0, 100)`, halved
+    asleep, 0 when `base` is 0. `cares` holds when the event's kind or subject is among the being's cares.
+  - Roll = FNV-1a 64 of `"<seed>:<being>:<event>"` mod 100. Score 0 → `imperceptible`; roll ≥ score →
+    `overlooked`; else a hit. Hits sort by score descending then event id; beyond `capacity` they are
+    `over_capacity`. `clarity` is `clear` at 60+, else `vague`. `missed` is in event order; `noticed_by` in
+    being order.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

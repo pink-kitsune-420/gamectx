@@ -1,0 +1,114 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p0",
+          "about": "drifter",
+          "event": "repay",
+          "due": 0,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 1
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p1",
+          "about": "drifter",
+          "event": "repay",
+          "due": 10,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 11
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p2",
+          "about": "drifter",
+          "event": "repay",
+          "due": 20,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 21
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p3",
+          "about": "drifter",
+          "event": "repay",
+          "due": 30,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 31
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p4",
+          "about": "drifter",
+          "event": "repay",
+          "due": 40,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 41
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "last",
+          "about": "drifter",
+          "event": "repay",
+          "due": 100,
+          "importance": 50
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

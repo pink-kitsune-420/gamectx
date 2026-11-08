@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The same shout loses a point of score per five units of distance.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Event ids must be distinct.",
+  "error": true
+}

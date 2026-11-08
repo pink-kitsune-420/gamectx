@@ -1,0 +1,19 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "x",
+          "about": "player",
+          "event": "arrive",
+          "due": 1,
+          "importance": 5,
+          "kind": "maybe"
+        }
+      }
+    ]
+  }
+}

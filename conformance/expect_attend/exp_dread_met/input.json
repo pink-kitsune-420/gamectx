@@ -1,0 +1,40 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "miller",
+          "id": "tax",
+          "about": "collector",
+          "event": "arrive",
+          "due": 50,
+          "grace": 10,
+          "importance": 60,
+          "kind": "dread"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 55
+        }
+      },
+      {
+        "op": "happen",
+        "args": {
+          "about": "collector",
+          "event": "arrive",
+          "at": 56
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

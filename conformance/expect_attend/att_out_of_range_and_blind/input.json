@@ -1,0 +1,52 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 17,
+          "events": [
+            {
+              "id": "wave",
+              "kind": "gesture",
+              "place": "harbor",
+              "salience": 80
+            },
+            {
+              "id": "shout",
+              "kind": "voice",
+              "place": "harbor",
+              "salience": 10,
+              "noise": 60
+            },
+            {
+              "id": "splash",
+              "kind": "sound",
+              "place": "pier",
+              "salience": 10,
+              "noise": 90
+            }
+          ],
+          "beings": [
+            {
+              "id": "fisher",
+              "place": "harbor",
+              "sight": false
+            },
+            {
+              "id": "keeper",
+              "place": "lighthouse",
+              "near": [
+                {
+                  "place": "harbor",
+                  "distance": 200
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

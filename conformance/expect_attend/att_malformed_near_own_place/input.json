@@ -1,0 +1,33 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "notice",
+        "args": {
+          "seed": 1,
+          "events": [
+            {
+              "id": "a",
+              "kind": "x",
+              "place": "p",
+              "salience": 10
+            }
+          ],
+          "beings": [
+            {
+              "id": "b",
+              "place": "p",
+              "near": [
+                {
+                  "place": "p",
+                  "distance": 5
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -788,6 +788,10 @@ Meals go through [diets and foods](characters/LIFE.md#diets-and-foods-pass-2-sta
 (`character::diet::DietManager` or local kind `diet`): registered foods (or the original `village` pack), per-being diet profiles, freshness, refusals, fill, sickness and joy with a monotony penalty, and body/affect proposals when a being eats.
 Belief systems and conscience go through [creeds](characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5)
 (`character::creed::CreedManager` or local kind `creed`): religions, ideologies, philosophies and traditions with tenets, observances and rival stances; adherents with devotion and standing; personal norms; `judge` for guilt, shame and indignation as affect proposals; `due` for observance motives; `food_taboos` for diet `forbids`.
+What beings expect goes through [expectations](characters/LIFE.md#expectations-and-surprise-pass-2-a3)
+(`character::expectation::ExpectationBook` or local kind `expectation`): hopes and dreads with due times and grace; `tick` turns what did *not* happen into worry, disappointment (with resentment when the being relied on someone) or relief; `happen` resolves them; each subject's reliability sets the next default confidence.
+Who notices what goes through [attention](characters/LIFE.md#attention-and-graded-noticing-pass-2-a2)
+(`character::attention::AttentionModel` or local kind `attention`): a host-seeded roll against a score from salience, noise, light, distance, busyness, sleep, alertness, perception and cares, limited by capacity; `noticed_by` gives the witnesses to pass on.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

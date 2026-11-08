@@ -1,0 +1,376 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e00",
+          "about": "ledger",
+          "event": "balance",
+          "due": 100,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e01",
+          "about": "ledger",
+          "event": "balance",
+          "due": 101,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e02",
+          "about": "ledger",
+          "event": "balance",
+          "due": 102,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e03",
+          "about": "ledger",
+          "event": "balance",
+          "due": 103,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e04",
+          "about": "ledger",
+          "event": "balance",
+          "due": 104,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e05",
+          "about": "ledger",
+          "event": "balance",
+          "due": 105,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e06",
+          "about": "ledger",
+          "event": "balance",
+          "due": 106,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e07",
+          "about": "ledger",
+          "event": "balance",
+          "due": 107,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e08",
+          "about": "ledger",
+          "event": "balance",
+          "due": 108,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e09",
+          "about": "ledger",
+          "event": "balance",
+          "due": 109,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e10",
+          "about": "ledger",
+          "event": "balance",
+          "due": 110,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e11",
+          "about": "ledger",
+          "event": "balance",
+          "due": 111,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e12",
+          "about": "ledger",
+          "event": "balance",
+          "due": 112,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e13",
+          "about": "ledger",
+          "event": "balance",
+          "due": 113,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e14",
+          "about": "ledger",
+          "event": "balance",
+          "due": 114,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e15",
+          "about": "ledger",
+          "event": "balance",
+          "due": 115,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e16",
+          "about": "ledger",
+          "event": "balance",
+          "due": 116,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e17",
+          "about": "ledger",
+          "event": "balance",
+          "due": 117,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e18",
+          "about": "ledger",
+          "event": "balance",
+          "due": 118,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e19",
+          "about": "ledger",
+          "event": "balance",
+          "due": 119,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e20",
+          "about": "ledger",
+          "event": "balance",
+          "due": 120,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e21",
+          "about": "ledger",
+          "event": "balance",
+          "due": 121,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e22",
+          "about": "ledger",
+          "event": "balance",
+          "due": 122,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e23",
+          "about": "ledger",
+          "event": "balance",
+          "due": 123,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e24",
+          "about": "ledger",
+          "event": "balance",
+          "due": 124,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e25",
+          "about": "ledger",
+          "event": "balance",
+          "due": 125,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e26",
+          "about": "ledger",
+          "event": "balance",
+          "due": 126,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e27",
+          "about": "ledger",
+          "event": "balance",
+          "due": 127,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e28",
+          "about": "ledger",
+          "event": "balance",
+          "due": 128,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e29",
+          "about": "ledger",
+          "event": "balance",
+          "due": 129,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e30",
+          "about": "ledger",
+          "event": "balance",
+          "due": 130,
+          "importance": 5
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "e31",
+          "about": "ledger",
+          "event": "balance",
+          "due": 131,
+          "importance": 5
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 102
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "clerk",
+          "id": "new",
+          "about": "ledger",
+          "event": "balance",
+          "due": 500,
+          "importance": 5
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Without a being, an event resolves every matching expectation; with one, only that being's. Cancel removes one.",
+  "error": false
+}

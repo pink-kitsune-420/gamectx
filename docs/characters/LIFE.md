@@ -632,6 +632,48 @@ workflows (`eval/character/creed_cases.py`, seed 7, 0 mismatches: 1,835 accepted
 128/129-being boundaries (`tests/robustness.rs`), acceptance scene replay
 (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Expectations and surprise (pass 2, A3)
+
+`gamectx::character::expectation` (`ExpectationBook`, local kind `expectation`) lets things that
+do *not* happen matter:
+- A being **expects** an event about a subject by a due time, with a grace period: a **hope** or a
+  **dread**, with an importance and a confidence. `relies` marks a promise.
+- **`tick`**: past due, a hope is **worried** about once (a quarter of the surprise as a mood drop);
+  past grace it is **disappointed** (half the surprise), and a relied-on subject is resented by the
+  same amount. A dread that never came brings **relief**. Surprise = importance × confidence / 100.
+  In `conformance/expect_attend/exp_worry_then_disappointment_and_resentment` the baker's flour
+  promise (importance 80, confidence 70, surprise 56) gives worry −14, then mood −28 and
+  resentment 28 toward the player.
+- **`happen`**: a hope is **kept**, a dread is **met** (half its importance as a mood drop), and a
+  hope that already broke arrives **late** (relief, a quarter of its importance).
+- **Reliability**: every kept or broken expectation is counted per subject, and the next
+  expectation's default confidence is 70 + 10 × kept − 15 × broken (10–95): after five broken
+  repayments a drifter is expected with confidence 10 (`exp_reliability_floor`).
+
+**Evidence:** see attention below (one suite).
+
+## Attention and graded noticing (pass 2, A2)
+
+`gamectx::character::attention` (`AttentionModel`, local kind `attention`) decides who actually
+noticed an event, after the witness bridge has said who could:
+- Score 0–100 = max(salience × light / 100 if seeing, noise if hearing) + alertness/5 +
+  perception/5 + 25 if the being cares about the event's kind or subject − busy/3 − distance/5
+  (halved and sound-only while asleep). Events at a place the being is neither at nor `near` are
+  `out_of_range`.
+- The event is noticed when FNV-1a(`"<seed>:<being>:<event>"`) mod 100 falls below the score,
+  so the host's seed makes replay exact and the same scene with another seed differs only at the
+  margins (`att_seed_changes_rolls`). Clear at 60 or more, else vague.
+- Attention is limited: a being notices at most `capacity` events (default 3), highest scores
+  first; the rest are `over_capacity`. A shout heard from 400 units away scores 0
+  (`att_distance_attenuates`); a dark lane hides a silent figure (`att_light_matters`).
+- `noticed_by` per event is the list of witnesses to pass on to the witness bridge.
+
+**Evidence:** 25 conformance cases (`conformance/expect_attend/`, 5 malformed), 2,000 differential
+parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches: 1,934 accepted,
+66 refused, 923 expectation changes, 3,030 notices), 1,000 mutations each plus 64/65-op,
+64/65-being, 16/17-event, 64/65-profile and 64/65-subject reliability boundaries
+(`tests/robustness.rs`), acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
+
 
 
 

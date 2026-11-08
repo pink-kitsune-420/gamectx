@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Events at places a being is neither at nor near are out of range; a blind being cannot perceive a silent wave.",
+  "error": false
+}

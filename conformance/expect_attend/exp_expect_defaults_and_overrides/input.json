@@ -1,0 +1,39 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "expect",
+        "args": {
+          "being": "miller",
+          "id": "cart",
+          "about": "carter",
+          "event": "arrive",
+          "due": 30,
+          "importance": 40
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "miller",
+          "id": "rain",
+          "about": "sky",
+          "event": "rain",
+          "due": 40,
+          "importance": 100,
+          "grace": 5,
+          "kind": "dread",
+          "confidence": 100,
+          "label": "storm over the mill"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}
