@@ -148,6 +148,25 @@ fn dist_val(v: &Value) -> Result<Option<f64>> {
     }
 }
 
+/// A turn audience: one id, or 1–16 distinct ids (a group the speaker is talking to).
+fn audience_val(v: &Value) -> Result<()> {
+    if let Value::Array(list) = v {
+        if list.is_empty() || list.len() > 16 {
+            return Err(c::bad());
+        }
+        let mut seen: Vec<&str> = Vec::new();
+        for x in list {
+            let id = ident(x)?;
+            if seen.contains(&id) {
+                return Err(c::bad());
+            }
+            seen.push(id);
+        }
+        return Ok(());
+    }
+    ident(v).map(|_| ())
+}
+
 fn calc_dist(d: Option<f64>, c1: Option<&[f64]>, c2: Option<&[f64]>) -> Option<f64> {
     if let Some(d) = d {
         return Some(d);
@@ -481,7 +500,7 @@ impl RoleplayEngine {
             return Err(c::bad());
         }
         if let Some(aud) = opt(t, "audience") {
-            ident(aud)?;
+            audience_val(aud)?;
         }
         let t_dist = opt(t, "distance").map(dist_val).transpose()?.flatten();
         let my_coords = opt(t, "coords").map(coords).transpose()?;
@@ -1119,11 +1138,19 @@ impl RoleplayEngine {
                 return Ok(obj! {"route"=>"addressing","kind"=>"silent","reason"=>"out_of_earshot"});
             }
 
-            let audience = if let Some(aud) = opt(t, "audience").and_then(Value::as_str) {
-                aud.to_owned()
+            let mut inferred = false;
+            let audience = if let Some(Value::Array(group)) = opt(t, "audience") {
+                if group.iter().any(|x| x.as_str() == Some(me)) {
+                    Value::str(me)
+                } else {
+                    Value::Array(group.clone())
+                }
+            } else if let Some(aud) = opt(t, "audience").and_then(Value::as_str) {
+                Value::str(aud)
             } else if let Some(voc) = parse_vocative(input, me, name, targets, sheet) {
-                voc
+                Value::str(&voc)
             } else {
+                inferred = true;
                 let conv_dist = config.setting(Feature::Addressing, "conversational_distance").unwrap_or(5) as f64;
                 let mut closest_id = me.to_owned();
                 let mut closest_dist = my_dist.unwrap_or(conv_dist);
@@ -1165,10 +1192,14 @@ impl RoleplayEngine {
                         }
                     }
                 }
-                closest_id
+                Value::str(&closest_id)
             };
 
-            if audience == me {
+            if audience.as_str() == Some(me) {
+                let conv_dist = config.setting(Feature::Addressing, "conversational_distance").unwrap_or(5) as f64;
+                if inferred && my_dist.is_some_and(|d| d > conv_dist) {
+                    return Ok(obj! {"route"=>"addressing","kind"=>"gesture","reason"=>"too_far","audience"=>me});
+                }
                 let stripped = input.trim();
                 if stripped.ends_with("...")
                     || stripped.ends_with('…')

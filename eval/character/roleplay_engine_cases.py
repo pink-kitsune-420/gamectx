@@ -324,6 +324,33 @@ CASES_D = [
     ('d_bad_sheet_unknown_key', run([turn('Hi')], sheet=dict(version=1, aura='golden')), True, []),
 ]
 
+# Addressing follow-up: distance attenuation and group audiences (expectations written before running).
+TOVIN = dict(kind='character', id='tovin', names=['Tovin'])
+GROUP = ['tovin', 'ilen']
+CASES_E = [
+    ('e_addressing_too_far', run([turn('Hello there', distance='far')]), False,
+     [(0, dict(route='addressing', kind='gesture', reason='too_far', audience='baker'))]),
+    ('e_addressing_too_far_coords', run([turn('Hello there', coords=[0.0, 0.0, 0.0], speaker_coords=[8.0, 0.0, 0.0])]), False,
+     [(0, dict(route='addressing', kind='gesture', reason='too_far', audience='baker'))]),
+    ('e_addressing_within_distance', run([turn('Hello there', distance='conversational')]), False, [(0, dict(route='greeting', introduced=True))]),
+    ('e_addressing_far_vocative_heard', run([turn('Hello, Mira', distance='far')]), False, [(0, dict(route='greeting', introduced=True))]),
+    ('e_addressing_far_host_audience', run([turn('Hello there', distance='far', audience='baker')]), False, [(0, dict(route='greeting', introduced=True))]),
+    ('e_addressing_far_setting', run([turn('Hello there', distance='far')], features=dict(addressing=dict(conversational_distance=12))), False,
+     [(0, dict(route='greeting', introduced=True))]),
+    ('e_addressing_far_other_closer', run([turn('Hello there', distance='far', targets=TARGETS + [dict(TOVIN, distance='near')])]), False,
+     [(0, dict(route='addressing', kind='silent', audience='tovin'))]),
+    ('e_addressing_group_includes_me', run([turn('Hello there', audience=['tovin', 'baker'])]), False, [(0, dict(route='greeting', introduced=True))]),
+    ('e_addressing_group_bystander', run([turn('Hello there', audience=GROUP)]), False, [(0, dict(route='addressing', kind='silent', audience=GROUP))]),
+    ('e_addressing_group_quirk', run([turn('Hello there', at=3, audience=GROUP)], sheet=SHEET_D), False,
+     [(0, dict(route='addressing', kind='action', action='quirk', audience=GROUP, narration='taps the wooden counter'))]),
+    ('e_addressing_off_group_ignored', run([turn('Hello there', audience=GROUP, distance='far')], features=dict(addressing=dict(enabled=False))), False,
+     [(0, dict(route='greeting', introduced=True))]),
+    ('e_bad_audience_empty', run([turn('Hi', audience=[])]), True, []),
+    ('e_bad_audience_duplicate', run([turn('Hi', audience=['tovin', 'tovin'])]), True, []),
+    ('e_bad_audience_too_many', run([turn('Hi', audience=['c%d' % i for i in range(17)])]), True, []),
+    ('e_bad_audience_member', run([turn('Hi', audience=['tovin', 'not an id'])]), True, []),
+]
+
 
 def check_requests():
     """Expectation 10 on the reference itself: shape, order and secret gating."""
@@ -340,7 +367,7 @@ def check_requests():
 
 
 def cases():
-    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D]
+    rows = [(n, a, e, w) for n, a, e, w in CASES + CASES_B + CASES_C + CASES_D + CASES_E]
     # Checkpoint round trip: a saved state restores and continues identically.
     first = oracle(copy.deepcopy(run([turn('Hello!'), heard(FIRST), turn('My name is Arin.', token=2, at=2), heard('Arin; thank you for telling me your name.', token=2)])))
     rows.append(('restore_continues', dict(config=cfg(), state=first['state'], ops=[turn('Hello again', token=3, at=3), turn('What is my name?', token=4, at=4)]), False,
@@ -382,9 +409,12 @@ def main():
             assert (x.returncode != 0) == error, (name, x.stderr)
             if not error: assert x.stdout.strip() == enc(got), (name, x.stdout, enc(got))
         if a.write_conformance:
-            d = ROOT / 'conformance/roleplay-engine' / name; d.mkdir(parents=True, exist_ok=True)
+            # New cases are written; existing ones must already match byte for byte.
+            d = ROOT / 'conformance/roleplay-engine' / name; new = not d.exists(); d.mkdir(parents=True, exist_ok=True)
             for k, v in [('case', dict(op='local', **(dict(error=True) if error else {}))), ('input', req)] + ([] if error else [('expected', got)]):
-                f = d / (k + '.json'); assert not f.exists(), f; f.write_text(enc(v) + '\n')
+                f = d / (k + '.json')
+                if new: f.write_text(enc(v) + '\n')
+                else: assert f.read_text() == enc(v) + '\n', f
     print(enc(dict(workflows=len(rows), lantern_vault_lines=ported, model_calls=0, api_spend_usd=0)))
 
 

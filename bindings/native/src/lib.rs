@@ -212,10 +212,7 @@ mod tests {
 
             // Test gamectx_visual_describe native C ABI
             let art_json = include_str!("../../../examples/lantern-vault/web/art.json");
-            let desc_req = format!(
-                r#"{{"bible":{},"anchor":"keeper","model":"sdxl"}}"#,
-                art_json
-            );
+            let desc_req = format!(r#"{{"bible":{},"anchor":"keeper","model":"sdxl"}}"#, art_json);
             let desc_reply = gamectx_visual_describe(desc_req.as_ptr(), desc_req.len());
             assert!(!desc_reply.is_null());
             let reply_str = CStr::from_ptr(desc_reply).to_str().unwrap();

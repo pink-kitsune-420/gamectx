@@ -23,6 +23,7 @@ Turning a stage off never changes what an earlier stage does.
 |---|---|---|---|
 | 1 | `chunks` | Slices long messages (`max_chars` 512–4096, default 1024); a multi-chunk message is *long* and skips the question stages | — |
 | 2 | `out_of_character` | `OOC: …`, `out of character: …`, `((…))` | `out_of_character` / `note` |
+| 2a | `addressing` | Turns [not meant for this character](#addressing): out of earshot, too far to follow, spoken to someone else, or left unfinished | `addressing` / `silent`, `gesture`, `action` or `pause` |
 | 3 | `content` | Your content settings: a topic on the `avoid` list is redirected, never answered | `content` / `reply` or `clarify` |
 | 4 | `stage_actions` | `*registered stage action*` from your [`RoleplayActions`](../studio/STUDIO_CONVERSATION_EXTENSIONS.md) registry | `stage_action` / `action` or `clarify` |
 | 5 | `props` | A present prop's interaction phrase, starred or plain (`*rings the bell*`, `ring the bell`) | `props` / `action` or `clarify` |
@@ -239,7 +240,8 @@ that mention an avoided topic are rejected.
 ```text
 input  {listener, text, at, token, scene:{id,label,place,atmosphere,visit,sight?,sound?,props?},
         trust?, choices?, labels?, focus?, reason?, targets?,
-        entrances?, needs?, quests?, state?}
+        entrances?, needs?, quests?, state?, audience?, distance?, coords?, speaker_coords?,
+        speaker_facing?, ...}
 output {route, kind, ...}
 ```
 
@@ -264,6 +266,37 @@ just drops the pending reply. `checkpoint()` and `restore()` save and load claim
 recent replies, topics, revealed secrets, encounters and pending replies. A failed `turn`
 or `delivered` call changes nothing.
 
+## Addressing
+
+With `addressing` on, the engine first decides whether the player's words are meant for
+this character at all. Models never decide this; it uses only host input and the words.
+
+1. **Out of earshot.** The speaker's distance (`distance`: a number 0–1000 or `near` 1,
+   `conversational` 3, `far` 10, `distant` 30; or the length between `coords` and
+   `speaker_coords`) is above `max_distance` (default 20): `silent`, reason
+   `out_of_earshot`.
+2. **Who is spoken to.** The host's `audience` decides when given: one id, or a group of
+   1–16 distinct ids. A group that includes this character counts as speaking to it.
+   Otherwise a name in the player's words decides (`Tovin, …`, `…, Mira`,
+   `*turns to Tovin*`). Otherwise `speaker_facing`, then the nearest listed character
+   `target`, and otherwise this character.
+3. **Spoken to someone else.** `silent` with the `audience`, or every `action_turns` turns
+   (default 3) a sheet quirk as a gesture (`kind: action`, `action: quirk`).
+4. **Too far to follow.** If nobody was named (no host `audience`, no name in the words)
+   and the speaker is further than `conversational_distance` (default 5):
+   `{"route":"addressing","kind":"gesture","reason":"too_far","audience":"<this id>"}`.
+   The character notices but does not follow the words; the host may narrate a lean or a
+   frown. Naming the character, or a host `audience`, is heard up to `max_distance`.
+5. **Unfinished.** Words ending in `...`, `…`, `--`, a dash or a comma: `pause`, reason
+   `unfinished`, so the character waits for the rest.
+
+```text
+turn {"text":"Hello there","distance":"far",...}                  → {"route":"addressing","kind":"gesture","reason":"too_far","audience":"baker"}
+turn {"text":"Hello, Mira","distance":"far",...}                  → greeting (named, so heard)
+turn {"text":"Hello there","audience":["tovin","ilen"],...}       → {"route":"addressing","kind":"silent","audience":["tovin","ilen"]}
+turn {"text":"Hello there","audience":["tovin","baker"],...}      → greeting (part of the group)
+```
+
 ## Model requests and replies
 
 When a message falls through to `model`, the outcome carries `request`: a complete chat
@@ -283,7 +316,8 @@ reply  {"token":1,"listener":"player_1","text":"{\"speech\": \"The new mayor see
 ```
 
 - **Messages, most stable first** so servers can reuse their prompt cache: the pack's
-  `model_rules` (replace them with config `model_rules`, 1–8 templates that may use
+  `model_rules` (the English pack asks for one or two short sentences, counts a catchphrase
+  as a sentence and forbids tacking one on; [measured](#8b-follow-up-v3); replace them with config `model_rules`, 1–8 templates that may use
   `{name}` and `{sentences}`), then the character brief (persona, speech style,
   relationships, factions, content rating), then this turn's situation (scene and
   senses, props, exits, what the character knows about this listener, the current goal,
@@ -350,9 +384,10 @@ player file and is revalidated in full on load.
 
 Conformance, parity and fuzzing are offline and made zero model calls:
 
-- **130 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
-  the codex and sheet, 26 for model requests and replies), each with predeclared
-  expected fields. One stage 2.1
+- **177 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
+  the codex and sheet, 26 for model requests and replies, 32 for embodiment, matter and
+  spatial addressing, 15 for distance attenuation and group audiences), each with
+  predeclared expected fields. One stage 2.1
   prediction was wrong and is recorded in the cases script: "Look at the bell" with no
   bell present reaches the command grammar (`look` is a command verb) instead of the
   model, the same as Lantern Vault. With an empty sheet and codex, the 62 stage 2.1
@@ -364,7 +399,10 @@ Conformance, parity and fuzzing are offline and made zero model calls:
   one-way passages, deliveries, restores and mutated inputs (0 mismatches); and 3,200 in
   stage 2.2 adding raw model replies (valid, fenced, escaped, malformed, repeated, leaking
   and out-of-character) with every rejection reason except `repeat` exercised
-  (0 mismatches; `repeat` is covered by conformance cases).
+  (0 mismatches; `repeat` is covered by conformance cases). The addressing follow-up
+  adds host distances, coordinates, audiences (single, group, malformed), nearer
+  characters, facing and named or unfinished words: 2,500 more randomized workflows,
+  0 mismatches, with every addressing outcome exercised.
 - **Save files:** 22 conformance cases (`conformance/save-file/`) and 3,000 randomized
   save workflows (about 12,800 operations) against `eval/kit/save_reference.py`: 2,932
   byte-identical. The other 68 are a documented difference: Rust also deep-validates
@@ -471,9 +509,11 @@ calls, $0). Format was 100% and there were 0 detected leaks. Every rejection was
   - F3: dropping the catchphrase alone gained only 9.2 points against the predeclared 10.
   - F5, as written, for `both` on 3B: its fact hits were 11.1 points *above* shipped,
     outside the predeclared ±10 band.
-- **Decision (predeclared rule):** only `strict` qualifies. A later stage will make it the
-  default pack rule, which is a **[format]** change for every request. Until then, use
-  config `model_rules` and one retry.
+- **Decision (predeclared rule):** only `strict` qualifies. It is now the English pack's
+  default `model_rules` (a **[format]** change for every request), so the "shipped" column
+  above describes the earlier pack. One host retry is still recommended.
+  - With `max_sentences` 1 the rule reads "one or two short sentences, never more than 1";
+    only `max_sentences` 3 was measured.
 - **What the numbers don't show:**
   - Margins are thin: 54 turns per cell, and F9 passed by 1.5 points.
   - Accepted replies still invent details: Tovin owning a mill, "Ilen's son Kael", Arin as

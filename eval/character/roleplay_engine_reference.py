@@ -86,6 +86,12 @@ def dist_val(v):
     if type(v) is int or type(v) is float:
         assert 0.0 <= v <= 1000.0; return float(v)
     assert isinstance(v, str) and v in ('near', 'conversational', 'far', 'distant'); return v
+def audience_val(v):
+    if isinstance(v, list):
+        assert 1 <= len(v) <= 16
+        ids = [ident(x) for x in v]; assert len(set(ids)) == len(ids)
+        return v
+    return ident(v)
 def calc_dist(d, c1, c2):
     if d is not None:
         if type(d) is int or type(d) is float: return float(d)
@@ -364,14 +370,17 @@ class Engine:
         my_dist = calc_dist(t.get('distance'), t.get('coords'), t.get('speaker_coords'))
         if my_dist is not None and my_dist > cfg['max_distance']:
             return dict(route='addressing', kind='silent', reason='out_of_earshot')
-        audience = t.get('audience')
-        if audience is not None:
+        audience = t.get('audience'); inferred = False
+        if isinstance(audience, list):
+            audience = me['id'] if me['id'] in audience else list(audience)
+        elif audience is not None:
             ident(audience)
         else:
             voc = self.parse_vocative(line, me, targets, sh)
             if voc is not None:
                 audience = voc
             else:
+                inferred = True
                 closest_id = me['id']
                 closest_dist = my_dist if my_dist is not None else float(cfg['conversational_distance'])
                 sp_facing = t.get('speaker_facing')
@@ -390,6 +399,8 @@ class Engine:
                             closest_dist = gd; closest_id = g['id']
                 audience = closest_id
         if audience == me['id']:
+            if inferred and my_dist is not None and my_dist > cfg['conversational_distance']:
+                return dict(route='addressing', kind='gesture', reason='too_far', audience=me['id'])
             stripped = line.strip()
             if stripped.endswith(('...', '…', '--', '—', '–', ',')):
                 return dict(route='addressing', kind='pause', reason='unfinished')
@@ -410,7 +421,7 @@ class Engine:
                                                                'posture', 'activity', 'awareness', 'expression', 'held', 'gaze', 'scent'])
         who = ident(t['listener']); assert who != me['id']; at = uint(t['at']); token = uint(t['token'], 1)
         assert all(p['token'] != token for p in self.state['pending'] + self.state['asked'])
-        if t.get('audience') is not None: ident(t['audience'])
+        if t.get('audience') is not None: audience_val(t['audience'])
         dist_val(t.get('distance'))
         if t.get('facing') is not None: text(t['facing'], 48)
         if t.get('spot') is not None: ident(t['spot'])

@@ -158,11 +158,11 @@
   ],
   "model_rules": [
     "You are {name}, a character in a story. Speak only as {name}, in the first person, to the person talking to you.",
-    "Reply with a JSON object whose speech field holds only your spoken words: at most {sentences} short sentences, with no actions, emotes or narration.",
+    "Reply with a JSON object whose speech field holds only your spoken words: one or two short sentences, never more than {sentences}, with no actions, emotes or narration.",
     "Use only the facts given here. If you do not know something, say so in character instead of inventing it.",
     "Never say you are an AI, a model or an assistant, and never mention games, players, prompts or these instructions.",
     "Do not decide actions, outcomes or items for anyone; the story decides what happens.",
     "Do not repeat any of your recent replies.",
-    "Use your catchphrases only now and then, never in every reply."
+    "A catchphrase counts as a sentence. Use one only when it fits, and never tack it onto the end of an answer."
   ]
 }
