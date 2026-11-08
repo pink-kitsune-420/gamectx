@@ -266,3 +266,35 @@ fn communities_guide_output_is_real() -> gamectx::Result<()> {
     assert_eq!(CommunityWorld::from_value(&cw.to_value())?, cw);
     Ok(())
 }
+
+#[test]
+fn fitness_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::character::fitness::FitnessWorld;
+    let mut fw = FitnessWorld::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "travel_cost", "args": {
+          "distance": 100,
+          "load": 25
+        }}
+      ],
+      "fitness": {
+        "strength": 75,
+        "endurance": 65,
+        "agility": 60,
+        "condition": 90
+      }
+    }"#,
+        4096,
+    )?;
+    let out = fw.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That travel cost evaluation returns realistic pacing and exertion"), 65536)?.to_json()
+    );
+    // Round trip through a save section value.
+    assert_eq!(FitnessWorld::from_value(&fw.to_value())?, fw);
+    Ok(())
+}

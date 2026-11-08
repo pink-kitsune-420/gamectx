@@ -1,0 +1,1 @@
+{"kind":"fitness","args":{"ops":[{"op":"assess","at":0,"args":{"health":{"status":"healthy"}}},{"op":"travel_cost","at":0,"args":{"distance":200,"load":25}},{"op":"can_carry","at":0,"args":{"current_load":25,"add_weight":30}}],"fitness":{"strength":75,"endurance":65,"agility":60,"condition":90}}}

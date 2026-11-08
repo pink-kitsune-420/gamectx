@@ -2,6 +2,15 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Fitness (`character::fitness`, local kind `fitness`): physical attributes and exertion.
+  - Adds `fitness` (strength, endurance, agility, condition 0–100) to character `bio`, feeding
+    maximum carry capacity, travel pacing across place links, and exertion fatigue.
+  - Dynamically degrades effective capability under adverse health conditions (`hurt`, `sick`,
+    `exhausted`) and depleted energy or nourishment needs.
+  - Evaluates journey duration and fatigue accumulation under carried weight and overload penalties.
+  - Ops: assess, travel_cost, can_carry, and train (with diminishing returns and timeline logging).
+  - 24 cases (6 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches).
 - Communities (`knowledge::communities`, local kind `communities`): factions extension,
   home places, members, customs (norms), bilateral relations with numeric trust, markets,
   and bartering.

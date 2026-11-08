@@ -71,6 +71,18 @@ pub(crate) fn vars(
     if let Some(p) = profession {
         base.text("profession", p);
     }
+    let fit_val = bio.and_then(|b| b.get("fitness")).filter(|x| **x != Value::Null);
+    base.flag("has_fitness", fit_val.is_some());
+    if let Some(fv) = fit_val {
+        if let Ok(fit) = crate::character::fitness::Fitness::parse(fv) {
+            base.int("strength", fit.strength as i64)
+                .int("endurance", fit.endurance as i64)
+                .int("agility", fit.agility as i64)
+                .int("condition", fit.condition as i64)
+                .int("carry_capacity", fit.carry_capacity() as i64)
+                .int("travel_speed", fit.travel_speed(0) as i64);
+        }
+    }
     let h = health(sheet, health_turn);
     base.flag("has_health", h.is_some());
     if let Some(s) = h.and_then(|h| text(h, "status")) {
@@ -149,7 +161,7 @@ pub(crate) fn brief(sheet: &CharacterSheet, health_turn: Option<&Value>, base: &
     if let Some(crate::data::conditions::Scalar::Text(s)) = base.get("birthday") {
         put("birthday", Value::str(s));
     }
-    for k in ["profession", "anatomy"] {
+    for k in ["profession", "anatomy", "fitness"] {
         if let Some(x) = bio.and_then(|b| b.get(k)) {
             put(k, x.clone());
         }

@@ -2412,6 +2412,23 @@ Ops:
 - `appraise {community, actor, offer_things ≤16, request_things ≤16, trader?, place?}` → `{ok: true, acceptable: bool, offer_value: u64, request_value: u64, difference?: i64, counter_offer?: {deficit, add_offer?, remove_request?}}`.
 - `barter {community, actor, place, offer_things ≤16, request_things ≤16, trader?}` → `{ok: true, offer_value, request_value, transferred_offer: [ids], transferred_request: [ids], entry}` on success (swapping ownership/holders in `things`), or `{ok: false, reason, offer_value, request_value, counter_offer?}` on refusal (reverting state atomically). Generous trades boost relation trust.
 
+## Character fitness v1
+
+`gamectx::character::fitness` (guide: [World model](guides/WORLD.md#fitness)). The `fitness`
+JSON-lines `local` kind runs `{fitness?, ops ≤64 [{op, args, at?}]}` and returns `{results, fitness}`.
+24 additive cases live in `conformance/fitness/`.
+
+**Fitness** `{strength? 0–100, endurance? 0–100, agility? 0–100, condition? 0–100}` (defaults: 50, 50, 50, 100).
+- Feeds `carry_capacity = max(10, (20 + strength + endurance/2) * (50 + condition/2) / 100)`.
+- Feeds `travel_speed = max(100, 500 + agility*6 + endurance*4 - overload_penalty)`.
+- Calculates travel time and fatigue expenditure scaled by load, distance, health condition, and needs.
+
+Ops:
+- `assess {fitness?, health?, needs?, load?}` → `{ok: true, strength, endurance, agility, condition, effective: {...}, carry_capacity, travel_speed, fatigue_rate}`.
+- `travel_cost {distance, fitness?, load?, health?, needs?}` → `{ok: true, distance, current_load, travel_speed, travel_time, fatigue_cost}`.
+- `can_carry {current_load, add_weight?, fitness?, health?, needs?}` → `{ok: true, can_carry: bool, carry_capacity, current_load, remaining: i64}`.
+- `train {actor, attribute, effort 1–100, fitness?, place?}` → `{ok: true, actor, attribute, previous, gain, new_level, fatigue, fitness, entry}`. Emits training timeline entry.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

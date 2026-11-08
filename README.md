@@ -61,8 +61,9 @@ with any number of named, forkable states. The [world model](docs/guides/WORLD.m
 a timeline (the game's own record of what happened and who knows it), places (kinds,
 nesting, and a nearby-places query), things (materials, tools, containers, and carriers),
 and recipes (crafting, cooking, building, repairing, and dismantling), species
-(animals, plants, hybrids, temperaments, and animal interactions), and communities
-(factions, home places, customs, relations, markets, and bartering).
+(animals, plants, hybrids, temperaments, and animal interactions), communities
+(factions, home places, customs, relations, markets, and bartering), and physical
+fitness in character biography (strength, endurance, agility, condition, carry limits and travel fatigue).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

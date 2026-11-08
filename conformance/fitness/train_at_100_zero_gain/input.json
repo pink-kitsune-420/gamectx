@@ -1,0 +1,1 @@
+{"kind":"fitness","args":{"ops":[{"op":"train","at":30,"args":{"actor":"titan","attribute":"strength","effort":100,"fitness":{"strength":100,"endurance":100,"agility":100,"condition":100}}}]}}

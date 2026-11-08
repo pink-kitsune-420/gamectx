@@ -3,6 +3,7 @@
 pub mod archetype;
 pub mod cast;
 pub mod dialogue;
+pub mod fitness;
 pub mod life;
 pub mod living;
 pub mod party;

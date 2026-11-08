@@ -70,10 +70,10 @@ noted; "3 models" adds Llama 3.3 70B.
     people, hybrids, temperaments, animal interactions (pet, feed, calm, lead, ride, train, harvest, behave); 27 cases.
   - Done: communities (`knowledge::communities`, guide `docs/guides/WORLD.md`): factions,
     home places, members, customs, trust relations, markets, bartering; 28 cases.
-  - Next, the world model (in this order):
-    - fitness in `bio`, feeding carry capacity and travel.
+  - Done: fitness in `bio` (`character::fitness`, guide `docs/guides/WORLD.md`): strength,
+    endurance, agility, condition, carry capacity, travel pacing, fatigue; 24 cases.
   - Then one combined engine change so characters can answer from all of it (news,
-    nearby places, what's here, what something is made of), so existing engine outputs
+    nearby places, what's here, what something is made of, bartering, animal behaviour), so existing engine outputs
     change only once. After that, the Lantern Vault migration.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized

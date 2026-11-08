@@ -466,7 +466,11 @@ pub(crate) fn validate_health(v: &Value) -> Result<()> {
 }
 
 pub(crate) fn validate_bio(v: &Value) -> Result<()> {
-    keys(v, &[], &["species", "age", "birthday", "profession", "anatomy", "health", "skills", "knowledge", "family"])?;
+    keys(
+        v,
+        &[],
+        &["species", "age", "birthday", "profession", "anatomy", "health", "skills", "knowledge", "family", "fitness"],
+    )?;
     opt_text(v, "species", 48)?;
     opt_text(v, "profession", 80)?;
     if let Some(a) = v.get("age") {
@@ -485,6 +489,9 @@ pub(crate) fn validate_bio(v: &Value) -> Result<()> {
     }
     if let Some(h) = v.get("health") {
         validate_health(h)?;
+    }
+    if let Some(f) = v.get("fitness").filter(|x| **x != Value::Null) {
+        crate::character::fitness::validate_fitness(f)?;
     }
     let mut seen = Vec::new();
     let skills = list(v.get("skills"), 0, 32)?;

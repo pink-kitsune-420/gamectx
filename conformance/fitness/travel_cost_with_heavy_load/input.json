@@ -1,0 +1,1 @@
+{"kind":"fitness","args":{"ops":[{"op":"travel_cost","at":0,"args":{"distance":100,"load":60}}],"fitness":{"strength":75,"endurance":65,"agility":60,"condition":90}}}

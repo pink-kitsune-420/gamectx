@@ -457,6 +457,61 @@ expectations written before running. Rust matches the Python reference
 (`eval/knowledge/communities_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
 
+## Fitness
+
+`gamectx::character::fitness` models physical capability: strength, endurance, agility, and overall condition.
+Integrated into character sheet `bio` and host travel workflows, fitness dynamically calculates encumbrance limits, travel pacing across linked places, and exertion fatigue.
+
+When travel or heavy tasks occur, fitness determines travel duration and exhaustion:
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::character::fitness::FitnessWorld;
+
+let mut fw = FitnessWorld::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "travel_cost", "args": {
+      "distance": 100,
+      "load": 25
+    }}
+  ],
+  "fitness": {
+    "strength": 75,
+    "endurance": 65,
+    "agility": 60,
+    "condition": 90
+  }
+}"#, 4096)?;
+
+let out = fw.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That travel cost evaluation returns realistic pacing and exertion (real output):
+
+```json
+{"ok":true,"distance":100,"current_load":25,"travel_speed":1120,"travel_time":89,"fatigue_cost":97}
+```
+
+- **Attribute Influences:**
+  - `strength`: drives maximum load carrying limits (`max_cap = 20 + strength + endurance/2`) and reduces fatigue from carried weight.
+  - `endurance`: scales prolonged movement duration and resists travel fatigue.
+  - `agility`: boosts overland travel speed and movement responsiveness.
+  - `condition`: overall physical readiness; conditions health states (`hurt`, `sick`, `exhausted`) and low energy needs to degrade effective performance.
+- **Operations:**
+  - `assess`: evaluates nominal vs effective physical capabilities and current fatigue rates.
+  - `travel_cost`: calculates journey time and cumulative fatigue given distance, carried load, and health state.
+  - `can_carry`: tests whether adding weight remains within safe capacity limits.
+  - `train`: performs dedicated physical training, awarding attribute improvements with diminishing returns and logging public timeline entries.
+
+**Evidence:** 24 cases (`conformance/fitness/`, 6 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/character/fitness_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+
 
 
 

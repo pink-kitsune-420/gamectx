@@ -1,0 +1,1 @@
+{"kind":"fitness","args":{"ops":[{"op":"assess","at":0,"args":{}},{"op":"train","at":40,"args":{"actor":"hero","attribute":"strength","effort":40}},{"op":"train","at":45,"args":{"actor":"hero","attribute":"endurance","effort":30}},{"op":"assess","at":0,"args":{}}],"fitness":{"strength":25,"endurance":30,"agility":35,"condition":70}}}
