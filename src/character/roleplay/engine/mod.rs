@@ -499,8 +499,38 @@ impl RoleplayEngine {
                 "reactions",
                 "viewpoints",
                 "loan",
+                "body",
+                "conditions",
             ],
         )?;
+        let is_silent = opt(t, "conditions")
+            .and_then(Value::as_array)
+            .is_some_and(|arr| arr.iter().any(|c| matches!(c.as_str(), Some("asleep" | "unconscious" | "dead"))))
+            || opt(t, "body")
+                .and_then(|b| b.get("conditions"))
+                .and_then(Value::as_array)
+                .is_some_and(|arr| arr.iter().any(|c| matches!(c.as_str(), Some("asleep" | "unconscious" | "dead"))));
+        if is_silent {
+            let reason = if opt(t, "conditions")
+                .and_then(Value::as_array)
+                .is_some_and(|a| a.iter().any(|x| x.as_str() == Some("dead")))
+            {
+                "dead"
+            } else if opt(t, "conditions")
+                .and_then(Value::as_array)
+                .is_some_and(|a| a.iter().any(|x| x.as_str() == Some("unconscious")))
+            {
+                "unconscious"
+            } else {
+                "asleep"
+            };
+            return Ok(obj! {
+                "route" => "silent",
+                "kind" => "silent",
+                "text" => "",
+                "reason" => reason,
+            });
+        }
         if let Some(h) = opt(t, "health") {
             crate::character::sheet::validate_health(h)?;
         }

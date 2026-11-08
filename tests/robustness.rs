@@ -1765,4 +1765,38 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     beings_65.push_str("]}}]}");
     assert!(bridge.workflow(&parse(&beings_65, 1 << 20).unwrap()).is_err());
+
+    // 6. BodyManager mutation fuzzing & boundaries
+    use gamectx::character::body::BodyManager;
+    let mut body_mgr = BodyManager::new();
+    let sample_body_req = r#"{"ops":[{"op":"init","args":{"being":"baker","health":100,"fatigue":20,"needs":[{"id":"hunger","threshold":70,"rate_per_tick":1,"level":10,"satisfiers":[{"action":"eat","amount":30}]}]}},{"op":"assess","args":{"being":"baker"}},{"op":"tick","args":{"being":"baker","ticks":3}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_body_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = body_mgr.workflow(&v);
+        }
+    }
+
+    // Boundary test: BodyManager accepts up to 64 ops and rejects 65
+    let mut clean_mgr = BodyManager::new();
+    let mut ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            ops_64.push(',');
+        }
+        ops_64.push_str(&format!(r#"{{"op":"assess","args":{{"being":"b_{i}"}}}}"#));
+    }
+    ops_64.push_str("]}");
+    assert!(clean_mgr.workflow(&parse(&ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_mgr2 = BodyManager::new();
+    let mut ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            ops_65.push(',');
+        }
+        ops_65.push_str(&format!(r#"{{"op":"assess","args":{{"being":"b_{i}"}}}}"#));
+    }
+    ops_65.push_str("]}");
+    assert!(clean_mgr2.workflow(&parse(&ops_65, 1 << 20).unwrap()).is_err());
 }

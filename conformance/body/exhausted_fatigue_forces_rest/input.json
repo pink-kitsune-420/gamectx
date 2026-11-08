@@ -1,0 +1,20 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "runner",
+          "fatigue": 92
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "runner"
+        }
+      }
+    ]
+  }
+}

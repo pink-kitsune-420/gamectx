@@ -1,0 +1,33 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "traveler",
+          "needs": [
+            {
+              "id": "hunger",
+              "level": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "satisfy",
+        "args": {
+          "being": "traveler",
+          "need": "hunger",
+          "amount": 35
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "traveler"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "carpenter",
+          "fatigue": 10,
+          "injuries": [
+            {
+              "id": "sprained_wrist",
+              "severity": 15,
+              "effects": {
+                "blocked_actions": [
+                  "heavy_hammer"
+                ],
+                "extra_fatigue": 4
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "carpenter",
+          "action": {
+            "id": "heavy_hammer",
+            "cost": {
+              "fatigue": 10
+            }
+          }
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "carpenter",
+          "action": {
+            "id": "light_carve",
+            "cost": {
+              "fatigue": 5
+            }
+          }
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "carpenter"
+        }
+      }
+    ]
+  }
+}

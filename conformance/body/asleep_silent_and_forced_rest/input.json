@@ -1,0 +1,24 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "guard",
+          "health": 90,
+          "fatigue": 60,
+          "conditions": [
+            "asleep"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

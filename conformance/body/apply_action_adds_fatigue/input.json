@@ -1,0 +1,37 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "smith",
+          "fatigue": 20
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "smith",
+          "action": {
+            "id": "craft",
+            "cost": {
+              "fatigue": 12
+            },
+            "actor": {
+              "body_state": {
+                "max_fatigue": 90
+              }
+            }
+          }
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "smith"
+        }
+      }
+    ]
+  }
+}

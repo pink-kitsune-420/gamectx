@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"being":"miner"},{"ok":true,"being":"miner","fatigue":20,"health":100,"conditions":["asleep"]},{"being":"miner","fatigue":20,"health":100,"conditions":["asleep"],"injuries":[],"needs":[],"can_speak":false,"speech_refusal":"asleep","routine_override":"rest"}]}

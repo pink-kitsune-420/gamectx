@@ -1,0 +1,36 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "soldier",
+          "health": 60,
+          "injuries": [
+            {
+              "id": "gash",
+              "severity": 25,
+              "location": "shoulder"
+            }
+          ]
+        }
+      },
+      {
+        "op": "heal_injury",
+        "args": {
+          "being": "soldier",
+          "injury_id": "gash",
+          "amount": 25,
+          "heal_health": 20
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "soldier"
+        }
+      }
+    ]
+  }
+}

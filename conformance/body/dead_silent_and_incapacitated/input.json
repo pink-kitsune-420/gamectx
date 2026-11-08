@@ -1,0 +1,23 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "skeleton",
+          "health": 0,
+          "conditions": [
+            "dead"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "skeleton"
+        }
+      }
+    ]
+  }
+}

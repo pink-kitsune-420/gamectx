@@ -1,0 +1,13 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "health": 80
+        }
+      }
+    ]
+  }
+}

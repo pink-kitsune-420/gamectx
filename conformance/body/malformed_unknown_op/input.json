@@ -1,0 +1,13 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "fly_to_moon",
+        "args": {
+          "being": "astronaut"
+        }
+      }
+    ]
+  }
+}

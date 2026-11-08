@@ -1,0 +1,30 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "miner",
+          "fatigue": 80,
+          "conditions": [
+            "asleep"
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "miner",
+          "ticks": 4
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miner"
+        }
+      }
+    ]
+  }
+}

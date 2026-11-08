@@ -749,6 +749,11 @@ To transform timeline entries and world events into sensory Life experiences aut
 use the [witness bridge](characters/LIFE.md#witness-bridge-gap-1) (`character::life::witness::WitnessBridge`
 or local kind `witness`), which enforces line of sight, hearing thresholds, sleep/unconscious states,
 and provenance (`direct` vs `report`).
+Physical embodiment, fatigue, and needs dynamics are managed via the [body and needs](characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12)
+module (`character::body::BodyManager` or local kind `body`). Needs advance over ticks and are satisfied
+by actions or items. Fatigue accumulates with action costs and recovers during awake rest and sleep.
+Active conditions (`asleep`, `sick`, `unconscious`, `dead`) enforce physical action constraints, silence
+characters during sleep or incapacity, and override daily routines with forced rest.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

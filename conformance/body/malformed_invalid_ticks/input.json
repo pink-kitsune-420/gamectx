@@ -1,0 +1,14 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "being": "zero_tick",
+          "ticks": 0
+        }
+      }
+    ]
+  }
+}

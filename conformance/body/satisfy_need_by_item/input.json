@@ -1,0 +1,39 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "apprentice",
+          "needs": [
+            {
+              "id": "hunger",
+              "level": 80,
+              "satisfiers": [
+                {
+                  "item": "bread",
+                  "amount": 30
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "satisfy",
+        "args": {
+          "being": "apprentice",
+          "item": "bread",
+          "count": 2
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

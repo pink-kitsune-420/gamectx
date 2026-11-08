@@ -1,0 +1,26 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "courier",
+          "fatigue": 100
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "courier",
+          "action": {
+            "id": "sprint",
+            "cost": {
+              "fatigue": 8
+            }
+          }
+        }
+      }
+    ]
+  }
+}

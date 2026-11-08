@@ -1,0 +1,28 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "weaver",
+          "fatigue": 50
+        }
+      },
+      {
+        "op": "rest",
+        "args": {
+          "being": "weaver",
+          "ticks": 6,
+          "asleep": false
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "weaver"
+        }
+      }
+    ]
+  }
+}

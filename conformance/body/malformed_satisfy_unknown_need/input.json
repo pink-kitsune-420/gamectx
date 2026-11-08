@@ -1,0 +1,20 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "person_1"
+        }
+      },
+      {
+        "op": "satisfy",
+        "args": {
+          "being": "person_1",
+          "need": "nonexistent"
+        }
+      }
+    ]
+  }
+}

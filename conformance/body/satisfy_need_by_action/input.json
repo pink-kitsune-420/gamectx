@@ -1,0 +1,38 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scholar",
+          "needs": [
+            {
+              "id": "hunger",
+              "level": 50,
+              "satisfiers": [
+                {
+                  "action": "eat",
+                  "amount": 40
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "satisfy",
+        "args": {
+          "being": "scholar",
+          "action": "eat"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "scholar"
+        }
+      }
+    ]
+  }
+}

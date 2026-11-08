@@ -1,0 +1,57 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "baker",
+          "health": 100,
+          "fatigue": 10,
+          "needs": [
+            {
+              "id": "hunger",
+              "label": "Hunger",
+              "rate_per_tick": 1,
+              "threshold": 70,
+              "level": 30,
+              "satisfiers": [
+                {
+                  "action": "eat",
+                  "amount": 40
+                },
+                {
+                  "item": "bread",
+                  "amount": 30
+                }
+              ]
+            },
+            {
+              "id": "rest",
+              "label": "Need for sleep",
+              "rate_per_tick": 2,
+              "threshold": 80,
+              "level": 20,
+              "satisfiers": [
+                {
+                  "action": "sleep",
+                  "amount": 50
+                },
+                {
+                  "action": "rest",
+                  "amount": 20
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

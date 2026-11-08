@@ -1,0 +1,34 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scout",
+          "conditions": [
+            "asleep"
+          ]
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "scout",
+          "action": {
+            "id": "wake",
+            "cost": {
+              "fatigue": 1
+            }
+          }
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "scout"
+        }
+      }
+    ]
+  }
+}

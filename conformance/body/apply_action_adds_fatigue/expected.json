@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"being":"smith"},{"ok":true,"being":"smith","action":"craft","effective_fatigue_cost":12,"fatigue":32,"health":100,"conditions":[],"satisfied_needs":[]},{"being":"smith","fatigue":32,"health":100,"conditions":[],"injuries":[],"needs":[],"can_speak":true,"speech_refusal":null,"routine_override":null}]}

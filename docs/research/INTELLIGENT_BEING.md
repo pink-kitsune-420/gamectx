@@ -192,7 +192,7 @@ that the bridge was built or that its animal was fed unless the host remembers t
 *Needed:* a bounded `witness` step: timeline entry + witness list + each being's senses →
 one `direct` experience per perceiving witness, `report` for the rest when told.
 
-### Gap 2: needs have no dynamics
+### Gap 2: needs have no dynamics — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12))
 
 Sheet `needs` are an id, a label and a threshold. The host supplies levels each turn. No
 code raises a need over time, lowers it when satisfied, or maps an activity, recipe or
@@ -295,7 +295,7 @@ about it. Initiative can ask, but only from host-authored candidates.
 *Needed:* a novelty signal (new person, new thing, changed place, unknown fact referenced)
 that produces an initiative candidate, scaled by temperament.
 
-### Gap 12: no mortality, injury or incapacity
+### Gap 12: no mortality, injury or incapacity — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12))
 
 `death`, `injur` and `hunger` occur nowhere in `src/`. Bio health is a status plus
 conditions without effects. A being cannot be hurt, sick, asleep, unconscious or dead in a
@@ -321,7 +321,7 @@ Ordered by how much each unblocks the others, not by size.
    motive ranking, skills and off-screen effects. No behaviour change.
 2. **Witness bridge** (gap 1) — **DONE** ([Evidence](../characters/LIFE.md#witness-bridge-gap-1)). Small, deterministic, high value: the world starts reaching
    memory without per-host glue.
-3. **Body and need dynamics** (gaps 2, 12). Rates, satisfiers, rest and conditions.
+3. **Body and need dynamics** (gaps 2, 12) — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12)). Rates, satisfiers, rest and conditions.
 4. **Motive arbiter** (gap 3). One explainable ranking over needs, routine, goals, tasks,
    promises and emergencies.
 5. **Tasks and planning** (gap 4). Task object, deterministic planner, model proposals

@@ -128,9 +128,23 @@ impl CharacterSheet {
         unique_ids(given)?;
         let given = list(v.get("needs"), 0, 16)?;
         for n in given {
-            keys(n, &["id", "label", "threshold"], &[])?;
+            keys(n, &["id", "label", "threshold"], &["rate_per_tick", "level", "satisfiers"])?;
             line(c::get(n, "label")?, 48, usize::MAX)?;
             c::uint(c::get(n, "threshold")?, 0, 100)?;
+            if let Some(r) = n.get("rate_per_tick") {
+                c::uint(r, 0, 100)?;
+            }
+            if let Some(l) = n.get("level") {
+                c::uint(l, 0, 100)?;
+            }
+            if let Some(sats) = n.get("satisfiers") {
+                for s in list(Some(sats), 0, 16)? {
+                    keys(s, &[], &["action", "item", "amount"])?;
+                    if let Some(amt) = s.get("amount") {
+                        c::uint(amt, 0, 100)?;
+                    }
+                }
+            }
         }
         unique_ids(given)?;
         let (mut seen, mut withs, mut relationship_names) = (Vec::new(), Vec::new(), Vec::new());

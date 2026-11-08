@@ -1,0 +1,35 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "sailor",
+          "fatigue": 10,
+          "conditions": [
+            "sick"
+          ]
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "sailor",
+          "action": {
+            "id": "row",
+            "cost": {
+              "fatigue": 10
+            }
+          }
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "sailor"
+        }
+      }
+    ]
+  }
+}

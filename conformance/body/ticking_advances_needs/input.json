@@ -1,0 +1,38 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "worker",
+          "needs": [
+            {
+              "id": "hunger",
+              "rate_per_tick": 1,
+              "level": 10
+            },
+            {
+              "id": "rest",
+              "rate_per_tick": 2,
+              "level": 10
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "worker",
+          "ticks": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "worker"
+        }
+      }
+    ]
+  }
+}

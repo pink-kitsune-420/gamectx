@@ -1,0 +1,14 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "bad_fatigue",
+          "fatigue": 150
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "sentry",
+          "conditions": [
+            "asleep"
+          ]
+        }
+      },
+      {
+        "op": "apply_action",
+        "args": {
+          "being": "sentry",
+          "action": {
+            "id": "patrol",
+            "cost": {
+              "fatigue": 5
+            }
+          }
+        }
+      }
+    ]
+  }
+}

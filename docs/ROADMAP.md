@@ -98,9 +98,15 @@ noted; "3 models" adds Llama 3.3 70B.
     Transforms timeline events, craft outcomes, and barter interactions into `direct` Life experiences for
     witnesses with sensory access (sight, hearing noise thresholds, sleep/unconsciousness checks) and `report`
     experiences when told. 25 conformance cases (10 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
-  - Next (Stage 3 / Gaps 2 & 12): Body and needs that change over time. Need definitions with tick rates,
-    satisfiers; body state (fatigue, health, conditions: asleep, sick, unconscious, dead) affecting actions, routines, and speech.
-  - Next (Agent Model Gaps 3–8): motive arbiter, tasks/planning, affect decay & missing feelings + skills growth,
+  - Implemented (Stage 3 / Gaps 2 & 12): Body and needs that change over time (`character::body::BodyManager`, local kind `body`).
+    Need definitions with tick rates, thresholds, and action/item satisfiers; species/sheet needs; body state record
+    tracking fatigue (builds up with actions, recovers with rest/sleep), health, injuries, and conditions (`asleep`, `sick`,
+    `unconscious`, `dead`). Conditions affect the action catalog (blocked verbs, extra fatigue cost), routines (forced rest /
+    incapacitated), and speech (silent while asleep, unconscious, or dead). 25 conformance cases (5 malformed), 2,000 differential
+    parity workflows (seed 7, 0 mismatches).
+  - Next (Stage 4 / Gap 3): Motive arbiter. One deterministic, explainable ranking across needs, routine slot, goals,
+    tasks, promises, and emergencies on one bounded scale; every choice names the winning motive.
+  - Next (Agent Model Gaps 4–8): tasks/planning, affect decay & missing feelings + skills growth,
     model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.

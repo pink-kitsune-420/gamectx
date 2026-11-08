@@ -1,0 +1,24 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "patient",
+          "health": 40,
+          "fatigue": 80,
+          "conditions": [
+            "unconscious"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "patient"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"being":"sailor"},{"ok":true,"being":"sailor","action":"row","effective_fatigue_cost":15,"fatigue":25,"health":100,"conditions":["sick"],"satisfied_needs":[]},{"being":"sailor","fatigue":25,"health":100,"conditions":["sick"],"injuries":[],"needs":[],"can_speak":true,"speech_refusal":null,"routine_override":null}]}

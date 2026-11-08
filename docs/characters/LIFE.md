@@ -324,3 +324,30 @@ via `life.experience(&exp)`.
 **Evidence:** 25 cases (`conformance/witness/`, 10 malformed), 2,000 differential parity
 workflows (`eval/character/witness_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
+## Body and needs dynamics (Gaps 2 and 12)
+
+`gamectx::character::body` (`BodyManager`, local kind `body`) manages physical body state and
+homeostatic needs over time:
+- **Need definitions and dynamics (Gap 2):** Needs have an id, display label, urgent threshold (0..100),
+  rate per tick, current level, and declared satisfiers (action or item $\to$ reduction amount).
+  Species and character sheets can declare their own needs (`species.needs`, `sheet.needs`).
+  Ticking advances needs by `rate_per_tick * ticks` (accelerated by `sick` condition). At level 100,
+  severe deprivation damages health (5 damage per tick) and can cause death.
+- **Body state record (Gap 12):** Tracks fatigue (0..100), health (0..100), injuries (id, severity,
+  location, effects), and conditions (`asleep`, `sick`, `unconscious`, `dead`). Fatigue accumulates
+  from action catalog costs and recovers during awake rest (5 per tick) and sleep (15 per tick).
+- **Condition impacts:**
+  - *Action catalog:* `dead` and `unconscious` block all actions; `asleep` blocks all actions except
+    `wake` or passive rest; `fatigue == 100` blocks actions with fatigue cost; `sick` incurs +50%
+    fatigue penalty (min +2); injuries block declared action verbs and add extra fatigue/time costs.
+  - *Routines:* overrides active activities with `rest` when `asleep` or `fatigue >= 90`, and `incapacitated`
+    when `unconscious` or `dead`.
+  - *Speech:* character is silent (`can_speak: false`, `speech_refusal: "asleep" | "unconscious" | "dead"`)
+    while asleep, unconscious, or dead.
+- **Operations:** `init`, `assess`, `tick`, `satisfy` (direct, by item, or by action), `rest`, `apply_action`,
+  `set_condition`, `remove_condition`, `add_injury`, `heal_injury`.
+
+**Evidence:** 25 cases (`conformance/body/`, 5 malformed), 2,000 differential parity
+workflows (`eval/character/body_cases.py`, seed 7, 0 mismatches), $0 API spend.
+
+

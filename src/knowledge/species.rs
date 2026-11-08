@@ -133,7 +133,7 @@ impl ProduceDef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SpeciesDef {
     pub id: String,
     pub label: String,
@@ -149,6 +149,7 @@ pub struct SpeciesDef {
     pub produce: Option<Vec<ProduceDef>>,
     pub sounds: Option<Vec<String>>,
     pub gestures: Option<Vec<String>>,
+    pub needs: Option<Vec<Value>>,
 }
 
 impl SpeciesDef {
@@ -168,6 +169,7 @@ impl SpeciesDef {
                 "produce",
                 "sounds",
                 "gestures",
+                "needs",
             ],
         )?;
 
@@ -287,6 +289,16 @@ impl SpeciesDef {
             None
         };
 
+        let needs = if let Some(n_val) = v.get("needs").filter(|x| **x != Value::Null) {
+            let arr = n_val.as_array().ok_or_else(c::bad)?;
+            if arr.len() > 16 {
+                return Err(c::bad());
+            }
+            Some(arr.to_vec())
+        } else {
+            None
+        };
+
         Ok(Self {
             id,
             label,
@@ -302,6 +314,7 @@ impl SpeciesDef {
             produce,
             sounds,
             gestures,
+            needs,
         })
     }
 
@@ -348,6 +361,9 @@ impl SpeciesDef {
         if let Some(ref gsts) = self.gestures {
             let arr: Vec<Value> = gsts.iter().map(|g| Value::String(g.clone())).collect();
             set(&mut r, "gestures", Value::Array(arr));
+        }
+        if let Some(ref nds) = self.needs {
+            set(&mut r, "needs", Value::Array(nds.clone()));
         }
         r
     }
@@ -480,7 +496,7 @@ impl AnimalDef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SpeciesWorld {
     pub species: Vec<SpeciesDef>,
     pub resolved_species: Vec<SpeciesDef>,
@@ -665,6 +681,9 @@ impl SpeciesWorld {
             }
             if raw.temperament.is_some() {
                 merged.temperament = raw.temperament;
+            }
+            if raw.needs.is_some() {
+                merged.needs = raw.needs.clone();
             }
 
             resolved.push(merged.clone());

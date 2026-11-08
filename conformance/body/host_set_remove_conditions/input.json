@@ -1,0 +1,39 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "farmer"
+        }
+      },
+      {
+        "op": "set_condition",
+        "args": {
+          "being": "farmer",
+          "condition": "sick"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "farmer"
+        }
+      },
+      {
+        "op": "remove_condition",
+        "args": {
+          "being": "farmer",
+          "condition": "sick"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "farmer"
+        }
+      }
+    ]
+  }
+}

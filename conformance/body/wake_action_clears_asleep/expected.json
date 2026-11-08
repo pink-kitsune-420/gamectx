@@ -1,0 +1,1 @@
+{"version":1,"results":[{"ok":true,"being":"scout"},{"ok":true,"being":"scout","action":"wake","effective_fatigue_cost":1,"fatigue":1,"health":100,"conditions":[],"satisfied_needs":[]},{"being":"scout","fatigue":1,"health":100,"conditions":[],"injuries":[],"needs":[],"can_speak":true,"speech_refusal":null,"routine_override":null}]}

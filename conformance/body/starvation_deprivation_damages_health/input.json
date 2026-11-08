@@ -1,0 +1,34 @@
+{
+  "kind": "body",
+  "args": {
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "prisoner",
+          "health": 10,
+          "needs": [
+            {
+              "id": "starvation",
+              "rate_per_tick": 5,
+              "level": 100
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "prisoner",
+          "ticks": 2
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "prisoner"
+        }
+      }
+    ]
+  }
+}

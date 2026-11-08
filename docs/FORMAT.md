@@ -2465,6 +2465,24 @@ Ops:
 - `tell {teller, listener, event, at?, token?, teller_place?, listener_place?}` → `{ok: true, teller, listener, experience}`.
   - Generates a valid `report` Life experience (`{token, at, kind: "report", tag, subject, source: {id, speaker: teller, text}, audience: [listener, teller], text, causes: [event.token], retain: true}`) when told in person.
 
+## Body and needs v1
+
+`gamectx::character::body` (guide: [Life](characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12)). The `body`
+JSON-lines `local` kind runs `{ops: 1–64 [{op, args}]}` over character bodies and needs and returns `{version: 1, results: [...]}`.
+25 additive cases live in `conformance/body/`.
+
+Ops:
+- `init {being, fatigue?, health?, conditions?, injuries?, needs?}` → `{ok: true, being}`.
+- `assess {being}` → `{being, fatigue, health, conditions: [...], injuries: [...], needs: [...], can_speak: bool, speech_refusal: str|null, routine_override: str|null}`.
+- `tick {being, ticks?, resting?}` → `{ok: true, being, fatigue, health, conditions: [...]}`. Advances needs by rate per tick (accelerated when `sick`); recovers fatigue during awake rest (5/tick) or sleep (15/tick); deals deprivation damage when needs reach 100.
+- `satisfy {being, need?, amount?, item?, count?, action?}` → `{ok: true, being, satisfied: [{need, amount, new_level}]}`. Satisfies needs directly or looks up declared action/item satisfiers.
+- `rest {being, ticks?, asleep?}` → `{ok: true, being, fatigue, health, conditions: [...]}`. Sets or clears asleep condition and runs recovery ticks.
+- `apply_action {being, action: {id, cost: {fatigue?}, actor: {body_state?}}}` → `{ok: true, being, action, effective_fatigue_cost, fatigue, health, conditions, satisfied_needs}` or `{ok: false, being, refusal}`. Enforces physical capacity (dead, unconscious, asleep, exhausted), evaluates injury blocked verbs, applies sick/injury fatigue penalties, and triggers need satisfiers.
+- `set_condition {being, condition}` → `{ok: true, being, conditions: [...]}`. Adds condition (e.g. `sick`, `asleep`, `unconscious`, `dead`). Setting `dead` sets health to 0 and clears `asleep`.
+- `remove_condition {being, condition}` → `{ok: true, being, conditions: [...]}`. Clears active condition.
+- `add_injury {being, injury: {id, label?, severity?, location?, effects?}}` → `{ok: true, being, injuries: [...], health}`. Adds injury and reduces health by severity.
+- `heal_injury {being, injury_id, amount?, heal_health?}` → `{ok: true, being, injuries: [...], health}`. Heals injury severity and restores health.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

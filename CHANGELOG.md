@@ -2,6 +2,18 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Body and needs dynamics (`character::body`, local kind `body`, Gaps 2 and 12):
+  - Homeostatic need definitions with tick rates, urgency thresholds, and satisfiers (action or item -> reduction amount). Species and character sheets can declare their own needs (`species.needs`, `sheet.needs`).
+  - Body state record tracking fatigue (0..100), health (0..100), injuries (severity, location, effects), and conditions (`asleep`, `sick`, `unconscious`, `dead`).
+  - Fatigue accumulates with action catalog exertion costs and recovers during awake rest (5/tick) and sleep (15/tick).
+  - Severe deprivation damage: vital needs reaching 100 deal 5 health damage per tick, causing death if health reaches 0.
+  - Condition impacts:
+    - Action catalog: `dead` and `unconscious` block all actions; `asleep` blocks non-wake actions; `fatigue == 100` blocks actions with fatigue cost; `sick` incurs +50% fatigue penalty (min +2); injuries block declared action verbs and add extra fatigue/time costs.
+    - Routines: overrides activities with `rest` when `asleep` or `fatigue >= 90`, and `incapacitated` when `unconscious` or `dead`.
+    - Speech: characters are completely silent while asleep, unconscious, or dead (`can_speak: false`, `speech_refusal: "asleep" | "unconscious" | "dead"`).
+  - Ops: `init`, `assess`, `tick`, `satisfy`, `rest`, `apply_action`, `set_condition`, `remove_condition`, `add_injury`, `heal_injury`.
+  - 25 cases (5 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Witness bridge (`character::life::witness`, local kind `witness`, Gap 1): world events to Life experiences.
   - Automatically bridges timeline entries and module outcomes (recipes, species, barter, things)
     into direct Life experiences for perceiving witnesses, and report experiences when told.
