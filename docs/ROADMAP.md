@@ -53,6 +53,12 @@ noted; "3 models" adds Llama 3.3 70B.
     [Guide](characters/ROLEPLAY_ENGINE.md#addressing).
   - Done: character `bio` (age, birthday, profession, anatomy, health, skills,
     knowledge, family) as a sheet section and engine feature; 31 cases.
+  - Measured: with `GAMECTX_SHADOW=<file>`, Lantern Vault runs a fresh engine beside
+    each chat turn and logs both outcomes (`eval/lantern-vault/engine_shadow_report.py`).
+    Over 1,989 chat turns (dungeon tests and CI evals), the routes agreed on 1,924 (96.7%).
+    Gaps: reactions (13), stock queries (7), authored persona (4), viewpoints (2),
+    secret debt (2), greeting state (23), and `*enters*`/`*approaches*` routing (6).
+    The line text is not comparable because the shadow engine starts fresh each turn.
   - Next: a world timeline (an ordered, authoritative history of what happened, kept in
     saves), place kinds and containment (city ⊃ house ⊃ room; forest, castle, cave), then
     the Lantern Vault migration.

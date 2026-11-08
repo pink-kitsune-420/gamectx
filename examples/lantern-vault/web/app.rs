@@ -1,5 +1,6 @@
 //! Authoritative studio state. Only explicit player choices execute game rules.
 use super::*;
+mod shadow;
 use gamectx::{
     character::cast::CastPack,
     character::dialogue::Answers,
@@ -2267,6 +2268,24 @@ impl App {
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
+        if op == "chat" && std::env::var_os("GAMECTX_SHADOW").is_some() {
+            let line = v.get("text").and_then(Value::as_str).unwrap_or("").to_owned();
+            let (engine, active, said_from) =
+                (self.shadow_engine(&line), self.active(), self.speech.as_ref().map(|s| s.id));
+            let out = self.command_shadowed(op, v);
+            let lv = out.as_ref().map_or_else(|_| obj! {"error"=>true}, |(x, _)| x.clone());
+            let said = self
+                .speech
+                .as_ref()
+                .filter(|s| Some(s.id) != said_from)
+                .map(|s| vec![obj! {"text"=>s.voice.text()}])
+                .unwrap_or_default();
+            self.shadow_record(&line, active, engine, &lv, &said);
+            return out;
+        }
+        self.command_shadowed(op, v)
+    }
+    fn command_shadowed(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
         let before = self.speech.as_ref().map(|s| s.id);
         let (value, mut jobs) = self.command_inner(op, v)?;
         if self
