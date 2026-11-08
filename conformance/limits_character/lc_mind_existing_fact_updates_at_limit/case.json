@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At the belief limit an already known fact still updates.",
+  "error": false
+}

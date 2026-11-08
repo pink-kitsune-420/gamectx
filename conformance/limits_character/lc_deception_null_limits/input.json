@@ -1,0 +1,41 @@
+{
+  "kind": "deception",
+  "args": {
+    "limits": null,
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_1",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 1
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_2",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 2
+        }
+      },
+      {
+        "op": "check_consistency",
+        "args": {
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "proposed_claim": "dear"
+        }
+      }
+    ]
+  }
+}

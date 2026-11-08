@@ -296,6 +296,8 @@ jobs:
       - run: python3 -I eval/character/growth_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/limits_cases.py --cap 0
       - run: python3 -I eval/character/limits_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/character/limits_character_cases.py --cap 0
+      - run: python3 -I eval/character/limits_character_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/scale_measure_check.py --cap 0 --check eval/character/scale-timing.json
       - run: python3 -I eval/studio/conversation_extensions_bindings.py --cap 0
       - run: node eval/studio/conversation_extensions_bindings.mjs --cap 0

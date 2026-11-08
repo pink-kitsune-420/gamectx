@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Keeping two records evicts the lowest record ids first.",
+  "error": false
+}

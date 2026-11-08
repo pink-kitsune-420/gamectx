@@ -1,0 +1,1462 @@
+{
+  "kind": "deception",
+  "args": {
+    "limits": {
+      "records": 150
+    },
+    "records": [
+      {
+        "id": "pre_0",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_1",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_2",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_3",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_4",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_5",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_6",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_7",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_8",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_9",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_10",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_11",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_12",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_13",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_14",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_15",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_16",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_17",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_18",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_19",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_20",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_21",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_22",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_23",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_24",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_25",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_26",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_27",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_28",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_29",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_30",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_31",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_32",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_33",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_34",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_35",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_36",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_37",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_38",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_39",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_40",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_41",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_42",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_43",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_44",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_45",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_46",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_47",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_48",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_49",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_50",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_51",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_52",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_53",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_54",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_55",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_56",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_57",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_58",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_59",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_60",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_61",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_62",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_63",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_64",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_65",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_66",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_67",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_68",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_69",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_70",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_71",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_72",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_73",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_74",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_75",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_76",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_77",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_78",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_79",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_80",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_81",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_82",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_83",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_84",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      },
+      {
+        "id": "pre_85",
+        "speaker": "trader",
+        "listener": "baker",
+        "topic": "origin",
+        "claim": "east",
+        "true_value": "west"
+      }
+    ],
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_0",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 0
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_1",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 1
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_2",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 2
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_3",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 3
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_4",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 4
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_5",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 5
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_6",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 6
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_7",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 7
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_8",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 8
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_9",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 9
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_10",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 10
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_11",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 11
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_12",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 12
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_13",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 13
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_14",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 14
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_15",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 15
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_16",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 16
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_17",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 17
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_18",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 18
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_19",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 19
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_20",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 20
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_21",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 21
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_22",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 22
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_23",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 23
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_24",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 24
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_25",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 25
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_26",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 26
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_27",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 27
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_28",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 28
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_29",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 29
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_30",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 30
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_31",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 31
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_32",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 32
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_33",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 33
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_34",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 34
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_35",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 35
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_36",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 36
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_37",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 37
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_38",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 38
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_39",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 39
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_40",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 40
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_41",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 41
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_42",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 42
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_43",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 43
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_44",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 44
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_45",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 45
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_46",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 46
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_47",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 47
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_48",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 48
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_49",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 49
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_50",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 50
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_51",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 51
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_52",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 52
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_53",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 53
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_54",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 54
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_55",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 55
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_56",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 56
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_57",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 57
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_58",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_3",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 58
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_59",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_4",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 59
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_60",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_0",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 60
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_61",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_1",
+          "claim": "cheap",
+          "true_value": "dear",
+          "at": 61
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "id": "claim_62",
+          "speaker": "trader",
+          "listener": "baker",
+          "topic": "topic_2",
+          "claim": "cheap",
+          "true_value": "cheap",
+          "at": 62
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "topic": "topic_3"
+        }
+      }
+    ]
+  }
+}

@@ -2482,11 +2482,13 @@ fn growth_modules_survive_mutation_limits_and_boundaries() {
 }
 
 #[test]
-fn pass_two_modules_take_host_limits_and_survive_mutation() {
+fn character_modules_take_host_limits_and_survive_mutation() {
     use gamectx::character::limits::Limit;
     use gamectx::character::{
-        attention::AttentionModel, beliefs::BeliefStore, creed::CreedManager, diet::DietManager,
-        expectation::ExpectationBook, explain::ExplainTracer, speech_act::SpeechActs, stability::StabilityMonitor,
+        affect::AffectManager, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager, creed::CreedManager,
+        curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager, expectation::ExpectationBook,
+        explain::ExplainTracer, mind::MindManager, offscreen::OffscreenResolver, relationship::RelationshipManager,
+        skills::SkillsManager, speech_act::SpeechActs, stability::StabilityMonitor, task::TaskManager,
     };
     type Run = fn(&Value, &Value) -> gamectx::Result<Value>;
     fn module(kind: &str) -> Option<(&'static [Limit], Run)> {
@@ -2504,12 +2506,21 @@ fn pass_two_modules_take_host_limits_and_survive_mutation() {
             "explain" => m!(explain, ExplainTracer),
             "speech_act" => m!(speech_act, SpeechActs),
             "stability" => m!(stability, StabilityMonitor),
+            "affect" => m!(affect, AffectManager),
+            "skills" => m!(skills, SkillsManager),
+            "body" => m!(body, BodyManager),
+            "mind" => m!(mind, MindManager),
+            "deception" => m!(deception, DeceptionLedger),
+            "relationship" => m!(relationship, RelationshipManager),
+            "offscreen" => m!(offscreen, OffscreenResolver),
+            "curiosity" => m!(curiosity, CuriosityManager),
+            "task" => m!(task, TaskManager),
             _ => return None,
         })
     }
     let empty = parse("{}", 4).unwrap();
 
-    // 25. Mutated limit-carrying workflows for all eight modules never panic.
+    // 25. Mutated limit-carrying workflows for all seventeen limited character modules never panic.
     let samples = [
         include_str!("../conformance/limits/lim_attention_one_profile/input.json"),
         include_str!("../conformance/limits/lim_beliefs_small_store/input.json"),
@@ -2519,6 +2530,15 @@ fn pass_two_modules_take_host_limits_and_survive_mutation() {
         include_str!("../conformance/limits/lim_explain_two_traces/input.json"),
         include_str!("../conformance/limits/lim_speech_store_limits_reach_beliefs/input.json"),
         include_str!("../conformance/limits/lim_stability_two_warnings/input.json"),
+        include_str!("../conformance/limits_character/lc_affect_echo_defaults/input.json"),
+        include_str!("../conformance/limits_character/lc_skills_teach_within_room/input.json"),
+        include_str!("../conformance/body/action_refused_when_exhausted/input.json"),
+        include_str!("../conformance/limits_character/lc_mind_existing_fact_updates_at_limit/input.json"),
+        include_str!("../conformance/limits_character/lc_deception_null_limits/input.json"),
+        include_str!("../conformance/limits_character/lc_relationship_community_room/input.json"),
+        include_str!("../conformance/limits_character/lc_offscreen_small_history/input.json"),
+        include_str!("../conformance/limits_character/lc_curiosity_known_fills_sorted/input.json"),
+        include_str!("../conformance/limits_character/lc_task_repropose_needs_no_room/input.json"),
     ];
     let mut rng = Rng(0x7A57_11E1_75A1_2026);
     for _ in 0..1000 {
@@ -2553,7 +2573,7 @@ fn pass_two_modules_take_host_limits_and_survive_mutation() {
         assert!(!ok("[1]"), "{kind}");
         // Without limits nothing is echoed; null limits are accepted and echo the defaults.
         let plain = parse(&format!(r#"{{"ops":{ops}}}"#), 1 << 20).unwrap();
-        assert!(!run(&empty, &plain).unwrap().to_json().contains(r#""limits""#), "{kind}");
+        assert!(!run(&empty, &plain).expect(kind).to_json().contains(r#""limits""#), "{kind}");
         let defaults: Vec<String> = spec.iter().map(|l| format!(r#""{}":{}"#, l.name, l.default)).collect();
         assert!(
             run(&empty, &req("null"))
@@ -2578,4 +2598,18 @@ fn pass_two_modules_take_host_limits_and_survive_mutation() {
     let lower = r#"{"limits":{"beings":10},"ops":[{"op":"set_diet","args":{"being":"b0"}}]}"#;
     assert!(diet.workflow(&parse(lower, 4096).unwrap()).is_ok());
     assert!(diet.workflow(&parse(extra, 4096).unwrap()).is_err());
+
+    // A pass 1 module at a large cast: 3,000 bodies, created on demand by `tick`.
+    let mut body = BodyManager::with_limits(&parse(r#"{"beings":3000}"#, 64).unwrap()).unwrap();
+    for chunk in 0..47 {
+        let batch: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+            .filter(|n| *n < 3000)
+            .map(|n| format!(r#"{{"op":"tick","args":{{"being":"b{n}","ticks":1}}}}"#))
+            .collect();
+        body.workflow(&parse(&format!(r#"{{"ops":[{}]}}"#, batch.join(",")), 1 << 20).unwrap()).unwrap();
+    }
+    let extra = r#"{"ops":[{"op":"tick","args":{"being":"one_more","ticks":1}}]}"#;
+    assert!(body.workflow(&parse(extra, 4096).unwrap()).is_err());
+    let lower = r#"{"limits":{"beings":10},"ops":[{"op":"assess","args":{"being":"b2999"}}]}"#;
+    assert!(body.workflow(&parse(lower, 4096).unwrap()).is_ok(), "lowering keeps existing bodies");
 }

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Ops that create bodies on demand respect the beings limit.",
+  "error": true
+}

@@ -1,0 +1,18 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "limits": {
+      "known": 65537
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scout",
+          "temperament": "curious",
+          "known_people": []
+        }
+      }
+    ]
+  }
+}

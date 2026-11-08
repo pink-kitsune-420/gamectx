@@ -1,0 +1,1 @@
+{"limits":{"subjects":4096,"relations":64,"attitudes":4096,"community_pairs":1},"version":1,"results":[{"ok":true},{"community":"bakers","derived_stance":"neutral","ok":true,"target_community":"millers","trust":0}]}

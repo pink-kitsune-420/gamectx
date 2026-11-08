@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising perception_items to 40 lets a scout notice 40 strangers at once.",
+  "error": false
+}

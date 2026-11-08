@@ -1,0 +1,148 @@
+{
+  "kind": "body",
+  "args": {
+    "limits": {
+      "needs": 20
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "golem",
+          "fatigue": 10,
+          "health": 90,
+          "needs": [
+            {
+              "id": "need_0",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 0
+            },
+            {
+              "id": "need_1",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 4
+            },
+            {
+              "id": "need_2",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 8
+            },
+            {
+              "id": "need_3",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 12
+            },
+            {
+              "id": "need_4",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 16
+            },
+            {
+              "id": "need_5",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 20
+            },
+            {
+              "id": "need_6",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 24
+            },
+            {
+              "id": "need_7",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 28
+            },
+            {
+              "id": "need_8",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 32
+            },
+            {
+              "id": "need_9",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 36
+            },
+            {
+              "id": "need_10",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 40
+            },
+            {
+              "id": "need_11",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 44
+            },
+            {
+              "id": "need_12",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 48
+            },
+            {
+              "id": "need_13",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 52
+            },
+            {
+              "id": "need_14",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 56
+            },
+            {
+              "id": "need_15",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 60
+            },
+            {
+              "id": "need_16",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 64
+            },
+            {
+              "id": "need_17",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 68
+            },
+            {
+              "id": "need_18",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 72
+            },
+            {
+              "id": "need_19",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 76
+            }
+          ],
+          "conditions": []
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "golem",
+          "ticks": 3
+        }
+      }
+    ]
+  }
+}

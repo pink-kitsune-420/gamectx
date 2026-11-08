@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising work_per_tick to 20 resolves 20 off-screen activities in one batch.",
+  "error": false
+}

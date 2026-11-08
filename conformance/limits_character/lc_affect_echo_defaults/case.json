@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An empty limits object echoes the defaults and changes nothing else.",
+  "error": false
+}

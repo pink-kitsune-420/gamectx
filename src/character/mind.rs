@@ -43,6 +43,28 @@ pub const MAX_BEINGS: usize = 64;
 pub const MAX_BELIEFS: usize = 64;
 pub const MAX_OPS: usize = 64;
 
+/// Host-set limits: `beings` (subjects with a mind), `others` modelled per being, `beliefs` per
+/// other and category (knows, wants, feels), and `witnesses` per `infer_from_witness` call.
+/// Every path that adds an entry (pre-declared `beings`, `init`, `record`, `infer_from_witness`)
+/// respects them.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: MAX_BEINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "others", default: 64, ceiling: 4096 },
+    crate::character::limits::Limit { name: "beliefs", default: MAX_BELIEFS, ceiling: 4096 },
+    crate::character::limits::Limit { name: "witnesses", default: MAX_BEINGS, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(MindLimits, LIMITS);
+
+fn room<K: Ord + ?Sized, V>(map: &BTreeMap<String, V>, key: &K, max: usize) -> Result<()>
+where
+    String: std::borrow::Borrow<K>,
+{
+    if map.len() >= max && !map.contains_key(key) {
+        return Err(c::bad());
+    }
+    Ok(())
+}
+
 pub const PROVENANCE_SOURCES: [&str; 3] = ["seen", "told", "inferred"];
 
 fn ident_bound(v: &Value) -> Result<&str> {
@@ -213,6 +235,8 @@ impl BeingMind {
 #[derive(Clone, Debug, Default)]
 pub struct MindManager {
     pub beings: BTreeMap<String, BeingMind>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: MindLimits,
 }
 
 impl MindManager {
@@ -220,11 +244,22 @@ impl MindManager {
         Self::default()
     }
 
+    crate::character::limits::limited_workflow!();
+
+    /// The subject's mind and its model of `other`, created within the host limits.
+    fn model_in_room(&mut self, subject: &str, other: &str) -> Result<&mut OtherModel> {
+        room(&self.beings, subject, self.limits.get("beings"))?;
+        let max_others = self.limits.get("others");
+        let mind = self.mind_mut(subject);
+        room(&mind.others, other, max_others)?;
+        Ok(mind.other_mut(other))
+    }
+
     pub fn mind_mut(&mut self, subject: &str) -> &mut BeingMind {
         self.beings.entry(subject.to_string()).or_insert_with(|| BeingMind::new(subject))
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &["beings"])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -236,11 +271,14 @@ impl MindManager {
             for b in beings_val {
                 keys(b, &["subject"], &["others"])?;
                 let subj = ident_bound(c::get(b, "subject")?)?;
+                room(&self.beings, subj, self.limits.get("beings"))?;
+                let (max_others, max_beliefs) = (self.limits.get("others"), self.limits.get("beliefs"));
                 let mind = self.mind_mut(subj);
                 if let Some(others_arr) = b.get("others").and_then(Value::as_array) {
                     for other_val in others_arr {
                         keys(other_val, &["other"], &["knows", "wants", "feels"])?;
                         let other_id = ident_bound(c::get(other_val, "other")?)?;
+                        room(&mind.others, other_id, max_others)?;
                         let model = mind.other_mut(other_id);
                         if let Some(k_arr) = other_val.get("knows").and_then(Value::as_array) {
                             for k in k_arr {
@@ -254,6 +292,7 @@ impl MindManager {
                                 let at = k.get("at").map(|v| uint_bound(v, 0, u64::MAX)).transpose()?.unwrap_or(0);
                                 let conf =
                                     k.get("confidence").map(|v| uint_bound(v, 0, 100)).transpose()?.unwrap_or(100);
+                                room(&model.knows, &fact, max_beliefs)?;
                                 model.knows.insert(
                                     fact.clone(),
                                     FactBelief { fact, status, source: src.to_string(), at, confidence: conf },
@@ -291,14 +330,14 @@ impl MindManager {
     fn op_init(&mut self, args: &Value) -> Result<Value> {
         keys(args, &["subject"], &["others"])?;
         let subject = ident_bound(c::get(args, "subject")?)?;
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(subject) {
-            return Err(c::bad());
-        }
+        room(&self.beings, subject, self.limits.get("beings"))?;
+        let (max_others, max_beliefs) = (self.limits.get("others"), self.limits.get("beliefs"));
         let mut mind = BeingMind::new(subject);
         if let Some(others_arr) = args.get("others").and_then(Value::as_array) {
             for other_val in others_arr {
                 keys(other_val, &["other"], &["knows", "wants", "feels"])?;
                 let other_id = ident_bound(c::get(other_val, "other")?)?;
+                room(&mind.others, other_id, max_others)?;
                 let model = mind.other_mut(other_id);
                 if let Some(k_arr) = other_val.get("knows").and_then(Value::as_array) {
                     for k in k_arr {
@@ -311,6 +350,7 @@ impl MindManager {
                         }
                         let at = k.get("at").map(|v| uint_bound(v, 0, u64::MAX)).transpose()?.unwrap_or(0);
                         let conf = k.get("confidence").map(|v| uint_bound(v, 0, 100)).transpose()?.unwrap_or(100);
+                        room(&model.knows, &fact, max_beliefs)?;
                         model.knows.insert(
                             fact.clone(),
                             FactBelief { fact, status, source: src.to_string(), at, confidence: conf },
@@ -390,15 +430,15 @@ impl MindManager {
         let at =
             args.get("at").filter(|x| **x != Value::Null).map(|v| uint_bound(v, 0, u64::MAX)).transpose()?.unwrap_or(0);
 
-        let mind = self.mind_mut(subject);
-        let model = mind.other_mut(other);
+        let max_beliefs = self.limits.get("beliefs");
+        let model = self.model_in_room(subject, other)?;
 
         match category {
             "knows" => {
                 let fact = text_bound(c::get(args, "fact")?, 64)?.to_string();
                 let status = bool_bound(c::get(args, "status")?)?;
                 let conf = args.get("confidence").map(|v| uint_bound(v, 0, 100)).transpose()?.unwrap_or(100);
-                if model.knows.len() >= MAX_BELIEFS && !model.knows.contains_key(&fact) {
+                if model.knows.len() >= max_beliefs && !model.knows.contains_key(&fact) {
                     return Err(c::bad());
                 }
                 model.knows.insert(
@@ -418,7 +458,7 @@ impl MindManager {
             "wants" => {
                 let goal = text_bound(c::get(args, "goal")?, 64)?.to_string();
                 let priority = uint_bound(c::get(args, "priority")?, 0, 100)?;
-                if model.wants.len() >= MAX_BELIEFS && !model.wants.contains_key(&goal) {
+                if model.wants.len() >= max_beliefs && !model.wants.contains_key(&goal) {
                     return Err(c::bad());
                 }
                 model
@@ -443,7 +483,7 @@ impl MindManager {
                     args.get("target").filter(|x| **x != Value::Null).map(ident_bound).transpose()?.map(str::to_string);
                 let level = i64_bound(c::get(args, "level")?, -100, 100)?;
                 let key = if let Some(ref tgt) = target { format!("{emotion}:{tgt}") } else { emotion.to_string() };
-                if model.feels.len() >= MAX_BELIEFS && !model.feels.contains_key(&key) {
+                if model.feels.len() >= max_beliefs && !model.feels.contains_key(&key) {
                     return Err(c::bad());
                 }
                 model.feels.insert(
@@ -480,7 +520,7 @@ impl MindManager {
         let subject = ident_bound(c::get(args, "subject")?)?;
         let entry = c::get(args, "entry")?;
         let beings = c::get(args, "beings")?.as_array().ok_or_else(c::bad)?;
-        if beings.is_empty() || beings.len() > MAX_BEINGS {
+        if beings.is_empty() || beings.len() > self.limits.get("witnesses") {
             return Err(c::bad());
         }
 
@@ -499,6 +539,8 @@ impl MindManager {
             .unwrap_or(default_fact);
 
         let mut inferences = Vec::new();
+        room(&self.beings, subject, self.limits.get("beings"))?;
+        let (max_others, max_beliefs) = (self.limits.get("others"), self.limits.get("beliefs"));
         let mind = self.mind_mut(subject);
 
         for being_val in beings {
@@ -510,7 +552,9 @@ impl MindManager {
             let source = if perceived { "seen" } else { "inferred" };
             let confidence = if perceived { 100 } else { 90 };
 
+            room(&mind.others, being_id, max_others)?;
             let model = mind.other_mut(being_id);
+            room(&model.knows, fact, max_beliefs)?;
             model.knows.insert(
                 fact.to_string(),
                 FactBelief { fact: fact.to_string(), status: perceived, source: source.to_string(), at, confidence },

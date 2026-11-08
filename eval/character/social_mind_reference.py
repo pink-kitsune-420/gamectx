@@ -5,6 +5,14 @@ and src/character/relationship.rs.
 """
 from typing import Any, Dict, List, Optional, Tuple
 
+from limits_reference import Limits, limited
+
+
+def room(d: Dict[str, Any], key: str, mx: int) -> None:
+    """Refuse a new key once a table holds `mx` entries."""
+    if len(d) >= mx and key not in d:
+        raise ValueError("over host limit")
+
 ATTITUDE_KINDS = [
     "preference",
     "opinion",
@@ -121,15 +129,21 @@ class MindReference:
     def __init__(self):
         # subject -> other -> {"knows": {}, "wants": {}, "feels": {}}
         self.beings: Dict[str, Dict[str, Dict[str, Any]]] = {}
+        self.limits = Limits([("beings", 64, 1_000_000), ("others", 64, 4096), ("beliefs", 64, 4096), ("witnesses", 64, 4096)])
 
     def get_other(self, subject: str, other: str) -> Dict[str, Any]:
+        room(self.beings, subject, self.limits["beings"])
         if subject not in self.beings:
             self.beings[subject] = {}
+        room(self.beings[subject], other, self.limits["others"])
         if other not in self.beings[subject]:
             self.beings[subject][other] = {"knows": {}, "wants": {}, "feels": {}}
         return self.beings[subject][other]
 
     def run(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Dict[str, Any]) -> Dict[str, Any]:
         ops = request.get("ops", [])
         if not isinstance(ops, list) or not ops or len(ops) > 64:
             raise ValueError("bad ops")
@@ -142,6 +156,7 @@ class MindReference:
                     model = self.get_other(subj, o_id)
                     for k in other_item.get("knows", []):
                         fact = k["fact"]
+                        room(model["knows"], fact, self.limits["beliefs"])
                         model["knows"][fact] = {
                             "fact": fact,
                             "status": bool(k["status"]),
@@ -156,12 +171,14 @@ class MindReference:
             args = op_val.get("args", {})
             if op == "init":
                 subj = args["subject"]
+                room(self.beings, subj, self.limits["beings"])
                 self.beings[subj] = {}
                 for other_item in args.get("others", []):
                     o_id = other_item["other"]
                     model = self.get_other(subj, o_id)
                     for k in other_item.get("knows", []):
                         fact = k["fact"]
+                        room(model["knows"], fact, self.limits["beliefs"])
                         model["knows"][fact] = {
                             "fact": fact,
                             "status": bool(k["status"]),
@@ -206,6 +223,7 @@ class MindReference:
                     fact = args["fact"]
                     status = bool(args["status"])
                     conf = int(args.get("confidence", 100))
+                    room(model["knows"], fact, self.limits["beliefs"])
                     model["knows"][fact] = {
                         "at": at,
                         "confidence": conf,
@@ -225,6 +243,7 @@ class MindReference:
                 elif cat == "wants":
                     goal = args["goal"]
                     prio = int(args["priority"])
+                    room(model["wants"], goal, self.limits["beliefs"])
                     model["wants"][goal] = {
                         "at": at,
                         "goal": goal,
@@ -257,6 +276,7 @@ class MindReference:
                         feel_val["target"] = tgt
                     # Sort feel_val keys
                     feel_val = {k: feel_val[k] for k in sorted(feel_val.keys())}
+                    room(model["feels"], key, self.limits["beliefs"])
                     model["feels"][key] = feel_val
                     res_val: Dict[str, Any] = {
                         "category": "feels",
@@ -280,6 +300,10 @@ class MindReference:
                 default_fact = entry.get("kind") or entry.get("id") or "event"
                 fact = args.get("fact", default_fact)
                 at = int(entry.get("at", 0))
+                if not isinstance(beings, list) or not beings or len(beings) > self.limits["witnesses"]:
+                    raise ValueError("bad witnesses")
+                room(self.beings, subj, self.limits["beings"])
+                self.beings.setdefault(subj, {})
 
                 inferences = []
                 for b in beings:
@@ -290,6 +314,7 @@ class MindReference:
                     src = "seen" if perceived else "inferred"
                     conf = 100 if perceived else 90
                     model = self.get_other(subj, b_id)
+                    room(model["knows"], fact, self.limits["beliefs"])
                     model["knows"][fact] = {
                         "at": at,
                         "confidence": conf,
@@ -365,8 +390,12 @@ class DeceptionReference:
     def __init__(self):
         self.next_id = 1
         self.records: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("records", 128, 1_000_000)])
 
     def run(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Dict[str, Any]) -> Dict[str, Any]:
         ops = request.get("ops", [])
         if not isinstance(ops, list) or not ops or len(ops) > 64:
             raise ValueError("bad ops")
@@ -377,6 +406,7 @@ class DeceptionReference:
                 claim = r["claim"]
                 true_val = r["true_value"]
                 is_lie = r.get("is_lie", claim != true_val)
+                room(self.records, r_id, self.limits["records"])
                 self.records[r_id] = {
                     "at": int(r.get("at", 0)),
                     "claim": claim,
@@ -403,6 +433,7 @@ class DeceptionReference:
                     claim = r["claim"]
                     true_val = r.get("true_value", claim)
                     is_lie = r.get("is_lie", claim != true_val)
+                    room(self.records, r_id, self.limits["records"])
                     self.records[r_id] = {
                         "at": int(r.get("at", 0)),
                         "claim": claim,
@@ -445,6 +476,8 @@ class DeceptionReference:
                 is_lie = args.get("is_lie", claim != true_val)
                 at = int(args.get("at", 0))
                 status = args.get("status", "active")
+                if len(self.records) >= self.limits["records"]:
+                    raise ValueError("too many records")
                 r_id = args.get("id") or f"dec_{self.next_id}"
                 if not args.get("id"):
                     self.next_id += 1
@@ -561,6 +594,21 @@ class RelationshipReference:
         self.personal_attitudes: Dict[Tuple[str, str, str], int] = {}
         # (comm1, comm2) -> trust
         self.community_trust: Dict[Tuple[str, str], int] = {}
+        self.limits = Limits([("subjects", 4096, 1_000_000), ("relations", 64, 4096), ("attitudes", 4096, 1_000_000), ("community_pairs", 4096, 1_000_000)])
+
+    def put_sheet(self, s: str, w: str, k: str) -> None:
+        room(self.sheet_relationships, s, self.limits["subjects"])
+        sheet = self.sheet_relationships.setdefault(s, {})
+        room(sheet, w, self.limits["relations"])
+        sheet[w] = k
+
+    def put_attitude(self, key: Tuple[str, str, str], lvl: int) -> None:
+        room(self.personal_attitudes, key, self.limits["attitudes"])
+        self.personal_attitudes[key] = lvl
+
+    def put_community(self, key: Tuple[str, str], tr: int) -> None:
+        room(self.community_trust, key, self.limits["community_pairs"])
+        self.community_trust[key] = tr
 
     def set_attitude(self, subject: str, target: str, kind: str, delta: int) -> int:
         key = (subject, target, kind)
@@ -570,6 +618,9 @@ class RelationshipReference:
         return nxt
 
     def run(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Dict[str, Any]) -> Dict[str, Any]:
         ops = request.get("ops", [])
         if not isinstance(ops, list) or not ops or len(ops) > 64:
             raise ValueError("bad ops")
@@ -579,9 +630,7 @@ class RelationshipReference:
                 s = item["subject"]
                 w = item["with"]
                 k = item["kind"]
-                if s not in self.sheet_relationships:
-                    self.sheet_relationships[s] = {}
-                self.sheet_relationships[s][w] = k
+                self.put_sheet(s, w, k)
 
         if "attitudes" in request and isinstance(request["attitudes"], list):
             for item in request["attitudes"]:
@@ -589,14 +638,14 @@ class RelationshipReference:
                 t = item["target"]
                 k = item["kind"]
                 lvl = int(item["level"])
-                self.personal_attitudes[(s, t, k)] = max(-100, min(100, lvl))
+                self.put_attitude((s, t, k), max(-100, min(100, lvl)))
 
         if "communities" in request and isinstance(request["communities"], list):
             for item in request["communities"]:
                 c1 = item["community"]
                 c2 = item["target"]
                 tr = int(item["trust"])
-                self.community_trust[(c1, c2)] = max(-100, min(100, tr))
+                self.put_community((c1, c2), max(-100, min(100, tr)))
 
         results = []
         for op_val in ops:
@@ -610,20 +659,18 @@ class RelationshipReference:
                     s = item["subject"]
                     w = item["with"]
                     k = item["kind"]
-                    if s not in self.sheet_relationships:
-                        self.sheet_relationships[s] = {}
-                    self.sheet_relationships[s][w] = k
+                    self.put_sheet(s, w, k)
                 for item in args.get("attitudes", []):
                     s = item["subject"]
                     t = item["target"]
                     k = item["kind"]
                     lvl = int(item["level"])
-                    self.personal_attitudes[(s, t, k)] = max(-100, min(100, lvl))
+                    self.put_attitude((s, t, k), max(-100, min(100, lvl)))
                 for item in args.get("communities", []):
                     c1 = item["community"]
                     c2 = item["target"]
                     tr = int(item["trust"])
-                    self.community_trust[(c1, c2)] = max(-100, min(100, tr))
+                    self.put_community((c1, c2), max(-100, min(100, tr)))
                 results.append({"ok": True})
             elif op == "assess":
                 subj = args["subject"]
@@ -769,6 +816,7 @@ class RelationshipReference:
 
                 applied = []
                 for kind, delta, d_reason in deltas:
+                    room(self.personal_attitudes, (target, actor, kind), self.limits["attitudes"])
                     nxt = self.set_attitude(target, actor, kind, delta)
                     applied.append({
                         "attitude": kind,
@@ -802,7 +850,7 @@ class RelationshipReference:
 
                 avg_tr = int(sum_tr / cnt) if cnt > 0 else 0
                 avg_tr = max(-100, min(100, avg_tr))
-                self.community_trust[(comm1, comm2)] = avg_tr
+                self.put_community((comm1, comm2), avg_tr)
                 results.append({
                     "community": comm1,
                     "derived_stance": stance_from_trust(avg_tr),

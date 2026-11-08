@@ -1,9 +1,11 @@
 //! Standalone host-work scale timing for character modules with host-set limits.
 //! No model, network, sleeps or engine callbacks. A counting allocator reports live heap bytes.
 use gamectx::character::{
-    aspiration::Aspirations, attention::AttentionModel, beliefs::BeliefStore, creed::CreedManager, diet::DietManager,
-    expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, speech_act::SpeechActs,
-    stability::StabilityMonitor,
+    affect::AffectManager, aspiration::Aspirations, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager,
+    creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
+    expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
+    offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
+    stability::StabilityMonitor, task::TaskManager,
 };
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -48,6 +50,15 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("aspiration", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"experience","args":{"being":"{b}","kind":"need","subject":"cold","weight":60,"at":1}}"#, r#"{"op":"goals","args":{"being":"{b}"}}"#),
         ("habit", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"choose","args":{"being":"{b}","slot":"dawn","action":"bake","at":1}}"#, r#"{"op":"routine","args":{"being":"{b}"}}"#),
         ("lesson", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"outcome","args":{"being":"{b}","about":"wolves","activity":"hunt","result":"bad","episode":"w0","at":1}}"#, r#"{"op":"advice","args":{"being":"{b}"}}"#),
+        ("affect", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","attitudes":[{"id":"trust_mayor","kind":"trust","subject":"mayor","level":20}]}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
+        ("skills", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","skills":[{"id":"baking","level":10}]}}"#, r#"{"op":"evaluate_action","args":{"being":"{b}","action":"cook","skill":"baking","base_duration":40,"base_risk":20}}"#),
+        ("body", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","needs":[{"id":"hunger","threshold":70,"rate_per_tick":1,"level":10}]}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
+        ("mind", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"record","args":{"subject":"{b}","other":"miller","category":"knows","fact":"flour_late","status":true,"source":"told"}}"#, r#"{"op":"query","args":{"subject":"{b}","other":"miller","category":"knows","key":"flour_late"}}"#),
+        ("deception", format!(r#"{{"records":{n}}}"#), "", r#"{"op":"record","args":{"id":"claim_{b}","speaker":"{b}","listener":"baker","topic":"price","claim":"cheap","true_value":"dear"}}"#, r#"{"op":"check_consistency","args":{"speaker":"{b}","listener":"baker","topic":"price","proposed_claim":"cheap"}}"#),
+        ("relationship", format!(r#"{{"attitudes":{}}}"#, 3 * n), "", r#"{"op":"appraise_action","args":{"actor":"{b}","target":"baker","action":"gift","success":true}}"#, r#"{"op":"assess","args":{"subject":"baker","target":"{b}"}}"#),
+        ("offscreen", format!(r#"{{"records":{n}}}"#), "", r#"{"op":"resolve_window","args":{"being":"{b}","activity":"night_baking","action":"cook","observed":false,"at":{i},"place":"bakery"}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
+        ("curiosity", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","temperament":"curious","known_people":["ann"]}}"#, r#"{"op":"evaluate_novelty","args":{"being":"{b}","people":["ann","zed"]}}"#),
+        ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
 
@@ -63,7 +74,16 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "attention" => wf!(AttentionModel, lim),
         "aspiration" => wf!(Aspirations, lim),
         "habit" => wf!(Habits, lim),
-        _ => wf!(Lessons, lim),
+        "lesson" => wf!(Lessons, lim),
+        "affect" => wf!(AffectManager, lim),
+        "skills" => wf!(SkillsManager, lim),
+        "body" => wf!(BodyManager, lim),
+        "mind" => wf!(MindManager, lim),
+        "deception" => wf!(DeceptionLedger, lim),
+        "relationship" => wf!(RelationshipManager, lim),
+        "offscreen" => wf!(OffscreenResolver, lim),
+        "curiosity" => wf!(CuriosityManager, lim),
+        _ => wf!(TaskManager, lim),
     })
 }
 

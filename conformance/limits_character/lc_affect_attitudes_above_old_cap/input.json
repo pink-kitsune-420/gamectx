@@ -1,0 +1,450 @@
+{
+  "kind": "affect",
+  "args": {
+    "limits": {
+      "attitudes": 70
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "elder",
+          "temperament": "calm",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": [
+            {
+              "id": "trust_s0",
+              "kind": "trust",
+              "subject": "s0",
+              "level": 10
+            },
+            {
+              "id": "trust_s1",
+              "kind": "trust",
+              "subject": "s1",
+              "level": 11
+            },
+            {
+              "id": "trust_s2",
+              "kind": "trust",
+              "subject": "s2",
+              "level": 12
+            },
+            {
+              "id": "trust_s3",
+              "kind": "trust",
+              "subject": "s3",
+              "level": 13
+            },
+            {
+              "id": "trust_s4",
+              "kind": "trust",
+              "subject": "s4",
+              "level": 14
+            },
+            {
+              "id": "trust_s5",
+              "kind": "trust",
+              "subject": "s5",
+              "level": 15
+            },
+            {
+              "id": "trust_s6",
+              "kind": "trust",
+              "subject": "s6",
+              "level": 16
+            },
+            {
+              "id": "trust_s7",
+              "kind": "trust",
+              "subject": "s7",
+              "level": 17
+            },
+            {
+              "id": "trust_s8",
+              "kind": "trust",
+              "subject": "s8",
+              "level": 18
+            },
+            {
+              "id": "trust_s9",
+              "kind": "trust",
+              "subject": "s9",
+              "level": 19
+            },
+            {
+              "id": "trust_s10",
+              "kind": "trust",
+              "subject": "s10",
+              "level": 20
+            },
+            {
+              "id": "trust_s11",
+              "kind": "trust",
+              "subject": "s11",
+              "level": 21
+            },
+            {
+              "id": "trust_s12",
+              "kind": "trust",
+              "subject": "s12",
+              "level": 22
+            },
+            {
+              "id": "trust_s13",
+              "kind": "trust",
+              "subject": "s13",
+              "level": 23
+            },
+            {
+              "id": "trust_s14",
+              "kind": "trust",
+              "subject": "s14",
+              "level": 24
+            },
+            {
+              "id": "trust_s15",
+              "kind": "trust",
+              "subject": "s15",
+              "level": 25
+            },
+            {
+              "id": "trust_s16",
+              "kind": "trust",
+              "subject": "s16",
+              "level": 26
+            },
+            {
+              "id": "trust_s17",
+              "kind": "trust",
+              "subject": "s17",
+              "level": 27
+            },
+            {
+              "id": "trust_s18",
+              "kind": "trust",
+              "subject": "s18",
+              "level": 28
+            },
+            {
+              "id": "trust_s19",
+              "kind": "trust",
+              "subject": "s19",
+              "level": 29
+            },
+            {
+              "id": "trust_s20",
+              "kind": "trust",
+              "subject": "s20",
+              "level": 30
+            },
+            {
+              "id": "trust_s21",
+              "kind": "trust",
+              "subject": "s21",
+              "level": 31
+            },
+            {
+              "id": "trust_s22",
+              "kind": "trust",
+              "subject": "s22",
+              "level": 32
+            },
+            {
+              "id": "trust_s23",
+              "kind": "trust",
+              "subject": "s23",
+              "level": 33
+            },
+            {
+              "id": "trust_s24",
+              "kind": "trust",
+              "subject": "s24",
+              "level": 34
+            },
+            {
+              "id": "trust_s25",
+              "kind": "trust",
+              "subject": "s25",
+              "level": 35
+            },
+            {
+              "id": "trust_s26",
+              "kind": "trust",
+              "subject": "s26",
+              "level": 36
+            },
+            {
+              "id": "trust_s27",
+              "kind": "trust",
+              "subject": "s27",
+              "level": 37
+            },
+            {
+              "id": "trust_s28",
+              "kind": "trust",
+              "subject": "s28",
+              "level": 38
+            },
+            {
+              "id": "trust_s29",
+              "kind": "trust",
+              "subject": "s29",
+              "level": 39
+            },
+            {
+              "id": "trust_s30",
+              "kind": "trust",
+              "subject": "s30",
+              "level": 40
+            },
+            {
+              "id": "trust_s31",
+              "kind": "trust",
+              "subject": "s31",
+              "level": 41
+            },
+            {
+              "id": "trust_s32",
+              "kind": "trust",
+              "subject": "s32",
+              "level": 42
+            },
+            {
+              "id": "trust_s33",
+              "kind": "trust",
+              "subject": "s33",
+              "level": 43
+            },
+            {
+              "id": "trust_s34",
+              "kind": "trust",
+              "subject": "s34",
+              "level": 44
+            },
+            {
+              "id": "trust_s35",
+              "kind": "trust",
+              "subject": "s35",
+              "level": 45
+            },
+            {
+              "id": "trust_s36",
+              "kind": "trust",
+              "subject": "s36",
+              "level": 46
+            },
+            {
+              "id": "trust_s37",
+              "kind": "trust",
+              "subject": "s37",
+              "level": 47
+            },
+            {
+              "id": "trust_s38",
+              "kind": "trust",
+              "subject": "s38",
+              "level": 48
+            },
+            {
+              "id": "trust_s39",
+              "kind": "trust",
+              "subject": "s39",
+              "level": 49
+            },
+            {
+              "id": "trust_s40",
+              "kind": "trust",
+              "subject": "s40",
+              "level": 50
+            },
+            {
+              "id": "trust_s41",
+              "kind": "trust",
+              "subject": "s41",
+              "level": 51
+            },
+            {
+              "id": "trust_s42",
+              "kind": "trust",
+              "subject": "s42",
+              "level": 52
+            },
+            {
+              "id": "trust_s43",
+              "kind": "trust",
+              "subject": "s43",
+              "level": 53
+            },
+            {
+              "id": "trust_s44",
+              "kind": "trust",
+              "subject": "s44",
+              "level": 54
+            },
+            {
+              "id": "trust_s45",
+              "kind": "trust",
+              "subject": "s45",
+              "level": 55
+            },
+            {
+              "id": "trust_s46",
+              "kind": "trust",
+              "subject": "s46",
+              "level": 56
+            },
+            {
+              "id": "trust_s47",
+              "kind": "trust",
+              "subject": "s47",
+              "level": 57
+            },
+            {
+              "id": "trust_s48",
+              "kind": "trust",
+              "subject": "s48",
+              "level": 58
+            },
+            {
+              "id": "trust_s49",
+              "kind": "trust",
+              "subject": "s49",
+              "level": 59
+            },
+            {
+              "id": "trust_s50",
+              "kind": "trust",
+              "subject": "s50",
+              "level": 60
+            },
+            {
+              "id": "trust_s51",
+              "kind": "trust",
+              "subject": "s51",
+              "level": 61
+            },
+            {
+              "id": "trust_s52",
+              "kind": "trust",
+              "subject": "s52",
+              "level": 62
+            },
+            {
+              "id": "trust_s53",
+              "kind": "trust",
+              "subject": "s53",
+              "level": 63
+            },
+            {
+              "id": "trust_s54",
+              "kind": "trust",
+              "subject": "s54",
+              "level": 64
+            },
+            {
+              "id": "trust_s55",
+              "kind": "trust",
+              "subject": "s55",
+              "level": 65
+            },
+            {
+              "id": "trust_s56",
+              "kind": "trust",
+              "subject": "s56",
+              "level": 66
+            },
+            {
+              "id": "trust_s57",
+              "kind": "trust",
+              "subject": "s57",
+              "level": 67
+            },
+            {
+              "id": "trust_s58",
+              "kind": "trust",
+              "subject": "s58",
+              "level": 68
+            },
+            {
+              "id": "trust_s59",
+              "kind": "trust",
+              "subject": "s59",
+              "level": 69
+            },
+            {
+              "id": "trust_s60",
+              "kind": "trust",
+              "subject": "s60",
+              "level": 70
+            },
+            {
+              "id": "trust_s61",
+              "kind": "trust",
+              "subject": "s61",
+              "level": 71
+            },
+            {
+              "id": "trust_s62",
+              "kind": "trust",
+              "subject": "s62",
+              "level": 72
+            },
+            {
+              "id": "trust_s63",
+              "kind": "trust",
+              "subject": "s63",
+              "level": 73
+            },
+            {
+              "id": "trust_s64",
+              "kind": "trust",
+              "subject": "s64",
+              "level": 74
+            },
+            {
+              "id": "trust_s65",
+              "kind": "trust",
+              "subject": "s65",
+              "level": 75
+            },
+            {
+              "id": "trust_s66",
+              "kind": "trust",
+              "subject": "s66",
+              "level": 76
+            },
+            {
+              "id": "trust_s67",
+              "kind": "trust",
+              "subject": "s67",
+              "level": 77
+            },
+            {
+              "id": "trust_s68",
+              "kind": "trust",
+              "subject": "s68",
+              "level": 78
+            },
+            {
+              "id": "trust_s69",
+              "kind": "trust",
+              "subject": "s69",
+              "level": 79
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "elder",
+          "ticks": 1
+        }
+      }
+    ]
+  }
+}

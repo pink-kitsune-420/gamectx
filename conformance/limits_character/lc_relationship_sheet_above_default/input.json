@@ -1,0 +1,374 @@
+{
+  "kind": "relationship",
+  "args": {
+    "limits": {
+      "relations": 70
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "sheet_relationships": [
+            {
+              "subject": "mayor",
+              "with": "citizen_0",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_1",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_2",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_3",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_4",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_5",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_6",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_7",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_8",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_9",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_10",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_11",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_12",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_13",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_14",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_15",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_16",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_17",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_18",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_19",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_20",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_21",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_22",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_23",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_24",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_25",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_26",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_27",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_28",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_29",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_30",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_31",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_32",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_33",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_34",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_35",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_36",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_37",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_38",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_39",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_40",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_41",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_42",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_43",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_44",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_45",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_46",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_47",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_48",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_49",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_50",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_51",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_52",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_53",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_54",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_55",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_56",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_57",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_58",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_59",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_60",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_61",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_62",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_63",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_64",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_65",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_66",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_67",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_68",
+              "kind": "ally"
+            },
+            {
+              "subject": "mayor",
+              "with": "citizen_69",
+              "kind": "ally"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "subject": "mayor",
+          "target": "citizen_69"
+        }
+      }
+    ]
+  }
+}

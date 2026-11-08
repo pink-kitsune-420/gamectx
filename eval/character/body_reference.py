@@ -13,6 +13,10 @@ Pure host computation for character body state and needs dynamics:
 
 from typing import Any, Dict, List, Optional, Tuple
 
+import copy
+
+from limits_reference import Limits, limited
+
 MAX_BEINGS = 64
 MAX_OPS = 64
 MAX_NEEDS = 16
@@ -26,6 +30,7 @@ class BodyReference:
     def __init__(self):
         # being_id -> dict
         self.beings: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("beings", MAX_BEINGS, 1_000_000), ("needs", MAX_NEEDS, 256), ("injuries", MAX_INJURIES, 256), ("conditions", MAX_CONDITIONS, 256)])
 
     def _default_being(self, being_id: str) -> Dict[str, Any]:
         return {
@@ -42,7 +47,7 @@ class BodyReference:
         if not being_id or not isinstance(being_id, str):
             raise ValueError("invalid being id")
 
-        if len(self.beings) >= MAX_BEINGS and being_id not in self.beings:
+        if len(self.beings) >= self.limits["beings"] and being_id not in self.beings:
             raise ValueError("too many beings")
 
         being = self._default_being(being_id)
@@ -62,7 +67,7 @@ class BodyReference:
 
         if "conditions" in args:
             conds = args["conditions"]
-            if not isinstance(conds, list) or len(conds) > MAX_CONDITIONS:
+            if not isinstance(conds, list) or len(conds) > self.limits["conditions"]:
                 raise ValueError("invalid conditions")
             seen = set()
             clean_conds = []
@@ -75,7 +80,7 @@ class BodyReference:
 
         if "injuries" in args:
             injs = args["injuries"]
-            if not isinstance(injs, list) or len(injs) > MAX_INJURIES:
+            if not isinstance(injs, list) or len(injs) > self.limits["injuries"]:
                 raise ValueError("invalid injuries")
             clean_injs = []
             seen_ids = set()
@@ -100,7 +105,7 @@ class BodyReference:
 
         if "needs" in args:
             needs_list = args["needs"]
-            if not isinstance(needs_list, list) or len(needs_list) > MAX_NEEDS:
+            if not isinstance(needs_list, list) or len(needs_list) > self.limits["needs"]:
                 raise ValueError("invalid needs list")
             needs_map = {}
             for n in needs_list:
@@ -150,6 +155,8 @@ class BodyReference:
 
     def _get_being(self, being_id: str) -> Dict[str, Any]:
         if being_id not in self.beings:
+            if len(self.beings) >= self.limits["beings"]:
+                raise ValueError("too many beings")
             self.beings[being_id] = self._default_being(being_id)
         return self.beings[being_id]
 
@@ -201,7 +208,7 @@ class BodyReference:
             "fatigue": being["fatigue"],
             "health": being["health"],
             "conditions": sorted(being["conditions"]),
-            "injuries": being["injuries"],
+            "injuries": copy.deepcopy(being["injuries"]),
             "needs": needs_arr,
             "can_speak": can_spk,
             "speech_refusal": spk_ref,
@@ -449,7 +456,7 @@ class BodyReference:
             raise ValueError("invalid condition")
 
         if cond not in being["conditions"]:
-            if len(being["conditions"]) >= MAX_CONDITIONS:
+            if len(being["conditions"]) >= self.limits["conditions"]:
                 raise ValueError("too many conditions")
             being["conditions"].append(cond)
 
@@ -492,7 +499,7 @@ class BodyReference:
         if any(x["id"] == iid for x in being["injuries"]):
             raise ValueError("injury id already exists")
 
-        if len(being["injuries"]) >= MAX_INJURIES:
+        if len(being["injuries"]) >= self.limits["injuries"]:
             raise ValueError("too many injuries")
 
         sev = int(inj.get("severity", 10))
@@ -513,7 +520,7 @@ class BodyReference:
         if being["health"] == 0 and "dead" not in being["conditions"]:
             being["conditions"].append("dead")
 
-        return {"ok": True, "being": being_id, "injuries": being["injuries"], "health": being["health"]}
+        return {"ok": True, "being": being_id, "injuries": copy.deepcopy(being["injuries"]), "health": being["health"]}
 
     def op_heal_injury(self, args: Dict[str, Any]) -> Dict[str, Any]:
         being_id = args.get("being") or args.get("id")
@@ -542,9 +549,12 @@ class BodyReference:
         heal_hp = int(args.get("heal_health", amount))
         being["health"] = min(100, being["health"] + heal_hp)
 
-        return {"ok": True, "being": being_id, "injuries": being["injuries"], "health": being["health"]}
+        return {"ok": True, "being": being_id, "injuries": copy.deepcopy(being["injuries"]), "health": being["health"]}
 
     def workflow(self, req: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(req, self.limits, self.run_inner)
+
+    def run_inner(self, req: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(req, dict):
             raise ValueError("request must be dict")
         ops = req.get("ops")

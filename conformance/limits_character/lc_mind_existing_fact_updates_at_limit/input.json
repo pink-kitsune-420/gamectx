@@ -1,0 +1,43 @@
+{
+  "kind": "mind",
+  "args": {
+    "limits": {
+      "beliefs": 1
+    },
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "miller",
+          "category": "knows",
+          "fact": "flour_late",
+          "status": true,
+          "source": "told",
+          "at": 3
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "miller",
+          "category": "knows",
+          "fact": "flour_late",
+          "status": false,
+          "source": "seen",
+          "at": 9
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "subject": "baker",
+          "other": "miller",
+          "category": "knows",
+          "key": "flour_late"
+        }
+      }
+    ]
+  }
+}

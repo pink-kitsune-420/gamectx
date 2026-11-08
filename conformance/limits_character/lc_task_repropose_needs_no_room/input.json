@@ -1,0 +1,149 @@
+{
+  "kind": "task",
+  "args": {
+    "limits": {
+      "tasks": 2
+    },
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "bake",
+          "owner": "baker",
+          "priority": 60,
+          "goal": {
+            "kind": "cook",
+            "recipe": "bread"
+          },
+          "world_state": {
+            "location": "bakery",
+            "inventory": {
+              "flour": 0,
+              "coins": 10
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ],
+                "outputs": [
+                  {
+                    "item": "bread",
+                    "count": 1
+                  }
+                ]
+              }
+            },
+            "sources": [
+              {
+                "item": "flour",
+                "place": "mill",
+                "partner": "miller",
+                "cost_item": "coins",
+                "cost_count": 5
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "id": "sweep",
+          "owner": "apprentice",
+          "priority": 60,
+          "goal": {
+            "kind": "cook",
+            "recipe": "bread"
+          },
+          "world_state": {
+            "location": "bakery",
+            "inventory": {
+              "flour": 0,
+              "coins": 10
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ],
+                "outputs": [
+                  {
+                    "item": "bread",
+                    "count": 1
+                  }
+                ]
+              }
+            },
+            "sources": [
+              {
+                "item": "flour",
+                "place": "mill",
+                "partner": "miller",
+                "cost_item": "coins",
+                "cost_count": 5
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "id": "bake",
+          "owner": "apprentice",
+          "priority": 60,
+          "goal": {
+            "kind": "cook",
+            "recipe": "bread"
+          },
+          "world_state": {
+            "location": "bakery",
+            "inventory": {
+              "flour": 0,
+              "coins": 10
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ],
+                "outputs": [
+                  {
+                    "item": "bread",
+                    "count": 1
+                  }
+                ]
+              }
+            },
+            "sources": [
+              {
+                "item": "flour",
+                "place": "mill",
+                "partner": "miller",
+                "cost_item": "coins",
+                "cost_count": 5
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "list",
+        "args": {}
+      }
+    ]
+  }
+}

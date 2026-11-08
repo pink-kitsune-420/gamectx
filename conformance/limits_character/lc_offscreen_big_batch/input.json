@@ -1,0 +1,317 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "limits": {
+      "work_per_tick": 20
+    },
+    "ops": [
+      {
+        "op": "batch_resolve",
+        "args": {
+          "activities": [
+            {
+              "being": "worker_0",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 0,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_1",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 1,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_2",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 2,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_3",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 3,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_4",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 4,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_5",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 5,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_6",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 6,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_7",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 7,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_8",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 8,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_9",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 9,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_10",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 10,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_11",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 11,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_12",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 12,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_13",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 13,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_14",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 14,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_15",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 15,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_16",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 16,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_17",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 17,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_18",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 18,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            },
+            {
+              "being": "worker_19",
+              "activity": "night_baking",
+              "action": "cook",
+              "observed": false,
+              "at": 19,
+              "place": "bakery",
+              "outputs": [
+                {
+                  "count": 2,
+                  "item": "bread"
+                }
+              ],
+              "fatigue": 5
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

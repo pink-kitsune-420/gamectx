@@ -1,0 +1,29 @@
+{
+  "kind": "task",
+  "args": {
+    "limits": {
+      "steps": 2
+    },
+    "ops": [
+      {
+        "op": "validate",
+        "args": {
+          "steps": [
+            {
+              "id": "w0",
+              "action": "wait"
+            },
+            {
+              "id": "w1",
+              "action": "wait"
+            },
+            {
+              "id": "w2",
+              "action": "wait"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

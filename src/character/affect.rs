@@ -41,6 +41,13 @@ pub const MAX_BEINGS: usize = 64;
 pub const MAX_OPS: usize = 64;
 pub const MAX_ATTITUDES: usize = 64;
 
+/// Host-set limits: `beings` (default [`MAX_BEINGS`]) and `attitudes` per being (default [`MAX_ATTITUDES`]).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: MAX_BEINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "attitudes", default: MAX_ATTITUDES, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(AffectLimits, LIMITS);
+
 pub const ATTITUDE_KINDS: [&str; 24] = [
     "preference",
     "opinion",
@@ -199,20 +206,24 @@ impl BeingAffect {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct AffectManager {
     beings: BTreeMap<String, BeingAffect>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: AffectLimits,
 }
 
 impl AffectManager {
     pub fn new() -> Self {
-        Self { beings: BTreeMap::new() }
+        Self::default()
     }
+
+    crate::character::limits::limited_workflow!();
 
     pub fn op_init(&mut self, args: &Value) -> Result<Value> {
         keys(args, &["being"], &["temperament", "mood", "attitudes"])?;
         let being = ident_bound(c::get(args, "being")?)?.to_string();
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(&being) {
+        if self.beings.len() >= self.limits.get("beings") && !self.beings.contains_key(&being) {
             return Err(c::bad());
         }
 
@@ -246,7 +257,7 @@ impl AffectManager {
 
         let mut attitudes = BTreeMap::new();
         if let Some(arr) = args.get("attitudes").and_then(Value::as_array) {
-            if arr.len() > MAX_ATTITUDES {
+            if arr.len() > self.limits.get("attitudes") {
                 return Err(c::bad());
             }
             for item in arr {
@@ -373,6 +384,7 @@ impl AffectManager {
             format!("{kind}_{subject}")
         };
 
+        let max_attitudes = self.limits.get("attitudes");
         let state = self.beings.get_mut(being).ok_or_else(c::bad)?;
 
         let (before, after) = if let Some(att) = state.attitudes.get_mut(&att_id) {
@@ -383,7 +395,7 @@ impl AffectManager {
             }
             (b, att.level)
         } else {
-            if state.attitudes.len() >= MAX_ATTITUDES {
+            if state.attitudes.len() >= max_attitudes {
                 return Err(c::bad());
             }
             let default_base = match kind {
@@ -467,7 +479,7 @@ impl AffectManager {
         })
     }
 
-    pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &[])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {

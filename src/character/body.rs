@@ -39,6 +39,16 @@ pub const MAX_NEEDS: usize = 16;
 pub const MAX_INJURIES: usize = 16;
 pub const MAX_CONDITIONS: usize = 16;
 
+/// Host-set limits: `beings`, and `needs`, `injuries` and `conditions` per being (defaults are the
+/// `MAX_*` constants).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: MAX_BEINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "needs", default: MAX_NEEDS, ceiling: 256 },
+    crate::character::limits::Limit { name: "injuries", default: MAX_INJURIES, ceiling: 256 },
+    crate::character::limits::Limit { name: "conditions", default: MAX_CONDITIONS, ceiling: 256 },
+];
+crate::character::limits::module_limits!(BodyLimits, LIMITS);
+
 fn text_bound(v: &Value, max_len: usize) -> Result<&str> {
     let s = v.as_str().ok_or_else(c::bad)?;
     if s.is_empty() || s.chars().count() > max_len {
@@ -143,16 +153,20 @@ impl BeingBody {
 #[derive(Clone, Debug, Default)]
 pub struct BodyManager {
     beings: BTreeMap<String, BeingBody>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: BodyLimits,
 }
 
 impl BodyManager {
     pub fn new() -> Self {
-        Self { beings: BTreeMap::new() }
+        Self::default()
     }
+
+    crate::character::limits::limited_workflow!();
 
     pub fn get_or_create(&mut self, being_id: &str) -> Result<&mut BeingBody> {
         if !self.beings.contains_key(being_id) {
-            if self.beings.len() >= MAX_BEINGS {
+            if self.beings.len() >= self.limits.get("beings") {
                 return Err(c::bad());
             }
             self.beings.insert(being_id.to_string(), BeingBody::new(being_id));
@@ -173,7 +187,7 @@ impl BodyManager {
         let being_val = args.get("being").or_else(|| args.get("id")).ok_or_else(c::bad)?;
         let being_id = ident_bound(being_val)?;
 
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(being_id) {
+        if self.beings.len() >= self.limits.get("beings") && !self.beings.contains_key(being_id) {
             return Err(c::bad());
         }
 
@@ -190,7 +204,7 @@ impl BodyManager {
         }
         if let Some(conds_val) = args.get("conditions") {
             let arr = conds_val.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_CONDITIONS {
+            if arr.len() > self.limits.get("conditions") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -206,7 +220,7 @@ impl BodyManager {
 
         if let Some(injs_val) = args.get("injuries") {
             let arr = injs_val.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_INJURIES {
+            if arr.len() > self.limits.get("injuries") {
                 return Err(c::bad());
             }
             let mut list = Vec::new();
@@ -227,7 +241,7 @@ impl BodyManager {
 
         if let Some(needs_val) = args.get("needs") {
             let arr = needs_val.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_NEEDS {
+            if arr.len() > self.limits.get("needs") {
                 return Err(c::bad());
             }
             let mut map = BTreeMap::new();
@@ -622,12 +636,13 @@ impl BodyManager {
         keys(args, &["condition"], &["being", "id"])?;
         let being_val = args.get("being").or_else(|| args.get("id")).ok_or_else(c::bad)?;
         let being_id = ident_bound(being_val)?;
+        let max_conditions = self.limits.get("conditions");
         let being = self.get_or_create(being_id)?;
 
         let cond = ident_bound(c::get(args, "condition")?)?;
 
         if !being.conditions.iter().any(|c| c == cond) {
-            if being.conditions.len() >= MAX_CONDITIONS {
+            if being.conditions.len() >= max_conditions {
                 return Err(c::bad());
             }
             being.conditions.push(cond.to_string());
@@ -669,6 +684,7 @@ impl BodyManager {
         keys(args, &["injury"], &["being", "id"])?;
         let being_val = args.get("being").or_else(|| args.get("id")).ok_or_else(c::bad)?;
         let being_id = ident_bound(being_val)?;
+        let max_injuries = self.limits.get("injuries");
         let being = self.get_or_create(being_id)?;
 
         let inj_val = c::get(args, "injury")?;
@@ -678,7 +694,7 @@ impl BodyManager {
         if being.injuries.iter().any(|x| x.id == iid) {
             return Err(c::bad());
         }
-        if being.injuries.len() >= MAX_INJURIES {
+        if being.injuries.len() >= max_injuries {
             return Err(c::bad());
         }
 
@@ -762,7 +778,7 @@ impl BodyManager {
         })
     }
 
-    pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
             return Err(c::bad());

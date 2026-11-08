@@ -33,10 +33,16 @@ use crate::checked as c;
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_RECORDS: usize = 128;
 pub const MAX_OPS: usize = 64;
+
+/// Host-set limit: told `records` kept by the ledger (default [`MAX_RECORDS`]). Pre-declared and
+/// `init` records respect it as well as `record`.
+pub const LIMITS: &[crate::character::limits::Limit] =
+    &[crate::character::limits::Limit { name: "records", default: MAX_RECORDS, ceiling: 1_000_000 }];
+crate::character::limits::module_limits!(DeceptionLimits, LIMITS);
 
 fn ident_bound(v: &Value) -> Result<&str> {
     let s = ident(v)?;
@@ -112,14 +118,72 @@ impl ToldRecord {
 pub struct DeceptionLedger {
     pub next_id: u64,
     pub records: BTreeMap<String, ToldRecord>,
+    /// `(listener, topic, speaker)` → record ids, kept in step with `records` by the workflow ops
+    /// so consistency checks and contradictions do not scan the whole ledger.
+    pub by_listener_topic: BTreeMap<(String, String, String), BTreeSet<String>>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: DeceptionLimits,
 }
 
 impl DeceptionLedger {
     pub fn new() -> Self {
-        Self { next_id: 1, records: BTreeMap::new() }
+        Self {
+            next_id: 1,
+            records: BTreeMap::new(),
+            by_listener_topic: BTreeMap::new(),
+            limits: DeceptionLimits::default(),
+        }
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn put_record(&mut self, rec: ToldRecord) {
+        if let Some(old) = self.records.get(&rec.id) {
+            let key = (old.listener.clone(), old.topic.clone(), old.speaker.clone());
+            if let Some(ids) = self.by_listener_topic.get_mut(&key) {
+                ids.remove(&rec.id);
+                if ids.is_empty() {
+                    self.by_listener_topic.remove(&key);
+                }
+            }
+        }
+        self.by_listener_topic
+            .entry((rec.listener.clone(), rec.topic.clone(), rec.speaker.clone()))
+            .or_default()
+            .insert(rec.id.clone());
+        self.records.insert(rec.id.clone(), rec);
+    }
+
+    /// Records `speaker` told `listener` about `topic`, in id order.
+    fn told_by(&self, speaker: &str, listener: &str, topic: &str) -> impl Iterator<Item = &ToldRecord> {
+        self.by_listener_topic
+            .get(&(listener.to_string(), topic.to_string(), speaker.to_string()))
+            .into_iter()
+            .flatten()
+            .filter_map(|id| self.records.get(id))
+    }
+
+    /// Ids of records told to `listener` about `topic` by anyone, in id order.
+    fn told_ids(&self, listener: &str, topic: &str) -> Vec<String> {
+        let start = (listener.to_string(), topic.to_string(), String::new());
+        let mut ids: Vec<String> = self
+            .by_listener_topic
+            .range(start..)
+            .take_while(|((l, t, _), _)| l == listener && t == topic)
+            .flat_map(|(_, ids)| ids.iter().cloned())
+            .collect();
+        ids.sort_unstable();
+        ids
+    }
+
+    fn record_room(&self, id: &str) -> Result<()> {
+        if self.records.len() >= self.limits.get("records") && !self.records.contains_key(id) {
+            return Err(c::bad());
+        }
+        Ok(())
+    }
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &["records"])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -142,10 +206,18 @@ impl DeceptionLedger {
                 if !["active", "retracted", "contradicted"].contains(&status.as_str()) {
                     return Err(c::bad());
                 }
-                self.records.insert(
-                    id.clone(),
-                    ToldRecord { id, speaker, listener, topic, claim, true_value: true_val, is_lie, at, status },
-                );
+                self.record_room(&id)?;
+                self.put_record(ToldRecord {
+                    id,
+                    speaker,
+                    listener,
+                    topic,
+                    claim,
+                    true_value: true_val,
+                    is_lie,
+                    at,
+                    status,
+                });
             }
         }
 
@@ -175,6 +247,7 @@ impl DeceptionLedger {
     fn op_init(&mut self, args: &Value) -> Result<Value> {
         keys(args, &[], &["records"])?;
         self.records.clear();
+        self.by_listener_topic.clear();
         self.next_id = 1;
         if let Some(records_val) = args.get("records").and_then(Value::as_array) {
             for r in records_val {
@@ -198,10 +271,18 @@ impl DeceptionLedger {
                     self.next_id += 1;
                     id_str
                 };
-                self.records.insert(
-                    id.clone(),
-                    ToldRecord { id, speaker, listener, topic, claim, true_value: true_val, is_lie, at, status },
-                );
+                self.record_room(&id)?;
+                self.put_record(ToldRecord {
+                    id,
+                    speaker,
+                    listener,
+                    topic,
+                    claim,
+                    true_value: true_val,
+                    is_lie,
+                    at,
+                    status,
+                });
             }
         }
         Ok(obj! {
@@ -278,7 +359,7 @@ impl DeceptionLedger {
             return Err(c::bad());
         }
 
-        if self.records.len() >= MAX_RECORDS {
+        if self.records.len() >= self.limits.get("records") {
             return Err(c::bad());
         }
 
@@ -303,7 +384,7 @@ impl DeceptionLedger {
             at,
             status,
         };
-        self.records.insert(id.clone(), record);
+        self.put_record(record);
 
         Ok(obj! {
             "id" => Value::str(&id),
@@ -323,11 +404,7 @@ impl DeceptionLedger {
         let proposed = text_bound(c::get(args, "proposed_claim")?, 128)?;
 
         // Find the most recent active claim made by speaker to listener on topic
-        let prior = self
-            .records
-            .values()
-            .filter(|r| r.speaker == speaker && r.listener == listener && r.topic == topic && r.status == "active")
-            .max_by_key(|r| r.at);
+        let prior = self.told_by(speaker, listener, topic).filter(|r| r.status == "active").max_by_key(|r| r.at);
 
         match prior {
             Some(r) => {
@@ -372,10 +449,9 @@ impl DeceptionLedger {
 
         // Check all active records told to this listener on this topic that contradict observed truth
         let rec_keys: Vec<String> = self
-            .records
-            .iter()
-            .filter(|(_, r)| r.listener == listener && r.topic == topic && r.status == "active" && r.claim != observed)
-            .map(|(k, _)| k.clone())
+            .told_ids(listener, topic)
+            .into_iter()
+            .filter(|id| self.records.get(id).is_some_and(|r| r.status == "active" && r.claim != observed))
             .collect();
 
         for k in rec_keys {
@@ -436,4 +512,26 @@ impl DeceptionLedger {
 pub fn workflow(req: &Value) -> Result<Value> {
     let mut ledger = DeceptionLedger::new();
     ledger.workflow(req)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::data::json::parse;
+
+    #[test]
+    fn re_recording_an_id_moves_it_between_index_buckets() {
+        let req = r#"{"ops":[
+            {"op":"record","args":{"id":"c1","speaker":"trader","listener":"baker","topic":"price","claim":"cheap"}},
+            {"op":"record","args":{"id":"c1","speaker":"carter","listener":"baker","topic":"price","claim":"dear"}},
+            {"op":"check_consistency","args":{"speaker":"trader","listener":"baker","topic":"price","proposed_claim":"x"}},
+            {"op":"check_consistency","args":{"speaker":"carter","listener":"baker","topic":"price","proposed_claim":"dear"}}
+        ]}"#;
+        let mut ledger = DeceptionLedger::new();
+        let out = ledger.workflow(&parse(req, 1 << 16).unwrap()).unwrap();
+        let results = out.get("results").and_then(Value::as_array).unwrap();
+        assert_eq!(results[2].get("prior_claim"), Some(&Value::Null), "the trader's claim was replaced");
+        assert_eq!(results[3].get("prior_claim").and_then(Value::as_str), Some("dear"));
+        assert_eq!(ledger.by_listener_topic.values().map(BTreeSet::len).sum::<usize>(), ledger.records.len());
+    }
 }

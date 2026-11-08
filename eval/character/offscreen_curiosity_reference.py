@@ -5,6 +5,8 @@ Produces byte-identical JSON matching src/character/offscreen.rs and src/charact
 """
 from typing import Any, Dict, List, Optional, Set
 
+from limits_reference import Limits, limited
+
 TEMPERAMENTS = ["curious", "cautious", "apathetic", "calm"]
 BASE_SCORE_PERSON = 40
 BASE_SCORE_PLACE = 35
@@ -28,8 +30,12 @@ class OffscreenReference:
     def __init__(self):
         self.next_token = 1000
         self.records: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("records", 128, 1_000_000), ("work_per_tick", 16, 4096)])
 
     def run(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Dict[str, Any]) -> Dict[str, Any]:
         if "ops" not in request:
             raise ValueError("missing ops")
         ops = request["ops"]
@@ -50,7 +56,7 @@ class OffscreenReference:
                 results.append(res)
             elif op == "batch_resolve":
                 activities = args.get("activities", [])
-                if not isinstance(activities, list) or len(activities) > 16:
+                if not isinstance(activities, list) or len(activities) > self.limits["work_per_tick"]:
                     raise ValueError("invalid activities")
                 batch_out = []
                 for a in activities:
@@ -158,7 +164,7 @@ class OffscreenReference:
             "timeline_entry": timeline_entry,
         }
 
-        if len(self.records) >= 128:
+        if len(self.records) >= self.limits["records"]:
             oldest_key = next(iter(sorted(self.records.keys())))
             del self.records[oldest_key]
         self.records[rec_id] = record
@@ -198,18 +204,32 @@ class BeingCuriosityRef:
         }
 
 
+def bounded_list(args: Dict[str, Any], key: str, mx: int) -> List[str]:
+    """A string list of at most `mx` items, sorted and de-duplicated (None or absent: empty)."""
+    raw = args.get(key)
+    if raw is None:
+        return []
+    if not isinstance(raw, list) or len(raw) > mx:
+        raise ValueError(f"bad {key}")
+    return sorted(set(str(s) for s in raw))
+
+
 class CuriosityReference:
     def __init__(self):
         self.beings: Dict[str, BeingCuriosityRef] = {}
+        self.limits = Limits([("beings", 64, 1_000_000), ("known", 256, 65536), ("perception_items", 32, 4096)])
 
     def get_or_create(self, being: str) -> BeingCuriosityRef:
         if being not in self.beings:
-            if len(self.beings) >= 64:
+            if len(self.beings) >= self.limits["beings"]:
                 raise ValueError("max beings exceeded")
             self.beings[being] = BeingCuriosityRef(being)
         return self.beings[being]
 
     def run(self, request: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(request, self.limits, self.run_inner)
+
+    def run_inner(self, request: Dict[str, Any]) -> Dict[str, Any]:
         if "ops" not in request:
             raise ValueError("missing ops")
         ops = request["ops"]
@@ -225,34 +245,28 @@ class CuriosityReference:
                 raise ValueError("missing being")
 
             if op == "init":
-                cur = self.get_or_create(being)
                 temp = args.get("temperament")
+                if temp is not None and temp not in TEMPERAMENTS:
+                    raise ValueError(f"invalid temperament {temp}")
+                lists = {k: bounded_list(args, k, self.limits["known"]) for k in ("known_people", "known_things", "known_places", "known_facts")}
+                if being not in self.beings and len(self.beings) >= self.limits["beings"]:
+                    raise ValueError("max beings exceeded")
+                cur = BeingCuriosityRef(being)
                 if temp is not None:
-                    if temp not in TEMPERAMENTS:
-                        raise ValueError(f"invalid temperament {temp}")
                     cur.temperament = temp
-
-                for k, target in [
-                    ("known_people", cur.known_people),
-                    ("known_things", cur.known_things),
-                    ("known_places", cur.known_places),
-                    ("known_facts", cur.known_facts),
-                ]:
-                    raw = args.get(k)
-                    if raw is not None:
-                        target.clear()
-                        for s in raw:
-                            if len(target) < 256:
-                                target.add(str(s))
+                cur.known_people, cur.known_things = set(lists["known_people"]), set(lists["known_things"])
+                cur.known_places, cur.known_facts = set(lists["known_places"]), set(lists["known_facts"])
+                self.beings[being] = cur
 
                 results.append({"being": being, "ok": True})
 
             elif op == "evaluate_novelty":
                 cur = self.get_or_create(being)
-                peop = sorted(list(set(args.get("people") or [])))
-                thin = sorted(list(set(args.get("things") or [])))
-                plac = sorted(list(set(args.get("places") or [])))
-                fact = sorted(list(set(args.get("facts") or [])))
+                mx = self.limits["perception_items"]
+                peop = bounded_list(args, "people", mx)
+                thin = bounded_list(args, "things", mx)
+                plac = bounded_list(args, "places", mx)
+                fact = bounded_list(args, "facts", mx)
 
                 novel_people = [p for p in peop if p not in cur.known_people]
                 novel_things = [t for t in thin if t not in cur.known_things]
@@ -285,10 +299,11 @@ class CuriosityReference:
                 limit = 8 if limit is None else int(limit)
                 auto_mark = bool(args.get("auto_mark", False))
 
-                peop = sorted(list(set(args.get("people") or [])))
-                thin = sorted(list(set(args.get("things") or [])))
-                plac = sorted(list(set(args.get("places") or [])))
-                fact = sorted(list(set(args.get("facts") or [])))
+                mx = self.limits["perception_items"]
+                peop = bounded_list(args, "people", mx)
+                thin = bounded_list(args, "things", mx)
+                plac = bounded_list(args, "places", mx)
+                fact = bounded_list(args, "facts", mx)
 
                 novel_people = [p for p in peop if p not in cur.known_people]
                 novel_things = [t for t in thin if t not in cur.known_things]
@@ -371,16 +386,16 @@ class CuriosityReference:
 
                 if auto_mark:
                     for p in novel_people:
-                        if len(cur.known_people) < 256:
+                        if len(cur.known_people) < self.limits["known"]:
                             cur.known_people.add(p)
                     for f in novel_facts:
-                        if len(cur.known_facts) < 256:
+                        if len(cur.known_facts) < self.limits["known"]:
                             cur.known_facts.add(f)
                     for pl in novel_places:
-                        if len(cur.known_places) < 256:
+                        if len(cur.known_places) < self.limits["known"]:
                             cur.known_places.add(pl)
                     for t in novel_things:
-                        if len(cur.known_things) < 256:
+                        if len(cur.known_things) < self.limits["known"]:
                             cur.known_things.add(t)
 
                 results.append({
@@ -397,11 +412,9 @@ class CuriosityReference:
                     ("places", cur.known_places),
                     ("facts", cur.known_facts),
                 ]:
-                    raw = args.get(k)
-                    if raw is not None:
-                        for s in raw:
-                            if len(target) < 256:
-                                target.add(str(s))
+                    for s in bounded_list(args, k, self.limits["known"]):
+                        if len(target) < self.limits["known"]:
+                            target.add(s)
                 results.append({"being": cur.being, "ok": True})
 
             elif op == "assess":

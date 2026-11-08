@@ -16,6 +16,8 @@ Features:
 from typing import Any, Dict, List, Optional
 import copy
 
+from limits_reference import Limits, limited
+
 MAX_TASKS = 64
 MAX_STEPS = 16
 MAX_PLAN_DEPTH = 8
@@ -70,8 +72,12 @@ def clamp(val: int, lo: int, hi: int) -> int:
 class TaskReference:
     def __init__(self):
         self.tasks: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("tasks", MAX_TASKS, 1_000_000), ("steps", MAX_STEPS, 256), ("reserved", MAX_RESERVED_RESOURCES, 256), ("history", MAX_HISTORY_ENTRIES, 1024)])
 
     def workflow(self, args: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(args, self.limits, self.run_inner)
+
+    def run_inner(self, args: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(args, dict):
             raise ValueError("args must be an object")
         ops = args.get("ops")
@@ -125,8 +131,8 @@ class TaskReference:
         if not owner or not isinstance(owner, str) or len(owner) > 64:
             raise ValueError("invalid task owner")
 
-        if len(self.tasks) >= MAX_TASKS and tid not in self.tasks:
-            raise ValueError(f"max tasks limit reached: {MAX_TASKS}")
+        if len(self.tasks) >= self.limits["tasks"] and tid not in self.tasks:
+            raise ValueError("max tasks limit reached")
 
         priority = clamp(int(args.get("priority", 50)), 0, 100)
         on_fail = args.get("on_fail", "replan")
@@ -144,7 +150,7 @@ class TaskReference:
             deadline = max(0, int(deadline))
 
         reserved = args.get("reserved_resources", [])
-        if not isinstance(reserved, list) or len(reserved) > MAX_RESERVED_RESOURCES:
+        if not isinstance(reserved, list) or len(reserved) > self.limits["reserved"]:
             raise ValueError("invalid reserved_resources")
 
         # Either proposed steps are provided, or goal is given to deterministic planner
@@ -244,7 +250,7 @@ class TaskReference:
             "outcome": copy.deepcopy(outcome),
             "tick": tick,
         }
-        if len(task["history"]) < MAX_HISTORY_ENTRIES:
+        if len(task["history"]) < self.limits["history"]:
             task["history"].append(hist_entry)
 
         if outcome["success"]:
@@ -370,7 +376,7 @@ class TaskReference:
 
         # Keep completed steps, replace remainder
         completed_steps = [s for s in task["steps"] if s["status"] == "done"]
-        if len(completed_steps) + len(new_steps) > MAX_STEPS:
+        if len(completed_steps) + len(new_steps) > self.limits["steps"]:
             raise ValueError("replanned steps exceed max step limit")
 
         if len(new_steps) > 0:
@@ -453,8 +459,8 @@ class TaskReference:
             return {"valid": False, "reason": "steps_not_a_list", "errors": ["steps must be an array"]}
         if len(steps_raw) == 0:
             return {"valid": False, "reason": "empty_steps", "errors": ["plan cannot be empty"]}
-        if len(steps_raw) > MAX_STEPS:
-            return {"valid": False, "reason": "too_many_steps", "errors": [f"step count {len(steps_raw)} > {MAX_STEPS}"]}
+        if len(steps_raw) > self.limits["steps"]:
+            return {"valid": False, "reason": "too_many_steps", "errors": [f"step count {len(steps_raw)} > {self.limits['steps']}"]}
 
         errors = []
         cleaned_steps = []

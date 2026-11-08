@@ -1,0 +1,19 @@
+{
+  "kind": "relationship",
+  "args": {
+    "limits": {
+      "attitudes": 1
+    },
+    "ops": [
+      {
+        "op": "appraise_action",
+        "args": {
+          "actor": "trader",
+          "target": "baker",
+          "action": "gift",
+          "success": true
+        }
+      }
+    ]
+  }
+}

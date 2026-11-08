@@ -39,11 +39,19 @@ use crate::checked as c;
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub const MAX_WORK_PER_TICK: usize = 16;
 pub const MAX_OPS: usize = 64;
 pub const MAX_RECORDS: usize = 128;
+
+/// Host-set limits: resolution `records` kept (oldest id evicted first; default [`MAX_RECORDS`])
+/// and `work_per_tick` activities per `batch_resolve` (default [`MAX_WORK_PER_TICK`]).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "records", default: MAX_RECORDS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "work_per_tick", default: MAX_WORK_PER_TICK, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(OffscreenLimits, LIMITS);
 
 fn ident_bound(v: &Value) -> Result<&str> {
     let s = ident(v)?;
@@ -136,14 +144,26 @@ impl ResolutionRecord {
 pub struct OffscreenResolver {
     pub next_token: u64,
     pub records: BTreeMap<String, ResolutionRecord>,
+    /// Being → record ids, kept in step with `records` by the workflow ops so `assess` for one
+    /// being does not scan every record.
+    pub by_being: BTreeMap<String, BTreeSet<String>>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: OffscreenLimits,
 }
 
 impl OffscreenResolver {
     pub fn new() -> Self {
-        Self { next_token: 1000, records: BTreeMap::new() }
+        Self {
+            next_token: 1000,
+            records: BTreeMap::new(),
+            by_being: BTreeMap::new(),
+            limits: OffscreenLimits::default(),
+        }
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &[])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -178,6 +198,7 @@ impl OffscreenResolver {
             args.get("clear_records").filter(|x| **x != Value::Null).map(bool_bound).transpose()?.unwrap_or(false);
         if clear {
             self.records.clear();
+            self.by_being.clear();
         }
         Ok(obj! {
             "ok" => Value::Bool(true),
@@ -294,11 +315,13 @@ impl OffscreenResolver {
             life_experience: life_experience.clone(),
         };
 
-        if self.records.len() >= MAX_RECORDS {
+        if self.records.len() >= self.limits.get("records") {
             if let Some(first_key) = self.records.keys().next().cloned() {
-                self.records.remove(&first_key);
+                self.drop_record(&first_key);
             }
         }
+        self.drop_record(&rec_id);
+        self.by_being.entry(record.being.clone()).or_default().insert(rec_id.clone());
         self.records.insert(rec_id.clone(), record);
 
         Ok(obj! {
@@ -319,7 +342,7 @@ impl OffscreenResolver {
     fn op_batch_resolve(&mut self, args: &Value) -> Result<Value> {
         keys(args, &["activities"], &[])?;
         let list = c::get(args, "activities")?.as_array().ok_or_else(c::bad)?;
-        if list.len() > MAX_WORK_PER_TICK {
+        if list.len() > self.limits.get("work_per_tick") {
             return Err(c::bad());
         }
 
@@ -336,19 +359,32 @@ impl OffscreenResolver {
         })
     }
 
+    fn drop_record(&mut self, id: &str) {
+        if let Some(old) = self.records.remove(id) {
+            if let Some(ids) = self.by_being.get_mut(&old.being) {
+                ids.remove(id);
+                if ids.is_empty() {
+                    self.by_being.remove(&old.being);
+                }
+            }
+        }
+    }
+
     fn op_assess(&self, args: &Value) -> Result<Value> {
         keys(args, &[], &["being"])?;
         let filter_being = args.get("being").filter(|x| **x != Value::Null).map(ident_bound).transpose()?;
 
-        let mut matched = Vec::new();
-        for rec in self.records.values() {
-            if let Some(b) = filter_being {
-                if rec.being != b {
-                    continue;
-                }
-            }
-            matched.push(rec.to_value());
-        }
+        let matched: Vec<Value> = match filter_being {
+            Some(b) => self
+                .by_being
+                .get(b)
+                .into_iter()
+                .flatten()
+                .filter_map(|id| self.records.get(id))
+                .map(ResolutionRecord::to_value)
+                .collect(),
+            None => self.records.values().map(ResolutionRecord::to_value).collect(),
+        };
 
         Ok(obj! {
             "records" => Value::Array(matched),

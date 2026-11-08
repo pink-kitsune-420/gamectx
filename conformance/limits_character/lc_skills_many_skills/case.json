@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising skills to 40 lets a master hold 40 skills (the old bound was 32).",
+  "error": false
+}

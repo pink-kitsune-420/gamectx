@@ -37,6 +37,17 @@ pub const MAX_RESERVED_RESOURCES: usize = 16;
 pub const MAX_HISTORY_ENTRIES: usize = 32;
 pub const MAX_OPS: usize = 64;
 
+/// Host-set limits: `tasks`, `steps` per plan, `reserved` resources per task and `history`
+/// entries kept per task (defaults are the `MAX_*` constants). Plan depth, retries and replans
+/// stay fixed.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "tasks", default: MAX_TASKS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "steps", default: MAX_STEPS, ceiling: 256 },
+    crate::character::limits::Limit { name: "reserved", default: MAX_RESERVED_RESOURCES, ceiling: 256 },
+    crate::character::limits::Limit { name: "history", default: MAX_HISTORY_ENTRIES, ceiling: 1024 },
+];
+crate::character::limits::module_limits!(TaskLimits, LIMITS);
+
 pub const KNOWN_ACTIONS: [&str; 49] = [
     "activity",
     "add_member",
@@ -228,6 +239,8 @@ impl Task {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct TaskManager {
     pub tasks: BTreeMap<String, Task>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: TaskLimits,
 }
 
 impl TaskManager {
@@ -235,7 +248,9 @@ impl TaskManager {
         Self::default()
     }
 
-    pub fn workflow(&mut self, a: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, a: &Value) -> Result<Value> {
         keys(a, &["ops"], &[])?;
         let ops = c::get(a, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -293,7 +308,7 @@ impl TaskManager {
         let tid = ident_bound(c::get(args, "id")?)?.to_string();
         let owner = ident_bound(c::get(args, "owner")?)?.to_string();
 
-        if self.tasks.len() >= MAX_TASKS && !self.tasks.contains_key(&tid) {
+        if self.tasks.len() >= self.limits.get("tasks") && !self.tasks.contains_key(&tid) {
             return Err(c::bad());
         }
 
@@ -317,7 +332,7 @@ impl TaskManager {
         let mut reserved_resources = Vec::new();
         if let Some(r_val) = args.get("reserved_resources") {
             let arr = r_val.as_array().ok_or_else(c::bad)?;
-            if arr.len() > MAX_RESERVED_RESOURCES {
+            if arr.len() > self.limits.get("reserved") {
                 return Err(c::bad());
             }
             for it in arr {
@@ -332,7 +347,8 @@ impl TaskManager {
         let goal = args.get("goal");
 
         let steps = if let Some(s_val) = steps_raw {
-            let (valid, reason, errors, s_res) = Self::validate_steps(s_val, &owner, world_state);
+            let (valid, reason, errors, s_res) =
+                Self::validate_steps_within(s_val, &owner, world_state, self.limits.get("steps"));
             if !valid {
                 return Ok(obj! {
                     "accepted" => Value::Bool(false),
@@ -415,6 +431,7 @@ impl TaskManager {
     }
 
     fn op_advance(&mut self, args: &Value) -> Result<Value> {
+        let max_history = self.limits.get("history");
         keys(args, &["id", "outcome"], &["step_id", "tick"])?;
         let tid = ident_bound(c::get(args, "id")?)?;
         let outcome = c::get(args, "outcome")?;
@@ -445,7 +462,7 @@ impl TaskManager {
             outcome: outcome.clone(),
             tick,
         };
-        if task.history.len() < MAX_HISTORY_ENTRIES {
+        if task.history.len() < max_history {
             task.history.push(hist_entry);
         }
 
@@ -541,6 +558,7 @@ impl TaskManager {
     }
 
     fn op_replan(&mut self, args: &Value) -> Result<Value> {
+        let max_steps = self.limits.get("steps");
         keys(args, &["id"], &["steps", "goal", "world_state"])?;
         let tid = ident_bound(c::get(args, "id")?)?;
         let task = self.tasks.get_mut(tid).ok_or_else(c::bad)?;
@@ -563,7 +581,8 @@ impl TaskManager {
         let goal = args.get("goal");
 
         let mut new_steps = if let Some(s_val) = steps_raw {
-            let (valid, reason, errors, s_res) = Self::validate_steps(s_val, &task.owner, world_state);
+            let (valid, reason, errors, s_res) =
+                Self::validate_steps_within(s_val, &task.owner, world_state, max_steps);
             if !valid {
                 return Ok(obj! {
                     "replanned" => Value::Bool(false),
@@ -591,7 +610,7 @@ impl TaskManager {
         };
 
         let mut completed: Vec<TaskStep> = task.steps.iter().filter(|s| s.status == "done").cloned().collect();
-        if completed.len() + new_steps.len() > MAX_STEPS {
+        if completed.len() + new_steps.len() > max_steps {
             return Err(c::bad());
         }
 
@@ -700,7 +719,8 @@ impl TaskManager {
         let empty_world = Value::Object(Vec::new());
         let world_state = args.get("world_state").unwrap_or(&empty_world);
 
-        let (valid, reason, errors, _) = Self::validate_steps(steps_raw, owner, world_state);
+        let (valid, reason, errors, _) =
+            Self::validate_steps_within(steps_raw, owner, world_state, self.limits.get("steps"));
         let count = steps_raw.as_array().map(|a| a.len()).unwrap_or(0);
 
         Ok(obj! {
@@ -713,8 +733,18 @@ impl TaskManager {
 
     pub fn validate_steps(
         steps_raw: &Value,
+        owner: &str,
+        world_state: &Value,
+    ) -> (bool, String, Vec<String>, Vec<TaskStep>) {
+        Self::validate_steps_within(steps_raw, owner, world_state, MAX_STEPS)
+    }
+
+    /// [`validate_steps`](Self::validate_steps) with a host-set step limit.
+    pub fn validate_steps_within(
+        steps_raw: &Value,
         _owner: &str,
         world_state: &Value,
+        max_steps: usize,
     ) -> (bool, String, Vec<String>, Vec<TaskStep>) {
         let arr = match steps_raw.as_array() {
             Some(a) => a,
@@ -727,11 +757,11 @@ impl TaskManager {
             return (false, "empty_steps".to_string(), vec!["plan cannot be empty".to_string()], Vec::new());
         }
 
-        if arr.len() > MAX_STEPS {
+        if arr.len() > max_steps {
             return (
                 false,
                 "too_many_steps".to_string(),
-                vec![format!("step count {} > {}", arr.len(), MAX_STEPS)],
+                vec![format!("step count {} > {}", arr.len(), max_steps)],
                 Vec::new(),
             );
         }

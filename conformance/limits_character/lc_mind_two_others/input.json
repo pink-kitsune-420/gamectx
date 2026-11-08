@@ -1,0 +1,52 @@
+{
+  "kind": "mind",
+  "args": {
+    "limits": {
+      "others": 2
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "subject": "baker"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "miller",
+          "category": "knows",
+          "fact": "flour_late",
+          "status": true,
+          "source": "told",
+          "at": 3
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "carter",
+          "category": "knows",
+          "fact": "flour_late",
+          "status": true,
+          "source": "told",
+          "at": 3
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "subject": "baker",
+          "other": "guard",
+          "category": "knows",
+          "fact": "flour_late",
+          "status": true,
+          "source": "told",
+          "at": 3
+        }
+      }
+    ]
+  }
+}

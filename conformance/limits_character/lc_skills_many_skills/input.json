@@ -1,0 +1,184 @@
+{
+  "kind": "skills",
+  "args": {
+    "limits": {
+      "skills": 40
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "master",
+          "skills": [
+            {
+              "id": "craft_0",
+              "level": 5
+            },
+            {
+              "id": "craft_1",
+              "level": 5
+            },
+            {
+              "id": "craft_2",
+              "level": 5
+            },
+            {
+              "id": "craft_3",
+              "level": 5
+            },
+            {
+              "id": "craft_4",
+              "level": 5
+            },
+            {
+              "id": "craft_5",
+              "level": 5
+            },
+            {
+              "id": "craft_6",
+              "level": 5
+            },
+            {
+              "id": "craft_7",
+              "level": 5
+            },
+            {
+              "id": "craft_8",
+              "level": 5
+            },
+            {
+              "id": "craft_9",
+              "level": 5
+            },
+            {
+              "id": "craft_10",
+              "level": 5
+            },
+            {
+              "id": "craft_11",
+              "level": 5
+            },
+            {
+              "id": "craft_12",
+              "level": 5
+            },
+            {
+              "id": "craft_13",
+              "level": 5
+            },
+            {
+              "id": "craft_14",
+              "level": 5
+            },
+            {
+              "id": "craft_15",
+              "level": 5
+            },
+            {
+              "id": "craft_16",
+              "level": 5
+            },
+            {
+              "id": "craft_17",
+              "level": 5
+            },
+            {
+              "id": "craft_18",
+              "level": 5
+            },
+            {
+              "id": "craft_19",
+              "level": 5
+            },
+            {
+              "id": "craft_20",
+              "level": 5
+            },
+            {
+              "id": "craft_21",
+              "level": 5
+            },
+            {
+              "id": "craft_22",
+              "level": 5
+            },
+            {
+              "id": "craft_23",
+              "level": 5
+            },
+            {
+              "id": "craft_24",
+              "level": 5
+            },
+            {
+              "id": "craft_25",
+              "level": 5
+            },
+            {
+              "id": "craft_26",
+              "level": 5
+            },
+            {
+              "id": "craft_27",
+              "level": 5
+            },
+            {
+              "id": "craft_28",
+              "level": 5
+            },
+            {
+              "id": "craft_29",
+              "level": 5
+            },
+            {
+              "id": "craft_30",
+              "level": 5
+            },
+            {
+              "id": "craft_31",
+              "level": 5
+            },
+            {
+              "id": "craft_32",
+              "level": 5
+            },
+            {
+              "id": "craft_33",
+              "level": 5
+            },
+            {
+              "id": "craft_34",
+              "level": 5
+            },
+            {
+              "id": "craft_35",
+              "level": 5
+            },
+            {
+              "id": "craft_36",
+              "level": 5
+            },
+            {
+              "id": "craft_37",
+              "level": 5
+            },
+            {
+              "id": "craft_38",
+              "level": 5
+            },
+            {
+              "id": "craft_39",
+              "level": 5
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "master"
+        }
+      }
+    ]
+  }
+}

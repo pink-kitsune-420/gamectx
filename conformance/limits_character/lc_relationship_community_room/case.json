@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Updating an existing community pair needs no new room.",
+  "error": false
+}

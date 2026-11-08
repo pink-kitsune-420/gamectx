@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At the task limit, re-proposing an existing task replaces it.",
+  "error": false
+}

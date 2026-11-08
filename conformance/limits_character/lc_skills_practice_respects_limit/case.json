@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Practice can no longer add a skill past the per-being limit.",
+  "error": true
+}

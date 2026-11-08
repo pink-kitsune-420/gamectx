@@ -1314,7 +1314,11 @@ modules run with host-set limits; `--random 2000 --seed 7` mixes all eight modul
 random limits against `gamectx local -` (0 mismatches: 1,436 accepted, 564 refused, 1,077 with
 limits). `limits_reference.py` is the independent limits envelope.
 
-`scale_measure.rs` fills eleven modules with 1,000 and then 10,000 beings and times 1,000 single-op
+`limits_character_cases.py --cap 0` checks 25 cases (`conformance/limits_character/`, 6 malformed) for
+the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
+`gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
+
+`scale_measure.rs` fills twenty modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then

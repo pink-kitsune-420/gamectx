@@ -10,6 +10,8 @@ Pure host computation for:
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from limits_reference import Limits, limited
+
 MAX_BEINGS = 64
 MAX_OPS = 64
 MAX_ATTITUDES = 64
@@ -64,13 +66,14 @@ def quality_tier(score: int) -> str:
 class AffectReference:
     def __init__(self):
         self.beings: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("beings", MAX_BEINGS, 1_000_000), ("attitudes", MAX_ATTITUDES, 4096)])
 
     def op_init(self, args: Dict[str, Any]) -> Dict[str, Any]:
         being = args.get("being")
         if not being or not isinstance(being, str) or len(being) > 64:
             raise ValueError("invalid being id")
 
-        if len(self.beings) >= MAX_BEINGS and being not in self.beings:
+        if len(self.beings) >= self.limits["beings"] and being not in self.beings:
             raise ValueError("too many beings")
 
         temp = args.get("temperament", "calm")
@@ -98,7 +101,7 @@ class AffectReference:
 
         attitudes: Dict[str, Dict[str, Any]] = {}
         for item in args.get("attitudes", []):
-            if len(attitudes) >= MAX_ATTITUDES:
+            if len(attitudes) >= self.limits["attitudes"]:
                 raise ValueError("too many attitudes")
             aid = item.get("id")
             kind = item.get("kind")
@@ -229,7 +232,7 @@ class AffectReference:
                 att["reason"] = reason
             after = att["level"]
         else:
-            if len(state["attitudes"]) >= MAX_ATTITUDES:
+            if len(state["attitudes"]) >= self.limits["attitudes"]:
                 raise ValueError("too many attitudes")
             default_base = 0 if kind in {"emotion", "fear", "gratitude", "envy", "admiration"} else 0
             default_rate = 5 if kind == "emotion" else 4 if kind == "fear" else 3 if kind in {"admiration", "gratitude", "envy"} else 2 if kind == "resentment" else 1 if kind in {"affection", "trust"} else 0
@@ -292,6 +295,9 @@ class AffectReference:
         }
 
     def workflow(self, req: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(req, self.limits, self.run_inner)
+
+    def run_inner(self, req: Dict[str, Any]) -> Dict[str, Any]:
         ops = req.get("ops")
         if not ops or not isinstance(ops, list) or len(ops) > MAX_OPS:
             raise ValueError("invalid ops")
@@ -320,18 +326,19 @@ class AffectReference:
 class SkillsReference:
     def __init__(self):
         self.beings: Dict[str, Dict[str, Any]] = {}
+        self.limits = Limits([("beings", MAX_BEINGS, 1_000_000), ("skills", MAX_SKILLS_PER_BEING, 1024)])
 
     def op_init(self, args: Dict[str, Any]) -> Dict[str, Any]:
         being = args.get("being")
         if not being or not isinstance(being, str) or len(being) > 64:
             raise ValueError("invalid being id")
 
-        if len(self.beings) >= MAX_BEINGS and being not in self.beings:
+        if len(self.beings) >= self.limits["beings"] and being not in self.beings:
             raise ValueError("too many beings")
 
         skills = {}
         for item in args.get("skills", []):
-            if len(skills) >= MAX_SKILLS_PER_BEING:
+            if len(skills) >= self.limits["skills"]:
                 raise ValueError("too many skills")
             sid = item.get("id")
             if not sid or not isinstance(sid, str) or len(sid) > 64:
@@ -388,6 +395,8 @@ class SkillsReference:
 
         state = self.beings[being]
         if skill_id not in state["skills"]:
+            if len(state["skills"]) >= self.limits["skills"]:
+                raise ValueError("too many skills")
             label = str(args.get("label", skill_id))
             state["skills"][skill_id] = {
                 "id": skill_id,
@@ -523,6 +532,8 @@ class SkillsReference:
 
         student_being = self.beings[student]
         if skill_id not in student_being["skills"]:
+            if len(student_being["skills"]) >= self.limits["skills"]:
+                raise ValueError("too many skills")
             student_being["skills"][skill_id] = {
                 "id": skill_id,
                 "label": skill_id,
@@ -583,6 +594,9 @@ class SkillsReference:
         }
 
     def workflow(self, req: Dict[str, Any]) -> Dict[str, Any]:
+        return limited(req, self.limits, self.run_inner)
+
+    def run_inner(self, req: Dict[str, Any]) -> Dict[str, Any]:
         ops = req.get("ops")
         if not ops or not isinstance(ops, list) or len(ops) > MAX_OPS:
             raise ValueError("invalid ops")

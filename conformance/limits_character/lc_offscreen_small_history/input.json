@@ -1,0 +1,86 @@
+{
+  "kind": "offscreen",
+  "args": {
+    "limits": {
+      "records": 2
+    },
+    "ops": [
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker_0",
+          "activity": "night_baking",
+          "action": "cook",
+          "observed": false,
+          "at": 0,
+          "place": "bakery",
+          "outputs": [
+            {
+              "count": 2,
+              "item": "bread"
+            }
+          ],
+          "fatigue": 5
+        }
+      },
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker_1",
+          "activity": "night_baking",
+          "action": "cook",
+          "observed": false,
+          "at": 10,
+          "place": "bakery",
+          "outputs": [
+            {
+              "count": 2,
+              "item": "bread"
+            }
+          ],
+          "fatigue": 5
+        }
+      },
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker_2",
+          "activity": "night_baking",
+          "action": "cook",
+          "observed": false,
+          "at": 20,
+          "place": "bakery",
+          "outputs": [
+            {
+              "count": 2,
+              "item": "bread"
+            }
+          ],
+          "fatigue": 5
+        }
+      },
+      {
+        "op": "resolve_window",
+        "args": {
+          "being": "baker_3",
+          "activity": "night_baking",
+          "action": "cook",
+          "observed": false,
+          "at": 30,
+          "place": "bakery",
+          "outputs": [
+            {
+              "count": 2,
+              "item": "bread"
+            }
+          ],
+          "fatigue": 5
+        }
+      },
+      {
+        "op": "assess",
+        "args": {}
+      }
+    ]
+  }
+}

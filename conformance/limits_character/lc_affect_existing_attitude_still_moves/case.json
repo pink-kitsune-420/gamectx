@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At the attitude limit an existing attitude still changes.",
+  "error": false
+}

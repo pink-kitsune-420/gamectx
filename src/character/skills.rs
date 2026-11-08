@@ -49,6 +49,14 @@ pub const MAX_BEINGS: usize = 64;
 pub const MAX_OPS: usize = 64;
 pub const MAX_SKILLS_PER_BEING: usize = 32;
 
+/// Host-set limits: `beings` (default [`MAX_BEINGS`]) and `skills` per being (default
+/// [`MAX_SKILLS_PER_BEING`], also bounding skills added by `practice` and `teach`).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: MAX_BEINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "skills", default: MAX_SKILLS_PER_BEING, ceiling: 1024 },
+];
+crate::character::limits::module_limits!(SkillsLimits, LIMITS);
+
 fn text_bound(v: &Value, max_len: usize) -> Result<&str> {
     let s = v.as_str().ok_or_else(c::bad)?;
     if s.is_empty() || s.chars().count() > max_len {
@@ -140,26 +148,30 @@ impl BeingSkills {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct SkillsManager {
     beings: BTreeMap<String, BeingSkills>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: SkillsLimits,
 }
 
 impl SkillsManager {
     pub fn new() -> Self {
-        Self { beings: BTreeMap::new() }
+        Self::default()
     }
+
+    crate::character::limits::limited_workflow!();
 
     pub fn op_init(&mut self, args: &Value) -> Result<Value> {
         keys(args, &["being"], &["skills"])?;
         let being = ident_bound(c::get(args, "being")?)?.to_string();
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(&being) {
+        if self.beings.len() >= self.limits.get("beings") && !self.beings.contains_key(&being) {
             return Err(c::bad());
         }
 
         let mut skills = BTreeMap::new();
         if let Some(arr) = args.get("skills").and_then(Value::as_array) {
-            if arr.len() > MAX_SKILLS_PER_BEING {
+            if arr.len() > self.limits.get("skills") {
                 return Err(c::bad());
             }
             for item in arr {
@@ -207,7 +219,11 @@ impl SkillsManager {
             .transpose()?
             .unwrap_or(skill_id);
 
+        let max_skills = self.limits.get("skills");
         let state = self.beings.get_mut(being).ok_or_else(c::bad)?;
+        if !state.skills.contains_key(skill_id) && state.skills.len() >= max_skills {
+            return Err(c::bad());
+        }
 
         let rec = state
             .skills
@@ -344,7 +360,11 @@ impl SkillsManager {
         let base_rate = 15 + gap / 2;
         let raw_practice = base_rate.saturating_mul(hours);
 
+        let max_skills = self.limits.get("skills");
         let student_being = self.beings.get_mut(student).ok_or_else(c::bad)?;
+        if !student_being.skills.contains_key(skill_id) && student_being.skills.len() >= max_skills {
+            return Err(c::bad());
+        }
         let s_rec = student_being
             .skills
             .entry(skill_id.to_string())
@@ -402,7 +422,7 @@ impl SkillsManager {
         })
     }
 
-    pub fn workflow(&mut self, req: &Value) -> Result<Value> {
+    fn run_workflow(&mut self, req: &Value) -> Result<Value> {
         keys(req, &["ops"], &[])?;
         let ops = c::get(req, "ops")?.as_array().ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {

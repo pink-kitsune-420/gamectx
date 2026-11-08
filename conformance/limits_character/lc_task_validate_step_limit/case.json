@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Plan validation reports the host step limit.",
+  "error": false
+}

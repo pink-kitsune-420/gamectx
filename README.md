@@ -85,7 +85,7 @@ and [creeds and conscience](docs/characters/LIFE.md#creeds-and-conscience-pass-2
 [expectations](docs/characters/LIFE.md#expectations-and-surprise-pass-2-a3) (hopes and dreads with due times: worry, disappointment, relief and per-subject reliability)
 [attention](docs/characters/LIFE.md#attention-and-graded-noticing-pass-2-a2) (seeded, graded noticing by light, noise, distance, busyness, sleep, skill and care, with limited capacity),
 [goals from experience](docs/characters/LIFE.md#goals-from-experience-pass-2-a4), [habits](docs/characters/LIFE.md#habits-and-adapting-routines-pass-2-a5) and [lessons](docs/characters/LIFE.md#lessons-pass-2-a6) (needs, threats, admiration, losses and opportunities grow goals; repeated choices become routine; outcome patterns become revisable lessons),
-with [host-set limits](docs/characters/LIFE.md#host-set-limits) so the game decides how many characters, foods, creeds and entries it needs (measured at 10,000 characters: 0.3–4.1 µs median per query, about 11 KB of minimal state per character across these modules).
+with [host-set limits](docs/characters/LIFE.md#host-set-limits) so the game decides how many characters, foods, creeds and entries it needs (measured at 10,000 characters: 0.3–4.2 µs median per query, about 24 KB of minimal state per character across twenty character modules).
 
 Anything the authored stages don't cover falls through to a compiled [model
 request](docs/characters/ROLEPLAY_ENGINE.md#model-requests-and-replies). It carries the

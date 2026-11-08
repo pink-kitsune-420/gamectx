@@ -492,7 +492,7 @@ perceived, what it believed (source and confidence), the motive that won arbitra
 rank, reason, runner-up), the task step it served, the action and its outcome. Outcomes can be
 confirmed later with `confirm_outcome` (only from `pending`). `query_trace` returns traces
 newest first, filtered by `id` or `action`, each with an ordered `chain` and a `why` sentence.
-History is a ring of 128 traces per being across at most 64 beings. Nothing is inferred: the
+History is a ring of 128 traces per being across at most 64 beings by default (see [host-set limits](#host-set-limits)). Nothing is inferred: the
 trace only links what the host already decided. Real output from
 `conformance/explain_stability/explain_record_full_chain`:
 
@@ -676,45 +676,67 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. The pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`,
-`explain`, `stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`) take a
-`limits` object next to `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a
-`with_limits` constructor. Each limit is an integer from 1 to a hard ceiling that keeps work and
-memory bounded (beings up to 1,000,000; foods up to 65,536; per-being tables up to 256–4,096;
-per-call lists such as attention's `notice_beings` up to 4,096). Limits only refuse growth:
-lowering one below current usage keeps what exists. When supplied, the output echoes the
-effective limits. Defaults are the earlier fixed bounds, so games that never set limits see the
-same output as before. Limits are host configuration; never pass model output into them. The
-names, defaults and ceilings are in [FORMAT](../FORMAT.md#host-limits-v1); `conformance/limits/`
-shows each module past its old bound (300 foods, 33 creeds, 65 audited beings, 100 beings noticing
-one bell) and refused over its ceiling.
+The game decides how much it needs. Twenty character modules take a `limits` object next to
+`ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
+modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
+`curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`). Each limit is an
+integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
+foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
+`notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
+current usage keeps what exists. When supplied, the output echoes the effective limits. Limits
+are host configuration; never pass model output into them. The names, defaults and ceilings are
+in [FORMAT](../FORMAT.md#host-limits-v1); `conformance/limits/` and
+`conformance/limits_character/` show modules past their old bounds (300 foods, 33 creeds, 40
+skills, 20 injuries, 80 witnesses, 149 told claims, 70 sheet relations) and refused over a
+ceiling.
+
+Defaults are the earlier fixed bounds, so games that never set limits see the same output as
+before, with one exception: a few paths used to grow without any bound and now stop at the
+default. Skills learned through `practice` or `teach` stop at 32 per being; minds created by
+`record` or `infer_from_witness` stop at 64 beings, 64 modelled others and 64 beliefs per
+category; told records added by `init` stop at 128; relationship sheets stop at 64 relations per
+subject and 4,096 subjects, attitudes and community pairs. Raise the matching limit if a game
+needs more.
 
 Measured host work at large casts (`eval/character/scale_measure.rs`, retained in
 `eval/character/scale-timing.json`; one release-mode run on an 8-core desktop CPU, single thread).
-Each module was filled with N beings by one small op each, then given 1,000 single-op queries
-spread over the cast:
+Each module was filled with N entries by one small op each (a being, or a told claim, attitude,
+off-screen record or task), then given 1,000 single-op queries spread over them:
 
-| module | query median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per being |
+| module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
 | `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.4 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.6 | 0.7 / 0.8 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.6 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.6 | 1.7 / 1.9 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.2 / 3.4 | 4.1 / 5.1 | 3.4 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.3 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.9 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.1 | 0.8 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.5 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 0.9 | 1.1 / 1.5 | 2.4 | 1,335 |
+| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.4 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.5 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.7 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.2 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.8 / 0.8 | 1.0 / 1.4 | 2.5 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.5 / 2.2 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.1 / 1.5 | 1.9 / 2.9 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 2.7 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.7 / 4.8 | 5.3 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.8 | 590 |
+| `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.8 | 3.8 | 1,417 |
 
-Going from 1,000 to 10,000 beings raises query time by at most about 1.5× (lookups are ordered
-maps). Memory is linear: these minimal beings (one belief, trace, expectation and so on each) take
-109 MB across all eleven modules at 10,000 beings, about 11 KB per being; richer beings use more.
-The measurement found one query that scanned the whole cast: speech-act `assess` took 75 µs at
-10,000 pairs before a listener index was added (now 0.7 µs, output unchanged). Limits: JSON
-parsing, the `gamectx local` CLI, cross-module wiring and model calls are excluded; one desktop
-run with uncontrolled scheduling, not a realtime guarantee.
+Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
+maps). Memory is linear: these minimal entries take 239 MB across all twenty modules at 10,000
+each, about 24 KB per character if every module holds one entry for it; richer characters use
+more. The measurement found four queries that scanned everything and now use an index or an
+ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
+relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
+`check_consistency` (66 µs). Limits: JSON parsing, the `gamectx local` CLI, cross-module wiring
+and model calls are excluded; one desktop run with uncontrolled scheduling, not a realtime
+guarantee. Listing ops without a filter (`assess` on the whole deception ledger or off-screen
+history, task `list`) still return, and so walk, every entry.
 
 ## Goals from experience (pass 2, A4)
 

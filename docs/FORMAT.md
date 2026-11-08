@@ -2524,7 +2524,7 @@ Task schema:
 - `owner`: str (ident $\le 64$).
 - `assigned_by`, `for`: optional str.
 - `motive_ref`: optional motive object or identifier.
-- `steps`: array of `1..16` step objects:
+- `steps`: array of `1..16` step objects (16 is the default [host limit](#host-limits-v1) `steps`):
   - `id`: str.
   - `action`: str (must match one of 49 verbs in the Action Catalog).
   - `target_bindings`: map of required target slots to entity identifiers.
@@ -2536,11 +2536,11 @@ Task schema:
 - `progress`: current step index (0..steps.len()).
 - `deadline`: optional host tick.
 - `priority`: 0..=100.
-- `reserved_resources`: list of strings ($\le 16$).
+- `reserved_resources`: list of strings ($\le 16$ by default, limit `reserved`).
 - `on_fail`, `on_block`: bounded recovery policy (`replan` | `retry` | `ask_help` | `suspend` | `abandon`).
 - `replan_count`: u64 ($\le 3$).
 - `retry_count`: u64 ($\le 3$).
-- `history`: array of confirmed step outcome records ($\le 32$).
+- `history`: array of confirmed step outcome records ($\le 32$ by default, limit `history`).
 
 Ops:
 - `propose {id, owner, priority?, deadline?, reserved_resources?, on_fail?, on_block?, steps? | goal?, world_state?}` → `{accepted: bool, task_id: str, task?: Task, reason?: str, errors?: [...]}`.
@@ -2617,7 +2617,7 @@ Optional fields given as `null` count as absent. 25 additive cases (shared with 
   `beliefs` are `{about ident, fact 1–160, source seen|told|inferred|authored, confidence? 0–100 (100)}`;
   `motive` is `{id, kind (an arbiter kind), score 0–100, reason 1–200, rank? 1–64 (1), runner_up? {id, score}}`;
   `task` is `{id, step ident, index 0–63}`; `outcome` is `{status pending|success|failure|interrupted, summary? 1–200}`
-  (default `pending`). At most 128 traces per being (oldest evicted) and 64 beings.
+  (default `pending`). By default at most 128 traces per being (oldest evicted) and 64 beings ([host limits](#host-limits-v1)).
 - `confirm_outcome {being, id, status success|failure|interrupted, summary?}` → `{being, id, ok, status}`;
   refused unless the trace exists and is still `pending`.
 - `query_trace {being, id?, action?, limit? 1–128 (8)}` → `{being, count, total, traces}`, newest first;
@@ -2668,7 +2668,7 @@ A belief is a triple `about relation value` (identifiers, key `about:relation:va
 `from` (teller or `null`) and `at`. Views are `{about, at, confidence, from, holds, key, relation, source, value}`.
 Merge: no belief → `new`; same `holds` → `reinforced` (max confidence, stronger source and its `from`,
 latest `at`); different `holds` → `revised` (replaced) when the new source ranks ≥ the old, else `kept`.
-At 128 beliefs per being the lowest (confidence, at, triple) is evicted; at most 64 beings.
+At 128 beliefs per being (default) the lowest (confidence, at, triple) is evicted; at most 64 beings by default ([host limits](#host-limits-v1)).
 
 - `init {being, beliefs? ≤64 [{about, relation, value, holds?, source? (authored), confidence?}]}` → `{being, count}`;
   replaces that being's beliefs.
@@ -2734,7 +2734,7 @@ preserved? (false), at? 0–10¹² (0), made_at? ≤ at (at)}`.
   `river_trout`, `hearty_stew`, `bramble_berries`, `honey_cake`, `barley_ale`, `spring_water`,
   `roasted_nuts`, `salt_lick`).
 - `set_diet {being, diet? species diet (omnivore), forbids? tags, allergies? ≤8 tags or food ids, likes? tags,
-  dislikes? tags}` → the `assess` view; likes and dislikes may not overlap; keeps meal history; 64 beings.
+  dislikes? tags}` → the `assess` view; likes and dislikes may not overlap; keeps meal history; 64 beings by default ([host limits](#host-limits-v1)).
 - `evaluate {being, …serving}` → `{being, edible, food, freshness, hunger, joy, refusals, repeats, sickness,
   thirst}`. A being without a profile is an omnivore with no preferences.
   - Freshness by age `at − made_at` against the shelf life (preserved or not): `fresh` while `2·age < shelf`
@@ -2815,7 +2815,7 @@ the first `window` ticks.
 `expectation` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 13
 cases (3 malformed, prefix `exp_`) live in `conformance/expect_attend/`.
 
-At most 64 beings, 32 expectations and 64 reliability subjects per being. Surprise = `importance·confidence/100`.
+By default at most 64 beings, 32 expectations and 64 reliability subjects per being ([host limits](#host-limits-v1)). Surprise = `importance·confidence/100`.
 Effects are `{engine: "affect", op: "set_mood", args: {being, reason: "expected <label>", valence_delta}}` and,
 for relied-on subjects, `{engine: "affect", op: "appraise", args: {being, delta, kind: "resentment", reason,
 subject: about}}`.
@@ -2846,7 +2846,7 @@ subject: about}}`.
 `attention` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 12
 cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
 
-**Profile** `{alertness 0–100 (50), perception 0–100 (0), cares ≤16 ids, capacity 1–16 (3)}`; at most 64.
+**Profile** `{alertness 0–100 (50), perception 0–100 (0), cares ≤16 ids, capacity 1–16 (3)}`; at most 64 by default ([host limits](#host-limits-v1)).
 
 - `profile {being, alertness?, perception?, cares?, capacity?}` → `{alertness, being, capacity, cares (sorted),
   perception}`; replaces the profile.
@@ -2873,7 +2873,13 @@ cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
 output is unchanged. `limits: null` is accepted and echoes the current limits. Limits persist on a manager across
 workflows (`with_limits` sets them up front) and only refuse growth: existing entries beyond a lowered limit stay.
 Defaults equal the earlier fixed bounds, so outputs without `limits` are byte-identical to before. 25 cases (6
-malformed) live in `conformance/limits/`.
+malformed) live in `conformance/limits/` (pass 2 modules) and 25 (6 malformed) in `conformance/limits_character/`
+(pass 1 modules).
+
+Paths that previously grew without a bound now respect a limit: skills added by `practice` and `teach`; minds,
+modelled others and beliefs added by pre-declared `beings`, `record` and `infer_from_witness`; told records added
+by pre-declared `records` and `init`; and every relationship table. With the defaults below, a workflow that
+grows past them is refused where it used to be accepted.
 
 | kind | limit (default, ceiling) |
 |---|---|
@@ -2885,6 +2891,15 @@ malformed) live in `conformance/limits/`.
 | `stability` | `tracked_beings` (256, 10⁶), `audit_beings` per turn (64, 4096), `warnings` (256, 65536) |
 | `expectation` | `beings` (64, 10⁶), `expectations` per being (32, 1024), `subjects` per being (64, 4096) |
 | `attention` | `profiles` (64, 10⁶), `notice_beings` per call (64, 4096), `notice_events` per call (16, 256) |
+| `affect` | `beings` (64, 10⁶), `attitudes` per being (64, 4096) |
+| `skills` | `beings` (64, 10⁶), `skills` per being (32, 1024; also bounds `practice` and `teach`) |
+| `body` | `beings` (64, 10⁶, including bodies created on demand), `needs`, `injuries` and `conditions` per being (16, 256 each) |
+| `mind` | `beings` (64, 10⁶), `others` modelled per being (64, 4096), `beliefs` per other and category (64, 4096), `witnesses` per `infer_from_witness` (64, 4096) |
+| `deception` | `records` (128, 10⁶) |
+| `relationship` | sheet `subjects` (4096, 10⁶), `relations` per subject (64, 4096), `attitudes` (4096, 10⁶), `community_pairs` (4096, 10⁶) |
+| `offscreen` | `records` kept (128, 10⁶; lowest id evicted), `work_per_tick` per `batch_resolve` (16, 4096) |
+| `curiosity` | `beings` (64, 10⁶), `known` per being and category (256, 65536), `perception_items` per list (32, 4096) |
+| `task` | `tasks` (64, 10⁶), `steps` per plan (16, 256; validation reports `step count n > limit`), `reserved` per task (16, 256), `history` per task (32, 1024); plan depth 8, retries 3 and replans 3 stay fixed |
 | `aspiration` | `beings` (1024, 10⁶), `pressures` per being (64, 4096), `goals` per being (16, 256) |
 | `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |

@@ -1,0 +1,40 @@
+{
+  "kind": "skills",
+  "args": {
+    "limits": {
+      "skills": 1
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "smith",
+          "skills": [
+            {
+              "id": "forging",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "op": "practice",
+        "args": {
+          "being": "smith",
+          "skill": "forging",
+          "practice": 30,
+          "success": true
+        }
+      },
+      {
+        "op": "practice",
+        "args": {
+          "being": "smith",
+          "skill": "riding",
+          "practice": 30,
+          "success": true
+        }
+      }
+    ]
+  }
+}

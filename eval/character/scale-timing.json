@@ -13,7 +13,16 @@
     "src/character/aspiration.rs": "912849cdf22773579577210edad73ba29402debe662ad1a02d3925935034eaf3",
     "src/character/habit.rs": "e3ff517d49cf5210e0fed45ccc567ea7ba5735f86ca4cb368b903ced10b4e76d",
     "src/character/lesson.rs": "d24cffee5999e54eb2a9b9cb6540125453157672d28aacdc5a764d88702541ee",
-    "eval/character/scale_measure.rs": "86b370d8ef6bc2814724a835e646b0f0bd9048d924446005f1a267352d4ba815"
+    "src/character/affect.rs": "f7e049bf8c30a944c848f49bc4c402b7f27d388decdf14424df35b3bc0cb5881",
+    "src/character/skills.rs": "369e0b91f7f256d8e3a2f4b041dcc620da7d80fbfb0d88ed7b33dd8d8a4331d1",
+    "src/character/body.rs": "855e2d49012469035cce7e6fd2d51f4b7aa9d7f7d4e9fb2a31eb011554cd3e7b",
+    "src/character/mind.rs": "c07719f9c0cbbf0482ae18cb4c8543f5bac7b7195da08ad0298e4761c837b476",
+    "src/character/deception.rs": "0062c71c5a6dc20a2dfd6968e0126c08d617a08d4d84cccb9fd078a4be1dba0d",
+    "src/character/relationship.rs": "462ccb41fdf7cfc43309d10d7338ff1ba7a556ea8bce5a9c029b43d9aa8e1096",
+    "src/character/offscreen.rs": "448a60503afd96c5b060d6f543e7c75a2f1828623b2999474cb648b5062f5d63",
+    "src/character/curiosity.rs": "8efe333ae0ef49d7a1a66fb091481f0b9fcbbcf61b55728c9c3bbc0ca6d9c54b",
+    "src/character/task.rs": "ae1be12da088691605abf1d2fcff8da0b825ad2f5b3754deea01ac3ce0500979",
+    "eval/character/scale_measure.rs": "7873573c553588f6b0e2bb43e417cb04089bed0522486d7a0f0ee88ff4633ef9"
   },
   "hardware": {
     "cpu": "AMD Ryzen 7 3800X 8-Core Processor",
@@ -27,222 +36,402 @@
       {
         "beings": 1000,
         "module": "beliefs",
-        "fill_ns_per_op": 4068,
+        "fill_ns_per_op": 4178,
         "state_bytes": 2520322,
         "state_bytes_per_being": 2520,
-        "query_median_ns": 1430,
-        "query_p95_ns": 1540,
-        "query_max_ns": 15380
+        "query_median_ns": 1440,
+        "query_p95_ns": 1530,
+        "query_max_ns": 16321
       },
       {
         "beings": 1000,
         "module": "speech_act",
-        "fill_ns_per_op": 1108,
+        "fill_ns_per_op": 1071,
         "state_bytes": 172553,
         "state_bytes_per_being": 172,
-        "query_median_ns": 420,
-        "query_p95_ns": 550,
-        "query_max_ns": 1650
+        "query_median_ns": 390,
+        "query_p95_ns": 490,
+        "query_max_ns": 1730
       },
       {
         "beings": 1000,
         "module": "diet",
-        "fill_ns_per_op": 1637,
+        "fill_ns_per_op": 1650,
         "state_bytes": 613202,
         "state_bytes_per_being": 613,
-        "query_median_ns": 1810,
-        "query_p95_ns": 1930,
-        "query_max_ns": 6360
+        "query_median_ns": 1830,
+        "query_p95_ns": 1950,
+        "query_max_ns": 12131
       },
       {
         "beings": 1000,
         "module": "creed",
-        "fill_ns_per_op": 940,
+        "fill_ns_per_op": 965,
         "state_bytes": 294282,
         "state_bytes_per_being": 294,
-        "query_median_ns": 1570,
-        "query_p95_ns": 1630,
-        "query_max_ns": 7470
+        "query_median_ns": 1600,
+        "query_p95_ns": 1670,
+        "query_max_ns": 7540
       },
       {
         "beings": 1000,
         "module": "explain",
-        "fill_ns_per_op": 2820,
+        "fill_ns_per_op": 2734,
         "state_bytes": 2280745,
         "state_bytes_per_being": 2280,
-        "query_median_ns": 3240,
-        "query_p95_ns": 3381,
-        "query_max_ns": 27980
+        "query_median_ns": 3320,
+        "query_p95_ns": 3401,
+        "query_max_ns": 11720
       },
       {
         "beings": 1000,
         "module": "stability",
-        "fill_ns_per_op": 1364,
+        "fill_ns_per_op": 1408,
         "state_bytes": 273882,
         "state_bytes_per_being": 273,
         "query_median_ns": 300,
-        "query_p95_ns": 320,
-        "query_max_ns": 1900
+        "query_p95_ns": 340,
+        "query_max_ns": 4160
       },
       {
         "beings": 1000,
         "module": "expectation",
-        "fill_ns_per_op": 1673,
+        "fill_ns_per_op": 1587,
         "state_bytes": 1855242,
         "state_bytes_per_being": 1855,
-        "query_median_ns": 950,
-        "query_p95_ns": 1010,
-        "query_max_ns": 4760
+        "query_median_ns": 920,
+        "query_p95_ns": 1000,
+        "query_max_ns": 5400
       },
       {
         "beings": 1000,
         "module": "attention",
-        "fill_ns_per_op": 773,
+        "fill_ns_per_op": 804,
         "state_bytes": 131242,
         "state_bytes_per_being": 131,
-        "query_median_ns": 1750,
-        "query_p95_ns": 1870,
-        "query_max_ns": 7840
+        "query_median_ns": 1800,
+        "query_p95_ns": 1940,
+        "query_max_ns": 7940
       },
       {
         "beings": 1000,
         "module": "aspiration",
-        "fill_ns_per_op": 2275,
+        "fill_ns_per_op": 2323,
         "state_bytes": 684242,
         "state_bytes_per_being": 684,
-        "query_median_ns": 710,
-        "query_p95_ns": 760,
-        "query_max_ns": 4070
+        "query_median_ns": 750,
+        "query_p95_ns": 820,
+        "query_max_ns": 5310
       },
       {
         "beings": 1000,
         "module": "habit",
-        "fill_ns_per_op": 1583,
+        "fill_ns_per_op": 1623,
         "state_bytes": 771242,
         "state_bytes_per_being": 771,
-        "query_median_ns": 710,
-        "query_p95_ns": 780,
-        "query_max_ns": 4640
+        "query_median_ns": 740,
+        "query_p95_ns": 800,
+        "query_max_ns": 2430
       },
       {
         "beings": 1000,
         "module": "lesson",
-        "fill_ns_per_op": 3197,
+        "fill_ns_per_op": 2170,
         "state_bytes": 1334322,
         "state_bytes_per_being": 1334,
-        "query_median_ns": 750,
+        "query_median_ns": 770,
+        "query_p95_ns": 840,
+        "query_max_ns": 4600
+      },
+      {
+        "beings": 1000,
+        "module": "affect",
+        "fill_ns_per_op": 2368,
+        "state_bytes": 1880252,
+        "state_bytes_per_being": 1880,
+        "query_median_ns": 1130,
+        "query_p95_ns": 1230,
+        "query_max_ns": 5320
+      },
+      {
+        "beings": 1000,
+        "module": "skills",
+        "fill_ns_per_op": 1499,
+        "state_bytes": 1313132,
+        "state_bytes_per_being": 1313,
+        "query_median_ns": 990,
+        "query_p95_ns": 1060,
+        "query_max_ns": 6560
+      },
+      {
+        "beings": 1000,
+        "module": "body",
+        "fill_ns_per_op": 850,
+        "state_bytes": 1598252,
+        "state_bytes_per_being": 1598,
+        "query_median_ns": 1000,
+        "query_p95_ns": 1100,
+        "query_max_ns": 4310
+      },
+      {
+        "beings": 1000,
+        "module": "mind",
+        "fill_ns_per_op": 1488,
+        "state_bytes": 2579132,
+        "state_bytes_per_being": 2579,
+        "query_median_ns": 800,
         "query_p95_ns": 890,
-        "query_max_ns": 6800
+        "query_max_ns": 5290
+      },
+      {
+        "beings": 1000,
+        "module": "deception",
+        "fill_ns_per_op": 1862,
+        "state_bytes": 879954,
+        "state_bytes_per_being": 879,
+        "query_median_ns": 1050,
+        "query_p95_ns": 1490,
+        "query_max_ns": 14441
+      },
+      {
+        "beings": 1000,
+        "module": "relationship",
+        "fill_ns_per_op": 2511,
+        "state_bytes": 346628,
+        "state_bytes_per_being": 346,
+        "query_median_ns": 960,
+        "query_p95_ns": 1050,
+        "query_max_ns": 5150
+      },
+      {
+        "beings": 1000,
+        "module": "offscreen",
+        "fill_ns_per_op": 5062,
+        "state_bytes": 2367696,
+        "state_bytes_per_being": 2367,
+        "query_median_ns": 2070,
+        "query_p95_ns": 2200,
+        "query_max_ns": 7080
+      },
+      {
+        "beings": 1000,
+        "module": "curiosity",
+        "fill_ns_per_op": 661,
+        "state_bytes": 588812,
+        "state_bytes_per_being": 588,
+        "query_median_ns": 1080,
+        "query_p95_ns": 1190,
+        "query_max_ns": 4451
+      },
+      {
+        "beings": 1000,
+        "module": "task",
+        "fill_ns_per_op": 3537,
+        "state_bytes": 1415702,
+        "state_bytes_per_being": 1415,
+        "query_median_ns": 1490,
+        "query_p95_ns": 1560,
+        "query_max_ns": 6350
       },
       {
         "beings": 10000,
         "module": "beliefs",
-        "fill_ns_per_op": 4356,
+        "fill_ns_per_op": 4364,
         "state_bytes": 25211642,
         "state_bytes_per_being": 2521,
-        "query_median_ns": 2001,
-        "query_p95_ns": 2650,
-        "query_max_ns": 7470
+        "query_median_ns": 2010,
+        "query_p95_ns": 2630,
+        "query_max_ns": 18680
       },
       {
         "beings": 10000,
         "module": "speech_act",
-        "fill_ns_per_op": 1236,
+        "fill_ns_per_op": 1194,
         "state_bytes": 1737609,
         "state_bytes_per_being": 173,
-        "query_median_ns": 700,
-        "query_p95_ns": 770,
-        "query_max_ns": 6160
+        "query_median_ns": 390,
+        "query_p95_ns": 420,
+        "query_max_ns": 2520
       },
       {
         "beings": 10000,
         "module": "diet",
-        "fill_ns_per_op": 1784,
+        "fill_ns_per_op": 1783,
         "state_bytes": 6137450,
         "state_bytes_per_being": 613,
-        "query_median_ns": 2120,
-        "query_p95_ns": 2640,
-        "query_max_ns": 7301
+        "query_median_ns": 2060,
+        "query_p95_ns": 2480,
+        "query_max_ns": 8460
       },
       {
         "beings": 10000,
         "module": "creed",
-        "fill_ns_per_op": 1013,
+        "fill_ns_per_op": 1031,
         "state_bytes": 2948778,
         "state_bytes_per_being": 294,
         "query_median_ns": 1680,
-        "query_p95_ns": 1910,
-        "query_max_ns": 8610
+        "query_p95_ns": 1870,
+        "query_max_ns": 9800
       },
       {
         "beings": 10000,
         "module": "explain",
-        "fill_ns_per_op": 3373,
+        "fill_ns_per_op": 3272,
         "state_bytes": 22835650,
         "state_bytes_per_being": 2283,
-        "query_median_ns": 4120,
-        "query_p95_ns": 5070,
-        "query_max_ns": 17170
+        "query_median_ns": 4200,
+        "query_p95_ns": 5090,
+        "query_max_ns": 18210
       },
       {
         "beings": 10000,
         "module": "stability",
-        "fill_ns_per_op": 1472,
+        "fill_ns_per_op": 1503,
         "state_bytes": 2746538,
         "state_bytes_per_being": 274,
-        "query_median_ns": 310,
-        "query_p95_ns": 330,
-        "query_max_ns": 4870
+        "query_median_ns": 340,
+        "query_p95_ns": 400,
+        "query_max_ns": 3050
       },
       {
         "beings": 10000,
         "module": "expectation",
-        "fill_ns_per_op": 1903,
+        "fill_ns_per_op": 1813,
         "state_bytes": 18560314,
         "state_bytes_per_being": 1856,
-        "query_median_ns": 1510,
-        "query_p95_ns": 2110,
-        "query_max_ns": 6920
+        "query_median_ns": 1470,
+        "query_p95_ns": 2050,
+        "query_max_ns": 7001
       },
       {
         "beings": 10000,
         "module": "attention",
-        "fill_ns_per_op": 846,
+        "fill_ns_per_op": 906,
         "state_bytes": 1320314,
         "state_bytes_per_being": 132,
-        "query_median_ns": 1870,
-        "query_p95_ns": 2150,
-        "query_max_ns": 10140
+        "query_median_ns": 1920,
+        "query_p95_ns": 2250,
+        "query_max_ns": 14550
       },
       {
         "beings": 10000,
         "module": "aspiration",
-        "fill_ns_per_op": 2406,
+        "fill_ns_per_op": 2474,
         "state_bytes": 6850314,
         "state_bytes_per_being": 685,
-        "query_median_ns": 1040,
-        "query_p95_ns": 1450,
-        "query_max_ns": 6580
+        "query_median_ns": 1000,
+        "query_p95_ns": 1400,
+        "query_max_ns": 5100
       },
       {
         "beings": 10000,
         "module": "habit",
-        "fill_ns_per_op": 1709,
+        "fill_ns_per_op": 1721,
         "state_bytes": 7720314,
         "state_bytes_per_being": 772,
-        "query_median_ns": 1030,
-        "query_p95_ns": 1500,
-        "query_max_ns": 6670
+        "query_median_ns": 990,
+        "query_p95_ns": 1380,
+        "query_max_ns": 5460
       },
       {
         "beings": 10000,
         "module": "lesson",
-        "fill_ns_per_op": 2394,
+        "fill_ns_per_op": 2344,
         "state_bytes": 13351642,
         "state_bytes_per_being": 1335,
-        "query_median_ns": 1090,
-        "query_p95_ns": 1540,
-        "query_max_ns": 5390
+        "query_median_ns": 1070,
+        "query_p95_ns": 1501,
+        "query_max_ns": 6150
+      },
+      {
+        "beings": 10000,
+        "module": "affect",
+        "fill_ns_per_op": 2622,
+        "state_bytes": 18818996,
+        "state_bytes_per_being": 1881,
+        "query_median_ns": 1680,
+        "query_p95_ns": 2230,
+        "query_max_ns": 6750
+      },
+      {
+        "beings": 10000,
+        "module": "skills",
+        "fill_ns_per_op": 1756,
+        "state_bytes": 13149204,
+        "state_bytes_per_being": 1314,
+        "query_median_ns": 1490,
+        "query_p95_ns": 2040,
+        "query_max_ns": 6370
+      },
+      {
+        "beings": 10000,
+        "module": "body",
+        "fill_ns_per_op": 1099,
+        "state_bytes": 15998996,
+        "state_bytes_per_being": 1599,
+        "query_median_ns": 1570,
+        "query_p95_ns": 2200,
+        "query_max_ns": 6840
+      },
+      {
+        "beings": 10000,
+        "module": "mind",
+        "fill_ns_per_op": 1756,
+        "state_bytes": 25809204,
+        "state_bytes_per_being": 2580,
+        "query_median_ns": 1510,
+        "query_p95_ns": 2220,
+        "query_max_ns": 8140
+      },
+      {
+        "beings": 10000,
+        "module": "deception",
+        "fill_ns_per_op": 2143,
+        "state_bytes": 8841778,
+        "state_bytes_per_being": 884,
+        "query_median_ns": 1890,
+        "query_p95_ns": 2890,
+        "query_max_ns": 12380
+      },
+      {
+        "beings": 10000,
+        "module": "relationship",
+        "fill_ns_per_op": 2742,
+        "state_bytes": 3496180,
+        "state_bytes_per_being": 349,
+        "query_median_ns": 1470,
+        "query_p95_ns": 2080,
+        "query_max_ns": 8100
+      },
+      {
+        "beings": 10000,
+        "module": "offscreen",
+        "fill_ns_per_op": 5278,
+        "state_bytes": 23701418,
+        "state_bytes_per_being": 2370,
+        "query_median_ns": 3740,
+        "query_p95_ns": 4810,
+        "query_max_ns": 11670
+      },
+      {
+        "beings": 10000,
+        "module": "curiosity",
+        "fill_ns_per_op": 754,
+        "state_bytes": 5903892,
+        "state_bytes_per_being": 590,
+        "query_median_ns": 1380,
+        "query_p95_ns": 1830,
+        "query_max_ns": 6771
+      },
+      {
+        "beings": 10000,
+        "module": "task",
+        "fill_ns_per_op": 3783,
+        "state_bytes": 14178382,
+        "state_bytes_per_being": 1417,
+        "query_median_ns": 2240,
+        "query_p95_ns": 2810,
+        "query_max_ns": 7641
       }
     ],
     "queries_per_row": 1000,

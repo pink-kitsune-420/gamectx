@@ -49,6 +49,16 @@ pub const MAX_OPS: usize = 64;
 pub const MAX_ITEMS_PER_PERCEPTION: usize = 32;
 pub const MAX_KNOWN_ENTITIES: usize = 256;
 
+/// Host-set limits: `beings`, `known` entries per being and category (people, things, places,
+/// facts; default [`MAX_KNOWN_ENTITIES`]) and `perception_items` per list in one call (default
+/// [`MAX_ITEMS_PER_PERCEPTION`]).
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "beings", default: MAX_BEINGS, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "known", default: MAX_KNOWN_ENTITIES, ceiling: 65536 },
+    crate::character::limits::Limit { name: "perception_items", default: MAX_ITEMS_PER_PERCEPTION, ceiling: 4096 },
+];
+crate::character::limits::module_limits!(CuriosityLimits, LIMITS);
+
 pub const TEMPERAMENTS: [&str; 4] = ["curious", "cautious", "apathetic", "calm"];
 
 pub const BASE_SCORE_PERSON: i64 = 40;
@@ -162,6 +172,8 @@ impl BeingCuriosity {
 #[derive(Clone, Debug, Default)]
 pub struct CuriosityManager {
     pub beings: BTreeMap<String, BeingCuriosity>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: CuriosityLimits,
 }
 
 impl CuriosityManager {
@@ -170,13 +182,15 @@ impl CuriosityManager {
     }
 
     pub fn being_mut(&mut self, being: &str) -> Result<&mut BeingCuriosity> {
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(being) {
+        if self.beings.len() >= self.limits.get("beings") && !self.beings.contains_key(being) {
             return Err(c::bad());
         }
         Ok(self.beings.entry(being.to_string()).or_insert_with(|| BeingCuriosity::new(being)))
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    crate::character::limits::limited_workflow!();
+
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &[])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -207,6 +221,7 @@ impl CuriosityManager {
     }
 
     fn op_init(&mut self, args: &Value) -> Result<Value> {
+        let max_known = self.limits.get("known");
         keys(args, &["being"], &["temperament", "known_people", "known_things", "known_places", "known_facts"])?;
         let being = ident_bound(c::get(args, "being")?)?;
         let temperament = args
@@ -222,29 +237,29 @@ impl CuriosityManager {
         let known_people = args
             .get("known_people")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
+            .map(|v| parse_string_list(v, max_known))
             .transpose()?
             .unwrap_or_default();
         let known_things = args
             .get("known_things")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
+            .map(|v| parse_string_list(v, max_known))
             .transpose()?
             .unwrap_or_default();
         let known_places = args
             .get("known_places")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
+            .map(|v| parse_string_list(v, max_known))
             .transpose()?
             .unwrap_or_default();
         let known_facts = args
             .get("known_facts")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
+            .map(|v| parse_string_list(v, max_known))
             .transpose()?
             .unwrap_or_default();
 
-        if self.beings.len() >= MAX_BEINGS && !self.beings.contains_key(being) {
+        if self.beings.len() >= self.limits.get("beings") && !self.beings.contains_key(being) {
             return Err(c::bad());
         }
 
@@ -265,6 +280,7 @@ impl CuriosityManager {
     }
 
     fn op_evaluate_novelty(&mut self, args: &Value) -> Result<Value> {
+        let max_items = self.limits.get("perception_items");
         keys(args, &["being"], &["people", "things", "places", "facts"])?;
         let being = ident_bound(c::get(args, "being")?)?;
         let cur = self.being_mut(being)?;
@@ -272,25 +288,25 @@ impl CuriosityManager {
         let people = args
             .get("people")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let things = args
             .get("things")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let places = args
             .get("places")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let facts = args
             .get("facts")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
 
@@ -325,6 +341,8 @@ impl CuriosityManager {
     }
 
     fn op_generate_candidates(&mut self, args: &Value) -> Result<Value> {
+        let max_known = self.limits.get("known");
+        let max_items = self.limits.get("perception_items");
         keys(args, &["being"], &["people", "things", "places", "facts", "limit", "auto_mark"])?;
         let being = ident_bound(c::get(args, "being")?)?;
         let limit =
@@ -338,25 +356,25 @@ impl CuriosityManager {
         let people = args
             .get("people")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let things = args
             .get("things")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let places = args
             .get("places")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
         let facts = args
             .get("facts")
             .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_ITEMS_PER_PERCEPTION))
+            .map(|v| parse_string_list(v, max_items))
             .transpose()?
             .unwrap_or_default();
 
@@ -449,22 +467,22 @@ impl CuriosityManager {
 
         if auto_mark {
             for p in &novel_people {
-                if cur.known_people.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_people.len() < max_known {
                     cur.known_people.insert(p.clone());
                 }
             }
             for f in &novel_facts {
-                if cur.known_facts.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_facts.len() < max_known {
                     cur.known_facts.insert(f.clone());
                 }
             }
             for pl in &novel_places {
-                if cur.known_places.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_places.len() < max_known {
                     cur.known_places.insert(pl.clone());
                 }
             }
             for t in &novel_things {
-                if cur.known_things.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_things.len() < max_known {
                     cur.known_things.insert(t.clone());
                 }
             }
@@ -478,57 +496,46 @@ impl CuriosityManager {
     }
 
     fn op_mark_familiar(&mut self, args: &Value) -> Result<Value> {
+        let max_known = self.limits.get("known");
         keys(args, &["being"], &["people", "things", "places", "facts"])?;
         let being = ident_bound(c::get(args, "being")?)?;
         let cur = self.being_mut(being)?;
 
-        if let Some(list) = args
-            .get("people")
-            .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
-            .transpose()?
+        if let Some(list) =
+            args.get("people").filter(|x| **x != Value::Null).map(|v| parse_string_list(v, max_known)).transpose()?
         {
             for p in list {
-                if cur.known_people.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_people.len() < max_known {
                     cur.known_people.insert(p);
                 }
             }
         }
 
-        if let Some(list) = args
-            .get("things")
-            .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
-            .transpose()?
+        if let Some(list) =
+            args.get("things").filter(|x| **x != Value::Null).map(|v| parse_string_list(v, max_known)).transpose()?
         {
             for t in list {
-                if cur.known_things.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_things.len() < max_known {
                     cur.known_things.insert(t);
                 }
             }
         }
 
-        if let Some(list) = args
-            .get("places")
-            .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
-            .transpose()?
+        if let Some(list) =
+            args.get("places").filter(|x| **x != Value::Null).map(|v| parse_string_list(v, max_known)).transpose()?
         {
             for pl in list {
-                if cur.known_places.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_places.len() < max_known {
                     cur.known_places.insert(pl);
                 }
             }
         }
 
-        if let Some(list) = args
-            .get("facts")
-            .filter(|x| **x != Value::Null)
-            .map(|v| parse_string_list(v, MAX_KNOWN_ENTITIES))
-            .transpose()?
+        if let Some(list) =
+            args.get("facts").filter(|x| **x != Value::Null).map(|v| parse_string_list(v, max_known)).transpose()?
         {
             for f in list {
-                if cur.known_facts.len() < MAX_KNOWN_ENTITIES {
+                if cur.known_facts.len() < max_known {
                     cur.known_facts.insert(f);
                 }
             }

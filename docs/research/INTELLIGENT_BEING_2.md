@@ -273,8 +273,8 @@ packet and budget modules already do.
    level 4–5. — **DONE** (stage 6).
    *Inserted on request (stage 7):* host-set limits for every module, so a game sets how many
    characters, foods, creeds and entries it needs, with measured cost at large casts. 7a (pass 2
-   modules) — **DONE** ([Evidence](../characters/LIFE.md#host-set-limits)); 7b pass 1 character
-   modules and 7c knowledge modules follow.
+   modules) and 7b (pass 1 character modules) — **DONE**
+   ([Evidence](../characters/LIFE.md#host-set-limits)); 7c knowledge modules follow.
 5. **B2/B3 cooperation and conflict**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk**.

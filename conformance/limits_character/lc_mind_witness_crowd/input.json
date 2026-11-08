@@ -1,0 +1,679 @@
+{
+  "kind": "mind",
+  "args": {
+    "limits": {
+      "witnesses": 80,
+      "others": 100
+    },
+    "ops": [
+      {
+        "op": "infer_from_witness",
+        "args": {
+          "subject": "baker",
+          "fact": "cart_crash",
+          "entry": {
+            "at": 15,
+            "kind": "crash",
+            "place": "road",
+            "actors": [
+              "carter"
+            ],
+            "visibility": "witnessed",
+            "noise": 30
+          },
+          "beings": [
+            {
+              "id": "baker",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_0",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_1",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_2",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_3",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_4",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_5",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_6",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_7",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_8",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_9",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_10",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_11",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_12",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_13",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_14",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_15",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_16",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_17",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_18",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_19",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_20",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_21",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_22",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_23",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_24",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_25",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_26",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_27",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_28",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_29",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_30",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_31",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_32",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_33",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_34",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_35",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_36",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_37",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_38",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_39",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_40",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_41",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_42",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_43",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_44",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_45",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_46",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_47",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_48",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_49",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_50",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_51",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_52",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_53",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_54",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_55",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_56",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_57",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_58",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_59",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_60",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_61",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_62",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_63",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_64",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_65",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_66",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_67",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_68",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_69",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_70",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_71",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_72",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_73",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_74",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_75",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_76",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_77",
+              "place": "road",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            },
+            {
+              "id": "onlooker_78",
+              "place": "bakery",
+              "senses": {
+                "sight": true,
+                "hearing": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "query",
+        "args": {
+          "subject": "baker",
+          "other": "onlooker_78",
+          "category": "knows",
+          "key": "cart_crash"
+        }
+      }
+    ]
+  }
+}

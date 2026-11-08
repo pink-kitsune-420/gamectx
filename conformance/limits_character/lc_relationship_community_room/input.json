@@ -1,0 +1,35 @@
+{
+  "kind": "relationship",
+  "args": {
+    "limits": {
+      "community_pairs": 1
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "communities": [
+            {
+              "community": "bakers",
+              "target": "millers",
+              "trust": 10
+            }
+          ]
+        }
+      },
+      {
+        "op": "aggregate_community_trust",
+        "args": {
+          "community": "bakers",
+          "target_community": "millers",
+          "members": [
+            "baker1"
+          ],
+          "target_members": [
+            "miller1"
+          ]
+        }
+      }
+    ]
+  }
+}

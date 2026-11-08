@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Appraisal can no longer add attitudes past the limit.",
+  "error": true
+}

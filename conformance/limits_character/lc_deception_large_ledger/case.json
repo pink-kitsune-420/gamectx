@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising records to 150 keeps 149 claims (the old bound was 128).",
+  "error": false
+}

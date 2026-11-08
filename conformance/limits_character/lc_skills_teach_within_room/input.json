@@ -1,0 +1,44 @@
+{
+  "kind": "skills",
+  "args": {
+    "limits": {
+      "skills": 1
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "mentor",
+          "skills": [
+            {
+              "id": "herbs",
+              "level": 50
+            }
+          ]
+        }
+      },
+      {
+        "op": "init",
+        "args": {
+          "being": "pupil",
+          "skills": [
+            {
+              "id": "herbs",
+              "level": 1
+            }
+          ]
+        }
+      },
+      {
+        "op": "teach",
+        "args": {
+          "teacher": "mentor",
+          "student": "pupil",
+          "skill": "herbs",
+          "hours": 2,
+          "same_place": true
+        }
+      }
+    ]
+  }
+}

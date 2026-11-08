@@ -1,0 +1,48 @@
+{
+  "kind": "affect",
+  "args": {
+    "limits": {
+      "attitudes": 1
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "guard",
+          "temperament": "calm",
+          "mood": {
+            "valence": 0,
+            "arousal": 0
+          },
+          "attitudes": []
+        }
+      },
+      {
+        "op": "appraise",
+        "args": {
+          "being": "guard",
+          "kind": "fear",
+          "subject": "wolf",
+          "delta": 20,
+          "reason": "a sudden noise"
+        }
+      },
+      {
+        "op": "appraise",
+        "args": {
+          "being": "guard",
+          "kind": "fear",
+          "subject": "wolf",
+          "delta": 15,
+          "reason": "a sudden noise"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

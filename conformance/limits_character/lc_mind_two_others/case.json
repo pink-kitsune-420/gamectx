@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A mind models at most two others when the limit is two (record was unbounded).",
+  "error": true
+}

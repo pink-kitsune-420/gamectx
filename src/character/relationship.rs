@@ -43,6 +43,24 @@ use std::collections::BTreeMap;
 pub const MAX_RELATIONS: usize = 64;
 pub const MAX_OPS: usize = 64;
 
+/// Host-set limits: sheet `subjects` and `relations` per subject (default [`MAX_RELATIONS`]),
+/// personal `attitudes` and `community_pairs`. Pre-declared entries, `init` and the ops that add
+/// attitudes or community trust all respect them.
+pub const LIMITS: &[crate::character::limits::Limit] = &[
+    crate::character::limits::Limit { name: "subjects", default: 4096, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "relations", default: MAX_RELATIONS, ceiling: 4096 },
+    crate::character::limits::Limit { name: "attitudes", default: 4096, ceiling: 1_000_000 },
+    crate::character::limits::Limit { name: "community_pairs", default: 4096, ceiling: 1_000_000 },
+];
+crate::character::limits::module_limits!(RelationshipLimits, LIMITS);
+
+fn room<K: Ord, V>(map: &BTreeMap<K, V>, key: &K, max: usize) -> Result<()> {
+    if map.len() >= max && !map.contains_key(key) {
+        return Err(c::bad());
+    }
+    Ok(())
+}
+
 fn ident_bound(v: &Value) -> Result<&str> {
     let s = ident(v)?;
     if s.is_empty() || s.len() > 64 {
@@ -131,11 +149,36 @@ pub struct RelationshipManager {
     pub personal_attitudes: BTreeMap<(String, String, String), i64>,
     // (community, target_community) -> trust
     pub community_trust: BTreeMap<(String, String), i64>,
+    /// Host-set capacity limits (`{ops, limits?}` or `with_limits`).
+    pub limits: RelationshipLimits,
 }
 
 impl RelationshipManager {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    crate::character::limits::limited_workflow!();
+
+    fn put_sheet(&mut self, subject: &str, with: &str, kind: &str) -> Result<()> {
+        room(&self.sheet_relationships, &subject.to_string(), self.limits.get("subjects"))?;
+        let max_relations = self.limits.get("relations");
+        let sheet = self.sheet_relationships.entry(subject.to_string()).or_default();
+        room(sheet, &with.to_string(), max_relations)?;
+        sheet.insert(with.to_string(), SheetRel { target: with.to_string(), kind: kind.to_string() });
+        Ok(())
+    }
+
+    fn put_attitude(&mut self, key: (String, String, String), level: i64) -> Result<()> {
+        room(&self.personal_attitudes, &key, self.limits.get("attitudes"))?;
+        self.personal_attitudes.insert(key, level);
+        Ok(())
+    }
+
+    fn put_community(&mut self, key: (String, String), trust: i64) -> Result<()> {
+        room(&self.community_trust, &key, self.limits.get("community_pairs"))?;
+        self.community_trust.insert(key, trust);
+        Ok(())
     }
 
     pub fn set_attitude(&mut self, subject: &str, target: &str, kind: &str, delta: i64) -> i64 {
@@ -146,7 +189,7 @@ impl RelationshipManager {
         next
     }
 
-    pub fn workflow(&mut self, request: &Value) -> Result<Value> {
+    fn run_workflow(&mut self, request: &Value) -> Result<Value> {
         keys(request, &["ops"], &["sheet_relationships", "attitudes", "communities"])?;
         let ops = request.get("ops").and_then(Value::as_array).ok_or_else(c::bad)?;
         if ops.is_empty() || ops.len() > MAX_OPS {
@@ -160,10 +203,7 @@ impl RelationshipManager {
                 let s = ident_bound(c::get(item, "subject")?)?;
                 let w = ident_bound(c::get(item, "with")?)?;
                 let k = text_bound(c::get(item, "kind")?, 32)?;
-                self.sheet_relationships
-                    .entry(s.to_string())
-                    .or_default()
-                    .insert(w.to_string(), SheetRel { target: w.to_string(), kind: k.to_string() });
+                self.put_sheet(s, w, k)?;
             }
         }
 
@@ -178,7 +218,7 @@ impl RelationshipManager {
                     return Err(c::bad());
                 }
                 let lvl = i64_bound(c::get(item, "level")?, -100, 100)?;
-                self.personal_attitudes.insert((s.to_string(), t.to_string(), k.to_string()), lvl);
+                self.put_attitude((s.to_string(), t.to_string(), k.to_string()), lvl)?;
             }
         }
 
@@ -189,7 +229,7 @@ impl RelationshipManager {
                 let c1 = ident_bound(c::get(item, "community")?)?;
                 let c2 = ident_bound(c::get(item, "target")?)?;
                 let tr = i64_bound(c::get(item, "trust")?, -100, 100)?;
-                self.community_trust.insert((c1.to_string(), c2.to_string()), tr);
+                self.put_community((c1.to_string(), c2.to_string()), tr)?;
             }
         }
 
@@ -228,10 +268,7 @@ impl RelationshipManager {
                 let s = ident_bound(c::get(item, "subject")?)?;
                 let w = ident_bound(c::get(item, "with")?)?;
                 let k = text_bound(c::get(item, "kind")?, 32)?;
-                self.sheet_relationships
-                    .entry(s.to_string())
-                    .or_default()
-                    .insert(w.to_string(), SheetRel { target: w.to_string(), kind: k.to_string() });
+                self.put_sheet(s, w, k)?;
             }
         }
 
@@ -245,7 +282,7 @@ impl RelationshipManager {
                     return Err(c::bad());
                 }
                 let lvl = i64_bound(c::get(item, "level")?, -100, 100)?;
-                self.personal_attitudes.insert((s.to_string(), t.to_string(), k.to_string()), lvl);
+                self.put_attitude((s.to_string(), t.to_string(), k.to_string()), lvl)?;
             }
         }
 
@@ -255,7 +292,7 @@ impl RelationshipManager {
                 let c1 = ident_bound(c::get(item, "community")?)?;
                 let c2 = ident_bound(c::get(item, "target")?)?;
                 let tr = i64_bound(c::get(item, "trust")?, -100, 100)?;
-                self.community_trust.insert((c1.to_string(), c2.to_string()), tr);
+                self.put_community((c1.to_string(), c2.to_string()), tr)?;
             }
         }
 
@@ -270,14 +307,11 @@ impl RelationshipManager {
         let filter_target = args.get("target").filter(|x| **x != Value::Null).map(ident_bound).transpose()?;
 
         let mut attitudes_list = Vec::new();
-        for ((s, t, k), lvl) in &self.personal_attitudes {
-            if s != subject {
-                continue;
-            }
-            if let Some(tgt) = filter_target {
-                if t != tgt {
-                    continue;
-                }
+        // Keys are ordered (subject, target, kind): read only this subject's (and target's) range.
+        let start = (subject.to_string(), filter_target.unwrap_or("").to_string(), String::new());
+        for ((s, t, k), lvl) in self.personal_attitudes.range(start..) {
+            if s != subject || filter_target.is_some_and(|tgt| t != tgt) {
+                break;
             }
             attitudes_list.push(obj! {
                 "kind" => Value::str(k),
@@ -470,6 +504,11 @@ impl RelationshipManager {
 
         let mut applied = Vec::new();
         for (kind, delta, default_reason) in deltas {
+            room(
+                &self.personal_attitudes,
+                &(target.to_string(), actor.to_string(), kind.to_string()),
+                self.limits.get("attitudes"),
+            )?;
             let next_lvl = self.set_attitude(target, actor, kind, delta);
             applied.push(obj! {
                 "attitude" => Value::str(kind),
@@ -527,7 +566,7 @@ impl RelationshipManager {
             0
         };
 
-        self.community_trust.insert((comm1.to_string(), comm2.to_string()), avg_trust);
+        self.put_community((comm1.to_string(), comm2.to_string()), avg_trust)?;
         let stance = stance_from_trust(avg_trust);
 
         Ok(obj! {

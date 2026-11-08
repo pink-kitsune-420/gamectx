@@ -1,0 +1,253 @@
+{
+  "kind": "body",
+  "args": {
+    "limits": {
+      "injuries": 20
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "knight",
+          "fatigue": 10,
+          "health": 90,
+          "needs": [
+            {
+              "id": "need_0",
+              "threshold": 70,
+              "rate_per_tick": 1,
+              "level": 0
+            }
+          ],
+          "conditions": []
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_0",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_1",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_2",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_3",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_4",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_5",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_6",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_7",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_8",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_9",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_10",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_11",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_12",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_13",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_14",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_15",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_16",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_17",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_18",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "add_injury",
+        "args": {
+          "being": "knight",
+          "injury": {
+            "id": "cut_19",
+            "severity": 20,
+            "location": "arm"
+          }
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "knight"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "curiosity",
+  "args": {
+    "limits": {
+      "known": 2
+    },
+    "ops": [
+      {
+        "op": "init",
+        "args": {
+          "being": "scout",
+          "temperament": "curious",
+          "known_people": [
+            "mira"
+          ]
+        }
+      },
+      {
+        "op": "mark_familiar",
+        "args": {
+          "being": "scout",
+          "people": [
+            "zed",
+            "ann"
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "scout"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "body",
+  "args": {
+    "limits": {
+      "beings": 1
+    },
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "being": "first",
+          "ticks": 1
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "being": "second",
+          "ticks": 1
+        }
+      }
+    ]
+  }
+}

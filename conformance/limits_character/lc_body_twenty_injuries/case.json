@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising injuries to 20 lets a knight carry 20 wounds (the old bound was 16); together they are fatal.",
+  "error": false
+}

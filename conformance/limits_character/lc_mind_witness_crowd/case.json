@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Raising witnesses to 80 lets 80 villagers be considered by one inference.",
+  "error": false
+}

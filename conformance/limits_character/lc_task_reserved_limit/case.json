@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reserving three resources is refused with room for two.",
+  "error": true
+}
