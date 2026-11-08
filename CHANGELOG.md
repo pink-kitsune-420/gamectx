@@ -21,6 +21,16 @@
   - Target model presets: `DescriberConfig::sdxl()`, `DescriberConfig::flux()`, `DescriberConfig::midjourney()`, and `DescriberConfig::dalle()`.
   - Full customization: configurable delimiters, palette formatters, style positioning (`style_first`), prefix/suffix injection, extra positive/negative tokens, and dynamic JSON deserialization via `DescriberConfig::from_value()`.
   - `VisualSpec::render()` augmented with `"prompt"` and `"negative_prompt"`, plus convenience methods `spec.prompt()`, `spec.negative_prompt()`, and `spec.describe()`.
+  - Integrated `VisualDescriber` with provider-adaptive model preset lookup into Lantern Vault web application image generation pipeline (`examples/lantern-vault/web/app.rs`).
+- Added character-initiated prop interactions and physical matter perception:
+  - `Props` typed getters (`interactions`, `find_interaction`, `material`, `color`, `texture`, `mass`, `state`, `dimensions`, `tags`, `attributes`) and `eligible_interactions` filtering against host `choices`.
+  - Inquiries for living embodiment and matter: `ask_posture` ("what is your posture"), `ask_held` ("what are you holding"), and `ask_matter` ("what is the anvil made of", "what material is the bell") with physical matter attributes.
+  - Character turns expose `has_posture`, `has_held`, `has_gaze`, `has_clothing`, `has_activity`, `has_material`, `has_color`, `has_texture`, and `has_matter` to conditions, templates, and model brief compilation.
+  - Programmatic prop interaction methods: `RoleplayEngine::eligible_prop_interactions` and `RoleplayEngine::propose_interaction`.
+- Added native C ABI and CLI export for visual description and specifications:
+  - `gamectx_visual_describe` in native C ABI (`bindings/native/src/lib.rs`), providing memory-safe C FFI for compiling prompts from visual specs or ArtBible anchors.
+  - `"visual-describe"` operation in `kit::local::process` CLI dispatcher and `"visual_describe"` in `kit::Session`.
+  - Implemented `VisualSpec::from_value` and `media::visual::describe_fixture`.
 
 - [api] **Breaking: library modules are grouped by domain.** No behavior, output or
   format changed: every conformance case and frozen evaluation artifact is byte-identical.

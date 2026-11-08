@@ -39,7 +39,8 @@ noted; "3 models" adds Llama 3.3 70B.
   - [Guide](characters/ROLEPLAY_ENGINE.md#model-evaluation).
 - Phase 2, next:
   - 2.2 (rest): expression, tales, viewpoints, reactions, deliberation and wording as
-    engine stages, and prop interactions proposed by characters.
+    engine stages; prop interactions proposed by characters, embodiment inquiries (`ask_posture`,
+    `ask_held`, `ask_matter`), and native C ABI / CLI export done.
   - 8B follow-up (v3, $0, 476 calls) done. On held-out probes, Stheno 8B went from 74.1%
     accepted (shipped) to 88.9% with one host retry, and to 88.9% first try with a stricter
     brevity rule (98.1% with retry). 3B was ≥ 88.9% in every variant. Dropping
