@@ -2262,6 +2262,39 @@ factions?, secrets?, opinions?, bio?, ...}`:
   holds), family? [{name, relation, status}]}` (dropped right after `fears` when trimming),
   and the situation `birthday: true` on the character's birthday.
 
+## World timeline v1
+
+`gamectx::knowledge::timeline` (guide: [World model](guides/WORLD.md#timeline)). The
+`timeline` JSON-lines `local` kind runs `{timeline: Timeline|null, ops ≤64 [{op, args}]}`
+and returns `{results, timeline}`; each result is `{ok:true, result}` or `{ok:false}`, and
+a failed op changes nothing. 46 additive cases live in `conformance/timeline/`.
+
+**Timeline** `{version:1, next ≥1, entries ≤4096}`, entries in strictly increasing `seq`,
+each `seq < next`. **Entry** has exactly these keys in this order: `{seq, at 0–2⁵³−1, kind:
+id, summary ≤240, actors ≤16 ids, place: id|null, things ≤16 ids, tags ≤8 ids, visibility:
+public|witnessed|private, witnesses ≤64 ids, phrases ≤8 (normalized: lowercase,
+alphanumeric words, single spaces; unique), facts ≤16 {id: bool | int −10⁹..10⁹ | text
+≤64}, retracted: text ≤120|null, covers: {from, through = seq, count ≥2}|null}`. id lists
+hold distinct identifiers.
+
+Ops:
+- `record {at, kind, summary, actors?, place?, things?, tags?, visibility? = public,
+  witnesses?, phrases? (≤128 bytes each, normalized on record), facts?}` → `{seq}`. The
+  new entry takes `seq = next`. It fails when the timeline already holds 4096 entries.
+- `retract {seq, reason ≤120}` → `{seq}`. It fails if the entry is missing or already
+  retracted.
+- `compact {through, summary ≤240, kind? = summary}` → `{seq, count}`. All entries with
+  `seq ≤ through` (at least 2, and `through` must exist) become one public entry with
+  `seq = through`, the latest `at`, empty lists and `covers {from: the first covered seq
+  (or that entry's own covers.from), through, count: the sum of the covered counts, each
+  plain entry counting 1}`.
+- `query {known_to?, actor?, place?, thing?, kind?, tag?, since? = 0, until? = 2⁵³−1,
+  about? ≤128, limit? 1–64 = 16, order? newest|oldest = newest, include_retracted? =
+  false}` → `{total, entries}`. An entry is known to a character when it is public, when
+  they are an actor, or when it is `witnessed` and they are a witness. `about` is
+  normalized and matches when it and a phrase contain each other on whole-word
+  boundaries. Results sort by `(at, seq)`. `total` counts every match before `limit`.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The
@@ -2270,7 +2303,7 @@ file and one save file and returns `{results}`, each `{ok: …}` or `{error: <op
 failed op changes nothing). Ops: `pack_data {title, sections:[{path,kind,data}]}`,
 `put_data {path,kind,data}`, `remove_data {path}`, `load_data <data file>`, `link {}`,
 `save {name, saved_at, sections, label?, parent?}`, `fork {from, name, saved_at, label?}`,
-`remove_state {name}`, `export_save {}`, `load_save <save file>`. 22 additive cases live
+`remove_state {name}`, `export_save {}`, `load_save <save file>`. 24 additive cases live
 in `conformance/save-file/`.
 
 **Data file** `{format:"gamectx-data", version:1, title 1–120, sections, digest}`.
@@ -2282,7 +2315,8 @@ states sorted by name. `parent` is any other state name (it may since have been 
 duplicates, data ≤16 MiB. A path is 2–4 identifier segments under `world/`,
 `characters/<id>/` or `host/`. Kinds:
 - data files: `codex`, `props`, `sheet`, `engine-config`, `lore`, `cast-pack`, `host`;
-- save states: `engine`, `memory`, `journal`, `facts`, `brain`, `inventory`, `host`.
+- save states: `engine`, `memory`, `journal`, `facts`, `brain`, `inventory`, `timeline`,
+  `host`.
 
 `sheet`, `engine-config` and `engine` live at exactly `characters/<id>/<name>`; an engine
 config's character id must equal `<id>`. Sheets are validated against the data file's

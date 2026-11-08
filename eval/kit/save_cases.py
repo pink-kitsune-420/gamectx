@@ -17,6 +17,9 @@ HEARD = dict(FRESH, listeners=[dict(id='player_1', name='Arin', preferences=[dic
 DATA = [dict(path='world/codex', kind='codex', data=CODEX), dict(path='characters/baker/sheet', kind='sheet', data=SHEET),
         dict(path='characters/baker/engine', kind='engine-config', data=ENGINE), dict(path='world/props', kind='props', data=E.PROPS),
         dict(path='host/settings', kind='host', data=dict(difficulty='gentle', music=0.6))]
+HISTORY = dict(version=1, next=2, entries=[dict(seq=1, at=38, kind='trade', summary='The traveller bought rye bread with a silver coin.', actors=['player_1', 'baker'],
+                                                 place='bakery', things=[], tags=['trade'], visibility='witnessed', witnesses=[], phrases=['the silver coin'], facts={},
+                                                 retracted=None, covers=None)])
 SLOT = [dict(path='characters/baker/engine', kind='engine', data=HEARD), dict(path='characters/baker/memory', kind='memory', data=MEMORY),
         dict(path='world/flags', kind='host', data=dict(ring_lost=True))]
 
@@ -69,6 +72,8 @@ def cases():
         ('bad_duplicate_path', dict(ops=[pack([DATA[4], DATA[4]])]), [(0, dict(error='pack_data'))]),
         ('bad_state_meta', dict(ops=[save(name='bad name'), save(parent='slot-1'), save(label=''), save(saved_at=-1), op('fork', **{'from': 'nope'}, name='x', saved_at=1)]),
          [(i, dict(error=o)) for i, o in enumerate(['save', 'save', 'save', 'save', 'fork'])]),
+        ('timeline_section', dict(ops=[save(sections=SLOT + [dict(path='world/timeline', kind='timeline', data=HISTORY)]), op('export_save')]), [(0, dict(ok=dict(name='slot-1')))]),
+        ('bad_timeline_section', dict(ops=[save(sections=[dict(path='world/timeline', kind='timeline', data=dict(HISTORY, next=1))])]), [(0, dict(error='save'))]),
         ('fork_name_taken', dict(ops=[save(), save('autosave', 44), op('fork', **{'from': 'slot-1'}, name='autosave', saved_at=45)]), [(2, dict(error='fork'))]),
     ]
 
@@ -102,7 +107,9 @@ def main():
         if a.write_conformance:
             d = ROOT_DIR / 'conformance/save-file' / name; d.mkdir(parents=True, exist_ok=True)
             for k, v in [('case', dict(op='local')), ('input', req), ('expected', got)]:
-                f = d / (k + '.json'); assert not f.exists(), f; f.write_text(enc(v) + '\n')
+                f = d / (k + '.json')
+                if f.exists(): assert f.read_text() == enc(v) + '\n', f  # existing cases stay byte-identical
+                else: f.write_text(enc(v) + '\n')
     print(enc(dict(workflows=len(rows), model_calls=0, api_spend_usd=0)))
 
 

@@ -443,11 +443,12 @@ Conformance, parity and fuzzing are offline and made zero model calls:
   adds host distances, coordinates, audiences (single, group, malformed), nearer
   characters, facing and named or unfinished words: 2,500 more randomized workflows,
   0 mismatches, with every addressing outcome exercised.
-- **Save files:** 22 conformance cases (`conformance/save-file/`) and 3,000 randomized
+- **Save files:** 24 conformance cases (`conformance/save-file/`) and 3,000 randomized
   save workflows (about 12,800 operations) against `eval/kit/save_reference.py`: 2,932
   byte-identical. The other 68 are a documented difference: Rust also deep-validates
   lore, cast-pack, memory, journal, facts, brain and inventory sections with their own
   parsers, and rejected section data that the Python reference only shape-checks.
+  (Both sides fully validate `timeline` sections, added after this measurement.)
 - **Mutation fuzzing** in `tests/robustness.rs` checks that failed turns and deliveries
   are atomic, that mutated game data and save files never panic, and that 6,000 mutated
   model replies are either rejected without any state change or accepted within bounds.

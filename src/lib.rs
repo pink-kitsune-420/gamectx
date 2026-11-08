@@ -39,6 +39,11 @@ pub mod media;
 pub mod packet;
 pub mod runtime;
 
+/// Runs the Rust examples in docs/guides/WORLD.md as doctests so the guide cannot drift.
+#[cfg(doctest)]
+#[doc = include_str!("../docs/guides/WORLD.md")]
+pub struct WorldGuide;
+
 pub use data::json::{Error, Result, Value};
 pub use packet::context::{Context, Table, Turn};
 

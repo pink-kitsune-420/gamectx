@@ -1,0 +1,1 @@
+{"results":[{"ok":true,"result":{"seq":1}}],"timeline":{"version":1,"next":2,"entries":[{"seq":1,"at":10,"kind":"fire","summary":"A fire broke out in the Ember Keep forge.","actors":["smith"],"place":"forge","things":[],"tags":["disaster"],"visibility":"public","witnesses":[],"phrases":["the fire","forge fire"],"facts":{},"retracted":null,"covers":null}]}}

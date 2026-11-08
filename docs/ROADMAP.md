@@ -59,9 +59,9 @@ noted; "3 models" adds Llama 3.3 70B.
     Gaps: reactions (13), stock queries (7), authored persona (4), viewpoints (2),
     secret debt (2), greeting state (23), and `*enters*`/`*approaches*` routing (6).
     The line text is not comparable because the shadow engine starts fresh each turn.
-  - Next: a world timeline (an ordered, authoritative history of what happened, kept in
-    saves), place kinds and containment (city ⊃ house ⊃ room; forest, castle, cave), then
-    the Lantern Vault migration.
+  - Done: world timeline (`knowledge::timeline`, guide `docs/guides/WORLD.md`), 46 cases.
+  - Next: place kinds and containment (city ⊃ house ⊃ room; forest, castle, cave), then
+    the world model and the Lantern Vault migration.
   - 2.3 done: `VisualDirector` with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.

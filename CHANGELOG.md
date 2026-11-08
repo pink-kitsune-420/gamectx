@@ -2,6 +2,19 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- World timeline (`knowledge::timeline`, local kind `timeline`): the game's own record
+  of what happened.
+  - Entries hold when, what kind, a summary, actors, place, things, tags, visibility
+    (public, witnessed or private), witnesses, phrases people may ask with, and small
+    facts.
+  - Queries filter by what a character knows, actor, place, thing, kind, tag, a time
+    window and `about` text.
+  - Mistaken entries can be retracted (kept, hidden). The game can compact old entries
+    into a summary. A full timeline refuses new entries instead of forgetting.
+  - Save states accept a `timeline` section.
+  - 46 cases plus 2 save-file cases. Rust matches the Python reference byte for byte on
+    all of them and on 2,000 randomized workflows.
+  - New guide: `docs/guides/WORLD.md` (timeline and places).
 - Character sheets gain `bio`: species, age, birthday, profession, anatomy, health
   (status and conditions, visible or hidden), skills with levels, knowledge topics (gated by
   `when`) and family. A new switchable engine feature `bio` answers age, birthday,
