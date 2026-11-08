@@ -21,12 +21,53 @@
     "watermark",
     "extra limbs"
   ],
+  "lighting": "warm lantern and ambient copper glow",
+  "atmosphere": "atmospheric subterranean fantasy vault",
+  "tags": [
+    "lantern_vault",
+    "fantasy",
+    "roleplay"
+  ],
   "anchors": [
     {
       "entity": "merchant",
       "kind": "character",
       "silhouette": "slender figure with swept-back hair",
       "attire": "deep blue work coat with copper stitching",
+      "features": {
+        "eyes": "amber",
+        "hair": "raven black",
+        "skin": "pale",
+        "build": "lean",
+        "height": 1.75,
+        "scars": [
+          "thin scar on left cheek"
+        ]
+      },
+      "clothing": [
+        "deep blue work coat with copper stitching",
+        "tailored dark trousers",
+        "soft leather boots"
+      ],
+      "material": "flesh and bone",
+      "color": "copper-tinted",
+      "texture": "weathered",
+      "mass": 68.5,
+      "state": "solid",
+      "dimensions": [
+        0.45,
+        0.3,
+        1.75
+      ],
+      "tags": [
+        "merchant",
+        "artisan",
+        "lampkeeper"
+      ],
+      "attributes": {
+        "trade": "lamps",
+        "reputation": "careful"
+      },
       "props": [
         "oil",
         "chalk",
@@ -39,6 +80,36 @@
       "kind": "character",
       "silhouette": "broad-shouldered figure with braided hair",
       "attire": "gray fountain apron with copper clasps",
+      "features": {
+        "eyes": "slate gray",
+        "hair": "dark braided",
+        "skin": "olive",
+        "build": "broad",
+        "height": 1.82
+      },
+      "clothing": [
+        "gray fountain apron with copper clasps",
+        "heavy linen shirt",
+        "reinforced work boots"
+      ],
+      "material": "flesh and bone",
+      "color": "sun-tanned",
+      "texture": "rough",
+      "mass": 84.0,
+      "state": "solid",
+      "dimensions": [
+        0.55,
+        0.35,
+        1.82
+      ],
+      "tags": [
+        "sentinel",
+        "gatekeeper"
+      ],
+      "attributes": {
+        "vigilance": "high",
+        "loyalty": "vault"
+      },
       "props": [
         "lamp"
       ],
@@ -49,6 +120,11 @@
       "kind": "scene",
       "silhouette": "narrow descending stair with a lantern niche",
       "attire": "original copper and blue stonework",
+      "floor": "worn flagstone",
+      "ceiling": "arched vault",
+      "exterior": false,
+      "lighting": "flickering lantern glow",
+      "atmosphere": "cool descending passage",
       "props": [
         "oil",
         "chalk",
@@ -61,6 +137,11 @@
       "kind": "scene",
       "silhouette": "arched gallery facing a bronze gate",
       "attire": "original copper and blue stonework",
+      "floor": "smooth cobblestone",
+      "ceiling": "high barrel vault",
+      "exterior": false,
+      "lighting": "soft amber sconce light",
+      "atmosphere": "echoing stone gallery",
       "props": [
         "oil",
         "chalk",
@@ -73,6 +154,11 @@
       "kind": "scene",
       "silhouette": "work counter and closed wooden shutters",
       "attire": "original copper and blue stonework",
+      "floor": "timber planks",
+      "ceiling": "exposed oak rafters",
+      "exterior": false,
+      "lighting": "warm lamp glow on brass shelves",
+      "atmosphere": "aromatic oil and quiet focus",
       "props": [
         "oil",
         "chalk",
@@ -85,6 +171,11 @@
       "kind": "scene",
       "silhouette": "dry stone fountain beneath a low arch",
       "attire": "original copper and blue stonework",
+      "floor": "wet flagstone",
+      "ceiling": "low dripping arch",
+      "exterior": false,
+      "lighting": "dim copper lantern reflection",
+      "atmosphere": "echoing subterranean damp",
       "props": [
         "oil",
         "chalk",
@@ -97,6 +188,11 @@
       "kind": "scene",
       "silhouette": "chamber with a stone sentinel and glass pedestal",
       "attire": "original copper and blue stonework",
+      "floor": "polished black granite",
+      "ceiling": "high vaulted dome with copper ribs",
+      "exterior": false,
+      "lighting": "crystalline amber illumination",
+      "atmosphere": "reverent and ancient sanctuary",
       "props": [
         "oil",
         "chalk",
@@ -109,6 +205,11 @@
       "kind": "scene",
       "silhouette": "daylight stair with an open arch",
       "attire": "original copper and blue stonework",
+      "floor": "sun-warmed limestone",
+      "ceiling": "open sky",
+      "exterior": true,
+      "lighting": "brilliant daylight",
+      "atmosphere": "fresh mountain breeze",
       "props": [
         "oil",
         "chalk",

@@ -3232,23 +3232,55 @@ impl App {
                     return Ok((obj! {"queued"=>false,"reason"=>text(selected,"state")?}, jobs));
                 }
                 let rendered = self.assets.render(&key)?;
-                let prompt = array(get(&rendered, "positive_tokens")?)?
-                    .iter()
-                    .map(|v| v.as_str().unwrap())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                let palette = array(get(&rendered, "palette")?)?
-                    .iter()
-                    .map(|v| v.as_str().unwrap())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                let prompt = format!("{prompt}. Palette: {palette}.");
-                let negative = array(get(&rendered, "negative_tokens")?)?
-                    .iter()
-                    .map(|v| v.as_str().unwrap())
-                    .collect::<Vec<_>>()
-                    .join(", ");
-                if let Some(mut job)=self.plan("image",&obj!{"prompt"=>prompt,"negative_prompt"=>negative,"width"=>get(&rendered,"width")?.clone(),"height"=>get(&rendered,"height")?.clone(),"seed"=>get(&rendered,"seed")?.clone()},obj!{"key"=>key.clone()})? {let spec=self.specs.iter().find(|s|s.key()==base_key).ok_or_else(err)?;let r=self.assets.request(spec)?;if get(&r,"generation")?==&Value::Null {self.cancel_job(&job)?;}else {set(&mut job.binding,"ticket",get(get(&r,"generation")?,"ticket")?.clone());jobs.push(job);}}
+                let spec = self.specs.iter().find(|s| s.key() == base_key);
+                let (prompt, negative) = if let Some(spec) = spec {
+                    let call_config = self.manager.provider(&self.config, "image").ok();
+                    let selected_backend =
+                        call_config.as_ref().and_then(|c| text(&c.value, "image").ok()).unwrap_or("cached_only");
+                    let model_target = call_config
+                        .as_ref()
+                        .and_then(|c| c.endpoint(selected_backend).ok())
+                        .and_then(|e| e.get("model").and_then(Value::as_str))
+                        .and_then(gamectx::media::visual::ModelTarget::parse);
+
+                    if let Some(target) = model_target {
+                        let cfg = match target {
+                            gamectx::media::visual::ModelTarget::Sdxl => {
+                                gamectx::media::visual::DescriberConfig::sdxl()
+                            }
+                            gamectx::media::visual::ModelTarget::Flux => {
+                                gamectx::media::visual::DescriberConfig::flux()
+                            }
+                            gamectx::media::visual::ModelTarget::Midjourney => {
+                                gamectx::media::visual::DescriberConfig::midjourney()
+                            }
+                            gamectx::media::visual::ModelTarget::Dalle3 => {
+                                gamectx::media::visual::DescriberConfig::dalle()
+                            }
+                            _ => gamectx::media::visual::DescriberConfig::default(),
+                        };
+                        let desc = spec.describe_with(&cfg)?;
+                        (text(&desc, "prompt")?.to_string(), text(&desc, "negative_prompt")?.to_string())
+                    } else {
+                        (text(&rendered, "prompt")?.to_string(), text(&rendered, "negative_prompt")?.to_string())
+                    }
+                } else {
+                    (text(&rendered, "prompt")?.to_string(), text(&rendered, "negative_prompt")?.to_string())
+                };
+                if let Some(mut job) = self.plan(
+                    "image",
+                    &obj! {"prompt"=>prompt,"negative_prompt"=>negative,"width"=>get(&rendered,"width")?.clone(),"height"=>get(&rendered,"height")?.clone(),"seed"=>get(&rendered,"seed")?.clone()},
+                    obj! {"key"=>key.clone()},
+                )? {
+                    let spec = self.specs.iter().find(|s| s.key() == base_key).ok_or_else(err)?;
+                    let r = self.assets.request(spec)?;
+                    if get(&r, "generation")? == &Value::Null {
+                        self.cancel_job(&job)?;
+                    } else {
+                        set(&mut job.binding, "ticket", get(get(&r, "generation")?, "ticket")?.clone());
+                        jobs.push(job);
+                    }
+                }
                 obj! {"queued"=>!jobs.is_empty()}
             }
             "approve" => {
