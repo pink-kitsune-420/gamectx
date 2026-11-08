@@ -1,0 +1,21 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_dest",
+          "owner": "traveler",
+          "goal": {
+            "kind": "travel",
+            "destination": "castle"
+          },
+          "world_state": {
+            "location": "crossroads"
+          }
+        }
+      }
+    ]
+  }
+}

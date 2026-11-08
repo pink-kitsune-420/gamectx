@@ -1,0 +1,1 @@
+{"results":[{"valid":false,"reason":"step_validation_failed","errors":["step[0] action 'cook' requires station at 'bakery', but actor is at 'home'"],"step_count":1}],"total_tasks":0}

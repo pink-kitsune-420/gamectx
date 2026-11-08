@@ -2502,6 +2502,50 @@ Ops:
   - Deterministic tie-breaking: score descending, kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
   - Generates clear explainable `winning_reason` detailing why the winning motive defeated the runner-up.
 
+## Task planning v1
+
+`gamectx::character::task` (guide: [Life](characters/LIFE.md#tasks-and-planning-gap-4)). The `task`
+JSON-lines `local` kind runs `{ops: 1–64 [{op, args}]}` over committed character work and returns `{results: [...], total_tasks: int}`.
+25 additive cases live in `conformance/task/`.
+
+Task schema:
+- `id`: str (ident $\le 64$).
+- `owner`: str (ident $\le 64$).
+- `assigned_by`, `for`: optional str.
+- `motive_ref`: optional motive object or identifier.
+- `steps`: array of `1..16` step objects:
+  - `id`: str.
+  - `action`: str (must match one of 49 verbs in the Action Catalog).
+  - `target_bindings`: map of required target slots to entity identifiers.
+  - `preconditions`, `expected_effects`: optional metadata.
+  - `status`: `pending` | `active` | `done` | `failed` | `skipped`.
+  - `estimated_duration`, `estimated_fatigue`: u64.
+- `status`: `proposed` | `accepted` | `active` | `blocked` | `suspended` | `done` | `failed` | `abandoned`.
+- `blocked_reason`: optional str.
+- `progress`: current step index (0..steps.len()).
+- `deadline`: optional host tick.
+- `priority`: 0..=100.
+- `reserved_resources`: list of strings ($\le 16$).
+- `on_fail`, `on_block`: bounded recovery policy (`replan` | `retry` | `ask_help` | `suspend` | `abandon`).
+- `replan_count`: u64 ($\le 3$).
+- `retry_count`: u64 ($\le 3$).
+- `history`: array of confirmed step outcome records ($\le 32$).
+
+Ops:
+- `propose {id, owner, priority?, deadline?, reserved_resources?, on_fail?, on_block?, steps? | goal?, world_state?}` → `{accepted: bool, task_id: str, task?: Task, reason?: str, errors?: [...]}`.
+  - If `steps` provided: host validates each step against Action Catalog verbs, required target slots, and causal preconditions. Rejects invalid proposals.
+  - If `goal` provided: deterministic planner performs backward chaining over Action Catalog to compute required travel, barter, and crafting steps (depth $\le 8$, steps $\le 16$).
+- `accept {id, start?}` → `{accepted: true, task_id: str, status: str, task: Task}`. Transitions proposed task to accepted or active.
+- `advance {id, outcome: {success: bool, ...}, tick?}` → `{advanced: bool, task_id: str, task_status: str, next_step?: str, task: Task}`. Only host-confirmed outcomes advance steps. Failures trigger bounded recovery policy (`retry` up to 3, `replan` up to 3, or fail/suspend).
+- `block {id, reason}` → `{blocked: true, task_id: str, task_status: "blocked", reason: str, task: Task}`.
+- `replan {id, steps? | goal?, world_state?}` → `{replanned: bool, task_id: str, replan_count: int, task_status: str, task: Task}`. Preserves completed steps, computes or validates remaining steps, increments replan count (fails on $\ge 3$).
+- `suspend {id}` → `{suspended: true, task_id: str, task_status: "suspended", task: Task}`.
+- `resume {id}` → `{resumed: true, task_id: str, task_status: "active", task: Task}`.
+- `abandon {id, reason?}` → `{abandoned: true, task_id: str, task_status: "abandoned", task: Task}`.
+- `get {id}` → `{task: Task}`.
+- `list {owner?, status?}` → `{tasks: [Task]}`.
+- `validate {steps, owner?, world_state?}` → `{valid: bool, reason: str?, errors: [...], step_count: int}`. Host validation over proposed step sequence.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

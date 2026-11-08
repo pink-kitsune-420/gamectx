@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Fourth replan attempt exceeds MAX_REPLANS (3) and transitions task to failed.",
+  "error": false
+}

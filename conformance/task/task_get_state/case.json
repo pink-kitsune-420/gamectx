@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Retrieving task state returns full record with progress, history and parameters.",
+  "error": false
+}

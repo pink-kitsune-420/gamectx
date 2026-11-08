@@ -1,0 +1,56 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "task_replanned_bake",
+          "owner": "baker",
+          "motive_ref": {
+            "id": "bake_routine",
+            "kind": "routine"
+          },
+          "priority": 75,
+          "goal": {
+            "kind": "cook",
+            "recipe": "bread"
+          },
+          "world_state": {
+            "location": "bakery",
+            "inventory": {
+              "flour": 0,
+              "coins": 10
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ],
+                "outputs": [
+                  {
+                    "item": "bread",
+                    "count": 1
+                  }
+                ]
+              }
+            },
+            "sources": [
+              {
+                "item": "flour",
+                "place": "mill",
+                "partner": "miller",
+                "cost_item": "coins",
+                "cost_count": 5
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

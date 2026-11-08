@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Deterministic planner produces single cooking step when ingredients are on hand.",
+  "error": false
+}

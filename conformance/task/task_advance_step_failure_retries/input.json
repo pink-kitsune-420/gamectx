@@ -1,0 +1,41 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_retry",
+          "owner": "hero",
+          "on_fail": "retry",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "mill"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_retry"
+        }
+      },
+      {
+        "op": "advance",
+        "args": {
+          "id": "t_retry",
+          "outcome": {
+            "success": false,
+            "reason": "road_blocked"
+          },
+          "tick": 25
+        }
+      }
+    ]
+  }
+}

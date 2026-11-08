@@ -1,0 +1,50 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_multi",
+          "owner": "hero",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "mill"
+              }
+            },
+            {
+              "id": "s2",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "bakery"
+              }
+            }
+          ],
+          "world_state": {
+            "location": "home"
+          }
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_multi"
+        }
+      },
+      {
+        "op": "advance",
+        "args": {
+          "id": "t_multi",
+          "outcome": {
+            "success": true,
+            "details": "arrived at mill"
+          },
+          "tick": 12
+        }
+      }
+    ]
+  }
+}

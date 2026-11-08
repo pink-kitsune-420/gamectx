@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Step failure under retry policy increments retry count and remains active.",
+  "error": false
+}

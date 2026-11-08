@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Step failure under replan policy sets status to blocked and stores blocked_reason.",
+  "error": false
+}

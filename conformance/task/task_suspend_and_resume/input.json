@@ -1,0 +1,39 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_suspend",
+          "owner": "guard",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "wait",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_suspend"
+        }
+      },
+      {
+        "op": "suspend",
+        "args": {
+          "id": "t_suspend"
+        }
+      },
+      {
+        "op": "resume",
+        "args": {
+          "id": "t_suspend"
+        }
+      }
+    ]
+  }
+}

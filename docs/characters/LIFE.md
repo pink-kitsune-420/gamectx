@@ -370,5 +370,30 @@ across all character subsystems onto one unified, explainable 0..=100 bounded sc
 **Evidence:** 25 cases (`conformance/motive/`, 5 malformed), 2,000 differential parity
 workflows (`eval/character/motive_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
+## Tasks and planning (Gap 4)
+
+`gamectx::character::task` (`TaskManager`, local kind `task`) turns high-level character goals
+and motives into concrete, committed multi-step plans executed through the Action Catalog:
+- **Task object:**
+  - `id`: unique task identifier.
+  - `owner`: character pursuing the work.
+  - `assigned_by`, `for`: delegator and beneficiary.
+  - `motive_ref`: the winning motive or commitment it serves.
+  - `steps`: ordered sequence of action catalog references with target bindings, preconditions, expected effects, and duration/fatigue estimates.
+  - `status`: `proposed`, `accepted`, `active`, `blocked`, `suspended`, `done`, `failed`, `abandoned`.
+  - `progress`: index of currently active step.
+  - `deadline`, `priority`: temporal urgency and importance (0..=100).
+  - `reserved_resources`: tools, stations, or items locked for this task.
+  - `on_fail` / `on_block`: bounded recovery policy (`replan`, `retry`, `ask_help`, `suspend`, `abandon`).
+  - `replan_count` ($\le 3$), `retry_count` ($\le 3$).
+  - `history`: array of confirmed step outcomes.
+- **Host-owned execution rules:**
+  1. *Host validates model proposals:* AI models may propose tasks or replans. The host strictly checks verbs against the Action Catalog, verifies required target slots, ensures causal preconditions (locations, stations, ingredients), and enforces depth ($\le 8$) and step count ($\le 16$) bounds. Untrusted proposals with unknown actions or broken causal requirements are rejected.
+  2. *Only confirmed outcomes advance steps:* Step completion requires host confirmation (`outcome.success == true`). Failed outcomes trigger bounded recovery policies rather than unvalidated transitions.
+  3. *Deterministic planner:* When given a goal without explicit steps, backward chaining over the Action Catalog generates executable plans (e.g., traveling to source places, bartering for missing ingredients, traveling to stations, and crafting).
+  4. *Bounded replans:* Replans preserve already completed steps, compute remaining steps, and fail closed if `replan_count >= 3`.
+
+**Evidence:** 25 cases (`conformance/task/`, 5 malformed), 2,000 differential parity workflows (`eval/character/task_cases.py`, seed 7, 0 mismatches), model proposal evaluation (`eval/character/task_model_eval.py`, 100% bounds and validation accuracy), and Acceptance Scene (§8) replay test (`tests/acceptance_baker.rs`), $0 API spend.
+
 
 

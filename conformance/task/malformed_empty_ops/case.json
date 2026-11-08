@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rejects request with empty ops list.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Accepting a proposed task transitions status to active and marks first step active.",
+  "error": false
+}

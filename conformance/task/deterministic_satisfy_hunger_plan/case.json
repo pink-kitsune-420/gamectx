@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Planner produces take and eat activity steps when food is in pantry.",
+  "error": false
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_bad_pol",
+          "owner": "hero",
+          "on_fail": "explode",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "look",
+              "target_bindings": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"results":[{"valid":false,"reason":"step_validation_failed","errors":["step[0] action 'travel' missing required target slot 'destination'"],"step_count":1}],"total_tasks":0}

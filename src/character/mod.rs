@@ -12,4 +12,5 @@ pub mod party;
 pub mod roleplay;
 pub mod routine;
 pub mod sheet;
+pub mod task;
 pub mod tools;

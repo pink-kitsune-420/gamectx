@@ -1,0 +1,21 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "validate",
+        "args": {
+          "steps": [
+            {
+              "id": "m1",
+              "action": "teleport",
+              "target_bindings": {
+                "destination": "moon"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

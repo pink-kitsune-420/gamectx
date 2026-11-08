@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host validates model proposal against ActionCatalog and accepts it into proposed task.",
+  "error": false
+}

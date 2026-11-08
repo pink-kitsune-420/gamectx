@@ -1,0 +1,34 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_abandon",
+          "owner": "guard",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "look",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_abandon"
+        }
+      },
+      {
+        "op": "abandon",
+        "args": {
+          "id": "t_abandon",
+          "reason": "called_away_on_emergency"
+        }
+      }
+    ]
+  }
+}

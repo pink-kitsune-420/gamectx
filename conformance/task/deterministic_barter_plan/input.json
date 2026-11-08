@@ -1,0 +1,24 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_trade",
+          "owner": "trader",
+          "goal": {
+            "kind": "barter",
+            "place": "market",
+            "partner": "merchant",
+            "offer": "gem",
+            "want": "horse"
+          },
+          "world_state": {
+            "location": "stable"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "validate",
+        "args": {
+          "steps": [
+            {
+              "id": "m1",
+              "action": "cook",
+              "target_bindings": {
+                "recipe": "bread"
+              }
+            }
+          ],
+          "world_state": {
+            "location": "home",
+            "inventory": {
+              "flour": 5
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

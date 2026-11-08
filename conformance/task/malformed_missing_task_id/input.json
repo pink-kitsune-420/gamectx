@@ -1,0 +1,20 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "owner": "hero",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "look",
+              "target_bindings": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

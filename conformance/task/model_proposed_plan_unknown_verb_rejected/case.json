@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host rejects model proposal containing unknown verb 'teleport'.",
+  "error": false
+}

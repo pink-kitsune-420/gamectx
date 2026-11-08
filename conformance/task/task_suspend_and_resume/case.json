@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Active task can be suspended and later resumed to active status.",
+  "error": false
+}

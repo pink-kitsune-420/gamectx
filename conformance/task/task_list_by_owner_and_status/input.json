@@ -1,0 +1,62 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_b1",
+          "owner": "baker",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "wait",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_b2",
+          "owner": "baker",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "wait",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_m1",
+          "owner": "miller",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "wait",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_b1"
+        }
+      },
+      {
+        "op": "list",
+        "args": {
+          "owner": "baker",
+          "status": "active"
+        }
+      }
+    ]
+  }
+}

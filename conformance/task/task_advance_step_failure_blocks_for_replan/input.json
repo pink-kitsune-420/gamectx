@@ -1,0 +1,41 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_replan_fail",
+          "owner": "hero",
+          "on_fail": "replan",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "mill"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_replan_fail"
+        }
+      },
+      {
+        "op": "advance",
+        "args": {
+          "id": "t_replan_fail",
+          "outcome": {
+            "success": false,
+            "reason": "bridge_collapsed"
+          },
+          "tick": 30
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_model_plan",
+          "owner": "apprentice",
+          "steps": [
+            {
+              "id": "m1",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "mill"
+              }
+            },
+            {
+              "id": "m2",
+              "action": "barter",
+              "target_bindings": {
+                "partner": "miller",
+                "offer": "coins",
+                "want": "flour"
+              }
+            }
+          ],
+          "world_state": {
+            "location": "home",
+            "inventory": {
+              "coins": 10
+            }
+          }
+        }
+      }
+    ]
+  }
+}

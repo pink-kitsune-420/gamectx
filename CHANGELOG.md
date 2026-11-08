@@ -2,6 +2,14 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Tasks and planning (`character::task`, local kind `task`, Gap 4):
+  - Task object schema: id, owner, assigned_by/for, motive_ref, steps (with action-catalog refs, target bindings, preconditions, effects, duration/fatigue estimates), status (`proposed`, `accepted`, `active`, `blocked`, `suspended`, `done`, `failed`, `abandoned`), progress, deadline, priority, reserved resources, bounded on_fail/on_block policies, replan/retry limits ($\le 3$), and confirmed outcome history.
+  - Deterministic planner: backward chaining over Action Catalog to resolve prerequisite travel, item barter, and crafting sequences under bounded depth ($\le 8$) and steps ($\le 16$).
+  - Host validation: strictly validates model-proposed plans and replans against Action Catalog verbs, target slots, and causal preconditions, rejecting invalid or out-of-bounds proposals.
+  - Confirmed-outcome progression: only host-confirmed outcomes advance active steps.
+  - Acceptance Scene (§8): offline end-to-end integration test (`tests/acceptance_baker.rs`) exercising Stages 1–5 (routine, flour shortage block, replan to mill, cart crash witness bridge, motive arbiter hunger vs baking, recipe execution, and grounded knowledge) with byte-identical replay.
+  - Ops: `propose`, `accept`, `advance`, `block`, `replan`, `suspend`, `resume`, `abandon`, `get`, `list`, `validate`.
+  - 25 cases (5 malformed). Rust matches Python reference byte for byte on all cases and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - Motive arbiter (`character::motive`, local kind `motive`, Gap 3):
   - Deterministic, explainable ranking across competing subsystem drives on a common 0..=100 scale:
     emergencies (danger, critical health, exhaustion collapse), needs (homeostatic drives above threshold),

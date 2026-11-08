@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host rejects model proposal where 'travel' is missing required target slot 'destination'.",
+  "error": false
+}

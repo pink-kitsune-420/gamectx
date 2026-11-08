@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host rejects proposal where actor tries to cook at bakery while still at home.",
+  "error": false
+}

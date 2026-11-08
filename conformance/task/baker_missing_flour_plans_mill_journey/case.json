@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Deterministic planner produces 4-step sequence (travel mill, barter, travel bakery, cook) when flour is missing.",
+  "error": false
+}

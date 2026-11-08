@@ -1,0 +1,24 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_hunger",
+          "owner": "child",
+          "goal": {
+            "kind": "satisfy_need",
+            "need": "hunger",
+            "item": "apple"
+          },
+          "world_state": {
+            "inventory": {
+              "apple": 0
+            }
+          }
+        }
+      }
+    ]
+  }
+}

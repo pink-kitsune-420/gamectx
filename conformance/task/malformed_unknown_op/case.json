@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rejects request with unknown operation.",
+  "error": true
+}

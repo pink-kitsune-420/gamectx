@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Confirmed outcome advances active step to done, records history, and activates next step.",
+  "error": false
+}

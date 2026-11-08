@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Abandoning a task transitions status to abandoned and stores given reason.",
+  "error": false
+}

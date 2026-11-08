@@ -758,6 +758,10 @@ To resolve competing drives when needs, scheduled routines, promises, sheet goal
 conflict, the [motive arbiter](characters/LIFE.md#motive-arbiter-gap-3) (`character::motive::MotiveArbiter`
 or local kind `motive`) maps them onto a bounded 0..=100 scale, selects the winning motive deterministically,
 and explains the choice.
+When a motive or goal requires work, [tasks and planning](characters/LIFE.md#tasks-and-planning-gap-4)
+(`character::task::TaskManager` or local kind `task`) compiles it into a tracked task with action steps,
+preconditions, and expected effects. The deterministic planner solves causal prerequisite chains over the Action
+Catalog; model proposals and replans are host-validated, and only confirmed world outcomes advance steps.
 The loopback studio journals up to 8,192 world operations for branch replay; this is a
 bounded demonstration, not unlimited durable world storage.
 

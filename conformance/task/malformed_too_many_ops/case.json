@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rejects request exceeding 64 ops.",
+  "error": true
+}

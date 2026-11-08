@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Baker bake task is blocked, replans with deterministic alternative, resumes with replan_count 1.",
+  "error": false
+}

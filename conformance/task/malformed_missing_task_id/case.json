@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rejects propose operation missing task id.",
+  "error": true
+}

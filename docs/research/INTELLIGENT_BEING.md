@@ -215,14 +215,13 @@ promise (due now)".
 bounded scale and returns a ranked list with reasons. Brains can be one input, not the
 arbiter. This must stay explainable: every choice names the motive that won.
 
-### Gap 4: goals do not become tasks
+### Gap 4: goals do not become tasks — **DONE** ([Evidence](../characters/LIFE.md#tasks-and-planning-gap-4))
 
 Goals and commitments are text with a priority. There is no planning step, no task object
 (§4) and no progress. Initiative kinds are mostly social; "go to the mill and buy flour"
 can only be expressed as an opaque `activity`.
 
-*Needed:* the task object, a planner over the action catalog (deterministic search first,
-model proposal second, host validation always), and progress fed by confirmed outcomes.
+*Implemented:* Task object (`character::task::TaskManager`, local kind `task`), deterministic planner over Action Catalog, strict host validation of model proposals, and step advancement solely from confirmed outcomes. Offline acceptance scene replay (§8) verified in `tests/acceptance_baker.rs`. 25 cases (`conformance/task/`, 5 malformed), 2,000 differential parity workflows (`eval/character/task_cases.py`, seed 7, 0 mismatches), $0 API spend.
 
 ### Gap 5: no shared action catalog — DONE
 
@@ -324,8 +323,8 @@ Ordered by how much each unblocks the others, not by size.
 3. **Body and need dynamics** (gaps 2, 12) — **DONE** ([Evidence](../characters/LIFE.md#body-and-needs-dynamics-gaps-2-and-12)). Rates, satisfiers, rest and conditions.
 4. **Motive arbiter** (gap 3) — **DONE** ([Evidence](../characters/LIFE.md#motive-arbiter-gap-3)). One explainable ranking over needs, routine, goals, tasks,
    promises and emergencies.
-5. **Tasks and planning** (gap 4). Task object, deterministic planner, model proposals
-   validated by the host.
+5. **Tasks and planning** (gap 4) — **DONE** ([Evidence](../characters/LIFE.md#tasks-and-planning-gap-4)). Task object, deterministic planner, model proposals
+   validated by the host, confirmed outcome step progression.
 6. **Affect decay and missing kinds** (gap 6), **skill growth** (gap 8).
 7. **Theory of mind** (gap 7), **deception ledger** (gap 13), **relationship
    reconciliation** (gap 9).

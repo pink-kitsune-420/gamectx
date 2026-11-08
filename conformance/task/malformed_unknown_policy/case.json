@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rejects propose with unknown on_fail policy.",
+  "error": true
+}

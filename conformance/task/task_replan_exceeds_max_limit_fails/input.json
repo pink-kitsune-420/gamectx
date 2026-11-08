@@ -1,0 +1,97 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_limit",
+          "owner": "hero",
+          "steps": [
+            {
+              "id": "s1",
+              "action": "travel",
+              "target_bindings": {
+                "destination": "inn"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_limit"
+        }
+      },
+      {
+        "op": "block",
+        "args": {
+          "id": "t_limit",
+          "reason": "b1"
+        }
+      },
+      {
+        "op": "replan",
+        "args": {
+          "id": "t_limit",
+          "goal": {
+            "kind": "travel",
+            "destination": "inn"
+          }
+        }
+      },
+      {
+        "op": "block",
+        "args": {
+          "id": "t_limit",
+          "reason": "b2"
+        }
+      },
+      {
+        "op": "replan",
+        "args": {
+          "id": "t_limit",
+          "goal": {
+            "kind": "travel",
+            "destination": "inn"
+          }
+        }
+      },
+      {
+        "op": "block",
+        "args": {
+          "id": "t_limit",
+          "reason": "b3"
+        }
+      },
+      {
+        "op": "replan",
+        "args": {
+          "id": "t_limit",
+          "goal": {
+            "kind": "travel",
+            "destination": "inn"
+          }
+        }
+      },
+      {
+        "op": "block",
+        "args": {
+          "id": "t_limit",
+          "reason": "b4"
+        }
+      },
+      {
+        "op": "replan",
+        "args": {
+          "id": "t_limit",
+          "goal": {
+            "kind": "travel",
+            "destination": "inn"
+          }
+        }
+      }
+    ]
+  }
+}

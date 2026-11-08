@@ -1831,4 +1831,47 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     motives_65.push_str("]}}]}");
     assert!(arbiter.workflow(&parse(&motives_65, 1 << 20).unwrap()).is_err());
+
+    // 8. TaskManager mutation fuzzing & boundaries
+    use gamectx::character::task::TaskManager;
+    let mut task_mgr = TaskManager::new();
+    let sample_task_req = r#"{"ops":[{"op":"propose","args":{"id":"t1","owner":"baker","steps":[{"id":"s1","action":"look","target_bindings":{}}]}},{"op":"accept","args":{"id":"t1"}},{"op":"advance","args":{"id":"t1","outcome":{"success":true}}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_task_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = task_mgr.workflow(&v);
+        }
+    }
+
+    // Boundary test: TaskManager accepts up to 64 ops and rejects 65
+    let mut clean_task_mgr = TaskManager::new();
+    let mut task_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            task_ops_64.push(',');
+        }
+        task_ops_64.push_str(&format!(r#"{{"op":"get","args":{{"id":"t_{i}"}}}}"#));
+    }
+    task_ops_64.push_str("]}");
+    // get on nonexistent task returns Err, but let's test validate op which succeeds!
+    let mut val_ops_64 = String::from(r#"{"ops":["#);
+    for i in 0..64 {
+        if i > 0 {
+            val_ops_64.push(',');
+        }
+        val_ops_64.push_str(r#"{"op":"validate","args":{"steps":[{"id":"s1","action":"look","target_bindings":{}}]}}"#);
+    }
+    val_ops_64.push_str("]}");
+    assert!(clean_task_mgr.workflow(&parse(&val_ops_64, 1 << 20).unwrap()).is_ok());
+
+    let mut clean_task_mgr2 = TaskManager::new();
+    let mut val_ops_65 = String::from(r#"{"ops":["#);
+    for i in 0..65 {
+        if i > 0 {
+            val_ops_65.push(',');
+        }
+        val_ops_65.push_str(r#"{"op":"validate","args":{"steps":[{"id":"s1","action":"look","target_bindings":{}}]}}"#);
+    }
+    val_ops_65.push_str("]}");
+    assert!(clean_task_mgr2.workflow(&parse(&val_ops_65, 1 << 20).unwrap()).is_err());
 }

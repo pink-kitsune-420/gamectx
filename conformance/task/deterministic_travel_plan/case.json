@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Planner produces travel step from current location to destination.",
+  "error": false
+}

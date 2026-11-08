@@ -1,0 +1,79 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_baker_blocked",
+          "owner": "baker",
+          "steps": [
+            {
+              "id": "s_cook",
+              "action": "cook",
+              "target_bindings": {
+                "recipe": "bread"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_baker_blocked"
+        }
+      },
+      {
+        "op": "block",
+        "args": {
+          "id": "t_baker_blocked",
+          "reason": "missing_flour"
+        }
+      },
+      {
+        "op": "replan",
+        "args": {
+          "id": "t_baker_blocked",
+          "goal": {
+            "kind": "cook",
+            "recipe": "bread"
+          },
+          "world_state": {
+            "location": "bakery",
+            "inventory": {
+              "flour": 0,
+              "coins": 5
+            },
+            "recipes": {
+              "bread": {
+                "station": "bakery",
+                "inputs": [
+                  {
+                    "item": "flour",
+                    "count": 1
+                  }
+                ],
+                "outputs": [
+                  {
+                    "item": "bread",
+                    "count": 1
+                  }
+                ]
+              }
+            },
+            "sources": [
+              {
+                "item": "flour",
+                "place": "mill",
+                "partner": "miller",
+                "cost_item": "coins",
+                "cost_count": 5
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

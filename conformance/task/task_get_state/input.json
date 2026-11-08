@@ -1,0 +1,49 @@
+{
+  "kind": "task",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "t_inspect",
+          "owner": "merchant",
+          "priority": 85,
+          "steps": [
+            {
+              "id": "s1",
+              "action": "look",
+              "target_bindings": {}
+            },
+            {
+              "id": "s2",
+              "action": "wait",
+              "target_bindings": {}
+            }
+          ]
+        }
+      },
+      {
+        "op": "accept",
+        "args": {
+          "id": "t_inspect"
+        }
+      },
+      {
+        "op": "advance",
+        "args": {
+          "id": "t_inspect",
+          "outcome": {
+            "success": true
+          },
+          "tick": 5
+        }
+      },
+      {
+        "op": "get",
+        "args": {
+          "id": "t_inspect"
+        }
+      }
+    ]
+  }
+}

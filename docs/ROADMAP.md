@@ -109,11 +109,14 @@ noted; "3 models" adds Llama 3.3 70B.
     and reaction brain proposals on a common 0..=100 bounded scale. Always names the winning motive and explains why it
     won over runners-up with explicit tie-breaking and kind precedence. 25 conformance cases (5 malformed), 2,000 differential
     parity workflows (seed 7, 0 mismatches).
-  - Next (Stage 5 / Gap 4): Tasks and planning. Task object (id, owner, assigned_by/for, motive ref, action steps,
-    preconditions, status, progress, deadline, priority, reserved resources, on_fail/on_block, outcome history); deterministic
-    planner first, host-validated model proposals second.
-  - Next (Agent Model Gaps 6–8): affect decay & missing feelings + skills growth,
-    model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
+  - Implemented (Stage 5 / Gap 4): Tasks and planning (`character::task::TaskManager`, local kind `task`).
+    Task object (id, owner, assigned_by/for, motive ref, action steps, preconditions, status, progress, deadline, priority,
+    reserved resources, on_fail/on_block recovery, outcome history). Deterministic planner over Action Catalog, strict host validation
+    of model proposals, and step advancement solely from confirmed outcomes. Offline acceptance scene replay (§8) verified
+    to byte-identical output. 25 conformance cases (5 malformed), 2,000 differential parity workflows (seed 7, 0 mismatches).
+  - Next (Stage 6 / Gaps 6 & 8): Emotions decay & missing feelings (Gap 6: decay toward baseline by temperament, mood vs emotion,
+    fear/respect/gratitude/envy/admiration) + Skills growth with use (Gap 8: practice gain, duration/quality/risk effects, teaching).
+  - Next (Agent Model Gaps 7–8): model of others / lie ledger / relationship reconciliation, off-screen effects / curiosity.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`
