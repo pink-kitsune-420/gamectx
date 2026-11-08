@@ -40,9 +40,15 @@ noted; "3 models" adds Llama 3.3 70B.
 - Phase 2, next:
   - 2.2 (rest): expression, tales, viewpoints, reactions, deliberation and wording as
     engine stages, and prop interactions proposed by characters.
-  - 8B follow-up: try a host retry-once or a stricter brevity rule for chatty 8B tunes.
-    This needs a new predeclared run on held-out probes. The catchphrase rule did not
-    reduce catchphrase use on Stheno.
+  - 8B follow-up (v3, $0, 476 calls) done. On held-out probes, Stheno 8B went from 74.1%
+    accepted (shipped) to 88.9% with one host retry, and to 88.9% first try with a stricter
+    brevity rule (98.1% with retry). 3B was ≥ 88.9% in every variant. Dropping
+    catchphrases alone missed its bar (+9.2 against +10).
+    [Guide](characters/ROLEPLAY_ENGINE.md#8b-follow-up-v3).
+  - Next: make the strict rule the default pack rule ([format] for requests).
+  - Next: `addressing`, an engine stage for turns not meant for this character, so the
+    character stays silent, waits or gestures. The host may name the audience; otherwise
+    names in the player's words decide.
   - 2.3: a visual director with tiered art bibles, format profiles, host-supplied visual
     fact selectors and an approval/repair/fallback workflow.
   - 2.4: migrate Lantern Vault onto the engine, keeping its frozen host checks

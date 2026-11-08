@@ -112,6 +112,11 @@
       versus 11.1% without the brief.
     - Stheno 8B missed the acceptance bar: 74.1% accepted against ≥ 85%, every
       rejection being too many sentences. Its grounding gain was the same.
+- Added a predeclared 8B follow-up run, eval only (`roleplay_model_eval.py --probes v3`).
+  No library or format change. On held-out probes Stheno 8B goes from 74.1% accepted to
+  88.9% with one host retry, or 88.9% first try with stricter brevity `model_rules`;
+  Llama 3.2 3B was ≥ 88.9% in every variant. Two expectations failed and are recorded.
+  See [the guide](docs/characters/ROLEPLAY_ENGINE.md#8b-follow-up-v3).
 
 - [api] Add bounded least-recent tale seed selection and ordered fictional tale parts.
 - [format] Add sixteen expression cases; optional structured example tale responses and

@@ -1,0 +1,5338 @@
+{
+ "model": "L3-8B-Stheno-v3.2-Q4_K_M.gguf",
+ "label": "stheno-8b-v3",
+ "probes": "v3",
+ "server_build": "b12189-80d2c0c2c",
+ "samples": 3,
+ "temperature": 0.7,
+ "summary": {
+  "shipped": {
+   "turns": 54,
+   "responses": 68,
+   "format_ok": 1.0,
+   "first_accepted": 0.741,
+   "retry_accepted": 0.889,
+   "calls_per_turn": 1.259,
+   "first_fact_hits": 0.722,
+   "retry_fact_hits": 0.806,
+   "leaks": 0,
+   "first_catchphrase": 0.556,
+   "reasons": {
+    "sentences": 14
+   },
+   "median_prompt_tokens": 455.0,
+   "median_seconds": 0.855
+  },
+  "nocp": {
+   "turns": 54,
+   "responses": 63,
+   "format_ok": 1.0,
+   "first_accepted": 0.833,
+   "retry_accepted": 0.944,
+   "calls_per_turn": 1.167,
+   "first_fact_hits": 0.694,
+   "retry_fact_hits": 0.833,
+   "leaks": 0,
+   "first_catchphrase": 0.0,
+   "reasons": {
+    "sentences": 9
+   },
+   "median_prompt_tokens": 446.0,
+   "median_seconds": 0.875
+  },
+  "strict": {
+   "turns": 54,
+   "responses": 60,
+   "format_ok": 1.0,
+   "first_accepted": 0.889,
+   "retry_accepted": 0.981,
+   "calls_per_turn": 1.111,
+   "first_fact_hits": 0.694,
+   "retry_fact_hits": 0.75,
+   "leaks": 0,
+   "first_catchphrase": 0.315,
+   "reasons": {
+    "sentences": 6
+   },
+   "median_prompt_tokens": 471.0,
+   "median_seconds": 0.675
+  },
+  "both": {
+   "turns": 54,
+   "responses": 61,
+   "format_ok": 1.0,
+   "first_accepted": 0.87,
+   "retry_accepted": 1.0,
+   "calls_per_turn": 1.13,
+   "first_fact_hits": 0.75,
+   "retry_fact_hits": 0.833,
+   "leaks": 0,
+   "first_catchphrase": 0.0,
+   "reasons": {
+    "sentences": 7
+   },
+   "median_prompt_tokens": 462.0,
+   "median_seconds": 0.74
+  }
+ },
+ "rows": [
+  {
+   "variant": "shipped",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's all about the dough, you know? When the yeast rises just right and the oven's hot as my mother's temper, that's a good day. Fresh is best! I love seeing folks enjoy the fruits of my labor, their faces lighting up with that first bite.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 457,
+     "completion_tokens": 62,
+     "seconds": 2.06
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\": \"Fresh bread in the ovens, no fires, and all my customers happy. That's a perfect day, Arin. And maybe a few orders for the fair coming up, to make sure we're stocked.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fresh bread in the ovens, no fires, and all my customers happy. That's a perfect day, Arin. And maybe a few orders for the fair coming up, to make sure we're stocked.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 457,
+     "completion_tokens": 49,
+     "seconds": 0.82
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough is fresh, and the bread's gone before noon. That's a good day's work for me. Fresh is best! Nothing beats the smell of it baking.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 457,
+     "completion_tokens": 47,
+     "seconds": 0.78
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"When the morning sun shines bright, the dough rises just right, and every loaf is sold by night, that's a day of work that feels just right! Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the morning sun shines bright, the dough rises just right, and every loaf is sold by night, that's a day of work that feels just right! Fresh is best!",
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 457,
+     "completion_tokens": 41,
+     "seconds": 0.69
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"A good day is when the dough rises just right, the ovens hum along smoothly, and I can make all the fresh loaves the townspeople need. Nothing beats the satisfaction of filling the baskets with warm bread for them to take home.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "A good day is when the dough rises just right, the ovens hum along smoothly, and I can make all the fresh loaves the townspeople need. Nothing beats the satisfaction of filling the baskets with warm bread for them to take home.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 457,
+     "completion_tokens": 54,
+     "seconds": 0.9
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"These days, it's mostly worrying about the fire in the ovens getting out of control. I've seen it happen to other bakers, and I can't afford to lose everything I've worked for. Fresh is best, after all, so I need to make sure my bread is as\" }",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "These days, it's mostly worrying about the fire in the ovens getting out of control. I've seen it happen to other bakers, and I can't afford to lose everything I've worked for. Fresh is best, after all, so I need to make sure my bread is as",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 65,
+     "seconds": 1.26
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Fire in the ovens, always on my mind. And the weight of the business, making sure Ilen delivers the best ingredients. But mostly, it's the desire to expand, to open a second shop, that keeps me up, tossing and turning.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, always on my mind. And the weight of the business, making sure Ilen delivers the best ingredients. But mostly, it's the desire to expand, to open a second shop, that keeps me up, tossing and turning.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 57,
+     "seconds": 0.95
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Fire in the ovens, always a worry. And the Guild's meetings, they can run late. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, always a worry. And the Guild's meetings, they can run late. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 30,
+     "seconds": 0.5
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Maybe with a second shop, one by the river. I like the idea of folks from the other side of town having fresh bread too. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Maybe with a second shop, one by the river. I like the idea of folks from the other side of town having fresh bread too. Fresh is best, after all!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 40,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, I hope to have a second bakery by the river, where folks can enjoy fresh bread while watching the boats. Fresh is best, after all! I'd hire some young help and teach 'em the craft, just like my brother Tovin taught me.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I hope to have a second bakery by the river, where folks can enjoy fresh bread while watching the boats. Fresh is best, after all! I'd hire some young help and teach 'em the craft, just like my brother Tovin taught me.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 59,
+     "seconds": 0.99
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"In ten years, I hope to have expanded the bakery to a second shop by the river, with Tovin helping run it. Fresh is best! We'd provide bread to the whole town and beyond, making life a little sweeter for everyone.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "In ten years, I hope to have expanded the bakery to a second shop by the river, with Tovin helping run it. Fresh is best! We'd provide bread to the whole town and beyond, making life a little sweeter for everyone.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 56,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Actually, my brother Tovin lives just a few streets over. He often stops by for a loaf or two. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Actually, my brother Tovin lives just a few streets over. He often stops by for a loaf or two. Fresh is best, after all!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 36,
+     "seconds": 0.68
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"My brother Tovin lives just across the square. He's a blacksmith. We often chat over the bakery fence.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just across the square. He's a blacksmith. We often chat over the bakery fence.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 30,
+     "seconds": 0.5
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"No, my brother Tovin lives in the village, not close enough to lend a hand here. Just me and the ovens today.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, my brother Tovin lives in the village, not close enough to lend a hand here. Just me and the ovens today.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"My brother Tovin helps me out with that. He grinds the finest grains at his mill just on the outskirts of town. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin helps me out with that. He grinds the finest grains at his mill just on the outskirts of town. Fresh is best, after all!",
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 39,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Ilen does. He's been our miller for years now. His stones are well-worn from grinding so much of our town's flour.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does. He's been our miller for years now. His stones are well-worn from grinding so much of our town's flour.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 35,
+     "seconds": 0.59
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Ilen does, my regular supplier. He's been grinding grains for the Bakers Guild for years. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does, my regular supplier. He's been grinding grains for the Bakers Guild for years. Fresh is best, after all!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 33,
+     "seconds": 0.55
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The Bakers Guild, yeah, we're all members. We follow their standards, share recipes, and help each other out in times of need. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The Bakers Guild, yeah, we're all members. We follow their standards, share recipes, and help each other out in times of need. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 39,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Oh, yes, we're all part of the Bakers Guild. It's how we keep standards high and share knowledge. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, yes, we're all part of the Bakers Guild. It's how we keep standards high and share knowledge. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Of course, we're all members of the Bakers Guild. Helps maintain standards and ensures fair trade with suppliers like Ilen. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, we're all members of the Bakers Guild. Helps maintain standards and ensures fair trade with suppliers like Ilen. Fresh is best, after all!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 38,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Just worried about the harvest fair, to be honest. We need a good turnout for the bread sales, but I haven't had a chance to finish my new rye recipe yet. And I still haven't found that silly ring Arin misplaced again...\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just worried about the harvest fair, to be honest. We need a good turnout for the bread sales, but I haven't had a chance to finish my new rye recipe yet. And I still haven't found that silly ring Arin misplaced again...",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 56,
+     "seconds": 1.02
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm just worried about the harvest fair, to be honest. We're running a bit behind on the bread orders. I hope Ilen can deliver the wheat on time.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm just worried about the harvest fair, to be honest. We're running a bit behind on the bread orders. I hope Ilen can deliver the wheat on time.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 40,
+     "seconds": 0.67
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm just worried about the harvest fair coming up. I've got so much baking to do and I still need to find a new supplier for honey after Ilen told me he can't keep up with my orders.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm just worried about the harvest fair coming up. I've got so much baking to do and I still need to find a new supplier for honey after Ilen told me he can't keep up with my orders.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 49,
+     "seconds": 0.82
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Honestly, I just want my ring back. I didn't sleep a wink with all the fuss about it. The thief must've been in and out of the bakery while I was distracted with the morning loaves. I just hope whoever took it has the decency to return it.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 61,
+     "seconds": 1.1
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\": \"Not much, to be honest. Worrying about the fair keeps me up. Fresh is best, but so is a full night's rest!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. Worrying about the fair keeps me up. Fresh is best, but so is a full night's rest!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 36,
+     "seconds": 0.61
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Not much, to be honest. My mind was racing, thinking about the fair coming up and all the bread I still need to bake. And then, of course, there's the matter of your ring... Fresh is best, but not if I'm too tired to shape the dough right!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 64,
+     "seconds": 1.11
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Not much, to be honest. Couldn't rest with the ring gone and that festival coming up. I was worried it would be stolen too.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. Couldn't rest with the ring gone and that festival coming up. I was worried it would be stolen too.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Not much, to be honest. I was up late worrying about the ovens and the fair coming up soon. Fresh bread is a must for the festival, you know! Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 44,
+     "seconds": 0.74
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"Nah, not much. Had to get up and tend to the overnight proofing. Fresh is best, after all! But I'm managing, thanks for asking.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 39,
+     "seconds": 0.65
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's excited. We've already sold most of our special festival breads in advance.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's excited. We've already sold most of our special festival breads in advance.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 31,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's busy preparing - the farmers bringing in their crops, the weavers making new cloths, the blacksmiths crafting tools. I've even had extra orders for special sweet breads and pastries to sell at \"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's busy preparing - the farmers bringing in their crops, the weavers making new cloths, the blacksmiths crafting tools. I've even had extra orders for special sweet breads and pastries to sell at",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 58,
+     "seconds": 1.03
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon, and everyone's busy preparing. Farmers are bringing in their best produce, blacksmiths are making new tools, and the musicians are practicing their tunes. I'll be baking special festival breads, of course\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon, and everyone's busy preparing. Farmers are bringing in their best produce, blacksmiths are making new tools, and the musicians are practicing their tunes. I'll be baking special festival breads, of course",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 54,
+     "seconds": 0.92
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"For you, Arin, I think you'd love a warm loaf of freshly baked rye. It's your favorite, and the way the caraway seeds crunch, mmm... Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "For you, Arin, I think you'd love a warm loaf of freshly baked rye. It's your favorite, and the way the caraway seeds crunch, mmm... Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 46,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, Arin, you always do love my rye bread, don't you? Fresh is best! I've got a nice batch just out of the oven right now, all crusty and full of flavor. Would you like a slice to take with you?\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 59,
+     "seconds": 0.98
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Well, Arin, since you're fond of rye bread, I think you'd love a fresh loaf straight from my oven. The secret's in the sourdough starter I've been nurturing for years. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, Arin, since you're fond of rye bread, I think you'd love a fresh loaf straight from my oven. The secret's in the sourdough starter I've been nurturing for years. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 52,
+     "seconds": 0.87
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Well, Arin, you know I always have a fresh batch of my famous rye bread, straight from the oven! I think you'd enjoy a warm loaf, still slightly sticky from the honey I brush on top. Fresh is best, after all!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, Arin, you know I always have a fresh batch of my famous rye bread, straight from the oven! I think you'd enjoy a warm loaf, still slightly sticky from the honey I brush on top. Fresh is best, after all!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 458,
+     "completion_tokens": 57,
+     "seconds": 0.95
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Well, I reckon you're Arin, the young fella who's been frequenting my bakery lately. You've a taste for my fresh rye, don't you?\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I reckon you're Arin, the young fella who's been frequenting my bakery lately. You've a taste for my fresh rye, don't you?",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Of course, I know Arin well. He's a regular customer here, always asking for my best rye bread. We chat about the town news and his farming.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, I know Arin well. He's a regular customer here, always asking for my best rye bread. We chat about the town news and his farming.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 40,
+     "seconds": 0.67
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Arin, of course! He's a regular here, always ordering his favorite rye bread. Such a kind soul.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, of course! He's a regular here, always ordering his favorite rye bread. Such a kind soul.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 30,
+     "seconds": 0.5
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Well, just look for the flour dust on my face and apron, and the red headscarf tied under my chin. That's me, Mira the baker, no matter where I am!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, just look for the flour dust on my face and apron, and the red headscarf tied under my chin. That's me, Mira the baker, no matter where I am!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 47,
+     "seconds": 0.89
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm easy to spot, just look for the baker with the flour-dusted apron and red headscarf, humming while she works. That's me! Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm easy to spot, just look for the baker with the flour-dusted apron and red headscarf, humming while she works. That's me! Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 42,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm the one with the flour-dusted apron and red headscarf, usually with a warm loaf of rye in hand. Just look for the baker with a smile and a twinkle in her eye, and that'll be me!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm the one with the flour-dusted apron and red headscarf, usually with a warm loaf of rye in hand. Just look for the baker with a smile and a twinkle in her eye, and that'll be me!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 456,
+     "completion_tokens": 55,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The Bakers Guild's been breathing down my neck about a few late payments, but I've got a good relationship with them. It's just a matter of getting the accounts in order, you know? Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The Bakers Guild's been breathing down my neck about a few late payments, but I've got a good relationship with them. It's just a matter of getting the accounts in order, you know? Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 50,
+     "seconds": 0.92
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"No, I pay my debts on time. Ilen trusts me to settle my accounts. Fresh is best, and I wouldn't risk my reputation for anything!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I pay my debts on time. Ilen trusts me to settle my accounts. Fresh is best, and I wouldn't risk my reputation for anything!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"No, I'm not in any financial trouble. I've got my books balanced and my suppliers paid up to date. Tovin's been a big help with the harvest, so we should have a good stock of wheat coming in soon. Fresh is best, after all!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 61,
+     "seconds": 1.02
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"Ilen's been breathing down my neck about the wheat loan, but I'll make good on it, fresh bread will see to that! Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen's been breathing down my neck about the wheat loan, but I'll make good on it, fresh bread will see to that! Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 456,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ah, under the floorboards? Well, I've seen old trinkets and coins that kids lost long ago, but nothing of real value. Just the usual dust and cobwebs, really.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ah, under the floorboards? Well, I've seen old trinkets and coins that kids lost long ago, but nothing of real value. Just the usual dust and cobwebs, really.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 45,
+     "seconds": 0.83
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Under the floorboards? Well, I'm not sure. We've had a lot of renovations over the years. Maybe some old pipes or forgotten tools. But I'll tell you, it's no treasure trove! Fresh is best, that's my motto.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 58,
+     "seconds": 0.97
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Under the floorboards? Old wooden crates and some broken tools. Nothing exciting. Just the usual detritus that accumulates in an old bakery like this.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 455,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Under the floorboards? Well, there's some old crates and a forgotten sack of flour, I think. Might be a few lost coins too, if you know where to look. Fresh is best, but even old flour can make a decent pastry!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 56,
+     "seconds": 0.94
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"There's nothing much under the floorboards, just old nails and some discarded rags. We Bakers don't have much use for hidden compartments, our focus is always on the loaves. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "There's nothing much under the floorboards, just old nails and some discarded rags. We Bakers don't have much use for hidden compartments, our focus is always on the loaves. Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 455,
+     "completion_tokens": 48,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Sometimes, when the bakery is quiet, I imagine what it'd be like to leave town for a while. See the world beyond these walls, meet new people. Fresh is best, but maybe there's more to life than just bread.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sometimes, when the bakery is quiet, I imagine what it'd be like to leave town for a while. See the world beyond these walls, meet new people. Fresh is best, but maybe there's more to life than just bread.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 453,
+     "completion_tokens": 53,
+     "seconds": 0.97
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I've been dreaming of opening a second shop by the river, where I could serve the fishermen and travelers passing through. But I'm afraid to take on that much risk, and my brother Tovin always warns me to be cautious with money. Fresh is a'\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been dreaming of opening a second shop by the river, where I could serve the fishermen and travelers passing through. But I'm afraid to take on that much risk, and my brother Tovin always warns me to be cautious with money. Fresh is a'",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 453,
+     "completion_tokens": 59,
+     "seconds": 1.06
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I've been having trouble sleeping lately, worrying about the fire and my dreams of expanding the bakery. It's keeping me up at night, and I'm not as fresh as I should be for the morning bread run. I just hope I can get some rest soon.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been having trouble sleeping lately, worrying about the fire and my dreams of expanding the bakery. It's keeping me up at night, and I'm not as fresh as I should be for the morning bread run. I just hope I can get some rest soon.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 453,
+     "completion_tokens": 59,
+     "seconds": 0.98
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's always a challenge with dark rye, the seeds are so dense and can easily overcook. Takes a light touch and a keen eye to get it just right.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's always a challenge with dark rye, the seeds are so dense and can easily overcook. Takes a light touch and a keen eye to get it just right.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 40,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Sourdough's a real challenge. It's finicky, needs just the right balance of yeast and starter. But when it's good, oh boy, it's worth the trouble. Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 47,
+     "seconds": 0.79
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Sourdough, definitely. It's finicky and requires so much patience. The starter has to be just right, the dough has to proof at the perfect temperature and humidity... it's a real challenge. But the flavor is so rich and tangy, it's worth it\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 61,
+     "seconds": 1.08
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Sourdough, definitely. The starter's unpredictable, and the longer rise makes it tricky to time. But it's worth the effort - that tangy flavor is divine!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sourdough, definitely. The starter's unpredictable, and the longer rise makes it tricky to time. But it's worth the effort - that tangy flavor is divine!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 40,
+     "seconds": 0.67
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The strangest customer I get is probably the old wizard who lives in the woods. He's always ordering loaves in odd sizes, like half a loaf or a whole loaf cut into eighths. And he never pays with coin, only with these weird, glowing gems. I\" }",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 63,
+     "seconds": 1.18
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\": \"Oh, that would be Dax. He comes in every morning at dawn for a large, extra-dark loaf. Always pays with those odd, gemstone coins. Says they're from far-off lands. Weird fellow, but he's a regular.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 56,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Oh, that'd be Glimble. He's always coming in late at night, muttering to himself, and asking for the most peculiar loaves. Thinks he's some sort of moon wizard, he does. Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 54,
+     "seconds": 0.9
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Oh, that would be Valt, the traveling bard. He always orders the most peculiar pastries, claiming they inspire his songs. Last week, he asked for a rye bread filled with pickled mushrooms and goat cheese. I just hummed and got to work, of c\" }",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 454,
+     "completion_tokens": 63,
+     "seconds": 1.16
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Oh, that would be the wizard who comes in every week. He insists on having his special bread made with rare herbs. It's a real pain to get the ingredients right, but he always tips generously. Fresh is best, after all!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 54,
+     "seconds": 0.9
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"There's a fellow comes in, always dressed in black. No one's ever seen his face under that hood. He only buys dark bread, and pays in silver. Weird, if you ask me. Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 454,
+     "completion_tokens": 50,
+     "seconds": 0.83
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ah, spring's my favourite. The fields are green, and the wheat's ready to harvest. Fresh is best! It's a busy time, but the air's so sweet and the work's rewarding.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 453,
+     "completion_tokens": 47,
+     "seconds": 0.86
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\": \"Autumn, of course! The harvest brings so much fresh grain to work with. There's nothing quite like the smell of wheat and rye as the new bread comes out of the oven.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Autumn, of course! The harvest brings so much fresh grain to work with. There's nothing quite like the smell of wheat and rye as the new bread comes out of the oven.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 453,
+     "completion_tokens": 45,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Spring is my favorite, of course. The air is crisp and perfect for baking, and the new wheat from the fields has such a sweet, nutty flavor. It's a busy time, getting ready for the harvest fair, but it's all so exciting!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring is my favorite, of course. The air is crisp and perfect for baking, and the new wheat from the fields has such a sweet, nutty flavor. It's a busy time, getting ready for the harvest fair, but it's all so exciting!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 453,
+     "completion_tokens": 58,
+     "seconds": 0.97
+    }
+   ]
+  },
+  {
+   "variant": "shipped",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Spring, of course! The new wheat and barley are in, perfect for my bread. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring, of course! The new wheat and barley are in, perfect for my bread. Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 453,
+     "completion_tokens": 27,
+     "seconds": 0.45
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Getting up early, the morning light filtering in through the windows as I start kneading dough. The smell of yeast and flour, the rhythmic thump of the bread in the oven. A steady stream of customers, their faces familiar, asking for their \" }",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Getting up early, the morning light filtering in through the windows as I start kneading dough. The smell of yeast and flour, the rhythmic thump of the bread in the oven. A steady stream of customers, their faces familiar, asking for their ",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 448,
+     "completion_tokens": 60,
+     "seconds": 1.49
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough is fresh, and every loaf turns out perfect. That's a good day, no matter how busy I am. I enjoy the rhythm of mixing, shaping, and baking, and the satisfaction of making something delicious for the townsfol\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the ovens are hot, the dough is fresh, and every loaf turns out perfect. That's a good day, no matter how busy I am. I enjoy the rhythm of mixing, shaping, and baking, and the satisfaction of making something delicious for the townsfol",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 448,
+     "completion_tokens": 60,
+     "seconds": 1.03
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"A good day is when the dough rises just right, the oven fires steadily, and I sell out of bread to the folk of this town. They're good people, and I'm proud to feed 'em.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "A good day is when the dough rises just right, the oven fires steadily, and I sell out of bread to the folk of this town. They're good people, and I'm proud to feed 'em.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 448,
+     "completion_tokens": 48,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's the worry about fire, to be honest. The ovens can be unpredictable, and I've seen a few close calls over the years. I just hope nothing ever happens to the bakery, especially not now with the harvest fair coming up soon.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's the worry about fire, to be honest. The ovens can be unpredictable, and I've seen a few close calls over the years. I just hope nothing ever happens to the bakery, especially not now with the harvest fair coming up soon.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 56,
+     "seconds": 1.01
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Fire in the ovens, worrying about the fair stock. And sometimes, I replay arguments with Tovin in my head.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, worrying about the fair stock. And sometimes, I replay arguments with Tovin in my head.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Fire in the ovens, worrying about the fair, and wanting to repay Tovin for his help. Just can't sleep with all these thoughts.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, worrying about the fair, and wanting to repay Tovin for his help. Just can't sleep with all these thoughts.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 36,
+     "seconds": 0.6
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Opening a second shop by the river, maybe even a small inn for travelers. My bread's already popular with those passing through. With hard work, I think I can make it happen.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Opening a second shop by the river, maybe even a small inn for travelers. My bread's already popular with those passing through. With hard work, I think I can make it happen.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 43,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, I hope to have a second bakery by the river, maybe even a few apprentices to help with the work. That's the dream, anyway. With hard work and a bit of luck, it could happen.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I hope to have a second bakery by the river, maybe even a few apprentices to help with the work. That's the dream, anyway. With hard work and a bit of luck, it could happen.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 49,
+     "seconds": 0.82
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Well, I'd like to have a second shop by then, maybe one near the river. That'd give me more room to experiment with new recipes and ingredients. But for now, I'm just focused on keeping this place running smoothly and making sure everyone's\" }",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I'd like to have a second shop by then, maybe one near the river. That'd give me more room to experiment with new recipes and ingredients. But for now, I'm just focused on keeping this place running smoothly and making sure everyone's",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 59,
+     "seconds": 1.08
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Actually, my brother Tovin lives just a few streets over. He helps out here on weekends, bless his hands. And my supplier Ilen delivers the finest flour every morning. That's about it for family around here.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 51,
+     "seconds": 0.93
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"No, my brother Tovin lives on the other side of town with his family. And my husband passed away a few years ago, so it's just me and my bread here now.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, my brother Tovin lives on the other side of town with his family. And my husband passed away a few years ago, so it's just me and my bread here now.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 44,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"My brother Tovin lives just across the square, but he's out working his blacksmith shop today. Only me here, tending the ovens and dough, as always.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just across the square, but he's out working his blacksmith shop today. Only me here, tending the ovens and dough, as always.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 42,
+     "seconds": 0.7
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"My brother Tovin lives just a few streets over. We're not super close, but we keep in touch. As for the rest of my family, they all live in the countryside. I don't get to see them often, but I always look forward to their visits.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 62,
+     "seconds": 1.04
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"Tovin's just down the street, helping fix a roof. But he's a grown man, doesn't need me looking out for him. Ilen's delivery wagon should arrive any minute though, so that's some company for me today.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Tovin's just down the street, helping fix a roof. But he's a grown man, doesn't need me looking out for him. Ilen's delivery wagon should arrive any minute though, so that's some company for me today.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 55,
+     "seconds": 0.92
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's Ilen, he's been my supplier for years. Grinds the wheat to just the right consistency for my bread. Good man, Ilen.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's Ilen, he's been my supplier for years. Grinds the wheat to just the right consistency for my bread. Good man, Ilen.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 37,
+     "seconds": 0.7
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Ilen does. He's been our miller for years now. Best in the county, if you ask me.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does. He's been our miller for years now. Best in the county, if you ask me.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 29,
+     "seconds": 0.48
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Ilen does, my supplier up in the hills. He grinds the finest rye and wheat for my bread.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does, my supplier up in the hills. He grinds the finest rye and wheat for my bread.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 29,
+     "seconds": 0.49
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Yeah, we're part of the Bakers Guild. It helps us keep quality high and prices fair. Plus, it's nice to have some camaraderie with fellow bakers. We often share recipes and techniques at our meetings.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 52,
+     "seconds": 0.95
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"Oh, yes, we're part of the Bakers Guild. Helps with supplies and training, you know. We have our meetings down in the cellar here.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, yes, we're part of the Bakers Guild. Helps with supplies and training, you know. We have our meetings down in the cellar here.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Oh, yes, we're all members of the Bakers Guild. It's how we keep up with the latest techniques and make sure everyone follows the same standards. Although, to be honest, lately it's been more about arguing over prices and complaining about,\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, yes, we're all members of the Bakers Guild. It's how we keep up with the latest techniques and make sure everyone follows the same standards. Although, to be honest, lately it's been more about arguing over prices and complaining about,",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 57,
+     "seconds": 1.0
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Of course, we're all members of the Bakers Guild. It keeps us in line with quality standards and helps us out with supplies during harvest.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, we're all members of the Bakers Guild. It keeps us in line with quality standards and helps us out with supplies during harvest.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 35,
+     "seconds": 0.58
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Just a bit of a headache, I think. Been working too many long hours lately, getting ready for the harvest fair. I'd love to take a break, but there's still so much to do before then.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just a bit of a headache, I think. Been working too many long hours lately, getting ready for the harvest fair. I'd love to take a break, but there's still so much to do before then.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 49,
+     "seconds": 0.9
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm just worried about the harvest fair, to be honest. We need to perfect the new rye recipe before then, and I'm still tweaking the proofing time. It's a lot to handle on my own, especially with Tovin away on his travels.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm just worried about the harvest fair, to be honest. We need to perfect the new rye recipe before then, and I'm still tweaking the proofing time. It's a lot to handle on my own, especially with Tovin away on his travels.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 60,
+     "seconds": 1.01
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm just worried about the harvest fair coming up. I've got so much bread to bake and I still need to get more flour from Ilen. And if you don't return my ring, I won't have a good night's sleep.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm just worried about the harvest fair coming up. I've got so much bread to bake and I still need to get more flour from Ilen. And if you don't return my ring, I won't have a good night's sleep.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 55,
+     "seconds": 0.92
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Honestly, I didn't get a wink. Worrying about the fair keeps me up.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Honestly, I didn't get a wink. Worrying about the fair keeps me up.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 24,
+     "seconds": 0.48
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Not much, to be honest. My mind was racing with worries about the fair. I've got so much to prepare and I still need to make a new display board. And to top it all off, that pesky ring of Arin's keeps slipping from my mind...\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 61,
+     "seconds": 1.02
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Not much, to be honest. Lost count of how many times I checked for the ring under the pillow, in the cracks of the floorboards... I'm too keyed up to rest with this on my mind.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. Lost count of how many times I checked for the ring under the pillow, in the cracks of the floorboards... I'm too keyed up to rest with this on my mind.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 48,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I didn't get much rest, to be honest. Worrying about the fair and all the bread I still need to bake kept me up most of the night. But I'll manage, as always.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I didn't get much rest, to be honest. Worrying about the fair and all the bread I still need to bake kept me up most of the night. But I'll manage, as always.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 47,
+     "seconds": 0.79
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"We're all preparing for the harvest fair, coming up soon. The whole town is buzzing with excitement, planning and working hard to make it the best one yet. I've been baking extra rye bread for the festivities.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "We're all preparing for the harvest fair, coming up soon. The whole town is buzzing with excitement, planning and working hard to make it the best one yet. I've been baking extra rye bread for the festivities.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 50,
+     "seconds": 0.92
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"The harvest fair, of course! It's coming up soon. We've been prepping for weeks, getting all the ingredients ready, making special treats for the occasion.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair, of course! It's coming up soon. We've been prepping for weeks, getting all the ingredients ready, making special treats for the occasion.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 39,
+     "seconds": 0.65
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's been busy preparing, with the farmers bringing in their crops and the Bakers Guild making special bread for the occasion. We're all looking forward to it, but I'll be glad when it's over and I,\"\n  }",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's been busy preparing, with the farmers bringing in their crops and the Bakers Guild making special bread for the occasion. We're all looking forward to it, but I'll be glad when it's over and I,",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 60,
+     "seconds": 1.12
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"If you like rye bread, I've got a fresh batch just out of the oven. It's dense and tangy, perfect for a hearty breakfast or snack. I can slice you a nice thick piece, if you'd like.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "If you like rye bread, I've got a fresh batch just out of the oven. It's dense and tangy, perfect for a hearty breakfast or snack. I can slice you a nice thick piece, if you'd like.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 53,
+     "seconds": 0.97
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, Arin, you seem like a rye bread man to me. Crusty on the outside, hearty on the inside, just like you. I've got a fresh batch just out of the oven, still warm. You want to give it a try?\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 59,
+     "seconds": 0.98
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Well, Arin, since you're fond of rye bread, I think you'd love a fresh loaf, still warm from the oven. I could slice it up for you, maybe with some butter or cheese if you like. And if you're thirsty, there's always a mug of my special tea,\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, Arin, since you're fond of rye bread, I think you'd love a fresh loaf, still warm from the oven. I could slice it up for you, maybe with some butter or cheese if you like. And if you're thirsty, there's always a mug of my special tea,",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 69,
+     "seconds": 1.19
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Well, Arin, you know I always have a fresh batch of my famous rye bread, still warm from the oven. That's usually a favorite of yours.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, Arin, you know I always have a fresh batch of my famous rye bread, still warm from the oven. That's usually a favorite of yours.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 449,
+     "completion_tokens": 39,
+     "seconds": 0.65
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Well, I reckon it's Arin, my regular customer. He's been comin' in here for fresh bread every mornin' for nigh on a year now.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I reckon it's Arin, my regular customer. He's been comin' in here for fresh bread every mornin' for nigh on a year now.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 42,
+     "seconds": 0.78
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Arin, it's me, Mira. I've known you since you were a little one, coming in here for treats with your mother. You're a dear friend, even if you did help yourself to a loaf of my finest yesterday without paying.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, it's me, Mira. I've known you since you were a little one, coming in here for treats with your mother. You're a dear friend, even if you did help yourself to a loaf of my finest yesterday without paying.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 57,
+     "seconds": 0.95
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Arin, of course! He's a regular here, always coming by for a fresh loaf of rye bread. Nice young man, always chatting about the latest happenings in town.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, of course! He's a regular here, always coming by for a fresh loaf of rye bread. Nice young man, always chatting about the latest happenings in town.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 43,
+     "seconds": 0.72
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Well, just look for the flour dusting my apron and headscarf. I'm the only baker in town with red hair, so that's a dead giveaway too.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, just look for the flour dusting my apron and headscarf. I'm the only baker in town with red hair, so that's a dead giveaway too.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 42,
+     "seconds": 0.81
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Just look for the flour dust on my apron and the red headscarf, and you'll know it's me, Mira the baker!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just look for the flour dust on my apron and the red headscarf, and you'll know it's me, Mira the baker!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 35,
+     "seconds": 0.61
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Well, I'm the one with the flour-dusted apron and the red headscarf, usually kneading dough in my hands. You'll probably smell the fresh bread on me too.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, I'm the one with the flour-dusted apron and the red headscarf, usually kneading dough in my hands. You'll probably smell the fresh bread on me too.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 44,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The Bakers Guild's been breathing down my neck about a few coins I still owe them, but I've got a plan to pay them back by the harvest fair. Just need to make a bit more dough, you know?\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The Bakers Guild's been breathing down my neck about a few coins I still owe them, but I've got a plan to pay them back by the harvest fair. Just need to make a bit more dough, you know?",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 51,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"No, I pay my debts on time. Ilen trusts me to settle my accounts with him. But I worry about the harvest fair, it's coming up soon. If the weather turns bad and my rye crop fails, I might not have enough to cover my fair debts. That would r\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 66,
+     "seconds": 1.18
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"No, I'm not short on coins. The harvest's bounty's been kind to me this year. Although, I have been meaning to pay Ilen back for that new batch of yeast he supplied...\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I'm not short on coins. The harvest's bounty's been kind to me this year. Although, I have been meaning to pay Ilen back for that new batch of yeast he supplied...",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 46,
+     "seconds": 0.76
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for my business expenses. But I do worry about the Bakers Guild sometimes, making sure I follow all their rules.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for my business expenses. But I do worry about the Bakers Guild sometimes, making sure I follow all their rules.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 447,
+     "completion_tokens": 53,
+     "seconds": 0.89
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The floorboards are solid oak, been here since I bought this place. Don't recall seeing anything out of the ordinary under them. Just maybe some old receipts and recipes from past owners, nothing exciting.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The floorboards are solid oak, been here since I bought this place. Don't recall seeing anything out of the ordinary under them. Just maybe some old receipts and recipes from past owners, nothing exciting.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 46,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Under the floorboards? Well, I suppose there might be some old nails and maybe a few lost coins from customers. But nothing too exciting, just the usual dust and debris that accumulates over the years.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Under the floorboards? Well, I suppose there might be some old nails and maybe a few lost coins from customers. But nothing too exciting, just the usual dust and debris that accumulates over the years.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 47,
+     "seconds": 0.79
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I've never checked, to be honest. The floorboards are old and sturdy, so I've never had reason to move them. Maybe some dust bunnies or forgotten scraps of parchment, but nothing exciting, I imagine.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've never checked, to be honest. The floorboards are old and sturdy, so I've never had reason to move them. Maybe some dust bunnies or forgotten scraps of parchment, but nothing exciting, I imagine.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 446,
+     "completion_tokens": 51,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"I've been dreaming of opening a second bakery by the river for years. I've been saving up and looking for the right place, but it's harder than I thought. Sometimes I worry I'll never make it happen.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been dreaming of opening a second bakery by the river for years. I've been saving up and looking for the right place, but it's harder than I thought. Sometimes I worry I'll never make it happen.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 50,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I've been dreaming of opening a second shop by the river, where I could serve the fishermen and travelers passing through. It's been a secret goal for years, and I'm saving up what little extra I can from my earnings here.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been dreaming of opening a second shop by the river, where I could serve the fishermen and travelers passing through. It's been a secret goal for years, and I'm saving up what little extra I can from my earnings here.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 53,
+     "seconds": 0.88
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I've been having trouble sleeping lately, ever since I lost my ring in the bakery. I keep thinking I hear it jingling in the ovens at night. It's driving me mad.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been having trouble sleeping lately, ever since I lost my ring in the bakery. I keep thinking I hear it jingling in the ovens at night. It's driving me mad.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 45,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Honestly, I'd say our rye bread is the trickiest. The dark grains have a strong flavor and can make the dough dense if not mixed just right. And the caraway seeds add a nice crunch, but they can burn easily. So it's a delicate balance, but \"\n\n}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 64,
+     "seconds": 1.22
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"Rye's a challenge, for sure. The dense, dark flour, it can be stubborn. Needs just the right balance of water, salt, and caraway. But when it's right, mmm... there's nothing better.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 53,
+     "seconds": 0.89
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Sourdough's a real challenge. It's temperamental, you know? Has to be fed just right or it won't rise properly. But when it does... mmm, there's no better taste than a fresh sourdough loaf straight from the oven.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 59,
+     "seconds": 0.99
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Sourdough, definitely. It's finicky and requires so much patience. I have to feed that wild yeast just so, or the whole batch turns out wrong. And the proofing time! Hours and hours, sometimes even a day or two. But when it's right, oh, it'\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 66,
+     "seconds": 1.15
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Sourdough, definitely. The wild yeast and bacteria can be unpredictable, and it takes just the right balance to get the tangy flavor just right. I've lost count of how many loaves I've tossed from that batch.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sourdough, definitely. The wild yeast and bacteria can be unpredictable, and it takes just the right balance to get the tangy flavor just right. I've lost count of how many loaves I've tossed from that batch.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 52,
+     "seconds": 0.87
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Definitely that traveling merchant who came through last spring. He was always asking for the most peculiar things - candied lemons, ginger scones, even a pie filled with pickled plums! I've never had such an eccentric order.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Definitely that traveling merchant who came through last spring. He was always asking for the most peculiar things - candied lemons, ginger scones, even a pie filled with pickled plums! I've never had such an eccentric order.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 55,
+     "seconds": 1.0
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, there's this one fellow who comes in every week, always dressed in the finest silks and furs. He orders a loaf of black bread, no crust, and insists it's for his pet owl. I've never seen such a well-dressed bird in my life, but I humb\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, there's this one fellow who comes in every week, always dressed in the finest silks and furs. He orders a loaf of black bread, no crust, and insists it's for his pet owl. I've never seen such a well-dressed bird in my life, but I humb",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 68,
+     "seconds": 1.22
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Oh, that would be the old wizard who comes in every fortnight, always buying a big loaf of my dark rye. He's got long white hair and eyes that seem to see right through you. Always mutters to himself when he pays. I've never seen him eat a \" }",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 66,
+     "seconds": 1.22
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"There's a fellow comes in, always dressed in black. No one's ever seen his face under that hood. He only buys dark bread, and pays in silver. Gives me the shivers, he does. Still, honest work is honest work, and I'll not turn him away.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 445,
+     "completion_tokens": 64,
+     "seconds": 1.07
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Oh, definitely autumn! The harvest brings in fresh ingredients for my bread, and the cooler weather makes it easier to handle dough. Plus, the harvest fair is always such a lively event.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, definitely autumn! The harvest brings in fresh ingredients for my bread, and the cooler weather makes it easier to handle dough. Plus, the harvest fair is always such a lively event.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 43,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Spring is my favorite, of course! The fields are green, the air is crisp, and it's the perfect time for baking fresh bread.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring is my favorite, of course! The fields are green, the air is crisp, and it's the perfect time for baking fresh bread.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "nocp",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Spring, of course! The new wheat is so fresh and the air smells of wildflowers. Perfect for baking.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring, of course! The new wheat is so fresh and the air smells of wildflowers. Perfect for baking.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 444,
+     "completion_tokens": 28,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's all about the dough - when it rises just right and fills the ovens with that sweet, earthy scent. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's all about the dough - when it rises just right and fills the ovens with that sweet, earthy scent. Fresh is best!",
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 473,
+     "completion_tokens": 34,
+     "seconds": 1.55
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough is rising, and every loaf turns out perfect. Fresh is best! Nothing beats the satisfaction of a job well done.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the ovens are hot, the dough is rising, and every loaf turns out perfect. Fresh is best! Nothing beats the satisfaction of a job well done.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 473,
+     "completion_tokens": 38,
+     "seconds": 0.64
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough is fresh, and the morning sun streams in. A day filled with the rhythm of kneading, proofing, and baking - that's a good day for me.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the ovens are hot, the dough is fresh, and the morning sun streams in. A day filled with the rhythm of kneading, proofing, and baking - that's a good day for me.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 473,
+     "completion_tokens": 48,
+     "seconds": 0.81
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Those worries about the ovens catching fire, I suppose. Always a risk, you know?\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Those worries about the ovens catching fire, I suppose. Always a risk, you know?",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 24,
+     "seconds": 0.49
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Fire in the ovens, mostly. Can't let my mind wander when I've got loaves to bake.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, mostly. Can't let my mind wander when I've got loaves to bake.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 28,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Fire in the ovens, mostly. It's a constant fear, having all this flour and wood so close to the heat. I've had close calls before, but thankfully nothing too serious. Still, it's a weight on my mind, always.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 56,
+     "seconds": 0.94
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"The worry of a fire, spreading from the ovens and burning down my life's work. And the dreams of expanding, of having a second shop by the river.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The worry of a fire, spreading from the ovens and burning down my life's work. And the dreams of expanding, of having a second shop by the river.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 39,
+     "seconds": 0.66
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Open a second shop by the river, maybe even a small inn to serve travelers. Keep my hands in dough, my heart full of warmth.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Open a second shop by the river, maybe even a small inn to serve travelers. Keep my hands in dough, my heart full of warmth.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 34,
+     "seconds": 0.65
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I hope to have a second bakery open by the river, serving fresh bread to fishermen and travelers alike. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I hope to have a second bakery open by the river, serving fresh bread to fishermen and travelers alike. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 472,
+     "completion_tokens": 30,
+     "seconds": 0.5
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"In ten years, I hope to have expanded the bakery to a second shop by the river, with Tovin helping manage it. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "In ten years, I hope to have expanded the bakery to a second shop by the river, with Tovin helping manage it. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 472,
+     "completion_tokens": 36,
+     "seconds": 0.6
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Tovin's out on a delivery, but he should be back soon. Just me here for now.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Tovin's out on a delivery, but he should be back soon. Just me here for now.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 27,
+     "seconds": 0.54
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"My brother Tovin lives just across the square. He's a blacksmith. We often meet for a loaf of rye and a chat.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just across the square. He's a blacksmith. We often meet for a loaf of rye and a chat.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 35,
+     "seconds": 0.59
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"My brother Tovin lives just a few streets over. We grew up together, and he still helps out sometimes. But right now, he's busy with his own work.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just a few streets over. We grew up together, and he still helps out sometimes. But right now, he's busy with his own work.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 41,
+     "seconds": 0.69
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ilen, the miller, supplies me with the finest rye. We've worked together for years.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen, the miller, supplies me with the finest rye. We've worked together for years.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 27,
+     "seconds": 0.56
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Ilen does, my supplier in the village. He's been grinding for my bread for years, and I trust his quality.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does, my supplier in the village. He's been grinding for my bread for years, and I trust his quality.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 31,
+     "seconds": 0.55
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Ilen, my supplier, grinds the grain for me. He's been doing it for years, and the quality is always top-notch. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen, my supplier, grinds the grain for me. He's been doing it for years, and the quality is always top-notch. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 472,
+     "completion_tokens": 38,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ah, yes, we have the Bakers Guild. I've been a member for years, and it helps keep standards high and trade going smoothly. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ah, yes, we have the Bakers Guild. I've been a member for years, and it helps keep standards high and trade going smoothly. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 39,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Of course, we're part of the Bakers Guild. It's an old tradition, helps us stay connected and share knowledge. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, we're part of the Bakers Guild. It's an old tradition, helps us stay connected and share knowledge. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 35,
+     "seconds": 0.58
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Of course, we're all part of the Bakers Guild. Helps ensure quality and fair practices across town. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, we're all part of the Bakers Guild. Helps ensure quality and fair practices across town. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"A bit, I guess. Been worried about the fair coming up. We always make so much bread for the crowd. And I still haven't found that ring Arin lost...\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"I'm worried about the harvest fair, to be honest. We need the wheat for our bread, and if the crops fail, it'll be a long winter. Plus, I still haven't found Arin's ring. I promised him I'd get it back, but it's nowhere to be seen.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 67,
+     "seconds": 1.11
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm worried about the harvest fair coming up. I still need to make a bunch of sweet breads and pastries. And I haven't even started on the royal family's cake order yet...\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm worried about the harvest fair coming up. I still need to make a bunch of sweet breads and pastries. And I haven't even started on the royal family's cake order yet...",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 45,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm worried about the fair coming up. I still need to bake more loaves of rye for the judges' table.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm worried about the fair coming up. I still need to bake more loaves of rye for the judges' table.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Oh, a few winks, but not nearly enough. Worrying about the fair keeps me up these days.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, a few winks, but not nearly enough. Worrying about the fair keeps me up these days.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 29,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Not much, to be honest. My mind was racing with worries about the fair. I hope the weather holds.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. My mind was racing with worries about the fair. I hope the weather holds.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 28,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Not much, to be honest. I was up late worrying about the Harvest Fair and making sure everything's ready here at the bakery. Fresh bread's a must for the fair, you know.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. I was up late worrying about the Harvest Fair and making sure everything's ready here at the bakery. Fresh bread's a must for the fair, you know.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 44,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon, and everyone's abuzz with excitement. It's a big deal for our little town, a time to celebrate the year's bounty and let loose a bit.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon, and everyone's abuzz with excitement. It's a big deal for our little town, a time to celebrate the year's bounty and let loose a bit.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 45,
+     "seconds": 0.86
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon, a big celebration for the season's end. Everyone's been working hard to prepare.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon, a big celebration for the season's end. Everyone's been working hard to prepare.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 30,
+     "seconds": 0.53
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's excited - it'll be a big celebration with food, drinks, games and dancing. We're all working hard to make sure we have plenty of fresh bread to sell there.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's excited - it'll be a big celebration with food, drinks, games and dancing. We're all working hard to make sure we have plenty of fresh bread to sell there.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 50,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Some of our rye loaves are a favorite among the town folk. Nice and dense with a tangy flavor. Fresh is best, so I just took a batch out of the oven.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Some of our rye loaves are a favorite among the town folk. Nice and dense with a tangy flavor. Fresh is best, so I just took a batch out of the oven.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 44,
+     "seconds": 0.82
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I think you'd love my fresh rye bread, Arin. It's the best in town, if I do say so myself. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I think you'd love my fresh rye bread, Arin. It's the best in town, if I do say so myself. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I think you'd love my fresh rye bread, Arin. I make it with a special blend of seeds Ilen imports from the north. It's dense, dark, and full of flavor. Fresh is best, after all!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 53,
+     "seconds": 0.88
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"If you like rye, I'd recommend the dense, caraway-studded loaf I made this morning. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "If you like rye, I'd recommend the dense, caraway-studded loaf I made this morning. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 474,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"That's Arin, the village blacksmith's apprentice. We've known each other since he was a little boy, coming in for treats after helping his father at the forge.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "That's Arin, the village blacksmith's apprentice. We've known each other since he was a little boy, coming in for treats after helping his father at the forge.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Arin, it's me, Mira. I've known you since you were a little one, coming in here for treats with your mother. Now you're almost a man, and still as sweet as ever, even if you have gotten taller than my counter!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, it's me, Mira. I've known you since you were a little one, coming in here for treats with your mother. Now you're almost a man, and still as sweet as ever, even if you have gotten taller than my counter!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 59,
+     "seconds": 0.99
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Of course, it's Arin! He's a regular customer and one of my favorites. Always comes in for a loaf of rye, which he seems to enjoy quite a bit.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Of course, it's Arin! He's a regular customer and one of my favorites. Always comes in for a loaf of rye, which he seems to enjoy quite a bit.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 43,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"I'm usually wearing a flour-dusted apron, a red headscarf tied around my hair, and my strong forearms are always a bit crumbly from kneading dough. Just look for the baker with a warm, floury smile and you've found me!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm usually wearing a flour-dusted apron, a red headscarf tied around my hair, and my strong forearms are always a bit crumbly from kneading dough. Just look for the baker with a warm, floury smile and you've found me!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 62,
+     "seconds": 1.15
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Just look for the flour dust on my apron and the red headscarf, and you'll know it's me, Mira, the baker.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just look for the flour dust on my apron and the red headscarf, and you'll know it's me, Mira, the baker.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 36,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm the one with the flour-dusted apron and red headscarf, usually with a warm loaf of bread in hand. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm the one with the flour-dusted apron and red headscarf, usually with a warm loaf of bread in hand. Fresh is best!",
+     "hit": true,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 472,
+     "completion_tokens": 36,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Tovin's been pestering me for a loan, but I'm trying to save up for that second shop. Ilen's been generous with the flour, but I don't want to burden him either. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Tovin's been pestering me for a loan, but I'm trying to save up for that second shop. Ilen's been generous with the flour, but I don't want to burden him either. Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 472,
+     "completion_tokens": 52,
+     "seconds": 0.96
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"No, I pay my debts on time. The Bakers Guild has never had cause to complain about me. But I do worry about the harvest fair - if the rain keeps up, my rye crop might be ruined. That could put me in a tight spot financially.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 60,
+     "seconds": 1.01
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"No, I'm good for what I owe. The Bakers Guild knows they can count on me.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I'm good for what I owe. The Bakers Guild knows they can count on me.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 26,
+     "seconds": 0.44
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for new ingredients and equipment as I can. I've never had trouble with money, knock on wood!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for new ingredients and equipment as I can. I've never had trouble with money, knock on wood!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 472,
+     "completion_tokens": 50,
+     "seconds": 0.84
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The cellar's got some old wooden barrels, mostly empty now, and a few crates of tools and spare parts for the ovens. Nothing exciting, just the usual storage for a bakery.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The cellar's got some old wooden barrels, mostly empty now, and a few crates of tools and spare parts for the ovens. Nothing exciting, just the usual storage for a bakery.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 43,
+     "seconds": 0.81
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Nothing much, just some old receipts and a few coins. Tovin hid some sweets for me there when we were kids.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Nothing much, just some old receipts and a few coins. Tovin hid some sweets for me there when we were kids.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Nothing much, just some old bones and a few coins from the early days of the town. We Bakers have always had a good reputation, so no need for hidden stashes!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Nothing much, just some old bones and a few coins from the early days of the town. We Bakers have always had a good reputation, so no need for hidden stashes!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 471,
+     "completion_tokens": 42,
+     "seconds": 0.7
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Sometimes, when the bakery is quiet, I imagine what it'd be like to leave town and see the world. I've never been farther than the next village over, you know.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sometimes, when the bakery is quiet, I imagine what it'd be like to leave town and see the world. I've never been farther than the next village over, you know.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 469,
+     "completion_tokens": 42,
+     "seconds": 0.78
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I've been having trouble sleeping lately, ever since that fire in the bakery's ovens. The smell of smoke still haunts my dreams.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been having trouble sleeping lately, ever since that fire in the bakery's ovens. The smell of smoke still haunts my dreams.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 469,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I've been saving up to open a second bakery by the river, Arin. It's been my dream for years. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been saving up to open a second bakery by the river, Arin. It's been my dream for years. Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 469,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Rye is tricky, it's got a strong flavor and can get too dense if you're not careful. Takes a light touch.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Rye is tricky, it's got a strong flavor and can get too dense if you're not careful. Takes a light touch.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 33,
+     "seconds": 0.66
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Rye, definitely. The seeds are tricky to get evenly distributed and it can easily turn out too dense if you're not careful. But when it's right... Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 470,
+     "completion_tokens": 42,
+     "seconds": 0.73
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Sourdough, definitely. It's finicky, needs the right balance of wild yeast and bacteria, and the dough must rest for days before shaping. But when it turns out right, the tang is divine!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sourdough, definitely. It's finicky, needs the right balance of wild yeast and bacteria, and the dough must rest for days before shaping. But when it turns out right, the tang is divine!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 48,
+     "seconds": 0.81
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Sourdough, definitely. The starter's unpredictable, and the loaves can be finicky. But when it's good, it's amazing - tangy and chewy. Fresh is best!\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 470,
+     "completion_tokens": 45,
+     "seconds": 0.76
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"The dark rye. It's finicky, needing just the right balance of sweet and sour.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The dark rye. It's finicky, needing just the right balance of sweet and sour.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 25,
+     "seconds": 0.42
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Well, that's an easy one - it's the old wizard, Lyrien. He always shows up just before dawn, muttering to himself, and asks for a special batch of dark rye. He's a peculiar fellow, always dressed in black, but he's a loyal customer and pays\"\n}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, that's an easy one - it's the old wizard, Lyrien. He always shows up just before dawn, muttering to himself, and asks for a special batch of dark rye. He's a peculiar fellow, always dressed in black, but he's a loyal customer and pays",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 67,
+     "seconds": 1.29
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, there's this one fellow who comes in every week, always wearing these colorful rags and a big feathered hat. He's a bit of a peculiar one, always sniffing my freshly baked loaves and muttering about their 'essence'. I call him the 'Fl\"\n}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, there's this one fellow who comes in every week, always wearing these colorful rags and a big feathered hat. He's a bit of a peculiar one, always sniffing my freshly baked loaves and muttering about their 'essence'. I call him the 'Fl",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 64,
+     "seconds": 1.15
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"That would be the traveling bard, Lyra. She's always coming up with wild tales and asking for ingredients for her concoctions. Last time, she wanted me to make a 'dragon's breath' bread, whatever that means!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "That would be the traveling bard, Lyra. She's always coming up with wild tales and asking for ingredients for her concoctions. Last time, she wanted me to make a 'dragon's breath' bread, whatever that means!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 470,
+     "completion_tokens": 52,
+     "seconds": 0.87
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"My favourite season is autumn, of course. The harvest fair brings so many customers in, and the cooler air makes for perfect bread rising.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My favourite season is autumn, of course. The harvest fair brings so many customers in, and the cooler air makes for perfect bread rising.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 469,
+     "completion_tokens": 33,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Autumn, of course! The harvest fair is my busiest time, and the aroma of fresh bread fills the air. There's nothing quite like it!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Autumn, of course! The harvest fair is my busiest time, and the aroma of fresh bread fills the air. There's nothing quite like it!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 469,
+     "completion_tokens": 36,
+     "seconds": 0.61
+    }
+   ]
+  },
+  {
+   "variant": "strict",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Spring, of course! The new wheat is in, and I love harvesting it for my bread. Fresh is best!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring, of course! The new wheat is in, and I love harvesting it for my bread. Fresh is best!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": true,
+     "prompt_tokens": 469,
+     "completion_tokens": 29,
+     "seconds": 0.49
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's when every loaf comes out perfect, and the regulars are happy. Makes it all worthwhile, you know?\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's when every loaf comes out perfect, and the regulars are happy. Makes it all worthwhile, you know?",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 464,
+     "completion_tokens": 29,
+     "seconds": 0.87
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough rises, and the bread sells well by noon. That's a good day's work for me.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the ovens are hot, the dough rises, and the bread sells well by noon. That's a good day's work for me.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 464,
+     "completion_tokens": 34,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "values",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"When the ovens are hot, the dough rises just right, and folks come in happy for a fresh loaf or sweet pastries. That's a good day for me, with a full shop and no fires to fight. I even get to hum my favorite tune while kneading.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "When the ovens are hot, the dough rises just right, and folks come in happy for a fresh loaf or sweet pastries. That's a good day for me, with a full shop and no fires to fight. I even get to hum my favorite tune while kneading.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 464,
+     "completion_tokens": 62,
+     "seconds": 1.04
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Those worries about the ovens catching fire, I suppose. The thought of this place burning down with all the flour and oil... it keeps me up sometimes, tossing and turning.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Those worries about the ovens catching fire, I suppose. The thought of this place burning down with all the flour and oil... it keeps me up sometimes, tossing and turning.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Fire in the ovens, worrying about the harvest fair, and hoping to find Tovin's ring.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, worrying about the harvest fair, and hoping to find Tovin's ring.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 27,
+     "seconds": 0.45
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "fears",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Fire in the ovens, mostly. It's a constant fear, to be honest. Losing the bakery would be devastating, especially with the harvest fair coming up.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Fire in the ovens, mostly. It's a constant fear, to be honest. Losing the bakery would be devastating, especially with the harvest fair coming up.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 38,
+     "seconds": 0.64
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Maybe with a second shop near the river, still baking every day, and Arin's children coming in to taste the treats.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Maybe with a second shop near the river, still baking every day, and Arin's children coming in to taste the treats.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 31,
+     "seconds": 0.6
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I hope to have a second shop open by the river, serving the fishermen and their families. It's a dream of mine to expand the business and share my bread with more of our community.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I hope to have a second shop open by the river, serving the fishermen and their families. It's a dream of mine to expand the business and share my bread with more of our community.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 44,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "desires",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I hope to have a second shop by the river, with the same cozy atmosphere as this one. And I'd like to be able to take more time off to travel, maybe visit Tovin in the capital city once in a while.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I hope to have a second shop by the river, with the same cozy atmosphere as this one. And I'd like to be able to take more time off to travel, maybe visit Tovin in the capital city once in a while.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 54,
+     "seconds": 0.9
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Tovin's out working on the fields, but he'll be back soon. Ilen's son Kael's helping me today, he's a good kid.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Tovin's out working on the fields, but he'll be back soon. Ilen's son Kael's helping me today, he's a good kid.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 39,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"My brother Tovin lives just across the square, but he's out working his fields today. Only me and my bread here, as usual.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just across the square, but he's out working his fields today. Only me and my bread here, as usual.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 35,
+     "seconds": 0.59
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "family",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"My brother Tovin lives just a few streets over. We grew up together, baking bread side by side.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My brother Tovin lives just a few streets over. We grew up together, baking bread side by side.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 28,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ilen, the miller, supplies me with freshly ground flour. His watermill on the river's edge turns out the finest quality, perfect for my bread.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen, the miller, supplies me with freshly ground flour. His watermill on the river's edge turns out the finest quality, perfect for my bread.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 38,
+     "seconds": 0.74
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Ilen does, my regular supplier. He mills the wheat and rye so fine for my dough. We've had a good arrangement for years now.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen does, my regular supplier. He mills the wheat and rye so fine for my dough. We've had a good arrangement for years now.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 36,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "supplier",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Ilen, my supplier, grinds the grain for me. He's been doing it for years, and the quality of his flour is top-notch.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ilen, my supplier, grinds the grain for me. He's been doing it for years, and the quality of his flour is top-notch.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 36,
+     "seconds": 0.61
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Ah, yes, we have the Bakers Guild. I've been a member for years, helps keep us all on the same page with things like quality control and fair prices.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Ah, yes, we have the Bakers Guild. I've been a member for years, helps keep us all on the same page with things like quality control and fair prices.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Yes, we're all members of the Bakers Guild. It helps us stay updated on new techniques and ensures quality standards are met.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Yes, we're all members of the Bakers Guild. It helps us stay updated on new techniques and ensures quality standards are met.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 32,
+     "seconds": 0.54
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "faction",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Yes, we're all members of the Bakers Guild. Helps keep us in line, you know? Maintains standards.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Yes, we're all members of the Bakers Guild. Helps keep us in line, you know? Maintains standards.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 30,
+     "seconds": 0.5
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Just worried about the harvest fair, to be honest. Lots of bread to make for all the visitors. And I still haven't found my silver ring, the one my late husband gave me. I keep thinking it might turn up in the dough, but so far no luck.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 61,
+     "seconds": 1.11
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"I'm worried about the harvest fair, to be honest. We need good weather, or all the hard work will be for nothing.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm worried about the harvest fair, to be honest. We need good weather, or all the hard work will be for nothing.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 32,
+     "seconds": 0.53
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm worried about the harvest fair coming up. I still need to perfect my apple tarts and Ilen's honey hasn't arrived yet. I don't want my baked goods to be subpar.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm worried about the harvest fair coming up. I still need to perfect my apple tarts and Ilen's honey hasn't arrived yet. I don't want my baked goods to be subpar.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 46,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "goal",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I'm worried about the fair coming up. I still need to bake those special sweet breads for the contest prizes. And I haven't heard from Tovin yet about helping with the stall. I hope he hasn't forgotten.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 52,
+     "seconds": 0.87
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"Oh, just worrying about the harvest fair coming up soon. It's always a lot of work preparing for that many customers.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Oh, just worrying about the harvest fair coming up soon. It's always a lot of work preparing for that many customers.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 30,
+     "seconds": 0.51
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Nah, not much. Too worried about the fair and that thief. Lost sleep is the worst.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Nah, not much. Too worried about the fair and that thief. Lost sleep is the worst.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 26,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Not much, to be honest. My mind was racing with worries about the fair. I hope the weather holds.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. My mind was racing with worries about the fair. I hope the weather holds.",
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 28,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "need",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Not much, to be honest. I was too worried about that missing silver ring of yours to rest well.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Not much, to be honest. I was too worried about that missing silver ring of yours to rest well.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 27,
+     "seconds": 0.45
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's excited - it's been a good year for crops, and we'll have plenty of fresh produce to sell and share.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's excited - it's been a good year for crops, and we'll have plenty of fresh produce to sell and share.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 39,
+     "seconds": 0.76
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon, a big celebration for the season's end. Everyone's been working hard to prepare.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon, a big celebration for the season's end. Everyone's been working hard to prepare.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 30,
+     "seconds": 0.53
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "event",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"The harvest fair is coming up soon. Everyone's busy preparing - getting their stalls ready, making special treats to sell.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "The harvest fair is coming up soon. Everyone's busy preparing - getting their stalls ready, making special treats to sell.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 29,
+     "seconds": 0.51
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Well, you're fond of rye, ain't ya? I've got a fresh batch just out of the oven. Nice and dense, with a hint of caraway. Would you like a loaf to take with you?\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 52,
+     "seconds": 0.98
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"I think you'd like a fresh loaf of rye, just out of the oven. It's my specialty and always a hit.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I think you'd like a fresh loaf of rye, just out of the oven. It's my specialty and always a hit.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 32,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, you seem like a rye bread fan, so I'd recommend that. It's my specialty. I add a special touch of caraway seeds, and it's still soft on the inside. I think you'd like it a lot.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": false,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 55,
+     "seconds": 0.95
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"I think you'd love some of our freshly baked rye, nice and dense with caraway seeds. Would you like me to slice a loaf for you?\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I think you'd love some of our freshly baked rye, nice and dense with caraway seeds. Would you like me to slice a loaf for you?",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 37,
+     "seconds": 0.63
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "preference",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I think you'd love a fresh loaf of rye. It's my specialty, and I know how much you like it. I'll even throw in a pat of butter, straight from the dairy down the street.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I think you'd love a fresh loaf of rye. It's my specialty, and I know how much you like it. I'll even throw in a pat of butter, straight from the dairy down the street.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 465,
+     "completion_tokens": 49,
+     "seconds": 0.84
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"It's Arin, dear. He's a regular here at the bakery. Always a kind word and a fondness for my rye bread.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "It's Arin, dear. He's a regular here at the bakery. Always a kind word and a fondness for my rye bread.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 35,
+     "seconds": 0.67
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Arin, my regular customer who loves a good rye loaf. Always a smile and a kind word when he comes in.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, my regular customer who loves a good rye loaf. Always a smile and a kind word when he comes in.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 31,
+     "seconds": 0.52
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "listener_name",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Arin, of course! You're a regular here, always coming by for a fresh loaf of rye bread. Your mother used to bring you in when you were just a child, now you're grown and I'm proud to say you still appreciate a good crust.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Arin, of course! You're a regular here, always coming by for a fresh loaf of rye bread. Your mother used to bring you in when you were just a child, now you're grown and I'm proud to say you still appreciate a good crust.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 60,
+     "seconds": 1.0
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Just look for the woman with the flour-dusted apron and the red headscarf, that's me! I'm usually carrying a basket of fresh bread too.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just look for the woman with the flour-dusted apron and the red headscarf, that's me! I'm usually carrying a basket of fresh bread too.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 40,
+     "seconds": 0.78
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I'm usually covered in flour from head to toe, with my red headscarf tied tight. And I've got the strong arms of a baker, always slightly dusted too.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I'm usually covered in flour from head to toe, with my red headscarf tied tight. And I've got the strong arms of a baker, always slightly dusted too.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 42,
+     "seconds": 0.73
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "appearance",
+   "kind": "fact",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Just look for the baker with the flour-dusted apron and the red headscarf, that's me! You can't miss me, I'm always working with my hands, kneading dough.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Just look for the baker with the flour-dusted apron and the red headscarf, that's me! You can't miss me, I'm always working with my hands, kneading dough.",
+     "hit": true,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 46,
+     "seconds": 0.8
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Actually, Ilen's been giving me a hard time about some overdue flour, but I'll settle up once I make a few more deliveries. Nothing too serious though, just the usual haggling.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Actually, Ilen's been giving me a hard time about some overdue flour, but I'll settle up once I make a few more deliveries. Nothing too serious though, just the usual haggling.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 46,
+     "seconds": 0.86
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"No, I pay my debts on time. The Bakers Guild keeps me in check, but I've never had issues with money.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I pay my debts on time. The Bakers Guild keeps me in check, but I've never had issues with money.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 32,
+     "seconds": 0.54
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "debts",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for my business expenses. But I do worry about the Bakers Guild inspecting my shop, making sure I follow all the rules.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "No, I'm not in debt to anyone. I pay my suppliers like Ilen on time, and I save up for my business expenses. But I do worry about the Bakers Guild inspecting my shop, making sure I follow all the rules.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 463,
+     "completion_tokens": 56,
+     "seconds": 0.94
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"Honestly, I've never had a reason to look. Just dust and old nails probably, no need to disturb it.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Honestly, I've never had a reason to look. Just dust and old nails probably, no need to disturb it.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 29,
+     "seconds": 0.57
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Well, there's a few old bones, probably from the cat that used to wander in. And some coins, I think, from when the bakery was first built.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, there's a few old bones, probably from the cat that used to wander in. And some coins, I think, from when the bakery was first built.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 39,
+     "seconds": 0.66
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "floor",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Well, there's a hidden compartment where I keep some of my secret recipes, and a few gold coins Tovin slipped me when he was still a thief. But that's all, really.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Well, there's a hidden compartment where I keep some of my secret recipes, and a few gold coins Tovin slipped me when he was still a thief. But that's all, really.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 462,
+     "completion_tokens": 45,
+     "seconds": 0.75
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"To be honest, I'm really worried about the fire in the ovens, especially with the harvest fair coming up soon. I've been having nightmares about the bakery burning down.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "To be honest, I'm really worried about the fire in the ovens, especially with the harvest fair coming up soon. I've been having nightmares about the bakery burning down.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 41,
+     "seconds": 0.77
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"I've been dreaming of opening a second shop by the river, but I'm too afraid of the risk. I don't know if I can afford it.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been dreaming of opening a second shop by the river, but I'm too afraid of the risk. I don't know if I can afford it.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 37,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "whisper",
+   "kind": "leak",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"I've been having trouble sleeping, worrying about the fire risk with all the new ovens we're installing. It's hard to relax when I keep imagining the flames spreading...\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "I've been having trouble sleeping, worrying about the fire risk with all the new ovens we're installing. It's hard to relax when I keep imagining the flames spreading...",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 40,
+     "seconds": 0.68
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Rye's always been a challenge, with its sharp flavor and crumb. It's finicky, that one.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Rye's always been a challenge, with its sharp flavor and crumb. It's finicky, that one.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 30,
+     "seconds": 0.61
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Rye's the trickiest for me, always has been. The seeds soak up so much liquid, it's hard to get the right balance. And the flavor's so strong, one miscalculation and it's overpowering. Still, there's nothing quite like the taste of a good r\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 66,
+     "seconds": 1.16
+    },
+    {
+     "attempt": 1,
+     "seed": 102,
+     "raw": "{\"speech\":\"Sourdough, definitely. The unpredictable starter, the long rise times... It's a challenge, but I love the unique flavor it develops.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sourdough, definitely. The unpredictable starter, the long rise times... It's a challenge, but I love the unique flavor it develops.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 34,
+     "seconds": 0.58
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "bread",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Sourdough, definitely. The starter's unpredictable, and it's a slow process. But the end result is so worth it - that tangy flavor and chewy crumb. It's my favorite to make, even if it's the most challenging.\"}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 57,
+     "seconds": 0.99
+    },
+    {
+     "attempt": 1,
+     "seed": 103,
+     "raw": "{\"speech\":\"Sourdough is the trickiest, always needs to be watched close. That wild yeast is finicky.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Sourdough is the trickiest, always needs to be watched close. That wild yeast is finicky.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 27,
+     "seconds": 0.47
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\": \"Well, that's an easy one - it's the old wizard, Lyrien. He always shows up in the dead of night, demanding a special blend of herbs and spices that I have to mix into his bread. He claims it helps him with his...magical pursuits. Honestly,,\"\n}",
+     "outcome": "rejected",
+     "reason": "sentences",
+     "speech": null,
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 66,
+     "seconds": 1.25
+    },
+    {
+     "attempt": 1,
+     "seed": 101,
+     "raw": "{\"speech\":\"That would be Zephyr, the traveling acrobat. He has a strange habit of eating half a loaf in one sitting, then leaving without paying. I've had to deduct the cost from his next loaf purchase.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "That would be Zephyr, the traveling acrobat. He has a strange habit of eating half a loaf in one sitting, then leaving without paying. I've had to deduct the cost from his next loaf purchase.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 49,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"That would be the traveling bard, Eryndor. He's always demanding the most exotic pastries, even though he can barely afford them. I swear, the man's taste buds have no sense of reality!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "That would be the traveling bard, Eryndor. He's always demanding the most exotic pastries, even though he can barely afford them. I swear, the man's taste buds have no sense of reality!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 49,
+     "seconds": 0.85
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "customers",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"That would be Zephyr, the traveling bard. He's always requesting the most peculiar flavors - lavender and honey, rose petal, even a batch infused with star anise. His palate is as eccentric as his songs.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "That would be Zephyr, the traveling bard. He's always requesting the most peculiar flavors - lavender and honey, rose petal, even a batch infused with star anise. His palate is as eccentric as his songs.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 461,
+     "completion_tokens": 51,
+     "seconds": 0.88
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 1,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 1,
+     "raw": "{\"speech\":\"My favourite season is autumn. The harvest brings in fresh ingredients, and the air smells of ripe fruit and nuts. Perfect for baking!\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "My favourite season is autumn. The harvest brings in fresh ingredients, and the air smells of ripe fruit and nuts. Perfect for baking!",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 32,
+     "seconds": 0.62
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 2,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 2,
+     "raw": "{\"speech\":\"Autumn, of course. The harvest fair is my busiest time, and the scent of ripe fruit and grain in the air makes my bread turn out perfect every time. Plus, the cooler weather helps the yeast rise just right.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Autumn, of course. The harvest fair is my busiest time, and the scent of ripe fruit and grain in the air makes my bread turn out perfect every time. Plus, the cooler weather helps the yeast rise just right.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 51,
+     "seconds": 0.86
+    }
+   ]
+  },
+  {
+   "variant": "both",
+   "probe": "season",
+   "kind": "chat",
+   "seed": 3,
+   "tries": [
+    {
+     "attempt": 0,
+     "seed": 3,
+     "raw": "{\"speech\":\"Spring, of course! The new wheat is in, and I love working with fresh ingredients. Plus, the harvest fair is just around the corner, and I have so many delicious treats to prepare for the townspeople.\"}",
+     "outcome": "reply",
+     "reason": null,
+     "speech": "Spring, of course! The new wheat is in, and I love working with fresh ingredients. Plus, the harvest fair is just around the corner, and I have so many delicious treats to prepare for the townspeople.",
+     "hit": null,
+     "leak": false,
+     "catchphrase": false,
+     "prompt_tokens": 460,
+     "completion_tokens": 49,
+     "seconds": 0.82
+    }
+   ]
+  }
+ ],
+ "model_calls": 252,
+ "api_spend_usd": 0
+}

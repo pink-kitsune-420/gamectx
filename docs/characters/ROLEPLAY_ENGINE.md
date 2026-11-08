@@ -438,6 +438,50 @@ What this does not show:
 In practice, retry once or fall back to an authored line on a rejection. For chattier
 models, raise `max_sentences` to 4 or lower `max_tokens`.
 
+### 8B follow-up (v3)
+
+v2 showed that 10 of Stheno's 14 rejections ended with the catchphrase as an extra
+sentence. v3 tested three remedies on new held-out wordings: 18 probes, three seeds, brief
+only. All three use existing features, and expectations F1–F9 were written in the script
+before any v3 output was seen:
+
+- **retry**: one host retry with a new seed on the same open ticket after a rejection;
+- **nocp**: the brief without `speech.catchphrases`;
+- **strict**: config `model_rules` asking for one or two short sentences, counting a
+  catchphrase as a sentence and never adding one at the end;
+- **both**: nocp and strict together.
+
+| Accepted, first try / with one retry | shipped | nocp | strict | both |
+|---|---|---|---|---|
+| Stheno 8B | 74.1% / 88.9% | 83.3% / 94.4% | **88.9%** / 98.1% | 87.0% / 100% |
+| Llama 3.2 3B | 88.9% / 96.3% | 96.3% / 100% | 100% / 100% | 100% / 100% |
+| Fact hits (first try), 8B / 3B | 72.2% / 61.1% | 69.4% / 69.4% | 69.4% / 58.3% | 75.0% / 72.2% |
+
+Results are in `roleplay-model-stheno-8b-v3.json` and `-llama-3.2-3b-v3.json` (476
+calls, $0). Format was 100% and there were 0 detected leaks. Every rejection was
+`sentences`.
+
+- **Held:**
+  - F2: shipped plus one retry reaches 88.9% on 8B, averaging 1.26 calls per turn.
+  - F4: strict reaches 88.9% on the first try on 8B.
+  - F9: with strict, Stheno used the catchphrase in 31.5% of replies, against 55.6%
+    shipped.
+  - The 3B model stays at or above 88.9% first try in every variant.
+- **Failed:**
+  - F3: dropping the catchphrase alone gained only 9.2 points against the predeclared 10.
+  - F5, as written, for `both` on 3B: its fact hits were 11.1 points *above* shipped,
+    outside the predeclared ±10 band.
+- **Decision (predeclared rule):** only `strict` qualifies. A later stage will make it the
+  default pack rule, which is a **[format]** change for every request. Until then, use
+  config `model_rules` and one retry.
+- **What the numbers don't show:**
+  - Margins are thin: 54 turns per cell, and F9 passed by 1.5 points.
+  - Accepted replies still invent details: Tovin owning a mill, "Ilen's son Kael", Arin as
+    a blacksmith's apprentice.
+  - Two replies guessed near the locked debt secret ("overdue flour" owed to Ilen;
+    "behind on my payments to Ilen") without the secret being in the request. The
+    validator only blocks the secret's own wording.
+
 Limits in this stage:
 
 - Expression modes, tales, viewpoints, reactions, deliberation and AI wording are not
