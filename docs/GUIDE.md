@@ -832,7 +832,8 @@ relationships, factions, secrets gated by trust or your own flags, opinions) and
 world with a shared **codex** (places with spots, ambience and house rules, entrances
 with open/locked/hidden states, factions, timed events, quests). Send live values with
 each turn: `trust`, `needs`, `quests`, `entrances` and your own `state` flags such as
-`{"time":"morning"}`, which any `when` condition can test.
+`{"time":"morning"}`, which any `when` condition can test. Query legal affordances and
+costs via the shared [action catalog](guides/WORLD.md#actions) (`knowledge::action_catalog`).
 
 Pack the authored side into one **game data file** and runtime memory into one **save
 file** with as many named states as you like (`slot-1`, `autosave`, a fork made before a

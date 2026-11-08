@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"check","args":{"action":"store","actor":{"id":"hero","species":"person","inventory":["golden_key"]},"bindings":{"thing":"golden_key","container":"chest"}}}]}}

@@ -2,6 +2,20 @@
 
 ## 0.4.0a (Cargo `0.4.0-a`), unreleased
 
+- Action catalog (`knowledge::action_catalog`, local kind `actions`, Gap 5): read-only description over existing operations.
+  - Adds a host-authoritative metadata catalog over all 11 simulated operational surfaces:
+    things, recipes, species, communities, inventory, fitness, props, services, reactions,
+    engine directions/commands, and initiative.
+  - 49 built-in actions with complete metadata: id, label, category, description, actor requirements
+    (species, skills, body state limits and disallowed conditions, community membership), typed target
+    slots (`thing`, `person`, `animal`, `place`, `community`, `prop`, `recipe`, `service`, `direction`),
+    preconditions (same place, held, in reach), costs (time, fatigue, resources, coins), effects
+    (world, body fatigue/condition deltas, needs, skill practice, relationship attitudes), perception
+    (visibility, noise, witnesses), risk (failure chance, on failure), duration, and interruptibility.
+  - Zero behavior changes: existing ops continue carrying out operations as before.
+  - Ops: `list`, `describe`, `available`, `check`, `register`.
+  - 25 cases (9 malformed). Rust matches the Python reference byte for byte on all of
+    them and on 2,000 randomized workflows (seed 7, 0 mismatches). $0 API spend.
 - World model dialogue & shadow gap closure (`character::roleplay`, local kind `roleplay-engine`) [format]:
   - Integrates world model topics directly into conversational routing: `timeline` (recent public or actor-known events), `places` (nearby connected places and route directions via visible entrances), `things` (scene items and matter/materials queries), `recipes` (crafting feasibility, requirements and inputs), `communities` (market trade availability and local currency), and `species` (animal temperament non-verbal replies).
   - Closes measured shadow gaps with Lantern Vault: `reactions` (loans, gifts, support, repayment, and debt queries), `viewpoints` (character stances on dreams/hobbies), `stock` wares query fallback in services, `persona` role fallback, and direction travel decisions (`go` for room entry, `approach` for character interaction).

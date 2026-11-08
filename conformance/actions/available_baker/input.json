@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"available","args":{"actor":{"id":"baker","species":"person","fitness":{"fatigue":20,"condition":100},"inventory":["flour","water"]},"place":"bakery","targets":[{"id":"oven","kind":"prop"},{"id":"flour","kind":"thing"},{"id":"dog","kind":"animal"}],"category":"species"}}]}}

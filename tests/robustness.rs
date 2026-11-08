@@ -1697,4 +1697,39 @@ fn world_model_modules_survive_mutation_and_extreme_sizes() {
     }
     too_many.push_str("]}");
     assert!(Codex::parse(&too_many).is_err());
+
+    // 4. ActionCatalog mutation fuzzing & boundaries
+    use gamectx::knowledge::action_catalog::ActionCatalog;
+    let mut cat = ActionCatalog::new();
+    let sample_action_req = r#"{"ops":[{"op":"check","args":{"action":"pet","actor":{"id":"hero","species":"person"},"bindings":{"animal":"dog"}}}]}"#;
+    for _ in 0..1000 {
+        let mutated = mutate(&mut rng, sample_action_req);
+        if let Ok(v) = parse(&mutated, 1 << 20) {
+            let _ = cat.workflow(&v);
+        }
+    }
+    // Boundary test: ActionCatalog from_value accepts up to 256 actions and rejects 257
+    let mut actions_json = String::from("{\"version\":1,\"actions\":[");
+    for i in 0..256 {
+        if i > 0 {
+            actions_json.push(',');
+        }
+        actions_json.push_str(&format!(
+            r#"{{"id":"act_{i}","label":"Action {i}","category":"things","description":"Desc {i}","actor":{{}},"targets":[],"preconditions":{{}},"cost":{{"time":1,"fatigue":1}},"effects":{{"world":"test"}},"perception":{{"visibility":"public"}},"risk":{{"failure_chance":0}},"duration":1,"interruptible":true}}"#
+        ));
+    }
+    actions_json.push_str("]}");
+    assert!(ActionCatalog::parse(&actions_json).is_ok());
+
+    let mut too_many_actions = String::from("{\"version\":1,\"actions\":[");
+    for i in 0..257 {
+        if i > 0 {
+            too_many_actions.push(',');
+        }
+        too_many_actions.push_str(&format!(
+            r#"{{"id":"act_{i}","label":"Action {i}","category":"things","description":"Desc {i}","actor":{{}},"targets":[],"preconditions":{{}},"cost":{{"time":1,"fatigue":1}},"effects":{{"world":"test"}},"perception":{{"visibility":"public"}},"risk":{{"failure_chance":0}},"duration":1,"interruptible":true}}"#
+        ));
+    }
+    too_many_actions.push_str("]}");
+    assert!(ActionCatalog::parse(&too_many_actions).is_err());
 }

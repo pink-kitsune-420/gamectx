@@ -224,10 +224,17 @@ can only be expressed as an opaque `activity`.
 *Needed:* the task object, a planner over the action catalog (deterministic search first,
 model proposal second, host validation always), and progress fed by confirmed outcomes.
 
-### Gap 5: no shared action catalog
+### Gap 5: no shared action catalog — DONE
 
 See §5. Without it, initiative, brains, decisions, routines and the model each see a
 different list of what a being can do.
+
+*Implemented:* [`ActionCatalog`](../../src/knowledge/action_catalog.rs) (local kind `actions`)
+provides a read-only metadata catalog over all 11 operational surfaces (things, recipes,
+species, communities, inventory, fitness, props, services, reactions, engine, initiative)
+with 49 built-in actions. 25 cases (9 malformed) in [`conformance/actions/`](../../conformance/actions/),
+2,000 differential parity fuzzing workflows (seed 7, 0 mismatches). Zero model spend, zero
+behavior changes. [Guide](../guides/WORLD.md#actions).
 
 ### Gap 6: emotions do not fade, and some feelings are missing
 
@@ -310,7 +317,7 @@ appraised by the listener when contradicted.
 
 Ordered by how much each unblocks the others, not by size.
 
-1. **Action catalog** (gap 5). Read-only description over existing ops. Unblocks planning,
+1. **Action catalog** (gap 5) — **DONE** ([Evidence](../guides/WORLD.md#actions)). Read-only description over existing ops. Unblocks planning,
    motive ranking, skills and off-screen effects. No behaviour change.
 2. **Witness bridge** (gap 1). Small, deterministic, high value: the world starts reaching
    memory without per-host glue.

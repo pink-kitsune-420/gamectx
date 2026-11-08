@@ -88,9 +88,16 @@ noted; "3 models" adds Llama 3.3 70B.
     fact selectors and an approval/repair/fallback workflow. 35 cases, 3,000 randomized
     workflows byte-identical to the Python reference, 4 typed tests, $0.
     [Guide](guides/VISUAL.md#direct-pictures-tiers-profiles-selectors-and-approvals).
-  - Next (Agent Model Gaps): work through the 13 gaps from `docs/research/INTELLIGENT_BEING.md` starting
-    with Gap 5 (Action Catalog: read-only description over existing ops; things, recipes, species,
-    communities, inventory, fitness, props, services, reactions, engine directions/commands, initiative).
+  - Done (Stage 1 / Gap 5): Action catalog (`knowledge::action_catalog`, local kind `actions`).
+    Read-only description over all 11 operational surfaces (things, recipes, species, communities,
+    inventory, fitness, props, services, reactions, engine, initiative) with 49 built-in actions.
+    Schema: actor requirements, typed target slots, preconditions, cost, effects, perception, risk,
+    duration, interruptibility. 25 cases (9 malformed), 2,000 differential parity workflows (seed 7,
+    0 mismatches), zero model spend, zero behavior changes.
+  - Next (Stage 2 / Gap 1): Witness bridge: timeline entry + witnesses + senses → direct Life
+    experience for perceiving witnesses; reports when told. Deterministic and bounded.
+  - Next (Agent Model Gaps 3–13): body/needs dynamics, motive arbiter, tasks/planning, affect decay,
+    model of others / lie ledger, off-screen effects / curiosity.
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`

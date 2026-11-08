@@ -2430,6 +2430,27 @@ Ops:
 - `can_carry {current_load, add_weight?, fitness?, health?, needs?}` → `{ok: true, can_carry: bool, carry_capacity, current_load, remaining: i64}`.
 - `train {actor, attribute, effort 1–100, fitness?, place?}` → `{ok: true, actor, attribute, previous, gain, new_level, fatigue, fitness, entry}`. Emits training timeline entry.
 
+## Action catalog v1
+
+`gamectx::knowledge::action_catalog` (guide: [World model](guides/WORLD.md#actions)). The `actions`
+JSON-lines `local` kind runs `{actions?, ops ≤64 [{op, args, at?}]}` and returns `{results, catalog}`.
+25 additive cases live in `conformance/actions/`.
+
+**Action catalog** `{version: 1, actions: [{id, label, category, description, actor, targets, preconditions, cost, effects, perception, risk, duration, interruptible}]}`.
+- 49 built-in actions across 11 surfaces: `things`, `recipes`, `species`, `communities`, `inventory`, `fitness`, `props`, `services`, `reactions`, `engine`, `initiative`.
+- Target slot kinds: `thing`, `person`, `animal`, `place`, `community`, `prop`, `recipe`, `service`, `direction`.
+- Actor requirements: `species`, `skills`, `body_state` (`max_fatigue`, `min_condition`, `disallowed_conditions`), `membership`.
+- Costs: `time`, `fatigue`, `resources`, `coins`.
+- Effects: `world`, `body` (`fatigue_delta`, `condition_delta`), `needs`, `skills`, `relationships`.
+- Perception: `visibility` (`public`, `witnessed`, `private`), `noise`, `witnesses`.
+
+Ops:
+- `list {category?, actor_species?}` → `{actions: [...], count}`.
+- `describe {id}` → `{action: {...}}`.
+- `available {actor, place?, targets?, category?}` → `{available: [{action, category, label, bindings, cost, duration}], count}`.
+- `check {action, actor, bindings?, place?}` → `{feasible: bool, action, cost?, effects?, perception?, duration?, interruptible?, reason?}`.
+- `register {action}` → `{registered: id}`. Dynamically registers or overrides an action definition.
+
 ## Game data and save files v1
 
 `gamectx::kit::save` reads and writes two documents with one container shape. The

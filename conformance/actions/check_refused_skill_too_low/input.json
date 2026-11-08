@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"check","args":{"action":"craft","actor":{"id":"novice","species":"person","skills":{"crafting":0}},"bindings":{"recipe":"iron_sword"}}}]}}

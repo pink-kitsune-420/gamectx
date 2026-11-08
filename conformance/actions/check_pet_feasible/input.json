@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"check","args":{"action":"pet","actor":{"id":"hero","species":"person","fitness":{"fatigue":10,"condition":100}},"bindings":{"animal":"wolfhound"}}}]}}

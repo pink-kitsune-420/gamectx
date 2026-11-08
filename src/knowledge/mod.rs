@@ -1,5 +1,6 @@
 //! What characters and models may know: memory, recall indexes, typed facts, authored lore,
-//! attributed notes, inventory, observations, evidence selection, location, props, the world codex, world and time.
+//! attributed notes, inventory, observations, evidence selection, location, props, the world codex, world, time, and action catalog.
+pub mod action_catalog;
 pub mod codex;
 pub mod communities;
 pub mod facts;

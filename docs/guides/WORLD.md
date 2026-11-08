@@ -511,6 +511,51 @@ expectations written before running. Rust matches the Python reference
 (`eval/character/fitness_reference.py`) byte for byte on all of them and on 2,000
 randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
 
+## Actions
+
+`gamectx::knowledge::action_catalog` provides a read-only, host-authoritative metadata catalog over all 11 simulated operational surfaces: things, recipes, species, communities, inventory, fitness, props, services, reactions, engine directions/commands, and initiative.
+
+Each entry describes actor requirements (species, skills, body state), typed target slots, preconditions, costs (time, fatigue, resources, coins), effects (world, body, needs, skills, relationships), perception (visibility, noise, witnesses), risk, duration, and interruptibility.
+
+```rust
+use gamectx::data::json::parse;
+use gamectx::knowledge::action_catalog::ActionCatalog;
+
+let mut catalog = ActionCatalog::new();
+let req = parse(r#"{
+  "ops": [
+    {"op": "check", "args": {
+      "action": "pet",
+      "actor": {"id": "hero", "species": "person", "fitness": {"fatigue": 10, "condition": 100}},
+      "bindings": {"animal": "wolfhound"}
+    }}
+  ]
+}"#, 4096)?;
+
+let out = catalog.workflow(&req)?;
+assert_eq!(out.get("results").and_then(|r| r.as_array()).map(|a| a.len()), Some(1));
+# Ok::<(), gamectx::Error>(())
+```
+
+That action feasibility check returns real output:
+
+```json
+{"feasible":true,"action":"pet","cost":{"time":1,"fatigue":1,"resources":[],"coins":0},"effects":{"world":"increases animal trust and calm","body":{"fatigue_delta":1,"condition_delta":0},"needs":[],"skills":[],"relationships":[{"target_slot":"animal","attitude":"trust","delta":5}]},"perception":{"visibility":"witnessed","noise":5,"witnesses":"same_place"},"duration":1,"interruptible":true}
+```
+
+- **Operations:**
+  - `list`: lists catalog actions, optionally filtered by `category` or `actor_species`.
+  - `describe`: returns the complete registered definition for a specific action ID.
+  - `available`: evaluates feasible actions and target bindings given an actor, current place, and present targets.
+  - `check`: validates whether an action is executable given actor state, preconditions, and target slot bindings.
+  - `register`: dynamically registers or overrides custom host action definitions.
+
+**Evidence:** 25 cases (`conformance/actions/`, 9 of them malformed input) with
+expectations written before running. Rust matches the Python reference
+(`eval/knowledge/actions_reference.py`) byte for byte on all of them and on 2,000
+randomized workflows (seed 7, 0 mismatches). CI runs 300 more. No model calls.
+
+
 
 
 

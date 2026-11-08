@@ -298,3 +298,30 @@ fn fitness_guide_output_is_real() -> gamectx::Result<()> {
     assert_eq!(FitnessWorld::from_value(&fw.to_value())?, fw);
     Ok(())
 }
+
+#[test]
+fn actions_guide_output_is_real() -> gamectx::Result<()> {
+    use gamectx::knowledge::action_catalog::ActionCatalog;
+    let mut catalog = ActionCatalog::new();
+    let req = parse(
+        r#"{
+      "ops": [
+        {"op": "check", "args": {
+          "action": "pet",
+          "actor": {"id": "hero", "species": "person", "fitness": {"fatigue": 10, "condition": 100}},
+          "bindings": {"animal": "wolfhound"}
+        }}
+      ]
+    }"#,
+        4096,
+    )?;
+    let out = catalog.workflow(&req)?;
+    let first_res = out.get("results").and_then(|r| r.as_array()).and_then(|a| a.first()).unwrap();
+    assert_eq!(
+        first_res.to_json(),
+        parse(&guide_json("That action feasibility check returns real output"), 65536)?.to_json()
+    );
+    // Round trip through a save section value.
+    assert_eq!(ActionCatalog::from_value(&catalog.to_value())?, catalog);
+    Ok(())
+}

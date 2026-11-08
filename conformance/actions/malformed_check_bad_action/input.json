@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"check","args":{"action":"not_a_registered_action","actor":{"id":"hero"}}}]}}

@@ -1,0 +1,1 @@
+{"kind":"actions","args":{"ops":[{"op":"register","args":{"action":{"id":"custom_bad","label":"Bad Action","category":"sorcery_unknown","description":"Illegal category","actor":{},"targets":[],"preconditions":{},"cost":{"time":1,"fatigue":1},"effects":{"world":"magic"},"perception":{"visibility":"public"},"risk":{"failure_chance":0},"duration":1,"interruptible":true}}}]}}
