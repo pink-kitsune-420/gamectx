@@ -1487,3 +1487,20 @@ landmarks; 64/65-op and limit-ceiling boundaries; a full room, a trace lasting t
 in the [table above](#host-set-limits): `inspect_item` takes 1.6 µs median at 10,000 items and
 `dyad` takes 1.4 µs median at 10,000 pairs. Traces, theft appraisals and weather need rates are
 not yet fed into beliefs, appraisals and survival automatically. $0 API spend.
+
+## Pass 3 acceptance: the Interrupted Accusation
+
+`tests/acceptance_interrupted_accusation.rs` plays the pass 3 scene through the real engines with no
+model. Mira is exhausted and one tick from burning her bread; she has found a flour trail by the
+lockbox (an inferred fact that never names who left it) and her coin pouch is gone. The player
+brings the firewood she asked for and, with a gossip in earshot, asks whether the apprentice stole
+from her. The parser finds two clauses (an item to receive, a probing question); the stance is a
+whisper of one sentence because a trusted player and an untrusted gossip share the room; the agenda
+puts the oven first, takes the firewood and defers both replies; the turn frame keeps the burning
+bread, the promise, the theft suspicion, her feelings about the apprentice and the gossip, and drops
+45 lines of biography and lore; embodiment gives a bittersweet tension, hands that keep working,
+eyes on the gossip and a breathless whispered voice; the explain trace says she pulled the bread
+because it burns in one tick. A crash interrupts the conversation; once the gossip has left, the
+shop is private enough for secrets, the stance is open, and `resume` brings back the unanswered
+theft question with a tender tone and room for four sentences. Running the scene twice gives
+byte-identical output. $0 API spend.
