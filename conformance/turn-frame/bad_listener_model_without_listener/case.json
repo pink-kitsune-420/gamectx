@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A listener model needs a listener.",
+  "error": true
+}

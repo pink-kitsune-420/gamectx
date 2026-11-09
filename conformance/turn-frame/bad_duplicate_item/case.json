@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Item ids are unique.",
+  "error": true
+}

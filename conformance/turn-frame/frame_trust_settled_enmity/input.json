@@ -1,0 +1,28 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "observe",
+        "args": {
+          "being": "tomas",
+          "key": "trust_player",
+          "value": -45
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 600
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "tomas",
+          "key": "trust_player"
+        }
+      }
+    ]
+  }
+}

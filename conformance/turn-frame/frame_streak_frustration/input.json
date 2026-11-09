@@ -1,0 +1,34 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "outcome",
+        "args": {
+          "being": "bo",
+          "ok": false
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "bo",
+          "ok": false
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "bo",
+          "ok": false
+        }
+      },
+      {
+        "op": "streak",
+        "args": {
+          "being": "bo"
+        }
+      }
+    ]
+  }
+}

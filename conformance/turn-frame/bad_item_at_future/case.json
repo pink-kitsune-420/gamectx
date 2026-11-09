@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An item cannot come from after the clock.",
+  "error": true
+}

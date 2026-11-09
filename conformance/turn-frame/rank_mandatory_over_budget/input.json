@@ -1,0 +1,25 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "rank",
+        "args": {
+          "budget": 50,
+          "items": [
+            {
+              "id": "secret_rule",
+              "bytes": 80,
+              "mandatory": true
+            },
+            {
+              "id": "chatty",
+              "bytes": 10,
+              "urgency": 100
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

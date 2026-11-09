@@ -1,0 +1,32 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "frame",
+        "args": {
+          "being": "ana",
+          "body": {
+            "fatigue": 70,
+            "pain": 90,
+            "conditions": [
+              "limping",
+              "bleeding"
+            ],
+            "needs": [
+              {
+                "id": "hunger",
+                "level": 60
+              },
+              {
+                "id": "thirst",
+                "level": 85,
+                "threshold": 50
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

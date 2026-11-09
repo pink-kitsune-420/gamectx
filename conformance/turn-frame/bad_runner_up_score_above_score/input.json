@@ -1,0 +1,19 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "frame",
+        "args": {
+          "being": "a",
+          "motive": {
+            "id": "eat",
+            "score": 50,
+            "runner_up": "sleep",
+            "runner_up_score": 60
+          }
+        }
+      }
+    ]
+  }
+}

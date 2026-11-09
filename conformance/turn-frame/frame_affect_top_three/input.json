@@ -1,0 +1,40 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "frame",
+        "args": {
+          "being": "ana",
+          "affect": {
+            "valence": 10,
+            "emotions": [
+              {
+                "emotion": "joy",
+                "value": 20
+              },
+              {
+                "emotion": "fear",
+                "toward": "wolf",
+                "value": 80
+              },
+              {
+                "emotion": "anger",
+                "toward": "bo",
+                "value": 50
+              },
+              {
+                "emotion": "pride",
+                "value": 50
+              },
+              {
+                "emotion": "grief",
+                "value": 5
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -21,6 +21,7 @@ pub mod economy;
 pub mod expectation;
 pub mod explain;
 pub mod fitness;
+pub mod frame;
 pub mod habit;
 pub mod lesson;
 pub mod life;

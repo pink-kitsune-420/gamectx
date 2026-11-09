@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A frame with only a being has empty slices.",
+  "error": false
+}

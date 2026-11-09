@@ -1,0 +1,59 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "observe",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "value": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "observe",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "value": 20
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 20
+        }
+      },
+      {
+        "op": "observe",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "value": 40
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "window": 10
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "window": 20
+        }
+      }
+    ]
+  }
+}

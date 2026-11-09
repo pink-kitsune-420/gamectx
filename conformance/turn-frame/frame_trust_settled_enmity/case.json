@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Trust of -45 that has not moved for 600 ticks is settled and cold.",
+  "error": false
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "frame",
+        "args": {
+          "being": "lone"
+        }
+      }
+    ]
+  }
+}

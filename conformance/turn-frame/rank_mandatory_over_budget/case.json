@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Mandatory items are kept even past the budget, which is reported.",
+  "error": false
+}

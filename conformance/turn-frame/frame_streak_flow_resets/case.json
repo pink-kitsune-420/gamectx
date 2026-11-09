@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A success resets a failing streak; three successes are flow.",
+  "error": false
+}

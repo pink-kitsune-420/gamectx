@@ -1,0 +1,121 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 500
+        }
+      },
+      {
+        "op": "rank",
+        "args": {
+          "budget": 360,
+          "listener": "player",
+          "earshot": [
+            "gossip"
+          ],
+          "cues": {
+            "entities": [
+              "apprentice"
+            ],
+            "tags": [
+              "theft",
+              "firewood"
+            ]
+          },
+          "task_needs": [
+            "oven"
+          ],
+          "mood": {
+            "valence": -20,
+            "resentment": 50
+          },
+          "items": [
+            {
+              "id": "bread_burning",
+              "kind": "fact",
+              "bytes": 60,
+              "urgency": 95,
+              "tags": [
+                "oven"
+              ],
+              "mandatory": true
+            },
+            {
+              "id": "firewood_promise",
+              "kind": "promise",
+              "bytes": 80,
+              "entities": [
+                "player"
+              ],
+              "tags": [
+                "firewood"
+              ],
+              "at": 499
+            },
+            {
+              "id": "flour_trail",
+              "kind": "episode",
+              "bytes": 70,
+              "entities": [
+                "apprentice"
+              ],
+              "tags": [
+                "theft"
+              ],
+              "group": "theft",
+              "polarity": "grievance",
+              "at": 500
+            },
+            {
+              "id": "missing_pouch",
+              "kind": "fact",
+              "bytes": 50,
+              "tags": [
+                "theft"
+              ],
+              "group": "theft",
+              "at": 500
+            },
+            {
+              "id": "apprentice_kindness",
+              "kind": "episode",
+              "bytes": 60,
+              "entities": [
+                "apprentice"
+              ],
+              "polarity": "favor"
+            },
+            {
+              "id": "gossip_untrusted",
+              "kind": "attitude",
+              "bytes": 40,
+              "entities": [
+                "gossip"
+              ],
+              "urgency": 40
+            },
+            {
+              "id": "shop_founding",
+              "kind": "lore",
+              "bytes": 200,
+              "tags": [
+                "history"
+              ]
+            },
+            {
+              "id": "grandmother_recipe",
+              "kind": "biography",
+              "bytes": 150,
+              "tags": [
+                "family"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

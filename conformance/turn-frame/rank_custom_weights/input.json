@@ -1,0 +1,41 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "rank",
+        "args": {
+          "budget": 1000,
+          "weights": {
+            "urgency": 0,
+            "listener": 0,
+            "utterance": 100,
+            "task": 0,
+            "mood": 0,
+            "recency": 0
+          },
+          "cues": {
+            "places": [
+              "mill"
+            ]
+          },
+          "items": [
+            {
+              "id": "mill_fire",
+              "bytes": 40,
+              "places": [
+                "mill"
+              ],
+              "urgency": 100
+            },
+            {
+              "id": "wolf_attack",
+              "bytes": 40,
+              "urgency": 100
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

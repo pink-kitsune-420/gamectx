@@ -1,0 +1,28 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "rank",
+        "args": {
+          "budget": 1000,
+          "mood": {
+            "gratitude": 60
+          },
+          "items": [
+            {
+              "id": "gift_last_week",
+              "bytes": 40,
+              "polarity": "favor"
+            },
+            {
+              "id": "old_insult",
+              "bytes": 40,
+              "polarity": "grievance"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

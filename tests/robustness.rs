@@ -3566,3 +3566,96 @@ fn packs_survive_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[bad.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn turn_frame_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::frame::Frame;
+    let mut rng = Rng(0x7F3A_0E36_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 36. Turn frame mutation fuzzing (limits included); one frame keeps trajectories across runs,
+    // and every accepted rank keeps its packing promises.
+    let samples = [
+        r#"{"limits":{"beings":3,"keys":2,"samples":3,"items":6},"ops":[{"op":"observe","args":{"being":"mira","key":"trust","value":40}},{"op":"tick","args":{"now":500}},{"op":"observe","args":{"being":"mira","key":"trust","value":-10}},{"op":"trend","args":{"being":"mira","key":"trust","window":3,"shock":30,"level":40,"settle":500}},{"op":"outcome","args":{"being":"mira","ok":false}},{"op":"time","args":{"at":480,"ticks_per_hour":60,"due":false}},{"op":"rank","args":{"budget":200,"listener":"player","earshot":["gossip"],"cues":{"entities":["apprentice"],"tags":["theft"],"places":["shop"]},"task_needs":["oven"],"mood":{"valence":-40,"resentment":60,"gratitude":0},"weights":{"urgency":30,"listener":20,"utterance":20,"task":15,"mood":10,"recency":5},"recent":3,"floor":1,"items":[{"id":"fire","bytes":60,"urgency":95,"tags":["oven"],"mandatory":true},{"id":"trail","bytes":70,"entities":["apprentice"],"tags":["theft"],"group":"theft","polarity":"grievance","at":500},{"id":"pouch","bytes":50,"tags":["theft"],"group":"theft","at":499},{"id":"lore","bytes":200,"kind":"lore"}]}}]}"#,
+        r#"{"ops":[{"op":"frame","args":{"being":"mira","listener":"player","place":"bakery","ticks_per_hour":60,"bystanders":[{"being":"gossip","earshot":true,"trusted":false}],"body":{"fatigue":75,"pain":10,"needs":[{"id":"hunger","level":80,"threshold":60}],"conditions":["burned"],"held":"peel","posture":"bent"},"motive":{"id":"save_bread","score":92,"reason":"Burning","runner_up":"talk","runner_up_score":40},"task":{"id":"pull","step":"open","progress":80,"deadline":1,"interrupt":"never"},"affect":{"valence":-20,"arousal":70,"label":"harried","emotions":[{"emotion":"affection","toward":"boy","value":55}]},"listener_model":{"stance":"warm","trust":40,"knows":["a"],"wants":["b"],"feels":["c"],"lies":["d"],"overdue":["e"]},"offscreen":{"summary":"Counted the till","at":0},"novelty":{"id":"trail","score":70}}}]}"#,
+    ];
+    let mut k = Frame::new();
+    let mut ranks = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let Ok(out) = k.workflow(&v) else { continue };
+                for r in out.get("results").and_then(Value::as_array).unwrap_or(&[]) {
+                    let Some(kept) = r.get("kept").and_then(Value::as_array) else { continue };
+                    ranks += 1;
+                    let n = |v: &Value, f: &str| v.get(f).and_then(|x| x.to_json().parse::<u64>().ok()).unwrap();
+                    let used: u64 = kept.iter().map(|x| n(x, "bytes")).sum();
+                    assert_eq!(used, n(r, "used"));
+                    let mandatory: u64 = kept
+                        .iter()
+                        .filter(|x| x.get("reason") == Some(&Value::from("mandatory")))
+                        .map(|x| n(x, "bytes"))
+                        .sum();
+                    assert!(used - mandatory <= n(r, "budget"));
+                    for x in kept.iter().chain(r.get("dropped").and_then(Value::as_array).unwrap()) {
+                        assert!(n(x, "score") <= 1000);
+                    }
+                }
+            }
+        }
+    }
+    assert!(ranks > 0);
+    for (b, x) in &k.beings {
+        assert!(x.keys.len() <= 256 && x.streak.abs() <= 1000, "{b}");
+        assert!(x.keys.values().all(|s| !s.is_empty() && s.len() <= 256), "{b}");
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Frame::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Frame::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"keys":256,"samples":256,"items":4096}"#, true),
+        (r#"{"items":4097}"#, false),
+        (r#"{"samples":257}"#, false),
+        (r#"{"keys":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Frame::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 4,096 items of 65,536 bytes each rank within a 10⁷ budget without overflow, all
+    // weights at 100; time labels at the 10¹² clock; a streak stays within ±1,000.
+    let mut k = Frame::with_limits(&parse(r#"{"items":4096}"#, 64).unwrap()).unwrap();
+    k.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).unwrap();
+    let items: Vec<String> = (0..4096)
+        .map(|i| {
+            format!(
+                r#"{{"id":"i{i}","bytes":65536,"urgency":100,"at":1000000000000,"group":"g{}","mandatory":{}}}"#,
+                i % 7,
+                i == 0
+            )
+        })
+        .collect();
+    let rank = format!(
+        r#"{{"op":"rank","args":{{"budget":10000000,"weights":{{"urgency":100,"listener":100,"utterance":100,"task":100,"mood":100,"recency":100}},"items":[{}]}}}}"#,
+        items.join(",")
+    );
+    let out = k.workflow(&req(&[rank])).unwrap().to_json();
+    assert!(out.contains(r#""over_budget":true"#));
+    assert!(k.workflow(&req(&[r#"{"op":"time","args":{"at":0,"ticks_per_hour":1}}"#.into()])).is_ok());
+    let fails = vec![r#"{"op":"outcome","args":{"being":"a","ok":false}}"#.to_string(); 64];
+    for _ in 0..20 {
+        k.workflow(&req(&fails)).unwrap();
+    }
+    assert_eq!(k.beings["a"].streak, -1000);
+
+    // A refused op changes nothing: an observation out of range.
+    let mut k = Frame::new();
+    k.workflow(&req(&[r#"{"op":"observe","args":{"being":"a","key":"k","value":1}}"#.into()])).unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"observe","args":{"being":"a","key":"k","value":1000001}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}

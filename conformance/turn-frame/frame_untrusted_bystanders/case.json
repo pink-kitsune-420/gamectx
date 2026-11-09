@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Trusted bystanders and those out of earshot are not counted as untrusted ears.",
+  "error": false
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "frame",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "bystanders": [
+            {
+              "being": "wife",
+              "trusted": true
+            },
+            {
+              "being": "guard",
+              "earshot": false
+            },
+            {
+              "being": "gossip"
+            },
+            {
+              "being": "child",
+              "trusted": false,
+              "earshot": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

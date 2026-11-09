@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At least one salience weight must be positive.",
+  "error": true
+}

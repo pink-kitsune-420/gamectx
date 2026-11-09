@@ -1,0 +1,1 @@
+{"limits":{"beings":1024,"keys":16,"samples":2,"items":64},"version":1,"results":[{"at":0,"being":"ana","key":"mood","samples":1,"value":-50},{"now":10},{"at":10,"being":"ana","key":"mood","samples":2,"value":0},{"now":20},{"at":20,"being":"ana","key":"mood","samples":2,"value":10},{"being":"ana","delta":10,"key":"mood","label":"rising","samples":2,"unchanged_for":0,"value":10}]}

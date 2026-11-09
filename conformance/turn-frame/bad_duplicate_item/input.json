@@ -1,0 +1,23 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "rank",
+        "args": {
+          "budget": 10,
+          "items": [
+            {
+              "id": "x",
+              "bytes": 1
+            },
+            {
+              "id": "x",
+              "bytes": 2
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

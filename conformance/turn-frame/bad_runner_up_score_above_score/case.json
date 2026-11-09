@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The runner-up cannot outscore the winning motive.",
+  "error": true
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"at":0,"being":"mira","key":"trust_apprentice","samples":1,"value":40},{"now":500},{"at":500,"being":"mira","key":"trust_apprentice","samples":2,"value":-10},{"being":"mira","delta":-50,"key":"trust_apprentice","label":"acute_drop","samples":2,"unchanged_for":0,"value":-10}]}

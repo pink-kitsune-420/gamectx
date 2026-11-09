@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Urgent body items sort by level: pain 90, thirst 85, fatigue 70; hunger below its threshold is left out.",
+  "error": false
+}

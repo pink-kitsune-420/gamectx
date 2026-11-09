@@ -1,0 +1,27 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 50
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 55,
+          "due": true
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 40,
+          "due": true
+        }
+      }
+    ]
+  }
+}

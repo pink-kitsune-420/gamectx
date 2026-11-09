@@ -1,0 +1,43 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "rank",
+        "args": {
+          "budget": 100,
+          "cues": {
+            "tags": [
+              "theft"
+            ]
+          },
+          "items": [
+            {
+              "id": "clue_a",
+              "bytes": 60,
+              "tags": [
+                "theft"
+              ],
+              "group": "theft"
+            },
+            {
+              "id": "clue_b",
+              "bytes": 60,
+              "tags": [
+                "theft"
+              ],
+              "group": "theft"
+            },
+            {
+              "id": "small",
+              "bytes": 50,
+              "tags": [
+                "theft"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

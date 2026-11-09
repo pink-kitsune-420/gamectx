@@ -1,0 +1,22 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "observe",
+        "args": {
+          "being": "a",
+          "key": "mood",
+          "value": 1
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "a",
+          "key": "trust"
+        }
+      }
+    ]
+  }
+}

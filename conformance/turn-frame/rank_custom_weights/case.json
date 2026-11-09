@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With only the utterance weight, items the speaker named win.",
+  "error": false
+}

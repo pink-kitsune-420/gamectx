@@ -1,0 +1,36 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "observe",
+        "args": {
+          "being": "mira",
+          "key": "trust_apprentice",
+          "value": 40
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 500
+        }
+      },
+      {
+        "op": "observe",
+        "args": {
+          "being": "mira",
+          "key": "trust_apprentice",
+          "value": -10
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "mira",
+          "key": "trust_apprentice"
+        }
+      }
+    ]
+  }
+}

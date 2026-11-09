@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A deadline ahead is due in hours; one behind is overdue by hours.",
+  "error": false
+}

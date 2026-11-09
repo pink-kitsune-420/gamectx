@@ -2915,6 +2915,7 @@ grows past them is refused where it used to be accepted.
 | `space` | `rooms` (64, 4096), `beings` placed (1024, 10⁶), `spots` per room (16, 1024), `queue` per spot (32, 4096) |
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 | `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
+| `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
 
 ### Knowledge kinds
 
@@ -3351,6 +3352,51 @@ Ids within one pack are unique. Ops:
   `profile {being, temperament}`; `drift` one `trait {base, being, trait}` per trait (omitted with no traits);
   `roles` one `role {duties, id, status, seats?}` per role (null fields dropped) then one `assign {being, role}`
   per role; `creed` `set_norms {being, norms}`.
+
+## Turn frame v1 (pass 3, stage 1)
+
+`gamectx::character::frame` (guide: [Life](characters/LIFE.md#turn-frame-and-salience-pass-3-stage-1)), local kind
+`turn-frame` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
+cases (7 malformed) live in `conformance/turn-frame/`. An op that fails refuses the request; ops before it keep their
+changes, and the failing op changes nothing. Lists in a frame or rank (bystanders, needs, emotions, listener facts,
+cues, entities, tags, places) hold at most 16 unique identifiers and are reported sorted.
+
+- `tick {now ≥ clock}` → `{now}`.
+- `observe {being, key, value −10⁶..10⁶}` → `{at: clock, being, key, samples, value}`; the newest `samples` are kept.
+- `trend {being, key, window? (3), shock? 1–2·10⁶ (30), level? 0–10⁶ (40), settle? (500)}` → `{being, delta, key,
+  label, samples, unchanged_for, value}`. Baseline: the newest sample at or before clock − window, else the oldest
+  kept; `delta` = value − baseline; `unchanged_for` = clock − when the value last changed (the first sample if never).
+  Label, first match: `acute_rise` (delta ≥ shock), `acute_drop` (delta ≤ −shock), `settled_high` (value ≥ level and
+  unchanged_for ≥ settle), `settled_low` (value ≤ −level, same), `rising`, `falling`, `steady`.
+- `outcome {being, ok: bool}` → streak view; a success extends a positive streak or starts at 1, a failure extends a
+  negative one or starts at −1, clamped to ±1000. `streak {being}` → `{being, label, streak}` with `flow` (≥ 3),
+  `frustration_spiral` (≤ −3) or `mixed`.
+- `time {at, now? (clock), ticks_per_hour? 1–3600 (1), due? (false)}` → `{at, hours, label, now}`. Past (at ≤ now):
+  `just_now` (0 ticks), then by minutes = gap·60/ticks_per_hour: `moments_ago` < 15, `earlier_this_shift` < 8 h,
+  `earlier_today` < 24 h, `yesterday` < 48 h, `days_ago` < 14 days, else `long_ago`. Due: `due_in` (now ≤ at) or
+  `overdue`, with whole hours.
+- `frame {being, listener?, place?, ticks_per_hour?, bystanders? [{being, trusted? (false), earshot? (true)}], body?
+  {fatigue?, pain?, needs? [{id, level, threshold? (70)}], conditions?, held?, posture?}, motive? {id, score 0–100,
+  reason? text ≤80, runner_up?, runner_up_score? ≤ score}, task? {id, step?, progress?, interrupt? any|never|urgent,
+  deadline?}, affect? {valence? −100..100, arousal?, label?, emotions? [{emotion, value, toward?}]}, listener_model?
+  {stance?, trust?, knows?, wants?, feels?, lies?, overdue?} (needs a listener), offscreen? {summary text ≤160, at ≤
+  clock}, novelty? {id, score}}` → one struct with each slice or null: `body_urgent.urgent` (fatigue ≥ 70, pain ≥
+  50 and needs at or over their threshold, by level then name), `active_motive` (`margin`, `overrides_talk` = score ≥
+  90), `active_task` (`due` time view, `pressing` = overdue or due within an hour), `affect_snapshot.top` (three
+  strongest), `recent_offscreen.when`, `untrusted_in_earshot`, and `trends` (defaults above, every key) and `streak`
+  for this being.
+- `rank {items (≤ items limit), budget 0–10⁷, listener?, earshot?, cues? {entities, tags, places}, task_needs?, mood?
+  {valence, resentment, gratitude}, weights? {urgency 30, listener 20, utterance 20, task 15, mood 10, recency 5}
+  (0–100 each, sum > 0), recent? 0–1000 (3), floor? 0–1000 (1)}`. An item is `{id, bytes 1–65,536, kind?, at? ≤ clock,
+  entities?, tags?, places?, urgency? 0–100, mandatory?, group?, polarity? favor|grievance|neutral}`. Parts (0–1000):
+  urgency·10; listener 1000 if the listener is an entity, 600 if an earshot being is; utterance 250 per entity, tag or
+  place shared with the cues (≤ 1000); task 1000 if the id or a tag is in `task_needs`; mood 1000 for a grievance when
+  valence < −30 or resentment ≥ 50, or a favor when valence > 30 or gratitude ≥ 50; recency (recent + 1 − age)·1000 /
+  (recent + 1) when age ≤ recent. Score = Σ weight·part / Σ weight. Items sharing a `group` form one unit (bytes
+  summed, score the highest, mandatory if any member is). Mandatory units are kept first; the rest go in order of
+  score·1000/bytes, then score, then smallest id, and are kept if they fit, else dropped with `budget`, or with
+  `irrelevant` when the score is below `floor`. → `{budget, dropped, kept, over_budget, used}`; each list is sorted by
+  score then id, with `{bytes, group, id, kind, parts, reason, score}`.
 
 ## Game data and save files v1
 

@@ -1,0 +1,111 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "observe",
+        "args": {
+          "being": "mira",
+          "key": "trust_apprentice",
+          "value": 40
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 500
+        }
+      },
+      {
+        "op": "observe",
+        "args": {
+          "being": "mira",
+          "key": "trust_apprentice",
+          "value": -10
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "mira",
+          "ok": false
+        }
+      },
+      {
+        "op": "frame",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "place": "bakery",
+          "ticks_per_hour": 60,
+          "bystanders": [
+            {
+              "being": "gossip",
+              "earshot": true
+            }
+          ],
+          "body": {
+            "fatigue": 75,
+            "needs": [
+              {
+                "id": "hunger",
+                "level": 40
+              }
+            ],
+            "held": "peel",
+            "posture": "bent"
+          },
+          "motive": {
+            "id": "save_bread",
+            "score": 92,
+            "reason": "Bread burns in a moment",
+            "runner_up": "talk",
+            "runner_up_score": 40
+          },
+          "task": {
+            "id": "pull_bread",
+            "step": "open_oven",
+            "progress": 80,
+            "deadline": 501,
+            "interrupt": "never"
+          },
+          "affect": {
+            "valence": -20,
+            "arousal": 70,
+            "label": "harried",
+            "emotions": [
+              {
+                "emotion": "affection",
+                "toward": "apprentice",
+                "value": 55
+              },
+              {
+                "emotion": "resentment",
+                "toward": "apprentice",
+                "value": 50
+              }
+            ]
+          },
+          "listener_model": {
+            "stance": "friendly",
+            "trust": 40,
+            "knows": [
+              "firewood_order"
+            ],
+            "overdue": [
+              "firewood_delivery"
+            ]
+          },
+          "offscreen": {
+            "summary": "Counted the till and found the pouch gone",
+            "at": 440
+          },
+          "novelty": {
+            "id": "flour_trail",
+            "score": 70
+          }
+        }
+      }
+    ]
+  }
+}

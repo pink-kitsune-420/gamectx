@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "trend needs an observed key.",
+  "error": true
+}

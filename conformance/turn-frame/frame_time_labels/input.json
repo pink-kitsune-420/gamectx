@@ -1,0 +1,62 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 100000
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 100000,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 99990,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 99820,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 98800,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 98200,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 92800,
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "time",
+        "args": {
+          "at": 56800,
+          "ticks_per_hour": 60
+        }
+      }
+    ]
+  }
+}
