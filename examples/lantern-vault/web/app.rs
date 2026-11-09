@@ -1431,6 +1431,11 @@ impl App {
             return Ok(None);
         }
         let selected = text(&call_config.value, modality)?.to_string();
+        let is_loopback = call_config
+            .endpoint(&selected)
+            .ok()
+            .and_then(|e| text(e, "url").ok())
+            .is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
         let ceiling =
             if let Ok(e) = call_config.endpoint(&selected) { num(e, "ceiling_micros", 1_000_000_000_000)? } else { 0 };
         let usable = if selected.starts_with("online_") && !call_config.has_credentials(&selected) {
@@ -1446,12 +1451,16 @@ impl App {
         } else {
             &selected
         };
-        let route = self.budget.reserve(
-            modality,
-            usable,
-            ceiling,
-            get(&call_config.value, "local_fallback")? == &Value::Bool(true),
-        )?;
+        let route = if is_loopback && ceiling == 0 {
+            obj! {"backend"=>selected.clone(),"reservation"=>Value::Null,"reason"=>"local_loopback"}
+        } else {
+            self.budget.reserve(
+                modality,
+                usable,
+                ceiling,
+                get(&call_config.value, "local_fallback")? == &Value::Bool(true),
+            )?
+        };
         let backend = text(&route, "backend")?.to_owned();
         let reservation = get(&route, "reservation")?.as_usize().map(|x| x as u64);
         if self.local_paused && backend.starts_with("local_") {
