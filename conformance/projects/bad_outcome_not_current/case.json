@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: only the current milestone has an outcome.",
+  "error": true
+}

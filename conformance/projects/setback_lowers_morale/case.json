@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A lost resource is a setback: morale falls by its severity and the owner decides.",
+  "error": false
+}

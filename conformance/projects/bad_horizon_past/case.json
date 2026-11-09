@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: the horizon is not in the past.",
+  "error": true
+}

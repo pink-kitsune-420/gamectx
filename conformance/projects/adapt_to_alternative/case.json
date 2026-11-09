@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "After a second failure the owner swaps buying hops for trading for them.",
+  "error": false
+}

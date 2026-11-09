@@ -1,0 +1,35 @@
+{
+  "kind": "projects",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "brewery",
+          "owner": "tamsin",
+          "aim": "Open a small brewery",
+          "stake": 40,
+          "horizon": 200,
+          "milestones": [
+            {
+              "id": "a",
+              "condition": {
+                "kind": "task",
+                "ref": "t"
+              },
+              "expected": 1,
+              "alternative": {
+                "id": "a",
+                "condition": {
+                  "kind": "fact",
+                  "ref": "f"
+                },
+                "expected": 1
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

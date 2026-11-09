@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills forty-one modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills forty-two modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1489,6 +1489,15 @@ checks 27 cases (`conformance/culture/`, 7 malformed). `--random 2000 --seed 7` 
 `gamectx local -` with four members, a carried idiom and two seeded rumors (0 mismatches: 1,480 accepted, 520 refused,
 1,892 tellings with 1,114 mutations and 42 corrections, 1,295 exposures at or past adoption; seed 1: 1,453 accepted, 0
 mismatches). [Results](../docs/characters/LIFE.md#idiom-and-rumor-mutation-pass-4-stage-4).
+
+## Life projects (offline)
+
+`character/projects_reference.py` is the independent prototype of pass 4 stage 5 (projects with checkable milestones
+and alternatives, morale, bounded sunk cost, persist/adapt/pause/abandon, deadline-weighted motives and off-screen
+resolution). `character/projects_cases.py --cap 0` checks 25 cases (`conformance/projects/`, 7 malformed). `--random
+2000 --seed 7` builds workflows op by op against `gamectx local -` with two projects that have alternatives and
+deadlines (0 mismatches: 1,449 accepted, 551 refused, 2,068 decisions with 348 adaptations, 17 abandonments and 48
+completions; seed 1: 1,466 accepted, 0 mismatches). [Results](../docs/characters/LIFE.md#life-projects-pass-4-stage-5).
 
 ## Deep roleplay scenarios (offline)
 

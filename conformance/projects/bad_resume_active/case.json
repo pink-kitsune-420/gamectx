@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: only a paused project resumes.",
+  "error": true
+}

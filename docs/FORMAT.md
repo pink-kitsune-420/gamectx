@@ -2921,6 +2921,7 @@ grows past them is refused where it used to be accepted.
 | `genre` | authored `genres` (16, 10⁵), authored `packs` (16, 10⁵), `nodes` walked per render or normalize (4096, 10⁶) |
 | `minds` | authored `minds` (16, 4096), assigned `beings` (1024, 10⁶) |
 | `defenses` | profiled `beings` (1024, 10⁶), held `distortions` per being (16, 256) |
+| `projects` | `projects` (256, 10⁶), `milestones` per project (8, 32) |
 | `culture` | `beings` (members, 1024, 10⁶), `idioms` (64, 10⁵), `repertoire` per being (32, 1024), seeded `topics` (256, 10⁶), held `beliefs` (4096, 10⁶) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
@@ -3622,6 +3623,38 @@ per tick since last raised.
   last_mutation, merged, place, topic, verb}`; drift is `|amount − truth| × 10⁶ ÷ truth` when both have amounts.
 - `spread {topic}` → `{holders, max_drift, max_ops, topic, total_ops, truth {agent, amount, details, place, verb,
   witness}}`.
+
+## Projects v1 (pass 4, stage 5)
+
+`gamectx::character::projects` (guide: [Life](characters/LIFE.md#life-projects-pass-4-stage-5)), local kind `projects`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
+malformed) live in `conformance/projects/`. Morale is in millionths (0–1,000,000), starting at 700,000. `score =
+morale ÷ 10,000 + stake ÷ 2 + sunk`, `sunk = min(30, time ÷ 50 + money ÷ 100)`, or 0 after four failures in a row.
+
+- `tick {now (0–10¹², not backwards)}` → `{now}`.
+- `propose {id (new), owner, aim (text ≤ 80), stake 0–100, horizon (now–10¹²), milestones [1–limit {id, condition
+  {kind task|fact|item|relationship, ref, level (0–100, relationship only)}, expected 1–10¹², alternative? {id,
+  condition, expected}}]}` → the project view. Milestone and alternative ids are unique in the project.
+- `show {project}` → `{adapted, aim, current, done, failures, horizon, id, money, morale, owner, remaining, score,
+  stake, status active|paused|completed|abandoned, sunk, time}`.
+- `invest {project (active or paused), time? 0–10⁶, money? 0–10⁹}` → the view; totals saturate at 10¹².
+- `outcome {project (active), milestone (the current one), success}` → `{decision, feeds, grows_from, project,
+  replaced}`. Success: morale +100,000, failures reset, the next milestone becomes current; after the last, decision
+  `complete`, status completed and feeds `[drift, lesson, aspiration]`. Failure: morale −200,000, failures +1, then the
+  decision rule.
+- `setback {project (active), severity 1–100}` → as a failed outcome: morale −severity × 3,000, then the decision rule.
+- Decision rule: score ≥ 80 `persist`; ≥ 55 `adapt` (the current milestone is replaced by its alternative, named in
+  `replaced`) when it has one, else `persist`; ≥ 35 `pause` (status paused); otherwise `abandon` (status abandoned,
+  feeds as above, `grows_from {aim, project}`).
+- `encourage {project (active or paused), amount 0–100}` → the view; morale + amount × 5,000.
+- `resume {project (paused)}` → the view, active again.
+- `weight {project}` → `{motive {id: "project:<id>", score} | null, project, slot {condition, expected, milestone, owner}
+  | null, urgency}`. For an active project with work left: `need` = expected ticks of the remaining milestones, `left`
+  = horizon − now (0 when past); urgency 100 when `need ≥ left`, else `need × 100 ÷ left`; score `stake × (50 + urgency
+  ÷ 2) ÷ 100`.
+- `offscreen {project, elapsed 0–10¹², luck 0–100}` → `{project, resolved success|failure|null, result}`: for an active
+  project, luck below 20 fails the current milestone; luck 50 or more with `elapsed ≥ expected` completes it; otherwise
+  nothing. The result is the outcome's.
 
 ## Surroundings v1 (pass 3, stage 5)
 

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a relationship condition names a level.",
+  "error": true
+}

@@ -4572,3 +4572,108 @@ fn culture_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn projects_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::projects::{Projects, FULL};
+    let mut rng = Rng(0x9E01_0E45_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 46. Project mutation fuzzing (limits included); one manager keeps projects across 16 rounds.
+    // Morale stays within 0..=10⁶; a project is completed exactly when every milestone is done;
+    // sunk cost never passes 30 and is 0 after four failures in a row; an abandonment is reported
+    // with its feeds and leaves the project abandoned; an adaptation names the milestone replaced.
+    let samples = [
+        r#"{"limits":{"projects":3,"milestones":4},"ops":[{"op":"propose","args":{"id":"mill","owner":"wen","aim":"Build a mill","stake":40,"horizon":300,"milestones":[{"id":"dig","condition":{"kind":"task","ref":"dig"},"expected":50,"alternative":{"id":"hire","condition":{"kind":"task","ref":"hire"},"expected":60}},{"id":"deed","condition":{"kind":"relationship","ref":"lord","level":50},"expected":30}]}},{"op":"invest","args":{"project":"mill","time":400,"money":800}},{"op":"outcome","args":{"project":"mill","milestone":"dig","success":false}},{"op":"setback","args":{"project":"mill","severity":40}},{"op":"weight","args":{"project":"mill"}}]}"#,
+        r#"{"ops":[{"op":"propose","args":{"id":"lute","owner":"ida","aim":"Learn the lute","stake":80,"horizon":100,"milestones":[{"id":"chords","condition":{"kind":"fact","ref":"chords"},"expected":20},{"id":"recital","condition":{"kind":"item","ref":"lute"},"expected":40}]}},{"op":"offscreen","args":{"project":"lute","elapsed":30,"luck":70}},{"op":"outcome","args":{"project":"lute","milestone":"recital","success":true}},{"op":"show","args":{"project":"lute"}}]}"#,
+    ];
+    let mut k = Projects::new();
+    let mut decided = 0;
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            k = Projects::new();
+        }
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = k.workflow(&v) else { continue };
+            for r in out.get("results").and_then(Value::as_array).unwrap() {
+                let r = r.get("result").filter(|x| **x != Value::Null).unwrap_or(r);
+                match r.get("decision").and_then(Value::as_str) {
+                    Some("abandon") => {
+                        assert_eq!(r.get("feeds").and_then(Value::as_array).unwrap().len(), 3);
+                        assert!(r.to_json().contains(r#""status":"abandoned""#));
+                    }
+                    Some("adapt") => assert!(r.get("replaced") != Some(&Value::Null)),
+                    _ => {}
+                }
+                if r.get("decision").is_some_and(|d| *d != Value::Null) {
+                    decided += 1;
+                }
+            }
+            for p in k.projects.values() {
+                assert!(p.morale <= FULL && p.at <= p.milestones.len() && p.sunk() <= 30);
+                assert_eq!(p.status == "completed", p.at == p.milestones.len());
+                if p.failures >= 4 {
+                    assert_eq!(p.sunk(), 0);
+                }
+            }
+        }
+    }
+    assert!(decided > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Projects::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Projects::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"projects":1000000,"milestones":32}"#, true),
+        (r#"{"milestones":33}"#, false),
+        (r#"{"projects":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Projects::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 32 milestones of 10¹² ticks each weigh at full urgency without overflow and complete
+    // in order; time and money investments saturate at 10¹²; one milestone over the limit is refused.
+    let mut k = Projects::with_limits(&parse(r#"{"milestones":32}"#, 64).unwrap()).unwrap();
+    let mss: Vec<String> = (0..32)
+        .map(|i| format!(r#"{{"id":"m{i}","condition":{{"kind":"task","ref":"t"}},"expected":1000000000000}}"#))
+        .collect();
+    let propose = |id: &str, n: usize| {
+        format!(
+            r#"{{"op":"propose","args":{{"id":"{id}","owner":"o","aim":"A long road","stake":100,"horizon":1000000000000,"milestones":[{}]}}}}"#,
+            mss[..n].join(",")
+        )
+    };
+    let out = k
+        .workflow(&req(&[propose("long", 32), r#"{"op":"weight","args":{"project":"long"}}"#.into()]))
+        .unwrap()
+        .to_json();
+    assert!(out.contains(r#""urgency":100"#) && out.contains(r#""score":100"#));
+    let done: Vec<String> = (0..32)
+        .map(|i| format!(r#"{{"op":"outcome","args":{{"project":"long","milestone":"m{i}","success":true}}}}"#))
+        .collect();
+    assert!(k.workflow(&req(&done)).unwrap().to_json().contains(r#""decision":"complete""#));
+    let invest = r#"{"op":"invest","args":{"project":"p","time":1000000,"money":1000000000}}"#.to_string();
+    let mut k = Projects::new();
+    k.workflow(&req(&[propose("p", 1)])).unwrap();
+    for _ in 0..20 {
+        k.workflow(&req(&vec![invest.clone(); 64])).unwrap();
+    }
+    assert_eq!(k.projects["p"].money, 1_000_000_000_000);
+    assert_eq!(k.projects["p"].sunk(), 30);
+    let mut k = Projects::with_limits(&parse(r#"{"milestones":31}"#, 64).unwrap()).unwrap();
+    assert!(k.workflow(&req(&[propose("x", 32)])).is_err());
+
+    // A refused op changes nothing: an outcome for a milestone that is not current.
+    let mut k = Projects::new();
+    k.workflow(&req(&[propose("p", 2)])).unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"outcome","args":{"project":"p","milestone":"m1","success":true}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

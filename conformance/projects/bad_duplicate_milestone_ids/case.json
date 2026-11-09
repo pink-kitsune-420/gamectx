@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: milestone and alternative ids are unique in a project.",
+  "error": true
+}

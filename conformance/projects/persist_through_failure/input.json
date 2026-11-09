@@ -1,0 +1,60 @@
+{
+  "kind": "projects",
+  "args": {
+    "ops": [
+      {
+        "op": "propose",
+        "args": {
+          "id": "brewery",
+          "owner": "tamsin",
+          "aim": "Open a small brewery",
+          "stake": 90,
+          "horizon": 200,
+          "milestones": [
+            {
+              "id": "clear_plot",
+              "condition": {
+                "kind": "task",
+                "ref": "clear_plot"
+              },
+              "expected": 40
+            },
+            {
+              "id": "buy_hops",
+              "condition": {
+                "kind": "item",
+                "ref": "hops_sack"
+              },
+              "expected": 20,
+              "alternative": {
+                "id": "trade_for_hops",
+                "condition": {
+                  "kind": "relationship",
+                  "ref": "farmer_wen",
+                  "level": 60
+                },
+                "expected": 30
+              }
+            },
+            {
+              "id": "first_brew",
+              "condition": {
+                "kind": "fact",
+                "ref": "ale_tasted"
+              },
+              "expected": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "project": "brewery",
+          "milestone": "clear_plot",
+          "success": false
+        }
+      }
+    ]
+  }
+}
