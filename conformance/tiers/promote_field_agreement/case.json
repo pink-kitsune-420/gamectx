@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Verify that fields present in both kept summary and state agree upon promotion.",
+  "error": false
+}

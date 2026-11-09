@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Batch position and relevance updates applied atomically during assess.",
+  "error": false
+}

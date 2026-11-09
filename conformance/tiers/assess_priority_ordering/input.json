@@ -1,0 +1,37 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a_near",
+          "tier": "near",
+          "relevance": 300000
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "b_focus",
+          "tier": "focus",
+          "relevance": 600000
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "c_focus",
+          "tier": "focus",
+          "relevance": 800000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "budget": 125
+        }
+      }
+    ]
+  }
+}

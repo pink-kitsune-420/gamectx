@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Complex lifecycle sequence across tracking, demotions, assessments, and promotions.",
+  "error": false
+}

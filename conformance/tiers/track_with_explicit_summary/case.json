@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Track a lower-tier being with author-provided explicit summary object.",
+  "error": false
+}

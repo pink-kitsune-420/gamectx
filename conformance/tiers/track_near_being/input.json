@@ -1,0 +1,27 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "bo",
+          "tier": "near",
+          "distance": 50,
+          "relevance": 300000,
+          "state": {
+            "body": {
+              "fatigue": 40
+            },
+            "location": "market",
+            "micro_reactions": [
+              "blink",
+              "glance"
+            ],
+            "status": "idle"
+          }
+        }
+      }
+    ]
+  }
+}

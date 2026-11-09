@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Demote a being to dormant tier freezing all dynamic state.",
+  "error": false
+}

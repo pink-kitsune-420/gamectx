@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Budget allocation strictly orders by tier priority and relevance descending.",
+  "error": false
+}

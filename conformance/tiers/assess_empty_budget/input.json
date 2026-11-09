@@ -1,0 +1,20 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "budget": 0
+        }
+      }
+    ]
+  }
+}

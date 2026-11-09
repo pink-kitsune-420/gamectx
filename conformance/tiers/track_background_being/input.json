@@ -1,0 +1,26 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "carter",
+          "tier": "background",
+          "distance": 500,
+          "relevance": 80000,
+          "state": {
+            "location": "north_road",
+            "needs": {
+              "hunger": {
+                "level": 400000,
+                "rate": 10000
+              }
+            },
+            "status": "traveling"
+          }
+        }
+      }
+    ]
+  }
+}

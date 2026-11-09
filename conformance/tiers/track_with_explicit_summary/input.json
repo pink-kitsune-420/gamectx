@@ -1,0 +1,19 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "fay",
+          "tier": "background",
+          "distance": 400,
+          "summary": {
+            "location": "woods",
+            "status": "foraging"
+          }
+        }
+      }
+    ]
+  }
+}

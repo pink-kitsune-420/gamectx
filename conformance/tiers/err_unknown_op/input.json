@@ -1,0 +1,13 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "obliterate",
+        "args": {
+          "being": "ada"
+        }
+      }
+    ]
+  }
+}

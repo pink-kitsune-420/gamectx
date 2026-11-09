@@ -131,6 +131,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "space" => crate::character::space::workflow(a),
         "drift" => crate::character::drift::workflow(a),
         "packs" => crate::character::packs::workflow(a),
+        "tiers" => crate::character::tiers::workflow(a),
         "state-bundle" => crate::kit::state_bundle::workflow(a),
         "being-runtime" => crate::runtime::being::workflow(a),
         "turn-frame" => crate::character::frame::workflow(a),

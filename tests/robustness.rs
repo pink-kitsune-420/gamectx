@@ -5181,6 +5181,85 @@ fn concept_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&cm, &cm.limits).to_json(), before);
 }
 
+#[test]
+fn tiers_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::tiers::TiersManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5053_2026_1109_0052);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut tm = TiersManager::new();
+        tm.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"track","args":{"being":"hero","tier":"focus","distance":10,"relevance":900000,"state":{"hp":100}}},
+                {"op":"track","args":{"being":"villager","tier":"near","distance":80,"relevance":300000,"state":{"status":"idle"}}},
+                {"op":"demote","args":{"being":"hero","to":"near"}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        tm
+    };
+
+    // 52. Tiers fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut tm = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            tm = filled();
+        }
+        let before = persist::export(&tm, &tm.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match tm.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&tm, &tm.limits);
+                let mut tm2 = TiersManager::new();
+                tm2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&tm2, &tm2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&tm, &tm.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; assess op
+    let assess = r#"{"op":"assess","args":{"budget":100}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![assess.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![assess.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"summaries":1000000,"tiers":16}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"summaries":1000001}"#, false),
+        (r#"{"tiers":17}"#, false),
+        (r#"{"tiers":0}"#, false),
+    ] {
+        let mut t = TiersManager::new();
+        assert_eq!(t.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut t = filled();
+    let before = persist::export(&t, &t.limits).to_json();
+    let bad_track =
+        parse(r#"{"ops":[{"op":"track","args":{"being":"bad id!"}}]}"#, 4096).unwrap();
+    assert!(t.workflow(&bad_track).is_err());
+    assert_eq!(persist::export(&t, &t.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

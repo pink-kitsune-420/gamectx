@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Demote a focus being to background tier with extensive field pruning.",
+  "error": false
+}

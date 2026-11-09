@@ -1,0 +1,30 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "fay",
+          "tier": "background",
+          "state": {
+            "needs": {
+              "stamina": {
+                "level": 500000,
+                "rate": 0
+              }
+            }
+          }
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "fay",
+          "to": "focus",
+          "elapsed": 200
+        }
+      }
+    ]
+  }
+}

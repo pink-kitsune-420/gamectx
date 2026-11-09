@@ -1,0 +1,14 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "promote",
+        "args": {
+          "being": "ghost",
+          "to": "focus"
+        }
+      }
+    ]
+  }
+}

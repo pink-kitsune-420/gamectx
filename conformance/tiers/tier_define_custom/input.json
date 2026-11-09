@@ -1,0 +1,25 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "tier",
+        "args": {
+          "name": "patrol",
+          "cost": 15,
+          "max_distance": 150,
+          "min_relevance": 150000,
+          "keeps": [
+            "location",
+            "status",
+            "weapons"
+          ],
+          "drops": [
+            "dialogue",
+            "tasks"
+          ]
+        }
+      }
+    ]
+  }
+}

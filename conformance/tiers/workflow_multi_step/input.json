@@ -1,0 +1,39 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "hero",
+          "tier": "focus",
+          "distance": 10,
+          "relevance": 900000,
+          "state": {
+            "hp": 100
+          }
+        }
+      },
+      {
+        "op": "demote",
+        "args": {
+          "being": "hero",
+          "to": "near"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "budget": 50
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "hero",
+          "to": "focus"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Track a background being at long distance with coarse state.",
+  "error": false
+}

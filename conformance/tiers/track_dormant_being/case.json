@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Track a dormant being with minimal static anchor fields.",
+  "error": false
+}

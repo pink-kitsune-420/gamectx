@@ -1,0 +1,18 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "tier",
+        "args": {
+          "name": "bad tier!",
+          "cost": 10,
+          "max_distance": 10,
+          "min_relevance": 10,
+          "keeps": [],
+          "drops": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "background",
+          "distance": 500,
+          "state": {
+            "needs": {
+              "hunger": {
+                "level": 200000,
+                "rate": 5000
+              }
+            }
+          }
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "ada",
+          "to": "focus",
+          "elapsed": 50,
+          "seed": 7
+        }
+      }
+    ]
+  }
+}

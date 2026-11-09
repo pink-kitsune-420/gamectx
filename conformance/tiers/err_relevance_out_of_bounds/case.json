@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject relevance value exceeding ceiling 1,000,000.",
+  "error": true
+}

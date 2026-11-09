@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject track request referencing non-existent tier.",
+  "error": true
+}

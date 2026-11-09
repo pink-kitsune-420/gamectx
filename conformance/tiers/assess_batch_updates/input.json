@@ -1,0 +1,43 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "near",
+          "distance": 50,
+          "relevance": 200000
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "bo",
+          "tier": "focus",
+          "distance": 10,
+          "relevance": 600000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "budget": 500,
+          "beings": [
+            {
+              "being": "ada",
+              "distance": 10,
+              "relevance": 700000
+            },
+            {
+              "being": "bo",
+              "distance": 800,
+              "relevance": 50000
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

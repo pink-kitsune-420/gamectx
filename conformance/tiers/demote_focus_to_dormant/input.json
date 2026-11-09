@@ -1,0 +1,26 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus",
+          "state": {
+            "home": "cottage",
+            "id": "ada",
+            "status": "sleeping"
+          }
+        }
+      },
+      {
+        "op": "demote",
+        "args": {
+          "being": "ada",
+          "to": "dormant"
+        }
+      }
+    ]
+  }
+}

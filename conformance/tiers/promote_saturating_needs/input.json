@@ -1,0 +1,30 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "fay",
+          "tier": "background",
+          "state": {
+            "needs": {
+              "hunger": {
+                "level": 900000,
+                "rate": 10000
+              }
+            }
+          }
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "fay",
+          "to": "focus",
+          "elapsed": 50
+        }
+      }
+    ]
+  }
+}

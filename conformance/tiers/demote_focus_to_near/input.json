@@ -1,0 +1,31 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus",
+          "distance": 10,
+          "state": {
+            "body": {
+              "fatigue": 10
+            },
+            "micro_reactions": [
+              "smile"
+            ],
+            "status": "talking"
+          }
+        }
+      },
+      {
+        "op": "demote",
+        "args": {
+          "being": "ada",
+          "to": "near"
+        }
+      }
+    ]
+  }
+}

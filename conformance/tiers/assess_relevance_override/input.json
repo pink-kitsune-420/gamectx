@@ -1,0 +1,22 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus",
+          "distance": 1000,
+          "relevance": 900000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "budget": 500
+        }
+      }
+    ]
+  }
+}

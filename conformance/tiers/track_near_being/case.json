@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Track a near being at moderate distance, automatically generating kept summary.",
+  "error": false
+}

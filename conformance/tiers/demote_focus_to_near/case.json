@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Demote a focus being to near tier, creating a summary and recording dropped fields.",
+  "error": false
+}

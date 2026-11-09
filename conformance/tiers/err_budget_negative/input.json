@@ -1,0 +1,13 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "assess",
+        "args": {
+          "budget": -10
+        }
+      }
+    ]
+  }
+}

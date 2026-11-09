@@ -1,0 +1,28 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "near",
+          "distance": 50,
+          "state": {
+            "body": {
+              "fatigue": 10
+            },
+            "status": "ready"
+          }
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "ada",
+          "to": "focus"
+        }
+      }
+    ]
+  }
+}

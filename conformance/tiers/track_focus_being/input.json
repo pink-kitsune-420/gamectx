@@ -1,0 +1,29 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus",
+          "distance": 10,
+          "relevance": 600000,
+          "state": {
+            "body": {
+              "fatigue": 20
+            },
+            "location": "town_square",
+            "needs": {
+              "hunger": {
+                "level": 300000,
+                "rate": 5000
+              }
+            },
+            "status": "active"
+          }
+        }
+      }
+    ]
+  }
+}

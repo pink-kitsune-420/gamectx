@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Departing beings are automatically demoted to lower tiers during assess.",
+  "error": false
+}

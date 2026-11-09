@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject invalid tier identifier.",
+  "error": true
+}

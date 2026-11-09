@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Needs with zero growth rate do not change level on promotion elapsed time.",
+  "error": false
+}

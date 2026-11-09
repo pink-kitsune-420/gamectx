@@ -1,0 +1,25 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "near",
+          "state": {
+            "location": "mill",
+            "status": "grinding"
+          }
+        }
+      },
+      {
+        "op": "promote",
+        "args": {
+          "being": "ada",
+          "to": "focus"
+        }
+      }
+    ]
+  }
+}

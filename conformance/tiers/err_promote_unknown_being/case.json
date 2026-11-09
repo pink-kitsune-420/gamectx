@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject promote op for untracked being.",
+  "error": true
+}

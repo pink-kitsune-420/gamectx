@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Track a focus being with rich full state.",
+  "error": false
+}

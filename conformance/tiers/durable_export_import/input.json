@@ -1,0 +1,23 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "hero",
+          "tier": "focus",
+          "distance": 5,
+          "relevance": 950000,
+          "state": {
+            "hp": 100
+          }
+        }
+      },
+      {
+        "op": "export",
+        "args": {}
+      }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "elder",
+          "tier": "dormant",
+          "distance": 2000,
+          "relevance": 0,
+          "state": {
+            "home": "cottage",
+            "id": "elder"
+          }
+        }
+      }
+    ]
+  }
+}

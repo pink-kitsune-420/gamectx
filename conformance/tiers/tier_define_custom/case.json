@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Define a custom tier with specific work cost, distance, relevance, keeps and drops.",
+  "error": false
+}

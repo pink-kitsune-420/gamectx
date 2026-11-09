@@ -1,0 +1,14 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "stratosphere"
+        }
+      }
+    ]
+  }
+}

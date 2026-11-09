@@ -1,0 +1,1 @@
+{"results":[{"being":"ada","distance":0,"relevance":500000,"tier":"focus"},{"being":"bo","distance":0,"relevance":500000,"tier":"near"},{"active":["ada","bo"],"budget_remaining":800,"budget_used":200,"deferred":[],"demotions":[],"promotions":[{"being":"bo","from":"near","to":"focus"}]}],"version":1}

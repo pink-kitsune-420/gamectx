@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Promote a near being to focus without elapsed time, restoring full state.",
+  "error": false
+}

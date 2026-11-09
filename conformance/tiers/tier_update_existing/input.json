@@ -1,0 +1,21 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "tier",
+        "args": {
+          "name": "focus",
+          "cost": 120,
+          "max_distance": 30,
+          "min_relevance": 400000,
+          "keeps": [
+            "body",
+            "status"
+          ],
+          "drops": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "tiers",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "ada",
+          "tier": "focus"
+        }
+      },
+      {
+        "op": "demote",
+        "args": {
+          "being": "ada",
+          "to": "underworld"
+        }
+      }
+    ]
+  }
+}

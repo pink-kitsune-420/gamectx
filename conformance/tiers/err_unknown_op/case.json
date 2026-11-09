@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject unsupported tier operation.",
+  "error": true
+}
