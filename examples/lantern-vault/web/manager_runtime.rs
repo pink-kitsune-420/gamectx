@@ -293,16 +293,31 @@ impl Runtime {
             .is_some_and(|v| !v.is_empty())
     }
     fn scan(&mut self, policy: &ModelPolicy) -> Value {
-        let tags = self.base("text").ok().and_then(|b| json(req(&b, "/api/tags", None)).ok());
-        let names =
-            tags.as_ref().and_then(|v| v.get("models")).and_then(Value::as_array).map_or_else(Vec::new, |rows| {
+        let tags = self.base("text").ok().and_then(|b| {
+            json(req(&b, "/api/tags", None))
+                .ok()
+                .or_else(|| json(req(&b, "/v1/models", None)).ok())
+                .or_else(|| json(req(&b, "/models", None)).ok())
+        });
+        let names = tags.as_ref().map_or_else(Vec::new, |v| {
+            if let Some(rows) = v.get("models").and_then(Value::as_array) {
                 rows.iter()
                     .take(64)
                     .filter_map(|r| r.get("name").and_then(Value::as_str))
                     .filter(|s| s.len() <= 128 && s.bytes().all(|b| b.is_ascii_alphanumeric() || b"-_:./".contains(&b)))
                     .map(str::to_owned)
                     .collect::<Vec<_>>()
-            });
+            } else if let Some(rows) = v.get("data").and_then(Value::as_array) {
+                rows.iter()
+                    .take(64)
+                    .filter_map(|r| r.get("id").and_then(Value::as_str))
+                    .filter(|s| s.len() <= 128 && s.bytes().all(|b| b.is_ascii_alphanumeric() || b"-_:./".contains(&b)))
+                    .map(str::to_owned)
+                    .collect::<Vec<_>>()
+            } else {
+                Vec::new()
+            }
+        });
         // Metadata probes run on the worker, never load weights and never generate.
         let mut thinking_controls = Vec::new();
         let mut probes = ["text", "dramatic_text"]
@@ -365,7 +380,8 @@ impl Runtime {
         for id in ["text", "dramatic_text", "image", "dramatic_image", "tts", "stt"] {
             let p = policy.profile(id).expect("validated");
             let backend = text(p, "backend").unwrap();
-            if backend.starts_with("online_") {
+            let is_loopback = self.roots.get(channel(id)).and_then(Value::as_str).is_some();
+            if backend.starts_with("online_") && !is_loopback {
                 continue;
             }
             let yes = if self.native.handles(channel(id), text(p, "model").unwrap()) {

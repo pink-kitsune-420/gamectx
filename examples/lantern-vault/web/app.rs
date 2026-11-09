@@ -1310,8 +1310,10 @@ impl App {
     pub fn manager_observe(&mut self, report: Value) -> Result<()> {
         if let Some(names) = report.get("text_models").and_then(Value::as_array) {
             let models = names.iter().map(|v| obj! {"name"=>v.clone()}).collect::<Vec<_>>();
-            let _ =
-                self.monitor.finish_check("text", "local_ollama", Ok(obj! {"models"=>models}.to_json().into_bytes()));
+            let backend = text(&self.config.value, "text").unwrap_or("local_ollama");
+            let _ = self.monitor.finish_check("text", backend, Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()));
+            let _ = self.monitor.finish_check("text", "local_ollama", Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()));
+            let _ = self.monitor.finish_check("text", "online_openai_compatible", Ok(obj! {"models"=>models}.to_json().into_bytes()));
         }
         self.native_status(&report);
         self.manager.observe(report, &self.config, &self.dir)?;
@@ -1359,7 +1361,12 @@ impl App {
     fn effective_backend(&self, modality: &str) -> Result<String> {
         let call_config = self.manager.provider(&self.config, modality)?;
         let selected = text(&call_config.value, modality)?;
-        if selected.starts_with("online_") {
+        let is_loopback = call_config
+            .endpoint(selected)
+            .ok()
+            .and_then(|e| text(e, "url").ok())
+            .is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
+        if selected.starts_with("online_") && !is_loopback {
             let ceiling = num(call_config.endpoint(selected)?, "ceiling_micros", 1_000_000_000_000)?;
             let spent = num(&self.budget.summary(), "charged_or_reserved_micros", 1_000_000_000_000)?;
             let cap = num(&self.budget.summary(), "cap_micros", 1_000_000_000_000)?;
@@ -2544,12 +2551,18 @@ impl App {
                     self.notice = "Wait for current requests to finish before checking connections.".into();
                     return Ok((obj! {"queued"=>false,"reason"=>"busy"}, jobs));
                 }
-                for (channel, backend) in [
+                for (channel, default_backend) in [
                     ("text", "local_ollama"),
                     ("image", "local_sd_cpp"),
                     ("tts", "local_tts_http"),
                     ("stt", "local_stt_http"),
                 ] {
+                    let configured = text(&self.config.value, channel).unwrap_or(default_backend);
+                    let backend = if configured == "online_openai_compatible" {
+                        "online_openai_compatible"
+                    } else {
+                        default_backend
+                    };
                     if self.manager.report.get("services").and_then(Value::as_array).unwrap_or(&[]).iter().any(|r| {
                         r.get("channel").and_then(Value::as_str) == Some(channel)
                             && r.get("native") == Some(&Value::Bool(true))

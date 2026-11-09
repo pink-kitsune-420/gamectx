@@ -108,22 +108,41 @@ impl Monitor {
         let result = response.and_then(|bytes| {
             let v = gamectx::data::json::parse(std::str::from_utf8(&bytes).map_err(|_| err())?, 65536)?;
             if channel == "text" {
-                let models = get(&v, "models")?.as_array().ok_or_else(err)?;
-                if models.len() > 64 {
-                    return Err(err());
-                }
                 let mut names = Vec::new();
-                for model in models {
-                    let name = text(model, "name")?;
-                    if name.is_empty()
-                        || name.len() > 128
-                        || !name.bytes().all(|c| c.is_ascii_alphanumeric() || b"-_:./".contains(&c))
-                    {
+                if let Some(models) = get(&v, "models").ok().and_then(Value::as_array) {
+                    if models.len() > 64 {
                         return Err(err());
                     }
-                    if !names.iter().any(|n| n == name) {
-                        names.push(name.to_string());
+                    for model in models {
+                        let name = text(model, "name")?;
+                        if name.is_empty()
+                            || name.len() > 128
+                            || !name.bytes().all(|c| c.is_ascii_alphanumeric() || b"-_:./".contains(&c))
+                        {
+                            return Err(err());
+                        }
+                        if !names.iter().any(|n| n == name) {
+                            names.push(name.to_string());
+                        }
                     }
+                } else if let Some(data) = get(&v, "data").ok().and_then(Value::as_array) {
+                    if data.len() > 64 {
+                        return Err(err());
+                    }
+                    for model in data {
+                        let name = text(model, "id")?;
+                        if name.is_empty()
+                            || name.len() > 128
+                            || !name.bytes().all(|c| c.is_ascii_alphanumeric() || b"-_:./".contains(&c))
+                        {
+                            return Err(err());
+                        }
+                        if !names.iter().any(|n| n == name) {
+                            names.push(name.to_string());
+                        }
+                    }
+                } else {
+                    return Err(err());
                 }
                 self.models = names;
             } else if v.get("reachable") != Some(&Value::Bool(true)) {
@@ -167,7 +186,10 @@ impl Monitor {
             });
             let mut status = "unchecked";
             let mut detail = "Not checked. Apply settings, then check local servers.".to_string();
-            if !backend.starts_with("local_") {
+            let is_loopback = config.endpoint(backend).ok()
+                .and_then(|e| text(e, "url").ok())
+                .is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
+            if !backend.starts_with("local_") && !is_loopback {
                 status = if backend.starts_with("online_") { "online" } else { "offline" };
                 detail = if backend.starts_with("online_") {
                     "Online access still requires credentials and spending allowance."
@@ -199,6 +221,9 @@ impl Monitor {
                             format!("{model} is not installed. Choose a model from the installed list, then Apply.");
                     }
                 }
+            } else if is_loopback && channel == "text" && self.models.contains(&model) {
+                status = "ready";
+                detail = "Installed model found. Send a new message to request a reply.".into();
             }
             channels
                 .push(obj! {"channel"=>channel,"backend"=>backend,"model"=>model,"status"=>status,"detail"=>detail});
@@ -245,8 +270,11 @@ pub fn selected_model_for(c: &providers::Config, backend: &str) -> String {
         .into()
 }
 pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request> {
+    let configured = text(&c.value, channel).unwrap_or("");
+    let is_openai = configured == "online_openai_compatible"
+        || c.endpoint(configured).ok().and_then(|e| text(e, "url").ok()).is_some_and(|u| u.ends_with("/chat/completions"));
     let backend = match channel {
-        "text" => "local_ollama",
+        "text" => if is_openai { "online_openai_compatible" } else { "local_ollama" },
         "image" => "local_sd_cpp",
         "tts" => "local_tts_http",
         "stt" => "local_stt_http",
@@ -258,7 +286,7 @@ pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request>
         management: None,
         text_token: None,
         method: if channel == "text" { providers::Method::Get } else { providers::Method::ConnectOnly },
-        url: format!("http://{root}/{}", if channel == "text" { "api/tags" } else { "health" }),
+        url: format!("http://{root}/{}", if is_openai { "v1/models" } else if channel == "text" { "api/tags" } else { "health" }),
         content_type: "application/json".into(),
         body: Vec::new(),
         key_env: None,
