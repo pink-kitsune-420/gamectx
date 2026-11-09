@@ -2738,3 +2738,79 @@ fn knowledge_modules_take_host_limits_and_survive_mutation() {
     let packet = chain.packet(1, 256, 16_384, &[]).unwrap();
     assert!(packet.get("rows").and_then(Value::as_array).is_some_and(|r| !r.is_empty()), "{}", packet.to_json());
 }
+
+#[test]
+fn cooperation_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::cooperation::{Cooperation, M};
+    let mut rng = Rng(0xC0_0BE7_2026_0B23);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 25. Cooperation mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"tasks":4,"roles":3,"debts":4},"ops":[{"op":"form","args":{"id":"harvest","organizer":"farmer","goal":"Bring in the barley","roles":[{"role":"reap","being":"farmer"},{"role":"cart"}]}},{"op":"ask_help","args":{"task":"harvest","role":"cart","asker":"farmer","helper":"carter","trust":60,"busy":false,"effort":20,"at":1}},{"op":"hand_off","args":{"task":"harvest","role":"cart","from":"carter","to":"cousin"}},{"op":"complete","args":{"task":"harvest","role":"cart","being":"cousin","at":4}},{"op":"leave","args":{"task":"harvest","role":"reap","being":"farmer"}},{"op":"assess","args":{"being":"farmer"}}]}"#,
+        r#"{"limits":{"promises":4,"beings":4,"grudges":2},"ops":[{"op":"promise","args":{"id":"p","from":"smith","to":"miller","what":"mend_wheel","due":3,"at":1}},{"op":"keep","args":{"id":"p","at":2}},{"op":"promise","args":{"id":"q","from":"smith","to":"baker","what":"nails","due":3}},{"op":"release","args":{"id":"q","by":"baker"}},{"op":"tick","args":{"now":9}},{"op":"grudges","args":{"being":"baker"}}]}"#,
+        r#"{"limits":{"resources":4,"queue":3},"ops":[{"op":"claim","args":{"resource":"well","being":"ann","urgency":40,"status":60,"at":1}},{"op":"claim","args":{"resource":"well","being":"bo","urgency":90}},{"op":"contest","args":{"resource":"well","challenger":"cy","trust":-20,"urgency":80,"status":10,"holder_urgency":30,"holder_status":90,"at":2}},{"op":"free","args":{"resource":"well","being":"ann","at":3}},{"op":"assess","args":{"being":"cy"}}]}"#,
+    ];
+    let mut co = Cooperation::new();
+    for _ in 0..1500 {
+        for s in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, s), 1 << 20) {
+                let _ = co.workflow(&v);
+            }
+        }
+    }
+    for book in co.grudges.values() {
+        assert!(book.values().all(|g| g.weight > 0 && g.weight <= M));
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let assess = r#"{"op":"assess","args":{"being":"b"}}"#.to_string();
+    assert!(Cooperation::new().workflow(&req(&vec![assess.clone(); 64])).is_ok());
+    assert!(Cooperation::new().workflow(&req(&vec![assess; 65])).is_err());
+    for (lim, ok) in [
+        (
+            r#"{"tasks":1000000,"roles":64,"promises":1000000,"resources":1000000,"queue":1024,"beings":1000000,"grudges":4096,"debts":1000000}"#,
+            true,
+        ),
+        (r#"{"roles":65}"#, false),
+        (r#"{"queue":1025}"#, false),
+        (r#"{"grudges":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Cooperation::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a 64-role task, a 1,024-deep queue, and the clock at its bound.
+    let mut co = Cooperation::with_limits(&parse(r#"{"roles":64,"queue":1024}"#, 64).unwrap()).unwrap();
+    let roles: Vec<String> = (0..64).map(|i| format!(r#"{{"role":"r{i}"}}"#)).collect();
+    let form = format!(
+        r#"{{"op":"form","args":{{"id":"t","organizer":"o","goal":"Raise the barn","roles":[{}]}}}}"#,
+        roles.join(",")
+    );
+    assert!(co.workflow(&req(&[form])).is_ok());
+    let claim = |b: String| {
+        format!(r#"{{"op":"claim","args":{{"resource":"well","being":"{b}","urgency":{}}}}}"#, b.len() % 101)
+    };
+    for chunk in 0..17 {
+        let batch: Vec<String> =
+            (chunk * 64..(chunk + 1) * 64).filter(|n| *n <= 1024).map(|n| claim(format!("b{n}"))).collect();
+        assert!(co.workflow(&req(&batch)).is_ok());
+    }
+    assert_eq!(co.resources["well"].queue.len(), 1024);
+    assert!(co.workflow(&req(&[claim("one_more".into())])).is_err());
+    assert!(co.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).is_ok());
+    assert!(co.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000001}}"#.into()])).is_err());
+
+    // A refused grudge (beings full) changes nothing: the promise stays pending, the clock stays put.
+    let mut co = Cooperation::with_limits(&parse(r#"{"beings":1}"#, 64).unwrap()).unwrap();
+    let setup = [
+        r#"{"op":"promise","args":{"id":"a","from":"s","to":"m","what":"x","due":0}}"#.to_string(),
+        r#"{"op":"promise","args":{"id":"b","from":"s","to":"k","what":"y","due":0}}"#.to_string(),
+    ];
+    co.workflow(&req(&setup)).unwrap();
+    let before = co.clone();
+    assert!(co.workflow(&req(&[r#"{"op":"tick","args":{"now":5}}"#.into()])).is_err());
+    assert_eq!(co, before);
+}

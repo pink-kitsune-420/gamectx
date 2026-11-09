@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Trust 60 and light effort reach exactly 500,000 (accepted); a busy neighbor with trust 10 scores below and refuses.",
+  "error": false
+}

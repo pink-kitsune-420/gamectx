@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A role holder (not only the organizer) may ask for help; trust 50 with no effort scores exactly 500,000.",
+  "error": false
+}

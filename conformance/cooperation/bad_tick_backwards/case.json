@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The clock is nondecreasing: tick 5 after tick 9 is refused.",
+  "error": true
+}

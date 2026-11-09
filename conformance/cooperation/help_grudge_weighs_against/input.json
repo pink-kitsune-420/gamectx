@@ -1,0 +1,54 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "seed_loan",
+          "from": "farmer",
+          "to": "carter",
+          "what": "repay_seed",
+          "due": 2
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 3
+        }
+      },
+      {
+        "op": "form",
+        "args": {
+          "id": "harvest",
+          "organizer": "farmer",
+          "goal": "Bring in the barley",
+          "roles": [
+            {
+              "role": "reap",
+              "being": "farmer"
+            },
+            {
+              "role": "cart"
+            },
+            {
+              "role": "stack"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "asker": "farmer",
+          "helper": "carter",
+          "trust": 60,
+          "effort": 20
+        }
+      }
+    ]
+  }
+}

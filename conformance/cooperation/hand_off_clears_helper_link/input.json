@@ -1,0 +1,61 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "form",
+        "args": {
+          "id": "harvest",
+          "organizer": "farmer",
+          "goal": "Bring in the barley",
+          "roles": [
+            {
+              "role": "reap",
+              "being": "farmer"
+            },
+            {
+              "role": "cart"
+            },
+            {
+              "role": "stack"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "asker": "farmer",
+          "helper": "carter",
+          "trust": 70,
+          "effort": 20
+        }
+      },
+      {
+        "op": "hand_off",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "from": "carter",
+          "to": "cousin"
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "being": "cousin"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "farmer"
+        }
+      }
+    ]
+  }
+}

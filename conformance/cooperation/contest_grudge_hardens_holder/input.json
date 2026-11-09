@@ -1,0 +1,55 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "forge",
+          "being": "smith"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "forge",
+          "challenger": "lord",
+          "trust": 0,
+          "status": 80,
+          "holder_status": 40
+        }
+      },
+      {
+        "op": "free",
+        "args": {
+          "resource": "forge",
+          "being": "lord"
+        }
+      },
+      {
+        "op": "free",
+        "args": {
+          "resource": "forge",
+          "being": "smith"
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "forge",
+          "being": "smith"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "forge",
+          "challenger": "lord",
+          "trust": 0,
+          "status": 80,
+          "holder_status": 40
+        }
+      }
+    ]
+  }
+}

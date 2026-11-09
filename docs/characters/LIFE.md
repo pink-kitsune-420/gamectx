@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Twenty character modules take a `limits` object next to
+The game decides how much it needs. Twenty-one character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -702,35 +702,37 @@ needs more.
 Measured host work at large casts (`eval/character/scale_measure.rs`, retained in
 `eval/character/scale-timing.json`; one release-mode run on an 8-core desktop CPU, single thread).
 Each module was filled with N entries by one small op each (a being, or a told claim, attitude,
-off-screen record or task), then given 1,000 single-op queries spread over them:
+off-screen record, promise or task), then given 1,000 single-op queries spread over them:
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.2 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.6 | 1.7 | 613 |
-| `creed` (`judge`) | 1.5 / 1.6 | 1.6 / 1.8 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.1 / 3.2 | 4.2 / 5.0 | 3.3 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.7 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.8 | 1.8 / 2.0 | 0.8 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.3 | 2.3 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.6 | 2.3 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.6 / 2.1 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.9 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.9 / 3.1 | 2.1 | 884 |
-| `relationship` (`assess`) | 0.9 / 1.0 | 1.4 / 1.9 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 1.9 / 2.0 | 3.7 / 4.8 | 5.2 | 2,370 |
+| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.3 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
+| `diet` (`choose`) | 1.7 / 1.9 | 2.1 / 2.5 | 1.8 | 613 |
+| `creed` (`judge`) | 1.5 / 1.6 | 1.7 / 2.0 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.2 / 3.3 | 4.5 / 6.0 | 3.2 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.6 | 274 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.7 / 1.8 | 1.9 / 2.2 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.9 | 1.0 / 1.3 | 2.3 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.7 / 1.0 | 1.1 / 1.5 | 2.4 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.6 / 2.1 | 2.5 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 2.0 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.7 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.9 / 2.9 | 2.1 | 884 |
+| `relationship` (`assess`) | 0.9 / 1.0 | 1.4 / 1.8 | 2.8 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.7 / 4.8 | 5.2 | 2,370 |
 | `curiosity` (`evaluate_novelty`) | 1.0 / 1.1 | 1.3 / 1.7 | 0.7 | 590 |
-| `task` (`get`) | 1.5 / 1.5 | 2.3 / 3.0 | 3.7 | 1,417 |
+| `cooperation` (`assess`, scans every record) | 13.4 / 14.3 | 220.5 / 241.5 | 3.4 | 230 |
+| `task` (`get`) | 1.4 / 1.5 | 2.1 / 2.6 | 3.6 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
-maps). Memory is linear: these minimal entries take 239 MB across all twenty modules at 10,000
-each, about 24 KB per character if every module holds one entry for it; richer characters use
-more. The measurement found four queries that scanned everything and now use an index or an
+maps), except cooperation `assess`, which walks every task, promise, resource and debt: 13 µs at
+1,000 promises, 221 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 242 MB across all twenty-one modules at 10,000 each, about 24 KB per
+character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
 `check_consistency` (66 µs). Limits: JSON parsing, the `gamectx local` CLI, cross-module wiring
@@ -836,7 +838,45 @@ parity workflows (`eval/character/growth_cases.py`, seed 7, 0 mismatches: 1,926 
 limits, 64/65-op and limit-ceiling boundaries and a 5,000-character cast (`tests/robustness.rs`),
 acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
 
+## Cooperation and conflict (pass 2, B2/B3)
 
+`gamectx::character::cooperation` (`Cooperation`, local kind `cooperation`) lets beings work
+together and compete. All scores are signed millionths. Every effect is a proposal for another
+engine (`relationship` `appraise_action`, `expectation` `expect`, `affect` `appraise`
+resentment) that the host may apply.
 
+**Joint tasks.** `form` a task with an organizer, a goal and named roles; the organizer
+`assign`s roles. Any member may `ask_help` for an open role, and the helper accepts when
 
+`300,000 + trust·4,000 + min(favors owed to the asker, 5)·100,000 − busy 300,000 − effort·2,000
+− grudge/2 ≥ 500,000`.
 
+Trust 60 at effort 20 is exactly 500,000 (`help_accept_and_refuse`). Completing a helped role
+proposes `help` and puts the asker in the helper's debt, or repays a favor the helper owed: a
+carter who owes the farmer two favors helps at trust 0 (`help_favor_owed_tips_refusal`). A helper
+who `leave`s proposes `broken_promise` and the asker holds a 200,000 grudge; `hand_off` passes a
+role on and clears the helper link.
+
+**Promises.** `promise` proposes an expectation `hope` for the receiver. `keep` proposes
+`fulfilled_promise` (`kept`, or `kept_late` after the due tick); the receiver may `release` it.
+`tick` breaks every pending promise past due: `broken_promise` and a 300,000 grudge. Grudges
+fade by 1,000 per tick, so a broken promise is forgiven 300 ticks later
+(`grudge_fades_with_time`). A grudge counts against later help: the carter whose seed loan was
+never repaid refuses the farmer at trust 60 (`help_grudge_weighs_against`, score 350,000).
+
+**Contested resources.** `claim` takes a free resource or joins its queue, ordered by contest
+turns, then `urgency·6,000 + status·4,000`, then arrival; `free` passes it to the head. A
+`contest` scores `500,000 + Δstatus·5,000 + Δurgency·4,000 + trust·3,000 − grudge/2`. At
+650,000 or more the holder yields (resenting it below trust 20). At 350,000 or less the holder
+stands, and the challenger queues and resents it. Between the two, the holder offers turns and
+the challenger goes next. In `contest_grudge_hardens_holder`, a smith who yielded to a lord
+(700,000, +200,000 grudge) only offers turns the next time (600,000). `grudges` and `assess` show
+a being's grudges, roles, promises, holdings, queue positions and favors.
+
+**Evidence (B2/B3):** 25 conformance cases (`conformance/cooperation/`, 6 malformed), 2,000
+differential parity workflows (`eval/character/cooperation_cases.py`, seed 7, 0 mismatches:
+1,446 accepted, 554 refused, 77 helps accepted, 2,149 contests resolved, 1,946 grudge
+proposals). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of three samples
+with limits, 64/65-op and limit-ceiling boundaries, a 64-role task, a 1,024-deep queue, and a
+refused grudge that changes nothing. Scale is in the [table above](#host-set-limits). $0 API
+spend.

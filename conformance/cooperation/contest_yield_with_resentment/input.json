@@ -1,0 +1,33 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "forge",
+          "being": "smith"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "forge",
+          "challenger": "lord",
+          "trust": 0,
+          "urgency": 90,
+          "status": 90,
+          "holder_urgency": 50,
+          "holder_status": 40,
+          "at": 7
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "smith"
+        }
+      }
+    ]
+  }
+}

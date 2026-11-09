@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The receiver releases one promise; a tick past both dues breaks only the other.",
+  "error": false
+}

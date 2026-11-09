@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A 300,000 grudge fades by 1,000 per tick: 100 ticks later it weighs 200,000, after 300 it is gone.",
+  "error": false
+}

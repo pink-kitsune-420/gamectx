@@ -147,14 +147,17 @@ listener's knows/wants/feels. Asking becomes the way to fill knowledge gaps (A1)
 *Implemented (pass 2 stage 2):* `character::speech_act::SpeechActs` (local kind
 `speech_act`). [Evidence](../characters/LIFE.md#communication-as-action-pass-2-b1).
 
-**B2. Cooperation and shared tasks.** Tasks have one owner. Add joint tasks with roles,
+**B2. Cooperation and shared tasks.** — **DONE**. Tasks have one owner. Add joint tasks with roles,
 delegation, asking for help, hand-offs and shared reservations. Add promises between
 characters, not only with the player.
 
-**B3. Conflict over resources.** Two beings can plan to use the same oven, the same
+**B3. Conflict over resources.** — **DONE**. Two beings can plan to use the same oven, the same
 last loaf, the same seat. The host already does atomic transfers; what is missing is
 reservation contention, queuing, negotiation, giving way by status or relationship, and
 the grudges that follow.
+
+*Implemented (pass 2 B2/B3):* `character::cooperation::Cooperation` (local kind
+`cooperation`). [Evidence](../characters/LIFE.md#cooperation-and-conflict-pass-2-b2b3).
 
 **B4. Slow personality change.** Identity is authored and fixed. Long experience should be
 able to shift values and temperament slightly, with a hard cap, a reason chain and an
@@ -276,7 +279,7 @@ packet and budget modules already do.
    modules), 7b (pass 1 character modules) and 7c (knowledge kinds: places, timeline, things,
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
-5. **B2/B3 cooperation and conflict**, **B7 roles**, **C4 economy**, **C3 space**.
+5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk**.
 7. **C1 life cycle**, **C2 threat**, **D2 detail levels**, **D3 save growth**, **D5 packs**.

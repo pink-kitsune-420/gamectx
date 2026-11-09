@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Trust must be \u2212100..100; 101 is refused.",
+  "error": true
+}

@@ -1,0 +1,124 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "form",
+        "args": {
+          "id": "mill",
+          "organizer": "carter",
+          "goal": "Shared work",
+          "roles": [
+            {
+              "role": "grind",
+              "being": "carter"
+            },
+            {
+              "role": "haul"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "mill",
+          "role": "haul",
+          "asker": "carter",
+          "helper": "farmer",
+          "trust": 90,
+          "effort": 0
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "mill",
+          "role": "haul",
+          "being": "farmer"
+        }
+      },
+      {
+        "op": "form",
+        "args": {
+          "id": "loft",
+          "organizer": "carter",
+          "goal": "Shared work",
+          "roles": [
+            {
+              "role": "sweep",
+              "being": "carter"
+            },
+            {
+              "role": "lift"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "loft",
+          "role": "lift",
+          "asker": "carter",
+          "helper": "farmer",
+          "trust": 90,
+          "effort": 0
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "loft",
+          "role": "lift",
+          "being": "farmer"
+        }
+      },
+      {
+        "op": "form",
+        "args": {
+          "id": "harvest",
+          "organizer": "farmer",
+          "goal": "Bring in the barley",
+          "roles": [
+            {
+              "role": "reap",
+              "being": "farmer"
+            },
+            {
+              "role": "cart"
+            },
+            {
+              "role": "stack"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "asker": "farmer",
+          "helper": "carter",
+          "trust": 0,
+          "effort": 0
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "being": "carter"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "carter"
+        }
+      }
+    ]
+  }
+}

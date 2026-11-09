@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Only the organizer assigns roles.",
+  "error": true
+}

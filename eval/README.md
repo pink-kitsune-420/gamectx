@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-one modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1334,6 +1334,15 @@ references take their limits from `character/limits_reference.py`. `knowledge/sc
 1,000 and 10,000 entries per kind (evidence 256/1,024, facts 1,000/4,096) and times 1,000 queries; build and
 retain it like the character harness, with `knowledge/scale_measure_check.py` and
 `--check eval/knowledge/scale-timing.json`. [Results](../docs/characters/LIFE.md#knowledge-modules).
+
+## Cooperation and conflict (offline)
+
+`character/cooperation_reference.py` is the independent prototype of pass 2 B2/B3 (joint tasks, help,
+hand-offs, promises, claims, queues, contests, grudges). `character/cooperation_cases.py --cap 0` checks 25 cases
+(`conformance/cooperation/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op, keeping ops the
+reference accepts (a quarter end on their first refused op), with random limits, against `gamectx local -`
+(0 mismatches: 1,446 accepted, 554 refused, 77 helps accepted, 2,149 contests resolved, 1,946 grudge
+proposals). [Results](../docs/characters/LIFE.md#cooperation-and-conflict-pass-2-b2b3).
 
 ## Visual compiler and approved asset metadata (offline)
 

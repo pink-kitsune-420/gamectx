@@ -1,0 +1,36 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "a",
+          "from": "smith",
+          "to": "miller",
+          "what": "x",
+          "due": 0
+        }
+      },
+      {
+        "op": "promise",
+        "args": {
+          "id": "b",
+          "from": "smith",
+          "to": "baker",
+          "what": "y",
+          "due": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1
+        }
+      }
+    ],
+    "limits": {
+      "beings": 1
+    }
+  }
+}

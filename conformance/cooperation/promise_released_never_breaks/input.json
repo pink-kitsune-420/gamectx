@@ -1,0 +1,46 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "a",
+          "from": "smith",
+          "to": "miller",
+          "what": "mend_wheel",
+          "due": 4
+        }
+      },
+      {
+        "op": "promise",
+        "args": {
+          "id": "b",
+          "from": "smith",
+          "to": "baker",
+          "what": "forge_nails",
+          "due": 4
+        }
+      },
+      {
+        "op": "release",
+        "args": {
+          "id": "a",
+          "by": "miller"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 5
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

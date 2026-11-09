@@ -1,0 +1,57 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "a",
+          "from": "smith",
+          "to": "miller",
+          "what": "x",
+          "due": 0
+        }
+      },
+      {
+        "op": "promise",
+        "args": {
+          "id": "b",
+          "from": "carter",
+          "to": "miller",
+          "what": "y",
+          "due": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "mill",
+          "being": "baker"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "mill",
+          "challenger": "miller",
+          "trust": -80
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ],
+    "limits": {
+      "grudges": 2
+    }
+  }
+}

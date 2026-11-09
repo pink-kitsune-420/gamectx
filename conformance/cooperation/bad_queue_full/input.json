@@ -1,0 +1,31 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "ann"
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "bo"
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "cy"
+        }
+      }
+    ],
+    "limits": {
+      "queue": 1
+    }
+  }
+}

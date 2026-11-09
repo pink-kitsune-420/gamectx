@@ -1,0 +1,37 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "form",
+        "args": {
+          "id": "harvest",
+          "organizer": "farmer",
+          "goal": "Bring in the barley",
+          "roles": [
+            {
+              "role": "reap",
+              "being": "farmer"
+            },
+            {
+              "role": "cart"
+            },
+            {
+              "role": "stack"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "asker": "farmer",
+          "helper": "carter",
+          "trust": 101
+        }
+      }
+    ]
+  }
+}

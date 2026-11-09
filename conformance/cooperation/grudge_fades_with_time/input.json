@@ -1,0 +1,47 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "p",
+          "from": "smith",
+          "to": "miller",
+          "what": "mend_wheel",
+          "due": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 101
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "miller"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 301
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

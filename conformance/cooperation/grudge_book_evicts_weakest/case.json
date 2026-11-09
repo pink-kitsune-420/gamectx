@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With grudges limited to 2 per being, a third grudge evicts the weakest (equal weights: the first by name).",
+  "error": false
+}

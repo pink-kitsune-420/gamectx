@@ -1,0 +1,59 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "ann",
+          "at": 1
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "bo",
+          "urgency": 30,
+          "status": 90,
+          "at": 2
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "cy",
+          "urgency": 90,
+          "status": 10,
+          "at": 3
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "dee",
+          "urgency": 30,
+          "status": 90,
+          "at": 4
+        }
+      },
+      {
+        "op": "free",
+        "args": {
+          "resource": "well",
+          "being": "ann",
+          "at": 5
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "bo"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "bread",
+          "from": "baker",
+          "to": "widow",
+          "what": "deliver_bread",
+          "due": 10,
+          "at": 1
+        }
+      },
+      {
+        "op": "promise",
+        "args": {
+          "id": "nails",
+          "from": "smith",
+          "to": "baker",
+          "what": "forge_nails",
+          "due": 5
+        }
+      },
+      {
+        "op": "keep",
+        "args": {
+          "id": "bread",
+          "at": 10
+        }
+      },
+      {
+        "op": "keep",
+        "args": {
+          "id": "nails",
+          "at": 8
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

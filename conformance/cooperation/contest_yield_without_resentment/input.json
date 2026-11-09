@@ -1,0 +1,28 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "oven",
+          "being": "baker"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "oven",
+          "challenger": "niece",
+          "trust": 50
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

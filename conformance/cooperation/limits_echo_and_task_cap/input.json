@@ -1,0 +1,33 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "form",
+        "args": {
+          "id": "a",
+          "organizer": "farmer",
+          "goal": "Shared work",
+          "roles": [
+            {
+              "role": "reap"
+            },
+            {
+              "role": "cart"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "farmer"
+        }
+      }
+    ],
+    "limits": {
+      "tasks": 1,
+      "roles": 2
+    }
+  }
+}

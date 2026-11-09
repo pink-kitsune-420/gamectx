@@ -1,7 +1,7 @@
 //! Standalone host-work scale timing for character modules with host-set limits.
 //! No model, network, sleeps or engine callbacks. A counting allocator reports live heap bytes.
 use gamectx::character::{
-    affect::AffectManager, aspiration::Aspirations, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager,
+    affect::AffectManager, aspiration::Aspirations, cooperation::Cooperation, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager,
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
@@ -58,6 +58,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("relationship", format!(r#"{{"attitudes":{}}}"#, 3 * n), "", r#"{"op":"appraise_action","args":{"actor":"{b}","target":"baker","action":"gift","success":true}}"#, r#"{"op":"assess","args":{"subject":"baker","target":"{b}"}}"#),
         ("offscreen", format!(r#"{{"records":{n}}}"#), "", r#"{"op":"resolve_window","args":{"being":"{b}","activity":"night_baking","action":"cook","observed":false,"at":{i},"place":"bakery"}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("curiosity", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","temperament":"curious","known_people":["ann"]}}"#, r#"{"op":"evaluate_novelty","args":{"being":"{b}","people":["ann","zed"]}}"#),
+        ("cooperation", format!(r#"{{"promises":{n}}}"#), "", r#"{"op":"promise","args":{"id":"p_{b}","from":"{b}","to":"baker","what":"bread","due":{i}}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -83,6 +84,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "relationship" => wf!(RelationshipManager, lim),
         "offscreen" => wf!(OffscreenResolver, lim),
         "curiosity" => wf!(CuriosityManager, lim),
+        "cooperation" => wf!(Cooperation, lim),
         _ => wf!(TaskManager, lim),
     })
 }

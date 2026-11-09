@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A promise proposes an expectation 'hope' for the receiver; keeping it on time is 'kept', after due 'kept_late'.",
+  "error": false
+}

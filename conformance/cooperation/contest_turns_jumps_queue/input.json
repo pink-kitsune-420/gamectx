@@ -1,0 +1,38 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "ann"
+        }
+      },
+      {
+        "op": "claim",
+        "args": {
+          "resource": "well",
+          "being": "bo",
+          "urgency": 100,
+          "status": 100
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "well",
+          "challenger": "cy",
+          "trust": 10
+        }
+      },
+      {
+        "op": "free",
+        "args": {
+          "resource": "well",
+          "being": "ann"
+        }
+      }
+    ]
+  }
+}

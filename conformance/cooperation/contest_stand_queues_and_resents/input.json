@@ -1,0 +1,33 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "claim",
+        "args": {
+          "resource": "bench",
+          "being": "elder"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "resource": "bench",
+          "challenger": "youth",
+          "trust": -50,
+          "status": 20,
+          "holder_status": 70,
+          "urgency": 40,
+          "holder_urgency": 40,
+          "at": 3
+        }
+      },
+      {
+        "op": "grudges",
+        "args": {
+          "being": "youth"
+        }
+      }
+    ]
+  }
+}

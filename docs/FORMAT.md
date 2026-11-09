@@ -2904,6 +2904,7 @@ grows past them is refused where it used to be accepted.
 | `aspiration` | `beings` (1024, 10⁶), `pressures` per being (64, 4096), `goals` per being (16, 256) |
 | `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |
+| `cooperation` | `tasks` (64, 10⁶), `roles` per task (8, 64), `promises` (256, 10⁶), `resources` (256, 10⁶), `queue` per resource (16, 1024), `beings` holding grudges (1024, 10⁶), `grudges` per being (32, 4096; a full book evicts the weakest, then first by name), `debts` (4096, 10⁶) |
 
 ### Knowledge kinds
 
@@ -2994,6 +2995,60 @@ most 32. A change is `{delta, entry, reason, state, strength}` with state `kept`
   summary, verdict}]}` for topics with a lesson, sorted by (about, activity).
 - `forget {being, about, activity}` → `{about, activity, being, forgot}`.
 - `assess {being}` → `{being, topics [{about, activity, episodes [{at, episode, result}], lesson}]}`.
+
+## Cooperation v1 (pass 2, B2/B3)
+
+`gamectx::character::cooperation` (guide: [Life](characters/LIFE.md#cooperation-and-conflict-pass-2-b2b3)), local
+kind `cooperation` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
+Its 25 cases (6 malformed) live in `conformance/cooperation/`. Scores are signed millionths. Trust is −100..100;
+urgency, status and effort are 0..100 (default 50); `at` is 0..10¹² (default 0). An op that fails refuses the
+request; ops before it in the same request keep their changes, and the failing op changes nothing.
+
+Effects are proposals: `{engine: "relationship", op: "appraise_action", args: {actor, target, action, success:
+true}}` with action `help`, `broken_promise` or `fulfilled_promise`; `{engine: "expectation", op: "expect", args:
+{being, id, about, event, due, grace: 0, importance: 50, kind: "hope"}}`; and `{engine: "affect", op: "appraise",
+args: {being, subject, kind: "resentment", delta: max(1, added weight/10,000), reason}}` for every grudge increase.
+
+A task view is `{id, organizer, goal, status, roles [{role, being|null, done, via|null}]}` (roles by name; `via` is
+the member who asked a helper in). Status is `done` when every role is done, `open` while a role has no being,
+else `ready`.
+
+- `form {id, organizer, goal 1–64 chars, roles 1..roles limit [{role, being?}], at?}` → task view; distinct
+  roles and beings.
+- `assign {task, role, being, by (the organizer), at?}` → task view; the role must be empty and the being hold
+  no other role in the task.
+- `ask_help {task, role, asker (organizer or role holder), helper (no role in the task), trust, busy? (false),
+  effort?, at?}` → `{accepted, helper, reasons ⊆ [trust, owes_favor, busy, grudge], role, score, task}`. Score
+  `300,000 + trust·4,000 + min(favors helper owes asker, 5)·100,000 − (busy ? 300,000 : 0) − effort·2,000 −
+  grudge(helper→asker)/2`; accepted at ≥ 500,000, which fills the role with `via` = asker.
+- `hand_off {task, role, from (holder), to, at?}` → task view; clears `via`.
+- `complete {task, role, being (holder), at?}` → `{effects, task}`. With `via`: repays one favor the being owed
+  `via`, else `via` owes the being one more (refused when a new debt pair would exceed `debts`); proposes `help`.
+- `leave {task, role, being (holder), at?}` → `{effects, task}`; empties the role. With `via`: `broken_promise`
+  and a 200,000 grudge of `via` against the being (`left_task`).
+- `promise {id, from, to ≠ from, what, due, at?}` → `{effects [expect], promise {id, from, to, what, due,
+  status}}`.
+- `keep {id, at?}` → `kept` when `at ≤ due`, else `kept_late`; proposes `fulfilled_promise`. `release {id, by
+  (the receiver), at?}` → `released`, no effects. Both need a `pending` promise.
+- `tick {now ≥ previous now}` → `{broken [ids], effects, faded [{holder, against}], now}`. First every grudge
+  loses `(now − last)·1,000` and is removed at ≤ 0; then pending promises with `due < now` break, by id:
+  `broken_promise` and a 300,000 grudge of the receiver (`broken_promise`). A tick that would add more grudge
+  holders than `beings` is refused before any change.
+- `claim {resource, being, urgency?, status?, at?}` → `{granted, position (0 when granted), resource {resource,
+  holder|null, since, queue [beings]}}`. The queue orders contest turns first, then `urgency·6,000 +
+  status·4,000` descending, then arrival.
+- `free {resource, being, at?}` → `{resource}`; the holder passes to the head of the queue (or none); a waiting
+  being leaves the queue.
+- `contest {resource, challenger, trust, urgency?, status?, holder_urgency?, holder_status?, at?}` → `{effects,
+  holder, outcome, resource, score}`. Score `500,000 + (status − holder_status)·5,000 + (urgency −
+  holder_urgency)·4,000 + trust·3,000 − grudge(holder→challenger)/2`. `yield` at ≥ 650,000: the challenger holds,
+  the holder queues, and with trust < 20 the holder resents it (`100,000 + holder_urgency·2,000`, `gave_way`).
+  `stand` at ≤ 350,000: the challenger queues and resents it (`100,000 + urgency·3,000`, `refused`). Otherwise
+  `turns`: the challenger queues ahead of non-turn entries.
+- `grudges {being}` → `{being, grudges [{against, weight, reason}]}` by weight descending, then name. Weights
+  are at most 1,000,000.
+- `assess {being}` → `{being, grudges, holds [resources], owed [{by, favors}], owes [{to, favors}],
+  promises_made, promises_received (pending ids), queued [{resource, position}], roles [{task, role, done}]}`.
 
 ## Game data and save files v1
 

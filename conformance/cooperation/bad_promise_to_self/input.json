@@ -1,0 +1,17 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "promise",
+        "args": {
+          "id": "a",
+          "from": "smith",
+          "to": "smith",
+          "what": "rest",
+          "due": 3
+        }
+      }
+    ]
+  }
+}

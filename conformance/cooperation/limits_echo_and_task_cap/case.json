@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Limits are echoed; with tasks 1 and roles 2, one two-role task forms (a second would be refused).",
+  "error": false
+}

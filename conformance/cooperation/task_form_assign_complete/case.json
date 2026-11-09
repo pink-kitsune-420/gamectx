@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The farmer forms a harvest with three roles, assigns the stacking, and the task goes open \u2192 ready \u2192 done.",
+  "error": false
+}
