@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Pruning one collection leaves the others alone.",
+  "error": false
+}

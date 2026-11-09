@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Version 2 renames mood to feeling for every character and adds a default trust; version 3 removes flour.",
+  "error": false
+}

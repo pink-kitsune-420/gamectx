@@ -1,0 +1,1 @@
+{"version":1,"results":[{"changes":3,"latest":2},{"document":{"baker":{"mood":7,"flour":3,"stock":[{"loaf":"rye","count":140},{"loaf":"wheat","count":-5}]},"miller":{"mood":2,"flour":40}},"edits":0,"from":1,"to":2,"work":4}]}

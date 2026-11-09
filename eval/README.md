@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-five modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-six modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1377,6 +1377,16 @@ distance, exact catch-up, work by level, crowd summaries). `character/detail_cas
 (`conformance/detail/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
 generator against `gamectx local -` (0 mismatches: 1,481 accepted, 519 refused, 1,754 urgent events, 2,792 level
 moves, 449 promotions out of a crowd). [Results](../docs/characters/LIFE.md#level-of-detail-for-minds-pass-2-d2).
+
+## Save growth: retention and migration (offline)
+
+`character/retention_reference.py` is the independent prototype of pass 2 D3 (retention rules and reasoned
+pruning, numbered field migrations with bounded work). `character/retention_cases.py --cap 0` checks 25 cases
+(`conformance/retention/`, 7 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
+generator against `gamectx local -` (0 mismatches: 1,477 accepted, 523 refused, 994 entries pruned, 3,746
+documents migrated with 608 edits). `--soak` runs a seeded 30-day town of 50 beings through the reference and
+checks the result against `character/retention-soak.json` (945,450 kept bytes with rules vs 3,367,277 without).
+[Results](../docs/characters/LIFE.md#save-growth-retention-and-migration-pass-2-d3).
 
 ## Visual compiler and approved asset metadata (offline)
 

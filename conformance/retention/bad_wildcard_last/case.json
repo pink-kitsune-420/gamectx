@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A path may not end in a wildcard.",
+  "error": true
+}

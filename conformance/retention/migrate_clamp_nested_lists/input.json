@@ -1,0 +1,47 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "migration",
+        "args": {
+          "version": 2,
+          "changes": [
+            {
+              "op": "clamp",
+              "path": "*.stock.*.count",
+              "min": 0,
+              "max": 100
+            }
+          ]
+        }
+      },
+      {
+        "op": "migrate",
+        "args": {
+          "from": 1,
+          "document": {
+            "baker": {
+              "mood": 7,
+              "flour": 3,
+              "stock": [
+                {
+                  "loaf": "rye",
+                  "count": 140
+                },
+                {
+                  "loaf": "wheat",
+                  "count": -5
+                }
+              ]
+            },
+            "miller": {
+              "mood": 2,
+              "flour": 40
+            }
+          }
+        }
+      }
+    ]
+  }
+}

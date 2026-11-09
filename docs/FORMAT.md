@@ -2909,6 +2909,7 @@ grows past them is refused where it used to be accepted.
 | `chatter` | `beings` (1024, 10⁶), `topics` known per being (64, 4096; also the room to learn in a meeting), `wants` per being (16, 256), `bonds` (4096, 10⁶), `records` kept (256, 10⁶; oldest dropped), `turns` per meeting (6, 32; also the default) |
 | `survival` | `beings` living or dead (1024, 10⁶), `belongings` per being (64, 4096; heirs without room are skipped), `children` per being (16, 256) |
 | `detail` | `beings` tracked (1024, 10⁶), `needs` per being (8, 64), `groups` of crowd members (64, 65,536) |
+| `retention` | `collections` (64, 4096), `entries` per collection (4096, 10⁶), `migrations` (16, 256), `changes` per migration (32, 256) |
 
 ### Knowledge kinds
 
@@ -3177,6 +3178,37 @@ group. A need at tick `t` after the being's `at` is `min(10⁶, level + rate·(t
 - `assess {being}` → view as of the clock plus `lag` (clock − stored `at`); nothing changes.
 - `crowd {group (with members)}` → `{group, members, needs [{id, mean, count}], urgent}`: each need's mean level
   now (floor) over the members that have it, and how many member needs are at or above threshold.
+
+## Retention v1 (pass 2, D3)
+
+`gamectx::character::retention` (guide: [Life](characters/LIFE.md#save-growth-retention-and-migration-pass-2-d3)),
+local kind `retention` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
+Its 25 cases (7 malformed) live in `conformance/retention/`. Ticks are 0..10¹². An op that fails refuses the
+request; ops before it keep their changes, and the failing op changes nothing.
+
+- `rule {collection, max_entries? 1–10⁶, max_bytes? 1–2⁵³−1, max_age? 0–10¹², min_importance? 0–100 (0), grace?
+  (0)}` → `{collection, grace, max_age|null, max_bytes|null, max_entries|null, min_importance}`; creates the
+  collection (under the collections limit) or replaces its rule.
+- `add {collection (with a rule), id (new), bytes 1–16,777,216, importance? 0–100 (50), pinned? (false), now?
+  ≥ clock}` → `{at, bytes, collection, id, importance, pinned, used}` with `at = used = now`; `now` sets the
+  clock.
+- `touch {collection, id, importance?, pinned?, now? ≥ clock}` → entry; `used = now`.
+- `prune {now ≥ clock, dry_run? (false), collection?}` → `{collections [{bytes_after, bytes_before, collection,
+  kept, over, removed [{id, reason}]}], dry_run, freed, now, removed}`, collections by name. Candidates are
+  unpinned entries with `now − used ≥ grace`, ordered by (importance, used, at, id). In that order: `stale`
+  when `now − used > max_age`; then `unimportant` when importance < min_importance; then, while the rest is
+  over `max_entries` (`over_entries`) or else `max_bytes` (`over_bytes`), the next candidate. `over` is
+  whether a bound is still exceeded. Unless a dry run, entries are removed and the clock set.
+- `assess {collection}` → `{bytes, entries, oldest_used|null, pinned, rule}`.
+- `migration {version = latest + 1 (first 2), changes 1..limit}` → `{changes, latest}`. A change is
+  `{op: "rename", path, to}`, `{op: "add", path, value}`, `{op: "remove", path}` or `{op: "clamp", path,
+  min, max}` (integers within ±(2⁵³−1), min ≤ max). A path is 1–8 dot-separated segments; the last is an
+  identifier and the others identifiers or `*` (every element of an array or value of an object).
+- `migrate {document (object), from 1..latest}` → `{document, edits, from, to: latest, work}`: the changes of
+  versions `from + 1 ..= latest` in order. Each path segment counts the nodes it reaches as work (refused above
+  1,000,000). At each reached object: `rename` renames the key in place (refused if `to` exists); `add` appends
+  the key if missing; `remove` deletes it; `clamp` clamps an integer (refused for any other value). Absent
+  keys and non-objects are skipped; `edits` counts changed keys.
 
 ## Game data and save files v1
 

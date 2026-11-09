@@ -680,7 +680,7 @@ The game decides how much it needs. Twenty-four character modules take a `limits
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -706,36 +706,37 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 3.3 / 3.5 | 2.0 / 2.6 | 4.3 | 2,521 |
-| `speech_act` (`assess`) | 0.9 / 0.9 | 0.4 / 0.4 | 1.2 | 173 |
-| `diet` (`choose`) | 4.0 / 4.2 | 2.3 / 2.9 | 1.7 | 613 |
-| `creed` (`judge`) | 2.3 / 2.4 | 1.6 / 1.9 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.2 / 3.6 | 4.2 / 5.1 | 3.3 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.3 | 1.9 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.7 / 1.8 | 3.2 / 3.9 | 1.1 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.1 / 1.5 | 2.5 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.7 / 0.8 | 1.2 / 2.0 | 2.4 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.3 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.7 | 1,314 |
+| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.3 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.5 | 1.7 | 613 |
+| `creed` (`judge`) | 1.6 / 1.6 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.2 / 3.3 | 4.1 / 4.9 | 3.2 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.3 | 1.5 | 274 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.4 / 2.0 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.7 / 1.8 | 1.8 / 2.0 | 0.8 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.4 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.6 / 2.3 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.7 | 1,314 |
 | `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.7 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.9 / 2.9 | 2.1 | 884 |
-| `relationship` (`assess`) | 0.9 / 1.0 | 1.4 / 1.9 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.0 / 2.1 | 3.8 / 5.4 | 5.6 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.0 / 1.1 | 1.3 / 1.7 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 13.8 / 15.3 | 211.4 / 224.5 | 3.3 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.7 | 3.6 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.1 / 6.9 | 7.0 / 7.7 | 1.9 | 864 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.1 / 1.2 | 1.9 / 2.8 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.0 | 2.7 | 349 |
+| `offscreen` (`assess` one being) | 2.0 / 2.1 | 3.8 / 4.8 | 5.3 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.7 | 590 |
+| `cooperation` (`assess`, scans every record) | 13.9 / 15.0 | 201.6 / 212.8 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.6 / 1.8 | 2.2 / 2.7 | 3.7 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.3 / 6.8 | 7.2 / 7.8 | 1.9 | 864 |
 | `survival` (`threat`) | 2.3 / 2.4 | 2.5 / 2.7 | 2.0 | 377 |
-| `detail` (`assess`) | 1.4 / 1.5 | 1.9 / 2.3 | 3.8 | 803 |
-| `task` (`get`) | 1.5 / 1.5 | 2.2 / 2.7 | 3.6 | 1,417 |
+| `detail` (`assess`) | 1.5 / 1.5 | 2.0 / 2.5 | 3.9 | 803 |
+| `retention` (`touch`) | 1.1 / 1.2 | 1.3 / 1.4 | 1.8 | 118 |
+| `task` (`get`) | 1.4 / 1.5 | 2.2 / 2.8 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 211 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 279 MB across all twenty-five modules at 10,000 each, about 28 KB per
+1,000 promises, 202 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 280 MB across all twenty-six modules at 10,000 each, about 28 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -966,7 +967,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.0 µs at 10,000 beings. $0 API spend.
+takes 7.2 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 
@@ -1038,5 +1039,51 @@ refused, 1,754 urgent events, 2,792 level moves, 449 promotions out of a crowd).
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, 64 needs at the top rate over 10¹² ticks at every level without
 overflow, index consistency, and a refused move that changes nothing. Scale is in the [table
-above](#host-set-limits): `assess` takes 1.9 µs and `track` 3.8 µs per op at 10,000 beings. Work
+above](#host-set-limits): `assess` takes 2.0 µs and `track` 3.9 µs per op at 10,000 beings. Work
 units are counts, not timings; $0 API spend.
+
+## Save growth: retention and migration (pass 2, D3)
+
+`gamectx::character::retention` (`Retention`, local kind `retention`) keeps saves from growing
+without end and lets old saves load after the game changes. It never reads the other modules'
+state itself: the host registers what it keeps and applies the result.
+
+**Retention.** The host lists what a save keeps (memories, lessons, expectations, ledgers,
+other-models) as entries in named collections, each with an importance 0–100, a size in bytes,
+when it was added and last used, and whether it is pinned. Each collection has a rule:
+`max_entries`, `max_bytes`, `max_age` (ticks since last use), `min_importance` and a `grace`
+period that protects anything used recently. `prune` removes entries in a fixed order and says
+why: `stale` first, then `unimportant`, then the least important and least recently used until
+the collection fits (`over_entries`, `over_bytes`; `keep_reasons_in_order`). Pinned and in-grace
+entries are never removed, and a collection that still does not fit is reported as `over`
+(`keep_grace_protects_recent`). `touch` records a use (a recalled memory is kept longer,
+`keep_touch_refreshes`) and can change importance or the pin, and a `dry_run` reports without
+removing anything.
+
+**Migration.** The host declares numbered migrations (2, 3, …), each a list of changes to
+section data: `rename`, `add` (only where missing), `remove` and `clamp` an integer, at a dotted
+path where `*` means every element or value. `migrate` upgrades a document from any older
+version in order and reports the edits: version 2 renames every character's `mood` to `feeling`
+and adds `trust: 50`, version 3 removes `flour` (`migrate_rename_add_remove`, 6 edits). Missing
+paths are skipped; renaming onto an existing key or clamping a non-integer refuses the request.
+Each path node reached counts as work, capped at 1,000,000 per `migrate`.
+
+**Measured save growth.** `eval/character/retention_cases.py --soak` runs the reference over a
+seeded town of 50 beings for 30 days (24 ticks a day): each being adds six memories, three
+expectations and two ledger records a day, a lesson every third day, and recalls two memories;
+the host prunes once a day. With no rules the kept entries reach 3,367,277 bytes on day 30 and
+grow by about 1.12 MB every ten days. With rules (memories: 7 days, importance 20, one day of
+grace, 2,000 entries; expectations: 3 days; ledger: 14 days, importance 30; lessons: 500
+entries) they reach 945,450 bytes (28.1%; 4,254 entries instead of 17,000) and grow by 75,135
+bytes from day 20 to day 30. The numbers are the reference's sizes as declared by the host, not
+the size of a real save file, and they depend on the rules chosen; the output is retained in
+`eval/character/retention-soak.json` and checked in CI.
+
+**Evidence (D3):** 25 conformance cases (`conformance/retention/`, 7 malformed), 2,000
+differential parity workflows (`eval/character/retention_cases.py`, seed 7, 0 mismatches: 1,477
+accepted, 523 refused, 994 entries pruned, 3,746 documents migrated with 608 edits). Robustness
+(`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
+limit-ceiling boundaries, 4,096 entries of 16 MiB pruned to one in a single op, a migration of
+256 changes over 2,001 nodes and its refusal past the work cap, and a refused migrate that
+changes nothing. Scale is in the [table above](#host-set-limits): `touch` takes 1.3 µs at
+10,000 entries. $0 API spend.

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A dry run reports the removals and the clock and entries stay; the real prune then removes the same.",
+  "error": false
+}

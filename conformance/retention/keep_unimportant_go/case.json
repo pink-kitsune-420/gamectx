@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "min_importance 40 removes rain (10) and gossip (30) whatever their age.",
+  "error": false
+}

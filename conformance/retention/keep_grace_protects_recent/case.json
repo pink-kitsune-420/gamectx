@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "grace 10 protects fair (used at 40) and the debt is pinned, so max_entries 1 cannot be met and the collection is over.",
+  "error": false
+}

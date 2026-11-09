@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "One prune reports stale first, then unimportant, then over_entries.",
+  "error": false
+}

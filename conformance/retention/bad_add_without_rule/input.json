@@ -1,0 +1,15 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "add",
+        "args": {
+          "collection": "m",
+          "id": "a",
+          "bytes": 1
+        }
+      }
+    ]
+  }
+}

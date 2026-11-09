@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Limits are echoed; with entries 2 the collection holds two.",
+  "error": false
+}

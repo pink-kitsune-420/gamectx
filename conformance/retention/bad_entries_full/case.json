@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With entries 1, a second entry is refused.",
+  "error": true
+}

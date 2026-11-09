@@ -1,0 +1,69 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "rule",
+        "args": {
+          "collection": "memories",
+          "min_importance": 40
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "fire",
+          "bytes": 400,
+          "importance": 90
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "rain",
+          "bytes": 120,
+          "importance": 10
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "gossip",
+          "bytes": 200,
+          "now": 20,
+          "importance": 30
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "fair",
+          "bytes": 300,
+          "now": 40,
+          "importance": 60
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "debt",
+          "bytes": 150,
+          "pinned": true,
+          "now": 45,
+          "importance": 70
+        }
+      },
+      {
+        "op": "prune",
+        "args": {
+          "now": 45
+        }
+      }
+    ]
+  }
+}

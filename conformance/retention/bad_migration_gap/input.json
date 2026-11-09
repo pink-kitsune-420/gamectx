@@ -1,0 +1,19 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "migration",
+        "args": {
+          "version": 3,
+          "changes": [
+            {
+              "op": "remove",
+              "path": "a"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

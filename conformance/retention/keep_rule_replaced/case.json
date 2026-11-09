@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A new rule replaces the old one; entries stay.",
+  "error": false
+}

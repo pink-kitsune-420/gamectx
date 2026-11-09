@@ -1,0 +1,56 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "migration",
+        "args": {
+          "version": 2,
+          "changes": [
+            {
+              "op": "rename",
+              "path": "nobody.mood",
+              "to": "x"
+            },
+            {
+              "op": "remove",
+              "path": "baker.flour.grams"
+            },
+            {
+              "op": "clamp",
+              "path": "*.age",
+              "min": 0,
+              "max": 9
+            }
+          ]
+        }
+      },
+      {
+        "op": "migrate",
+        "args": {
+          "from": 1,
+          "document": {
+            "baker": {
+              "mood": 7,
+              "flour": 3,
+              "stock": [
+                {
+                  "loaf": "rye",
+                  "count": 140
+                },
+                {
+                  "loaf": "wheat",
+                  "count": -5
+                }
+              ]
+            },
+            "miller": {
+              "mood": 2,
+              "flour": 40
+            }
+          }
+        }
+      }
+    ]
+  }
+}

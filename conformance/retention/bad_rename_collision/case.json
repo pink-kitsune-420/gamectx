@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Renaming onto a key that exists is refused.",
+  "error": true
+}

@@ -1,0 +1,38 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "rule",
+        "args": {
+          "collection": "m"
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "m",
+          "id": "a",
+          "bytes": 1
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "m",
+          "id": "b",
+          "bytes": 1
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "collection": "m"
+        }
+      }
+    ],
+    "limits": {
+      "entries": 2
+    }
+  }
+}

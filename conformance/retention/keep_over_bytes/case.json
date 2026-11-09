@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "max_bytes 700 removes rain, gossip and fair in importance order until the 550 bytes of fire and debt fit.",
+  "error": false
+}

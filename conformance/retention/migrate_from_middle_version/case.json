@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A document already at version 2 only gets version 3.",
+  "error": false
+}

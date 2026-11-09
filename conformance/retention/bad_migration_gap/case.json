@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Migrations are numbered 2, 3, ... without gaps.",
+  "error": true
+}

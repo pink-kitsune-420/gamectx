@@ -29,6 +29,7 @@ pub mod motive;
 pub mod offscreen;
 pub mod party;
 pub mod relationship;
+pub mod retention;
 pub mod roleplay;
 pub mod routine;
 pub mod sheet;

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Paths that are absent or reach non-objects are skipped, not errors.",
+  "error": false
+}

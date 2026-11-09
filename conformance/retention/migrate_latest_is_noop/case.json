@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A document at the latest version is returned unchanged with no work.",
+  "error": false
+}

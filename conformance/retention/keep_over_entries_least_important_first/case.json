@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "max_entries 3 removes the least important, then least recently used, until three remain.",
+  "error": false
+}

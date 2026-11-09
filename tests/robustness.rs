@@ -3096,3 +3096,91 @@ fn detail_survives_mutation_limits_and_boundaries() {
     assert!(d.workflow(&req(&[r#"{"op":"move","args":{"being":"a","distance":500}}"#.into()])).is_err());
     assert_eq!(d, before);
 }
+
+#[test]
+fn retention_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::retention::{Retention, MAX_WORK};
+    let mut rng = Rng(0x2E7E_4710_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 30. Retention and migration mutation fuzzing (limits included); one manager keeps state.
+    let samples = [
+        r#"{"limits":{"collections":3,"entries":4,"migrations":3,"changes":4},"ops":[{"op":"rule","args":{"collection":"m","max_entries":2,"max_bytes":500,"max_age":30,"min_importance":20,"grace":5}},{"op":"add","args":{"collection":"m","id":"a","bytes":300,"importance":90,"now":1}},{"op":"add","args":{"collection":"m","id":"b","bytes":200,"importance":10,"pinned":true,"now":2}},{"op":"touch","args":{"collection":"m","id":"a","importance":5,"pinned":false,"now":40}},{"op":"prune","args":{"now":60,"dry_run":false,"collection":"m"}},{"op":"assess","args":{"collection":"m"}}]}"#,
+        r#"{"ops":[{"op":"migration","args":{"version":2,"changes":[{"op":"rename","path":"*.mood","to":"feeling"},{"op":"add","path":"*.trust","value":[1,{"a":null}]},{"op":"remove","path":"x.*.y"},{"op":"clamp","path":"*.stock.*.count","min":-5,"max":100}]}},{"op":"migrate","args":{"from":1,"document":{"baker":{"mood":7,"stock":[{"count":140},{"count":-9}]},"x":[{"y":1},{"y":2}]}}}]}"#,
+    ];
+    let mut k = Retention::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = k.workflow(&v);
+            }
+        }
+    }
+    for col in k.collections.values() {
+        assert_eq!(col.bytes, col.entries.values().map(|e| e.bytes).sum::<u64>());
+        assert!(col.entries.values().all(|e| e.at <= e.used && e.used <= k.clock && e.importance <= 100));
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let prune = r#"{"op":"prune","args":{"now":0}}"#.to_string();
+    assert!(Retention::new().workflow(&req(&vec![prune.clone(); 64])).is_ok());
+    assert!(Retention::new().workflow(&req(&vec![prune; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"collections":4096,"entries":1000000,"migrations":256,"changes":256}"#, true),
+        (r#"{"changes":257}"#, false),
+        (r#"{"migrations":257}"#, false),
+        (r#"{"entries":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Retention::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 4,096 entries pruned to one in a single op; byte and clock bounds.
+    let mut k = Retention::with_limits(&parse(r#"{"entries":4096}"#, 64).unwrap()).unwrap();
+    k.workflow(&req(&[r#"{"op":"rule","args":{"collection":"m","max_entries":1}}"#.into()])).unwrap();
+    for chunk in 0..64 {
+        let adds: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+            .map(|i| {
+                format!(
+                    r#"{{"op":"add","args":{{"collection":"m","id":"e{i}","bytes":16777216,"importance":{}}}}}"#,
+                    i % 101
+                )
+            })
+            .collect();
+        k.workflow(&req(&adds)).unwrap();
+    }
+    let out = k.workflow(&req(&[r#"{"op":"prune","args":{"now":1000000000000}}"#.into()])).unwrap().to_json();
+    assert!(out.contains(r#""kept":1"#) && out.contains(r#""freed":68702699520"#), "{}", &out[out.len() - 200..]);
+
+    // Migration work is capped: a wildcard over a wide document is refused past MAX_WORK.
+    let wide: Vec<String> = (0..2000).map(|i| format!(r#"{{"v":{i}}}"#)).collect();
+    let doc = format!(r#"{{"rows":[{}]}}"#, wide.join(","));
+    let changes: Vec<String> =
+        (0..256).map(|_| r#"{"op":"clamp","path":"rows.*.v","min":0,"max":10}"#.to_string()).collect();
+    let mut k = Retention::with_limits(&parse(r#"{"changes":256}"#, 64).unwrap()).unwrap();
+    let mig = format!(r#"{{"op":"migration","args":{{"version":2,"changes":[{}]}}}}"#, changes.join(","));
+    k.workflow(&req(&[mig])).unwrap();
+    let small = format!(r#"{{"op":"migrate","args":{{"from":1,"document":{doc}}}}}"#);
+    let out = k.workflow(&req(&[small])).unwrap().to_json();
+    assert!(
+        out.contains(r#""edits":1989"#) && out.contains(&format!(r#""work":{}"#, 256 * 2001)),
+        "{}",
+        &out[out.len() - 80..]
+    );
+    const { assert!(256 * 2001 <= MAX_WORK) };
+    let wider: Vec<String> = (0..4000).map(|i| format!(r#"{{"v":{i}}}"#)).collect();
+    let big = format!(r#"{{"op":"migrate","args":{{"from":1,"document":{{"rows":[{}]}}}}}}"#, wider.join(","));
+    assert!(k.workflow(&req(&[big])).is_err(), "256 × 4,001 nodes exceeds the work cap");
+
+    // A refused op changes nothing: a collision during migrate leaves the manager as it was.
+    let mut k = Retention::new();
+    k.workflow(&req(&[
+        r#"{"op":"migration","args":{"version":2,"changes":[{"op":"rename","path":"a","to":"b"}]}}"#.into()
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"migrate","args":{"from":1,"document":{"a":1,"b":2}}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}

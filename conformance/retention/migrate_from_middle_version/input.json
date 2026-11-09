@@ -1,0 +1,58 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "migration",
+        "args": {
+          "version": 2,
+          "changes": [
+            {
+              "op": "add",
+              "path": "*.trust",
+              "value": 50
+            }
+          ]
+        }
+      },
+      {
+        "op": "migration",
+        "args": {
+          "version": 3,
+          "changes": [
+            {
+              "op": "remove",
+              "path": "*.flour"
+            }
+          ]
+        }
+      },
+      {
+        "op": "migrate",
+        "args": {
+          "from": 2,
+          "document": {
+            "baker": {
+              "mood": 7,
+              "flour": 3,
+              "stock": [
+                {
+                  "loaf": "rye",
+                  "count": 140
+                },
+                {
+                  "loaf": "wheat",
+                  "count": -5
+                }
+              ]
+            },
+            "miller": {
+              "mood": 2,
+              "flour": 40
+            }
+          }
+        }
+      }
+    ]
+  }
+}

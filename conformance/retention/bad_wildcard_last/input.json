@@ -1,0 +1,19 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "migration",
+        "args": {
+          "version": 2,
+          "changes": [
+            {
+              "op": "remove",
+              "path": "baker.*"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

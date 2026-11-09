@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Recalling the fire at tick 50 keeps it from going stale at tick 60.",
+  "error": false
+}

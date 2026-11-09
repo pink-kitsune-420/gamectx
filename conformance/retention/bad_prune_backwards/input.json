@@ -1,0 +1,28 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "rule",
+        "args": {
+          "collection": "m"
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "m",
+          "id": "a",
+          "bytes": 1,
+          "now": 10
+        }
+      },
+      {
+        "op": "prune",
+        "args": {
+          "now": 9
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Clamp stock counts into 0..100 through a list wildcard: 140 becomes 100 and -5 becomes 0.",
+  "error": false
+}

@@ -306,6 +306,9 @@ jobs:
       - run: python3 -I eval/character/survival_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/detail_cases.py --cap 0
       - run: python3 -I eval/character/detail_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/character/retention_cases.py --cap 0
+      - run: python3 -I eval/character/retention_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/character/retention_cases.py --cap 0 --soak
       - run: python3 -I eval/character/limits_cases.py --cap 0
       - run: python3 -I eval/character/limits_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/limits_character_cases.py --cap 0
