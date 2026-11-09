@@ -1745,13 +1745,56 @@ impl App {
             None
         };
         let line = resolved.as_ref().map_or(Ok(line), |v| text(v, "text"))?;
-        if line.chars().count() > 240
-            || gamectx::character::life::assess_sentence(line, 240)?.to_value().get("boundary_complete")
+        let clean = line.replace(['\r', '\n', '\t'], " ");
+        let mut clean = clean.split_whitespace().collect::<Vec<_>>().join(" ");
+        if clean.starts_with('{') {
+            if let Ok(val) = parse(&clean) {
+                if let Ok(sp) = text(&val, "speech")
+                    .or_else(|_| text(&val, "response"))
+                    .or_else(|_| text(&val, "text"))
+                    .or_else(|_| text(&val, "message"))
+                {
+                    clean = sp.replace(['\r', '\n', '\t'], " ").split_whitespace().collect::<Vec<_>>().join(" ");
+                }
+            }
+        }
+        if clean.ends_with('*') {
+            if let Some(pos) = clean.rfind('*') {
+                if let Some(start) = clean[..pos].rfind('*') {
+                    let before = clean[..start].trim();
+                    if !before.is_empty() {
+                        clean = before.to_owned();
+                    }
+                }
+            }
+        }
+        if clean.chars().count() > 240 {
+            let chars = clean.chars().collect::<Vec<_>>();
+            let mut last_term_idx = None;
+            for (i, ch) in chars.iter().enumerate().take(240) {
+                if matches!(*ch, '.' | '!' | '?' | '。' | '！' | '？') {
+                    let next = chars.get(i + 1);
+                    if !(ch == &'.' && next.is_some_and(|c| c.is_ascii_digit())) {
+                        let through = if next.is_some_and(|c| matches!(*c, '"' | '\'' | '”' | '’' | ')' | ']')) {
+                            i + 2
+                        } else {
+                            i + 1
+                        };
+                        last_term_idx = Some(through);
+                    }
+                }
+            }
+            if let Some(through) = last_term_idx {
+                clean = chars[..through].iter().collect::<String>().trim().to_owned();
+            }
+        }
+        if clean.chars().count() > 240
+            || gamectx::character::life::assess_sentence(&clean, 240)?.to_value().get("boundary_complete")
                 != Some(&Value::Bool(true))
         {
             return Err(err());
         }
-        Ok(line.to_owned())
+        Ok(clean)
     }
     pub fn complete(&mut self, job: &Job, response: Result<Vec<u8>>) -> Result<Vec<Job>> {
         let mut followups = Vec::new();
@@ -1829,10 +1872,29 @@ impl App {
                 "text" => {
                     let r = parse(std::str::from_utf8(&bytes).map_err(|_| err())?)?;
                     self.monitor.usage(job.id, &r);
-                    let line = if job.backend == "local_ollama" {
+                    let raw_line = if job.backend == "local_ollama" {
                         text(get(&r, "message")?, "content")?
                     } else {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
+                    };
+                    let stripped = if let (Some(_start), Some(end)) = (raw_line.find("<think>"), raw_line.find("</think>")) {
+                        if end + 8 <= raw_line.len() {
+                            raw_line[end + 8..].trim()
+                        } else {
+                            raw_line
+                        }
+                    } else {
+                        raw_line
+                    };
+                    let line = if stripped.starts_with("```") {
+                        let inner = stripped.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
+                        if let Some(end) = inner.rfind("```") {
+                            inner[..end].trim()
+                        } else {
+                            inner.trim()
+                        }
+                    } else {
+                        stripped
                     };
                     if line.contains("<think>") || line.contains("</think>") || line.trim().is_empty() {
                         return Err(Error::new("missing_final_answer"));

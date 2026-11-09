@@ -3,10 +3,11 @@
   "tts": {
     "executable": "/home/yuki/ai/bin/piper/piper",
     "voices": {
-      "merchant": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
+      "merchant": "/home/yuki/models/tts/en_US-ryan-high.onnx",
       "keeper": "/home/yuki/models/tts/en_GB-cori-high.onnx",
-      "alloy": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
+      "alloy": "/home/yuki/models/tts/en_US-ryan-high.onnx",
       "onyx": "/home/yuki/models/tts/en_GB-cori-high.onnx",
+      "ryan": "/home/yuki/models/tts/en_US-ryan-high.onnx",
       "bryce": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
       "cori": "/home/yuki/models/tts/en_GB-cori-high.onnx",
       "ljspeech": "/home/yuki/models/tts/en_US-ljspeech-high.onnx",

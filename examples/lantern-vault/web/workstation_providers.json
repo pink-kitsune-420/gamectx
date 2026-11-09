@@ -57,7 +57,7 @@
   },
   "voices": {
     "merchant": {
-      "voice_id": "bryce",
+      "voice_id": "ryan",
       "pitch": 1.0,
       "rate": 1.0
     },
