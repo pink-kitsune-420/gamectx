@@ -1,0 +1,115 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "survival",
+            "limits": {
+              "beings": 1024,
+              "belongings": 64,
+              "children": 16
+            },
+            "state": {
+              "beings": [
+                [
+                  "daughter",
+                  {
+                    "alive": true,
+                    "belongings": [
+                      "doll",
+                      "shears"
+                    ],
+                    "born": 320,
+                    "cause": null,
+                    "children": [],
+                    "died": null,
+                    "last": 320,
+                    "lifespan": 1000,
+                    "parents": [
+                      "weaver",
+                      "dyer",
+                      "ghost"
+                    ],
+                    "partner": null,
+                    "safety": 100,
+                    "stage": "child"
+                  }
+                ],
+                [
+                  "dyer",
+                  {
+                    "alive": true,
+                    "belongings": [],
+                    "born": 0,
+                    "cause": null,
+                    "children": [
+                      "elder_son",
+                      "daughter"
+                    ],
+                    "died": null,
+                    "last": 320,
+                    "lifespan": 1200,
+                    "parents": [],
+                    "partner": null,
+                    "safety": 100,
+                    "stage": "adult"
+                  }
+                ],
+                [
+                  "elder_son",
+                  {
+                    "alive": true,
+                    "belongings": [
+                      "sling",
+                      "ring",
+                      "loom"
+                    ],
+                    "born": 300,
+                    "cause": null,
+                    "children": [],
+                    "died": null,
+                    "last": 320,
+                    "lifespan": 1000,
+                    "parents": [
+                      "weaver",
+                      "dyer"
+                    ],
+                    "partner": null,
+                    "safety": 100,
+                    "stage": "child"
+                  }
+                ],
+                [
+                  "weaver",
+                  {
+                    "alive": false,
+                    "belongings": [],
+                    "born": 0,
+                    "cause": "flood",
+                    "children": [
+                      "elder_son",
+                      "daughter"
+                    ],
+                    "died": 320,
+                    "last": 320,
+                    "lifespan": 1000,
+                    "parents": [],
+                    "partner": null,
+                    "safety": 100,
+                    "stage": "adult"
+                  }
+                ]
+              ],
+              "clock": 320
+            },
+            "version": 1
+          }
+        }
+      }
+    ]
+  }
+}

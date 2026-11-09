@@ -49,11 +49,12 @@
 use crate::character::beliefs::{opt, opt_bool, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
 use std::cmp::Reverse;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub const LIMITS: &[Limit] = &[
     Limit { name: "tasks", default: 64, ceiling: 1_000_000 },
@@ -310,6 +311,8 @@ impl Cooperation {
             "contest" => self.op_contest(args, l),
             "grudges" => self.op_grudges(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -783,6 +786,69 @@ impl Cooperation {
             "owed" => Value::Array(owed), "owes" => Value::Array(owes), "promises_made" => made,
             "promises_received" => received, "queued" => Value::Array(queued), "roles" => Value::Array(roles),
         })
+    }
+}
+
+/// A promise's statuses.
+pub const PROMISE_STATUS: [&str; 5] = ["pending", "kept", "kept_late", "released", "broken"];
+/// Why a grudge was last added to.
+pub const GRUDGE_REASONS: [&str; 4] = ["broken_promise", "gave_way", "left_task", "refused"];
+
+persist!(Role { being, done, via });
+persist!(JointTask { goal, organizer, roles });
+persist!(Promise { due [0, MAX_AT], from, status in PROMISE_STATUS, to, what });
+persist!(Waiting { at [0, MAX_AT], being, seq [1, MAX_AT], status [0, 100], turn, urgency [0, 100] });
+persist!(Resource { holder, queue, since [0, MAX_AT] });
+persist!(Grudge { last [0, MAX_AT], reason, weight [1, M] });
+persist!(rest Cooperation { clock [0, MAX_AT], debts, grudges, promises, resources, seq [0, MAX_AT], tasks });
+durable!(Cooperation, "cooperation", LIMITS);
+
+impl Cooperation {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("tasks", self.tasks.len())?;
+        within::<Self>("promises", self.promises.len())?;
+        within::<Self>("resources", self.resources.len())?;
+        within::<Self>("beings", self.grudges.len())?;
+        within::<Self>("debts", self.debts.len())?;
+        for (id, t) in &self.tasks {
+            ok(is_ident(id) && is_ident(&t.organizer) && is_text(&t.goal, 64) && !t.roles.is_empty())?;
+            within::<Self>("roles", t.roles.len())?;
+            let mut held = BTreeSet::new();
+            for (rid, r) in &t.roles {
+                ok(is_ident(rid) && r.being.as_ref().is_none_or(|b| is_ident(b) && held.insert(b)))?;
+                ok((!r.done || r.being.is_some())
+                    && r.via.as_ref().is_none_or(|v| is_ident(v) && r.being.as_ref() != Some(v)))?;
+                ok(r.via.is_none() || r.being.is_some())?;
+            }
+        }
+        for (id, p) in &self.promises {
+            ok(is_ident(id) && is_ident(&p.from) && is_ident(&p.to) && is_ident(&p.what) && p.from != p.to)?;
+        }
+        for (id, r) in &self.resources {
+            ok(is_ident(id) && r.holder.as_deref().is_none_or(is_ident) && (r.holder.is_some() || r.queue.is_empty()))?;
+            within::<Self>("queue", r.queue.len())?;
+            let mut seen = BTreeSet::new();
+            ok(r.queue
+                .iter()
+                .all(|w| is_ident(&w.being) && Some(&w.being) != r.holder.as_ref() && seen.insert(&w.being)))?;
+            ok(r.queue.windows(2).all(|w| w[0].seq < w[1].seq) && r.queue.iter().all(|w| w.seq <= self.seq))?;
+        }
+        for (holder, book) in &self.grudges {
+            ok(is_ident(holder) && !book.is_empty())?;
+            within::<Self>("grudges", book.len())?;
+            let reason_ok = |g: &Grudge| GRUDGE_REASONS.contains(&g.reason.as_str());
+            ok(book.iter().all(|(against, g)| is_ident(against) && against != holder && reason_ok(g)))?;
+        }
+        for ((debtor, creditor), n) in &self.debts {
+            ok(is_ident(debtor) && is_ident(creditor) && debtor != creditor && *n >= 1 && *n <= MAX_AT)?;
+            ok(!self.debts.contains_key(&(creditor.clone(), debtor.clone())))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

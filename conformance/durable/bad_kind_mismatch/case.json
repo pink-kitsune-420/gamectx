@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a chemistry save cannot load into beliefs.",
+  "error": true
+}

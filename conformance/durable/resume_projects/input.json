@@ -1,0 +1,155 @@
+{
+  "kind": "projects",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "projects",
+            "limits": {
+              "milestones": 8,
+              "projects": 256
+            },
+            "state": {
+              "clock": 0,
+              "projects": [
+                [
+                  "brewery",
+                  {
+                    "adapted": 0,
+                    "aim": "Open a small brewery",
+                    "at": 0,
+                    "failures": 1,
+                    "horizon": 200,
+                    "milestones": [
+                      {
+                        "alternative": null,
+                        "condition": {
+                          "kind": "task",
+                          "level": null,
+                          "reference": "clear_plot"
+                        },
+                        "expected": 40,
+                        "id": "clear_plot"
+                      },
+                      {
+                        "alternative": {
+                          "alternative": null,
+                          "condition": {
+                            "kind": "relationship",
+                            "level": 60,
+                            "reference": "farmer_wen"
+                          },
+                          "expected": 30,
+                          "id": "trade_for_hops"
+                        },
+                        "condition": {
+                          "kind": "item",
+                          "level": null,
+                          "reference": "hops_sack"
+                        },
+                        "expected": 20,
+                        "id": "buy_hops"
+                      },
+                      {
+                        "alternative": null,
+                        "condition": {
+                          "kind": "fact",
+                          "level": null,
+                          "reference": "ale_tasted"
+                        },
+                        "expected": 60,
+                        "id": "first_brew"
+                      }
+                    ],
+                    "money": 2000,
+                    "morale": 500000,
+                    "owner": "tamsin",
+                    "stake": 20,
+                    "status": "active",
+                    "time": 1000
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "project": "brewery",
+          "milestone": "clear_plot",
+          "success": false
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "id": "cider",
+          "owner": "tamsin",
+          "aim": "Open a small brewery",
+          "stake": 20,
+          "horizon": 200,
+          "milestones": [
+            {
+              "id": "clear_plot",
+              "condition": {
+                "kind": "task",
+                "ref": "clear_plot"
+              },
+              "expected": 40
+            },
+            {
+              "id": "buy_hops",
+              "condition": {
+                "kind": "item",
+                "ref": "hops_sack"
+              },
+              "expected": 20,
+              "alternative": {
+                "id": "trade_for_hops",
+                "condition": {
+                  "kind": "relationship",
+                  "ref": "farmer_wen",
+                  "level": 60
+                },
+                "expected": 30
+              }
+            },
+            {
+              "id": "first_brew",
+              "condition": {
+                "kind": "fact",
+                "ref": "ale_tasted"
+              },
+              "expected": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "project": "cider",
+          "milestone": "clear_plot",
+          "success": false
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "project": "cider",
+          "milestone": "clear_plot",
+          "success": false
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

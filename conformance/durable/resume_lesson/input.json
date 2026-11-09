@@ -1,0 +1,169 @@
+{
+  "kind": "lesson",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "lesson",
+            "limits": {
+              "beings": 1024,
+              "episodes": 16,
+              "topics": 64
+            },
+            "state": {
+              "beings": [
+                [
+                  "guard",
+                  [
+                    [
+                      [
+                        "fox",
+                        "hunt"
+                      ],
+                      {
+                        "episodes": [
+                          {
+                            "at": 0,
+                            "good": true,
+                            "id": "f0"
+                          },
+                          {
+                            "at": 1,
+                            "good": true,
+                            "id": "f1"
+                          },
+                          {
+                            "at": 2,
+                            "good": true,
+                            "id": "f2"
+                          }
+                        ],
+                        "last_at": 2,
+                        "verdict": "seek"
+                      }
+                    ],
+                    [
+                      [
+                        "wolves",
+                        "hunt"
+                      ],
+                      {
+                        "episodes": [
+                          {
+                            "at": 0,
+                            "good": false,
+                            "id": "w0"
+                          },
+                          {
+                            "at": 1,
+                            "good": false,
+                            "id": "w1"
+                          },
+                          {
+                            "at": 2,
+                            "good": false,
+                            "id": "w2"
+                          }
+                        ],
+                        "last_at": 2,
+                        "verdict": "avoid"
+                      }
+                    ],
+                    [
+                      [
+                        "wolves",
+                        "trap"
+                      ],
+                      {
+                        "episodes": [
+                          {
+                            "at": 0,
+                            "good": true,
+                            "id": "t0"
+                          }
+                        ],
+                        "last_at": 0,
+                        "verdict": null
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "trap",
+          "result": "good",
+          "episode": "t1",
+          "at": 1
+        }
+      },
+      {
+        "op": "outcome",
+        "args": {
+          "being": "guard",
+          "about": "wolves",
+          "activity": "trap",
+          "result": "good",
+          "episode": "t2",
+          "at": 2
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard",
+          "about": "wolves"
+        }
+      },
+      {
+        "op": "forget",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "forget",
+        "args": {
+          "being": "guard",
+          "about": "fox",
+          "activity": "hunt"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "guard"
+        }
+      },
+      {
+        "op": "advice",
+        "args": {
+          "being": "nobody"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

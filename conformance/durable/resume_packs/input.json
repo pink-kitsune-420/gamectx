@@ -1,0 +1,92 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "packs",
+            "limits": {
+              "custom": 1,
+              "norms": 2,
+              "roles": 2
+            },
+            "state": {
+              "custom": [
+                [
+                  "norms",
+                  [
+                    [
+                      "sea",
+                      {
+                        "tenets": [
+                          {
+                            "action": "take",
+                            "id": "sea_no_waste_water",
+                            "label": "Never waste fresh water",
+                            "severity": 70
+                          }
+                        ]
+                      }
+                    ]
+                  ]
+                ],
+                [
+                  "role",
+                  []
+                ],
+                [
+                  "species",
+                  []
+                ],
+                [
+                  "temperament",
+                  []
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "kind": "norms",
+          "id": "sea",
+          "pack": {
+            "tenets": [
+              {
+                "id": "sea_no_waste_water",
+                "action": "take",
+                "severity": 70,
+                "label": "Never waste fresh water"
+              },
+              {
+                "id": "sea_share_catch",
+                "action": "store",
+                "severity": 30,
+                "label": "Share the catch"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "kind": "norms",
+          "id": "sea"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ],
+    "limits": {
+      "custom": 1
+    }
+  }
+}

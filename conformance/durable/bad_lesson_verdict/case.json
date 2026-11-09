@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a verdict the episodes do not support.",
+  "error": true
+}

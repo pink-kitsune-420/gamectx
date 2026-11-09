@@ -1,0 +1,113 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "drift",
+            "limits": {
+              "beings": 1024,
+              "history": 16,
+              "traits": 16
+            },
+            "state": {
+              "beings": [
+                [
+                  "ana",
+                  {
+                    "locked": false,
+                    "traits": [
+                      [
+                        "warmth",
+                        {
+                          "at": 0,
+                          "base": 0,
+                          "cap": 150000,
+                          "fade": 1,
+                          "history": [],
+                          "locked": false,
+                          "pressure": 400,
+                          "reasons": [
+                            "kind_word_0",
+                            "kind_word_1",
+                            "kind_word_2",
+                            "kind_word_3"
+                          ],
+                          "step": 10000,
+                          "threshold": 1000,
+                          "value": 0
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "clock": 0
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_4"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_5"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_6"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_7"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_8"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_9"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

@@ -30,6 +30,7 @@
 use crate::character::beliefs::{opt, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -152,6 +153,8 @@ impl Drift {
             "lock" => self.op_lock(args),
             "revert" => self.op_revert(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -306,6 +309,59 @@ impl Drift {
             })
             .collect();
         Ok(obj! { "being" => b.as_str(), "locked" => mind.locked, "traits" => Value::Array(views) })
+    }
+}
+
+persist!(Shift { at [0, MAX_AT], delta [-100_000, 100_000], reasons, value [-M, M] });
+persist!(Trait {
+    at [0, MAX_AT],
+    base [-M, M],
+    cap [0, 300_000],
+    fade [0, 100_000],
+    history,
+    locked,
+    pressure [-100_000, 100_000],
+    reasons,
+    step [1, 100_000],
+    threshold [1, 100_000],
+    value [-M, M]
+});
+persist!(Mind { locked, traits });
+persist!(rest Drift { beings, clock [0, MAX_AT] });
+durable!(Drift, "drift", LIMITS);
+
+/// A trait as `trait`, `experience` and `revert` leave it.
+fn trait_ok(x: &Trait, clock: u64) -> bool {
+    let (lo, hi) = ((x.base - x.cap).max(-M), (x.base + x.cap).min(M));
+    let reasons_ok = |rs: &[String]| rs.len() <= REASONS_KEPT && rs.iter().all(|r| is_ident(r));
+    (lo..=hi).contains(&x.value)
+        && x.pressure.abs() < x.threshold
+        && x.at <= clock
+        && x.reasons.len() <= REASONS_KEPT
+        && x.reasons.iter().all(|r| is_ident(r))
+        && x.history.iter().all(|s| {
+            s.delta != 0 && s.delta.abs() <= x.step && s.at <= x.at && !s.reasons.is_empty() && reasons_ok(&s.reasons)
+        })
+        && x.history.iter().zip(x.history.iter().skip(1)).all(|(a, b)| a.at <= b.at)
+}
+
+impl Drift {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, mind) in &self.beings {
+            ok(is_ident(b) && !mind.traits.is_empty())?;
+            within::<Self>("traits", mind.traits.len())?;
+            for (t, x) in &mind.traits {
+                within::<Self>("history", x.history.len())?;
+                ok(is_ident(t) && trait_ok(x, self.clock))?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

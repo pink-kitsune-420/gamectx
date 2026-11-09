@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (detail): load the save taken halfway through detail/lod_same_state_every_level, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

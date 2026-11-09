@@ -33,6 +33,7 @@
 use crate::character::beliefs::{opt, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -154,6 +155,8 @@ impl Roles {
             "persuade" => self.op_persuade(args),
             "assess" => self.op_assess(args),
             "staff" => self.op_staff(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -362,6 +365,42 @@ impl Roles {
         Ok(
             obj! { "holders" => Value::Array(holders), "role" => r.as_str(), "seats" => Value::from(role.seats), "status" => role.status },
         )
+    }
+}
+
+persist!(Duty { action, at [0, MAX_AT], every [1, MAX_AT], place, priority [0, 100] });
+persist!(Role { duties, seats [1, 1_000_000], status [0, 100] });
+persist!(Holder { held, standing [-50, 50] });
+persist!(rest Roles { beings, clock [0, MAX_AT], roles });
+durable!(Roles, "roles", LIMITS);
+
+impl Roles {
+    /// Invariants a save must meet; the holders index is rebuilt.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("roles", self.roles.len())?;
+        within::<Self>("beings", self.beings.len())?;
+        for (id, r) in &self.roles {
+            ok(is_ident(id))?;
+            within::<Self>("duties", r.duties.len())?;
+            let duty_ok = |(d, x): (&String, &Duty)| {
+                is_ident(d) && is_ident(&x.action) && x.place.as_deref().is_none_or(is_ident)
+            };
+            ok(r.duties.iter().all(duty_ok))?;
+        }
+        self.holders.clear();
+        for (b, x) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("held", x.held.len())?;
+            for (r, since) in &x.held {
+                ok(self.roles.contains_key(r) && *since <= self.clock)?;
+                self.holders.entry(r.clone()).or_default().insert(b.clone());
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

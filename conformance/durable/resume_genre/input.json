@@ -1,0 +1,94 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "genre",
+            "limits": {
+              "genres": 16,
+              "nodes": 4096,
+              "packs": 16
+            },
+            "state": {
+              "genres": [
+                [
+                  "caravan",
+                  {
+                    "axes": [
+                      10,
+                      30,
+                      5,
+                      40
+                    ],
+                    "builtin": false,
+                    "day_cycle": "none",
+                    "vocab": [
+                      [
+                        "dark",
+                        "dim",
+                        "bright"
+                      ],
+                      [
+                        "open_camp",
+                        "traders_only",
+                        "kin_only",
+                        "tent",
+                        "forbidden"
+                      ],
+                      [
+                        "public",
+                        "semi_private",
+                        "private",
+                        "echoing"
+                      ],
+                      [
+                        "etiquette",
+                        "custom",
+                        "contract",
+                        "taboo",
+                        "crime"
+                      ],
+                      [
+                        "alibi_pact",
+                        "apology_owed",
+                        "employment",
+                        "favor",
+                        "keep_secret",
+                        "loan",
+                        "promise",
+                        "trade_order"
+                      ],
+                      [
+                        "stranger",
+                        "acquaintance"
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "packs": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "id": "caravan"
+        }
+      },
+      {
+        "op": "list",
+        "args": {}
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

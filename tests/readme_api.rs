@@ -220,6 +220,13 @@ fn documented_project_example() -> gamectx::Result<()> {
     registered_project::main()
 }
 
+#[path = "../examples/kit/save-anywhere.rs"]
+mod save_anywhere;
+#[test]
+fn documented_save_anywhere_example() -> gamectx::Result<()> {
+    save_anywhere::main()
+}
+
 #[path = "../examples/packet/local-turn.rs"]
 mod local_turn;
 #[test]

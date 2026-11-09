@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (economy): load the save taken halfway through economy/econ_price_recovers_over_periods, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

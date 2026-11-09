@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (cooperation): load the save taken halfway through cooperation/help_favor_owed_tips_refusal, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

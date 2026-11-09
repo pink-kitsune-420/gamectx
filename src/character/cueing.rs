@@ -41,6 +41,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -211,6 +212,8 @@ impl Cueing {
             "secret" => self.op_secret(args, l),
             "frame_facts" => self.op_frame_facts(args),
             "gate" => self.op_gate(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -453,6 +456,63 @@ impl Cueing {
             "being" => b, "fallback" => fallback, "leaks" => Value::Array(leaks.clone()), "listener" => lis,
             "ok" => leaks.is_empty(),
         })
+    }
+}
+
+/// Fact source words.
+pub const SOURCE_NAMES: [&str; 5] =
+    ["corrected_belief", "direct_witness", "inference", "trusted_report", "unverified_rumor"];
+persist!(Episode { emotion, features, secret, surfaced, valence [-100, 100] });
+persist!(Fact { claim, confidence [0, 100], from, keys, previous, source });
+persist!(Cover { fact, lie, listeners });
+persist!(Being { covers, episodes, facts });
+persist!(rest Cueing { beings, clock [0, MAX_AT], secrets });
+durable!(Cueing, "cueing", LIMITS);
+
+fn key_words_ok(ks: &BTreeSet<String>) -> bool {
+    (1..=MAX_KEYS).contains(&ks.len())
+        && ks
+            .iter()
+            .all(|w| (1..=32).contains(&w.len()) && w.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()))
+}
+
+fn ids_ok(xs: &BTreeSet<String>) -> bool {
+    xs.len() <= MAX_LIST && xs.iter().all(|x| is_ident(x))
+}
+
+impl Cueing {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        within::<Self>("secrets", self.secrets.len())?;
+        ok(self.secrets.iter().all(|(i, ks)| is_ident(i) && key_words_ok(ks)))?;
+        for (b, x) in &self.beings {
+            ok(is_ident(b) && !(x.episodes.is_empty() && x.facts.is_empty()))?;
+            within::<Self>("episodes", x.episodes.len())?;
+            within::<Self>("facts", x.facts.len())?;
+            within::<Self>("covers", x.covers.len())?;
+            for (i, e) in &x.episodes {
+                ok(is_ident(i) && e.features.iter().all(ids_ok) && e.features.iter().any(|s| !s.is_empty()))?;
+                ok(e.emotion.as_deref().is_none_or(is_ident))?;
+                within::<Self>("listeners", e.surfaced.len())?;
+                ok(e.surfaced.iter().all(|(l, t)| is_ident(l) && *t <= self.clock))?;
+            }
+            for (i, f) in &x.facts {
+                ok(is_ident(i) && is_text(&f.claim, 160) && SOURCE_NAMES.contains(&f.source.as_str()))?;
+                let reported = f.source == "trusted_report" || f.source == "unverified_rumor";
+                ok(f.from.is_some() == reported && f.from.as_deref().is_none_or(is_ident))?;
+                ok(f.previous.is_some() == (f.source == "corrected_belief"))?;
+                ok(f.previous.as_deref().is_none_or(|p| is_text(p, 160)) && key_words_ok(&f.keys))?;
+            }
+            for (i, cv) in &x.covers {
+                ok(is_ident(i) && x.facts.contains_key(&cv.fact) && is_text(&cv.lie, 160) && ids_ok(&cv.listeners))?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

@@ -4781,3 +4781,127 @@ fn chemistry_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[banter.to_string()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn saves_and_bundles_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::chemistry::Chemistry;
+    use gamectx::data::persist::{self, MAX_SAVE_BYTES};
+    use gamectx::kit::state_bundle::{StateBundle, KINDS};
+    let mut rng = Rng(0x5A7E_0E49_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    fn run(kind: &str, request: &str) -> String {
+        format!(r#"{{"op":"run","args":{{"kind":"{kind}","request":{request}}}}}"#)
+    }
+    fn import(save: &str) -> String {
+        format!(r#"{{"op":"import","args":{{"save":{save}}}}}"#)
+    }
+    let export = r#"{"op":"export","args":{}}"#.to_string();
+    let filled = || {
+        let mut b = StateBundle::new();
+        b.workflow(&req(&[
+            run("chemistry", r#"{"ops":[{"op":"style","args":{"being":"mira","humour":"dry","tempo":"measured","formality":30,"assertiveness":60,"values":["craft"]}},{"op":"style","args":{"being":"bo","humour":"absurd","tempo":"fast","formality":20,"assertiveness":20}},{"op":"joke","args":{"a":"mira","b":"bo","id":"goose","moment":"The goose on the bridge."}},{"op":"scene","args":{"id":"market","tension":100000}}]}"#),
+            run("projects", r#"{"ops":[{"op":"propose","args":{"id":"lute","owner":"ida","aim":"Learn the lute","stake":80,"horizon":100,"milestones":[{"id":"chords","condition":{"kind":"fact","ref":"chords"},"expected":20}]}},{"op":"tick","args":{"now":7}}]}"#),
+            run("space", r#"{"ops":[{"op":"room","args":{"id":"hall","width":4,"height":3}}]}"#),
+        ]))
+        .unwrap();
+        b
+    };
+
+    // 48. Save mutation fuzzing: a bundle save of three managers and one manager's own save are
+    // mutated and imported. An accepted import re-exports to a save that imports back to itself
+    // (the canonical form is a fixed point); a refused import leaves the save byte-identical. The
+    // bundle is refilled every 16 rounds.
+    let good_bundle = filled().export().to_json();
+    let mut chem = Chemistry::new();
+    chem.workflow(&parse(r#"{"ops":[{"op":"style","args":{"being":"a","humour":"dry","tempo":"fast","formality":0,"assertiveness":0}},{"op":"scene","args":{"id":"s","tension":5}}]}"#, 4096).unwrap()).unwrap();
+    let good_chem = persist::export(&chem, &chem.limits).to_json();
+    let mut b = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            b = filled();
+        }
+        let before = b.export().to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_bundle), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match b.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = b.export();
+                let mut c = StateBundle::new();
+                c.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(c.export(), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(b.export().to_json(), before);
+            }
+        }
+        let Ok(save) = parse(&mutate(&mut rng, &good_chem), 1 << 22) else { continue };
+        let before = chem.clone();
+        let mut k = chem.clone();
+        match k.workflow(&obj_import(&save)) {
+            // Limits stay the manager's own; the state is the save's, unchanged.
+            Ok(_) => assert_eq!(persist::export(&k, &k.limits).get("state"), save.get("state")),
+            Err(_) => assert_eq!(k, before),
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; the sections limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    assert!(StateBundle::new().workflow(&req(&vec![export.clone(); 64])).is_ok());
+    assert!(StateBundle::new().workflow(&req(&vec![export.clone(); 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"sections":64}"#, true),
+        (r#"{"sections":65}"#, false),
+        (r#"{"sections":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(StateBundle::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+    let mut one = StateBundle::with_limits(&parse(r#"{"sections":2}"#, 64).unwrap()).unwrap();
+    assert!(one.workflow(&req(&[import(&good_bundle)])).is_err());
+    assert!(one.sections.is_empty());
+
+    // Extremes: every durable kind in one bundle saves, loads and saves again byte for byte; a
+    // save over 64 MiB, nesting deeper than 64 and an integer past ±(2⁵³ − 1) are refused.
+    let mut all = StateBundle::new();
+    let empty = r#"{"ops":[{"op":"export","args":{}}]}"#;
+    let ops: Vec<String> = KINDS.iter().map(|k| run(k, empty)).collect();
+    all.workflow(&req(&ops)).unwrap();
+    assert_eq!(all.sections.len(), KINDS.len());
+    let whole = all.export();
+    let mut again = StateBundle::new();
+    again.workflow(&obj_import(&whole)).unwrap();
+    assert_eq!(again.export(), whole);
+    let huge = good_chem.replacen(r#""a""#, &format!(r#""{}""#, "a".repeat(MAX_SAVE_BYTES)), 1);
+    let mut k = chem.clone();
+    assert!(k.workflow(&obj_import(&parse(&huge, 1 << 27).unwrap())).is_err());
+    // The parser stops deep nesting first; a value built in memory meets the save's own check.
+    let mut deep = Value::Null;
+    for _ in 0..70 {
+        deep = Value::Array(vec![deep]);
+    }
+    let mut save = parse(&good_bundle, 1 << 20).unwrap();
+    if let Value::Object(fields) = &mut save {
+        fields[1].1 = Value::Array(vec![Value::Array(vec![Value::from("chemistry"), deep])]);
+    }
+    assert!(StateBundle::new().workflow(&obj_import(&save)).is_err());
+    let far = good_chem.replacen(r#""tension":5"#, r#""tension":9007199254740992"#, 1);
+    assert!(far != good_chem && chem.clone().workflow(&obj_import(&parse(&far, 1 << 20).unwrap())).is_err());
+
+    // A refused op changes nothing: a bundle whose last section is damaged loads none of it.
+    let mut b = filled();
+    let before = b.export().to_json();
+    let bad = good_bundle.replacen(r#""width":4"#, r#""width":-4"#, 1);
+    assert!(bad != good_bundle && b.workflow(&req(&[import(&bad)])).is_err());
+    assert_eq!(b.export().to_json(), before);
+}
+
+fn obj_import(save: &Value) -> Value {
+    let mut ops = vec![(String::from("op"), Value::from("import"))];
+    ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));
+    Value::Object(vec![(String::from("ops"), Value::Array(vec![Value::Object(ops)]))])
+}

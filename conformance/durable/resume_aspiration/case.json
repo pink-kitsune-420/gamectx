@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (aspiration): load the save taken halfway through growth/asp_model_proposals_validated, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

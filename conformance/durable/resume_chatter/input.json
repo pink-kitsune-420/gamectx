@@ -1,0 +1,133 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "chatter",
+            "limits": {
+              "beings": 1024,
+              "bonds": 4096,
+              "records": 2,
+              "topics": 64,
+              "turns": 6,
+              "wants": 16
+            },
+            "state": {
+              "bonds": [],
+              "minds": [
+                [
+                  "baker",
+                  {
+                    "knows": [
+                      [
+                        "mill_price",
+                        {
+                          "secret": false,
+                          "value": "rising",
+                          "weight": 80
+                        }
+                      ],
+                      [
+                        "new_oven",
+                        {
+                          "secret": false,
+                          "value": "built",
+                          "weight": 30
+                        }
+                      ]
+                    ],
+                    "wants": [
+                      [
+                        "fox_den",
+                        70
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "widow",
+                  {
+                    "knows": [
+                      [
+                        "fox_den",
+                        {
+                          "secret": false,
+                          "value": "north_field",
+                          "weight": 60
+                        }
+                      ],
+                      [
+                        "mill_price",
+                        {
+                          "secret": false,
+                          "value": "rising",
+                          "weight": 40
+                        }
+                      ]
+                    ],
+                    "wants": []
+                  }
+                ]
+              ],
+              "records": [],
+              "seq": 0
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 1,
+          "at": 1
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 2,
+          "at": 2
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 3,
+          "at": 3
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 4,
+          "at": 4
+        }
+      },
+      {
+        "op": "log",
+        "args": {
+          "limit": 5
+        }
+      },
+      {
+        "op": "export"
+      }
+    ],
+    "limits": {
+      "records": 2
+    }
+  }
+}

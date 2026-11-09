@@ -1,0 +1,1 @@
+{"limits":{"rooms":2,"beings":1024,"spots":16,"queue":32},"version":1,"results":[{"format":"gamectx-state","kind":"space","limits":{"beings":1024,"queue":32,"rooms":2,"spots":16},"state":{"beings":[],"rooms":[]},"version":1}]}

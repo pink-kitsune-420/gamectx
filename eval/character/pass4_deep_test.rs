@@ -26,18 +26,20 @@ use gamectx::character::pragmatics::Pragmatics;
 use gamectx::character::projects::Projects;
 use gamectx::character::stability::StabilityMonitor;
 use gamectx::data::json::{parse, Value};
+use gamectx::data::persist::{self, Durable};
 use gamectx::knowledge::culture::Culture;
 use gamectx::knowledge::fabric::Fabric;
 use gamectx::knowledge::genre::Genres;
 use gamectx::{obj, Result};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
+use std::sync::atomic::{AtomicBool, AtomicU64, AtomicUsize, Ordering::Relaxed};
+use std::sync::Mutex;
 use std::time::Instant;
 
 struct Counting;
-static LIVE: AtomicUsize = AtomicUsize::new(0);
-static PEAK: AtomicUsize = AtomicUsize::new(0);
+pub static LIVE: AtomicUsize = AtomicUsize::new(0);
+pub static PEAK: AtomicUsize = AtomicUsize::new(0);
 unsafe impl GlobalAlloc for Counting {
     unsafe fn alloc(&self, l: Layout) -> *mut u8 {
         let now = LIVE.fetch_add(l.size(), Relaxed) + l.size();
@@ -52,12 +54,37 @@ unsafe impl GlobalAlloc for Counting {
 #[global_allocator]
 static A: Counting = Counting;
 
-trait Engine {
+pub trait Engine {
     fn run(&mut self, req: &Value) -> Result<Value>;
+    /// Saves the manager to text, loads the text into a fresh manager and puts that in its place.
+    fn reload(&mut self);
 }
 macro_rules! engine {
-    ($($t:ty),*) => {$(impl Engine for $t { fn run(&mut self, req: &Value) -> Result<Value> { self.workflow(req) } })*};
+    ($($t:ty),*) => {$(impl Engine for $t {
+        fn run(&mut self, req: &Value) -> Result<Value> { self.workflow(req) }
+        fn reload(&mut self) {
+            let limits = Durable::limits(self).clone();
+            let text = persist::export(self, &limits).to_json();
+            let save = parse(&text, 1 << 27).expect("a save parses");
+            let (fresh, _, _) = persist::restore::<$t>(&save, &limits).unwrap_or_else(|e| panic!("{} save refused: {e:?}", <$t as Durable>::KIND));
+            *self = fresh;
+            SAVES.fetch_add(1, Relaxed);
+            LAST.lock().unwrap().insert(<$t as Durable>::KIND, text);
+        }
+    })*};
 }
+
+/// Save anywhere (pass 5): when set, `go` saves and reloads its manager after every op on
+/// `EVERY_OP_DAY` and after every request on every tenth day (and on day 0, the setup).
+pub static SAVE_ANYWHERE: AtomicBool = AtomicBool::new(false);
+/// The town's current day, read by `go`.
+pub static DAY: AtomicU64 = AtomicU64::new(0);
+/// The day saved after every single op: a project day before the correction with every op kind.
+pub const EVERY_OP_DAY: u64 = 98;
+/// How many reloads ran.
+pub static SAVES: AtomicU64 = AtomicU64::new(0);
+/// The last save text written per kind.
+pub static LAST: Mutex<BTreeMap<&'static str, String>> = Mutex::new(BTreeMap::new());
 engine!(Genres, Fabric, Pragmatics, Defenses, Chemistry, ExplainTracer, Culture, Projects, StabilityMonitor);
 
 fn req(ops: &[String]) -> Value {
@@ -65,11 +92,16 @@ fn req(ops: &[String]) -> Value {
 }
 
 /// Runs ops in requests of at most 64 and returns every result; each request must be accepted.
-fn go(m: &mut dyn Engine, ops: &[String]) -> Vec<Value> {
+pub fn go(m: &mut dyn Engine, ops: &[String]) -> Vec<Value> {
+    let (saving, day) = (SAVE_ANYWHERE.load(Relaxed), DAY.load(Relaxed));
+    let size = if saving && day == EVERY_OP_DAY { 1 } else { 64 };
     let mut out = Vec::new();
-    for chunk in ops.chunks(64) {
+    for chunk in ops.chunks(size) {
         let r = m.run(&req(chunk)).unwrap_or_else(|e| panic!("refused: {e:?} in {}", chunk.join("\n")));
         out.extend(r.get("results").and_then(Value::as_array).unwrap().iter().cloned());
+        if saving && (day == EVERY_OP_DAY || day % 10 == 0) {
+            m.reload();
+        }
     }
     out
 }
@@ -508,8 +540,9 @@ fn being(i: usize) -> String {
     format!("t{i:03}")
 }
 
-fn town() -> (Value, Value) {
+pub fn town() -> (Value, Value) {
     let base = LIVE.load(Relaxed);
+    DAY.store(0, Relaxed);
     let started = Instant::now();
     let mut rng = Rng(7);
     let mut checks: Vec<String> = Vec::new();
@@ -615,6 +648,7 @@ fn town() -> (Value, Value) {
     let mut exposures = 0u64;
 
     for day in 1..=DAYS {
+        DAY.store(day, Relaxed);
         let now = day * HOURS;
         go(&mut cul, &[format!(r#"{{"op":"tick","args":{{"now":{now}}}}}"#)]);
         go(&mut proj, &[format!(r#"{{"op":"tick","args":{{"now":{now}}}}}"#)]);
@@ -908,7 +942,7 @@ fn report() -> (String, Value) {
     (out, timing)
 }
 
-fn cpu() -> String {
+pub fn cpu() -> String {
     std::fs::read_to_string("/proc/cpuinfo")
         .ok()
         .and_then(|t| t.lines().find(|l| l.starts_with("model name")).map(|l| l.split(':').nth(1).unwrap_or("").trim().to_string()))

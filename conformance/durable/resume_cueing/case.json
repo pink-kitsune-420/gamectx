@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (cueing): load the save taken halfway through cueing/surface_forgets_oldest_listener, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

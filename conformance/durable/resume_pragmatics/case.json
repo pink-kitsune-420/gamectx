@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (pragmatics): load the save taken halfway through pragmatics/threads_interrupt_and_resume, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

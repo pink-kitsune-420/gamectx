@@ -56,6 +56,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -298,6 +299,8 @@ impl Fabric {
             "notice" => self.op_notice(args),
             "tells" => self.op_tells(args),
             "style" => self.op_style(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -702,6 +705,78 @@ impl Fabric {
             "on_small_talk" => if pat < 30 { "cuts_to_point" } else if pat < 70 { "humors_briefly" } else { "enjoys" },
             "secret_keeping" => p.secret_keeping,
         })
+    }
+}
+
+persist!(Norm { applies_when, guilt_cost [0, 100], report_to, severity [0, 100] });
+persist!(Contract {
+    creditor, debtor, due_at [0, MAX_AT], kind in KINDS, overdue, terms, weight [1, 100], witnesses,
+});
+persist!(Moment { at [0, MAX_AT], episode, kind, summary });
+persist!(Thread { id, opened_by, text });
+persist!(Dyad { address, first, landmarks, threads });
+persist!(Attention { bandwidth [1, 16], biases, vigilance [0, 100] });
+persist!(Tell { cue, kind in TELL_KINDS, min_insight [0, 100] });
+persist!(Pragmatic {
+    conflict_style in STYLES, cooperativeness in COOP, coping, interrupt_tolerance [0, 100], secret_keeping [0, 100],
+    small_talk_patience [0, 100], tells,
+});
+persist!(rest Fabric { clock [0, MAX_AT], contracts, counts, dyads, norms, profiles });
+durable!(Fabric, "fabric", LIMITS);
+
+fn sorted_ids(xs: &[String], max: usize) -> bool {
+    xs.len() <= max && ascending(xs) && xs.iter().all(|x| is_ident(x))
+}
+
+impl Fabric {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("norms", self.norms.len())?;
+        within::<Self>("breaches", self.counts.len())?;
+        within::<Self>("contracts", self.contracts.len())?;
+        within::<Self>("dyads", self.dyads.len())?;
+        within::<Self>("beings", self.profiles.len())?;
+        for (id, n) in &self.norms {
+            ok(is_ident(id) && SEVERITY.iter().any(|s| s.1 == n.severity) && sorted_ids(&n.applies_when, 8))?;
+            ok(n.report_to.as_deref().is_none_or(is_ident))?;
+        }
+        for ((n, off, wit), k) in &self.counts {
+            ok(self.norms.contains_key(n) && is_ident(off) && is_ident(wit) && off != wit && (1..=MAX_AT).contains(k))?;
+        }
+        for (id, k) in &self.contracts {
+            ok(is_ident(id) && is_ident(&k.debtor) && is_ident(&k.creditor) && k.debtor != k.creditor)?;
+            ok(sorted_ids(&k.witnesses, 8) && !k.witnesses.contains(&k.debtor) && !k.witnesses.contains(&k.creditor))?;
+            ok(is_text(&k.terms, 160) && k.overdue == k.due_at.is_some_and(|d| d < self.clock))?;
+        }
+        for ((a, b), d) in &self.dyads {
+            ok(is_ident(a) && is_ident(b) && a < b)?;
+            let (at, episode, summary) = &d.first;
+            ok(*at <= self.clock && is_ident(episode) && is_text(summary, 160) && d.landmarks.len() <= LANDMARKS)?;
+            let mut kinds = BTreeSet::new();
+            let mut last = *at;
+            for m in &d.landmarks {
+                ok(is_ident(&m.kind) && kinds.insert(&m.kind) && is_ident(&m.episode) && m.at >= last)?;
+                ok(m.at <= self.clock && m.summary.as_deref().is_none_or(|s| is_text(s, 160)))?;
+                last = m.at;
+            }
+            ok(d.address.iter().all(|(w, t)| (w == a || w == b) && is_text(t, 40)))?;
+            within::<Self>("threads", d.threads.len())?;
+            let mut ids = BTreeSet::new();
+            for t in &d.threads {
+                ok(is_ident(&t.id) && ids.insert(&t.id) && (t.opened_by == *a || t.opened_by == *b))?;
+                ok(is_text(&t.text, 160))?;
+            }
+        }
+        for (b, (att, prag)) in &self.profiles {
+            ok(is_ident(b) && att.biases.len() <= 16 && att.biases.iter().all(|(k, v)| is_ident(k) && *v <= 300))?;
+            ok(prag.tells.len() <= 8 && prag.tells.iter().all(|t| is_ident(&t.cue)))?;
+            ok(prag.coping.as_deref().is_none_or(is_ident))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

@@ -706,53 +706,54 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.5 / 1.6 | 2.1 / 2.8 | 4.3 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
-| `diet` (`choose`) | 2.5 / 2.8 | 2.1 / 2.5 | 1.8 | 613 |
-| `creed` (`judge`) | 1.5 / 1.6 | 1.8 / 2.2 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.2 / 3.7 | 4.2 / 5.3 | 3.3 | 2,283 |
+| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 3.9 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.2 / 2.7 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.7 | 1.8 / 2.2 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.8 | 4.2 / 5.2 | 2.7 | 2,283 |
 | `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.1 | 1.5 / 1.9 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.7 / 2.2 | 1.9 / 2.1 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.4 | 2.3 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.9 / 2.5 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.8 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.2 | 1.2 | 1,599 |
-| `mind` (`query`) | 0.8 / 1.0 | 1.5 / 2.1 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.1 | 2.0 / 3.2 | 2.1 | 884 |
-| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.4 | 3.9 / 5.0 | 5.2 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 2.0 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 13.6 / 14.9 | 199.2 / 212.2 | 3.3 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.7 | 3.6 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.3 / 7.0 | 7.0 / 7.9 | 1.9 | 864 |
-| `survival` (`threat`) | 2.4 / 2.5 | 2.4 / 2.6 | 2.0 | 377 |
-| `detail` (`assess`) | 1.5 / 1.6 | 1.9 / 2.4 | 3.8 | 803 |
-| `retention` (`touch`) | 1.2 / 1.3 | 1.2 / 1.4 | 1.8 | 118 |
-| `roles` (`assess`) | 1.1 / 1.3 | 1.5 / 1.9 | 1.8 | 529 |
-| `economy` (`price`) | 1.0 / 1.0 | 0.9 / 1.0 | 2.1 | 114 |
-| `space` (`see`, line to a far being) | 2.4 / 2.5 | 2.7 / 3.1 | 2.0 | 198 |
-| `drift` (`experience`) | 2.1 / 2.6 | 2.4 / 2.9 | 2.5 | 1,885 |
-| `packs` (`apply`, six requests) | 6.0 / 6.2 | 6.7 / 7.6 | 4.7 | 1,089 |
-| `frame` (`frame`, one being) | 3.5 / 3.7 | 3.9 / 4.4 | 1.7 | 805 |
-| `cueing` (`cue`, one episode) | 2.8 / 2.9 | 3.4 / 4.1 | 3.0 | 3,071 |
-| `pragmatics` (`parse`, a two-clause turn) | 10.0 / 10.4 | 9.7 / 9.9 | 2.6 | 761 |
-| `embodiment` (`react`, a silent turn) | 1.8 / 1.9 | 2.0 / 2.5 | 1.5 | 145 |
-| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.5 | 1.8 / 2.4 | 2.2 | 406 |
-| `fabric` (`dyad`, a pair's history) | 1.2 / 1.3 | 1.3 / 1.6 | 1.7 | 338 |
-| `genre` (`render`, a decision in station words) | 3.2 / 4.0 | 3.7 / 4.4 | 2.4 | 1,245 |
-| `minds` (`admit`, a slow spirit's reaction) | 2.1 / 2.5 | 2.1 / 2.4 | 1.1 | 158 |
-| `defenses` (`threat`, an exposed secret rationalized) | 2.9 / 3.0 | 3.2 / 3.8 | 3.0 | 444 |
-| `culture` (`tell`, a retold rumor) | 3.5 / 4.2 | 4.8 / 6.2 | 4.7 | 1,273 |
-| `projects` (`weight`, a brewery's motive) | 1.2 / 1.2 | 1.7 / 2.2 | 8.6 | 895 |
-| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 1.8 / 2.1 | 2.3 | 201 |
-| `task` (`get`) | 1.4 / 1.5 | 2.1 / 2.7 | 3.6 | 1,417 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.2 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.8 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
+| `habit` (`routine`) | 0.8 / 0.8 | 1.1 / 1.6 | 1.7 | 772 |
+| `lesson` (`advice`) | 1.0 / 1.3 | 1.1 / 1.5 | 2.4 | 1,335 |
+| `affect` (`assess`) | 1.2 / 1.3 | 1.7 / 2.3 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.4 | 1.4 / 1.8 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.1 / 1.3 | 1.6 / 2.1 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 1.1 | 1.5 / 2.1 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.2 | 1.8 / 2.9 | 2.1 | 884 |
+| `relationship` (`assess`) | 0.9 / 1.1 | 1.4 / 2.0 | 2.7 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.5 | 3.8 / 4.9 | 5.2 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.1 | 1.6 / 2.1 | 0.8 | 590 |
+| `cooperation` (`assess`, scans every record) | 14.0 / 15.3 | 199.5 / 224.2 | 3.5 | 230 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 2.9 | 3.6 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.3 / 6.8 | 7.2 / 7.9 | 1.9 | 864 |
+| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 2.0 | 377 |
+| `detail` (`assess`) | 1.5 / 1.5 | 1.9 / 2.4 | 3.8 | 803 |
+| `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.6 | 1.8 | 118 |
+| `roles` (`assess`) | 1.1 / 1.2 | 1.5 / 1.9 | 1.9 | 529 |
+| `economy` (`price`) | 1.0 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
+| `space` (`see`, line to a far being) | 2.4 / 2.6 | 2.9 / 3.2 | 2.1 | 198 |
+| `drift` (`experience`) | 2.0 / 2.3 | 2.3 / 3.0 | 2.5 | 1,885 |
+| `packs` (`apply`, six requests) | 6.0 / 12.0 | 6.7 / 7.5 | 4.6 | 1,089 |
+| `frame` (`frame`, one being) | 3.5 / 3.7 | 4.0 / 4.6 | 1.8 | 805 |
+| `cueing` (`cue`, one episode) | 2.8 / 2.9 | 3.5 / 4.1 | 3.0 | 3,071 |
+| `pragmatics` (`parse`, a two-clause turn) | 10.2 / 10.8 | 10.1 / 10.5 | 2.6 | 761 |
+| `embodiment` (`react`, a silent turn) | 1.7 / 1.9 | 1.9 / 2.2 | 1.5 | 145 |
+| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.5 | 1.7 / 2.1 | 2.3 | 406 |
+| `fabric` (`dyad`, a pair's history) | 1.2 / 1.3 | 1.4 / 1.7 | 1.7 | 338 |
+| `genre` (`render`, a decision in station words) | 3.2 / 3.4 | 3.9 / 4.7 | 2.4 | 1,245 |
+| `minds` (`admit`, a slow spirit's reaction) | 2.1 / 2.2 | 2.2 / 2.5 | 1.2 | 158 |
+| `defenses` (`threat`, an exposed secret rationalized) | 2.9 / 3.0 | 3.3 / 3.9 | 3.0 | 444 |
+| `culture` (`tell`, a retold rumor) | 3.5 / 4.2 | 5.1 / 6.5 | 4.8 | 1,273 |
+| `projects` (`weight`, a brewery's motive) | 1.1 / 1.2 | 1.7 / 2.3 | 8.5 | 895 |
+| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 2.0 / 2.4 | 2.4 | 201 |
+| `task` (`get`) | 1.4 / 1.5 | 2.3 / 2.9 | 3.6 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 199 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+1,000 promises, 200 µs at 10,000 in the retained run (other runs of the same build gave 195–245 µs;
+the spread is desktop scheduling) (an index per being is a ROADMAP follow-up). Memory is linear:
 these minimal entries take 416 MB across all forty-three modules at 10,000 each, about 42 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
@@ -761,6 +762,54 @@ relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and 
 and model calls are excluded; one desktop run with uncontrolled scheduling, not a realtime
 guarantee. Listing ops without a filter (`assess` on the whole deception ledger or off-screen
 history, task `list`) still return, and so walk, every entry.
+
+Saves of the same filled managers (pass 5 stage 1, [durable state](#durable-state-pass-5-stage-1)): one
+save to compact JSON text (export plus serialization) and one load of that text into a fresh manager
+(parse, every check and settle), checked to save back byte for byte, for each of the thirty-four
+durable modules:
+
+| module | save bytes per entry (1k / 10k) | save ms at 10k | load ms at 10k |
+|---|---|---|---|
+| `beliefs` | 131 / 131 | 14.0 | 76.4 |
+| `speech_act` | 46 / 46 | 5.5 | 17.9 |
+| `diet` | 111 / 110 | 10.2 | 33.6 |
+| `creed` | 115 / 115 | 9.6 | 31.2 |
+| `explain` | 422 / 426 | 55.2 | 198.4 |
+| `stability` | 69 / 69 | 7.4 | 21.7 |
+| `expectation` | 214 / 214 | 24.4 | 82.8 |
+| `attention` | 66 / 66 | 5.9 | 19.6 |
+| `aspiration` | 85 / 85 | 10.9 | 30.5 |
+| `habit` | 56 / 56 | 8.7 | 23.5 |
+| `lesson` | 105 / 105 | 12.2 | 43.0 |
+| `cooperation` | 83 / 86 | 7.1 | 25.6 |
+| `cognition` | 126 / 128 | 13.6 | 50.6 |
+| `chatter` | 275 / 109 | 10.8 | 38.4 |
+| `survival` | 171 / 172 | 14.8 | 54.8 |
+| `detail` | 197 / 197 | 28.7 | 78.2 |
+| `retention` | 70 / 70 | 6.8 | 23.2 |
+| `roles` | 46 / 46 | 6.6 | 20.8 |
+| `economy` | 11 / 11 | 1.7 | 4.8 |
+| `space` | 39 / 41 | 4.7 | 16.1 |
+| `drift` | 200 / 191 | 25.6 | 83.3 |
+| `packs` | 221 / 221 | 23.5 | 89.1 |
+| `frame` | 51 / 51 | 10.9 | 26.5 |
+| `cueing` | 161 / 161 | 22.1 | 73.7 |
+| `pragmatics` | 156 / 156 | 14.7 | 47.5 |
+| `embodiment` | 92 / 80 | 6.8 | 20.5 |
+| `surroundings` | 150 / 154 | 12.1 | 43.0 |
+| `fabric` | 104 / 104 | 8.2 | 28.7 |
+| `genre` | 442 / 442 | 42.9 | 122.9 |
+| `minds` | 63 / 63 | 4.3 | 15.2 |
+| `defenses` | 268 / 217 | 22.6 | 72.6 |
+| `culture` | 453 / 302 | 37.3 | 116.1 |
+| `projects` | 657 / 659 | 88.1 | 245.9 |
+| `chemistry` | 97 / 97 | 8.9 | 29.6 |
+
+Save size is linear in the entries: these minimal entries take 11–659 bytes each, 52.1 MB across
+all thirty-four modules at 10,000 each (about 5.2 KB per character if every module holds one entry
+for it). Loading costs 2.4–5.4 times as much as saving (median 3.3) because every invariant is checked; the
+slowest, 10,000 three-milestone projects, loads in 246 ms. Same limits as the table above: one run,
+richer characters save more, and the text is not compressed.
 
 ### Knowledge modules
 
@@ -984,7 +1033,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.0 µs at 10,000 beings. $0 API spend.
+takes 7.2 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 
@@ -1875,3 +1924,65 @@ decisions and the same 7 explanations, and each replays byte for byte. $0 API sp
 
 The decisions render back as `regulation`, `sealed_secret`, `sealed`, `common` and `spacer` on the
 station and `custom`, `keep_secret`, `restricted`, `public` and `acquaintance` in the village.
+
+## Durable state (pass 5, stage 1)
+
+Every stateful pass 2–4 manager can be saved at any point and loaded into a fresh manager that
+carries on exactly where it was. Thirty-four local kinds have `export {}` and `import {save}` ops:
+`aspiration`, `attention`, `beliefs`, `chatter`, `chemistry`, `cognition`, `cooperation`, `creed`,
+`cueing`, `culture`, `defenses`, `detail`, `diet`, `drift`, `economy`, `embodiment`, `expectation`,
+`explain`, `fabric`, `genre`, `habit`, `lesson`, `minds`, `packs`, `pragmatics`, `projects`,
+`retention`, `roles`, `space`, `speech_act`, `stability`, `surroundings`, `survival` and
+`turn-frame`. In Rust, `gamectx::data::persist::export` writes a manager's save and
+`persist::restore` checks one and returns a fresh manager ([example](../../examples/kit/save-anywhere.rs)).
+
+A save is canonical JSON with sorted keys and integers only, plus its kind, a format version and
+the limits it was made under (`gamectx-state`, [FORMAT](../FORMAT.md#durable-state-v1-pass-5-stage-1)).
+Saves are as untrusted as model output. An import checks the whole document before it replaces
+anything: size (64 MiB), nesting (64), text length (4,096 bytes, also inside kept warnings),
+integer range, the canonical form (a save must write back to exactly itself, so unsorted maps,
+duplicates and unknown or missing fields are refused), and every invariant the ops enforce (a
+rumor's hops match its chain, a link names a member, a warning id is below the counter, a lesson's
+verdict follows from its episodes, family links agree both ways, the minds pool rules and so on),
+then rebuilds derived indexes. A refused import changes nothing. The manager keeps its own current
+limits; the limits written in a save are only reported, and counts are checked against the hard
+ceilings.
+
+`state-bundle` holds one manager per kind and saves them as one document of per-kind sections,
+ascending by kind (`gamectx-bundle`). `run {kind, request}` runs a manager in place, `export {}`
+saves all of them, `import {save}` checks every section and replaces the whole bundle only when all
+pass (one bad section loads nothing), and `inspect {save}` reports what an import would load
+without loading it. Each section has its own version, so one engine's format can change without
+rewriting the others. Every format is version 1; the first migration arrives with the runtime
+(culture v2, T-050).
+
+**Evidence (pass 5 stage 1):** an independent Python reference (`eval/character/durable_reference.py`,
+`durable_kinds.py`) and 56 conformance cases (`conformance/durable/`, 16 malformed): one save
+taken halfway through an existing case of each kind, loaded and continued to the uncut case's
+results, plus fresh saves, kept limits, damaged saves and the bundle. 2,000 randomized
+save-anywhere workflows over all thirty-four kinds and the bundle against `gamectx local -`
+(`eval/character/durable_cases.py`, seed 7, 0 mismatches: 1,829 cut and continued identically,
+3,658 randomly damaged saves handled the same by both, 2,907 refused and 751 still valid; seed 1
+also 0 mismatches). Writing the reference found one gap, now closed: kept raw values (stability
+warnings) were not held to the 4,096-byte text limit. Robustness (`tests/robustness.rs`, section
+48) mutates a three-manager bundle save and a manager's save 1,500 times each: an accepted import
+re-exports to a fixed point, a refused one changes nothing; plus 64/65 ops, the sections ceiling,
+every kind in one bundle, a save over 64 MiB, nesting past 64, an integer past 2⁵³ − 1, and a
+bundle whose last section is damaged that loads none of it.
+
+The pass 4 hundred-agent town (`eval/character/pass5_deep_test.rs`, report
+`eval/character/pass5-deep.json`, checked in CI) was saved to text and loaded into fresh culture,
+projects and stability managers after every op on day 98 and after every request on every tenth
+day: 1,077 reloads, and the 180-day report is byte-identical to the uninterrupted run. 32 damaged
+copies of its final saves were refused without changing state: truncated text, a missing last
+byte, a newer version, envelope keys out of order, an integer past the safe range, a negative
+clock, a 4,097-byte string, a save over 64 MiB, and invariant breaks (hops against the chain, a
+link to a non-member, an idiom strength above one, a repertoire idiom that does not exist, a belief
+with no truth, a milestone index past the plan, an unknown status, a negative morale, a culture save
+offered as projects, a reused warning id, an unknown warning kind); a bundle of all three with only
+its last section damaged loaded none of it. The town's saves take 2,293 bytes per being as one
+bundle (culture 1,576, projects 599, stability 11,637 bytes in all). Save size and save/load time at
+1,000 and 10,000 entries per module are in the [table above](#host-set-limits). On the reference
+desktop the reloads cost about 5.9 ms each, mostly the 158 KB culture save
+(`eval/character/pass5-deep-timing.json`). Saves are not compressed; whether that is needed is
+left to the measurements (design O4). $0 API spend.

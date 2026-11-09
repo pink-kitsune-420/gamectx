@@ -40,6 +40,7 @@
 use crate::character::beliefs::{opt, opt_bool, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -182,6 +183,8 @@ impl Retention {
             "assess" => self.op_assess(args),
             "migration" => self.op_migration(args, l),
             "migrate" => self.op_migrate(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -469,6 +472,86 @@ fn edit(node: &mut Value, last: &str, ch: &Change) -> Result<u64> {
         }
         _ => 0,
     })
+}
+
+persist!(Entry { at [0, MAX_AT], bytes [1, MAX_ENTRY_BYTES], importance [0, 100], pinned, used [0, MAX_AT] });
+persist!(Rule {
+    grace [0, MAX_AT],
+    max_age [0, MAX_AT],
+    max_bytes [1, MAX_BYTES],
+    max_entries [1, 1_000_000],
+    min_importance [0, 100]
+});
+persist!(Collection { bytes, entries, rule });
+
+/// A change saves as the authored row: `{"op", "path": "a.*.b", …}` with sorted fields.
+impl persist::Persist for Change {
+    fn save(&self) -> Value {
+        let path = ("path", Value::from(self.path().join(".")));
+        persist::object(match self {
+            Change::Rename { to, .. } => vec![("op", Value::from("rename")), path, ("to", Value::from(to.as_str()))],
+            Change::Add { value, .. } => vec![("op", Value::from("add")), path, ("value", value.clone())],
+            Change::Remove { .. } => vec![("op", Value::from("remove")), path],
+            Change::Clamp { min, max, .. } => {
+                vec![("max", Value::from(*max)), ("min", Value::from(*min)), ("op", Value::from("clamp")), path]
+            }
+        })
+    }
+
+    fn load(v: &Value) -> Result<Self> {
+        let path = || parse_path(c::get(v, "path")?);
+        let bound = |k: &str| -> Result<i64> {
+            let n: i64 = persist::Persist::load(c::get(v, k)?)?;
+            need(n.unsigned_abs() <= MAX_BYTES)?;
+            Ok(n)
+        };
+        Ok(match c::text(c::get(v, "op")?)? {
+            "rename" => {
+                c::fields(v, &["op", "path", "to"])?;
+                Change::Rename { path: path()?, to: id_of(v, "to")? }
+            }
+            "add" => {
+                c::fields(v, &["op", "path", "value"])?;
+                Change::Add { path: path()?, value: c::get(v, "value")?.clone() }
+            }
+            "remove" => {
+                c::fields(v, &["op", "path"])?;
+                Change::Remove { path: path()? }
+            }
+            "clamp" => {
+                c::fields(v, &["max", "min", "op", "path"])?;
+                let (min, max) = (bound("min")?, bound("max")?);
+                need(min <= max)?;
+                Change::Clamp { path: path()?, min, max }
+            }
+            _ => return Err(c::bad()),
+        })
+    }
+}
+persist!(rest Retention { clock [0, MAX_AT], collections, migrations });
+durable!(Retention, "retention", LIMITS);
+
+impl Retention {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("collections", self.collections.len())?;
+        within::<Self>("migrations", self.migrations.len())?;
+        for (name, col) in &self.collections {
+            ok(is_ident(name))?;
+            within::<Self>("entries", col.entries.len())?;
+            ok(col.entries.iter().all(|(id, e)| is_ident(id) && e.at <= e.used && e.used <= self.clock))?;
+            ok(col.bytes == col.entries.values().map(|e| e.bytes).sum::<u64>())?;
+        }
+        for changes in &self.migrations {
+            ok(!changes.is_empty())?;
+            within::<Self>("changes", changes.len())?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
+    }
 }
 
 pub fn workflow(req: &Value) -> Result<Value> {

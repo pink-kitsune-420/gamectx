@@ -1,0 +1,123 @@
+{
+  "kind": "habit",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "habit",
+            "limits": {
+              "beings": 1024,
+              "entries": 32,
+              "slots": 32
+            },
+            "state": {
+              "beings": [
+                [
+                  "miller",
+                  {
+                    "entries": [
+                      [
+                        "grind",
+                        {
+                          "action": "grind",
+                          "habit": false,
+                          "history": [
+                            [
+                              0,
+                              -5,
+                              "river too low"
+                            ],
+                            [
+                              1,
+                              -5,
+                              "river too low"
+                            ],
+                            [
+                              2,
+                              -5,
+                              "river too low"
+                            ],
+                            [
+                              3,
+                              -5,
+                              "river too low"
+                            ],
+                            [
+                              4,
+                              -5,
+                              "river too low"
+                            ]
+                          ],
+                          "slot": "morning",
+                          "strength": 55
+                        }
+                      ]
+                    ],
+                    "tallies": []
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 5,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 6,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 7,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 8,
+          "reason": "river too low"
+        }
+      },
+      {
+        "op": "skip",
+        "args": {
+          "being": "miller",
+          "entry": "grind",
+          "at": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

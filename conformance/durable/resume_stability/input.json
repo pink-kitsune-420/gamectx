@@ -1,0 +1,127 @@
+{
+  "kind": "stability",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "stability",
+            "limits": {
+              "audit_beings": 64,
+              "tracked_beings": 256,
+              "warnings": 256
+            },
+            "state": {
+              "beings": [
+                [
+                  "baker",
+                  {
+                    "history": [
+                      [
+                        "m",
+                        100
+                      ]
+                    ],
+                    "last_severity": 0,
+                    "spiral_streak": 0
+                  }
+                ],
+                [
+                  "smith",
+                  {
+                    "history": [
+                      [
+                        "m",
+                        100
+                      ]
+                    ],
+                    "last_severity": 0,
+                    "spiral_streak": 0
+                  }
+                ]
+              ],
+              "config": {
+                "critical": 80,
+                "dither_margin": 10,
+                "dither_switches": 3,
+                "herd_min": 2,
+                "herd_pct": 100,
+                "runaway_floor": 100,
+                "runaway_turns": 3,
+                "spiral_turns": 3,
+                "window": 8
+              },
+              "grudges": {
+                "last": null,
+                "streak": 0
+              },
+              "last_turn": 10,
+              "last_turn_kinds": [
+                "herding"
+              ],
+              "next_warning": 2,
+              "rumors": {
+                "last": null,
+                "streak": 0
+              },
+              "totals": [
+                [
+                  "herding",
+                  1
+                ]
+              ],
+              "turns_audited": 1,
+              "warnings": [
+                {
+                  "activity": "market",
+                  "beings": [
+                    "baker",
+                    "smith"
+                  ],
+                  "count": 2,
+                  "detail": "2 of 2 beings chose market in the same turn",
+                  "id": "w_1",
+                  "kind": "herding",
+                  "total": 2,
+                  "turn": 10
+                }
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      },
+      {
+        "op": "audit_turn",
+        "args": {
+          "turn": 11,
+          "beings": [
+            {
+              "being": "baker",
+              "motive": "m",
+              "activity": "bake"
+            },
+            {
+              "being": "smith",
+              "motive": "m",
+              "activity": "forge"
+            }
+          ]
+        }
+      },
+      {
+        "op": "assess_health",
+        "args": {}
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "beliefs",
+            "limits": {
+              "beings": 3,
+              "beliefs": 5
+            },
+            "state": {
+              "beings": [
+                [
+                  "baker",
+                  [
+                    {
+                      "about": "baker",
+                      "at": 0,
+                      "confidence": 80,
+                      "from": null,
+                      "holds": true,
+                      "relation": "can",
+                      "source": "authored",
+                      "value": "bake"
+                    },
+                    {
+                      "about": "mill",
+                      "at": 0,
+                      "confidence": 40,
+                      "from": null,
+                      "holds": true,
+                      "relation": "sells",
+                      "source": "authored",
+                      "value": "flour"
+                    },
+                    {
+                      "about": "well",
+                      "at": 0,
+                      "confidence": 90,
+                      "from": null,
+                      "holds": false,
+                      "relation": "has",
+                      "source": "saw",
+                      "value": "water"
+                    }
+                  ]
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "export"
+      }
+    ],
+    "limits": {
+      "beings": 9
+    }
+  }
+}

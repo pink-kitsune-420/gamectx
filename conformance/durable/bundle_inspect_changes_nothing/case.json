@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Inspect checks a bundle save and reports it without loading it.",
+  "error": false
+}

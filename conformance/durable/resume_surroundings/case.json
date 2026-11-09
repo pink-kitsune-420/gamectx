@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (surroundings): load the save taken halfway through surroundings/oven_queue_promotes, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

@@ -43,6 +43,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, run_ops, text_bound, uint_bound, MAX_AT};
 use crate::character::diet::FOOD_TAGS;
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -269,6 +270,12 @@ impl CreedManager {
             "food_taboos" => self.op_food_taboos(args),
             "regard" => self.op_regard(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, &self.limits, args),
+            "import" => {
+                let limits = self.limits.clone();
+                let out = persist::import(self, &limits, args)?;
+                Ok(out)
+            }
             _ => Err(c::bad()),
         })
     }
@@ -595,6 +602,72 @@ impl CreedManager {
             "observed" => Value::Array(a.observed.iter().map(|(o, p)| obj! { "observance" => o.as_str(), "period" => *p }).collect()),
             "standing" => Value::Array(a.standing.iter().map(|(cr, v)| obj! { "creed" => cr.as_str(), "value" => *v }).collect()),
         })
+    }
+}
+
+persist!(Tenet { action, food_tag, id, label, sacred_only, severity [1, 100] });
+persist!(Observance {
+    action,
+    every [1, MAX_PERIOD],
+    id,
+    label,
+    offset [0, MAX_PERIOD],
+    severity [1, 100],
+    window [1, MAX_PERIOD]
+});
+persist!(Creed { id, kind, label, observances, rivals, sacred, tenets });
+persist!(Adherent { creed, devotion [0, 100], joined_at [0, MAX_AT], norms, observed, settled, standing });
+persist!(rest CreedManager { beings, creeds });
+durable!(CreedManager, "creed", LIMITS);
+
+/// A tenet as `Tenet::read` would accept it.
+fn tenet_ok(t: &Tenet, allow_sacred: bool) -> bool {
+    is_ident(&t.id)
+        && is_text(&t.label, 80)
+        && t.action.is_some() != t.food_tag.is_some()
+        && t.action.as_deref().is_none_or(is_ident)
+        && t.food_tag.as_deref().is_none_or(|x| FOOD_TAGS.contains(&x))
+        && (!t.sacred_only || (allow_sacred && t.action.is_some()))
+}
+
+/// Ids are distinct.
+fn distinct<'a>(ids: impl Iterator<Item = &'a String>) -> bool {
+    let mut seen = BTreeSet::new();
+    ids.into_iter().all(|x| seen.insert(x))
+}
+
+impl CreedManager {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("creeds", self.creeds.len())?;
+        within::<Self>("beings", self.beings.len())?;
+        for (id, cr) in &self.creeds {
+            ok(*id == cr.id && is_ident(id) && is_text(&cr.label, 80) && CREED_KINDS.contains(&cr.kind.as_str()))?;
+            ok(cr.tenets.len() <= MAX_TENETS && cr.tenets.iter().all(|t| tenet_ok(t, true)))?;
+            ok(distinct(cr.tenets.iter().map(|t| &t.id)) && distinct(cr.observances.iter().map(|o| &o.id)))?;
+            ok(cr.observances.len() <= MAX_OBSERVANCES)?;
+            for o in &cr.observances {
+                ok(is_ident(&o.id) && o.id.len() <= 56 && is_ident(&o.action) && is_text(&o.label, 80))?;
+                ok(o.window <= o.every && o.offset < o.every)?;
+            }
+            ok(cr.sacred.len() <= 16 && cr.sacred.iter().all(|s| is_ident(s)))?;
+            ok(cr.rivals.len() <= 8)?;
+            ok(cr.rivals.iter().all(|(r, s)| is_ident(r) && r != id && STANCES.contains(&s.as_str())))?;
+        }
+        for (b, a) in &self.beings {
+            ok(is_ident(b) && a.creed.as_ref().is_none_or(|x| self.creeds.contains_key(x)))?;
+            ok(a.creed.is_some() || (a.devotion == 0 && a.observed.is_empty() && a.settled.is_empty()))?;
+            ok(a.norms.len() <= MAX_TENETS && a.norms.iter().all(|t| tenet_ok(t, false)))?;
+            ok(distinct(a.norms.iter().map(|t| &t.id)))?;
+            ok(a.standing.iter().all(|(cr, v)| self.creeds.contains_key(cr) && *v <= 100))?;
+            let periods = a.observed.iter().chain(&a.settled);
+            ok(periods.into_iter().all(|(o, p)| is_ident(o) && o.len() <= 56 && *p <= MAX_AT))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

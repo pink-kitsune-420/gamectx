@@ -35,6 +35,7 @@
 use crate::character::beliefs::{opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -139,6 +140,8 @@ impl Economy {
             "settle" => self.op_settle(args),
             "price" => self.op_price(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -299,6 +302,45 @@ fn experience(being: &str, kind: &str, good: &str, weight: u64) -> Value {
     obj! {
         "engine" => "aspiration", "op" => "experience",
         "args" => obj! { "being" => being, "kind" => kind, "subject" => good, "weight" => weight },
+    }
+}
+
+persist!(Good {
+    base [1, 1_000_000_000],
+    ceiling [1000, 100_000],
+    elasticity [0, 10_000],
+    floor [1, 1000],
+    rate [1, 1000],
+    spoil [0, 1000]
+});
+persist!(rest Stall { demand [0, MAX_AT], made, mult [1, 100_000], sold [0, MAX_AT], stock [0, MAX_AT], wants });
+persist!(rest Economy { clock [0, MAX_AT], goods, markets });
+durable!(Economy, "economy", LIMITS);
+
+impl Economy {
+    /// Invariants a save must meet; each stall's traders are rebuilt from its wants and makers.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("goods", self.goods.len())?;
+        within::<Self>("markets", self.markets.len())?;
+        ok(self.goods.keys().all(|g| is_ident(g)))?;
+        for (m, stalls) in self.markets.iter_mut() {
+            ok(is_ident(m) && !stalls.is_empty())?;
+            for (g, s) in stalls.iter_mut() {
+                ok(self.goods.contains_key(g))?;
+                let ids = s.wants.keys().chain(s.made.keys());
+                ok(ids.into_iter().all(|b| is_ident(b)) && s.made.values().all(|n| *n >= 1))?;
+                let wanted: u128 = s.wants.values().map(|n| *n as u128).sum();
+                let made: u128 = s.made.values().map(|n| *n as u128).sum();
+                ok(wanted <= s.demand as u128 && made <= s.stock as u128 + s.sold as u128)?;
+                s.traders = s.wants.keys().chain(s.made.keys()).cloned().collect();
+                within::<Self>("traders", s.traders.len())?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

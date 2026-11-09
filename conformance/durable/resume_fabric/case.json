@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (fabric): load the save taken halfway through fabric/landmarks_replace_and_evict, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A manager with nothing in it saves its empty state and current limits.",
+  "error": false
+}

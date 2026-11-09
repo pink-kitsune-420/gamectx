@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A bundle runs three managers in place and saves them in one document.",
+  "error": false
+}

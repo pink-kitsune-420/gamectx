@@ -54,6 +54,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -292,6 +293,8 @@ impl Surroundings {
             "transfer" => self.op_transfer(args),
             "damage" => self.op_damage(args),
             "inspect_item" => self.op_inspect_item(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -780,6 +783,88 @@ impl Surroundings {
             && status != "borrowed";
         let weight: u64 = if it.sentimental_to.contains(&obs) { 300 } else { 100 };
         Ok(obj! { "item" => view, "loss_weight_pct" => weight, "observer" => obs, "theft_appraisal" => theft })
+    }
+}
+
+/// Privacy words.
+pub const PRIVACY_NAMES: [&str; 4] = ["public", "semi_private", "private", "echoing"];
+persist!(Phase { end [1, 1_000_000], id, light [0, 2], start [0, 1_000_000], temp_delta [-100, 100] });
+persist!(Weather { light_delta [-2, 2], need_rates, noise [0, 100], seek_tags, travel_pct [50, 500] });
+persist!(Environment { day_length [1, 1_000_000], phases, weather });
+persist!(Hours { end [0, 1_000_000], outside in ACCESS, start [0, 1_000_000] });
+persist!(Station { max_users [1, 64], queue, users });
+persist!(Place {
+    access in ACCESS, capacity [1, 10_000], exterior, hours, occupants, owner, privacy in PRIVACY_NAMES, stations,
+});
+persist!(TraceKind { cleared_by, created_by, implies, public, sight, ttl [1, MAX_AT] });
+persist!(Item {
+    condition [0, 100], created [0, MAX_AT], held_as in HELD_AS, maker, owner, perishable [1, MAX_AT], possessor,
+    sentimental_to,
+});
+persist!(rest Surroundings { clock [0, MAX_AT], env, items, kinds, places, traces, weather });
+durable!(Surroundings, "surroundings", LIMITS);
+
+fn distinct_ids(xs: &[String], lo: usize, hi: usize) -> bool {
+    (lo..=hi).contains(&xs.len())
+        && xs.iter().all(|x| is_ident(x))
+        && xs.iter().collect::<BTreeSet<_>>().len() == xs.len()
+}
+
+fn opt_id_ok(x: &Option<String>) -> bool {
+    x.as_deref().is_none_or(is_ident)
+}
+
+impl Surroundings {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        if let Some(env) = &self.env {
+            ok((1..=24).contains(&env.phases.len()) && env.weather.len() <= 16)?;
+            let mut edge = 0;
+            let mut ids = BTreeSet::new();
+            for p in &env.phases {
+                ok(is_ident(&p.id) && ids.insert(&p.id) && p.start == edge && p.end > p.start)?;
+                edge = p.end;
+            }
+            ok(edge == env.day_length)?;
+            for (w, x) in &env.weather {
+                ok(is_ident(w) && x.need_rates.len() <= 8 && distinct_ids(&x.seek_tags, 0, 8))?;
+                ok(x.need_rates.iter().all(|(k, v)| is_ident(k) && *v <= 100))?;
+            }
+        }
+        ok(self.weather.as_ref().is_none_or(|w| self.env.as_ref().is_some_and(|e| e.weather.contains_key(w))))?;
+        within::<Self>("places", self.places.len())?;
+        for (pid, p) in &self.places {
+            ok(is_ident(pid) && opt_id_ok(&p.owner) && p.stations.len() <= 16)?;
+            ok(p.hours.as_ref().is_none_or(|h| h.start != h.end && self.env.is_some()))?;
+            within::<Self>("occupants", p.occupants.len())?;
+            ok(distinct_ids(&p.occupants, 0, usize::MAX))?;
+            for (sid, s) in &p.stations {
+                ok(is_ident(sid) && s.users.len() as u64 <= s.max_users)?;
+                ok(s.queue.is_empty() || s.users.len() as u64 == s.max_users)?;
+                let mut all = s.users.clone();
+                all.extend(s.queue.iter().cloned());
+                ok(distinct_ids(&all, 0, usize::MAX) && all.iter().all(|b| p.occupants.contains(b)))?;
+            }
+        }
+        within::<Self>("trace_kinds", self.kinds.len())?;
+        for (k, x) in &self.kinds {
+            ok(is_ident(k) && distinct_ids(&x.created_by, 1, 8) && distinct_ids(&x.cleared_by, 0, 8))?;
+            ok(is_ident(&x.implies) && x.sight.as_deref().is_none_or(|s| is_text(s, 160)))?;
+        }
+        within::<Self>("traces", self.traces.len())?;
+        for ((pid, k), at) in &self.traces {
+            ok(self.places.contains_key(pid) && self.kinds.contains_key(k) && *at <= self.clock)?;
+        }
+        within::<Self>("items", self.items.len())?;
+        for (iid, it) in &self.items {
+            ok(is_ident(iid) && opt_id_ok(&it.owner) && opt_id_ok(&it.possessor) && opt_id_ok(&it.maker))?;
+            ok(distinct_ids(&it.sentimental_to, 0, 8) && ascending(&it.sentimental_to) && it.created <= self.clock)?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

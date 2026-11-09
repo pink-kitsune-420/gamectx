@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (diet): load the save taken halfway through diet/diet_assess_recent_meals_bounded, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

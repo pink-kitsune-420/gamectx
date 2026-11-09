@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An import replaces the whole bundle: managers absent from the save go.",
+  "error": false
+}

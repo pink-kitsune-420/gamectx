@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: bundle sections out of kind order.",
+  "error": true
+}

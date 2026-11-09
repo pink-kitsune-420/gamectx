@@ -1,0 +1,153 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "detail",
+            "limits": {
+              "beings": 1024,
+              "groups": 64,
+              "needs": 8
+            },
+            "state": {
+              "beings": [
+                [
+                  "a",
+                  {
+                    "at": 95,
+                    "detail": "full",
+                    "distance": 0,
+                    "group": null,
+                    "needs": [
+                      [
+                        "hunger",
+                        {
+                          "level": 1000000,
+                          "rate": 10000,
+                          "threshold": 700000
+                        }
+                      ],
+                      [
+                        "thirst",
+                        {
+                          "level": 1000000,
+                          "rate": 25000,
+                          "threshold": 700000
+                        }
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "b",
+                  {
+                    "at": 90,
+                    "detail": "coarse",
+                    "distance": 60,
+                    "group": null,
+                    "needs": [
+                      [
+                        "hunger",
+                        {
+                          "level": 1000000,
+                          "rate": 10000,
+                          "threshold": 700000
+                        }
+                      ],
+                      [
+                        "thirst",
+                        {
+                          "level": 1000000,
+                          "rate": 25000,
+                          "threshold": 700000
+                        }
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "c",
+                  {
+                    "at": 0,
+                    "detail": "crowd",
+                    "distance": 900,
+                    "group": "far_village",
+                    "needs": [
+                      [
+                        "hunger",
+                        {
+                          "level": 400000,
+                          "rate": 10000,
+                          "threshold": 700000
+                        }
+                      ],
+                      [
+                        "thirst",
+                        {
+                          "level": 100000,
+                          "rate": 25000,
+                          "threshold": 700000
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "clock": 95,
+              "far": 100,
+              "near": 20,
+              "stride": 10
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "a",
+          "distance": 0
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "b",
+          "distance": 0
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "c",
+          "distance": 0
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "a"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "b"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "c"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

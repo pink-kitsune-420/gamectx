@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (explain): load the save taken halfway through explain_stability/explain_init_clear_being, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

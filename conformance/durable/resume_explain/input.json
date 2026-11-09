@@ -1,0 +1,97 @@
+{
+  "kind": "explain",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "explain",
+            "limits": {
+              "beings": 64,
+              "traces": 128
+            },
+            "state": {
+              "beings": [
+                [
+                  "baker",
+                  [
+                    {
+                      "action": "bake",
+                      "at": 0,
+                      "being": "baker",
+                      "beliefs": [],
+                      "id": "tr_1",
+                      "motive": {
+                        "id": "routine_bake",
+                        "kind": "routine",
+                        "rank": 1,
+                        "reason": "the dawn bake shift is active",
+                        "runner_up": null,
+                        "score": 50
+                      },
+                      "perceptions": [],
+                      "seq": 1,
+                      "status": "pending",
+                      "summary": null,
+                      "target": null,
+                      "task": null
+                    }
+                  ]
+                ],
+                [
+                  "miller",
+                  [
+                    {
+                      "action": "mill",
+                      "at": 0,
+                      "being": "miller",
+                      "beliefs": [],
+                      "id": "tr_2",
+                      "motive": {
+                        "id": "routine_mill",
+                        "kind": "routine",
+                        "rank": 1,
+                        "reason": "the mill runs at dawn",
+                        "runner_up": null,
+                        "score": 45
+                      },
+                      "perceptions": [],
+                      "seq": 2,
+                      "status": "pending",
+                      "summary": null,
+                      "target": null,
+                      "task": null
+                    }
+                  ]
+                ]
+              ],
+              "next_seq": 3
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "init",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "query_trace",
+        "args": {
+          "being": "miller"
+        }
+      },
+      {
+        "op": "init",
+        "args": {}
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

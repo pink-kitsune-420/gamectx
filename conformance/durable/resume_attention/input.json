@@ -1,0 +1,48 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "attention",
+            "limits": {
+              "notice_beings": 64,
+              "notice_events": 16,
+              "profiles": 64
+            },
+            "state": {
+              "profiles": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "guard",
+          "alertness": 90,
+          "perception": 40,
+          "cares": [
+            "thief",
+            "fire",
+            "alarm"
+          ],
+          "capacity": 5
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

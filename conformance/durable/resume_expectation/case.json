@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (expectation): load the save taken halfway through expect_attend/exp_reliability_floor, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

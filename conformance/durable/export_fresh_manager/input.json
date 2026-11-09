@@ -1,0 +1,13 @@
+{
+  "kind": "space",
+  "args": {
+    "ops": [
+      {
+        "op": "export"
+      }
+    ],
+    "limits": {
+      "rooms": 2
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "export",
+        "args": {
+          "compact": true
+        }
+      }
+    ]
+  }
+}

@@ -10,6 +10,7 @@ mod builders;
 pub mod evaluation;
 pub mod local;
 pub mod save;
+pub mod state_bundle;
 mod tools;
 mod validation;
 

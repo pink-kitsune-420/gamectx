@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a save newer than this build's format.",
+  "error": true
+}

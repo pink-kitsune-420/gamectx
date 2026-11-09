@@ -36,6 +36,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -153,6 +154,8 @@ impl Aspirations {
             "drop" => self.op_drop(args),
             "goals" => self.op_goals(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -334,6 +337,65 @@ impl Aspirations {
                 obj! { "count" => p.count, "kind" => kind, "last_at" => p.last_at, "subject" => subject, "total" => p.total }
             }).collect()),
         })
+    }
+}
+
+/// Where a goal came from.
+pub const ORIGINS: [&str; 2] = ["proposal", "template"];
+
+persist!(Pressure { count [1, MAX_AT], last_at [0, MAX_AT], total [1, MAX_TOTAL] });
+persist!(Goal { action, formed_at [0, MAX_AT], label, origin in ORIGINS, priority [1, 90], reason, target });
+persist!(Drive { goals, pressures });
+persist!(rest Aspirations { beings });
+durable!(Aspirations, "aspiration", LIMITS);
+
+/// A `"<kind>:<subject>"` key as `experience` and `propose` build it.
+fn pressure_key_ok(k: &str) -> bool {
+    k.split_once(':').is_some_and(|(kind, s)| KINDS.contains(&kind) && is_ident(s) && s.len() <= 48)
+}
+
+/// A goal as `experience` (origin `template`) or `propose` (origin `proposal`) forms it.
+fn goal_ok(id: &str, g: &Goal) -> bool {
+    if !is_ident(id) {
+        return false;
+    }
+    if g.origin == "template" {
+        let Some(subject) = g.target.as_deref() else { return false };
+        let count_ok = |n: &str| n.parse::<u64>().is_ok_and(|x| x >= 1 && x.to_string() == n);
+        return is_ident(subject)
+            && subject.len() <= 48
+            && KINDS.iter().any(|kind| {
+                let (gid, label, action) = template(kind, subject);
+                let n = g.reason.strip_suffix(&format!(" {kind} experiences about {subject}"));
+                gid == id && label == g.label && action == g.action && n.is_some_and(count_ok)
+            });
+    }
+    let cites: Vec<&str> = g.reason.strip_prefix("proposed from ").map(|r| r.split(", ").collect()).unwrap_or_default();
+    let distinct = cites.iter().enumerate().all(|(i, k)| !cites[..i].contains(k));
+    is_text(&g.label, 80)
+        && is_ident(&g.action)
+        && g.target.as_deref().is_none_or(is_ident)
+        && (1..=4).contains(&cites.len())
+        && distinct
+        && cites.iter().all(|k| pressure_key_ok(k))
+}
+
+impl Aspirations {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, d) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("pressures", d.pressures.len())?;
+            within::<Self>("goals", d.goals.len())?;
+            ok(d.pressures.iter().all(|(k, p)| pressure_key_ok(k) && p.total <= 100 * p.count))?;
+            ok(d.goals.iter().all(|(id, g)| goal_ok(id, g)))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

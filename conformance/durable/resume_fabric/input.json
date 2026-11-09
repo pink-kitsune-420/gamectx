@@ -1,0 +1,107 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "fabric",
+            "limits": {
+              "beings": 1024,
+              "breaches": 1024,
+              "contracts": 256,
+              "dyads": 1024,
+              "norms": 64,
+              "threads": 4
+            },
+            "state": {
+              "clock": 0,
+              "contracts": [],
+              "counts": [],
+              "dyads": [
+                [
+                  [
+                    "mira",
+                    "player"
+                  ],
+                  {
+                    "address": [],
+                    "first": [
+                      0,
+                      "rainy_market",
+                      "The player carried her flour sacks out of the rain."
+                    ],
+                    "landmarks": [
+                      {
+                        "at": 0,
+                        "episode": "e1",
+                        "kind": "first_favor",
+                        "summary": null
+                      },
+                      {
+                        "at": 0,
+                        "episode": "e2",
+                        "kind": "shared_danger",
+                        "summary": "The mill fire."
+                      },
+                      {
+                        "at": 0,
+                        "episode": "e3",
+                        "kind": "worst_betrayal",
+                        "summary": null
+                      }
+                    ],
+                    "threads": []
+                  }
+                ]
+              ],
+              "norms": [],
+              "profiles": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "shared_danger",
+          "episode": "e4",
+          "summary": "The flood."
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "reconciliation",
+          "episode": "e5"
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "first_gift",
+          "episode": "e6"
+        }
+      },
+      {
+        "op": "dyad",
+        "args": {
+          "a": "mira",
+          "b": "player"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

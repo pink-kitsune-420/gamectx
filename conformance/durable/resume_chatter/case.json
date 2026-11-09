@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (chatter): load the save taken halfway through chatter/chat_log_newest_first_and_bounded, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

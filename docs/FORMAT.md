@@ -3696,6 +3696,56 @@ cases (6 malformed) live in `conformance/chemistry/`. Pairs are unordered (`a` <
   by ≥ 300,000 and silence is left); `slow` (tension ≥ 800,000 or density ≥ 6); `escalate` (tension < 200,000, beats,
   novelty ≥ 50); `steady`.
 
+## Durable state v1 (pass 5, stage 1)
+
+`gamectx::data::persist` and `gamectx::kit::state_bundle` (guide: [Life](characters/LIFE.md#durable-state-pass-5-stage-1)).
+Its 56 cases (16 malformed) live in `conformance/durable/`.
+
+**Save.** `{"format": "gamectx-state", "kind", "limits", "state", "version"}`, keys in exactly that order. `limits` is
+every limit of the kind in force when the save was made, sorted by name. `state` is the manager's state:
+
+- struct fields sorted by name; every field present (an absent optional is `null`);
+- maps as arrays of `[key, value]` pairs ascending by key (strings by UTF-8 bytes, tuples element-wise), sets as
+  ascending arrays of distinct members, fixed tuples as arrays;
+- integers only, within ±(2⁵³ − 1); fixed-point quantities stay in their stored unit (millionths and so on);
+- strings at most 4,096 bytes, including every string and key inside kept raw values (stability warnings and
+  authored pack definitions);
+- the whole save at most 64 MiB, nested at most 64 deep.
+
+A load accepts a save only when all of these hold, its `kind` matches, `1 ≤ version ≤` the kind's current version,
+`limits` names exactly the kind's limits within their ceilings, the state saves back to exactly itself (canonical
+form), and the kind's invariants hold: counts within the limit ceilings, references that exist, times not after the
+clock, derived values equal to what the ops would compute (each kind's `settle` in Rust, `settle` in
+`eval/character/durable_kinds.py`). Derived indexes are rebuilt, not saved. Older versions are upgraded one step at a
+time by the kind's pure migration before these checks. The loaded manager keeps the limits it already has; the saved
+limits are reported only.
+
+**Ops on every durable kind** (`aspiration`, `attention`, `beliefs`, `chatter`, `chemistry`, `cognition`,
+`cooperation`, `creed`, `cueing`, `culture`, `defenses`, `detail`, `diet`, `drift`, `economy`, `embodiment`,
+`expectation`, `explain`, `fabric`, `genre`, `habit`, `lesson`, `minds`, `packs`, `pragmatics`, `projects`,
+`retention`, `roles`, `space`, `speech_act`, `stability`, `surroundings`, `survival`, `turn-frame`), inside the
+kind's usual `{ops, limits?}` request:
+
+- `export {}` → the save.
+- `import {save}` → `{from_version, kind, limits (the saved limits), version}`; the manager's state is replaced. A
+  refused import changes nothing.
+
+All thirty-four kinds are at version 1; `packs` saves only authored packs (built-ins are not state).
+
+**Bundle.** Local kind `state-bundle`: `{ops: 1–64, limits?}` → `{limits?, results, version: 1}` with limit
+`sections` (default 64, ceiling 64). A bundle holds at most one manager per durable kind.
+
+- `run {kind (a durable kind), request}` → that manager's output for `request`; the first run of a kind adds a blank
+  manager (counted against `sections`).
+- `export {}` → `{"format": "gamectx-bundle", "sections": [[kind, save], …], "version": 1}`, sections ascending by
+  kind, each the manager's save under its current limits.
+- `import {save}` → `{from_version, sections: [{from_version, kind, limits}], version}`. The envelope is checked
+  (exact keys, format, `1 ≤ version ≤ 1`, at most `sections` rows, kinds strictly ascending and durable), then every
+  section is loaded into a fresh manager under the bundle's current limits for that kind (defaults for a kind it does
+  not hold). Only when every section loads does the bundle become exactly the saved managers (kinds absent from the
+  save are dropped).
+- `inspect {save}` → the same report as `import`, after the same checks, without changing the bundle.
+
 ## Surroundings v1 (pass 3, stage 5)
 
 `gamectx::knowledge::surroundings` (guide: [Life](characters/LIFE.md#world-and-social-schemas-pass-3-stage-5)),

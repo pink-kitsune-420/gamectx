@@ -1,0 +1,116 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "cueing",
+            "limits": {
+              "beings": 1024,
+              "covers": 16,
+              "episodes": 64,
+              "facts": 64,
+              "listeners": 2,
+              "secrets": 64
+            },
+            "state": {
+              "beings": [
+                [
+                  "mira",
+                  {
+                    "covers": [],
+                    "episodes": [
+                      [
+                        "loan_returned_early",
+                        {
+                          "emotion": null,
+                          "features": [
+                            [
+                              "loan"
+                            ],
+                            [
+                              "player"
+                            ],
+                            [
+                              "tools"
+                            ],
+                            []
+                          ],
+                          "secret": false,
+                          "surfaced": [
+                            [
+                              "ana",
+                              0
+                            ],
+                            [
+                              "bo",
+                              1
+                            ]
+                          ],
+                          "valence": 40
+                        }
+                      ]
+                    ],
+                    "facts": []
+                  }
+                ]
+              ],
+              "clock": 1,
+              "secrets": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 2
+        }
+      },
+      {
+        "op": "surface",
+        "args": {
+          "being": "mira",
+          "listener": "cy",
+          "episode": "loan_returned_early"
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "ana",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          },
+          "cooldown": 100
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "bo",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          },
+          "cooldown": 100
+        }
+      },
+      {
+        "op": "export"
+      }
+    ],
+    "limits": {
+      "listeners": 2
+    }
+  }
+}

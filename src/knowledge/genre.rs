@@ -47,6 +47,7 @@ use crate::character::beliefs::{opt, opt_uint, text_bound};
 use crate::character::limits::{self, Limit, Limits};
 use crate::character::pragmatics::{words, PRECEDENCE};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -304,6 +305,8 @@ impl Genres {
             "lexicon_requests" => self.op_lexicon_requests(args),
             "render" => self.translate(args, l, false),
             "normalize" => self.translate(args, l, true),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -490,6 +493,67 @@ impl Genres {
         } else {
             obj! { "genre" => gid, "unmapped" => w.unmapped, "value" => value }
         })
+    }
+}
+
+persist!(Genre { axes [0, 100], builtin, day_cycle in CYCLES, vocab });
+durable!(Genres, "genre", LIMITS);
+
+impl persist::Persist for Genres {
+    fn save(&self) -> Value {
+        let packs = self.packs.iter().map(|(id, acts)| {
+            let acts = acts.iter().map(|(a, ps)| Value::Array(vec![Value::from(*a), ps.save()])).collect();
+            Value::Array(vec![Value::from(id.as_str()), Value::Array(acts)])
+        });
+        persist::object(vec![("genres", self.genres.save()), ("packs", Value::Array(packs.collect()))])
+    }
+
+    fn load(v: &Value) -> Result<Self> {
+        c::fields(v, &["genres", "packs"])?;
+        let mut packs = BTreeMap::new();
+        for row in c::list(c::get(v, "packs")?)? {
+            let [id, acts] = c::list(row)? else { return Err(c::bad()) };
+            let mut out = Vec::new();
+            for a in c::list(acts)? {
+                let [act, ps] = c::list(a)? else { return Err(c::bad()) };
+                out.push((persist::pick(act, &PRECEDENCE)?, persist::Persist::load(ps)?));
+            }
+            packs.insert(persist::Persist::load(id)?, out);
+        }
+        Ok(Genres { genres: persist::Persist::load(c::get(v, "genres")?)?, packs, ..Default::default() })
+    }
+}
+
+impl Genres {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("genres", self.genres.len())?;
+        within::<Self>("packs", self.packs.len())?;
+        for (id, g) in &self.genres {
+            ok(is_ident(id) && BUILTIN_GENRES.iter().all(|b| b.0 != id) && !g.builtin)?;
+            ok(g.vocab.len() == SLOTS.len())?;
+            for ((slot, words), names) in SLOTS.iter().zip(&g.vocab) {
+                ok(names.len() == words.len() && names.iter().collect::<BTreeSet<_>>().len() == names.len())?;
+                ok(names.iter().all(|n| if *slot == "address" { is_text(n, 40) } else { is_ident(n) }))?;
+            }
+        }
+        for (id, acts) in &self.packs {
+            ok(is_ident(id) && BUILTIN_PACKS.iter().all(|p| p.0 != id) && !acts.is_empty())?;
+            let order: Vec<usize> = acts.iter().filter_map(|(a, _)| PRECEDENCE.iter().position(|x| x == a)).collect();
+            ok(ascending(&order))?;
+            let mut seen = BTreeSet::new();
+            for (_, ps) in acts {
+                ok((1..=16).contains(&ps.len()))?;
+                for p in ps {
+                    ok(phrase_of(&Value::from(p.as_str())).is_ok() && seen.insert(p))?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

@@ -1,0 +1,367 @@
+{
+  "kind": "diet",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "diet",
+            "limits": {
+              "beings": 64,
+              "foods": 256,
+              "recent": 16
+            },
+            "state": {
+              "beings": [
+                [
+                  "baker",
+                  {
+                    "allergies": [],
+                    "diet": "omnivore",
+                    "dislikes": [],
+                    "forbids": [],
+                    "likes": [],
+                    "meals": 9,
+                    "recent": [
+                      [
+                        "rye_bread",
+                        0
+                      ],
+                      [
+                        "orchard_apple",
+                        1
+                      ],
+                      [
+                        "spring_water",
+                        2
+                      ],
+                      [
+                        "rye_bread",
+                        3
+                      ],
+                      [
+                        "orchard_apple",
+                        4
+                      ],
+                      [
+                        "spring_water",
+                        5
+                      ],
+                      [
+                        "rye_bread",
+                        6
+                      ],
+                      [
+                        "orchard_apple",
+                        7
+                      ],
+                      [
+                        "spring_water",
+                        8
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "foods": [
+                [
+                  "barley_ale",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 5,
+                    "id": "barley_ale",
+                    "joy": 8,
+                    "label": "barley ale",
+                    "preserved_spoils_after": 0,
+                    "raw_risk": 0,
+                    "spoils_after": 0,
+                    "tags": [
+                      "alcohol",
+                      "grain"
+                    ],
+                    "thirst": 30
+                  }
+                ],
+                [
+                  "bramble_berries",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 8,
+                    "id": "bramble_berries",
+                    "joy": 4,
+                    "label": "bramble berries",
+                    "preserved_spoils_after": 192,
+                    "raw_risk": 0,
+                    "spoils_after": 48,
+                    "tags": [
+                      "fruit"
+                    ],
+                    "thirst": 4
+                  }
+                ],
+                [
+                  "hard_cheese",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 25,
+                    "id": "hard_cheese",
+                    "joy": 4,
+                    "label": "hard cheese",
+                    "preserved_spoils_after": 1920,
+                    "raw_risk": 0,
+                    "spoils_after": 480,
+                    "tags": [
+                      "dairy"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "hearty_stew",
+                  {
+                    "cooked_bonus": 10,
+                    "hunger": 50,
+                    "id": "hearty_stew",
+                    "joy": 6,
+                    "label": "hearty stew",
+                    "preserved_spoils_after": 144,
+                    "raw_risk": 40,
+                    "spoils_after": 36,
+                    "tags": [
+                      "meat",
+                      "vegetable"
+                    ],
+                    "thirst": 10
+                  }
+                ],
+                [
+                  "honey_cake",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 20,
+                    "id": "honey_cake",
+                    "joy": 10,
+                    "label": "honey cake",
+                    "preserved_spoils_after": 288,
+                    "raw_risk": 0,
+                    "spoils_after": 72,
+                    "tags": [
+                      "egg",
+                      "grain",
+                      "sweet"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "oat_porridge",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 30,
+                    "id": "oat_porridge",
+                    "joy": 0,
+                    "label": "oat porridge",
+                    "preserved_spoils_after": 96,
+                    "raw_risk": 0,
+                    "spoils_after": 24,
+                    "tags": [
+                      "dairy",
+                      "grain"
+                    ],
+                    "thirst": 5
+                  }
+                ],
+                [
+                  "orchard_apple",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 12,
+                    "id": "orchard_apple",
+                    "joy": 3,
+                    "label": "orchard apple",
+                    "preserved_spoils_after": 960,
+                    "raw_risk": 0,
+                    "spoils_after": 240,
+                    "tags": [
+                      "fruit"
+                    ],
+                    "thirst": 8
+                  }
+                ],
+                [
+                  "river_trout",
+                  {
+                    "cooked_bonus": 20,
+                    "hunger": 30,
+                    "id": "river_trout",
+                    "joy": 0,
+                    "label": "river trout",
+                    "preserved_spoils_after": 720,
+                    "raw_risk": 35,
+                    "spoils_after": 24,
+                    "tags": [
+                      "fish"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "roasted_nuts",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 15,
+                    "id": "roasted_nuts",
+                    "joy": 3,
+                    "label": "roasted nuts",
+                    "preserved_spoils_after": 2880,
+                    "raw_risk": 0,
+                    "spoils_after": 720,
+                    "tags": [
+                      "nut"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "rye_bread",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 35,
+                    "id": "rye_bread",
+                    "joy": 2,
+                    "label": "rye bread",
+                    "preserved_spoils_after": 384,
+                    "raw_risk": 0,
+                    "spoils_after": 96,
+                    "tags": [
+                      "grain"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "salt_lick",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 10,
+                    "id": "salt_lick",
+                    "joy": -2,
+                    "label": "salt lick",
+                    "preserved_spoils_after": 0,
+                    "raw_risk": 0,
+                    "spoils_after": 0,
+                    "tags": [
+                      "mineral"
+                    ],
+                    "thirst": 0
+                  }
+                ],
+                [
+                  "spring_water",
+                  {
+                    "cooked_bonus": 0,
+                    "hunger": 0,
+                    "id": "spring_water",
+                    "joy": 0,
+                    "label": "spring water",
+                    "preserved_spoils_after": 0,
+                    "raw_risk": 0,
+                    "spoils_after": 0,
+                    "tags": [
+                      "water"
+                    ],
+                    "thirst": 40
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 9
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 10
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 11
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 12
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 13
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 14
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "rye_bread",
+          "at": 15
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "orchard_apple",
+          "at": 16
+        }
+      },
+      {
+        "op": "eat",
+        "args": {
+          "being": "baker",
+          "food": "spring_water",
+          "at": 17
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

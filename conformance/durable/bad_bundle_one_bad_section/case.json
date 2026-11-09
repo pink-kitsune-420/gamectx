@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: one bad section refuses the whole bundle (nothing loads).",
+  "error": true
+}

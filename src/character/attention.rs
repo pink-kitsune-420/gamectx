@@ -32,6 +32,7 @@
 
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, run_ops, uint_bound, MAX_AT};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -117,6 +118,12 @@ impl AttentionModel {
             "profile" => self.op_profile(args),
             "notice" => self.op_notice(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, &self.limits, args),
+            "import" => {
+                let limits = self.limits.clone();
+                let out = persist::import(self, &limits, args)?;
+                Ok(out)
+            }
             _ => Err(c::bad()),
         })
     }
@@ -267,6 +274,25 @@ impl AttentionModel {
         keys(args, &["being"], &[])?;
         let being = ident(c::get(args, "being")?)?;
         Ok(self.profiles.get(being).cloned().unwrap_or_default().view(being))
+    }
+}
+
+persist!(Profile { alertness [0, 100], capacity [1, MAX_EVENTS as u64], cares, perception [0, 100] });
+persist!(rest AttentionModel { profiles });
+durable!(AttentionModel, "attention", LIMITS);
+
+impl AttentionModel {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("profiles", self.profiles.len())?;
+        for (b, p) in &self.profiles {
+            ok(is_ident(b) && p.cares.len() <= MAX_CARES && p.cares.iter().all(|x| is_ident(x)))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

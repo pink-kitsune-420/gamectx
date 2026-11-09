@@ -1,0 +1,10 @@
+{
+  "kind": "beliefs",
+  "args": {
+    "ops": [
+      {
+        "op": "import"
+      }
+    ]
+  }
+}

@@ -34,6 +34,7 @@
 use crate::character::beliefs::{opt, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -146,6 +147,8 @@ impl Detail {
             "tick" => self.op_tick(args),
             "assess" => self.op_assess(args),
             "crowd" => self.op_crowd(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -377,6 +380,54 @@ impl Detail {
             )
             .collect();
         Ok(obj! { "group" => g, "members" => members, "needs" => Value::Array(needs), "urgent" => urgent })
+    }
+}
+
+/// Detail levels, nearest first.
+pub const LEVELS: [&str; 3] = ["full", "coarse", "crowd"];
+
+persist!(Need { level [0, M], rate [0, M], threshold [1, M] });
+persist!(Tracked { at [0, MAX_AT], detail in LEVELS, distance [0, MAX_AT], group, needs });
+persist!(rest Detail {
+    beings,
+    clock [0, MAX_AT],
+    far [0, MAX_AT],
+    near [0, MAX_AT],
+    stride [1, 1_000_000]
+});
+durable!(Detail, "detail", LIMITS);
+
+impl Detail {
+    /// Invariants a save must meet; the group and active indexes are rebuilt.
+    fn settle_state(&mut self) -> Result<()> {
+        ok(self.near <= self.far)?;
+        within::<Self>("beings", self.beings.len())?;
+        self.groups.clear();
+        self.active.clear();
+        for (b, x) in &self.beings {
+            ok(is_ident(b) && !x.needs.is_empty() && x.needs.keys().all(|k| is_ident(k)))?;
+            within::<Self>("needs", x.needs.len())?;
+            ok(x.detail == self.level_of(x.distance) && x.at <= self.clock)?;
+            ok(x.group.is_some() == (x.detail == "crowd") && x.group.as_deref().is_none_or(is_ident))?;
+            ok(match x.detail {
+                "full" => x.at == self.clock,
+                "coarse" => self.clock - x.at < self.stride,
+                _ => true,
+            })?;
+            match &x.group {
+                Some(g) => {
+                    self.groups.entry(g.clone()).or_default().insert(b.clone());
+                }
+                None => {
+                    self.active.insert(b.clone());
+                }
+            }
+        }
+        within::<Self>("groups", self.groups.len())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

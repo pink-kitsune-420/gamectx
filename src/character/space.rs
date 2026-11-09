@@ -35,6 +35,7 @@
 use crate::character::beliefs::{opt, opt_uint, uint_bound};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -101,7 +102,7 @@ pub struct Spot {
 }
 
 /// A room: size, walls, spots and who stands where.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Room {
     pub width: i64,
     pub height: i64,
@@ -214,6 +215,8 @@ impl Space {
             "release" => self.op_release(args),
             "see" => self.op_see(args),
             "crowd" => self.op_crowd(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -422,6 +425,50 @@ impl Space {
         let free = (room.width * room.height) as u64 - room.walls.len() as u64 - room.cells.len() as u64;
         let spots = room.spots.keys().map(|s| Value::Object(room.spot_view(&r, s))).collect();
         Ok(obj! { "beings" => names(here), "free" => free, "room" => r, "spots" => Value::Array(spots) })
+    }
+}
+
+persist!(Spot { at, capacity [1, 1024], queue, users });
+persist!(rest Room { height [1, MAX_SIDE as i64], spots, walls, width [1, MAX_SIDE as i64] });
+persist!(Place { at, room });
+persist!(rest Space { beings, rooms });
+durable!(Space, "space", LIMITS);
+
+/// Distinct identifiers.
+fn distinct<'a>(xs: impl IntoIterator<Item = &'a String>, seen: &mut BTreeSet<&'a String>) -> bool {
+    xs.into_iter().all(|x| is_ident(x) && seen.insert(x))
+}
+
+impl Space {
+    /// Invariants a save must meet; each room's occupied cells are rebuilt from where beings stand.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("rooms", self.rooms.len())?;
+        within::<Self>("beings", self.beings.len())?;
+        for (id, room) in self.rooms.iter_mut() {
+            let inside = |(x, y): Cell| (0..room.width).contains(&x) && (0..room.height).contains(&y);
+            ok(is_ident(id) && room.walls.len() <= MAX_WALLS && room.walls.iter().all(|c| inside(*c)))?;
+            within::<Self>("spots", room.spots.len())?;
+            for (s, sp) in &room.spots {
+                ok(is_ident(s) && inside(sp.at) && !room.walls.contains(&sp.at))?;
+                ok(sp.users.len() as u64 <= sp.capacity)?;
+                within::<Self>("queue", sp.queue.len())?;
+                let mut seen = BTreeSet::new();
+                ok(distinct(&sp.users, &mut seen) && distinct(&sp.queue, &mut seen))?;
+                ok(seen.iter().all(|b| self.beings.get(*b).is_some_and(|p| p.room == *id)))?;
+            }
+            room.cells.clear();
+        }
+        for (b, p) in &self.beings {
+            let room = self.rooms.get_mut(&p.room).ok_or_else(c::bad)?;
+            let inside = (0..room.width).contains(&p.at.0) && (0..room.height).contains(&p.at.1);
+            ok(is_ident(b) && inside && !room.walls.contains(&p.at))?;
+            ok(room.cells.insert(p.at, b.clone()).is_none())?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

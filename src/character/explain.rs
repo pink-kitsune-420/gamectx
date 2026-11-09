@@ -35,10 +35,11 @@
 //! ```
 
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 pub const MAX_OPS: usize = 64;
 pub const MAX_TRACES_PER_BEING: usize = 128;
@@ -303,6 +304,8 @@ impl ExplainTracer {
                 "record_trace" => self.op_record(args)?,
                 "confirm_outcome" => self.op_confirm(args)?,
                 "query_trace" => self.op_query(args)?,
+                "export" => persist::export_op(self, &self.limits, args)?,
+                "import" => persist::import(self, &self.limits.clone(), args)?,
                 _ => return Err(c::bad()),
             };
             results.push(res);
@@ -474,6 +477,58 @@ impl ExplainTracer {
             "total" => history.len(),
             "traces" => Value::Array(traces),
         })
+    }
+}
+
+persist!(Perception { source, text });
+persist!(Belief { about, confidence [0, 100], fact, source });
+persist!(MotiveRef { id, kind, rank [1, 64], reason, runner_up, score [0, 100] });
+persist!(TaskStep { id, index [0, 63], step });
+persist!(Trace {
+    action, at [0, MAX_AT], being, beliefs, id, motive, perceptions, seq [1, MAX_AT], status, summary, target, task,
+});
+persist!(rest ExplainTracer { beings, next_seq [1, MAX_AT] });
+durable!(ExplainTracer, "explain", LIMITS);
+
+fn trace_ok(b: &str, t: &Trace) -> bool {
+    let m = &t.motive;
+    t.being == b
+        && t.id == format!("tr_{}", t.seq)
+        && is_ident(&t.action)
+        && t.target.as_deref().is_none_or(is_ident)
+        && t.perceptions.len() <= MAX_PERCEPTIONS
+        && t.perceptions.iter().all(|p| is_ident(&p.source) && is_text(&p.text, 160))
+        && t.beliefs.len() <= MAX_BELIEFS
+        && t.beliefs
+            .iter()
+            .all(|x| is_ident(&x.about) && is_text(&x.fact, 160) && BELIEF_SOURCES.contains(&x.source.as_str()))
+        && is_ident(&m.id)
+        && MOTIVE_KINDS.contains(&m.kind.as_str())
+        && is_text(&m.reason, 200)
+        && m.runner_up.as_ref().is_none_or(|(i, s)| is_ident(i) && *s <= 100)
+        && t.task.as_ref().is_none_or(|x| is_ident(&x.id) && is_ident(&x.step))
+        && RECORD_STATUSES.contains(&t.status.as_str())
+        && t.summary.as_deref().is_none_or(|s| is_text(s, 200))
+}
+
+impl ExplainTracer {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        let mut seqs = BTreeSet::new();
+        for (b, h) in &self.beings {
+            ok(is_ident(b) && !h.is_empty())?;
+            within::<Self>("traces", h.len())?;
+            ok(h.iter().zip(h.iter().skip(1)).all(|(x, y)| x.seq < y.seq))?;
+            for t in h {
+                ok(trace_ok(b, t) && t.seq < self.next_seq && seqs.insert(t.seq))?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

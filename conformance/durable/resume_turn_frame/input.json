@@ -1,0 +1,82 @@
+{
+  "kind": "turn-frame",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "turn-frame",
+            "limits": {
+              "beings": 1024,
+              "items": 64,
+              "keys": 16,
+              "samples": 16
+            },
+            "state": {
+              "beings": [
+                [
+                  "ana",
+                  {
+                    "keys": [
+                      [
+                        "mood",
+                        [
+                          [
+                            0,
+                            0
+                          ],
+                          [
+                            10,
+                            20
+                          ]
+                        ]
+                      ]
+                    ],
+                    "streak": 0
+                  }
+                ]
+              ],
+              "clock": 10
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 20
+        }
+      },
+      {
+        "op": "observe",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "value": 40
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "window": 10
+        }
+      },
+      {
+        "op": "trend",
+        "args": {
+          "being": "ana",
+          "key": "mood",
+          "window": 20
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

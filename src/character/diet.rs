@@ -35,6 +35,7 @@
 
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, run_ops, text_bound, uint_bound, MAX_AT};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::knowledge::species::DIETS;
@@ -293,6 +294,12 @@ impl DietManager {
             "choose" => self.op_choose(args),
             "eat" => self.op_eat(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, &self.limits, args),
+            "import" => {
+                let limits = self.limits.clone();
+                let out = persist::import(self, &limits, args)?;
+                Ok(out)
+            }
             _ => Err(c::bad()),
         })
     }
@@ -555,6 +562,48 @@ impl DietManager {
             "meals" => p.meals,
             "recent" => Value::Array(recent),
         })
+    }
+}
+
+persist!(Food {
+    cooked_bonus [0, 100],
+    hunger [0, 100],
+    id,
+    joy [-20, 20],
+    label,
+    preserved_spoils_after [0, MAX_SHELF],
+    raw_risk [0, 100],
+    spoils_after [0, MAX_SHELF],
+    tags,
+    thirst [0, 100]
+});
+persist!(Profile { allergies, diet, dislikes, forbids, likes, meals, recent });
+persist!(rest DietManager { beings, foods });
+durable!(DietManager, "diet", LIMITS);
+
+impl DietManager {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("foods", self.foods.len())?;
+        within::<Self>("beings", self.beings.len())?;
+        for (id, f) in &self.foods {
+            ok(*id == f.id && is_ident(id) && is_text(&f.label, 48))?;
+            ok(!f.tags.is_empty() && f.tags.len() <= 8 && f.tags.iter().all(|t| FOOD_TAGS.contains(&t.as_str())))?;
+        }
+        let tags = |xs: &BTreeSet<String>| xs.iter().all(|t| FOOD_TAGS.contains(&t.as_str()));
+        for (b, p) in &self.beings {
+            ok(is_ident(b) && DIETS.contains(&p.diet.as_str()))?;
+            ok(tags(&p.forbids) && tags(&p.likes) && tags(&p.dislikes) && p.likes.is_disjoint(&p.dislikes))?;
+            ok(p.allergies.len() <= 8 && p.allergies.iter().all(|a| is_ident(a)))?;
+            within::<Self>("recent", p.recent.len())?;
+            ok(p.meals >= p.recent.len() as u64 && p.meals <= MAX_AT)?;
+            ok(p.recent.iter().all(|(f, at)| self.foods.contains_key(f) && *at <= MAX_AT))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

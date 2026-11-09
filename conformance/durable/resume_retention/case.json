@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (retention): load the save taken halfway through retention/keep_one_collection, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

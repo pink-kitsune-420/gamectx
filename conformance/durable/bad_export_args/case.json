@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: export takes no arguments.",
+  "error": true
+}

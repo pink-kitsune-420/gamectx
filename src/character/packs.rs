@@ -35,6 +35,7 @@ use crate::character::beliefs::{list_bound, opt, opt_uint, text_bound, uint_boun
 use crate::character::limits::{self, Limit, Limits};
 use crate::character::task::KNOWN_ACTIONS;
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -301,6 +302,8 @@ impl Packs {
             "list" => self.op_list(args),
             "show" => self.op_show(args),
             "apply" => self.op_apply(args, l),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -435,6 +438,31 @@ impl Packs {
             "survival_temperament" => tp.map(|t| text_of(t, "survival")),
         };
         Ok(obj! { "being" => b.as_str(), "hints" => hints, "requests" => Value::Array(out) })
+    }
+}
+
+persist!(rest Packs { custom });
+durable!(Packs, "packs", LIMITS);
+
+impl Packs {
+    /// Invariants a save must meet: every custom pack reads back to itself under its kind's
+    /// rules and does not shadow a built-in; `count` is rebuilt.
+    fn settle_state(&mut self) -> Result<()> {
+        ok(self.custom.keys().map(String::as_str).eq(KINDS))?;
+        let mut count = 0usize;
+        for (k, packs) in &self.custom {
+            for (i, p) in packs {
+                ok(is_ident(i) && !self.builtin[k].contains_key(i) && read(k, p)? == *p)?;
+                count += 1;
+            }
+        }
+        within::<Self>("custom", count)?;
+        self.count = count;
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

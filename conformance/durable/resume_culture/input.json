@@ -1,0 +1,273 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "culture",
+            "limits": {
+              "beings": 1024,
+              "beliefs": 4096,
+              "idioms": 64,
+              "repertoire": 32,
+              "topics": 256
+            },
+            "state": {
+              "beliefs": [],
+              "clock": 0,
+              "idioms": [],
+              "members": [
+                [
+                  "p0",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p1",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p10",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p2",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p3",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p4",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p5",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p6",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p7",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p8",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p9",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ]
+              ],
+              "truths": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "p0",
+          "verb": "took",
+          "agent": "ada"
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p0",
+          "listener": "p1",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p1",
+          "listener": "p2",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p2",
+          "listener": "p3",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p3",
+          "listener": "p4",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p4",
+          "listener": "p5",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p5",
+          "listener": "p6",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p6",
+          "listener": "p7",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p7",
+          "listener": "p8",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p8",
+          "listener": "p9",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p9",
+          "listener": "p10",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "belief",
+        "args": {
+          "being": "p10",
+          "topic": "missing_coins"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

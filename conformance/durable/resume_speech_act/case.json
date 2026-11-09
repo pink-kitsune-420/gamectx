@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (speech_act): load the save taken halfway through beliefs_speech/speech_plan_share_alarm_reassure, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

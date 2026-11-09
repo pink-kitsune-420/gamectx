@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (embodiment): load the save taken halfway through embodiment/react_repeat_within_window, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

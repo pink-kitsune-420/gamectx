@@ -1,0 +1,96 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "defenses",
+            "limits": {
+              "beings": 1024,
+              "distortions": 16
+            },
+            "state": {
+              "beings": [
+                [
+                  "quartermaster",
+                  {
+                    "at": 0,
+                    "cooldown": 72,
+                    "crisis": "confession",
+                    "crisis_at": null,
+                    "distortions": [
+                      [
+                        "open_lockbox",
+                        {
+                          "hits": 1,
+                          "mechanism": "denial"
+                        }
+                      ]
+                    ],
+                    "maturity": 25,
+                    "protects": [],
+                    "strain": 300000,
+                    "style": [],
+                    "threshold": 800000,
+                    "tolerance": 20
+                  }
+                ],
+                [
+                  "scribe",
+                  {
+                    "at": 0,
+                    "cooldown": 72,
+                    "crisis": "confession",
+                    "crisis_at": null,
+                    "distortions": [],
+                    "maturity": 85,
+                    "protects": [],
+                    "strain": 0,
+                    "style": [],
+                    "threshold": 800000,
+                    "tolerance": 20
+                  }
+                ]
+              ],
+              "clock": 0
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "scribe",
+          "value": "competence",
+          "drop": 75,
+          "fact": "lost_bet"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 50
+        }
+      },
+      {
+        "op": "status",
+        "args": {
+          "being": "quartermaster"
+        }
+      },
+      {
+        "op": "status",
+        "args": {
+          "being": "scribe"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

@@ -36,6 +36,7 @@
 
 use crate::character::beliefs::{opt, opt_bool, opt_uint, run_ops, text_bound, uint_bound, MAX_AT};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -159,6 +160,12 @@ impl ExpectationBook {
             "tick" => self.op_tick(args),
             "happen" => self.op_happen(args),
             "cancel" => self.op_cancel(args),
+            "export" => persist::export_op(self, &self.limits, args),
+            "import" => {
+                let limits = self.limits.clone();
+                let out = persist::import(self, &limits, args)?;
+                Ok(out)
+            }
             "assess" => self.op_assess(args),
             _ => Err(c::bad()),
         })
@@ -362,6 +369,47 @@ impl ExpectationBook {
                     .collect(),
             ),
         })
+    }
+}
+
+/// The states an expectation moves through.
+pub const STATES: [&str; 3] = ["open", "worried", "broken"];
+
+persist!(Expectation {
+    about,
+    confidence [1, 100],
+    due [0, MAX_AT],
+    dread,
+    event,
+    grace [0, MAX_GRACE],
+    importance [1, 100],
+    label,
+    relies,
+    state in STATES
+});
+persist!(Mind { expectations, reliability });
+persist!(rest ExpectationBook { beings });
+durable!(ExpectationBook, "expectation", LIMITS);
+
+impl ExpectationBook {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, m) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("expectations", m.expectations.len())?;
+            within::<Self>("subjects", m.reliability.len())?;
+            for (id, e) in &m.expectations {
+                ok(is_ident(id) && is_ident(&e.about) && is_ident(&e.event) && (!e.dread || e.state == "open"))?;
+                ok(is_text(&e.label, 80) || e.label == format!("{} {}", e.about, e.event))?;
+            }
+            ok(m.reliability.iter().all(|(a, (k, x))| is_ident(a) && k + x > 0))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

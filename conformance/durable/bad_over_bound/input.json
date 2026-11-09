@@ -1,0 +1,53 @@
+{
+  "kind": "attention",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "attention",
+            "limits": {
+              "notice_beings": 64,
+              "notice_events": 16,
+              "profiles": 64
+            },
+            "state": {
+              "profiles": [
+                [
+                  "ana",
+                  {
+                    "alertness": 50,
+                    "capacity": 3,
+                    "cares": [
+                      "c00",
+                      "c01",
+                      "c02",
+                      "c03",
+                      "c04",
+                      "c05",
+                      "c06",
+                      "c07",
+                      "c08",
+                      "c09",
+                      "c10",
+                      "c11",
+                      "c12",
+                      "c13",
+                      "c14",
+                      "c15",
+                      "c16"
+                    ],
+                    "perception": 0
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      }
+    ]
+  }
+}

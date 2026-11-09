@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a field the state does not have.",
+  "error": true
+}

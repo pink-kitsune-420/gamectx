@@ -26,10 +26,11 @@
 use crate::character::beliefs::{opt, opt_uint, text_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub const LIMITS: &[Limit] = &[
     Limit { name: "beings", default: 1024, ceiling: 1_000_000 },
@@ -125,6 +126,8 @@ impl Lessons {
             "advice" => self.op_advice(args),
             "forget" => self.op_forget(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -237,6 +240,37 @@ impl Lessons {
                 "lesson" => t.lesson(ab, ac),
             }).collect()),
         })
+    }
+}
+
+/// The verdicts a topic can reach.
+pub const VERDICTS: [&str; 2] = ["avoid", "seek"];
+
+persist!(Episode { at [0, MAX_AT], good, id });
+persist!(Topic { episodes, last_at [0, MAX_AT], verdict in VERDICTS });
+persist!(rest Lessons { beings });
+durable!(Lessons, "lesson", LIMITS);
+
+impl Lessons {
+    /// Invariants a save must meet: the verdict is always the one the episodes give.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, topics) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("topics", topics.len())?;
+            for ((about, activity), t) in topics {
+                ok(is_ident(about) && is_ident(activity) && !t.episodes.is_empty())?;
+                within::<Self>("episodes", t.episodes.len())?;
+                let mut ids = BTreeSet::new();
+                ok(t.episodes.iter().all(|e| is_ident(&e.id) && ids.insert(&e.id) && e.at <= t.last_at))?;
+                ok(t.verdict == t.judge())?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (creed): load the save taken halfway through creed/creed_regard_stances, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

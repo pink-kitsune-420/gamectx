@@ -1,0 +1,136 @@
+{
+  "kind": "retention",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "retention",
+            "limits": {
+              "changes": 32,
+              "collections": 64,
+              "entries": 4096,
+              "migrations": 16
+            },
+            "state": {
+              "clock": 40,
+              "collections": [
+                [
+                  "memories",
+                  {
+                    "bytes": 1020,
+                    "entries": [
+                      [
+                        "fair",
+                        {
+                          "at": 40,
+                          "bytes": 300,
+                          "importance": 60,
+                          "pinned": false,
+                          "used": 40
+                        }
+                      ],
+                      [
+                        "fire",
+                        {
+                          "at": 0,
+                          "bytes": 400,
+                          "importance": 90,
+                          "pinned": false,
+                          "used": 0
+                        }
+                      ],
+                      [
+                        "gossip",
+                        {
+                          "at": 20,
+                          "bytes": 200,
+                          "importance": 30,
+                          "pinned": false,
+                          "used": 20
+                        }
+                      ],
+                      [
+                        "rain",
+                        {
+                          "at": 0,
+                          "bytes": 120,
+                          "importance": 10,
+                          "pinned": false,
+                          "used": 0
+                        }
+                      ]
+                    ],
+                    "rule": {
+                      "grace": 0,
+                      "max_age": null,
+                      "max_bytes": null,
+                      "max_entries": 1,
+                      "min_importance": 0
+                    }
+                  }
+                ]
+              ],
+              "migrations": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "memories",
+          "id": "debt",
+          "bytes": 150,
+          "pinned": true,
+          "now": 45,
+          "importance": 70
+        }
+      },
+      {
+        "op": "rule",
+        "args": {
+          "collection": "lessons",
+          "max_entries": 1
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "lessons",
+          "id": "kiln_hot",
+          "bytes": 100,
+          "importance": 80
+        }
+      },
+      {
+        "op": "add",
+        "args": {
+          "collection": "lessons",
+          "id": "dogs_bite",
+          "bytes": 100,
+          "importance": 90
+        }
+      },
+      {
+        "op": "prune",
+        "args": {
+          "now": 50,
+          "collection": "lessons"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "collection": "memories"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

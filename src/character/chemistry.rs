@@ -44,6 +44,7 @@ use crate::character::attention::fnv1a;
 use crate::character::beliefs::{opt, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -209,6 +210,8 @@ impl Chemistry {
             "scene" => self.op_scene(args, l),
             "beat" => self.op_beat(args),
             "pace" => self.op_pace(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -496,6 +499,45 @@ impl Chemistry {
         let sid = id_of(args, "scene")?;
         let sc = self.scenes.get(&sid).ok_or_else(c::bad)?;
         Ok(self.advice(&sid, sc))
+    }
+}
+
+persist!(Style { assertiveness [0, 100], formality [0, 100], humour in HUMOUR, tempo in TEMPO, values });
+persist!(Joke { at [0, MAX_AT], freshness [0, FULL], moment, retired, uses [0, RETIRE] });
+persist!(Pair { breaches [0, 1000], favors [0, 1000], jokes, landmarks [0, 1000] });
+persist!(Beat { at [0, MAX_AT], engagement [0, 100], novelty [0, 100] });
+persist!(Scene { beats, last_delta [0, FULL], silence [0, 16], tension [0, FULL], threads [0, 16] });
+persist!(rest Chemistry { clock [0, MAX_AT], pairs, scenes, styles });
+durable!(Chemistry, "chemistry", LIMITS);
+
+impl Chemistry {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.styles.len())?;
+        within::<Self>("pairs", self.pairs.len())?;
+        within::<Self>("scenes", self.scenes.len())?;
+        for (b, s) in &self.styles {
+            ok(is_ident(b) && s.values.len() <= 8 && ascending(&s.values))?;
+            ok(s.values.iter().all(|v| is_ident(v)))?;
+        }
+        for ((a, b), p) in &self.pairs {
+            ok(is_ident(a) && is_ident(b) && a < b)?;
+            within::<Self>("jokes", p.jokes.len())?;
+            ok(p.jokes.is_empty() || (self.styles.contains_key(a) && self.styles.contains_key(b)))?;
+            for (id, j) in &p.jokes {
+                ok(is_ident(id) && is_text(&j.moment, 80) && j.at <= self.clock)?;
+                ok(j.retired == (j.uses >= RETIRE))?;
+            }
+        }
+        for (id, sc) in &self.scenes {
+            ok(is_ident(id) && sc.beats.len() <= WINDOW)?;
+            ok(sc.beats.windows(2).all(|w| w[0].at <= w[1].at) && sc.beats.iter().all(|b| b.at <= self.clock))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

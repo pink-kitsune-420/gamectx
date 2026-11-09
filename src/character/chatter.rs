@@ -37,6 +37,7 @@ use crate::character::attention::fnv1a;
 use crate::character::beliefs::{opt, opt_bool, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -180,6 +181,8 @@ impl Chatter {
             "meet" => self.op_meet(args, l),
             "log" => self.op_log(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -405,6 +408,71 @@ impl Chatter {
         let mut fields = self.mind_fields(&b);
         fields.push(("bonds".to_string(), Value::Array(bonds)));
         Ok(Value::Object(fields))
+    }
+}
+
+/// What a turn of a meeting was.
+pub const TURN_KINDS: [&str; 3] = ["dispute", "small_talk", "tell"];
+/// How a meeting ended.
+pub const OUTCOMES: [&str; 4] = ["alliance", "gossip", "quarrel", "small_talk"];
+
+persist!(Known { secret, value, weight [0, 100] });
+persist!(Mind { knows, wants });
+persist!(Turn { kind in TURN_KINDS, speaker, topic, value });
+persist!(Record {
+    a,
+    at [0, MAX_AT],
+    b,
+    first,
+    id [1, MAX_AT],
+    outcome in OUTCOMES,
+    turns,
+    warmth_after [-100, 100],
+    warmth_before [-100, 100]
+});
+persist!(rest Chatter { bonds, minds, records, seq [0, MAX_AT] });
+durable!(Chatter, "chatter", LIMITS);
+
+/// A meeting record as `meet` writes it: speakers alternate from `first`, and only
+/// `tell` and `dispute` turns name a topic.
+fn record_ok(r: &Record) -> bool {
+    let second = if r.first == r.a { &r.b } else { &r.a };
+    is_ident(&r.a)
+        && is_ident(&r.b)
+        && r.a != r.b
+        && (r.first == r.a || r.first == r.b)
+        && !r.turns.is_empty()
+        && r.turns.iter().enumerate().all(|(i, t)| {
+            let talk = t.kind == "small_talk";
+            t.speaker == *(if i % 2 == 0 { &r.first } else { second })
+                && t.topic.as_ref().map_or(talk, |x| !talk && is_ident(x))
+                && t.value.as_ref().map_or(talk, |x| !talk && is_ident(x))
+        })
+}
+
+impl Chatter {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.minds.len())?;
+        within::<Self>("bonds", self.bonds.len())?;
+        within::<Self>("records", self.records.len())?;
+        for (b, m) in &self.minds {
+            ok(is_ident(b) && !(m.knows.is_empty() && m.wants.is_empty()))?;
+            within::<Self>("topics", m.knows.len())?;
+            within::<Self>("wants", m.wants.len())?;
+            ok(m.knows.iter().all(|(t, k)| is_ident(t) && is_ident(&k.value) && !m.wants.contains_key(t)))?;
+            ok(m.wants.iter().all(|(t, w)| is_ident(t) && (1..=100).contains(w)))?;
+        }
+        ok(self.bonds.iter().all(|((a, b), w)| is_ident(a) && is_ident(b) && a < b && (-100..=100).contains(w)))?;
+        for r in &self.records {
+            within::<Self>("turns", r.turns.len())?;
+            ok(record_ok(r) && r.id <= self.seq)?;
+        }
+        ok(self.records.iter().zip(self.records.iter().skip(1)).all(|(x, y)| x.id < y.id))
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

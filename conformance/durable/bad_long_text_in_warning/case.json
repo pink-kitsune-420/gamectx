@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a warning detail longer than 4,096 bytes (the text limit holds inside every field, including kept warnings).",
+  "error": true
+}

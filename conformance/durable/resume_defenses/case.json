@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (defenses): load the save taken halfway through defenses/decay_slower_while_denying, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

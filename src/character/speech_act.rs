@@ -38,6 +38,7 @@
 
 use crate::character::beliefs::{list_bound, opt, opt_uint, run_ops, text_bound, Belief, BeliefStore, Triple, MAX_AT};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -170,6 +171,13 @@ impl SpeechActs {
             "perform" => self.op_perform(args),
             "plan" => self.op_plan(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, &self.limits, args),
+            "import" => {
+                let limits = self.limits.clone();
+                let out = persist::import(self, &limits, args)?;
+                self.beliefs.limits.copy_shared(&self.limits);
+                Ok(out)
+            }
             _ => self.beliefs.dispatch(op, args)?.ok_or_else(c::bad),
         })
     }
@@ -515,6 +523,37 @@ impl SpeechActs {
             "trusts" => Value::Array(trusts),
             "wants" => Value::Array(wants),
         })
+    }
+}
+
+persist!(Pair { authority [0, 100], trust [0, 100] });
+persist!(Want { from, priority [0, 100] });
+persist!(rest SpeechActs { beliefs, pairs, wants });
+durable!(SpeechActs, "speech_act", LIMITS);
+
+impl SpeechActs {
+    /// Invariants a save must meet; `trusted` is rebuilt from `pairs`.
+    fn settle_state(&mut self) -> Result<()> {
+        crate::character::beliefs::check_beliefs(&self.beliefs.beings)?;
+        within::<Self>("pairs", self.pairs.len())?;
+        within::<Self>("want_beings", self.wants.len())?;
+        self.trusted.clear();
+        for (s, l) in self.pairs.keys() {
+            ok(is_ident(s) && is_ident(l) && s != l)?;
+            self.trusted.entry(l.clone()).or_default().insert(s.clone());
+        }
+        for (holder, ws) in &self.wants {
+            ok(is_ident(holder) && !ws.is_empty())?;
+            within::<Self>("wants", ws.len())?;
+            for (goal, w) in ws {
+                ok(is_ident(goal) && is_ident(&w.from) && w.from != *holder)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

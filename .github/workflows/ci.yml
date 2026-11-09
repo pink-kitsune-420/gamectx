@@ -154,6 +154,8 @@ jobs:
       - run: ./target/roleplay-deep --check eval/character/roleplay-deep.json
       - run: rustc --edition=2021 -O eval/character/pass4_deep_test.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/pass4-deep
       - run: ./target/pass4-deep --check eval/character/pass4-deep.json
+      - run: rustc --edition=2021 -O eval/character/pass5_deep_test.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/pass5-deep
+      - run: ./target/pass5-deep --check eval/character/pass5-deep.json
       - run: rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/scale-measure
       - run: ./target/scale-measure > /dev/null
       - run: rustc --edition=2021 -O eval/knowledge/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/knowledge-scale-measure
@@ -347,6 +349,8 @@ jobs:
       - run: python3 -I eval/character/projects_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/chemistry_cases.py --cap 0
       - run: python3 -I eval/character/chemistry_cases.py --cap 0 --random 300 --seed 1
+      - run: python3 -I eval/character/durable_cases.py --cap 0
+      - run: python3 -I eval/character/durable_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/limits_cases.py --cap 0
       - run: python3 -I eval/character/limits_cases.py --cap 0 --random 300 --seed 1
       - run: python3 -I eval/character/limits_character_cases.py --cap 0

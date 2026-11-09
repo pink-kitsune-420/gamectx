@@ -1,0 +1,140 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "chemistry",
+            "limits": {
+              "beings": 1024,
+              "jokes": 8,
+              "pairs": 4096,
+              "scenes": 64
+            },
+            "state": {
+              "clock": 300,
+              "pairs": [
+                [
+                  [
+                    "bo",
+                    "mira"
+                  ],
+                  {
+                    "breaches": 0,
+                    "favors": 2,
+                    "jokes": [
+                      [
+                        "flour_sneeze",
+                        {
+                          "at": 300,
+                          "freshness": 700000,
+                          "moment": "The day the flour sack burst on the bridge.",
+                          "retired": false,
+                          "uses": 2
+                        }
+                      ]
+                    ],
+                    "landmarks": 3
+                  }
+                ]
+              ],
+              "scenes": [],
+              "styles": [
+                [
+                  "bo",
+                  {
+                    "assertiveness": 20,
+                    "formality": 20,
+                    "humour": "absurd",
+                    "tempo": "fast",
+                    "values": [
+                      "craft"
+                    ]
+                  }
+                ],
+                [
+                  "mira",
+                  {
+                    "assertiveness": 60,
+                    "formality": 30,
+                    "humour": "dry",
+                    "tempo": "measured",
+                    "values": [
+                      "craft",
+                      "family"
+                    ]
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 600
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": 20,
+          "pacing": "steady"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 900
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": 20,
+          "pacing": "steady"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1200
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": 20,
+          "pacing": "steady"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1500
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "mira",
+          "b": "bo"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

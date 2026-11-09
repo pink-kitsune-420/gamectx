@@ -28,10 +28,11 @@
 use crate::character::beliefs::{list_bound, opt, opt_uint, text_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 pub const LIMITS: &[Limit] = &[
     Limit { name: "beings", default: 1024, ceiling: 1_000_000 },
@@ -151,6 +152,8 @@ impl Habits {
             "skip" => self.op_skip(args),
             "routine" => self.op_routine(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -309,6 +312,49 @@ impl Habits {
             "entries" => Value::Array(r.entries.iter().map(|(id, e)| e.view(id)).collect()),
             "tallies" => Value::Array(r.tallies.iter().map(|(s, (a, n))| obj! { "action" => a.as_str(), "slot" => s.as_str(), "streak" => *n }).collect()),
         })
+    }
+}
+
+persist!(Entry { action, habit, history, slot, strength [0, 100] });
+persist!(Routine { entries, tallies });
+persist!(rest Habits { beings });
+durable!(Habits, "habit", LIMITS);
+
+/// An entry as `set_routine` (authored) or `choose` (habit) makes it, and as `weaken` leaves it.
+fn entry_ok(id: &str, e: &Entry) -> bool {
+    let floor = if e.habit { 1 } else { AUTHORED_FLOOR };
+    is_ident(id)
+        && is_ident(&e.slot)
+        && e.slot.len() <= 24
+        && is_ident(&e.action)
+        && e.action.len() <= 32
+        && e.strength >= floor
+        && (if e.habit { id == format!("habit_{}_{}", e.slot, e.action) } else { !id.starts_with("habit_") })
+        && e.history.len() <= HISTORY
+        && e.history.iter().all(|(at, d, r)| *at <= MAX_AT && *d != 0 && (-100..=100).contains(d) && is_text(r, 80))
+}
+
+impl Habits {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, r) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("entries", r.entries.len())?;
+            within::<Self>("slots", r.tallies.len())?;
+            ok(r.entries.iter().all(|(id, e)| entry_ok(id, e)))?;
+            let mut pairs = BTreeSet::new();
+            ok(r.entries.values().filter(|e| !e.habit).all(|e| pairs.insert((&e.slot, &e.action))))?;
+            let tally_ok = |(s, (a, n)): (&String, &(String, u64))| {
+                is_ident(s) && s.len() <= 24 && is_ident(a) && a.len() <= 32 && *n >= 1 && *n <= MAX_AT
+            };
+            ok(r.tallies.iter().all(tally_ok))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

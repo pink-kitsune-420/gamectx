@@ -44,6 +44,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -147,6 +148,8 @@ impl Embodiment {
             "tension" => self.op_tension(args, l),
             "react" => self.op_react(args, l),
             "voice" => self.op_voice(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -407,6 +410,30 @@ impl Embodiment {
             "pitch_shift" => pitch, "speed" => speed, "terse" => terse,
             "verbosity" => if terse { "terse" } else { base_v }, "volume" => volume,
         })
+    }
+}
+
+/// Postures `react` can choose.
+pub const POSTURES: [&str; 5] = ["steps_back", "squares_shoulders", "turns_away", "slumps", "leans_in"];
+/// Gazes `react` can choose.
+pub const GAZES: [&str; 5] =
+    ["avoids_eye_contact", "glances_at_exit", "watches_bystander", "stares_at_held_item", "meets_eyes"];
+/// Hand movements `react` can choose.
+pub const HANDS: [&str; 6] =
+    ["reaches_for_weapon", "clenches_fist", "offers_item", "continues_working", "sets_down_tool", "pauses_work"];
+persist!(Last { at [0, MAX_AT], gaze in GAZES, hand in HANDS, posture in POSTURES });
+persist!(rest Embodiment { clock [0, MAX_AT], last });
+durable!(Embodiment, "embodiment", LIMITS);
+
+impl Embodiment {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.last.len())?;
+        ok(self.last.iter().all(|(b, x)| is_ident(b) && x.at <= self.clock))
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

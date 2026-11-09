@@ -1,0 +1,99 @@
+{
+  "kind": "speech_act",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "speech_act",
+            "limits": {
+              "beings": 64,
+              "beliefs": 128,
+              "pairs": 256,
+              "want_beings": 64,
+              "wants": 32
+            },
+            "state": {
+              "beliefs": {
+                "beings": [
+                  [
+                    "guard",
+                    [
+                      {
+                        "about": "thief",
+                        "at": 0,
+                        "confidence": 90,
+                        "from": null,
+                        "holds": true,
+                        "relation": "returns",
+                        "source": "saw",
+                        "value": "tonight"
+                      }
+                    ]
+                  ]
+                ]
+              },
+              "pairs": [
+                [
+                  [
+                    "guard",
+                    "innkeeper"
+                  ],
+                  {
+                    "authority": 0,
+                    "trust": 80
+                  }
+                ]
+              ],
+              "wants": []
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "reassure",
+          "candidates": [
+            "baker",
+            "innkeeper"
+          ]
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "guard",
+          "listener": "baker",
+          "trust": 10
+        }
+      },
+      {
+        "op": "relate",
+        "args": {
+          "speaker": "guard",
+          "listener": "innkeeper",
+          "trust": 20
+        }
+      },
+      {
+        "op": "plan",
+        "args": {
+          "speaker": "guard",
+          "intent": "reassure",
+          "candidates": [
+            "baker",
+            "innkeeper"
+          ]
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

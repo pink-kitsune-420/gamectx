@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An import reports the limits written in the save but keeps the limits in force.",
+  "error": false
+}

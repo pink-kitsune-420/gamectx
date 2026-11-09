@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a section for a kind with no durable state.",
+  "error": true
+}

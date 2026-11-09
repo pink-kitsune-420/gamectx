@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (chemistry): load the save taken halfway through chemistry/joke_retired_after_five, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

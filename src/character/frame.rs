@@ -44,6 +44,7 @@
 use crate::character::beliefs::{list_bound, opt, opt_bool, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -181,6 +182,8 @@ impl Frame {
             "time" => self.op_time(args),
             "frame" => self.op_frame(args),
             "rank" => self.op_rank(args, l),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -713,6 +716,32 @@ impl Frame {
         Ok(
             obj! { "budget" => budget, "dropped" => dropped, "kept" => kept, "over_budget" => used > budget, "used" => used },
         )
+    }
+}
+
+persist!(Being { keys, streak [-1000, 1000] });
+persist!(rest Frame { beings, clock [0, MAX_AT] });
+durable!(Frame, "turn-frame", LIMITS);
+
+impl Frame {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, x) in &self.beings {
+            ok(is_ident(b))?;
+            within::<Self>("keys", x.keys.len())?;
+            for (k, xs) in &x.keys {
+                ok(is_ident(k) && !xs.is_empty())?;
+                within::<Self>("samples", xs.len())?;
+                ok(xs.iter().all(|&(t, v)| t <= self.clock && (-M..=M).contains(&v)))?;
+                ok(xs.iter().zip(xs.iter().skip(1)).all(|(a, b)| a.0 <= b.0))?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

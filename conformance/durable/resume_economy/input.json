@@ -1,0 +1,143 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "economy",
+            "limits": {
+              "goods": 64,
+              "markets": 16,
+              "traders": 256
+            },
+            "state": {
+              "clock": 24,
+              "goods": [
+                [
+                  "fish",
+                  {
+                    "base": 30,
+                    "ceiling": 4000,
+                    "elasticity": 1500,
+                    "floor": 250,
+                    "rate": 500,
+                    "spoil": 500
+                  }
+                ],
+                [
+                  "flour",
+                  {
+                    "base": 20,
+                    "ceiling": 4000,
+                    "elasticity": 1500,
+                    "floor": 250,
+                    "rate": 500,
+                    "spoil": 0
+                  }
+                ],
+                [
+                  "salt",
+                  {
+                    "base": 50,
+                    "ceiling": 4000,
+                    "elasticity": 500,
+                    "floor": 250,
+                    "rate": 500,
+                    "spoil": 0
+                  }
+                ]
+              ],
+              "markets": [
+                [
+                  "square",
+                  [
+                    [
+                      "flour",
+                      {
+                        "demand": 0,
+                        "made": [
+                          [
+                            "miller",
+                            10
+                          ]
+                        ],
+                        "mult": 1750,
+                        "sold": 0,
+                        "stock": 10,
+                        "wants": []
+                      }
+                    ]
+                  ]
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 10,
+          "by": "baker"
+        }
+      },
+      {
+        "op": "buy",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 10,
+          "by": "baker"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 48
+        }
+      },
+      {
+        "op": "produce",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 10,
+          "by": "miller"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 10,
+          "by": "baker"
+        }
+      },
+      {
+        "op": "buy",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 10,
+          "by": "baker"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 72
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

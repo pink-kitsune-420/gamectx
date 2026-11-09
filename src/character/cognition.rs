@@ -45,6 +45,7 @@ use crate::character::attention::fnv1a;
 use crate::character::beliefs::{opt, opt_bool, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -205,6 +206,8 @@ impl Cognition {
             "recall" => self.op_recall(args),
             "forget" => self.op_forget(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -443,6 +446,43 @@ impl Cognition {
             "memories" => Value::Array(mems.into_iter().map(|(k, m)| m.view(k)).collect()),
             "profile" => Value::Object(self.settings(&being).fields()),
         })
+    }
+}
+
+persist!(Profile {
+    horizon [1, 10_000],
+    impulsiveness [0, 100],
+    memory_span [1, 1_000_000],
+    plan_depth [1, 8],
+    slip [0, M],
+    temperament
+});
+persist!(Memory { about, day [0, MAX_AT], importance [0, 100], last [0, MAX_AT], people, strength [1, M], what });
+persist!(rest Cognition { clock [0, MAX_AT], memories, profiles });
+durable!(Cognition, "cognition", LIMITS);
+
+impl Cognition {
+    /// Invariants a save must meet; `known` is rebuilt from profiles and memories.
+    fn settle_state(&mut self) -> Result<()> {
+        for (b, p) in &self.profiles {
+            ok(is_ident(b) && TEMPERAMENTS.iter().any(|t| t.0 == p.temperament))?;
+        }
+        for (b, book) in &self.memories {
+            ok(is_ident(b) && !book.is_empty())?;
+            within::<Self>("memories", book.len())?;
+            for (id, m) in book {
+                ok(is_ident(id) && is_ident(&m.about) && is_ident(&m.what))?;
+                within::<Self>("people", m.people.len())?;
+                let mut seen = BTreeSet::new();
+                ok(m.people.iter().all(|p| is_ident(p) && seen.insert(p)))?;
+            }
+        }
+        self.known = self.profiles.keys().chain(self.memories.keys()).cloned().collect();
+        within::<Self>("beings", self.known.len())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

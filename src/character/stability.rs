@@ -36,6 +36,7 @@
 //! ```
 
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -231,6 +232,8 @@ impl StabilityMonitor {
                 "audit_turn" => self.op_audit(args)?,
                 "assess_health" => self.op_health(args)?,
                 "get_warnings" => self.op_warnings(args)?,
+                "export" => persist::export_op(self, &self.limits, args)?,
+                "import" => persist::import(self, &self.limits.clone(), args)?,
                 _ => return Err(c::bad()),
             };
             results.push(res);
@@ -594,6 +597,59 @@ fn deadlocks(reports: &[Report]) -> Vec<Value> {
         });
     }
     out
+}
+
+persist!(StabilityConfig {
+    critical [1, 100], dither_margin [0, 100], dither_switches [1, 31], herd_min [2, 64], herd_pct [51, 100],
+    runaway_floor [0, MAX_TOTAL], runaway_turns [1, 64], spiral_turns [1, 64], window [2, 32],
+});
+persist!(BeingWatch { history, last_severity [0, 100], spiral_streak [0, MAX_TURN] });
+persist!(TotalWatch { last [0, MAX_TOTAL], streak [0, MAX_TURN] });
+persist!(rest StabilityMonitor {
+    beings, config, grudges, last_turn [0, MAX_TURN], last_turn_kinds, next_warning [1, MAX_TURN], rumors, totals,
+    turns_audited [0, MAX_TURN], warnings,
+});
+durable!(StabilityMonitor, "stability", LIMITS);
+
+/// The number in a warning id `w_<n>`.
+fn warning_number(id: &str) -> Option<u64> {
+    let n = id.strip_prefix("w_")?;
+    (!n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()) && !n.starts_with('0')).then(|| n.parse().ok())?
+}
+
+impl StabilityMonitor {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        let cfg = &self.config;
+        ok(cfg.dither_switches < cfg.window && self.last_turn.is_some() == (self.turns_audited > 0))?;
+        within::<Self>("tracked_beings", self.beings.len())?;
+        for (b, w) in &self.beings {
+            ok(is_ident(b) && !w.history.is_empty() && w.history.len() as u64 <= cfg.window)?;
+            ok(w.history.iter().all(|(m, margin)| is_ident(m) && *margin <= 100) && w.last_severity.is_some())?;
+            ok(w.spiral_streak <= self.turns_audited)?;
+        }
+        ok(self.grudges.streak <= self.turns_audited && self.rumors.streak <= self.turns_audited)?;
+        ok(self.last_turn_kinds.iter().all(|k| KINDS.contains(&k.as_str())))?;
+        ok(self.totals.iter().all(|(k, n)| KINDS.contains(&k.as_str()) && *n >= 1))?;
+        ok(self.totals.values().sum::<u64>() + 1 == self.next_warning)?;
+        within::<Self>("warnings", self.warnings.len())?;
+        let (mut last_id, mut last_turn) = (0, 0);
+        for w in &self.warnings {
+            let fields = w.as_object().ok_or_else(c::bad)?;
+            ok(fields.windows(2).all(|x| x[0].0 < x[1].0))?;
+            let kind = w.get("kind").and_then(Value::as_str).ok_or_else(c::bad)?;
+            let id = w.get("id").and_then(Value::as_str).and_then(warning_number).ok_or_else(c::bad)?;
+            let turn = c::uint(w.get("turn").ok_or_else(c::bad)?, 0, MAX_TURN)?;
+            ok(KINDS.contains(&kind) && id > last_id && id < self.next_warning && turn >= last_turn)?;
+            ok(self.last_turn.is_some_and(|t| turn <= t))?;
+            (last_id, last_turn) = (id, turn);
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
+    }
 }
 
 pub fn workflow(req: &Value) -> Result<Value> {

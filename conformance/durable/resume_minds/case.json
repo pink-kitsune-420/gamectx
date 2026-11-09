@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (minds): load the save taken halfway through minds/hear_three_minds, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

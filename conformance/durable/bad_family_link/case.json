@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a parent that does not list the child (links must agree both ways).",
+  "error": true
+}

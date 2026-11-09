@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a confidence below 0.",
+  "error": true
+}

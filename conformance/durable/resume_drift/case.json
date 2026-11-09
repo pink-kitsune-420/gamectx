@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (drift): load the save taken halfway through drift/drift_reasons_newest_eight, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

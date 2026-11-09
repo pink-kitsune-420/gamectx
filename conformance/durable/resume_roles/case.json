@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (roles): load the save taken halfway through roles/roles_vacate_stops_duties, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

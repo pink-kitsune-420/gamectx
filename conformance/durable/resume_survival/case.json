@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (survival): load the save taken halfway through survival/life_heir_full_passes_on, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

@@ -1,0 +1,203 @@
+{
+  "kind": "state-bundle",
+  "args": {
+    "ops": [
+      {
+        "op": "run",
+        "args": {
+          "kind": "beliefs",
+          "request": {
+            "ops": [
+              {
+                "op": "init",
+                "args": {
+                  "being": "baker",
+                  "beliefs": [
+                    {
+                      "about": "baker",
+                      "relation": "can",
+                      "value": "bake"
+                    },
+                    {
+                      "about": "mill",
+                      "relation": "sells",
+                      "value": "flour",
+                      "confidence": 40
+                    },
+                    {
+                      "about": "well",
+                      "relation": "has",
+                      "value": "water",
+                      "holds": false,
+                      "source": "saw"
+                    }
+                  ]
+                }
+              },
+              {
+                "op": "query",
+                "args": {
+                  "being": "baker",
+                  "relation": "sells"
+                }
+              },
+              {
+                "op": "query",
+                "args": {
+                  "being": "baker",
+                  "min_confidence": 80
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-bundle",
+            "sections": [
+              [
+                "drift",
+                {
+                  "format": "gamectx-state",
+                  "kind": "drift",
+                  "limits": {
+                    "beings": 1024,
+                    "history": 16,
+                    "traits": 16
+                  },
+                  "state": {
+                    "beings": [
+                      [
+                        "ana",
+                        {
+                          "locked": false,
+                          "traits": [
+                            [
+                              "warmth",
+                              {
+                                "at": 0,
+                                "base": 0,
+                                "cap": 150000,
+                                "fade": 1,
+                                "history": [],
+                                "locked": false,
+                                "pressure": 400,
+                                "reasons": [
+                                  "kind_word_0",
+                                  "kind_word_1",
+                                  "kind_word_2",
+                                  "kind_word_3"
+                                ],
+                                "step": 10000,
+                                "threshold": 1000,
+                                "value": 0
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ],
+                    "clock": 0
+                  },
+                  "version": 1
+                }
+              ],
+              [
+                "space",
+                {
+                  "format": "gamectx-state",
+                  "kind": "space",
+                  "limits": {
+                    "beings": 1024,
+                    "queue": 32,
+                    "rooms": 64,
+                    "spots": 16
+                  },
+                  "state": {
+                    "beings": [
+                      [
+                        "mira",
+                        {
+                          "at": [
+                            5,
+                            2
+                          ],
+                          "room": "yard"
+                        }
+                      ],
+                      [
+                        "tomas",
+                        {
+                          "at": [
+                            6,
+                            1
+                          ],
+                          "room": "yard"
+                        }
+                      ]
+                    ],
+                    "rooms": [
+                      [
+                        "yard",
+                        {
+                          "height": 5,
+                          "spots": [
+                            [
+                              "stall",
+                              {
+                                "at": [
+                                  1,
+                                  4
+                                ],
+                                "capacity": 2,
+                                "queue": [],
+                                "users": []
+                              }
+                            ],
+                            [
+                              "well",
+                              {
+                                "at": [
+                                  6,
+                                  2
+                                ],
+                                "capacity": 1,
+                                "queue": [],
+                                "users": []
+                              }
+                            ]
+                          ],
+                          "walls": [
+                            [
+                              3,
+                              1
+                            ],
+                            [
+                              3,
+                              2
+                            ],
+                            [
+                              3,
+                              3
+                            ]
+                          ],
+                          "width": 8
+                        }
+                      ]
+                    ],
+                    "clock": -5
+                  },
+                  "version": 1
+                }
+              ]
+            ],
+            "version": 1
+          }
+        }
+      }
+    ]
+  }
+}

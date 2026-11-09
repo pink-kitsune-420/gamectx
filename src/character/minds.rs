@@ -47,6 +47,7 @@ use crate::character::beliefs::{opt, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::character::pragmatics::ACTS;
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -222,6 +223,8 @@ impl Minds {
             "fixate" => self.op_fixate(args),
             "release" => self.op_release(args),
             "hear" => self.op_hear(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -508,6 +511,38 @@ impl Minds {
 /// A field that is present and not null.
 fn opt_field<'a>(f: &'a Fields, k: &str) -> Option<&'a Value> {
     f.get(k).filter(|v| **v != Value::Null)
+}
+
+persist!(Mind {
+    affect in CHANNELS, deception in DECEPTION, fixation, language in LANGUAGE, memory in MEMORY,
+    theory_of_mind [0, 2], time_scale [1, 1_000_000_000],
+});
+persist!(Assignment { mind, pool, released });
+persist!(rest Minds { beings, clock [0, MAX_AT], minds });
+durable!(Minds, "minds", LIMITS);
+
+impl Minds {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("minds", self.minds.len())?;
+        within::<Self>("beings", self.beings.len())?;
+        for (id, m) in &self.minds {
+            ok(is_ident(id) && builtin(id).is_none() && ascending(&m.affect))?;
+            if let Some((goal, strength)) = &m.fixation {
+                ok(is_ident(goal) && (1..=100).contains(strength))?;
+            }
+        }
+        for (b, st) in &self.beings {
+            ok(is_ident(b) && st.pool.as_deref().is_none_or(is_ident))?;
+            let m = self.mind(&st.mind)?;
+            ok(st.pool.is_some() == (m.memory == "shared"))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
+    }
 }
 
 /// Runs one request on a fresh [`Minds`] (local kind `minds`).

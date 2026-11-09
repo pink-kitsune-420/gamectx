@@ -8,7 +8,10 @@ use gamectx::character::{
     stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, minds::Minds, defenses::Defenses, projects::Projects, chemistry::Chemistry, task::TaskManager,
 };
 use gamectx::knowledge::{culture::Culture, fabric::Fabric, genre::Genres, surroundings::Surroundings};
+use gamectx::data::persist::{self, Durable};
 use gamectx::{data::json::parse, obj, Result, Value};
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::hint::black_box;
 use std::sync::atomic::{AtomicUsize, Ordering::Relaxed};
@@ -30,10 +33,33 @@ unsafe impl GlobalAlloc for Counting {
 static A: Counting = Counting;
 
 type Wf = Box<dyn FnMut(&Value) -> Result<Value>>;
+/// Saves the manager to text and loads it into a fresh one: (save bytes, save ns, load ns).
+type Saver = Option<Box<dyn Fn() -> Result<(usize, usize, usize)>>>;
 macro_rules! wf {
     ($t:ty, $lim:expr) => {{
         let mut m = <$t>::with_limits(&parse(&$lim, 4096)?)?;
-        Box::new(move |v: &Value| m.workflow(v)) as Wf
+        (Box::new(move |v: &Value| m.workflow(v)) as Wf, None as Saver)
+    }};
+}
+/// A durable manager: the workflow plus its save and load (pass 5, design O).
+macro_rules! durable {
+    ($t:ty, $lim:expr) => {{
+        let m = Rc::new(RefCell::new(<$t>::with_limits(&parse(&$lim, 4096)?)?));
+        let w = m.clone();
+        let save = move || -> Result<(usize, usize, usize)> {
+            let m = m.borrow();
+            let limits = Durable::limits(&*m).clone();
+            let t = Instant::now();
+            let text = persist::export(&*m, &limits).to_json();
+            let save_ns = t.elapsed().as_nanos() as usize;
+            let t = Instant::now();
+            let v = parse(&text, 1 << 28)?;
+            let (fresh, _, _) = persist::restore::<$t>(&v, &limits)?;
+            let load_ns = t.elapsed().as_nanos() as usize;
+            assert_eq!(persist::export(&fresh, &limits).to_json(), text, "a save loads back to itself");
+            Ok((text.len(), save_ns, load_ns))
+        };
+        (Box::new(move |v: &Value| w.borrow_mut().workflow(v)) as Wf, Some(Box::new(save) as Box<dyn Fn() -> Result<(usize, usize, usize)>>))
     }};
 }
 
@@ -86,19 +112,19 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
     ]
 }
 
-fn make(name: &str, lim: &str) -> Result<Wf> {
+fn make(name: &str, lim: &str) -> Result<(Wf, Saver)> {
     Ok(match name {
-        "beliefs" => wf!(BeliefStore, lim),
-        "speech_act" => wf!(SpeechActs, lim),
-        "diet" => wf!(DietManager, lim),
-        "creed" => wf!(CreedManager, lim),
-        "explain" => wf!(ExplainTracer, lim),
-        "stability" => wf!(StabilityMonitor, lim),
-        "expectation" => wf!(ExpectationBook, lim),
-        "attention" => wf!(AttentionModel, lim),
-        "aspiration" => wf!(Aspirations, lim),
-        "habit" => wf!(Habits, lim),
-        "lesson" => wf!(Lessons, lim),
+        "beliefs" => durable!(BeliefStore, lim),
+        "speech_act" => durable!(SpeechActs, lim),
+        "diet" => durable!(DietManager, lim),
+        "creed" => durable!(CreedManager, lim),
+        "explain" => durable!(ExplainTracer, lim),
+        "stability" => durable!(StabilityMonitor, lim),
+        "expectation" => durable!(ExpectationBook, lim),
+        "attention" => durable!(AttentionModel, lim),
+        "aspiration" => durable!(Aspirations, lim),
+        "habit" => durable!(Habits, lim),
+        "lesson" => durable!(Lessons, lim),
         "affect" => wf!(AffectManager, lim),
         "skills" => wf!(SkillsManager, lim),
         "body" => wf!(BodyManager, lim),
@@ -107,29 +133,29 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "relationship" => wf!(RelationshipManager, lim),
         "offscreen" => wf!(OffscreenResolver, lim),
         "curiosity" => wf!(CuriosityManager, lim),
-        "cooperation" => wf!(Cooperation, lim),
-        "cognition" => wf!(Cognition, lim),
-        "chatter" => wf!(Chatter, lim),
-        "survival" => wf!(Survival, lim),
-        "detail" => wf!(Detail, lim),
-        "retention" => wf!(Retention, lim),
-        "roles" => wf!(Roles, lim),
-        "economy" => wf!(Economy, lim),
-        "space" => wf!(Space, lim),
-        "drift" => wf!(Drift, lim),
-        "packs" => wf!(Packs, lim),
-        "frame" => wf!(Frame, lim),
-        "cueing" => wf!(Cueing, lim),
-        "pragmatics" => wf!(Pragmatics, lim),
-        "embodiment" => wf!(Embodiment, lim),
-        "surroundings" => wf!(Surroundings, lim),
-        "fabric" => wf!(Fabric, lim),
-        "genre" => wf!(Genres, lim),
-        "minds" => wf!(Minds, lim),
-        "defenses" => wf!(Defenses, lim),
-        "culture" => wf!(Culture, lim),
-        "projects" => wf!(Projects, lim),
-        "chemistry" => wf!(Chemistry, lim),
+        "cooperation" => durable!(Cooperation, lim),
+        "cognition" => durable!(Cognition, lim),
+        "chatter" => durable!(Chatter, lim),
+        "survival" => durable!(Survival, lim),
+        "detail" => durable!(Detail, lim),
+        "retention" => durable!(Retention, lim),
+        "roles" => durable!(Roles, lim),
+        "economy" => durable!(Economy, lim),
+        "space" => durable!(Space, lim),
+        "drift" => durable!(Drift, lim),
+        "packs" => durable!(Packs, lim),
+        "frame" => durable!(Frame, lim),
+        "cueing" => durable!(Cueing, lim),
+        "pragmatics" => durable!(Pragmatics, lim),
+        "embodiment" => durable!(Embodiment, lim),
+        "surroundings" => durable!(Surroundings, lim),
+        "fabric" => durable!(Fabric, lim),
+        "genre" => durable!(Genres, lim),
+        "minds" => durable!(Minds, lim),
+        "defenses" => durable!(Defenses, lim),
+        "culture" => durable!(Culture, lim),
+        "projects" => durable!(Projects, lim),
+        "chemistry" => durable!(Chemistry, lim),
         _ => wf!(TaskManager, lim),
     })
 }
@@ -144,8 +170,8 @@ fn req(ops: &[String]) -> Result<Value> {
     parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22)
 }
 
-fn measure(n: usize, name: &str, lim: &str, setup: &str, fill: &str, query: &str) -> Result<Value> {
-    let mut m = make(name, lim)?;
+fn measure(n: usize, name: &str, lim: &str, setup: &str, fill: &str, query: &str) -> Result<(Value, Option<Value>)> {
+    let (mut m, saver) = make(name, lim)?;
     if !setup.is_empty() {
         m(&req(&[setup.to_string()])?)?;
     }
@@ -170,8 +196,22 @@ fn measure(n: usize, name: &str, lim: &str, setup: &str, fill: &str, query: &str
         times.push(t.elapsed().as_nanos() as usize);
     }
     times.sort_unstable();
+    let save = match saver {
+        Some(s) => {
+            let (bytes, save_ns, load_ns) = s()?;
+            Some(obj! {
+                "beings" => n,
+                "module" => name,
+                "save_bytes" => bytes,
+                "save_bytes_per_being" => bytes / n,
+                "save_ns" => save_ns,
+                "load_ns" => load_ns,
+            })
+        }
+        None => None,
+    };
     drop(m);
-    Ok(obj! {
+    let row = obj! {
         "beings" => n,
         "module" => name,
         "fill_ns_per_op" => fill_ns / n,
@@ -180,17 +220,20 @@ fn measure(n: usize, name: &str, lim: &str, setup: &str, fill: &str, query: &str
         "query_median_ns" => times[499],
         "query_p95_ns" => times[949],
         "query_max_ns" => times[999],
-    })
+    };
+    Ok((row, save))
 }
 
 fn run() -> Result<Value> {
-    let mut rows = Vec::new();
+    let (mut rows, mut saves) = (Vec::new(), Vec::new());
     for n in [1000, 10000] {
         for (name, lim, setup, fill, query) in modules(n) {
-            rows.push(measure(n, name, &lim, setup, fill, query)?);
+            let (row, save) = measure(n, name, &lim, setup, fill, query)?;
+            rows.push(row);
+            saves.extend(save);
         }
     }
-    Ok(obj! {"version" => 1, "rows" => Value::Array(rows), "queries_per_row" => 1000, "actual_model_calls" => 0})
+    Ok(obj! {"version" => 1, "rows" => Value::Array(rows), "saves" => Value::Array(saves), "queries_per_row" => 1000, "actual_model_calls" => 0})
 }
 
 fn main() {

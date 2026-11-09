@@ -35,6 +35,7 @@
 //! ```
 
 use crate::checked as c;
+use crate::data::persist::{self, durable};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -258,6 +259,8 @@ impl BeliefStore {
             "query" => self.op_query(args)?,
             "known_actions" => self.op_known_actions(args)?,
             "gaps" => self.op_gaps(args)?,
+            "export" => persist::export_op(self, &self.limits, args)?,
+            "import" => persist::import(self, &self.limits.clone(), args)?,
             _ => return Ok(None),
         }))
     }
@@ -433,6 +436,85 @@ pub(crate) fn run_ops(request: &Value, mut f: impl FnMut(&str, &Value) -> Result
         results.push(f(op, opt(op_val, "args").unwrap_or(&empty))?);
     }
     Ok(obj! { "version" => 1u64, "results" => Value::Array(results) })
+}
+
+/// Beliefs save flat: the triple's three fields beside the belief's own.
+impl persist::Persist for Belief {
+    fn save(&self) -> Value {
+        persist::object(vec![
+            ("about", self.triple.about.save()),
+            ("at", self.at.save()),
+            ("confidence", self.confidence.save()),
+            ("from", self.from.save()),
+            ("holds", self.holds.save()),
+            ("relation", self.triple.relation.save()),
+            ("source", self.source.save()),
+            ("value", self.triple.value.save()),
+        ])
+    }
+
+    fn load(v: &Value) -> Result<Self> {
+        c::fields(v, &["about", "at", "confidence", "from", "holds", "relation", "source", "value"])?;
+        let s = |k: &str| -> Result<String> { persist::Persist::load(c::get(v, k)?) };
+        Ok(Belief {
+            triple: Triple { about: s("about")?, relation: s("relation")?, value: s("value")? },
+            holds: persist::Persist::load(c::get(v, "holds")?)?,
+            source: s("source")?,
+            confidence: persist::ranged(c::get(v, "confidence")?, 0, 100)?,
+            from: persist::Persist::load(c::get(v, "from")?)?,
+            at: persist::ranged(c::get(v, "at")?, 0, MAX_AT as i128)?,
+        })
+    }
+}
+
+/// A store saves each being's beliefs as a list ascending by triple.
+impl persist::Persist for BeliefStore {
+    fn save(&self) -> Value {
+        let rows = self.beings.iter().map(|(b, m)| {
+            Value::Array(vec![Value::from(b.as_str()), Value::Array(m.values().map(|x| x.save()).collect())])
+        });
+        persist::object(vec![("beings", Value::Array(rows.collect()))])
+    }
+
+    fn load(v: &Value) -> Result<Self> {
+        c::fields(v, &["beings"])?;
+        let mut beings = BTreeMap::new();
+        for row in c::list(c::get(v, "beings")?)? {
+            let [b, xs] = c::list(row)? else { return Err(c::bad()) };
+            let list: Vec<Belief> = persist::Persist::load(xs)?;
+            beings.insert(persist::Persist::load(b)?, list.into_iter().map(|x| (x.triple.clone(), x)).collect());
+        }
+        Ok(BeliefStore { beings, ..Default::default() })
+    }
+}
+durable!(BeliefStore, "beliefs", LIMITS);
+
+/// Checks every belief map (shared with `speech_act`, whose limits carry the same names).
+pub(crate) fn check_beliefs(beings: &BTreeMap<String, BTreeMap<Triple, Belief>>) -> Result<()> {
+    let ceiling = |n: &str| LIMITS.iter().find(|l| l.name == n).map_or(0, |l| l.ceiling);
+    persist::need(beings.len() <= ceiling("beings"))?;
+    for (b, m) in beings {
+        persist::need(persist::is_ident(b) && m.len() <= ceiling("beliefs"))?;
+        for (t, x) in m {
+            persist::need(*t == x.triple && Triple::new(&t.about, &t.relation, &t.value).is_ok())?;
+            persist::need(
+                persist::is_ident(&t.about) && persist::is_ident(&t.relation) && persist::is_ident(&t.value),
+            )?;
+            persist::need(source_rank(&x.source) > 0 && x.from.as_deref().is_none_or(persist::is_ident))?;
+        }
+    }
+    Ok(())
+}
+
+impl BeliefStore {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        check_beliefs(&self.beings)
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
+    }
 }
 
 pub fn workflow(req: &Value) -> Result<Value> {

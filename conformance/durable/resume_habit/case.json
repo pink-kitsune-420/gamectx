@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (habit): load the save taken halfway through growth/hab_skip_with_reason_and_history, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

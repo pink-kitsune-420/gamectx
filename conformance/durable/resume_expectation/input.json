@@ -1,0 +1,143 @@
+{
+  "kind": "expectation",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "expectation",
+            "limits": {
+              "beings": 64,
+              "expectations": 32,
+              "subjects": 64
+            },
+            "state": {
+              "beings": [
+                [
+                  "baker",
+                  {
+                    "expectations": [
+                      [
+                        "p0",
+                        {
+                          "about": "drifter",
+                          "confidence": 70,
+                          "dread": false,
+                          "due": 0,
+                          "event": "repay",
+                          "grace": 0,
+                          "importance": 50,
+                          "label": "drifter repay",
+                          "relies": true,
+                          "state": "broken"
+                        }
+                      ],
+                      [
+                        "p1",
+                        {
+                          "about": "drifter",
+                          "confidence": 55,
+                          "dread": false,
+                          "due": 10,
+                          "event": "repay",
+                          "grace": 0,
+                          "importance": 50,
+                          "label": "drifter repay",
+                          "relies": true,
+                          "state": "broken"
+                        }
+                      ],
+                      [
+                        "p2",
+                        {
+                          "about": "drifter",
+                          "confidence": 40,
+                          "dread": false,
+                          "due": 20,
+                          "event": "repay",
+                          "grace": 0,
+                          "importance": 50,
+                          "label": "drifter repay",
+                          "relies": true,
+                          "state": "broken"
+                        }
+                      ]
+                    ],
+                    "reliability": [
+                      [
+                        "drifter",
+                        [
+                          0,
+                          3
+                        ]
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p3",
+          "about": "drifter",
+          "event": "repay",
+          "due": 30,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 31
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "p4",
+          "about": "drifter",
+          "event": "repay",
+          "due": 40,
+          "importance": 50,
+          "relies": true
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "at": 41
+        }
+      },
+      {
+        "op": "expect",
+        "args": {
+          "being": "baker",
+          "id": "last",
+          "about": "drifter",
+          "event": "repay",
+          "due": 100,
+          "importance": 50
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "kind": "cooperation",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "cooperation",
+            "limits": {
+              "beings": 1024,
+              "debts": 4096,
+              "grudges": 32,
+              "promises": 256,
+              "queue": 16,
+              "resources": 256,
+              "roles": 8,
+              "tasks": 64
+            },
+            "state": {
+              "clock": 0,
+              "debts": [
+                [
+                  [
+                    "carter",
+                    "farmer"
+                  ],
+                  1
+                ]
+              ],
+              "grudges": [],
+              "promises": [],
+              "resources": [],
+              "seq": 0,
+              "tasks": [
+                [
+                  "loft",
+                  {
+                    "goal": "Shared work",
+                    "organizer": "carter",
+                    "roles": [
+                      [
+                        "lift",
+                        {
+                          "being": "farmer",
+                          "done": false,
+                          "via": "carter"
+                        }
+                      ],
+                      [
+                        "sweep",
+                        {
+                          "being": "carter",
+                          "done": false,
+                          "via": null
+                        }
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "mill",
+                  {
+                    "goal": "Shared work",
+                    "organizer": "carter",
+                    "roles": [
+                      [
+                        "grind",
+                        {
+                          "being": "carter",
+                          "done": false,
+                          "via": null
+                        }
+                      ],
+                      [
+                        "haul",
+                        {
+                          "being": "farmer",
+                          "done": true,
+                          "via": "carter"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "loft",
+          "role": "lift",
+          "being": "farmer"
+        }
+      },
+      {
+        "op": "form",
+        "args": {
+          "id": "harvest",
+          "organizer": "farmer",
+          "goal": "Bring in the barley",
+          "roles": [
+            {
+              "role": "reap",
+              "being": "farmer"
+            },
+            {
+              "role": "cart"
+            },
+            {
+              "role": "stack"
+            }
+          ]
+        }
+      },
+      {
+        "op": "ask_help",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "asker": "farmer",
+          "helper": "carter",
+          "trust": 0,
+          "effort": 0
+        }
+      },
+      {
+        "op": "complete",
+        "args": {
+          "task": "harvest",
+          "role": "cart",
+          "being": "carter"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "carter"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

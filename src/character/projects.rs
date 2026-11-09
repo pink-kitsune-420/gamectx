@@ -45,6 +45,7 @@
 use crate::character::beliefs::{opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -219,6 +220,8 @@ impl Projects {
             "resume" => self.op_resume(args),
             "weight" => self.op_weight(args),
             "offscreen" => self.op_offscreen(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -449,6 +452,48 @@ impl Projects {
         let mid = cur.id.clone();
         let r = self.outcome(&id, &mid, success)?;
         Ok(obj! { "project" => id, "resolved" => if success { "success" } else { "failure" }, "result" => r })
+    }
+}
+
+/// Project status words.
+pub const STATUS: [&str; 4] = ["active", "paused", "completed", "abandoned"];
+persist!(Condition { kind in CONDITIONS, level [0, 100], reference });
+persist!(Milestone { alternative, condition, expected [1, MAX_AT], id });
+persist!(Project {
+    adapted [0, 32], aim, at [0, 32], failures [0, MAX_AT], horizon [0, MAX_AT], milestones, money [0, MAX_AT],
+    morale [0, FULL], owner, stake [0, 100], status in STATUS, time [0, MAX_AT],
+});
+persist!(rest Projects { clock [0, MAX_AT], projects });
+durable!(Projects, "projects", LIMITS);
+
+fn milestone_ok(m: &Milestone) -> bool {
+    is_ident(&m.id)
+        && is_ident(&m.condition.reference)
+        && m.condition.level.is_some() == (m.condition.kind == "relationship")
+}
+
+impl Projects {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("projects", self.projects.len())?;
+        for (id, p) in &self.projects {
+            ok(is_ident(id) && is_ident(&p.owner) && is_text(&p.aim, 80))?;
+            ok(!p.milestones.is_empty() && p.at <= p.milestones.len())?;
+            within::<Self>("milestones", p.milestones.len())?;
+            ok((p.at == p.milestones.len()) == (p.status == "completed"))?;
+            let mut ids = BTreeSet::new();
+            for m in &p.milestones {
+                ok(milestone_ok(m) && ids.insert(m.id.clone()))?;
+                if let Some(a) = &m.alternative {
+                    ok(milestone_ok(a) && a.alternative.is_none() && ids.insert(a.id.clone()))?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

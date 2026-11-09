@@ -1,0 +1,99 @@
+{
+  "kind": "aspiration",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "aspiration",
+            "limits": {
+              "beings": 1024,
+              "goals": 16,
+              "pressures": 64
+            },
+            "state": {
+              "beings": [
+                [
+                  "widow",
+                  {
+                    "goals": [],
+                    "pressures": [
+                      [
+                        "loss:dog",
+                        {
+                          "count": 1,
+                          "last_at": 0,
+                          "total": 30
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "widow",
+          "kind": "loss",
+          "subject": "dog",
+          "weight": 30,
+          "at": 0
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt",
+            "target": "litter"
+          },
+          "priority": 80,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ],
+          "at": 7
+        }
+      },
+      {
+        "op": "propose",
+        "args": {
+          "being": "widow",
+          "goal": {
+            "id": "adopt_pup",
+            "label": "Adopt a pup",
+            "action": "adopt"
+          },
+          "priority": 40,
+          "cites": [
+            {
+              "kind": "loss",
+              "subject": "dog"
+            }
+          ]
+        }
+      },
+      {
+        "op": "goals",
+        "args": {
+          "being": "widow"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

@@ -48,6 +48,7 @@
 use crate::character::beliefs::{opt, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -247,6 +248,8 @@ impl Defenses {
             "contradict" => self.op_contradict(args),
             "relieve" => self.op_relieve(args),
             "accept" => self.op_accept(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -538,6 +541,35 @@ impl Defenses {
         p.at = clock;
         let d = p.distortions.remove(&fact).ok_or_else(c::bad)?;
         Ok(obj! { "being" => b, "fact" => fact, "mechanism" => d.mechanism, "strain" => strain })
+    }
+}
+
+persist!(Distortion { hits [1, MAX_AT], mechanism in MECHANISMS });
+persist!(Profile {
+    at [0, MAX_AT], cooldown [1, MAX_AT], crisis in CRISES, crisis_at [0, MAX_AT], distortions, maturity [0, 100],
+    protects, strain [0, FULL], style in MECHANISMS, threshold [1, FULL], tolerance [0, 100],
+});
+persist!(rest Defenses { beings, clock [0, MAX_AT] });
+durable!(Defenses, "defenses", LIMITS);
+
+impl Defenses {
+    /// Invariants a save must meet (the ops never produce anything else).
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, p) in &self.beings {
+            ok(is_ident(b) && p.at <= self.clock && p.crisis_at.is_none_or(|t| t <= self.clock))?;
+            let mut style = p.style.clone();
+            style.sort_unstable();
+            ok(ascending(&style) && p.protects.len() <= 16 && ascending(&p.protects))?;
+            ok(p.protects.iter().all(|x| is_ident(x)))?;
+            within::<Self>("distortions", p.distortions.len())?;
+            ok(p.distortions.iter().all(|(f, d)| is_ident(f) && tag(d.mechanism).is_some()))?;
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

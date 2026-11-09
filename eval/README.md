@@ -1319,7 +1319,9 @@ the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random l
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
 `scale_measure.rs` fills forty-three modules with 1,000 and then 10,000 entries and times 1,000 single-op
-queries each, counting live heap with a counting allocator. Build the release library, then
+queries each, counting live heap with a counting allocator; for the thirty-four durable modules it also saves the
+filled manager to text once and loads it into a fresh one, recording save bytes and both times (the `saves` rows).
+Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
 `scale_measure_check.py --cap 0 --capture RAW_PATH --output FRESH_PATH` records source hashes, hardware
@@ -1508,6 +1510,19 @@ checks 27 cases (`conformance/chemistry/`, 6 malformed). `--random 2000 --seed 7
 refused, 4,038 banter moves with 281 callbacks and 64 insults, 2,798 non-steady pacing advices; seed 1: 1,486
 accepted, 0 mismatches). [Results](../docs/characters/LIFE.md#chemistry-banter-and-pacing-pass-4-stage-6).
 
+## Durable state (offline)
+
+`character/durable_reference.py` is the independent prototype of pass 5 stage 1: the save envelope, the canonical
+schema load and save, the bundle, and the import and export ops; `character/durable_kinds.py` gives each of the
+thirty-four durable kinds its schema, invariants and state mapping over that kind's existing Python reference.
+`character/durable_cases.py --cap 0` checks 56 cases (`conformance/durable/`, 16 malformed); `--generate` rewrites
+their inputs. `--random 2000 --seed 7` takes each kind's own random workflow, cuts it at a random op, saves, imports
+the save into a new request and runs the rest against `gamectx local -`, and also offers a randomly damaged save; both
+sides must write the same save, continue to the uncut results and agree on every damaged save (0 mismatches over 34
+kinds and the bundle: 1,829 cut, 171 refused before the cut, 3,658 damaged saves with 2,907 refused and 751 still
+valid; seed 1: 1,838 cut, 3,676 damaged, 0 mismatches). `GAMECTX_BIN` points it at another build.
+[Results](../docs/characters/LIFE.md#durable-state-pass-5-stage-1).
+
 ## Deep roleplay scenarios (offline)
 
 `character/roleplay_deep_test.rs` (compiled with `rustc` against the release library, like `scale_measure.rs`) plays
@@ -1530,6 +1545,18 @@ the stability monitor). 38 checks, each fatal on failure. `--output` writes `cha
 replays it byte for byte (in CI); `--timing` writes `character/pass4-deep-timing.json` with wall time, live state and
 peak heap and the CPU (445 ms, 10,230 bytes per being, 2.1 MB peak on an AMD Ryzen 7 3800X). $0 API spend.
 [Results](../docs/characters/LIFE.md#pass-4-deep-tests).
+
+## Pass 5 tier 1 deep tests (offline)
+
+`character/pass5_deep_test.rs` (compiled with `rustc` against the release library; it includes the pass 4 town from
+`pass4_deep_test.rs`, whose save hook is off unless asked for) runs the deep tests that
+`docs/research/INTELLIGENT_BEING_5.md` section 7 declared in advance. Save anywhere: the hundred-agent town is saved
+to text and loaded into fresh managers after every op on day 98 and after every request on every tenth day (1,077
+reloads); its report must equal the uninterrupted run byte for byte. 32 damaged copies of the final saves and one
+damaged bundle must be refused without changing state, and save bytes per being are reported. 65 checks, each fatal.
+`--output` writes `character/pass5-deep.json`; `--check` replays it byte for byte (in CI); `--timing` writes
+`character/pass5-deep-timing.json` (444 ms plain, 6.8 s with reloads, about 5.9 ms per reload on an AMD Ryzen 7
+3800X). $0 API spend. [Results](../docs/characters/LIFE.md#durable-state-pass-5-stage-1).
 
 ## World and social schemas (offline)
 

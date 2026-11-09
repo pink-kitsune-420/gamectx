@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A bundle save loads whole and the managers carry on where they were.",
+  "error": false
+}

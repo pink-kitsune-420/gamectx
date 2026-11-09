@@ -1,0 +1,99 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "pragmatics",
+            "limits": {
+              "beings": 1024,
+              "own": 8,
+              "phrases": 64,
+              "threads": 4
+            },
+            "state": {
+              "clock": 100,
+              "custom": [
+                [
+                  "accusation",
+                  []
+                ],
+                [
+                  "apology",
+                  []
+                ],
+                [
+                  "compliment",
+                  []
+                ],
+                [
+                  "farewell",
+                  []
+                ],
+                [
+                  "greeting",
+                  []
+                ],
+                [
+                  "offer_or_transfer",
+                  []
+                ],
+                [
+                  "request_help",
+                  []
+                ],
+                [
+                  "threat",
+                  []
+                ]
+              ],
+              "stacks": [
+                [
+                  "mira",
+                  [
+                    {
+                      "cause": "crash_outside",
+                      "id": "theft_talk",
+                      "interrupted_at": 100,
+                      "opened_at": 0,
+                      "question": "Did the boy take the pouch?",
+                      "speaker": "player",
+                      "status": "interrupted",
+                      "topic": "apprentice"
+                    }
+                  ]
+                ]
+              ]
+            },
+            "version": 1
+          }
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 110
+        }
+      },
+      {
+        "op": "resume",
+        "args": {
+          "being": "mira",
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "threads",
+        "args": {
+          "being": "mira"
+        }
+      },
+      {
+        "op": "export"
+      }
+    ]
+  }
+}

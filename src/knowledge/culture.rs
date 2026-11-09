@@ -48,6 +48,7 @@ use crate::character::attention::fnv1a;
 use crate::character::beliefs::{opt, opt_uint, text_bound, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, ascending, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -215,6 +216,8 @@ impl Culture {
             "tell" => self.op_tell(args, l),
             "belief" => self.op_belief(args),
             "spread" => self.op_spread(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -517,6 +520,72 @@ impl Culture {
                 "place" => t.place.clone(), "verb" => t.verb.as_str(), "witness" => t.witness.as_str(),
             },
         })
+    }
+}
+
+persist!(Exposure { at [0, MAX_AT], strength [0, FULL] });
+persist!(Member {
+    carefulness [0, 100], community, credulity [0, 100], links, openness [0, 100], repertoire, status [0, 100],
+});
+persist!(Idiom { community, meaning, phrase, prestige [0, 100] });
+persist!(Truth { agent, amount [1, 1_000_000_000], details, place, verb, witness });
+persist!(Version {
+    agent, amount [1, MAX_AMOUNT], chain, details, hops [0, MAX_AT], last in OPERATORS, merged, ops [0, MAX_AT],
+    place, verb,
+});
+persist!(rest Culture { beliefs, clock [0, MAX_AT], idioms, members, truths });
+durable!(Culture, "culture", LIMITS);
+
+fn unique_idents(xs: &[String], max: usize) -> bool {
+    xs.len() <= max && xs.iter().all(|x| is_ident(x)) && xs.iter().collect::<BTreeSet<_>>().len() == xs.len()
+}
+
+impl Culture {
+    /// Invariants a save must meet (the ops never produce anything else); rebuilds the
+    /// holder index and the belief count.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.members.len())?;
+        within::<Self>("idioms", self.idioms.len())?;
+        within::<Self>("topics", self.truths.len())?;
+        for (b, m) in &self.members {
+            ok(is_ident(b) && is_ident(&m.community) && unique_idents(&m.links, 8) && ascending(&m.links))?;
+            ok(!m.links.contains(b))?;
+            within::<Self>("repertoire", m.repertoire.len())?;
+            ok(m.repertoire.iter().all(|(k, e)| self.idioms.contains_key(k) && e.at <= self.clock))?;
+        }
+        for (id, i) in &self.idioms {
+            ok(is_ident(id) && is_ident(&i.community) && is_text(&i.phrase, 60) && is_text(&i.meaning, 80))?;
+        }
+        for (topic, t) in &self.truths {
+            ok(is_ident(topic) && is_ident(&t.agent) && is_ident(&t.verb) && self.members.contains_key(&t.witness))?;
+            ok(t.place.as_deref().is_none_or(is_ident) && unique_idents(&t.details, 4))?;
+            ok(self.beliefs.get(&t.witness).is_some_and(|h| h.contains_key(topic)))?;
+        }
+        let mut count = 0usize;
+        let mut holders: BTreeMap<String, BTreeSet<String>> = BTreeMap::new();
+        for (b, held) in &self.beliefs {
+            ok(self.members.contains_key(b) && !held.is_empty())?;
+            for (topic, v) in held {
+                let t = self.truths.get(topic).ok_or_else(c::bad)?;
+                ok(is_ident(&v.agent) && is_ident(&v.verb) && v.place.as_deref().is_none_or(is_ident))?;
+                ok(v.amount.is_some() == t.amount.is_some() && v.last.is_none() == (v.ops == 0))?;
+                ok(unique_idents(&v.details, 4) && v.details.iter().all(|d| t.details.contains(d)))?;
+                ok(v.chain.len() as u64 == (v.hops + 1).min(CHAIN as u64) && v.chain.last() == Some(b))?;
+                ok(v.chain.iter().all(|x| is_ident(x)))?;
+                ok(v.merged.len() <= 4 && ascending(&v.merged))?;
+                ok(v.merged.iter().all(|x| x != topic && self.truths.contains_key(x)))?;
+                holders.entry(topic.clone()).or_default().insert(b.clone());
+                count += 1;
+            }
+        }
+        within::<Self>("beliefs", count)?;
+        self.holders = holders;
+        self.count = count;
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

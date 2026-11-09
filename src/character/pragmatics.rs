@@ -45,6 +45,7 @@ use crate::character::beliefs::{opt, opt_bool, opt_uint, text_bound, uint_bound,
 use crate::character::frame::time_label;
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, is_text, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -311,6 +312,8 @@ impl Pragmatics {
             "close" => self.op_close(args),
             "threads" => self.op_threads(args),
             "stance" => self.op_stance(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -697,6 +700,57 @@ impl Pragmatics {
             "untrusted_in_earshot" => Value::Array(untrusted.into_iter().map(Value::from).collect()),
             "verbosity" => verbosity,
         })
+    }
+}
+
+/// Thread status words.
+pub const THREAD_STATUS: [&str; 3] = ["active", "waiting", "interrupted"];
+persist!(Thread {
+    cause, id, interrupted_at [0, MAX_AT], opened_at [0, MAX_AT], question, speaker, status in THREAD_STATUS, topic,
+});
+persist!(rest Pragmatics { clock [0, MAX_AT], custom, stacks });
+durable!(Pragmatics, "pragmatics", LIMITS);
+
+fn phrase_ok(s: &str) -> bool {
+    text_bound(&Value::from(s), 64).is_ok() && {
+        let ws = words(s);
+        (1..=4).contains(&ws.len()) && ws.join(" ") == s
+    }
+}
+
+impl Pragmatics {
+    /// Invariants a save must meet (the ops never produce anything else); recounts phrases.
+    fn settle_state(&mut self) -> Result<()> {
+        ok(self.custom.len() == PRECEDENCE.len())?;
+        let mut count = 0;
+        for (i, act) in PRECEDENCE.iter().enumerate() {
+            let list = self.custom.get(*act).ok_or_else(c::bad)?;
+            ok(list.iter().collect::<BTreeSet<_>>().len() == list.len())?;
+            ok(list.iter().all(|p| phrase_ok(p) && !LEXICON[i].contains(&p.as_str())))?;
+            count += list.len();
+        }
+        within::<Self>("phrases", count)?;
+        self.count = count;
+        within::<Self>("beings", self.stacks.len())?;
+        for (b, st) in &self.stacks {
+            ok(is_ident(b))?;
+            within::<Self>("threads", st.len())?;
+            ok(st.iter().map(|t| &t.id).collect::<BTreeSet<_>>().len() == st.len())?;
+            ok(st.iter().zip(st.iter().skip(1)).all(|(a, b)| a.opened_at <= b.opened_at))?;
+            for (i, t) in st.iter().enumerate() {
+                ok(is_ident(&t.id) && is_ident(&t.topic) && is_ident(&t.speaker) && t.opened_at <= self.clock)?;
+                ok(t.question.as_deref().is_none_or(|q| is_text(q, 160)))?;
+                let interrupted = t.status == "interrupted";
+                ok(t.cause.is_some() == interrupted && t.interrupted_at.is_some() == interrupted)?;
+                ok(t.cause.as_deref().is_none_or(is_ident) && t.interrupted_at.is_none_or(|x| x <= self.clock))?;
+                ok(t.status != "active" || i + 1 == st.len())?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 

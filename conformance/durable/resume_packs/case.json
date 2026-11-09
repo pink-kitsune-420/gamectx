@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (packs): load the save taken halfway through packs/packs_redefine_does_not_count, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

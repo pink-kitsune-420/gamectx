@@ -4,6 +4,7 @@ pub mod catalog;
 pub mod conditions;
 pub mod formula;
 pub mod json;
+pub mod persist;
 pub mod query;
 pub mod table;
 pub mod view;

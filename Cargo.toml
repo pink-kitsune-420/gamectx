@@ -69,6 +69,10 @@ name = "registered-project"
 path = "examples/kit/registered-project.rs"
 
 [[example]]
+name = "save-anywhere"
+path = "examples/kit/save-anywhere.rs"
+
+[[example]]
 name = "evidence-memory"
 path = "examples/knowledge/evidence-memory.rs"
 

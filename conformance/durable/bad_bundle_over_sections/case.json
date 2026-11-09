@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: more sections than the bundle's sections limit.",
+  "error": true
+}

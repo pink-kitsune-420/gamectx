@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (beliefs): load the save taken halfway through limits/lim_beliefs_small_store, run the rest (results match the uncut case) and save again.",
+  "error": false
+}

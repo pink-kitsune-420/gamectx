@@ -43,6 +43,7 @@
 use crate::character::beliefs::{opt, opt_bool, opt_uint, uint_bound, MAX_AT};
 use crate::character::limits::{self, Limit, Limits};
 use crate::checked as c;
+use crate::data::persist::{self, durable, is_ident, need as ok, persist, within};
 use crate::knowledge::codex::keys;
 use crate::knowledge::props::ident;
 use crate::{obj, Result, Value};
@@ -158,6 +159,8 @@ impl Survival {
             "die" => self.op_die(args, l),
             "threat" => self.op_threat(args),
             "assess" => self.op_assess(args),
+            "export" => persist::export_op(self, l, args),
+            "import" => persist::import(self, l, args),
             _ => Err(c::bad()),
         });
         self.limits = lim;
@@ -409,6 +412,63 @@ impl Survival {
         let b = id_of(args, "being")?;
         need(self.beings.contains_key(&b))?;
         Ok(self.view(&b))
+    }
+}
+
+/// Life stages.
+pub const STAGES: [&str; 3] = ["child", "adult", "elder"];
+
+persist!(Being {
+    alive,
+    belongings,
+    born [0, MAX_AT],
+    cause,
+    children,
+    died [0, MAX_AT],
+    last [0, MAX_AT],
+    lifespan [1, MAX_AT],
+    parents,
+    partner,
+    safety [0, 100],
+    stage in STAGES
+});
+persist!(rest Survival { beings, clock [0, MAX_AT] });
+durable!(Survival, "survival", LIMITS);
+
+/// Distinct identifiers.
+fn distinct_ids(xs: &[String]) -> bool {
+    let mut seen = BTreeSet::new();
+    xs.iter().all(|x| is_ident(x) && seen.insert(x))
+}
+
+impl Survival {
+    /// Invariants a save must meet: family links agree both ways, the dead hold nothing.
+    fn settle_state(&mut self) -> Result<()> {
+        within::<Self>("beings", self.beings.len())?;
+        for (b, x) in &self.beings {
+            ok(is_ident(b) && x.alive == x.died.is_none() && x.alive == x.cause.is_none())?;
+            ok(x.cause.as_deref().is_none_or(is_ident))?;
+            within::<Self>("belongings", x.belongings.len())?;
+            within::<Self>("children", x.children.len())?;
+            ok(distinct_ids(&x.belongings) && (x.alive || x.belongings.is_empty()))?;
+            ok(x.parents.len() <= 2 && distinct_ids(&x.parents) && !x.parents.contains(b))?;
+            for p in &x.parents {
+                ok(self.beings.get(p).is_some_and(|y| y.children.contains(b)))?;
+            }
+            ok(distinct_ids(&x.children))?;
+            for c in &x.children {
+                ok(self.beings.get(c).is_some_and(|y| y.parents.contains(b)))?;
+            }
+            if let Some(p) = &x.partner {
+                let back = self.beings.get(p).is_some_and(|y| y.alive && y.partner.as_ref() == Some(b));
+                ok(x.alive && p != b && back)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
+        Err(c::bad())
     }
 }
 
