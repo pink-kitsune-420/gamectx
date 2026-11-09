@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Only defined roles can be assigned.",
+  "error": true
+}

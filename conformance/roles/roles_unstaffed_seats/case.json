@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The guard role has 2 seats and 1 holder, so every tick lists it as unstaffed until a second guard joins.",
+  "error": false
+}

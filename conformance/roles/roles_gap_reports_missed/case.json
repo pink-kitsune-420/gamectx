@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "After 50 quiet ticks the guard gets one patrol task for tick 48 with 5 missed and one report at 44 with 1 missed.",
+  "error": false
+}

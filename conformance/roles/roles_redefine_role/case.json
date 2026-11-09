@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Redefining a role replaces its status and duties for current holders.",
+  "error": false
+}

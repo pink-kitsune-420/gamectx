@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The clock is nondecreasing.",
+  "error": true
+}

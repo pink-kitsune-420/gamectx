@@ -1,0 +1,30 @@
+{
+  "kind": "roles",
+  "args": {
+    "ops": [
+      {
+        "op": "esteem",
+        "args": {
+          "being": "stranger",
+          "delta": -10,
+          "reason": "theft"
+        }
+      },
+      {
+        "op": "esteem",
+        "args": {
+          "being": "child",
+          "delta": 5,
+          "reason": "helped"
+        }
+      },
+      {
+        "op": "contest",
+        "args": {
+          "a": "child",
+          "b": "stranger"
+        }
+      }
+    ]
+  }
+}

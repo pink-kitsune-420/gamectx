@@ -1,0 +1,15 @@
+{
+  "kind": "roles",
+  "args": {
+    "ops": [
+      {
+        "op": "esteem",
+        "args": {
+          "being": "mira",
+          "delta": 21,
+          "reason": "miracle"
+        }
+      }
+    ]
+  }
+}

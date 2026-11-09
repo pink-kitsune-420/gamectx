@@ -1,0 +1,95 @@
+{
+  "kind": "roles",
+  "args": {
+    "ops": [
+      {
+        "op": "role",
+        "args": {
+          "id": "guard",
+          "status": 60,
+          "seats": 2,
+          "duties": [
+            {
+              "id": "patrol",
+              "action": "travel",
+              "every": 8,
+              "place": "wall",
+              "priority": 70
+            },
+            {
+              "id": "report",
+              "action": "talk",
+              "every": 24,
+              "at": 20
+            }
+          ]
+        }
+      },
+      {
+        "op": "role",
+        "args": {
+          "id": "baker",
+          "status": 30,
+          "duties": [
+            {
+              "id": "bake",
+              "action": "cook",
+              "every": 24,
+              "at": 4,
+              "place": "oven"
+            }
+          ]
+        }
+      },
+      {
+        "op": "role",
+        "args": {
+          "id": "elder",
+          "status": 85,
+          "seats": 1,
+          "duties": [
+            {
+              "id": "council",
+              "action": "talk",
+              "every": 72,
+              "at": 60
+            }
+          ]
+        }
+      },
+      {
+        "op": "assign",
+        "args": {
+          "being": "tomas",
+          "role": "guard"
+        }
+      },
+      {
+        "op": "assign",
+        "args": {
+          "being": "mira",
+          "role": "baker"
+        }
+      },
+      {
+        "op": "assign",
+        "args": {
+          "being": "old_ana",
+          "role": "elder"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 9
+        }
+      }
+    ]
+  }
+}

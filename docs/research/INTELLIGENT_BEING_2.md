@@ -181,9 +181,12 @@ where gossip content, alliances and quarrels come from.
 *Implemented (pass 2 B6):* `character::chatter::Chatter` (local kind `chatter`).
 [Evidence](../characters/LIFE.md#off-screen-conversations-pass-2-b6).
 
-**B7. Status, roles and jobs.** Community membership exists. Add roles with duties
+**B7. Status, roles and jobs.** — **DONE**. Community membership exists. Add roles with duties
 (guard, baker, elder) that create tasks automatically, and status that affects
 conflicts (B3) and persuasion (B1).
+
+*Implemented (pass 2 B7):* `character::roles::Roles` (local kind `roles`).
+[Evidence](../characters/LIFE.md#status-roles-and-jobs-pass-2-b7).
 
 ### C. World and body
 
@@ -294,7 +297,7 @@ packet and budget modules already do.
    modules), 7b (pass 1 character modules) and 7c (knowledge kinds: places, timeline, things,
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
-5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
+5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
 7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs**.

@@ -1,0 +1,14 @@
+{
+  "kind": "roles",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "mira",
+          "role": "witch"
+        }
+      }
+    ]
+  }
+}

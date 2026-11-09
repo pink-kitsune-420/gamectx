@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-six modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-seven modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1387,6 +1387,15 @@ generator against `gamectx local -` (0 mismatches: 1,477 accepted, 523 refused, 
 documents migrated with 608 edits). `--soak` runs a seeded 30-day town of 50 beings through the reference and
 checks the result against `character/retention-soak.json` (945,450 kept bytes with rules vs 3,367,277 without).
 [Results](../docs/characters/LIFE.md#save-growth-retention-and-migration-pass-2-d3).
+
+## Status, roles and jobs (offline)
+
+`character/roles_reference.py` is the independent prototype of pass 2 B7 (roles with seats and recurring duties,
+task proposals with missed counts, status from roles and standing, contest and persuasion edges).
+`character/roles_cases.py --cap 0` checks 25 cases (`conformance/roles/`, 7 malformed). `--random 2000 --seed 7`
+builds workflows op by op like the cooperation generator against `gamectx local -` (0 mismatches: 1,466 accepted,
+534 refused, 4,787 duty tasks, 104,469 missed duties, 155 deferrals).
+[Results](../docs/characters/LIFE.md#status-roles-and-jobs-pass-2-b7).
 
 ## Visual compiler and approved asset metadata (offline)
 

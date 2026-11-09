@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Duties recur at least every tick.",
+  "error": true
+}

@@ -31,6 +31,7 @@ pub mod party;
 pub mod relationship;
 pub mod retention;
 pub mod roleplay;
+pub mod roles;
 pub mod routine;
 pub mod sheet;
 pub mod skills;

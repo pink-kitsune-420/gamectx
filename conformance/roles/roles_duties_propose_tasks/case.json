@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "By tick 24 the guard patrols (at 24, with 8 and 16 missed) and reports (at 20), the baker bakes (at 4); each is a task proposal.",
+  "error": false
+}

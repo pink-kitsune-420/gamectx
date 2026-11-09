@@ -1,0 +1,21 @@
+{
+  "kind": "roles",
+  "args": {
+    "ops": [
+      {
+        "op": "role",
+        "args": {
+          "id": "x",
+          "status": 1,
+          "duties": [
+            {
+              "id": "d",
+              "action": "wait",
+              "every": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

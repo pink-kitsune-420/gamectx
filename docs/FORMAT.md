@@ -2910,6 +2910,7 @@ grows past them is refused where it used to be accepted.
 | `survival` | `beings` living or dead (1024, 10⁶), `belongings` per being (64, 4096; heirs without room are skipped), `children` per being (16, 256) |
 | `detail` | `beings` tracked (1024, 10⁶), `needs` per being (8, 64), `groups` of crowd members (64, 65,536) |
 | `retention` | `collections` (64, 4096), `entries` per collection (4096, 10⁶), `migrations` (16, 256), `changes` per migration (32, 256) |
+| `roles` | `roles` (64, 4096), `beings` with a role or standing (1024, 10⁶), `duties` per role (8, 64), roles `held` per being (4, 16) |
 
 ### Knowledge kinds
 
@@ -3209,6 +3210,35 @@ request; ops before it keep their changes, and the failing op changes nothing.
   1,000,000). At each reached object: `rename` renames the key in place (refused if `to` exists); `add` appends
   the key if missing; `remove` deletes it; `clamp` clamps an integer (refused for any other value). Absent
   keys and non-objects are skipped; `edits` counts changed keys.
+
+## Roles v1 (pass 2, B7)
+
+`gamectx::character::roles` (guide: [Life](characters/LIFE.md#status-roles-and-jobs-pass-2-b7)), local kind `roles`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
+malformed) live in `conformance/roles/`. Ticks are 0..10¹²; edges and chances are millionths. An op that fails
+refuses the request; ops before it keep their changes, and the failing op changes nothing.
+
+A being view is `{being, roles (sorted), standing −50..50, status}`, status = clamp(highest held role status (0
+with none) + standing, 0, 100).
+
+- `role {id, status 0–100, seats? 1–10⁶, duties? [{id (distinct), action, every 1–10¹², at? (0), place?,
+  priority? 0–100 (50)}]}` → `{duties (ids), id, seats|null, status}`; defines or replaces a role.
+- `assign {being, role (defined, not held)}` → view; the role must have a free seat and the being room under
+  `held`. The holder's duties count from the current clock.
+- `vacate {being, role (held)}` → view.
+- `esteem {being, delta −20..20, reason}` → view plus `reason`; standing clamps to −50..50. Creates the being.
+- `tick {now ≥ clock}` → `{effects, now, tasks, unstaffed}`. For each being, held role and duty (in name order),
+  with `fired(x) = 0 if x < at else ⌊(x − at)/every⌋ + 1`: if `n = fired(now) − fired(last run) > 0`, one task
+  `{action, at: at + (fired(now) − 1)·every, being, duty, id: "<role>-<duty>-<at>", missed: n − 1, place|null,
+  priority, role}` and the effect `{engine: "task", op: "propose", args: {id, owner: being, steps: [{id: duty,
+  action, target_bindings?: {place}}]}}`. Every held role's last run becomes `now`. `unstaffed` lists `{holders,
+  role, seats}` for roles with fewer holders than seats.
+- `contest {a ≠ b (known)}` → `{a, b, defers: b|a|null, edge: (status a − status b)·10,000, status_a,
+  status_b}`; the lower defers at a gap of 20 or more.
+- `persuade {speaker ≠ listener (known), chance 0–10⁶}` → `{base, chance: clamp(base + status_edge + (50,000
+  if shared_roles), 0, 10⁶), listener, shared_roles, speaker, status_edge: (status speaker − status
+  listener)·5,000}`.
+- `assess {being (known)}` → view. `staff {role}` → `{holders (sorted), role, seats|null, status}`.
 
 ## Game data and save files v1
 

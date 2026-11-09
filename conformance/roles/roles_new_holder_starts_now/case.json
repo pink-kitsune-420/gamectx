@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A guard assigned at tick 30 is not given duties that came due before 30.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A duty that already ran is not proposed again until it comes due.",
+  "error": false
+}

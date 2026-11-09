@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Earned standing adds to role status and is clamped to -50..50; status is clamped to 0..100.",
+  "error": false
+}

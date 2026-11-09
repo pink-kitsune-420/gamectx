@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A guard (60) against a baker (30): edge 300,000 and the baker defers.",
+  "error": false
+}

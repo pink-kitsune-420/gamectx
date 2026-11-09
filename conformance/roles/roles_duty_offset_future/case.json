@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A duty that first falls due at tick 60 is not proposed before then.",
+  "error": false
+}

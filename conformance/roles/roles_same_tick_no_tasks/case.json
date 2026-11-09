@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A tick to the current clock proposes nothing.",
+  "error": false
+}

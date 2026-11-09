@@ -3184,3 +3184,67 @@ fn retention_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"migrate","args":{"from":1,"document":{"a":1,"b":2}}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn roles_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::roles::Roles;
+    let mut rng = Rng(0x2013_5B07_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 31. Roles mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"roles":3,"beings":4,"duties":2,"held":2},"ops":[{"op":"role","args":{"id":"guard","status":60,"seats":2,"duties":[{"id":"patrol","action":"travel","every":8,"at":3,"place":"wall","priority":70}]}},{"op":"assign","args":{"being":"tomas","role":"guard"}},{"op":"esteem","args":{"being":"tomas","delta":-20,"reason":"slept"}},{"op":"tick","args":{"now":50}},{"op":"vacate","args":{"being":"tomas","role":"guard"}},{"op":"staff","args":{"role":"guard"}}]}"#,
+        r#"{"ops":[{"op":"role","args":{"id":"elder","status":85}},{"op":"assign","args":{"being":"ana","role":"elder"}},{"op":"esteem","args":{"being":"mira","delta":5,"reason":"bread"}},{"op":"contest","args":{"a":"ana","b":"mira"}},{"op":"persuade","args":{"speaker":"mira","listener":"ana","chance":500000}},{"op":"assess","args":{"being":"mira"}}]}"#,
+    ];
+    let mut k = Roles::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = k.workflow(&v);
+            }
+        }
+    }
+    for (b, x) in &k.beings {
+        assert!((-50..=50).contains(&x.standing) && (0..=100).contains(&k.status(b)));
+        assert!(x.held.keys().all(|r| k.holders[r].contains(b) && x.held[r] <= k.clock), "{b}");
+    }
+    assert_eq!(k.holders.values().map(|h| h.len()).sum::<usize>(), k.beings.values().map(|x| x.held.len()).sum());
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Roles::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Roles::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"roles":4096,"beings":1000000,"duties":64,"held":16}"#, true),
+        (r#"{"held":17}"#, false),
+        (r#"{"duties":65}"#, false),
+        (r#"{"roles":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Roles::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 16 roles of 64 every-tick duties on one being over 10^12 ticks: 1,024 tasks.
+    let mut k = Roles::with_limits(&parse(r#"{"duties":64,"held":16}"#, 64).unwrap()).unwrap();
+    let duties: Vec<String> = (0..64).map(|i| format!(r#"{{"id":"d{i}","action":"wait","every":1}}"#)).collect();
+    let mut ops: Vec<String> = (0..16)
+        .map(|r| format!(r#"{{"op":"role","args":{{"id":"r{r}","status":100,"duties":[{}]}}}}"#, duties.join(",")))
+        .collect();
+    ops.extend((0..16).map(|r| format!(r#"{{"op":"assign","args":{{"being":"busy","role":"r{r}"}}}}"#)));
+    k.workflow(&req(&ops)).unwrap();
+    let out = k.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).unwrap().to_json();
+    assert_eq!(out.matches(r#""missed":999999999999"#).count(), 1024);
+
+    // A refused op changes nothing: assigning past the seats.
+    let mut k = Roles::new();
+    k.workflow(&req(&[
+        r#"{"op":"role","args":{"id":"elder","status":85,"seats":1}}"#.into(),
+        r#"{"op":"assign","args":{"being":"ana","role":"elder"}}"#.into(),
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"assign","args":{"being":"mira","role":"elder"}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}

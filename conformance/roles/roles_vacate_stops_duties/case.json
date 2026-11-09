@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A baker who leaves the role gets no more baking tasks and loses its status.",
+  "error": false
+}
