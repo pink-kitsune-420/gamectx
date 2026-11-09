@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Completely malformed non-JSON reply string is rejected by check.",
+  "error": false
+}

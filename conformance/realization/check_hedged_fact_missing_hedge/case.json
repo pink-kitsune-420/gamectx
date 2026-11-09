@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply mentions hedged fact as absolute fact without hedge markers.",
+  "error": false
+}

@@ -1,0 +1,31 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "callback",
+          "addressee": "bo",
+          "speaker": "mira",
+          "sentence_budget": 2,
+          "token_budget": 150,
+          "facts": [
+            {
+              "id": "flour_sack",
+              "claim": "The flour sack burst on the bridge.",
+              "framing": "state",
+              "keys": [
+                "flour",
+                "bridge"
+              ]
+            }
+          ],
+          "idioms": [
+            "salt and iron"
+          ]
+        }
+      }
+    ]
+  }
+}

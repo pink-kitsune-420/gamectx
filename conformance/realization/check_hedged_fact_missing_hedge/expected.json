@@ -1,0 +1,1 @@
+{"version":1,"results":[{"line":"A fierce storm is in the north.","ok":false,"tag":"inform","violations":[{"check":"allowed_facts","fact":"weather","reason":"fact_not_hedged"}]}]}

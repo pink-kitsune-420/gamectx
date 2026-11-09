@@ -1,0 +1,15 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "template",
+        "args": {
+          "id": "t_bad",
+          "move": "m1",
+          "text": "   "
+        }
+      }
+    ]
+  }
+}

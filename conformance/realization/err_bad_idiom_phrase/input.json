@@ -1,0 +1,14 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "idiom",
+        "args": {
+          "id": "i_bad",
+          "phrase": "   "
+        }
+      }
+    ]
+  }
+}

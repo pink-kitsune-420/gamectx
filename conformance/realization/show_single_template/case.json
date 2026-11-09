@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Show a specific template by id.",
+  "error": false
+}

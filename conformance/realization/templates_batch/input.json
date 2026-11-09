@@ -1,0 +1,24 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "templates",
+        "args": {
+          "list": [
+            {
+              "id": "t_tease",
+              "move": "tease",
+              "text": "Still slow on your feet, I see."
+            },
+            {
+              "id": "t_deflate",
+              "move": "deflate",
+              "text": "Let us not get ahead of ourselves."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

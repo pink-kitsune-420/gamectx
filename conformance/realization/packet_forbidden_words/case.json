@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Packet carrying forbidden key words from the epistemic gate.",
+  "error": false
+}

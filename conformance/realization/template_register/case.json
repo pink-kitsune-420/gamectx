@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Register an authored fallback template for a move.",
+  "error": false
+}

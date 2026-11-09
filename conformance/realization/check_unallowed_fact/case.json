@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply names an unallowed fact.",
+  "error": false
+}

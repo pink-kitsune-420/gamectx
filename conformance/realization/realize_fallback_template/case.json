@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Both candidate and retry fail, falls back to registered template.",
+  "error": false
+}

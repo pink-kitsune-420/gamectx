@@ -1,0 +1,1 @@
+{"version":1,"results":[{"line":"First sentence. Second sentence! Third sentence?","ok":false,"tag":"tease","violations":[{"budget":2,"check":"sentences","count":3,"reason":"sentence_budget_exceeded"}]}]}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Prune facts by salience share when token budget is tight.",
+  "error": false
+}

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"check":"gate","ok":false,"reason":"forbidden_word_leaked","retry_prompt":"Your previous reply was rejected (gate: forbidden_word_leaked). Please reply strictly adhering to the move 'tease' under 2 sentences.","status":"retry","tries":1,"violations":[{"check":"gate","reason":"forbidden_word_leaked","word":"poison"}]}]}

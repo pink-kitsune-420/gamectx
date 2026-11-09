@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate fails and no retry candidate supplied, returns retry prompt.",
+  "error": false
+}

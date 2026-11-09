@@ -1,0 +1,26 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "template",
+        "args": {
+          "id": "t1",
+          "move": "m1",
+          "text": "T1"
+        }
+      },
+      {
+        "op": "template",
+        "args": {
+          "id": "t2",
+          "move": "m2",
+          "text": "T2"
+        }
+      }
+    ],
+    "limits": {
+      "templates": 1
+    }
+  }
+}

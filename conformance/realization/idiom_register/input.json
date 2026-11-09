@@ -1,0 +1,21 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "idiom",
+        "args": {
+          "id": "i_salt",
+          "phrase": "salt and iron"
+        }
+      },
+      {
+        "op": "idiom",
+        "args": {
+          "id": "i_hearth",
+          "phrase": "cold hearth"
+        }
+      }
+    ]
+  }
+}

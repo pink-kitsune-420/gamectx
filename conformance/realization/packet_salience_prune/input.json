@@ -1,0 +1,33 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "inform",
+          "addressee": "bo",
+          "token_budget": 60,
+          "facts": [
+            {
+              "id": "f_high",
+              "claim": "High priority shipment arrived yesterday.",
+              "share": 800,
+              "keys": [
+                "shipment"
+              ]
+            },
+            {
+              "id": "f_low",
+              "claim": "Low priority gossip about the neighbor cat.",
+              "share": 100,
+              "keys": [
+                "cat"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

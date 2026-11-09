@@ -5022,6 +5022,86 @@ fn being_runtime_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&rt, &rt.limits).to_json(), before);
 }
 
+#[test]
+fn realization_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::realization::Realization;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5051_2026_1109_0050);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut r = Realization::new();
+        r.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"template","args":{"id":"t1","move":"callback","text":"Remember at the harbor."}},
+                {"op":"idiom","args":{"id":"i1","phrase":"salt and iron"}},
+                {"op":"packet","args":{"move":"callback","addressee":"bo","sentence_budget":2,"token_budget":150}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        r
+    };
+
+    // 50. Realization fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut r = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            r = filled();
+        }
+        let before = persist::export(&r, &r.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match r.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&r, &r.limits);
+                let mut c = Realization::new();
+                c.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&c, &c.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&r, &r.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; show op
+    let show = r#"{"op":"show","args":{}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![show.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![show.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"templates":1000000,"facts":4096,"idioms":1024,"forbidden":4096}"#, true),
+        (r#"{"templates":1000001}"#, false),
+        (r#"{"facts":4097}"#, false),
+        (r#"{"idioms":1025}"#, false),
+        (r#"{"forbidden":4097}"#, false),
+        (r#"{"templates":0}"#, false),
+    ] {
+        let mut r = Realization::new();
+        assert_eq!(r.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut r = filled();
+    let before = persist::export(&r, &r.limits).to_json();
+    let bad_template =
+        parse(r#"{"ops":[{"op":"template","args":{"id":"bad","move":"m","text":"   "}}]}"#, 4096).unwrap();
+    assert!(r.workflow(&bad_template).is_err());
+    assert_eq!(persist::export(&r, &r.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

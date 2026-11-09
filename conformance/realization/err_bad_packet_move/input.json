@@ -1,0 +1,14 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "bad move with spaces!",
+          "addressee": "bo"
+        }
+      }
+    ]
+  }
+}

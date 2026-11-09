@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed packet move identifier is refused.",
+  "error": true
+}

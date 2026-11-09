@@ -1,0 +1,1 @@
+{"version":1,"results":[{"line":"This rye bread has no poison in it.","ok":false,"tag":"tease","violations":[{"check":"gate","reason":"forbidden_word_leaked","word":"poison"}]}]}

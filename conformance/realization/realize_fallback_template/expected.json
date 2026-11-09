@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"t_tease","move":"tease","text":"You know how it goes, {addressee}."},{"line":"You know how it goes, bo.","ok":true,"reason":"forbidden_word_leaked","status":"fallback","tag":"tease","tries":2,"violations":[{"check":"gate","reason":"forbidden_word_leaked","word":"poison"}]}]}

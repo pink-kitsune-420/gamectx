@@ -706,53 +706,53 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 3.9 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.2 / 2.7 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.7 | 1.8 / 2.2 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.8 | 4.2 / 5.2 | 2.7 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
+| `beliefs` (`query`) | 1.5 / 1.5 | 2.0 / 2.6 | 4.1 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.0 / 2.4 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 2.0 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.4 | 4.3 / 5.1 | 2.7 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.4 | 0.3 / 0.4 | 1.5 | 274 |
 | `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.2 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.8 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
-| `habit` (`routine`) | 0.8 / 0.8 | 1.1 / 1.6 | 1.7 | 772 |
-| `lesson` (`advice`) | 1.0 / 1.3 | 1.1 / 1.5 | 2.4 | 1,335 |
-| `affect` (`assess`) | 1.2 / 1.3 | 1.7 / 2.3 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.4 | 1.4 / 1.8 | 1.8 | 1,314 |
-| `body` (`assess`) | 1.1 / 1.3 | 1.6 / 2.1 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 1.1 | 1.5 / 2.1 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.2 | 1.8 / 2.9 | 2.1 | 884 |
-| `relationship` (`assess`) | 0.9 / 1.1 | 1.4 / 2.0 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.5 | 3.8 / 4.9 | 5.2 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.1 | 1.6 / 2.1 | 0.8 | 590 |
-| `cooperation` (`assess`, scans every record) | 14.0 / 15.3 | 199.5 / 224.2 | 3.5 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 2.9 | 3.6 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.3 / 6.8 | 7.2 / 7.9 | 1.9 | 864 |
-| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 2.0 | 377 |
-| `detail` (`assess`) | 1.5 / 1.5 | 1.9 / 2.4 | 3.8 | 803 |
-| `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.6 | 1.8 | 118 |
-| `roles` (`assess`) | 1.1 / 1.2 | 1.5 / 1.9 | 1.9 | 529 |
-| `economy` (`price`) | 1.0 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
-| `space` (`see`, line to a far being) | 2.4 / 2.6 | 2.9 / 3.2 | 2.1 | 198 |
-| `drift` (`experience`) | 2.0 / 2.3 | 2.3 / 3.0 | 2.5 | 1,885 |
-| `packs` (`apply`, six requests) | 6.0 / 12.0 | 6.7 / 7.5 | 4.6 | 1,089 |
-| `frame` (`frame`, one being) | 3.5 / 3.7 | 4.0 / 4.6 | 1.8 | 805 |
-| `cueing` (`cue`, one episode) | 2.8 / 2.9 | 3.5 / 4.1 | 3.0 | 3,071 |
-| `pragmatics` (`parse`, a two-clause turn) | 10.2 / 10.8 | 10.1 / 10.5 | 2.6 | 761 |
-| `embodiment` (`react`, a silent turn) | 1.7 / 1.9 | 1.9 / 2.2 | 1.5 | 145 |
-| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.5 | 1.7 / 2.1 | 2.3 | 406 |
-| `fabric` (`dyad`, a pair's history) | 1.2 / 1.3 | 1.4 / 1.7 | 1.7 | 338 |
-| `genre` (`render`, a decision in station words) | 3.2 / 3.4 | 3.9 / 4.7 | 2.4 | 1,245 |
-| `minds` (`admit`, a slow spirit's reaction) | 2.1 / 2.2 | 2.2 / 2.5 | 1.2 | 158 |
-| `defenses` (`threat`, an exposed secret rationalized) | 2.9 / 3.0 | 3.3 / 3.9 | 3.0 | 444 |
-| `culture` (`tell`, a retold rumor) | 3.5 / 4.2 | 5.1 / 6.5 | 4.8 | 1,273 |
-| `projects` (`weight`, a brewery's motive) | 1.1 / 1.2 | 1.7 / 2.3 | 8.5 | 895 |
-| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 2.0 / 2.4 | 2.4 | 201 |
-| `task` (`get`) | 1.4 / 1.5 | 2.3 / 2.9 | 3.6 | 1,417 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.3 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.1 / 1.5 | 2.4 | 685 |
+| `habit` (`routine`) | 0.8 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.7 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.9 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.2 | 1.6 / 2.1 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.5 / 2.1 | 1.7 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.2 | 1.9 / 2.9 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.0 | 2.7 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.6 | 3.8 / 5.0 | 5.1 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.9 | 0.7 | 590 |
+| `cooperation` (`assess`, scans every record) | 14.4 / 23.3 | 221.7 / 347.0 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.8 | 3.8 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.4 / 7.2 | 7.3 / 8.9 | 1.9 | 864 |
+| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 1.9 | 377 |
+| `detail` (`assess`) | 1.5 / 1.5 | 1.9 / 2.4 | 3.9 | 803 |
+| `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.4 | 1.8 | 118 |
+| `roles` (`assess`) | 1.1 / 1.2 | 1.4 / 1.8 | 1.8 | 529 |
+| `economy` (`price`) | 1.0 / 1.0 | 0.9 / 1.0 | 2.1 | 114 |
+| `space` (`see`, line to a far being) | 2.5 / 2.6 | 2.8 / 3.0 | 2.1 | 198 |
+| `drift` (`experience`) | 2.0 / 2.3 | 2.3 / 3.1 | 2.5 | 1,885 |
+| `packs` (`apply`, six requests) | 6.1 / 6.2 | 6.8 / 8.1 | 4.7 | 1,089 |
+| `frame` (`frame`, one being) | 3.6 / 3.8 | 3.9 / 4.7 | 1.7 | 805 |
+| `cueing` (`cue`, one episode) | 2.9 / 3.0 | 3.5 / 4.2 | 3.0 | 3,071 |
+| `pragmatics` (`parse`, a two-clause turn) | 10.8 / 11.1 | 10.6 / 11.9 | 2.6 | 761 |
+| `embodiment` (`react`, a silent turn) | 1.8 / 1.9 | 2.0 / 2.7 | 1.6 | 145 |
+| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.6 | 1.8 / 2.2 | 2.2 | 406 |
+| `fabric` (`dyad`, a pair's history) | 1.3 / 1.4 | 1.5 / 1.9 | 1.7 | 338 |
+| `genre` (`render`, a decision in station words) | 3.2 / 3.4 | 3.8 / 4.4 | 2.5 | 1,245 |
+| `minds` (`admit`, a slow spirit's reaction) | 2.0 / 2.1 | 2.1 / 2.4 | 1.2 | 158 |
+| `defenses` (`threat`, an exposed secret rationalized) | 2.9 / 3.1 | 3.3 / 3.9 | 3.1 | 444 |
+| `culture` (`tell`, a retold rumor) | 3.6 / 4.2 | 4.9 / 6.2 | 4.9 | 1,273 |
+| `projects` (`weight`, a brewery's motive) | 1.2 / 1.5 | 1.7 / 2.3 | 8.6 | 895 |
+| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 1.9 / 2.3 | 2.3 | 201 |
+| `task` (`get`) | 1.4 / 1.5 | 2.2 / 2.7 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 200 µs at 10,000 in the retained run (other runs of the same build gave 195–245 µs;
+1,000 promises, 222 µs at 10,000 in the retained run (other runs of the same build gave 195–245 µs;
 the spread is desktop scheduling) (an index per being is a ROADMAP follow-up). Memory is linear:
 these minimal entries take 416 MB across all forty-three modules at 10,000 each, about 42 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
@@ -770,44 +770,44 @@ durable modules:
 
 | module | save bytes per entry (1k / 10k) | save ms at 10k | load ms at 10k |
 |---|---|---|---|
-| `beliefs` | 131 / 131 | 14.0 | 76.4 |
-| `speech_act` | 46 / 46 | 5.5 | 17.9 |
-| `diet` | 111 / 110 | 10.2 | 33.6 |
-| `creed` | 115 / 115 | 9.6 | 31.2 |
-| `explain` | 422 / 426 | 55.2 | 198.4 |
-| `stability` | 69 / 69 | 7.4 | 21.7 |
-| `expectation` | 214 / 214 | 24.4 | 82.8 |
-| `attention` | 66 / 66 | 5.9 | 19.6 |
-| `aspiration` | 85 / 85 | 10.9 | 30.5 |
-| `habit` | 56 / 56 | 8.7 | 23.5 |
-| `lesson` | 105 / 105 | 12.2 | 43.0 |
-| `cooperation` | 83 / 86 | 7.1 | 25.6 |
-| `cognition` | 126 / 128 | 13.6 | 50.6 |
-| `chatter` | 275 / 109 | 10.8 | 38.4 |
-| `survival` | 171 / 172 | 14.8 | 54.8 |
-| `detail` | 197 / 197 | 28.7 | 78.2 |
-| `retention` | 70 / 70 | 6.8 | 23.2 |
-| `roles` | 46 / 46 | 6.6 | 20.8 |
-| `economy` | 11 / 11 | 1.7 | 4.8 |
-| `space` | 39 / 41 | 4.7 | 16.1 |
-| `drift` | 200 / 191 | 25.6 | 83.3 |
-| `packs` | 221 / 221 | 23.5 | 89.1 |
-| `frame` | 51 / 51 | 10.9 | 26.5 |
-| `cueing` | 161 / 161 | 22.1 | 73.7 |
-| `pragmatics` | 156 / 156 | 14.7 | 47.5 |
-| `embodiment` | 92 / 80 | 6.8 | 20.5 |
-| `surroundings` | 150 / 154 | 12.1 | 43.0 |
-| `fabric` | 104 / 104 | 8.2 | 28.7 |
-| `genre` | 442 / 442 | 42.9 | 122.9 |
-| `minds` | 63 / 63 | 4.3 | 15.2 |
-| `defenses` | 268 / 217 | 22.6 | 72.6 |
-| `culture` | 453 / 302 | 37.3 | 116.1 |
-| `projects` | 657 / 659 | 88.1 | 245.9 |
-| `chemistry` | 97 / 97 | 8.9 | 29.6 |
+| `beliefs` | 131 / 131 | 13.8 | 75.1 |
+| `speech_act` | 46 / 46 | 5.5 | 18.9 |
+| `diet` | 111 / 110 | 10.1 | 34.3 |
+| `creed` | 115 / 115 | 9.2 | 31.6 |
+| `explain` | 422 / 426 | 55.8 | 196.7 |
+| `stability` | 69 / 69 | 7.8 | 22.3 |
+| `expectation` | 214 / 214 | 26.2 | 82.7 |
+| `attention` | 66 / 66 | 5.7 | 20.2 |
+| `aspiration` | 85 / 85 | 11.6 | 30.8 |
+| `habit` | 56 / 56 | 8.6 | 23.5 |
+| `lesson` | 105 / 105 | 12.6 | 43.2 |
+| `cooperation` | 83 / 86 | 7.2 | 27.8 |
+| `cognition` | 126 / 128 | 13.6 | 49.9 |
+| `chatter` | 275 / 109 | 11.3 | 37.6 |
+| `survival` | 171 / 172 | 14.6 | 54.1 |
+| `detail` | 197 / 197 | 29.6 | 82.0 |
+| `retention` | 70 / 70 | 6.6 | 23.3 |
+| `roles` | 46 / 46 | 6.6 | 20.6 |
+| `economy` | 11 / 11 | 1.4 | 5.0 |
+| `space` | 39 / 41 | 5.4 | 17.3 |
+| `drift` | 200 / 191 | 24.8 | 81.0 |
+| `packs` | 221 / 221 | 22.9 | 88.1 |
+| `frame` | 51 / 51 | 10.2 | 26.9 |
+| `cueing` | 161 / 161 | 20.7 | 72.9 |
+| `pragmatics` | 156 / 156 | 14.8 | 46.0 |
+| `embodiment` | 92 / 80 | 7.3 | 20.9 |
+| `surroundings` | 150 / 154 | 13.5 | 43.1 |
+| `fabric` | 104 / 104 | 8.4 | 29.0 |
+| `genre` | 442 / 442 | 43.2 | 129.9 |
+| `minds` | 63 / 63 | 4.2 | 15.5 |
+| `defenses` | 268 / 217 | 23.7 | 70.8 |
+| `culture` | 453 / 302 | 36.9 | 118.5 |
+| `projects` | 657 / 659 | 87.9 | 245.9 |
+| `chemistry` | 97 / 97 | 8.1 | 28.2 |
 
 Save size is linear in the entries: these minimal entries take 11–659 bytes each, 52.1 MB across
 all thirty-four modules at 10,000 each (about 5.2 KB per character if every module holds one entry
-for it). Loading costs 2.4–5.4 times as much as saving (median 3.3) because every invariant is checked; the
+for it). Loading costs 2.6–5.4 times as much as saving (median 3.4) because every invariant is checked; the
 slowest, 10,000 three-milestone projects, loads in 246 ms. Same limits as the table above: one run,
 richer characters save more, and the text is not compressed.
 
@@ -1033,7 +1033,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.2 µs at 10,000 beings. $0 API spend.
+takes 7.3 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 
@@ -2035,3 +2035,45 @@ checked in CI; 80 checks total) proves two equivalence guarantees:
 2. Acceptance scene replay: "The Missing Ration" acceptance scene replayed through `BeingRuntime::step`
    produces byte-identical decisions and explanations in both orbital station and village settings (0 mismatches).
 All 12 wired edges are verified with active explain traces. $0 API spend.
+
+## Intent packets and checked realization (pass 5, stage 3)
+
+Intent packets and checked realization (`gamectx::character::realization::Realization` or local kind `realization`)
+bridge deterministic character minds with small local models (1B–8B). The runtime's decisions become compact,
+closed-vocabulary intent packets compiled under a token budget, realized by a local model, and verified by five strict
+host checks with deterministic fallback.
+
+A packet (`packet {move, addressee, speaker?, mechanism?, effect?, tone?, pacing?, sentence_budget?, token_budget?, facts?, idioms?, forbidden?}`)
+holds act or move, mechanism and effect, addressee, allowed facts with framings (`state`, `hedge`, `cover`), idioms
+above threshold, tone and pacing hints, sentence budget, and forbidden key words from the epistemic gate. When total
+tokens exceed `token_budget`, the salience ranker's shares determine which facts are kept and which are dropped.
+
+The model returns a JSON line and a self-tag (`{"line": "...", "tag": "..."}`). The host executes five checks:
+1. **Epistemic gate:** 0 leaks of forbidden key words or masked facts.
+2. **Length and sentence budget:** sentence count ≤ budget, characters ≤ 300.
+3. **Allowed facts and framings:** unallowed facts cannot be named, cover stories must not reveal the masked claim,
+   and hedged facts require hedge markers.
+4. **Idioms in packet:** any known community idiom used must be present in the packet.
+5. **Self-tag matches move:** model's reported tag must match the intended move.
+
+A failing line is retried once with the failure reason. If the retry fails, the host falls back to an authored template
+for the move, ensuring a scene never stalls on bad generation.
+
+**Evidence (pass 5 stage 3):** an independent Python reference (`eval/character/realization_reference.py`,
+`realization_cases.py`) and 34 conformance cases in `conformance/realization/` (8 malformed), covering packet compilation,
+salience pruning, prompt generation, all five realization checks, retries, and template fallbacks. Differential parity
+matches across 2,000 randomized workflows at seed 7 and seed 1 (0 mismatches). Robustness section 50 (`tests/robustness.rs`)
+verifies 1,500 mutated saves and boundary invariants.
+
+**Small-model fidelity evaluation (`eval/character/fidelity_eval.py`):** 200 planned turns covering every banter move,
+every defense mechanism, cover and hedge framings, community idioms, and epistemic gate secret traps were evaluated
+against local models on loopback (`:8080`) at $0 API spend:
+- **Zero gate leaks:** 0 leaks after realization across all 200 turns on both models.
+- **Tag agreement:** 100% tag agreement on both Qwen2.5-Coder 3B and Qwen2.5-Coder 7B.
+- **Required elements rate:** 85.5% on Qwen2.5-Coder 3B, 96.0% on Qwen2.5-Coder 7B.
+- **First-try acceptance:** 83.0% (166/200) on Qwen2.5-Coder 3B, 90.5% (181/200) on Qwen2.5-Coder 7B.
+- **Accepted with one retry:** 87.5% (175/200) on Qwen2.5-Coder 3B, 92.5% (185/200) on Qwen2.5-Coder 7B.
+- **Authored template fallback:** 12.5% (25/200) on Qwen2.5-Coder 3B, 7.5% (15/200) on Qwen2.5-Coder 7B, delivering 100% of turns without stalling.
+- **Token efficiency:** median 122–123 prompt tokens, 37–41 completion tokens.
+- **Latency:** p50 0.543 s (3B) and 0.834 s (7B); p95 0.749 s (3B) and 1.141 s (7B), Q4_K_M weights fully offloaded to an 8 GB Vulkan GPU, AMD Ryzen 7 3800X host.
+- **Limits:** one run per model at temperature 0.1; 200 authored turns; the required-element checks are keyword heuristics, not a judgment of quality; no model was asked to leak under adversarial pressure, so 0 leaks *before* the gate shows the packet's forbidden list was followed, not that the gate was stressed. The gate itself is exercised by the conformance cases. Llama 3.2 3B and Stheno 8B were not measured (the local router serves only the Qwen coder models).

@@ -1,0 +1,42 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "idiom",
+        "args": {
+          "id": "i_spill",
+          "phrase": "spill the beans"
+        }
+      },
+      {
+        "op": "check",
+        "args": {
+          "packet": {
+            "move": "tease",
+            "addressee": "bo",
+            "speaker": "mira",
+            "sentence_budget": 2,
+            "facts": [
+              {
+                "id": "bread",
+                "claim": "Mira baked fresh rye bread.",
+                "framing": "state"
+              }
+            ],
+            "idioms": [
+              "salt and iron"
+            ],
+            "forbidden": [
+              "poison"
+            ]
+          },
+          "reply": {
+            "line": "Do not spill the beans to Bo.",
+            "tag": "tease"
+          }
+        }
+      }
+    ]
+  }
+}

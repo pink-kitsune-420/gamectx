@@ -1,0 +1,33 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "check",
+        "args": {
+          "packet": {
+            "move": "answer",
+            "addressee": "investigator",
+            "sentence_budget": 2,
+            "facts": [
+              {
+                "id": "stolen_gems",
+                "claim": "The gems were stolen by the apprentice.",
+                "framing": "cover",
+                "lie": "The gems are locked in the strongbox.",
+                "keys": [
+                  "stolen",
+                  "apprentice"
+                ]
+              }
+            ]
+          },
+          "reply": {
+            "line": "The apprentice took them.",
+            "tag": "answer"
+          }
+        }
+      }
+    ]
+  }
+}

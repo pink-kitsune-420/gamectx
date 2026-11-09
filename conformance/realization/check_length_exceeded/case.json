@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply exceeds max characters limit.",
+  "error": false
+}

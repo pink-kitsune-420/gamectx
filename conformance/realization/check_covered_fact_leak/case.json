@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply reveals true keys of a covered fact.",
+  "error": false
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "deflect",
+          "addressee": "stranger",
+          "forbidden": [
+            "secret",
+            "vault",
+            "stolen"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "invented_op_xyz",
+        "args": {
+          "foo": "bar"
+        }
+      }
+    ]
+  }
+}

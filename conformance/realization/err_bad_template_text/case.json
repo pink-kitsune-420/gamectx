@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Empty template text is refused.",
+  "error": true
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "rationalize",
+          "addressee": "guard",
+          "mechanism": "rationalization",
+          "effect": "explains_too_much",
+          "tone": "tense",
+          "pacing": "fast",
+          "sentence_budget": 1
+        }
+      }
+    ]
+  }
+}

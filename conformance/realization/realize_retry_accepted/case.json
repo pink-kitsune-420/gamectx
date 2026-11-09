@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "First candidate fails, retry candidate passes and is accepted.",
+  "error": false
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "m1",
+          "addressee": "bo",
+          "facts": [
+            {
+              "id": "f1",
+              "claim": "Claim text",
+              "framing": "invented_framing"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

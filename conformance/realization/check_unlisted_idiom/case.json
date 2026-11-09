@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply uses community idiom that was not in the packet.",
+  "error": false
+}

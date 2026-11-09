@@ -1,0 +1,26 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "template",
+        "args": {
+          "id": "t1",
+          "move": "m1",
+          "text": "Template one."
+        }
+      },
+      {
+        "op": "idiom",
+        "args": {
+          "id": "i1",
+          "phrase": "iron will"
+        }
+      },
+      {
+        "op": "show",
+        "args": {}
+      }
+    ]
+  }
+}

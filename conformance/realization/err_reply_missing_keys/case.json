@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reply missing line or tag keys is rejected by check.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Token budget out of allowed bounds is refused.",
+  "error": true
+}

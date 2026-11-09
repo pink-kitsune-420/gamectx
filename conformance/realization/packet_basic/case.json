@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Compile an intent packet with move, addressee, facts and idioms.",
+  "error": false
+}

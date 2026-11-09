@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Invalid fact framing is refused.",
+  "error": true
+}

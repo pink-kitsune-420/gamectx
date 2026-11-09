@@ -1,0 +1,1 @@
+{"version":1,"results":[{"line":"The apprentice took them.","ok":false,"tag":"answer","violations":[{"check":"allowed_facts","fact":"stolen_gems","reason":"masked_fact_revealed","word":"apprentice"}]}]}

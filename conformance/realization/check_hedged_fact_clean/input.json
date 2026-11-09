@@ -1,0 +1,32 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "check",
+        "args": {
+          "packet": {
+            "move": "inform",
+            "addressee": "player",
+            "sentence_budget": 2,
+            "facts": [
+              {
+                "id": "weather",
+                "claim": "Storm is brewing in the north.",
+                "framing": "hedge",
+                "keys": [
+                  "storm",
+                  "north"
+                ]
+              }
+            ]
+          },
+          "reply": {
+            "line": "I think a storm is coming from the north.",
+            "tag": "inform"
+          }
+        }
+      }
+    ]
+  }
+}

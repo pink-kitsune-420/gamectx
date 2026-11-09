@@ -2927,6 +2927,7 @@ grows past them is refused where it used to be accepted.
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
+| `realization` | authored `templates` (256, 4096), allowed `facts` per packet (64, 4096), community `idioms` (32, 1024), `forbidden` words (64, 4096) |
 
 ### Knowledge kinds
 
@@ -3773,6 +3774,34 @@ Twelve wired cross-engine edges with documented explain traces:
 - `show {being}` → `{being, definition}`; inspects a registered being definition.
 - `export {}` → `{"format": "gamectx-state", "kind": "being-runtime", "limits", "state", "version": 1}`.
 - `import {save}` → replaces the runtime's state after strict envelope and invariant validation.
+
+## Realization and intent packets v1 (pass 5, stage 3)
+
+`gamectx::character::realization` (guide: [Life](characters/LIFE.md#intent-packets-and-checked-realization-pass-5-stage-3)),
+local kind `realization` with [host limits](#host-limits-v1): `templates` (default 256, ceiling 1,000,000), `facts` (default 64,
+ceiling 4096), `idioms` (default 32, ceiling 1024), and `forbidden` (default 64, ceiling 4096).
+`{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 34 cases (8 malformed) live in `conformance/realization/`.
+
+Compact intent packets compiled under a token budget, checked realization with 5 host verification gates, and deterministic
+template fallback ensuring zero scene stalls:
+
+- `template {id, move, text (1–200 chars)}` → `{id, move, text}`; registers an authored fallback template.
+- `templates {list: [{id, move, text}]}` → `{count}`; batch registers templates.
+- `idiom {id, phrase (1–80 chars, 1–6 words)}` → `{id, phrase}`; registers a community idiom phrase.
+- `packet {move, addressee, speaker?, mechanism?, effect?, tone?, pacing?, sentence_budget? (1–8, 2), token_budget? (20–2000, 200), facts? [≤64], idioms? [≤32], forbidden? [≤64]}`
+  → `{addressee, dropped_facts, effect, estimated_tokens, facts, forbidden, idioms, mechanism, move, pacing, sentence_budget, speaker, token_budget, tone}`;
+  compiles a closed-vocabulary intent packet; facts exceeding `token_budget` are pruned by salience share.
+- `prompt {packet}` → `{prompt, schema, system}`; formats the packet into a model prompt and JSON schema.
+- `check {packet, reply (JSON string or object {"line", "tag"}), known_idioms?, unallowed_facts?}`
+  → `{line, ok, tag, violations: [{check, reason, ...}]}`; runs the 5 verification gates (epistemic gate, length/sentences,
+  allowed facts/framings, idioms in packet, self-tag matches move).
+- `realize {packet, candidate, retry?, known_idioms?, unallowed_facts?, templates?}`
+  → `{line, ok, status: "accepted"|"retry"|"fallback", tag, tries, reason?, retry_prompt?, violations?}`;
+  executes the realization pipeline: checks candidate, requests single retry on failure with specific reason, and falls back to
+  authored template if retry also fails.
+- `show {id?}` → `{templates, idioms}` or `{id, move, text}`; inspects registered templates and idioms.
+- `export {}` → `{"format": "gamectx-state", "kind": "realization", "limits", "state", "version": 1}`.
+- `import {save}` → restores realization state after envelope and invariant validation.
 
 ## Surroundings v1 (pass 3, stage 5)
 

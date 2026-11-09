@@ -1,0 +1,1 @@
+{"version":1,"results":[{"line":"I saw the silver dagger yesterday.","ok":false,"tag":"tease","violations":[{"check":"allowed_facts","fact":"dagger","reason":"unallowed_fact_named","word":"dagger"}]}]}

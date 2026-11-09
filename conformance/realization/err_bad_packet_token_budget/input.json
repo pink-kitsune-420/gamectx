@@ -1,0 +1,15 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "packet",
+        "args": {
+          "move": "m1",
+          "addressee": "bo",
+          "token_budget": 5
+        }
+      }
+    ]
+  }
+}

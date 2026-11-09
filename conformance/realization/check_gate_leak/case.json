@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Candidate reply leaks a forbidden keyword (gate check fails).",
+  "error": false
+}

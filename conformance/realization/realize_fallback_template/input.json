@@ -1,0 +1,47 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "template",
+        "args": {
+          "id": "t_tease",
+          "move": "tease",
+          "text": "You know how it goes, {addressee}."
+        }
+      },
+      {
+        "op": "realize",
+        "args": {
+          "packet": {
+            "move": "tease",
+            "addressee": "bo",
+            "speaker": "mira",
+            "sentence_budget": 2,
+            "facts": [
+              {
+                "id": "bread",
+                "claim": "Mira baked fresh rye bread.",
+                "framing": "state"
+              }
+            ],
+            "idioms": [
+              "salt and iron"
+            ],
+            "forbidden": [
+              "poison"
+            ]
+          },
+          "candidate": {
+            "line": "Poison in the bread.",
+            "tag": "tease"
+          },
+          "retry": {
+            "line": "Still poison everywhere.",
+            "tag": "tease"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Intent packet with tone and pacing hints and mechanism.",
+  "error": false
+}

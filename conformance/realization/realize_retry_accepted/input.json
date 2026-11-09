@@ -1,0 +1,39 @@
+{
+  "kind": "realization",
+  "args": {
+    "ops": [
+      {
+        "op": "realize",
+        "args": {
+          "packet": {
+            "move": "tease",
+            "addressee": "bo",
+            "speaker": "mira",
+            "sentence_budget": 2,
+            "facts": [
+              {
+                "id": "bread",
+                "claim": "Mira baked fresh rye bread.",
+                "framing": "state"
+              }
+            ],
+            "idioms": [
+              "salt and iron"
+            ],
+            "forbidden": [
+              "poison"
+            ]
+          },
+          "candidate": {
+            "line": "Too many sentences. Second sentence. Third sentence.",
+            "tag": "tease"
+          },
+          "retry": {
+            "line": "Just teasing you about the bread.",
+            "tag": "tease"
+          }
+        }
+      }
+    ]
+  }
+}
