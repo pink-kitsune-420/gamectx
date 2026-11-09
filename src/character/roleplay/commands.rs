@@ -95,7 +95,6 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
                         .iter()
                         .any(|a| a.as_str() == Some(arg))
                 })
-                || id == "door:vault" && ["gate", "door"].contains(&arg)
                 || ["it", "that one", "this", "him", "her", "them", "there"].contains(&arg) && focus == target
         };
         if direct {

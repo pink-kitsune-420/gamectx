@@ -14,10 +14,11 @@ impl App {
                 _ => self.engine_merchant.clone(),
             };
             let items = self.game.visible_items();
-            let labels = items
+            let mut labels = items
                 .iter()
                 .map(|i| obj! {"id"=>i.get("id").cloned().unwrap_or(Value::Null),"aliases"=>vec![i.get("label").cloned().unwrap_or(Value::Null)]})
                 .collect::<Vec<_>>();
+            labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
             let mut targets = vec![
                 obj! {"kind"=>"character","id"=>"merchant","names"=>vec!["Ilen","merchant"]},
                 obj! {"kind"=>"character","id"=>"keeper","names"=>vec!["Tovin","keeper"]},

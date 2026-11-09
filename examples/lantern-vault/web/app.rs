@@ -275,10 +275,11 @@ impl App {
     }
     pub fn engine_turn(&mut self, text: &str) -> Result<Value> {
         let items = self.game.visible_items();
-        let labels = items
+        let mut labels = items
             .iter()
             .map(|i| obj! {"id"=>i.get("id").cloned().unwrap_or(Value::Null),"aliases"=>vec![i.get("label").cloned().unwrap_or(Value::Null)]})
             .collect::<Vec<_>>();
+        labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
         let mut targets = vec![
             obj! {"kind"=>"character","id"=>"merchant","names"=>vec!["Ilen","merchant"]},
             obj! {"kind"=>"character","id"=>"keeper","names"=>vec!["Tovin","keeper"]},
@@ -2284,12 +2285,13 @@ impl App {
         }
         // Guest messages are conversation only. World commands remain host-owned.
         let choices = self.game.choices();
-        let labels = self
+        let mut labels = self
             .game
             .visible_items()
             .iter()
             .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
             .collect::<Vec<_>>();
+        labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
         let sliced = gamectx::character::roleplay::message_chunks(
             &obj! {"op"=>"player","args"=>obj!{"text"=>text(v,"text")?,"max_chars"=>get(&self.speech_options.value,"max_player_chars")?.clone()}},
         )?;
@@ -2771,10 +2773,11 @@ impl App {
                 }
                 let choices = self.game.choices();
                 let items = self.game.visible_items();
-                let labels = items
+                let mut labels = items
                     .iter()
                     .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
                     .collect::<Vec<_>>();
+                labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
                 let focus = self
                     .focus
                     .as_ref()
