@@ -706,59 +706,59 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.5 / 1.5 | 2.0 / 2.6 | 4.1 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.0 / 2.4 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 2.0 | 1.7 / 1.9 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.4 | 4.3 / 5.1 | 2.7 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.4 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.3 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.1 / 1.5 | 2.4 | 685 |
+| `beliefs` (`query`) | 1.5 / 1.6 | 2.1 / 2.7 | 4.1 | 2,521 |
+| `speech_act` (`assess`) | 0.5 / 0.5 | 0.5 / 0.5 | 1.3 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.4 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.7 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 2.8 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
+| `expectation` (`assess`) | 1.0 / 1.0 | 1.5 / 2.1 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.0 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.8 / 0.8 | 1.0 / 1.4 | 2.5 | 685 |
 | `habit` (`routine`) | 0.8 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.7 | 2.3 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.9 | 1.8 | 1,314 |
+| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.4 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.3 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
 | `body` (`assess`) | 1.0 / 1.2 | 1.6 / 2.1 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.5 / 2.1 | 1.7 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.2 | 1.9 / 2.9 | 2.1 | 884 |
-| `relationship` (`assess`) | 1.0 / 1.1 | 1.5 / 2.0 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.6 | 3.8 / 5.0 | 5.1 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.9 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 14.4 / 23.3 | 221.7 / 347.0 | 3.4 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.8 | 3.8 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.4 / 7.2 | 7.3 / 8.9 | 1.9 | 864 |
-| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 1.9 | 377 |
-| `detail` (`assess`) | 1.5 / 1.5 | 1.9 / 2.4 | 3.9 | 803 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.1 | 1.7 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.2 | 1.9 / 2.7 | 2.2 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 2.0 | 2.8 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.8 / 4.7 | 5.2 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.3 / 1.7 | 0.7 | 590 |
+| `cooperation` (`assess`) | 1.1 / 1.1 | 1.5 / 2.0 | 4.3 | 905 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.8 | 3.7 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.5 / 7.1 | 7.2 / 7.9 | 1.9 | 864 |
+| `survival` (`threat`) | 2.5 / 2.6 | 2.6 / 2.8 | 2.0 | 377 |
+| `detail` (`assess`) | 1.5 / 1.5 | 2.0 / 2.5 | 3.9 | 803 |
 | `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.4 | 1.8 | 118 |
-| `roles` (`assess`) | 1.1 / 1.2 | 1.4 / 1.8 | 1.8 | 529 |
-| `economy` (`price`) | 1.0 / 1.0 | 0.9 / 1.0 | 2.1 | 114 |
-| `space` (`see`, line to a far being) | 2.5 / 2.6 | 2.8 / 3.0 | 2.1 | 198 |
-| `drift` (`experience`) | 2.0 / 2.3 | 2.3 / 3.1 | 2.5 | 1,885 |
-| `packs` (`apply`, six requests) | 6.1 / 6.2 | 6.8 / 8.1 | 4.7 | 1,089 |
-| `frame` (`frame`, one being) | 3.6 / 3.8 | 3.9 / 4.7 | 1.7 | 805 |
-| `cueing` (`cue`, one episode) | 2.9 / 3.0 | 3.5 / 4.2 | 3.0 | 3,071 |
-| `pragmatics` (`parse`, a two-clause turn) | 10.8 / 11.1 | 10.6 / 11.9 | 2.6 | 761 |
-| `embodiment` (`react`, a silent turn) | 1.8 / 1.9 | 2.0 / 2.7 | 1.6 | 145 |
-| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.6 | 1.8 / 2.2 | 2.2 | 406 |
-| `fabric` (`dyad`, a pair's history) | 1.3 / 1.4 | 1.5 / 1.9 | 1.7 | 338 |
-| `genre` (`render`, a decision in station words) | 3.2 / 3.4 | 3.8 / 4.4 | 2.5 | 1,245 |
-| `minds` (`admit`, a slow spirit's reaction) | 2.0 / 2.1 | 2.1 / 2.4 | 1.2 | 158 |
-| `defenses` (`threat`, an exposed secret rationalized) | 2.9 / 3.1 | 3.3 / 3.9 | 3.1 | 444 |
-| `culture` (`tell`, a retold rumor) | 3.6 / 4.2 | 4.9 / 6.2 | 4.9 | 1,273 |
-| `projects` (`weight`, a brewery's motive) | 1.2 / 1.5 | 1.7 / 2.3 | 8.6 | 895 |
-| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 1.9 / 2.3 | 2.3 | 201 |
-| `task` (`get`) | 1.4 / 1.5 | 2.2 / 2.7 | 3.7 | 1,417 |
+| `roles` (`assess`) | 1.1 / 1.2 | 1.4 / 1.8 | 1.9 | 529 |
+| `economy` (`price`) | 1.0 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
+| `space` (`see`, line to a far being) | 2.4 / 2.5 | 2.7 / 2.9 | 2.1 | 198 |
+| `drift` (`experience`) | 2.0 / 2.4 | 2.3 / 2.9 | 2.6 | 1,885 |
+| `packs` (`apply`, six requests) | 6.1 / 6.2 | 7.1 / 7.9 | 5.5 | 1,089 |
+| `frame` (`frame`, one being) | 3.7 / 3.9 | 4.1 / 4.8 | 1.8 | 805 |
+| `cueing` (`cue`, one episode) | 2.9 / 3.0 | 3.6 / 4.2 | 3.1 | 3,071 |
+| `pragmatics` (`parse`, a two-clause turn) | 10.7 / 10.8 | 10.6 / 10.8 | 2.7 | 761 |
+| `embodiment` (`react`, a silent turn) | 1.8 / 1.9 | 2.0 / 2.4 | 1.6 | 145 |
+| `surroundings` (`inspect_item`, an owner inspecting an item) | 1.4 / 1.6 | 1.7 / 2.1 | 2.3 | 406 |
+| `fabric` (`dyad`, a pair's history) | 1.3 / 1.4 | 1.6 / 1.9 | 1.8 | 338 |
+| `genre` (`render`, a decision in station words) | 3.2 / 3.4 | 3.9 / 4.5 | 2.5 | 1,245 |
+| `minds` (`admit`, a slow spirit's reaction) | 2.1 / 2.2 | 2.2 / 2.4 | 1.2 | 158 |
+| `defenses` (`threat`, an exposed secret rationalized) | 3.0 / 3.1 | 3.4 / 4.0 | 3.2 | 444 |
+| `culture` (`tell`, a retold rumor) | 3.6 / 4.1 | 5.0 / 6.3 | 4.9 | 1,273 |
+| `projects` (`weight`, a brewery's motive) | 1.2 / 1.3 | 1.8 / 2.4 | 8.8 | 895 |
+| `chemistry` (`pair`, two styles and a history) | 1.6 / 1.7 | 1.9 / 2.2 | 2.3 | 201 |
+| `task` (`get`) | 1.5 / 1.6 | 2.3 / 2.9 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
-maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 222 µs at 10,000 in the retained run (other runs of the same build gave 195–245 µs;
-the spread is desktop scheduling) (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 416 MB across all forty-three modules at 10,000 each, about 42 KB per
-character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
+maps): cooperation `assess` now uses a per-being index, taking 1.1 µs at
+1,000 promises and 1.5 µs at 10,000 in the retained run (down from 222 µs when it
+scanned every record). Memory is linear:
+these minimal entries take 422 MB across all forty-three modules at 10,000 each, about 42 KB per
+character if every module holds one entry for it; richer characters use more. The measurement found five queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
-relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
-`check_consistency` (66 µs). Limits: JSON parsing, the `gamectx local` CLI, cross-module wiring
+relationship `assess` (214 µs), off-screen `assess` for one being (92 µs), deception
+`check_consistency` (66 µs) and cooperation `assess` (222 µs). Limits: JSON parsing, the `gamectx local` CLI, cross-module wiring
 and model calls are excluded; one desktop run with uncontrolled scheduling, not a realtime
 guarantee. Listing ops without a filter (`assess` on the whole deception ledger or off-screen
 history, task `list`) still return, and so walk, every entry.
@@ -770,45 +770,45 @@ durable modules:
 
 | module | save bytes per entry (1k / 10k) | save ms at 10k | load ms at 10k |
 |---|---|---|---|
-| `beliefs` | 131 / 131 | 13.8 | 75.1 |
-| `speech_act` | 46 / 46 | 5.5 | 18.9 |
-| `diet` | 111 / 110 | 10.1 | 34.3 |
-| `creed` | 115 / 115 | 9.2 | 31.6 |
-| `explain` | 422 / 426 | 55.8 | 196.7 |
-| `stability` | 69 / 69 | 7.8 | 22.3 |
-| `expectation` | 214 / 214 | 26.2 | 82.7 |
-| `attention` | 66 / 66 | 5.7 | 20.2 |
-| `aspiration` | 85 / 85 | 11.6 | 30.8 |
-| `habit` | 56 / 56 | 8.6 | 23.5 |
-| `lesson` | 105 / 105 | 12.6 | 43.2 |
-| `cooperation` | 83 / 86 | 7.2 | 27.8 |
-| `cognition` | 126 / 128 | 13.6 | 49.9 |
-| `chatter` | 275 / 109 | 11.3 | 37.6 |
-| `survival` | 171 / 172 | 14.6 | 54.1 |
-| `detail` | 197 / 197 | 29.6 | 82.0 |
-| `retention` | 70 / 70 | 6.6 | 23.3 |
-| `roles` | 46 / 46 | 6.6 | 20.6 |
-| `economy` | 11 / 11 | 1.4 | 5.0 |
-| `space` | 39 / 41 | 5.4 | 17.3 |
-| `drift` | 200 / 191 | 24.8 | 81.0 |
-| `packs` | 221 / 221 | 22.9 | 88.1 |
-| `frame` | 51 / 51 | 10.2 | 26.9 |
-| `cueing` | 161 / 161 | 20.7 | 72.9 |
-| `pragmatics` | 156 / 156 | 14.8 | 46.0 |
-| `embodiment` | 92 / 80 | 7.3 | 20.9 |
-| `surroundings` | 150 / 154 | 13.5 | 43.1 |
-| `fabric` | 104 / 104 | 8.4 | 29.0 |
-| `genre` | 442 / 442 | 43.2 | 129.9 |
-| `minds` | 63 / 63 | 4.2 | 15.5 |
-| `defenses` | 268 / 217 | 23.7 | 70.8 |
-| `culture` | 453 / 302 | 36.9 | 118.5 |
-| `projects` | 657 / 659 | 87.9 | 245.9 |
-| `chemistry` | 97 / 97 | 8.1 | 28.2 |
+| `beliefs` | 131 / 131 | 14.2 | 77.0 |
+| `speech_act` | 46 / 46 | 5.2 | 18.4 |
+| `diet` | 111 / 110 | 9.9 | 34.2 |
+| `creed` | 115 / 115 | 9.4 | 31.8 |
+| `explain` | 422 / 426 | 57.6 | 197.2 |
+| `stability` | 69 / 69 | 7.5 | 21.8 |
+| `expectation` | 214 / 214 | 24.5 | 80.3 |
+| `attention` | 66 / 66 | 5.9 | 19.9 |
+| `aspiration` | 85 / 85 | 11.9 | 30.8 |
+| `habit` | 56 / 56 | 8.3 | 24.1 |
+| `lesson` | 105 / 105 | 12.8 | 42.9 |
+| `cooperation` | 83 / 86 | 9.0 | 32.7 |
+| `cognition` | 126 / 128 | 14.2 | 50.5 |
+| `chatter` | 275 / 109 | 11.1 | 38.7 |
+| `survival` | 171 / 172 | 15.3 | 56.1 |
+| `detail` | 197 / 197 | 29.2 | 79.1 |
+| `retention` | 70 / 70 | 6.8 | 23.0 |
+| `roles` | 46 / 46 | 6.9 | 20.6 |
+| `economy` | 11 / 11 | 1.5 | 4.9 |
+| `space` | 39 / 41 | 4.8 | 17.0 |
+| `drift` | 200 / 191 | 24.7 | 83.6 |
+| `packs` | 221 / 221 | 26.2 | 91.9 |
+| `frame` | 51 / 51 | 10.5 | 28.2 |
+| `cueing` | 161 / 161 | 22.2 | 74.1 |
+| `pragmatics` | 156 / 156 | 15.1 | 46.5 |
+| `embodiment` | 92 / 80 | 7.5 | 21.7 |
+| `surroundings` | 150 / 154 | 12.9 | 45.0 |
+| `fabric` | 104 / 104 | 8.7 | 29.6 |
+| `genre` | 442 / 442 | 43.1 | 127.4 |
+| `minds` | 63 / 63 | 4.5 | 15.5 |
+| `defenses` | 268 / 217 | 22.7 | 73.1 |
+| `culture` | 453 / 302 | 37.1 | 118.8 |
+| `projects` | 657 / 659 | 92.5 | 248.1 |
+| `chemistry` | 97 / 97 | 8.7 | 28.2 |
 
 Save size is linear in the entries: these minimal entries take 11–659 bytes each, 52.1 MB across
 all thirty-four modules at 10,000 each (about 5.2 KB per character if every module holds one entry
 for it). Loading costs 2.6–5.4 times as much as saving (median 3.4) because every invariant is checked; the
-slowest, 10,000 three-milestone projects, loads in 246 ms. Same limits as the table above: one run,
+slowest, 10,000 three-milestone projects, loads in 248 ms. Same limits as the table above: one run,
 richer characters save more, and the text is not compressed.
 
 ### Knowledge modules
@@ -1033,7 +1033,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.3 µs at 10,000 beings. $0 API spend.
+takes 7.2 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 

@@ -251,6 +251,30 @@ pub struct Grudge {
     pub reason: String,
 }
 
+/// Per-being derived index for O(log N) `assess` lookups.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct BeingIndex {
+    pub roles: BTreeSet<(String, String)>,
+    pub promises_made: BTreeSet<String>,
+    pub promises_received: BTreeSet<String>,
+    pub holds: BTreeSet<String>,
+    pub queued: BTreeSet<String>,
+    pub owes_to: BTreeSet<String>,
+    pub owed_by: BTreeSet<String>,
+}
+
+impl BeingIndex {
+    fn is_empty(&self) -> bool {
+        self.roles.is_empty()
+            && self.promises_made.is_empty()
+            && self.promises_received.is_empty()
+            && self.holds.is_empty()
+            && self.queued.is_empty()
+            && self.owes_to.is_empty()
+            && self.owed_by.is_empty()
+    }
+}
+
 /// Joint tasks, promises, contested resources, grudges and favors owed.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Cooperation {
@@ -264,6 +288,7 @@ pub struct Cooperation {
     pub clock: u64,
     pub seq: u64,
     pub limits: Limits,
+    pub index: BTreeMap<String, BeingIndex>,
 }
 
 impl Default for Cooperation {
@@ -277,6 +302,7 @@ impl Default for Cooperation {
             clock: 0,
             seq: 0,
             limits: Limits::defaults(LIMITS),
+            index: BTreeMap::new(),
         }
     }
 }
@@ -359,6 +385,118 @@ impl Cooperation {
         )
     }
 
+    // ------------------------------------------------------------ index maintenance
+
+    fn index_task(&mut self, tid: &str) {
+        if let Some(t) = self.tasks.get(tid) {
+            for (rid, r) in &t.roles {
+                if let Some(b) = &r.being {
+                    self.index.entry(b.clone()).or_default().roles.insert((tid.to_string(), rid.clone()));
+                }
+            }
+        }
+    }
+
+    fn unindex_promise(&mut self, pid: &str) {
+        if let Some(p) = self.promises.get(pid) {
+            if let Some(idx) = self.index.get_mut(&p.from) {
+                idx.promises_made.remove(pid);
+                if idx.is_empty() {
+                    self.index.remove(&p.from);
+                }
+            }
+            if let Some(idx) = self.index.get_mut(&p.to) {
+                idx.promises_received.remove(pid);
+                if idx.is_empty() {
+                    self.index.remove(&p.to);
+                }
+            }
+        }
+    }
+
+    fn index_resource(&mut self, rid: &str) {
+        if let Some(res) = self.resources.get(rid) {
+            if let Some(h) = &res.holder {
+                self.index.entry(h.clone()).or_default().holds.insert(rid.to_string());
+            }
+            for w in &res.queue {
+                self.index.entry(w.being.clone()).or_default().queued.insert(rid.to_string());
+            }
+        }
+    }
+
+    fn unindex_resource(&mut self, rid: &str) {
+        if let Some(res) = self.resources.get(rid) {
+            if let Some(h) = &res.holder {
+                if let Some(idx) = self.index.get_mut(h) {
+                    idx.holds.remove(rid);
+                    if idx.is_empty() {
+                        self.index.remove(h);
+                    }
+                }
+            }
+            for w in &res.queue {
+                if let Some(idx) = self.index.get_mut(&w.being) {
+                    idx.queued.remove(rid);
+                    if idx.is_empty() {
+                        self.index.remove(&w.being);
+                    }
+                }
+            }
+        }
+    }
+
+    fn index_debt_add(&mut self, debtor: &str, creditor: &str) {
+        self.index.entry(debtor.to_string()).or_default().owes_to.insert(creditor.to_string());
+        self.index.entry(creditor.to_string()).or_default().owed_by.insert(debtor.to_string());
+    }
+
+    fn index_debt_remove(&mut self, debtor: &str, creditor: &str) {
+        if let Some(idx) = self.index.get_mut(debtor) {
+            idx.owes_to.remove(creditor);
+            if idx.is_empty() {
+                self.index.remove(debtor);
+            }
+        }
+        if let Some(idx) = self.index.get_mut(creditor) {
+            idx.owed_by.remove(debtor);
+            if idx.is_empty() {
+                self.index.remove(creditor);
+            }
+        }
+    }
+
+    pub fn rebuild_index(&mut self) {
+        self.index.clear();
+        for (tid, t) in &self.tasks {
+            for (rid, r) in &t.roles {
+                if let Some(b) = &r.being {
+                    self.index.entry(b.clone()).or_default().roles.insert((tid.clone(), rid.clone()));
+                }
+            }
+        }
+        for (pid, p) in &self.promises {
+            if p.status == "pending" {
+                self.index.entry(p.from.clone()).or_default().promises_made.insert(pid.clone());
+                self.index.entry(p.to.clone()).or_default().promises_received.insert(pid.clone());
+            }
+        }
+        for (rid, res) in &self.resources {
+            if let Some(h) = &res.holder {
+                self.index.entry(h.clone()).or_default().holds.insert(rid.clone());
+            }
+            for w in &res.queue {
+                self.index.entry(w.being.clone()).or_default().queued.insert(rid.clone());
+            }
+        }
+        for ((d, cr), n) in &self.debts {
+            if *n > 0 {
+                self.index.entry(d.clone()).or_default().owes_to.insert(cr.clone());
+                self.index.entry(cr.clone()).or_default().owed_by.insert(d.clone());
+            }
+        }
+    }
+
     // ------------------------------------------------------------ B2 joint tasks
 
     fn task_role(&self, args: &Value) -> Result<(String, String)> {
@@ -394,6 +532,7 @@ impl Cooperation {
             roles.insert(rid, Role { being, done: false, via: None });
         }
         self.tasks.insert(tid.clone(), JointTask { organizer, goal, roles });
+        self.index_task(&tid);
         Ok(self.view(&tid))
     }
 
@@ -405,7 +544,8 @@ impl Cooperation {
         at_of(args)?;
         let t = self.tasks.get_mut(&tid).ok_or_else(c::bad)?;
         need(by == t.organizer && t.roles[&rid].being.is_none() && !t.holds(&being))?;
-        t.roles.get_mut(&rid).ok_or_else(c::bad)?.being = Some(being);
+        t.roles.get_mut(&rid).ok_or_else(c::bad)?.being = Some(being.clone());
+        self.index.entry(being).or_default().roles.insert((tid.clone(), rid));
         Ok(self.view(&tid))
     }
 
@@ -438,6 +578,7 @@ impl Cooperation {
             let r = self.tasks.get_mut(&tid).and_then(|t| t.roles.get_mut(&rid)).ok_or_else(c::bad)?;
             r.being = Some(helper.clone());
             r.via = Some(asker);
+            self.index.entry(helper.clone()).or_default().roles.insert((tid.clone(), rid.clone()));
         }
         Ok(obj! {
             "accepted" => accepted, "helper" => helper, "reasons" => Value::Array(reasons),
@@ -455,8 +596,15 @@ impl Cooperation {
         let r = &t.roles[&rid];
         need(r.being.as_deref() == Some(from.as_str()) && !r.done && !t.holds(&to))?;
         let r = t.roles.get_mut(&rid).ok_or_else(c::bad)?;
-        r.being = Some(to);
+        r.being = Some(to.clone());
         r.via = None;
+        if let Some(idx) = self.index.get_mut(&from) {
+            idx.roles.remove(&(tid.clone(), rid.clone()));
+            if idx.is_empty() {
+                self.index.remove(&from);
+            }
+        }
+        self.index.entry(to).or_default().roles.insert((tid.clone(), rid));
         Ok(self.view(&tid))
     }
 
@@ -481,9 +629,13 @@ impl Cooperation {
                     *n -= 1;
                     if *n == 0 {
                         self.debts.remove(&back);
+                        self.index_debt_remove(&being, &v);
                     }
                 }
-                _ => *self.debts.entry((v.clone(), being.clone())).or_insert(0) += 1,
+                _ => {
+                    *self.debts.entry((v.clone(), being.clone())).or_insert(0) += 1;
+                    self.index_debt_add(&v, &being);
+                }
             }
             effects.push(rel(&being, &v, "help"));
         }
@@ -507,6 +659,12 @@ impl Cooperation {
         let r = self.tasks.get_mut(&tid).and_then(|t| t.roles.get_mut(&rid)).ok_or_else(c::bad)?;
         r.being = None;
         r.via = None;
+        if let Some(idx) = self.index.get_mut(&being) {
+            idx.roles.remove(&(tid.clone(), rid));
+            if idx.is_empty() {
+                self.index.remove(&being);
+            }
+        }
         Ok(obj! { "effects" => Value::Array(effects), "task" => self.view(&tid) })
     }
 
@@ -539,7 +697,11 @@ impl Cooperation {
                 "due" => due, "grace" => 0u64, "importance" => 50u64, "kind" => "hope",
             },
         };
+        let from_clone = from.clone();
+        let to_clone = to.clone();
         self.promises.insert(pid.clone(), Promise { from, to, what, due, status: "pending" });
+        self.index.entry(from_clone).or_default().promises_made.insert(pid.clone());
+        self.index.entry(to_clone).or_default().promises_received.insert(pid.clone());
         Ok(obj! { "effects" => Value::Array(vec![effect]), "promise" => self.promise_view(&pid) })
     }
 
@@ -551,6 +713,7 @@ impl Cooperation {
         need(p.status == "pending")?;
         p.status = if at <= p.due { "kept" } else { "kept_late" };
         let effect = rel(&p.from, &p.to, "fulfilled_promise");
+        self.unindex_promise(&pid);
         Ok(obj! { "effects" => Value::Array(vec![effect]), "promise" => self.promise_view(&pid) })
     }
 
@@ -562,6 +725,7 @@ impl Cooperation {
         let p = self.promises.get_mut(&pid).ok_or_else(c::bad)?;
         need(p.status == "pending" && by == p.to)?;
         p.status = "released";
+        self.unindex_promise(&pid);
         Ok(obj! { "effects" => Value::Array(Vec::new()), "promise" => self.promise_view(&pid) })
     }
 
@@ -591,6 +755,7 @@ impl Cooperation {
         self.grudges.retain(|_, book| !book.is_empty());
         let mut effects = Vec::new();
         for pid in &broken {
+            self.unindex_promise(pid);
             let p = self.promises.get_mut(pid).ok_or_else(c::bad)?;
             p.status = "broken";
             let (from, to) = (p.from.clone(), p.to.clone());
@@ -629,14 +794,16 @@ impl Cooperation {
         if free {
             need(self.resources.contains_key(&rid) || self.resources.len() < l.get("resources"))?;
             let res = self.resources.entry(rid.clone()).or_default();
-            res.holder = Some(being);
+            res.holder = Some(being.clone());
             res.since = at;
+            self.index.entry(being).or_default().holds.insert(rid.clone());
             return Ok(obj! { "granted" => true, "position" => 0u64, "resource" => self.res_view(&rid) });
         }
         let res = &self.resources[&rid];
         need(res.holder.as_deref() != Some(being.as_str()) && !res.queued(&being))?;
         need(res.queue.len() < l.get("queue"))?;
         self.enqueue(&rid, &being, urgency, status, at, false);
+        self.index.entry(being.clone()).or_default().queued.insert(rid.clone());
         let pos = self.resources[&rid].position(&being).unwrap_or(0);
         Ok(obj! { "granted" => false, "position" => pos, "resource" => self.res_view(&rid) })
     }
@@ -648,11 +815,24 @@ impl Cooperation {
         let at = at_of(args)?;
         let res = self.resources.get_mut(&rid).ok_or_else(c::bad)?;
         if res.holder.as_deref() == Some(being.as_str()) {
+            if let Some(idx) = self.index.get_mut(&being) {
+                idx.holds.remove(&rid);
+                if idx.is_empty() {
+                    self.index.remove(&being);
+                }
+            }
             let next = res.ordered().first().map(|w| w.seq);
             match next {
                 Some(seq) => {
                     let i = res.queue.iter().position(|w| w.seq == seq).ok_or_else(c::bad)?;
                     let w = res.queue.remove(i);
+                    if let Some(idx) = self.index.get_mut(&w.being) {
+                        idx.queued.remove(&rid);
+                        if idx.is_empty() {
+                            self.index.remove(&w.being);
+                        }
+                    }
+                    self.index.entry(w.being.clone()).or_default().holds.insert(rid.clone());
                     res.holder = Some(w.being);
                 }
                 None => res.holder = None,
@@ -661,6 +841,12 @@ impl Cooperation {
         } else {
             need(res.queued(&being))?;
             res.queue.retain(|w| w.being != being);
+            if let Some(idx) = self.index.get_mut(&being) {
+                idx.queued.remove(&rid);
+                if idx.is_empty() {
+                    self.index.remove(&being);
+                }
+            }
         }
         Ok(obj! { "resource" => self.res_view(&rid) })
     }
@@ -698,11 +884,13 @@ impl Cooperation {
             if resented {
                 self.grudge_room(&[holder.as_str()], l)?;
             }
+            self.unindex_resource(&rid);
             let res = self.resources.get_mut(&rid).ok_or_else(c::bad)?;
             res.queue.retain(|w| w.being != ch);
             res.holder = Some(ch.clone());
             res.since = at;
             self.enqueue(&rid, &holder, h_urg, h_st, at, false);
+            self.index_resource(&rid);
             if resented {
                 let w = GRUDGE_YIELD + h_urg as i64 * GRUDGE_YIELD_URGENCY;
                 effects.push(self.add_grudge(&holder, &ch, w, at, "gave_way", l));
@@ -711,15 +899,19 @@ impl Cooperation {
         } else if score <= STAND_AT {
             need(queued || rest < qmax)?;
             self.grudge_room(&[ch.as_str()], l)?;
+            self.unindex_resource(&rid);
             self.resources.get_mut(&rid).ok_or_else(c::bad)?.queue.retain(|w| w.being != ch);
             self.enqueue(&rid, &ch, urg, st, at, false);
+            self.index_resource(&rid);
             let w = GRUDGE_STAND + urg as i64 * GRUDGE_STAND_URGENCY;
             effects.push(self.add_grudge(&ch, &holder, w, at, "refused", l));
             "stand"
         } else {
             need(queued || rest < qmax)?;
+            self.unindex_resource(&rid);
             self.resources.get_mut(&rid).ok_or_else(c::bad)?.queue.retain(|w| w.being != ch);
             self.enqueue(&rid, &ch, urg, st, at, true);
+            self.index_resource(&rid);
             "turns"
         };
         Ok(obj! {
@@ -739,52 +931,69 @@ impl Cooperation {
     fn op_assess(&self, args: &Value) -> Result<Value> {
         keys(args, &["being"], &[])?;
         let b = id_of(args, "being")?;
-        let mut roles = Vec::new();
-        for (tid, t) in &self.tasks {
-            for (rid, r) in &t.roles {
-                if r.being.as_deref() == Some(b.as_str()) {
-                    roles.push(obj! { "task" => tid.as_str(), "role" => rid.as_str(), "done" => r.done });
-                }
-            }
-        }
-        let pending = |f: &dyn Fn(&Promise) -> bool| -> Value {
-            Value::Array(
-                self.promises
-                    .iter()
-                    .filter(|(_, p)| p.status == "pending" && f(p))
-                    .map(|(k, _)| Value::from(k.as_str()))
-                    .collect(),
-            )
+        let empty_roles = BTreeSet::new();
+        let empty_set = BTreeSet::new();
+        let (roles_idx, made_idx, received_idx, holds_idx, queued_idx, owes_idx, owed_idx) = match self.index.get(&b) {
+            Some(idx) => (
+                &idx.roles,
+                &idx.promises_made,
+                &idx.promises_received,
+                &idx.holds,
+                &idx.queued,
+                &idx.owes_to,
+                &idx.owed_by,
+            ),
+            None => (&empty_roles, &empty_set, &empty_set, &empty_set, &empty_set, &empty_set, &empty_set),
         };
-        let made = pending(&|p| p.from == b);
-        let received = pending(&|p| p.to == b);
-        let holds: Vec<Value> = self
-            .resources
+
+        let roles: Vec<Value> = roles_idx
             .iter()
-            .filter(|(_, r)| r.holder.as_deref() == Some(b.as_str()))
-            .map(|(k, _)| Value::from(k.as_str()))
+            .filter_map(|(tid, rid)| {
+                let t = self.tasks.get(tid)?;
+                let r = t.roles.get(rid)?;
+                Some(obj! { "task" => tid.as_str(), "role" => rid.as_str(), "done" => r.done })
+            })
             .collect();
-        let queued: Vec<Value> = self
-            .resources
+
+        let made: Vec<Value> = made_idx.iter().map(|k| Value::from(k.as_str())).collect();
+        let received: Vec<Value> = received_idx.iter().map(|k| Value::from(k.as_str())).collect();
+        let holds: Vec<Value> = holds_idx.iter().map(|k| Value::from(k.as_str())).collect();
+
+        let queued: Vec<Value> = queued_idx
             .iter()
-            .filter_map(|(k, r)| r.position(&b).map(|p| obj! { "resource" => k.as_str(), "position" => p }))
+            .filter_map(|rid| {
+                let r = self.resources.get(rid)?;
+                let p = r.position(&b)?;
+                Some(obj! { "resource" => rid.as_str(), "position" => p })
+            })
             .collect();
-        let owes: Vec<Value> = self
-            .debts
+
+        let owes: Vec<Value> = owes_idx
             .iter()
-            .filter(|((d, _), _)| *d == b)
-            .map(|((_, cr), n)| obj! { "to" => cr.as_str(), "favors" => *n })
+            .filter_map(|cr| {
+                let n = self.debts.get(&(b.clone(), cr.clone()))?;
+                Some(obj! { "to" => cr.as_str(), "favors" => *n })
+            })
             .collect();
-        let owed: Vec<Value> = self
-            .debts
+
+        let owed: Vec<Value> = owed_idx
             .iter()
-            .filter(|((_, cr), _)| *cr == b)
-            .map(|((d, _), n)| obj! { "by" => d.as_str(), "favors" => *n })
+            .filter_map(|d| {
+                let n = self.debts.get(&(d.clone(), b.clone()))?;
+                Some(obj! { "by" => d.as_str(), "favors" => *n })
+            })
             .collect();
+
         Ok(obj! {
-            "being" => b.as_str(), "grudges" => self.grudge_rows(&b), "holds" => Value::Array(holds),
-            "owed" => Value::Array(owed), "owes" => Value::Array(owes), "promises_made" => made,
-            "promises_received" => received, "queued" => Value::Array(queued), "roles" => Value::Array(roles),
+            "being" => b.as_str(),
+            "grudges" => self.grudge_rows(&b),
+            "holds" => Value::Array(holds),
+            "owed" => Value::Array(owed),
+            "owes" => Value::Array(owes),
+            "promises_made" => Value::Array(made),
+            "promises_received" => Value::Array(received),
+            "queued" => Value::Array(queued),
+            "roles" => Value::Array(roles),
         })
     }
 }
@@ -844,6 +1053,7 @@ impl Cooperation {
             ok(is_ident(debtor) && is_ident(creditor) && debtor != creditor && *n >= 1 && *n <= MAX_AT)?;
             ok(!self.debts.contains_key(&(creditor.clone(), debtor.clone())))?;
         }
+        self.rebuild_index();
         Ok(())
     }
 
