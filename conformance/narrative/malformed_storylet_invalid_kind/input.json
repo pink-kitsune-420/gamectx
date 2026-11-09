@@ -1,0 +1,16 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "meteor_strike",
+          "title": "Meteor",
+          "tension": 90
+        }
+      }
+    ]
+  }
+}

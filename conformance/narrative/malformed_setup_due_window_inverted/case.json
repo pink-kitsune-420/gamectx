@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse setup where due_start is later than due_end",
+  "error": true
+}

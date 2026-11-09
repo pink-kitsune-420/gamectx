@@ -1,0 +1,31 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "beta",
+          "kind": "rumor_drift",
+          "title": "B",
+          "tension": 60
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "alpha",
+          "kind": "project_deadline",
+          "title": "A",
+          "tension": 60
+        }
+      },
+      {
+        "op": "rank",
+        "args": {
+          "season_tension": 60
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"results":[{"actors":[],"id":"s1","kind":"rumor_drift","tension":30,"title":"Old title"},{"actors":[],"id":"s1","kind":"rumor_drift","tension":60,"title":"New title"},{"ranked":[{"fit":100,"id":"s1","kind":"rumor_drift","tension":60,"title":"New title"}],"season_tension":60}],"version":1}

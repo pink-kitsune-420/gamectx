@@ -1,0 +1,42 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "strain_threshold",
+          "title": "Storm",
+          "tension": 80,
+          "actors": [
+            "maren"
+          ]
+        }
+      },
+      {
+        "op": "setup",
+        "args": {
+          "id": "u1",
+          "kind": "oath",
+          "description": "Salt store",
+          "due_start": 10,
+          "due_end": 100
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "redemption",
+          "summary": "Winter oath",
+          "turning_point": "vote"
+        }
+      },
+      {
+        "op": "export",
+        "args": {}
+      }
+    ]
+  }
+}

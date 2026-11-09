@@ -1,0 +1,31 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "alder",
+          "theme": "loss",
+          "summary": "Lost net",
+          "turning_point": "net"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "alder",
+          "theme": "growth",
+          "summary": "Made net",
+          "turning_point": "knot"
+        }
+      },
+      {
+        "op": "reminisce",
+        "args": {
+          "being": "alder"
+        }
+      }
+    ]
+  }
+}

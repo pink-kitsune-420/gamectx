@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Ledger reports paid off setups separate from open count",
+  "error": false
+}

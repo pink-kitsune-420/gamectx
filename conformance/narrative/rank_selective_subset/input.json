@@ -1,0 +1,44 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "rumor_drift",
+          "title": "S1",
+          "tension": 30
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s2",
+          "kind": "rumor_drift",
+          "title": "S2",
+          "tension": 50
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s3",
+          "kind": "rumor_drift",
+          "title": "S3",
+          "tension": 80
+        }
+      },
+      {
+        "op": "rank",
+        "args": {
+          "season_tension": 40,
+          "storylets": [
+            "s1",
+            "s3"
+          ]
+        }
+      }
+    ]
+  }
+}

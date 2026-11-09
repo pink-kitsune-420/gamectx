@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rank proposed storylets by fit against season tension curve",
+  "error": false
+}

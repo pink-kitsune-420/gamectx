@@ -1,0 +1,25 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "sealed_salt_store",
+          "kind": "sealed_door",
+          "description": "The old salt store oath",
+          "due_start": 100,
+          "due_end": 200
+        }
+      },
+      {
+        "op": "payoff",
+        "args": {
+          "id": "sealed_salt_store",
+          "at": 150,
+          "resolution": "Opened by council decree during storm"
+        }
+      }
+    ]
+  }
+}

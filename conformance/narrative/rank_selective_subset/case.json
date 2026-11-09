@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rank only specified subset of candidate storylets",
+  "error": false
+}

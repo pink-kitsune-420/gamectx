@@ -1,0 +1,19 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "priest_crisis",
+          "kind": "strain_threshold",
+          "title": "Priest under spiritual strain",
+          "tension": 85,
+          "actors": [
+            "priest"
+          ]
+        }
+      }
+    ]
+  }
+}

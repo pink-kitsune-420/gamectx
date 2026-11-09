@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse payoff on already paid_off setup",
+  "error": true
+}

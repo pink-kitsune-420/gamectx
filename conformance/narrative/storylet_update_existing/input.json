@@ -1,0 +1,31 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "rumor_drift",
+          "title": "Old title",
+          "tension": 30
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "rumor_drift",
+          "title": "New title",
+          "tension": 60
+        }
+      },
+      {
+        "op": "rank",
+        "args": {
+          "season_tension": 60
+        }
+      }
+    ]
+  }
+}

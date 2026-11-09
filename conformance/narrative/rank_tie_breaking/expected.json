@@ -1,0 +1,1 @@
+{"results":[{"actors":[],"id":"beta","kind":"rumor_drift","tension":60,"title":"B"},{"actors":[],"id":"alpha","kind":"project_deadline","tension":60,"title":"A"},{"ranked":[{"fit":100,"id":"alpha","kind":"project_deadline","tension":60,"title":"A"},{"fit":100,"id":"beta","kind":"rumor_drift","tension":60,"title":"B"}],"season_tension":60}],"version":1}

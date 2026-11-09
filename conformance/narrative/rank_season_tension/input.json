@@ -1,0 +1,40 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "calm_morning",
+          "kind": "rumor_drift",
+          "title": "Calm morning",
+          "tension": 20
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "storm_warning",
+          "kind": "project_deadline",
+          "title": "Storm warning",
+          "tension": 70
+        }
+      },
+      {
+        "op": "storylet",
+        "args": {
+          "id": "surge_crisis",
+          "kind": "strain_threshold",
+          "title": "Surge breaches dock",
+          "tension": 90
+        }
+      },
+      {
+        "op": "rank",
+        "args": {
+          "season_tension": 75
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "tide_council",
+          "kind": "coalition_vote",
+          "title": "The council gathers",
+          "tension": 75,
+          "actors": [
+            "tressa",
+            "maren",
+            "alder"
+          ]
+        }
+      }
+    ]
+  }
+}

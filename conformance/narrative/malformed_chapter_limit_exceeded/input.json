@@ -1,0 +1,28 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "growth",
+          "summary": "c1",
+          "turning_point": "t1"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "growth",
+          "summary": "c2",
+          "turning_point": "t2"
+        }
+      }
+    ],
+    "limits": {
+      "chapters": 1
+    }
+  }
+}

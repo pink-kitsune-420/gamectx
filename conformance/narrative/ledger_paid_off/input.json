@@ -1,0 +1,31 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "s_paid",
+          "kind": "door",
+          "description": "d",
+          "due_start": 100,
+          "due_end": 200
+        }
+      },
+      {
+        "op": "payoff",
+        "args": {
+          "id": "s_paid",
+          "at": 150,
+          "resolution": "Resolved"
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "clock": 160
+        }
+      }
+    ]
+  }
+}

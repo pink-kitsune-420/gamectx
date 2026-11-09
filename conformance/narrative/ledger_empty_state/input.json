@@ -1,0 +1,13 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "ledger",
+        "args": {
+          "clock": 100
+        }
+      }
+    ]
+  }
+}

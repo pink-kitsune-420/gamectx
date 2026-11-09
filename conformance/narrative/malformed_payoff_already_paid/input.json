@@ -1,0 +1,33 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "u1",
+          "kind": "door",
+          "description": "d",
+          "due_start": 10,
+          "due_end": 100
+        }
+      },
+      {
+        "op": "payoff",
+        "args": {
+          "id": "u1",
+          "at": 50,
+          "resolution": "First payoff"
+        }
+      },
+      {
+        "op": "payoff",
+        "args": {
+          "id": "u1",
+          "at": 60,
+          "resolution": "Duplicate payoff"
+        }
+      }
+    ]
+  }
+}

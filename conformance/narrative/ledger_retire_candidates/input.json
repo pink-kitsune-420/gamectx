@@ -1,0 +1,23 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "s_stale",
+          "kind": "door",
+          "description": "d",
+          "due_start": 50,
+          "due_end": 100
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "clock": 250
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "priest",
+          "theme": "contamination",
+          "summary": "Doubts take root",
+          "turning_point": "surge"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "priest",
+          "theme": "loss",
+          "summary": "Old oaths shattered",
+          "turning_point": "decree"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "priest",
+          "theme": "steadiness",
+          "summary": "Prayers maintained",
+          "turning_point": "vigil"
+        }
+      }
+    ]
+  }
+}

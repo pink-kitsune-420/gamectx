@@ -1,0 +1,30 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "u1",
+          "kind": "d",
+          "description": "d",
+          "due_start": 1,
+          "due_end": 10
+        }
+      },
+      {
+        "op": "setup",
+        "args": {
+          "id": "u2",
+          "kind": "d",
+          "description": "d",
+          "due_start": 1,
+          "due_end": 10
+        }
+      }
+    ],
+    "limits": {
+      "setups": 1
+    }
+  }
+}

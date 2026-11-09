@@ -1,0 +1,40 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "growth",
+          "summary": "Learned navigation",
+          "turning_point": "voyage"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "growth",
+          "summary": "Mastered piloting",
+          "turning_point": "reef"
+        }
+      },
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "loss",
+          "summary": "Shipwreck of the Gull",
+          "turning_point": "storm"
+        }
+      },
+      {
+        "op": "reminisce",
+        "args": {
+          "being": "maren"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reminisce specific chapter index producing 1-line prompt packet",
+  "error": false
+}

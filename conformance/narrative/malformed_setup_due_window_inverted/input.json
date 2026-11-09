@@ -1,0 +1,17 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "u1",
+          "kind": "door",
+          "description": "d",
+          "due_start": 100,
+          "due_end": 50
+        }
+      }
+    ]
+  }
+}

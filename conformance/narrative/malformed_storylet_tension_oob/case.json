@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse tension above 100",
+  "error": true
+}

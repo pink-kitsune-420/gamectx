@@ -1,0 +1,18 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "promised_visit",
+          "kind": "promise",
+          "description": "Visit before winter",
+          "due_start": 50,
+          "due_end": 150,
+          "target": "alder"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "redemption",
+          "summary": "The winter the store burst",
+          "turning_point": "salt_vote"
+        }
+      },
+      {
+        "op": "reminisce",
+        "args": {
+          "being": "maren",
+          "chapter": 1
+        }
+      }
+    ]
+  }
+}

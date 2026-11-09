@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Payoff marks setup paid and records resolution",
+  "error": false
+}

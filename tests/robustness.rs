@@ -5505,6 +5505,86 @@ fn simulation_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&s, &s.limits).to_json(), before);
 }
 
+#[test]
+fn narrative_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::narrative::NarrativeManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5057_2026_1109_0056);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut nm = NarrativeManager::new();
+        nm.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"storylet","args":{"id":"mill_repair","kind":"project_deadline","title":"Mill repair","tension":60,"actors":["maren"]}},
+                {"op":"setup","args":{"id":"sealed_salt_store","kind":"sealed_door","description":"Old salt store oath","due_start":100,"due_end":200}},
+                {"op":"chapter","args":{"being":"maren","theme":"redemption","summary":"Winter oath","turning_point":"vote"}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        nm
+    };
+
+    // 56. Narrative fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut nm = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            nm = filled();
+        }
+        let before = persist::export(&nm, &nm.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match nm.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&nm, &nm.limits);
+                let mut nm2 = NarrativeManager::new();
+                nm2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&nm2, &nm2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&nm, &nm.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; ledger op
+    let lop = r#"{"op":"ledger","args":{"clock":150}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![lop.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![lop.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"chapters":16,"setups":512,"storylets":128}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"chapters":17}"#, false),
+        (r#"{"setups":513}"#, false),
+        (r#"{"storylets":129}"#, false),
+        (r#"{"chapters":0}"#, false),
+    ] {
+        let mut n = NarrativeManager::new();
+        assert_eq!(n.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut n = filled();
+    let before = persist::export(&n, &n.limits).to_json();
+    let bad_s =
+        parse(r#"{"ops":[{"op":"storylet","args":{"id":"bad id!","kind":"project_deadline","title":"t","tension":50}}]}"#, 4096).unwrap();
+    assert!(n.workflow(&bad_s).is_err());
+    assert_eq!(persist::export(&n, &n.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

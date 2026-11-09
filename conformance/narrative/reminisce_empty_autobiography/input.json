@@ -1,0 +1,25 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "s1",
+          "kind": "rumor_drift",
+          "title": "t",
+          "tension": 10,
+          "actors": [
+            "stranger"
+          ]
+        }
+      },
+      {
+        "op": "reminisce",
+        "args": {
+          "being": "stranger"
+        }
+      }
+    ]
+  }
+}

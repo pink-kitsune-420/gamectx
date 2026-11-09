@@ -1,0 +1,19 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "mill_repair",
+          "kind": "project_deadline",
+          "title": "Mill repair deadline nears",
+          "tension": 60,
+          "actors": [
+            "maren"
+          ]
+        }
+      }
+    ]
+  }
+}

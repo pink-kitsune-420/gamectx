@@ -1,0 +1,23 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "chapter",
+        "args": {
+          "being": "maren",
+          "theme": "growth",
+          "summary": "c1",
+          "turning_point": "t1"
+        }
+      },
+      {
+        "op": "reminisce",
+        "args": {
+          "being": "maren",
+          "chapter": 5
+        }
+      }
+    ]
+  }
+}

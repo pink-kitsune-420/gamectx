@@ -1,0 +1,20 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "storylet",
+        "args": {
+          "id": "ghost_ship",
+          "kind": "rumor_drift",
+          "title": "Rumor of ghost ship spreads",
+          "tension": 40,
+          "actors": [
+            "alder",
+            "priest"
+          ]
+        }
+      }
+    ]
+  }
+}

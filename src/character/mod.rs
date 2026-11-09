@@ -36,6 +36,7 @@ pub mod living;
 pub mod mind;
 pub mod minds;
 pub mod motive;
+pub mod narrative;
 pub mod offscreen;
 pub mod packs;
 pub mod party;

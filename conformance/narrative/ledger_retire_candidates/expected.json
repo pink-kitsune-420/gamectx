@@ -1,0 +1,1 @@
+{"results":[{"description":"d","due_end":100,"due_start":50,"id":"s_stale","kind":"door","status":"open","target":null},{"clock":250,"due_now":[],"open_count":1,"overdue":["s_stale"],"paid_off":[],"retire_candidates":["s_stale"]}],"version":1}

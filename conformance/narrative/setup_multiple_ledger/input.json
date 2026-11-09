@@ -1,0 +1,33 @@
+{
+  "kind": "narrative",
+  "args": {
+    "ops": [
+      {
+        "op": "setup",
+        "args": {
+          "id": "s1",
+          "kind": "door",
+          "description": "d1",
+          "due_start": 10,
+          "due_end": 50
+        }
+      },
+      {
+        "op": "setup",
+        "args": {
+          "id": "s2",
+          "kind": "debt",
+          "description": "d2",
+          "due_start": 60,
+          "due_end": 120
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "clock": 40
+        }
+      }
+    ]
+  }
+}

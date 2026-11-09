@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse theme outside closed 5-theme list",
+  "error": true
+}
