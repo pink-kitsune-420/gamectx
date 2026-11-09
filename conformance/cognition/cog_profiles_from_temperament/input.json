@@ -1,0 +1,49 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "careful",
+          "temperament": "careful"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "steady",
+          "temperament": "steady"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "impulsive",
+          "temperament": "impulsive"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "dreamy",
+          "temperament": "dreamy"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "apprentice",
+          "temperament": "careful",
+          "impulsiveness": 60
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "stranger"
+        }
+      }
+    ]
+  }
+}

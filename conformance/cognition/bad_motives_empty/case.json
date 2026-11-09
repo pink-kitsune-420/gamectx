@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A decision needs at least one motive.",
+  "error": true
+}

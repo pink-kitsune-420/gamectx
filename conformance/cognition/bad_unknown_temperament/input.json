@@ -1,0 +1,14 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "a",
+          "temperament": "reckless"
+        }
+      }
+    ]
+  }
+}

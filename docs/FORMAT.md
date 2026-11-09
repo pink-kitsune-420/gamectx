@@ -2905,6 +2905,7 @@ grows past them is refused where it used to be accepted.
 | `habit` | `beings` (1024, 10⁶), `entries` per being (32, 512), `slots` per being (32, 512) |
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |
 | `cooperation` | `tasks` (64, 10⁶), `roles` per task (8, 64), `promises` (256, 10⁶), `resources` (256, 10⁶), `queue` per resource (16, 1024), `beings` holding grudges (1024, 10⁶), `grudges` per being (32, 4096; a full book evicts the weakest, then first by name), `debts` (4096, 10⁶) |
+| `cognition` | `beings` with a profile or memories (1024, 10⁶), `memories` per being (256, 65536; a full book evicts the weakest, then least important, then id), `people` per memory (8, 64), `motives` per `decide` (16, 256), `steps` per `decide` (16, 256) |
 
 ### Knowledge kinds
 
@@ -3049,6 +3050,42 @@ else `ready`.
   are at most 1,000,000.
 - `assess {being}` → `{being, grudges, holds [resources], owed [{by, favors}], owes [{to, favors}],
   promises_made, promises_received (pending ids), queued [{resource, position}], roles [{task, role, done}]}`.
+
+## Cognition v1 (pass 2, A7/A8)
+
+`gamectx::character::cognition` (guide: [Life](characters/LIFE.md#bounded-rationality-and-fallible-memory-pass-2-a7a8)),
+local kind `cognition` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
+Its 25 cases (6 malformed) live in `conformance/cognition/`. Seeds, days and ticks are 0..10¹²; strengths and slip
+rates are millionths. A roll is FNV-1a (64-bit) of the given text. An op that fails refuses the request; ops before
+it keep their changes, and the failing op changes nothing.
+
+A profile is `{temperament, plan_depth 1–8, horizon 1–10,000, impulsiveness 0–100, memory_span 1–10⁶, slip
+0–10⁶}`; presets `careful` (6, 240, 10, 2,000, 50,000), `steady` (4, 120, 25, 1,000, 100,000), `impulsive` (2, 30,
+70, 500, 200,000), `dreamy` (3, 60, 40, 300, 250,000). A being without a profile reads as `steady`.
+
+- `profile {being, temperament? ("steady"), plan_depth?, horizon?, impulsiveness?, memory_span?, slip?}` →
+  `{being, …profile}`; replaces the being's profile (overrides apply to the preset).
+- `decide {being, seed, motives 1..motives limit [{id, score 0–100}], steps? ≤ steps limit [{id, familiar?
+  (true), eta? (at)}], at? (0)}` → `{being, beyond_horizon [ids], dropped, mode, motive, plan [{id, slip}], roll,
+  slipped|null}`. Ids are distinct. `motive` is the highest score, ties by id. `roll` = FNV-1a(`"<seed>:<being>:
+  impulse"`) mod 100; below impulsiveness, `mode` is `impulse` and nothing is planned. Else `plan`: steps with
+  `eta ≤ at + horizon` in the given order, the first `plan_depth` kept (`dropped` counts the rest); an unfamiliar
+  step slips when FNV-1a(`"<seed>:<being>:<step>"`) mod 10⁶ < slip. `decide` changes nothing.
+- `remember {being, id, about, what, day, people? ≤ people limit (distinct), importance? 0–100 (50), at? (0)}` →
+  `{being, evicted|null, memory}`; a memory view is `{id, about, day, people, what, clarity, importance,
+  strength}` with strength 1,000,000 and `last` tick max(at, clock). Duplicate ids are refused.
+- `tick {now ≥ previous now}` → `{changed [{being, clarity, id}], forgotten [{being, id}], now}` (by being, then
+  id). Each memory with importance < 100 and `last < now` loses `min(now − last, 100·span)·10⁶·(100 −
+  importance) / (100·span)` (floor; span is the being's memory span); at 0 it is forgotten. `changed` lists clarity
+  changes (`vivid` ≥ 900,000 > `clear` ≥ 600,000 > `hazy`).
+- `recall {being, id, seed, errors? (true)}` → `{being, clarity, distorted, id, kind|null, strength, told,
+  truth}`; `told` and `truth` are `{about, day, people, what}`. With errors and strength < 600,000, roll =
+  FNV-1a(`"<seed>:<being>:<id>"`) mod 10⁶; when roll < 600,000 − strength: if (roll / 7) is odd, the memory has
+  people and the being's other memories name people not in it, `merged_person` replaces the first person with
+  the sorted others' entry at roll mod count; otherwise `wrong_day` shifts the day by 1 + roll mod 3, later when
+  (roll / 3) is even or the day is smaller than the shift, else earlier. Then strength += 100,000 (≤ 10⁶).
+- `forget {being, id}` → `{being, forgot}`; refused if unknown.
+- `assess {being}` → `{being, memories (strength descending, then id), profile}`.
 
 ## Game data and save files v1
 

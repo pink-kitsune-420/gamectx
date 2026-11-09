@@ -1,0 +1,117 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "impulsiveness": 0,
+          "plan_depth": 8,
+          "slip": 200000
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "miller",
+          "seed": 1,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "fetch_grain"
+            },
+            {
+              "id": "mend",
+              "familiar": false
+            },
+            {
+              "id": "grease",
+              "familiar": false
+            },
+            {
+              "id": "sweep"
+            },
+            {
+              "id": "patch",
+              "familiar": false
+            },
+            {
+              "id": "sell"
+            },
+            {
+              "id": "count"
+            },
+            {
+              "id": "lock"
+            }
+          ]
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "impulsiveness": 0,
+          "plan_depth": 8,
+          "slip": 0
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "miller",
+          "seed": 1,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "fetch_grain"
+            },
+            {
+              "id": "mend",
+              "familiar": false
+            },
+            {
+              "id": "grease",
+              "familiar": false
+            },
+            {
+              "id": "sweep"
+            },
+            {
+              "id": "patch",
+              "familiar": false
+            },
+            {
+              "id": "sell"
+            },
+            {
+              "id": "count"
+            },
+            {
+              "id": "lock"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

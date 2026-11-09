@@ -1,0 +1,15 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "decide",
+        "args": {
+          "being": "a",
+          "seed": 1,
+          "motives": []
+        }
+      }
+    ]
+  }
+}

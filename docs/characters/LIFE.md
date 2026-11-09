@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Twenty-one character modules take a `limits` object next to
+The game decides how much it needs. Twenty-two character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -702,36 +702,37 @@ needs more.
 Measured host work at large casts (`eval/character/scale_measure.rs`, retained in
 `eval/character/scale-timing.json`; one release-mode run on an 8-core desktop CPU, single thread).
 Each module was filled with N entries by one small op each (a being, or a told claim, attitude,
-off-screen record, promise or task), then given 1,000 single-op queries spread over them:
+off-screen record, promise, memory or task), then given 1,000 single-op queries spread over them:
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.3 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
-| `diet` (`choose`) | 1.7 / 1.9 | 2.1 / 2.5 | 1.8 | 613 |
-| `creed` (`judge`) | 1.5 / 1.6 | 1.7 / 2.0 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.2 / 3.3 | 4.5 / 6.0 | 3.2 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.6 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.1 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.7 / 1.8 | 1.9 / 2.2 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.9 | 1.0 / 1.3 | 2.3 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.3 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.7 / 1.0 | 1.1 / 1.5 | 2.4 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.6 / 2.1 | 2.5 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 2.0 | 1.8 | 1,314 |
+| `beliefs` (`query`) | 1.5 / 2.1 | 2.0 / 2.6 | 4.4 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.5 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.4 / 3.4 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.7 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.4 | 0.3 / 0.3 | 1.5 | 274 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.4 / 1.9 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 2.0 / 2.2 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.3 | 2.4 | 685 |
+| `habit` (`routine`) | 0.8 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.4 | 1,335 |
+| `affect` (`assess`) | 1.2 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
 | `body` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.7 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.9 / 2.9 | 2.1 | 884 |
-| `relationship` (`assess`) | 0.9 / 1.0 | 1.4 / 1.8 | 2.8 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.7 / 4.8 | 5.2 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.0 / 1.1 | 1.3 / 1.7 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 13.4 / 14.3 | 220.5 / 241.5 | 3.4 | 230 |
-| `task` (`get`) | 1.4 / 1.5 | 2.1 / 2.6 | 3.6 | 1,417 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.7 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.2 | 2.0 / 3.1 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 2.0 | 2.8 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.8 / 4.8 | 5.7 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.7 | 590 |
+| `cooperation` (`assess`, scans every record) | 13.7 / 14.8 | 211.0 / 238.7 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 2.9 | 3.7 | 1,681 |
+| `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.8 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
-maps), except cooperation `assess`, which walks every task, promise, resource and debt: 13 µs at
-1,000 promises, 221 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 242 MB across all twenty-one modules at 10,000 each, about 24 KB per
+maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
+1,000 promises, 211 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 258 MB across all twenty-two modules at 10,000 each, about 26 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -880,3 +881,48 @@ proposals). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of
 with limits, 64/65-op and limit-ceiling boundaries, a 64-role task, a 1,024-deep queue, and a
 refused grudge that changes nothing. Scale is in the [table above](#host-set-limits). $0 API
 spend.
+
+## Bounded rationality and fallible memory (pass 2, A7/A8)
+
+`gamectx::character::cognition` (`Cognition`, local kind `cognition`) makes beings think and
+remember differently. Rates and strengths are fixed-point millionths; rolls are FNV-1a of a
+host-chosen seed, so the same seed always gives the same result.
+
+**Temperament settings.** `profile` sets a temperament, and any setting can be overridden:
+
+| temperament | plan depth | horizon (ticks) | impulsiveness | memory span (ticks) | slip |
+|---|---|---|---|---|---|
+| `careful` | 6 | 240 | 10 | 2,000 | 50,000 |
+| `steady` (default) | 4 | 120 | 25 | 1,000 | 100,000 |
+| `impulsive` | 2 | 30 | 70 | 500 | 200,000 |
+| `dreamy` | 3 | 60 | 40 | 300 | 250,000 |
+
+`decide` takes motives and candidate steps. When the impulse roll (0..99) is below
+impulsiveness, the being acts on its top motive with no plan (`cog_impulse_skips_planning`).
+Otherwise it keeps at most `plan_depth` steps due within the horizon. Given the same eight
+chores, the careful miller plans six and the impulsive tinker two (`cog_plan_depth_cuts_steps`).
+An unfamiliar step slips when its roll (0..999,999) is below the slip rate, and the first slip is
+reported (`cog_slip_rate_is_seeded`).
+
+**Fading memories.** `remember` stores an event (about, what, day, people, importance 0–100) at
+strength 1,000,000. Each `tick` takes away
+`elapsed·1,000,000·(100 − importance) / (100·memory span)`. Importance 100 never fades; a
+memory is `vivid` at 900,000 or more, `clear` at 600,000 or more, otherwise `hazy`, and it is
+forgotten at 0. After 500 steady ticks, importance 0 has halved and importance 50 has lost a
+quarter (`mem_fade_by_importance`). The same toll payment after 200 ticks is vivid for a careful
+clerk and hazy for a dreamy poet (`mem_span_from_temperament`).
+
+**Misremembering.** `recall` rehearses a memory (+100,000). A hazy memory comes back wrong with
+probability `(600,000 − strength)` millionths. The error either shifts the day by 1–3 or puts a
+person from another memory in place of the first person. Every reply carries `truth` beside
+`told`, with `distorted` and `kind`, so the host always knows what happened. Two witnesses of the
+same barn fire disagree: the careful miller recalls day 12, the dreamy tinker says day 10
+(`mem_conflicting_testimony`). In `mem_merged_person` the tinker places the smith at the fire.
+
+**Evidence (A7/A8):** 25 conformance cases (`conformance/cognition/`, 6 malformed), 2,000
+differential parity workflows (`eval/character/cognition_cases.py`, seed 7, 0 mismatches: 1,560
+accepted, 440 refused, 999 impulses, 214 slips, 223 distorted recalls of which 96 merged a
+person, 1,178 memories forgotten). Robustness (`tests/robustness.rs`) covers 1,500 mutations of
+each of two samples with limits, 64/65-op and limit-ceiling boundaries, a 256-motive and 256-step
+decision, the clock and memory span at their bounds, and a refused op that changes nothing.
+Scale is in the [table above](#host-set-limits). $0 API spend.

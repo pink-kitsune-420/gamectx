@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Under a steady span of 1,000, after 500 ticks importance 0 halves, importance 50 loses a quarter and importance 100 stays whole.",
+  "error": false
+}

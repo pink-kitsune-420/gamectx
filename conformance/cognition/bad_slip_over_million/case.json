@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Slip is 0..1,000,000 millionths.",
+  "error": true
+}

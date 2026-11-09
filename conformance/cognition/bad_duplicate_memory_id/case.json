@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being cannot hold two memories with one id.",
+  "error": true
+}

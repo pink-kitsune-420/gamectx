@@ -1,0 +1,67 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "clerk",
+          "temperament": "careful"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "poet",
+          "temperament": "dreamy"
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "clerk",
+          "id": "toll",
+          "about": "bridge",
+          "what": "paid",
+          "day": 3,
+          "people": [
+            "guard"
+          ],
+          "importance": 20
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "poet",
+          "id": "toll",
+          "about": "bridge",
+          "what": "paid",
+          "day": 3,
+          "people": [
+            "guard"
+          ],
+          "importance": 20
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 200
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "clerk"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "poet"
+        }
+      }
+    ]
+  }
+}

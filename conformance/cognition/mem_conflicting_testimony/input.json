@@ -1,0 +1,71 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "temperament": "careful"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "tinker",
+          "temperament": "dreamy"
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "fire",
+          "about": "barn",
+          "what": "burned",
+          "day": 12,
+          "people": [
+            "tinker"
+          ],
+          "importance": 0
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "tinker",
+          "id": "fire",
+          "about": "barn",
+          "what": "burned",
+          "day": 12,
+          "people": [
+            "miller"
+          ],
+          "importance": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 240
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "miller",
+          "id": "fire",
+          "seed": 0
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "tinker",
+          "id": "fire",
+          "seed": 0
+        }
+      }
+    ]
+  }
+}

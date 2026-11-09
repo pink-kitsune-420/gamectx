@@ -1,0 +1,87 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "temperament": "dreamy",
+          "impulsiveness": 0
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "smith",
+          "temperament": "careful",
+          "impulsiveness": 0
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "miller",
+          "seed": 2,
+          "at": 100,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "sow",
+              "eta": 120
+            },
+            {
+              "id": "reap",
+              "eta": 300
+            },
+            {
+              "id": "thresh",
+              "eta": 400
+            }
+          ]
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "smith",
+          "seed": 2,
+          "at": 100,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "sow",
+              "eta": 120
+            },
+            {
+              "id": "reap",
+              "eta": 300
+            },
+            {
+              "id": "thresh",
+              "eta": 400
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

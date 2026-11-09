@@ -2814,3 +2814,72 @@ fn cooperation_survives_mutation_limits_and_boundaries() {
     assert!(co.workflow(&req(&[r#"{"op":"tick","args":{"now":5}}"#.into()])).is_err());
     assert_eq!(co, before);
 }
+
+#[test]
+fn cognition_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::cognition::{Cognition, M};
+    let mut rng = Rng(0xC061_7104_2026_0A78);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 26. Cognition mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"beings":4,"motives":3,"steps":4},"ops":[{"op":"profile","args":{"being":"tinker","temperament":"impulsive","plan_depth":3,"horizon":50,"impulsiveness":40,"memory_span":200,"slip":300000}},{"op":"decide","args":{"being":"tinker","seed":7,"at":5,"motives":[{"id":"eat","score":60},{"id":"work","score":70}],"steps":[{"id":"a"},{"id":"b","familiar":false,"eta":40},{"id":"c","eta":900}]}},{"op":"assess","args":{"being":"tinker"}}]}"#,
+        r#"{"limits":{"memories":3,"people":2},"ops":[{"op":"profile","args":{"being":"poet","temperament":"dreamy"}},{"op":"remember","args":{"being":"poet","id":"fire","about":"barn","what":"burned","day":12,"people":["miller","smith"],"importance":10,"at":1}},{"op":"remember","args":{"being":"poet","id":"fair","about":"square","what":"dance","day":20,"people":["widow"],"importance":100}},{"op":"tick","args":{"now":200}},{"op":"recall","args":{"being":"poet","id":"fire","seed":9,"errors":true}},{"op":"forget","args":{"being":"poet","id":"fair"}}]}"#,
+    ];
+    let mut cog = Cognition::new();
+    for _ in 0..1500 {
+        for s in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, s), 1 << 20) {
+                let _ = cog.workflow(&v);
+            }
+        }
+    }
+    for book in cog.memories.values() {
+        assert!(book.values().all(|m| m.strength > 0 && m.strength <= M && m.importance <= 100));
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let assess = r#"{"op":"assess","args":{"being":"b"}}"#.to_string();
+    assert!(Cognition::new().workflow(&req(&vec![assess.clone(); 64])).is_ok());
+    assert!(Cognition::new().workflow(&req(&vec![assess; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"memories":65536,"people":64,"motives":256,"steps":256}"#, true),
+        (r#"{"people":65}"#, false),
+        (r#"{"steps":257}"#, false),
+        (r#"{"memories":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Cognition::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 256 steps and motives in one decision, the clock at its bound, the longest span.
+    let mut cog = Cognition::with_limits(&parse(r#"{"motives":256,"steps":256}"#, 64).unwrap()).unwrap();
+    let motives: Vec<String> = (0..256).map(|i| format!(r#"{{"id":"m{i}","score":{}}}"#, i % 101)).collect();
+    let steps: Vec<String> = (0..256).map(|i| format!(r#"{{"id":"s{i}","familiar":false,"eta":{i}}}"#)).collect();
+    let decide = format!(
+        r#"{{"op":"decide","args":{{"being":"b","seed":1000000000000,"motives":[{}],"steps":[{}]}}}}"#,
+        motives.join(","),
+        steps.join(",")
+    );
+    assert!(cog.workflow(&req(&[decide])).is_ok());
+    let setup = [
+        r#"{"op":"profile","args":{"being":"b","memory_span":1000000}}"#.to_string(),
+        r#"{"op":"remember","args":{"being":"b","id":"m","about":"x","what":"y","day":1000000000000,"importance":99}}"#
+            .to_string(),
+        r#"{"op":"tick","args":{"now":1000000000000}}"#.to_string(),
+    ];
+    assert!(cog.workflow(&req(&setup)).is_ok());
+    assert!(cog.memories.is_empty(), "a full horizon of ticks forgets even importance 99");
+    assert!(cog.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000001}}"#.into()])).is_err());
+
+    // A refused op changes nothing: a fourth being over beings 3.
+    let mut cog = Cognition::with_limits(&parse(r#"{"beings":3}"#, 64).unwrap()).unwrap();
+    let three: Vec<String> = (0..3).map(|i| format!(r#"{{"op":"profile","args":{{"being":"b{i}"}}}}"#)).collect();
+    cog.workflow(&req(&three)).unwrap();
+    let before = cog.clone();
+    let fourth = r#"{"op":"remember","args":{"being":"b3","id":"m","about":"x","what":"y","day":1}}"#.to_string();
+    assert!(cog.workflow(&req(&[fourth])).is_err());
+    assert_eq!(cog, before);
+}

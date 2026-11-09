@@ -1,0 +1,113 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "temperament": "careful"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "tinker",
+          "temperament": "impulsive"
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "miller",
+          "seed": 0,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "fetch_grain"
+            },
+            {
+              "id": "mend",
+              "familiar": false
+            },
+            {
+              "id": "grease",
+              "familiar": false
+            },
+            {
+              "id": "sweep"
+            },
+            {
+              "id": "patch",
+              "familiar": false
+            },
+            {
+              "id": "sell"
+            },
+            {
+              "id": "count"
+            },
+            {
+              "id": "lock"
+            }
+          ]
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "tinker",
+          "seed": 6,
+          "motives": [
+            {
+              "id": "earn",
+              "score": 70
+            },
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ],
+          "steps": [
+            {
+              "id": "fetch_grain"
+            },
+            {
+              "id": "mend",
+              "familiar": false
+            },
+            {
+              "id": "grease",
+              "familiar": false
+            },
+            {
+              "id": "sweep"
+            },
+            {
+              "id": "patch",
+              "familiar": false
+            },
+            {
+              "id": "sell"
+            },
+            {
+              "id": "count"
+            },
+            {
+              "id": "lock"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

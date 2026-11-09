@@ -1,0 +1,31 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "a",
+          "id": "m",
+          "about": "x",
+          "what": "y",
+          "day": 1,
+          "people": [],
+          "importance": 50
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "a",
+          "id": "m",
+          "about": "x",
+          "what": "z",
+          "day": 2,
+          "people": [],
+          "importance": 50
+        }
+      }
+    ]
+  }
+}

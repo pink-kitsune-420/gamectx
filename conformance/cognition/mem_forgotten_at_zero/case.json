@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A trivial memory reaches zero and is forgotten; clarity changes are reported on the way.",
+  "error": false
+}

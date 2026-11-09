@@ -1,0 +1,19 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 9
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 8
+        }
+      }
+    ]
+  }
+}

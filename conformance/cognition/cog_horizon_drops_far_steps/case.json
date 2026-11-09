@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At tick 100 the dreamy miller (horizon 60) leaves out steps due after 160; the careful one (240) keeps the step due at 300.",
+  "error": false
+}

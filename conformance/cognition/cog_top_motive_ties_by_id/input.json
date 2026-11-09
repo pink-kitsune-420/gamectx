@@ -1,0 +1,31 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "miller",
+          "impulsiveness": 0
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "being": "miller",
+          "seed": 9,
+          "motives": [
+            {
+              "id": "work",
+              "score": 50
+            },
+            {
+              "id": "eat",
+              "score": 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "rain",
+          "about": "sky",
+          "what": "rained",
+          "day": 1,
+          "people": [],
+          "importance": 0
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 150
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 700
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

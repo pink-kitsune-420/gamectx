@@ -1,0 +1,57 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "tinker",
+          "temperament": "dreamy"
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "tinker",
+          "id": "fire",
+          "about": "barn",
+          "what": "burned",
+          "day": 12,
+          "people": [
+            "miller"
+          ],
+          "importance": 0
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "tinker",
+          "id": "fair",
+          "about": "square",
+          "what": "dance",
+          "day": 20,
+          "people": [
+            "widow",
+            "smith"
+          ],
+          "importance": 100
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 240
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "tinker",
+          "id": "fire",
+          "seed": 2
+        }
+      }
+    ]
+  }
+}

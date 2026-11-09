@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Decisions are deterministic: the same seed gives the same result, other seeds can differ.",
+  "error": false
+}

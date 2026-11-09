@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Equal motive scores pick the first id; a decide with no steps plans nothing.",
+  "error": false
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "guard",
+          "id": "bribe",
+          "about": "gate",
+          "what": "took_coin",
+          "day": 4,
+          "people": [
+            "stranger"
+          ],
+          "importance": 90
+        }
+      },
+      {
+        "op": "forget",
+        "args": {
+          "being": "guard",
+          "id": "bribe"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

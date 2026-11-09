@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Each temperament sets plan depth, horizon, impulsiveness, memory span and slip; overrides replace one setting; a being without a profile reads as steady.",
+  "error": false
+}

@@ -1,0 +1,59 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "rain",
+          "about": "sky",
+          "what": "rained",
+          "day": 1,
+          "people": [],
+          "importance": 0
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "about": "market",
+          "what": "sold_flour",
+          "day": 1,
+          "people": [
+            "baker"
+          ],
+          "importance": 50
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "wed",
+          "about": "sister",
+          "what": "married",
+          "day": 1,
+          "people": [
+            "sister"
+          ],
+          "importance": 100
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 500
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

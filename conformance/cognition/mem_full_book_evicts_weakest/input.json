@@ -1,0 +1,58 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "a",
+          "about": "x",
+          "what": "y",
+          "day": 1,
+          "people": [],
+          "importance": 10
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "b",
+          "about": "x",
+          "what": "y",
+          "day": 1,
+          "people": [],
+          "importance": 60
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 100
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "c",
+          "about": "x",
+          "what": "y",
+          "day": 2,
+          "people": [],
+          "importance": 30
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ],
+    "limits": {
+      "memories": 2
+    }
+  }
+}

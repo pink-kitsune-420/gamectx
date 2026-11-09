@@ -1,0 +1,60 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "remember",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "about": "market",
+          "what": "sold_flour",
+          "day": 1,
+          "people": [
+            "baker",
+            "widow"
+          ],
+          "importance": 50
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 400
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "seed": 0
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "seed": 1
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "seed": 2
+        }
+      },
+      {
+        "op": "recall",
+        "args": {
+          "being": "miller",
+          "id": "sale",
+          "seed": 3
+        }
+      }
+    ]
+  }
+}

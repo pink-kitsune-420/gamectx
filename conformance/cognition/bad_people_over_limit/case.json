@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With people limited to 1, a memory with two people is refused.",
+  "error": true
+}

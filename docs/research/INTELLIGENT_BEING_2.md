@@ -127,15 +127,18 @@ can be wrong, and are revised by new outcomes. This is how a being explains a ch
 heart.
 *Implemented (pass 2 stage 6):* `character::lesson::Lessons` (local kind `lesson`). [Evidence](../characters/LIFE.md#lessons-pass-2-a6).
 
-**A7. Bounded rationality.** If every being plans perfectly, they all look the same.
+**A7. Bounded rationality.** — **DONE**. If every being plans perfectly, they all look the same.
 Per-being cognition settings, set from temperament: plan depth, how far ahead it looks,
 impulsiveness (acting on the top motive without planning), memory span, and
 error rate on unfamiliar tasks. Seeded and deterministic.
 
-**A8. Forgetting and misremembering.** Episodes are kept, archived or erased on purpose.
+**A8. Forgetting and misremembering.** — **DONE**. Episodes are kept, archived or erased on purpose.
 Add natural fading of unimportant memories, and optional, bounded errors (wrong day,
 merged people) marked so the host still knows the truth. This makes conflicting
 testimonies possible.
+
+*Implemented (pass 2 A7/A8):* `character::cognition::Cognition` (local kind `cognition`).
+[Evidence](../characters/LIFE.md#bounded-rationality-and-fallible-memory-pass-2-a7a8).
 
 ### B. Social
 
@@ -280,7 +283,7 @@ packet and budget modules already do.
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
-6. **A7 bounded rationality**, **A8 forgetting**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
+6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk**.
 7. **C1 life cycle**, **C2 threat**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
 

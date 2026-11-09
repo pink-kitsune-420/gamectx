@@ -1,0 +1,34 @@
+{
+  "kind": "cognition",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "a"
+        }
+      },
+      {
+        "op": "remember",
+        "args": {
+          "being": "b",
+          "id": "m",
+          "about": "x",
+          "what": "y",
+          "day": 1,
+          "people": [],
+          "importance": 50
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "b"
+        }
+      }
+    ],
+    "limits": {
+      "beings": 2
+    }
+  }
+}
