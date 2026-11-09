@@ -1,0 +1,29 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 85,
+          "tolerance": 20,
+          "crisis": "confession",
+          "style": [
+            "sublimation"
+          ]
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 60,
+          "fact": "failed_audit",
+          "project": "new_ledger"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Accepting a denied fact drops the distortion, and strain decays at full speed again.",
+  "error": false
+}

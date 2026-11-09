@@ -1,0 +1,26 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 55,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "goodness",
+          "drop": 50,
+          "fact": "short_rations",
+          "excuse": "The barrels were mislabelled."
+        }
+      }
+    ]
+  }
+}

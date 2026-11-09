@@ -1,0 +1,46 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 55,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "scribe",
+          "maturity": 55,
+          "tolerance": 20,
+          "crisis": "confession",
+          "style": [
+            "withdrawal"
+          ]
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 50,
+          "fact": "short_rations"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "scribe",
+          "value": "competence",
+          "drop": 50,
+          "fact": "smudged_ledger"
+        }
+      }
+    ]
+  }
+}

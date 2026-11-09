@@ -1,0 +1,25 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 55,
+          "tolerance": 30,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 30,
+          "fact": "late_delivery"
+        }
+      }
+    ]
+  }
+}

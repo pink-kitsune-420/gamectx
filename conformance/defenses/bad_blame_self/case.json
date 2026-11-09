@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a being cannot be its own scapegoat.",
+  "error": true
+}

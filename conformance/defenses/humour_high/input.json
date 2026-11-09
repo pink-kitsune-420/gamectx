@@ -1,0 +1,25 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 85,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 40,
+          "fact": "lost_bet"
+        }
+      }
+    ]
+  }
+}

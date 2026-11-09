@@ -1,0 +1,49 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 25,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 100,
+          "fact": "open_lockbox"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 75,
+          "tolerance": 10,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 20,
+          "fact": "lost_bet"
+        }
+      }
+    ]
+  }
+}

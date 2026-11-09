@@ -4332,3 +4332,114 @@ fn minds_survive_mutation_limits_and_boundaries() {
     assert!(m.workflow(&req(&[r#"{"op":"assign","args":{"being":"b","mind":"human"}}"#.into()])).is_err());
     assert_eq!(m, before);
 }
+
+#[test]
+fn defenses_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::defenses::{band, Defenses, FULL, HIGH, LOW, MID};
+    let mut rng = Rng(0xDEF0_0E43_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+    fn num(v: Option<&Value>) -> u64 {
+        v.unwrap().to_json().parse().unwrap()
+    }
+
+    // 44. Defense mutation fuzzing (limits included); one manager keeps its beings across 16 rounds.
+    // Strain stays within 0..=10⁶ and under the threshold right after a crisis; a mechanism belongs
+    // to the band it reports and leaves a distortion exactly when it is immature or a
+    // rationalization; a loop is three or more hits; no second crisis inside the cooldown.
+    let samples = [
+        r#"{"limits":{"beings":3,"distortions":3},"ops":[{"op":"profile","args":{"being":"qm","maturity":45,"tolerance":10,"crisis":"outburst","threshold":300000,"cooldown":20,"style":["projection","rationalization"],"protects":["lockbox"]}},{"op":"threat","args":{"being":"qm","value":"secret","drop":60,"fact":"lockbox","blame":"apprentice","excuse":"Old lock."}},{"op":"threat","args":{"being":"qm","value":"competence","drop":90,"fact":"tally","blame":"apprentice"}},{"op":"contradict","args":{"being":"qm","fact":"tally","drop":50}},{"op":"tick","args":{"now":15}},{"op":"status","args":{"being":"qm"}}]}"#,
+        r#"{"ops":[{"op":"profile","args":{"being":"scribe","maturity":85,"tolerance":5,"crisis":"flight","style":["sublimation"]}},{"op":"threat","args":{"being":"scribe","value":"goodness","drop":80,"fact":"smudge","project":"ledger","safer_target":"cat"}},{"op":"relieve","args":{"being":"scribe","kind":"support","amount":40}},{"op":"threat","args":{"being":"scribe","value":"belonging","drop":70,"fact":"snub","excuse":"Busy day."}},{"op":"status","args":{"being":"scribe"}}]}"#,
+    ];
+    let mut d = Defenses::new();
+    let (mut defended, mut crises) = (0, 0);
+    for round in 0..1500 {
+        // A mutated tick can move the shared clock past the samples' own; start over now and then.
+        if round % 16 == 0 {
+            d = Defenses::new();
+        }
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = d.workflow(&v) else { continue };
+            for r in out.get("results").and_then(Value::as_array).unwrap() {
+                if let Some(s) = r.get("strain") {
+                    assert!(num(Some(s)) <= FULL);
+                }
+                if let Some(m) = r.get("mechanism").and_then(Value::as_str).filter(|_| r.get("band").is_some()) {
+                    let b = r.get("band").and_then(Value::as_str).unwrap();
+                    assert_eq!(b, band(num(r.get("effective_maturity"))));
+                    let list: &[&str] = match b {
+                        "low" => &LOW,
+                        "mid" => &MID,
+                        _ => &HIGH,
+                    };
+                    assert!(list.contains(&m));
+                    let records = LOW.contains(&m) || m == "rationalization";
+                    assert_eq!(r.get("distortion") != Some(&Value::Null), records);
+                    assert_eq!(r.get("loop") == Some(&Value::Bool(true)), num(r.get("hits")) >= 3);
+                    defended += 1;
+                }
+                if r.get("crisis").is_some_and(|c| *c != Value::Null) {
+                    crises += 1;
+                }
+            }
+            for p in d.beings.values() {
+                assert!(p.strain <= FULL && p.at <= d.clock);
+                if let Some(at) = p.crisis_at {
+                    assert!(at <= d.clock);
+                }
+            }
+        }
+    }
+    assert!(defended > 0 && crises > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Defenses::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Defenses::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"distortions":256}"#, true),
+        (r#"{"distortions":257}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Defenses::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a full-strain being decays to zero over the 10¹² clock without overflow; 64 maximal
+    // threats with the widest cooldown break exactly once and strain never passes 10⁶; 256
+    // distortions fill the limit and one more is refused.
+    let mut d = Defenses::with_limits(&parse(r#"{"distortions":256}"#, 64).unwrap()).unwrap();
+    let prof = r#"{"op":"profile","args":{"being":"q","maturity":0,"tolerance":0,"crisis":"collapse","threshold":1000000,"cooldown":1000000000000}}"#;
+    let threat =
+        |f: usize| format!(r#"{{"op":"threat","args":{{"being":"q","value":"competence","drop":100,"fact":"f{f}"}}}}"#);
+    let mut ops = vec![prof.to_string()];
+    ops.extend((0..63).map(threat));
+    let out = d.workflow(&req(&ops)).unwrap();
+    let rs = out.get("results").and_then(Value::as_array).unwrap();
+    assert_eq!(rs.iter().filter(|r| r.get("crisis").is_some_and(|c| *c != Value::Null)).count(), 1);
+    for chunk in (63..256).collect::<Vec<_>>().chunks(64) {
+        d.workflow(&req(&chunk.iter().map(|f| threat(*f)).collect::<Vec<_>>())).unwrap();
+    }
+    assert_eq!(d.beings["q"].distortions.len(), 256);
+    assert!(d.workflow(&req(&[threat(256)])).is_err());
+    let out = d
+        .workflow(&req(&[
+            r#"{"op":"tick","args":{"now":1000000000000}}"#.into(),
+            r#"{"op":"status","args":{"being":"q"}}"#.into(),
+        ]))
+        .unwrap();
+    assert!(out.to_json().contains(r#""strain":0"#));
+
+    // A refused op changes nothing: a threat with its being as the scapegoat.
+    let mut d = Defenses::new();
+    d.workflow(&req(&[prof.into()])).unwrap();
+    let before = d.clone();
+    assert!(d
+        .workflow(&req(&[
+            r#"{"op":"threat","args":{"being":"q","value":"goodness","drop":90,"fact":"x","blame":"q"}}"#.into()
+        ]))
+        .is_err());
+    assert_eq!(d, before);
+}

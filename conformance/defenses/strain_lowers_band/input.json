@@ -1,0 +1,75 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 80,
+          "tolerance": 20,
+          "crisis": "confession",
+          "threshold": 1000000,
+          "style": [
+            "sublimation"
+          ]
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 70,
+          "fact": "blow_0",
+          "project": "new_ledger",
+          "excuse": "Bad luck."
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 70,
+          "fact": "blow_1",
+          "project": "new_ledger",
+          "excuse": "Bad luck."
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 70,
+          "fact": "blow_2",
+          "project": "new_ledger",
+          "excuse": "Bad luck."
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 70,
+          "fact": "blow_3",
+          "project": "new_ledger",
+          "excuse": "Bad luck."
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 70,
+          "fact": "blow_4",
+          "project": "new_ledger",
+          "excuse": "Bad luck."
+        }
+      }
+    ]
+  }
+}

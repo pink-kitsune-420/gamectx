@@ -1,0 +1,58 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 55,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 100,
+          "fact": "short_rations",
+          "excuse": "Mislabelled."
+        }
+      },
+      {
+        "op": "relieve",
+        "args": {
+          "being": "quartermaster",
+          "kind": "rest",
+          "amount": 50
+        }
+      },
+      {
+        "op": "relieve",
+        "args": {
+          "being": "quartermaster",
+          "kind": "support",
+          "amount": 50
+        }
+      },
+      {
+        "op": "relieve",
+        "args": {
+          "being": "quartermaster",
+          "kind": "coping",
+          "amount": 100
+        }
+      },
+      {
+        "op": "relieve",
+        "args": {
+          "being": "quartermaster",
+          "kind": "rest",
+          "amount": 100
+        }
+      }
+    ]
+  }
+}

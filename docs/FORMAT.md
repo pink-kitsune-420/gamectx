@@ -2920,6 +2920,7 @@ grows past them is refused where it used to be accepted.
 | `fabric` | `beings` with a profile (1024, 10⁶), `norms` (64, 4096), `breaches` ladders (1024, 10⁶), open `contracts` (256, 10⁶), `dyads` (1024, 10⁶), `threads` per pair (4, 32) |
 | `genre` | authored `genres` (16, 10⁵), authored `packs` (16, 10⁵), `nodes` walked per render or normalize (4096, 10⁶) |
 | `minds` | authored `minds` (16, 4096), assigned `beings` (1024, 10⁶) |
+| `defenses` | profiled `beings` (1024, 10⁶), held `distortions` per being (16, 256) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
@@ -3551,6 +3552,41 @@ concealment; 2; 100,000), `herd_animal` (individual; affection, anger, fear, sho
 - `hear {being, acts (1–4 pragmatic acts)}` → `{acts, being, tones, understood}`: `words` (acts and tones), `tone`
   (tones only) or `nothing`. Tones: threat and accusation `hostile`; greeting, compliment, apology and
   offer_or_transfer `friendly`; request_help `pleading`; farewell `parting`; others `neutral`.
+
+## Defenses v1 (pass 4, stage 3)
+
+`gamectx::character::defenses` (guide: [Life](characters/LIFE.md#defense-mechanisms-and-strain-pass-4-stage-3)), local
+kind `defenses` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 26
+cases (7 malformed) live in `conformance/defenses/`. Strain is in millionths (0–1,000,000). Bands by effective maturity:
+`high` ≥ 70 (humour, sublimation), `mid` ≥ 40 (rationalization, intellectualization, withdrawal), `low` (denial,
+projection, displacement), defaults in that order. Kept share of a threat: denial 30%, projection, displacement and
+humour 40%, sublimation 50%, rationalization and intellectualization 60%, withdrawal 70%.
+
+- `tick {now (0–10¹², not backwards)}` → `{now}`.
+- `profile {being, maturity 0–100, tolerance 0–100, crisis confession|flight|collapse|outburst, threshold? (1–10⁶,
+  800,000), cooldown? (1–10¹², 72), style? [mechanisms, unique], protects? [facts ≤ 16, unique]}` → the status view. A
+  new profile for a known being keeps its strain (decayed to now), distortions and last crisis.
+- `status {being}` → `{band, being, crisis_at, crisis_outcome, distortions [{fact, hits, mechanism}], effective_maturity,
+  loops [facts with 3+ hits], maturity, strain, threshold}`.
+- `threat {being, value competence|goodness|belonging|secret, drop 0–100, fact, blame?, safer_target?, excuse? (text
+  ≤ 120), project?}` → `{band, being, crisis {at, outcome} | null, distortion, effect, effective_maturity, explain, fact,
+  hits, kept, loop, mechanism, strain, threatened, value}` (plus `project` and `progress` = drop for sublimation).
+  Threatened when a protected secret is exposed or the drop exceeds the tolerance; otherwise nothing changes. Effective
+  maturity is `max(0, maturity − strain × 60 ÷ 10⁶)` before the threat. The style's mechanisms in the band, then the
+  band's defaults, are tried in order; projection needs `blame`, displacement `safer_target`, rationalization `excuse`,
+  sublimation `project` (none may be the being itself). `kept = drop × 10,000 × share ÷ 100`, saturating at 10⁶.
+  Denial, projection, displacement and rationalization record a distortion `{fact, mechanism, tag denied|projected|
+  displaced|self_serving, confidence 30 | blame | target | excuse}` and count a hit on the fact (refused past the
+  `distortions` limit for a new fact). Effects: refuses_topic, accuses, snaps, explains_too_much, goes_quiet,
+  talks_procedure, jokes, works_harder.
+- Crisis: when strain reaches the threshold and no crisis happened within the cooldown, the result carries `{at,
+  outcome}` and strain becomes half the threshold.
+- `contradict {being, fact, drop 0–100}` → `{being, crisis, distorted, fact, hits, kept, loop, strain}`: a fact held by
+  denial, projection or displacement adds `drop × 15,000` and a hit; any other fact changes nothing.
+- `relieve {being, kind rest|support|coping, amount 0–100}` → `{being, kind, relieved, strain}`: lowers strain by
+  `amount × 2,000 | 4,000 | 3,000`, not below 0.
+- `accept {being, fact (a held distortion)}` → `{being, fact, mechanism, strain}`: drops the distortion.
+- Strain decays lazily with the clock by 4,000 per tick, 2,000 while a denial, projection or displacement is held.
 
 ## Surroundings v1 (pass 3, stage 5)
 

@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, minds::Minds, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, minds::Minds, defenses::Defenses, task::TaskManager,
 };
 use gamectx::knowledge::{fabric::Fabric, genre::Genres, surroundings::Surroundings};
 use gamectx::{data::json::parse, obj, Result, Value};
@@ -78,6 +78,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("fabric", format!(r#"{{"dyads":{n}}}"#), "", r#"{"op":"meet","args":{"a":"{b}","b":"mira","episode":"well","summary":"They met at the well."}}"#, r#"{"op":"dyad","args":{"a":"{b}","b":"mira"}}"#),
         ("genre", format!(r#"{{"genres":{n}}}"#), "", r#"{"op":"define","args":{"id":"{b}","base":"orbital_station","axes":{"scarcity":90}}}"#, r#"{"op":"render","args":{"genre":"{b}","keys":{"access":"access","privacy":"privacy","kind":"contract","severity":"severity"},"value":{"access":"private","place":{"privacy":"semi_private"},"contracts":[{"kind":"loan"},{"kind":"alibi_pact"}],"severity":"crime"}}}"#),
         ("minds", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"assign","args":{"being":"{b}","mind":"hearth_spirit"}}"#, r#"{"op":"admit","args":{"being":"{b}","kind":"embodiment","op":"react","args":{"being":"{b}","fear":70,"anger":20,"shock":60,"guilt":30,"bystander_untrusted":true}}}"#),
+        ("defenses", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"profile","args":{"being":"{b}","maturity":45,"tolerance":10,"crisis":"confession","style":["projection","rationalization"],"protects":["lockbox"]}}"#, r#"{"op":"threat","args":{"being":"{b}","value":"secret","drop":40,"fact":"lockbox","blame":"apprentice","excuse":"The lock was old."}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -122,6 +123,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "fabric" => wf!(Fabric, lim),
         "genre" => wf!(Genres, lim),
         "minds" => wf!(Minds, lim),
+        "defenses" => wf!(Defenses, lim),
         _ => wf!(TaskManager, lim),
     })
 }

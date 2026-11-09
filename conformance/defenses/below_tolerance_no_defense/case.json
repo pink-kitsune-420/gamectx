@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A drop within the tolerance is not ego-threatening: nothing happens.",
+  "error": false
+}

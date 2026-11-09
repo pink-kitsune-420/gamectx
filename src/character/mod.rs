@@ -14,6 +14,7 @@ pub mod creed;
 pub mod cueing;
 pub mod curiosity;
 pub mod deception;
+pub mod defenses;
 pub mod detail;
 pub mod dialogue;
 pub mod diet;

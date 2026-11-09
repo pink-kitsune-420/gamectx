@@ -1,0 +1,16 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "threat",
+        "args": {
+          "being": "stranger",
+          "value": "competence",
+          "drop": 50,
+          "fact": "open_lockbox"
+        }
+      }
+    ]
+  }
+}

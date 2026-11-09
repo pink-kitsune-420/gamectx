@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The same denial three times is a defense loop.",
+  "error": false
+}

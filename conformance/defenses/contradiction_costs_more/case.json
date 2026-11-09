@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Contradicting a denied fact costs half again as much; contradicting an accepted fact costs nothing.",
+  "error": false
+}

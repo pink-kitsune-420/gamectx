@@ -1,0 +1,28 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 25,
+          "tolerance": 20,
+          "crisis": "confession",
+          "protects": [
+            "open_lockbox"
+          ]
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "secret",
+          "drop": 10,
+          "fact": "open_lockbox"
+        }
+      }
+    ]
+  }
+}

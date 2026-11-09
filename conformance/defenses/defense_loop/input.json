@@ -1,0 +1,48 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 25,
+          "tolerance": 20,
+          "crisis": "confession",
+          "threshold": 1000000
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 30,
+          "fact": "open_lockbox"
+        }
+      },
+      {
+        "op": "contradict",
+        "args": {
+          "being": "quartermaster",
+          "fact": "open_lockbox",
+          "drop": 10
+        }
+      },
+      {
+        "op": "contradict",
+        "args": {
+          "being": "quartermaster",
+          "fact": "open_lockbox",
+          "drop": 10
+        }
+      },
+      {
+        "op": "status",
+        "args": {
+          "being": "quartermaster"
+        }
+      }
+    ]
+  }
+}

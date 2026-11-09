@@ -1,0 +1,25 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 55,
+          "tolerance": 20,
+          "crisis": "flight",
+          "threshold": 600000,
+          "cooldown": 48,
+          "style": [
+            "withdrawal"
+          ],
+          "protects": [
+            "open_lockbox",
+            "forged_tally"
+          ]
+        }
+      }
+    ]
+  }
+}

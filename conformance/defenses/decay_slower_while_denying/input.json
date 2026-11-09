@@ -1,0 +1,61 @@
+{
+  "kind": "defenses",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "quartermaster",
+          "maturity": 25,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "scribe",
+          "maturity": 85,
+          "tolerance": 20,
+          "crisis": "confession"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "quartermaster",
+          "value": "competence",
+          "drop": 100,
+          "fact": "open_lockbox"
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "scribe",
+          "value": "competence",
+          "drop": 75,
+          "fact": "lost_bet"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 50
+        }
+      },
+      {
+        "op": "status",
+        "args": {
+          "being": "quartermaster"
+        }
+      },
+      {
+        "op": "status",
+        "args": {
+          "being": "scribe"
+        }
+      }
+    ]
+  }
+}
