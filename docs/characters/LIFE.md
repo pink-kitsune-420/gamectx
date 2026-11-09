@@ -1841,3 +1841,37 @@ counting the harness's own bookkeeping) and a 2.1 MB peak heap for the whole bin
 varies). The test found one engine gap: a witness's own version can be replaced by gossip, so a
 correction from that witness retells a distorted story. The town's host gives hearsay about a
 witness's own topic zero trust; `culture` does not yet protect witnesses itself.
+
+## Pass 4 acceptance: the Missing Ration
+
+`tests/acceptance_missing_ration.rs` plays the pass 4 scene through the real engines (genre, minds,
+fabric, defenses, culture, projects, chemistry and explain) with no model, once on an orbital station
+and once in a village, from data alone: each setting supplies only its genre words, role titles, an
+excuse, a slang phrase, a shared memory and four nouns. The two runs make the same 11 recorded
+decisions and the same 7 explanations, and each replays byte for byte. $0 API spend.
+
+1. **Setup.** The station's authored words (`regulation`, `sealed_secret`, `sealed`, `common`) and the
+   village's (`custom`, `keep_secret`, `restricted`, `public`) normalize to the same engine words. The
+   steward is the built-in `steward_intelligence` on the station and an authored `granary_keeper` with
+   the same fields in the village; `admit` refuses its cover story (`cannot_lie`) and strips fear from
+   its memory of the short count. The mechanic's certification (the apprentice's journeyman test) is
+   two milestones from done.
+2. **Pressure.** Questioned in front of the others, the mechanic rationalizes ("it was surplus from
+   the last resupply"; 360,000 strain). The supervisor's contradiction does not move a
+   rationalization, but the exposed truth threatens belonging, and the mechanic, now in the low band,
+   displaces onto the cadet (552,000 strain after two ticks of decay). Bound by a keep-secret contract, the steward frames only
+   the count for the crew and the camera record for the supervisor.
+3. **Culture.** Four retellings with seeds 2, 1, 2 and 0 at tick 12 (found with the Python reference)
+   exaggerate, drop the sick friend, exaggerate and pass unchanged: the fourth teller hears of three
+   crates late at night, drift 2,000,000 and 3 operators. Nine exposures from a chief with status 95
+   make the slang (`crate rat`, `sack mouse`) usable for two open crew members, not for one with
+   openness 10.
+4. **Resolution.** Support lowers strain and the mechanic accepts both distortions and confesses. The
+   supervisor's sanction is a verbal warning, step 1, where a copy of the ledger without the
+   confession gives step 2. A severity-100 setback adapts the certification (the review becomes a
+   retake; score 75, still active). The friend's dry callback to their first shift lands (chemistry
+   90, playful), and the pacing advice over six beats (pause, steady, pause, steady, steady, end)
+   ends the scene on the callback, after which `banter` gives `exit`.
+
+The decisions render back as `regulation`, `sealed_secret`, `sealed`, `common` and `spacer` on the
+station and `custom`, `keep_secret`, `restricted`, `public` and `acquaintance` in the village.
