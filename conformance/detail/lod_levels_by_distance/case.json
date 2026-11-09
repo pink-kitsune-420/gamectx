@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Distance 0..20 is full, 21..100 coarse, beyond that a crowd in a named group.",
+  "error": false
+}

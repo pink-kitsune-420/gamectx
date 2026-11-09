@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A coarse being is only brought up to multiples of 10; at tick 37 it was last updated at 30 (lag 7), though assess shows the exact state.",
+  "error": false
+}

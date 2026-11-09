@@ -1,0 +1,1 @@
+{"version":1,"results":[{"at":0,"being":"a","distance":0,"group":null,"level":"full","needs":[{"id":"calm","level":10,"rate":0,"threshold":700000}]},{"events":[],"now":1000,"work":{"coarse":0,"crowd":0,"full":1000}},{"at":1000,"being":"a","distance":0,"group":null,"level":"full","needs":[{"id":"calm","level":10,"rate":0,"threshold":700000}],"lag":0}]}

@@ -1,0 +1,14 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "configure",
+        "args": {
+          "near": 50,
+          "far": 10
+        }
+      }
+    ]
+  }
+}

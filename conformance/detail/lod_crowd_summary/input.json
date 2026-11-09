@@ -1,0 +1,73 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "p1",
+          "distance": 300,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "market"
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "p2",
+          "distance": 300,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 5000,
+              "level": 0
+            },
+            {
+              "id": "thirst",
+              "rate": 0
+            }
+          ],
+          "group": "market"
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "p3",
+          "distance": 300,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 20000,
+              "level": 900000
+            }
+          ],
+          "group": "market"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 40
+        }
+      },
+      {
+        "op": "crowd",
+        "args": {
+          "group": "market"
+        }
+      }
+    ]
+  }
+}

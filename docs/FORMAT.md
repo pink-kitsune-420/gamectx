@@ -2908,6 +2908,7 @@ grows past them is refused where it used to be accepted.
 | `cognition` | `beings` with a profile or memories (1024, 10⁶), `memories` per being (256, 65536; a full book evicts the weakest, then least important, then id), `people` per memory (8, 64), `motives` per `decide` (16, 256), `steps` per `decide` (16, 256) |
 | `chatter` | `beings` (1024, 10⁶), `topics` known per being (64, 4096; also the room to learn in a meeting), `wants` per being (16, 256), `bonds` (4096, 10⁶), `records` kept (256, 10⁶; oldest dropped), `turns` per meeting (6, 32; also the default) |
 | `survival` | `beings` living or dead (1024, 10⁶), `belongings` per being (64, 4096; heirs without room are skipped), `children` per being (16, 256) |
+| `detail` | `beings` tracked (1024, 10⁶), `needs` per being (8, 64), `groups` of crowd members (64, 65,536) |
 
 ### Knowledge kinds
 
@@ -3149,6 +3150,33 @@ safety 0–100, stage}`. Stage is `child` when `age·10⁶/lifespan < 225,000`, 
   becomes `min(safety, 100 − danger/10,000)`, and `{engine: "affect", op: "appraise", args: {being, subject:
   threat, kind: "fear", delta: danger/20,000, reason: response}}` is proposed. `unsafe` is safety < 40.
 - `assess {being (living or dead)}` → view.
+
+## Detail v1 (pass 2, D2)
+
+`gamectx::character::detail` (guide: [Life](characters/LIFE.md#level-of-detail-for-minds-pass-2-d2)), local kind
+`detail` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
+(6 malformed) live in `conformance/detail/`. Ticks and distances are 0..10¹²; levels, rates and thresholds are
+millionths. An op that fails refuses the request; ops before it keep their changes, and the failing op changes
+nothing.
+
+A being view is `{at, being, distance, group|null, level: full|coarse|crowd, needs [{id, level, rate, threshold}]}`
+(needs by id). Level is `full` when distance ≤ near (20), `coarse` when ≤ far (100), else `crowd`, which needs a
+group. A need at tick `t` after the being's `at` is `min(10⁶, level + rate·(t − at))`; it turns urgent at
+`at + ⌈(threshold − level)/rate⌉` if its level is below its threshold and its rate is above 0. An event is
+`{at, being, need}`.
+
+- `configure {near?, far?, stride? 1–10⁶}` → `{far, near, stride}`; near ≤ far; only before any `track`.
+- `track {being (new), needs 1..limit [{id (distinct), rate 0–10⁶, level? (0), threshold? 1–10⁶ (700,000)}],
+  distance, group?}` → view, `at` = clock; a new group needs room under the groups limit.
+- `move {being, distance, group?}` → `{events, from, to, being: view}`: the being is first brought to the clock
+  (events by tick, then need), then placed; the groups limit counts other beings' groups.
+- `tick {now ≥ clock}` → `{events, now, work {coarse, crowd, full}}`. Full beings are brought to `now` (work
+  needs·(now − clock)); coarse beings to `now − now mod stride` when that is past their `at` (work
+  needs·⌈(edge − at)/stride⌉); crowd beings are not touched, and `crowd` work is the number of groups when
+  `now > clock`. Events are sorted by tick, being, need.
+- `assess {being}` → view as of the clock plus `lag` (clock − stored `at`); nothing changes.
+- `crowd {group (with members)}` → `{group, members, needs [{id, mean, count}], urgent}`: each need's mean level
+  now (floor) over the members that have it, and how many member needs are at or above threshold.
 
 ## Game data and save files v1
 

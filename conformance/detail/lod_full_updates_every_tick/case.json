@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A full being is current after every tick; thirst turns urgent at tick 24 and hunger at tick 30, reported when reached.",
+  "error": false
+}

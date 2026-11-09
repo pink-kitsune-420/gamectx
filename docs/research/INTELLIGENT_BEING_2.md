@@ -237,10 +237,13 @@ when dithering; the arbiter's optional `commitment` input supplies the inertia. 
 is still open.
 [Evidence](../characters/LIFE.md#stability-monitors-pass-2-d1).
 
-**D2. Level of detail for minds.** The scheduler already budgets updates. Add explicit
+**D2. Level of detail for minds.** — **DONE**. The scheduler already budgets updates. Add explicit
 mind detail levels: full loop near the player, coarse needs/routine/effects far away,
 statistical summaries for distant crowds. Moving between levels must not lose or invent
 state.
+
+*Implemented (pass 2 D2):* `character::detail::Detail` (local kind `detail`).
+[Evidence](../characters/LIFE.md#level-of-detail-for-minds-pass-2-d2).
 
 **D3. Save size and migration.** Body, needs, tasks, lessons, expectations, other-models
 and lie ledgers all grow. Each needs bounds, pruning rules and a save-format migration
@@ -291,7 +294,7 @@ packet and budget modules already do.
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
-7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
+7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth**, **D5 packs**.
 
 ## 6. Risks to watch while pass 1 is built
 

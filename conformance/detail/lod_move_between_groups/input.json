@@ -1,0 +1,67 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 500,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "north"
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "b",
+          "distance": 500,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "north"
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "a",
+          "distance": 600,
+          "group": "south"
+        }
+      },
+      {
+        "op": "crowd",
+        "args": {
+          "group": "south"
+        }
+      },
+      {
+        "op": "crowd",
+        "args": {
+          "group": "north"
+        }
+      }
+    ]
+  }
+}

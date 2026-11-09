@@ -3027,3 +3027,72 @@ fn survival_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(s, before);
 }
+
+#[test]
+fn detail_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::detail::Detail;
+    let mut rng = Rng(0xDE7A_11D2_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 29. Level-of-detail mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"beings":8,"needs":3,"groups":2},"ops":[{"op":"configure","args":{"near":5,"far":50,"stride":7}},{"op":"track","args":{"being":"a","distance":0,"needs":[{"id":"hunger","rate":10000,"level":400000,"threshold":700000}]}},{"op":"track","args":{"being":"b","distance":30,"needs":[{"id":"thirst","rate":25000}]}},{"op":"track","args":{"being":"c","distance":900,"group":"g","needs":[{"id":"sleep","rate":1000}]}},{"op":"tick","args":{"now":37}},{"op":"move","args":{"being":"c","distance":0}},{"op":"crowd","args":{"group":"g"}}]}"#,
+        r#"{"ops":[{"op":"track","args":{"being":"f","distance":500,"group":"east","needs":[{"id":"n","rate":1000000,"level":999999}]}},{"op":"tick","args":{"now":1000000000000}},{"op":"assess","args":{"being":"f"}},{"op":"move","args":{"being":"f","distance":60}}]}"#,
+    ];
+    let mut d = Detail::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = d.workflow(&v);
+            }
+        }
+    }
+    assert!(d.beings.values().all(|b| b.at <= d.clock && b.needs.values().all(|n| n.level <= 1_000_000)));
+    assert!(d.beings.values().all(|b| (b.detail == "crowd") == b.group.is_some()));
+    // The group and active indexes match the beings exactly.
+    for (k, b) in &d.beings {
+        assert_eq!(d.active.contains(k), b.group.is_none(), "{k}");
+        assert!(b.group.as_ref().is_none_or(|g| d.groups[g].contains(k)), "{k}");
+    }
+    assert_eq!(d.groups.values().map(|m| m.len()).sum::<usize>() + d.active.len(), d.beings.len());
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Detail::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Detail::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"needs":64,"groups":65536}"#, true),
+        (r#"{"needs":65}"#, false),
+        (r#"{"groups":65537}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Detail::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 64 needs at the top rate over 10^12 ticks at every level, without overflow.
+    let needs: Vec<String> = (0..64).map(|i| format!(r#"{{"id":"n{i}","rate":1000000}}"#)).collect();
+    let needs = needs.join(",");
+    let mut d = Detail::with_limits(&parse(r#"{"needs":64}"#, 64).unwrap()).unwrap();
+    d.workflow(&req(&[
+        format!(r#"{{"op":"track","args":{{"being":"a","distance":0,"needs":[{needs}]}}}}"#),
+        format!(r#"{{"op":"track","args":{{"being":"b","distance":60,"needs":[{needs}]}}}}"#),
+        format!(r#"{{"op":"track","args":{{"being":"c","distance":900,"group":"g","needs":[{needs}]}}}}"#),
+    ]))
+    .unwrap();
+    let out = d.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).unwrap();
+    let text = out.to_json();
+    assert!(text.contains(r#""full":64000000000000"#), "{text}");
+    assert!(d.workflow(&req(&[r#"{"op":"move","args":{"being":"c","distance":0}}"#.into()])).is_ok());
+    assert!(d.beings.values().all(|b| b.needs.values().all(|n| n.level == 1_000_000)));
+
+    // A refused op changes nothing: a crowd member without a group.
+    let mut d = Detail::new();
+    d.workflow(&req(&[r#"{"op":"track","args":{"being":"a","distance":0,"needs":[{"id":"n","rate":1}]}}"#.into()]))
+        .unwrap();
+    let before = d.clone();
+    assert!(d.workflow(&req(&[r#"{"op":"move","args":{"being":"a","distance":500}}"#.into()])).is_err());
+    assert_eq!(d, before);
+}

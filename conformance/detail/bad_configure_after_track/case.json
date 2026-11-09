@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Levels are configured before any being is tracked.",
+  "error": true
+}

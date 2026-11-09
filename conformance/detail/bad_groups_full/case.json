@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With groups 1, a second group is refused.",
+  "error": true
+}

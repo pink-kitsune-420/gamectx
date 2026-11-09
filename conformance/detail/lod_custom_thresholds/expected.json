@@ -1,0 +1,1 @@
+{"version":1,"results":[{"at":0,"being":"a","distance":0,"group":null,"level":"full","needs":[{"id":"fear","level":0,"rate":10000,"threshold":100000},{"id":"hunger","level":0,"rate":10000,"threshold":900000}]},{"events":[{"at":10,"being":"a","need":"fear"},{"at":90,"being":"a","need":"hunger"}],"now":100,"work":{"coarse":0,"crowd":0,"full":200}}]}

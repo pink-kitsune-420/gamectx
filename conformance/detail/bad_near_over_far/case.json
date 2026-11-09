@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "near may not exceed far.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Work for 100 ticks: a full being with 2 needs costs 200, a coarse one 20 (10 strides), a crowd group 1 per tick call.",
+  "error": false
+}

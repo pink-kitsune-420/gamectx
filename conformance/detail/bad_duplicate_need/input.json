@@ -1,0 +1,24 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "n",
+              "rate": 1
+            },
+            {
+              "id": "n",
+              "rate": 2
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

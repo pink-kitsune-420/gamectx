@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A crowd member is not updated by ticks; moving it near catches it up and reports both urgent events at their exact ticks.",
+  "error": false
+}

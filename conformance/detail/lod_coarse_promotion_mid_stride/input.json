@@ -1,0 +1,39 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "miller",
+          "distance": 50,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 37
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "miller",
+          "distance": 0
+        }
+      }
+    ]
+  }
+}

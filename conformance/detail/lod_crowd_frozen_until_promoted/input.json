@@ -1,0 +1,40 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "farmer",
+          "distance": 500,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "east_fields"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 100
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "farmer",
+          "distance": 5
+        }
+      }
+    ]
+  }
+}

@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-four modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-five modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1369,6 +1369,14 @@ cases (`conformance/survival/`, 6 malformed). `--random 2000 --seed 7` builds wo
 cooperation generator, with a family preamble in 30% of them, against `gamectx local -` (0 mismatches: 1,473
 accepted, 527 refused, 4,612 births, 2,791 deaths, 320 belongings inherited, 1,249 threat responses).
 [Results](../docs/characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2).
+
+## Level of detail for minds (offline)
+
+`character/detail_reference.py` is the independent prototype of pass 2 D2 (full, coarse and crowd levels by
+distance, exact catch-up, work by level, crowd summaries). `character/detail_cases.py --cap 0` checks 25 cases
+(`conformance/detail/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
+generator against `gamectx local -` (0 mismatches: 1,481 accepted, 519 refused, 1,754 urgent events, 2,792 level
+moves, 449 promotions out of a crowd). [Results](../docs/characters/LIFE.md#level-of-detail-for-minds-pass-2-d2).
 
 ## Visual compiler and approved asset metadata (offline)
 

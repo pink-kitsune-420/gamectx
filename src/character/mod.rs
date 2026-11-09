@@ -13,6 +13,7 @@ pub mod cooperation;
 pub mod creed;
 pub mod curiosity;
 pub mod deception;
+pub mod detail;
 pub mod dialogue;
 pub mod diet;
 pub mod expectation;

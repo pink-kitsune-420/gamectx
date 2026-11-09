@@ -1,0 +1,52 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "z",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "a",
+              "rate": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "y",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "b",
+              "rate": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "x",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "c",
+              "rate": 50000
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 20
+        }
+      }
+    ]
+  }
+}

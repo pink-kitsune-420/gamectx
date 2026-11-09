@@ -1,0 +1,122 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "b",
+          "distance": 60,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "c",
+          "distance": 900,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "far_village"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 17
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 43
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 95
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "a",
+          "distance": 0
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "b",
+          "distance": 0
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "c",
+          "distance": 0
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "a"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "b"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "c"
+        }
+      }
+    ]
+  }
+}

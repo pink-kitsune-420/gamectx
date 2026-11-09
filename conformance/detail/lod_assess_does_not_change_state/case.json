@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Assessing a crowd member shows its exact state but changes nothing: the later move still reports the events.",
+  "error": false
+}

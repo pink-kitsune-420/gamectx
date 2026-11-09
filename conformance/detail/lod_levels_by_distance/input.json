@@ -1,0 +1,83 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "smith",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "miller",
+          "distance": 50,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "farmer",
+          "distance": 500,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "east_fields"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "smith"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "miller"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "farmer"
+        }
+      }
+    ]
+  }
+}

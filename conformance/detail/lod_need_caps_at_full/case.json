@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Levels stop at 1,000,000 however long the gap.",
+  "error": false
+}

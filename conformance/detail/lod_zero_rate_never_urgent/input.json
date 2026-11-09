@@ -1,0 +1,33 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "calm",
+              "rate": 0,
+              "level": 10
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "a"
+        }
+      }
+    ]
+  }
+}

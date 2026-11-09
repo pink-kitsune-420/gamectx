@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A coarse being last updated at 30 is caught up to 37 when promoted at tick 37.",
+  "error": false
+}

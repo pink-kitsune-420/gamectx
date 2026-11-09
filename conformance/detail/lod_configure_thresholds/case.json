@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The host sets near 5, far 10, stride 5 before tracking; distance 8 is now coarse and 11 a crowd.",
+  "error": false
+}

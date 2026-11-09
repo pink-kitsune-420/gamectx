@@ -1,0 +1,19 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 9
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A crowd summary gives members, the mean of each need at the current tick and how many needs are urgent.",
+  "error": false
+}

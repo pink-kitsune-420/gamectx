@@ -1,0 +1,32 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "fear",
+              "rate": 10000,
+              "threshold": 100000
+            },
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "threshold": 900000
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 100
+        }
+      }
+    ]
+  }
+}

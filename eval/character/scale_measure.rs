@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, task::TaskManager,
 };
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -62,6 +62,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("cognition", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"remember","args":{"being":"{b}","id":"fire","about":"barn","what":"burned","day":{i},"people":["miller"],"importance":40}}"#, r#"{"op":"recall","args":{"being":"{b}","id":"fire","seed":7}}"#),
         ("chatter", format!(r#"{{"beings":{},"bonds":{n}}}"#, n + 1), r#"{"op":"know","args":{"being":"baker","topic":"bread_price","value":"rising","weight":60}}"#, r#"{"op":"know","args":{"being":"{b}","topic":"road","value":"open_{i}","weight":40}}"#, r#"{"op":"meet","args":{"a":"{b}","b":"baker","seed":7}}"#),
         ("survival", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"born","args":{"being":"{b}","lifespan":100000,"at":0}}"#, r#"{"op":"threat","args":{"being":"{b}","threat":"wolf","danger":70,"temperament":"cautious","cover":true}}"#),
+        ("detail", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"track","args":{"being":"{b}","distance":500,"group":"east_fields","needs":[{"id":"hunger","rate":10000,"level":400000},{"id":"thirst","rate":25000}]}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -91,6 +92,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "cognition" => wf!(Cognition, lim),
         "chatter" => wf!(Chatter, lim),
         "survival" => wf!(Survival, lim),
+        "detail" => wf!(Detail, lim),
         _ => wf!(TaskManager, lim),
     })
 }

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A crowd member can move to another group; the summary follows it.",
+  "error": false
+}

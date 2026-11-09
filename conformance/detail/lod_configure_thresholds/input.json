@@ -1,0 +1,66 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "configure",
+        "args": {
+          "near": 5,
+          "far": 10,
+          "stride": 5
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 8,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "track",
+        "args": {
+          "being": "b",
+          "distance": 11,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ],
+          "group": "g"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 12
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "a"
+        }
+      }
+    ]
+  }
+}
