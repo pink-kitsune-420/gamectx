@@ -1,0 +1,36 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "ana",
+          "humour": "warm",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "ida",
+          "humour": "none",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "ana",
+          "listener": "ida",
+          "mood": 20,
+          "pacing": "steady"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "mira",
+          "humour": "dry",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 60,
+          "values": [
+            "family",
+            "craft"
+          ]
+        }
+      }
+    ]
+  }
+}

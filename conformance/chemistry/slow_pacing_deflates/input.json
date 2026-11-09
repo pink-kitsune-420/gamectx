@@ -1,0 +1,40 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "mira",
+          "humour": "dry",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 60,
+          "values": [
+            "family",
+            "craft"
+          ]
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "ida",
+          "humour": "none",
+          "tempo": "measured",
+          "formality": 90,
+          "assertiveness": 50
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "ida",
+          "mood": 20,
+          "pacing": "slow"
+        }
+      }
+    ]
+  }
+}

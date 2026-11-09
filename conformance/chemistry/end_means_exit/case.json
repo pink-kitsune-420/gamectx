@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "When pacing says the conversation has run its course, the move is a graceful exit.",
+  "error": false
+}

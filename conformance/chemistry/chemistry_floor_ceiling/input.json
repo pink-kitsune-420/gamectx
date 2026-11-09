@@ -1,0 +1,92 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "a",
+          "humour": "warm",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50,
+          "values": [
+            "v1",
+            "v2",
+            "v3",
+            "v4",
+            "v5"
+          ]
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "b",
+          "humour": "warm",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50,
+          "values": [
+            "v1",
+            "v2",
+            "v3",
+            "v4",
+            "v5"
+          ]
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "a",
+          "b": "b",
+          "landmarks": 9,
+          "favors": 9
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "c",
+          "humour": "cutting",
+          "tempo": "fast",
+          "formality": 0,
+          "assertiveness": 95
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "d",
+          "humour": "warm",
+          "tempo": "slow",
+          "formality": 100,
+          "assertiveness": 90
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "c",
+          "b": "d",
+          "breaches": 9
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "a",
+          "b": "b"
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "c",
+          "b": "d"
+        }
+      }
+    ]
+  }
+}

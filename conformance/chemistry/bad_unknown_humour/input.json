@@ -1,0 +1,17 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "mira",
+          "humour": "sardonic",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50
+        }
+      }
+    ]
+  }
+}

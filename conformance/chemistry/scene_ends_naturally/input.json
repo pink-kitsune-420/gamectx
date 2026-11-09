@@ -1,0 +1,46 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "scene",
+        "args": {
+          "id": "market"
+        }
+      },
+      {
+        "op": "beat",
+        "args": {
+          "scene": "market",
+          "kind": "line",
+          "tension": 5,
+          "novelty": 20,
+          "engagement": 80,
+          "threads_open": 1
+        }
+      },
+      {
+        "op": "beat",
+        "args": {
+          "scene": "market",
+          "kind": "line",
+          "tension": 0,
+          "novelty": 20,
+          "engagement": 60,
+          "threads_open": 0
+        }
+      },
+      {
+        "op": "beat",
+        "args": {
+          "scene": "market",
+          "kind": "line",
+          "tension": 0,
+          "novelty": 10,
+          "engagement": 40,
+          "threads_open": 0
+        }
+      }
+    ]
+  }
+}

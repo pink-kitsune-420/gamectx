@@ -1,0 +1,42 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "ana",
+          "humour": "warm",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "ida",
+          "humour": "warm",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 50
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "ana",
+          "b": "ida",
+          "breaches": 4
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "ana",
+          "b": "ida"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "mira",
+          "humour": "dry",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 60,
+          "values": [
+            "family",
+            "craft"
+          ]
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "bo",
+          "humour": "absurd",
+          "tempo": "fast",
+          "formality": 20,
+          "assertiveness": 20,
+          "values": [
+            "craft"
+          ]
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "mira",
+          "b": "bo",
+          "landmarks": 3,
+          "favors": 2
+        }
+      },
+      {
+        "op": "joke",
+        "args": {
+          "a": "mira",
+          "b": "bo",
+          "id": "flour_sneeze",
+          "moment": "The day the flour sack burst on the bridge."
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": 20,
+          "pacing": "steady",
+          "seed": 1
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": 20,
+          "pacing": "steady",
+          "seed": 2
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "mira",
+          "b": "bo"
+        }
+      }
+    ]
+  }
+}

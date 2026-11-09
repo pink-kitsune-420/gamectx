@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills forty-two modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills forty-three modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1498,6 +1498,15 @@ resolution). `character/projects_cases.py --cap 0` checks 25 cases (`conformance
 2000 --seed 7` builds workflows op by op against `gamectx local -` with two projects that have alternatives and
 deadlines (0 mismatches: 1,449 accepted, 551 refused, 2,068 decisions with 348 adaptations, 17 abandonments and 48
 completions; seed 1: 1,466 accepted, 0 mismatches). [Results](../docs/characters/LIFE.md#life-projects-pass-4-stage-5).
+
+## Chemistry, banter and pacing (offline)
+
+`character/chemistry_reference.py` is the independent prototype of pass 4 stage 6 (social styles and pair chemistry,
+banter moves with running jokes and a rapport floor, a scene pacing controller). `character/chemistry_cases.py --cap 0`
+checks 27 cases (`conformance/chemistry/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op against
+`gamectx local -` with four styled beings, a history, a running joke and a scene (0 mismatches: 1,471 accepted, 529
+refused, 4,038 banter moves with 281 callbacks and 64 insults, 2,798 non-steady pacing advices; seed 1: 1,486
+accepted, 0 mismatches). [Results](../docs/characters/LIFE.md#chemistry-banter-and-pacing-pass-4-stage-6).
 
 ## Deep roleplay scenarios (offline)
 

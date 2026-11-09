@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, minds::Minds, defenses::Defenses, projects::Projects, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, minds::Minds, defenses::Defenses, projects::Projects, chemistry::Chemistry, task::TaskManager,
 };
 use gamectx::knowledge::{culture::Culture, fabric::Fabric, genre::Genres, surroundings::Surroundings};
 use gamectx::{data::json::parse, obj, Result, Value};
@@ -81,6 +81,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("defenses", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"profile","args":{"being":"{b}","maturity":45,"tolerance":10,"crisis":"confession","style":["projection","rationalization"],"protects":["lockbox"]}}"#, r#"{"op":"threat","args":{"being":"{b}","value":"secret","drop":40,"fact":"lockbox","blame":"apprentice","excuse":"The lock was old."}}"#),
         ("culture", format!(r#"{{"beings":{n},"topics":{n},"beliefs":{}}}"#, 2 * n), r#"{"op":"member","args":{"being":"fay","community":"hill","status":60,"openness":30,"carefulness":10,"credulity":30}},{"op":"member","args":{"being":"bo","community":"dock","status":50,"openness":60,"carefulness":10,"credulity":90}}"#, r#"{"op":"seed","args":{"topic":"{b}","witness":"fay","verb":"stole","agent":"ada","place":"mill","details":["after_dark","with_a_sack"],"amount":3}}"#, r#"{"op":"tell","args":{"speaker":"fay","listener":"bo","topic":"{b}","seed":7,"fondness":70}}"#),
         ("projects", format!(r#"{{"projects":{n}}}"#), "", r#"{"op":"propose","args":{"id":"{b}","owner":"{b}","aim":"Open a small brewery","stake":70,"horizon":500,"milestones":[{"id":"clear_plot","condition":{"kind":"task","ref":"clear_plot"},"expected":40},{"id":"buy_hops","condition":{"kind":"item","ref":"hops_sack"},"expected":20,"alternative":{"id":"trade_for_hops","condition":{"kind":"relationship","ref":"farmer_wen","level":60},"expected":30}},{"id":"first_brew","condition":{"kind":"fact","ref":"ale_tasted"},"expected":60}]}}"#, r#"{"op":"weight","args":{"project":"{b}"}}"#),
+        ("chemistry", format!(r#"{{"beings":{}}}"#, n + 1), r#"{"op":"style","args":{"being":"mira","humour":"dry","tempo":"measured","formality":30,"assertiveness":60,"values":["craft","family"]}}"#, r#"{"op":"style","args":{"being":"{b}","humour":"absurd","tempo":"fast","formality":20,"assertiveness":20,"values":["craft"]}}"#, r#"{"op":"pair","args":{"a":"{b}","b":"mira"}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -128,6 +129,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "defenses" => wf!(Defenses, lim),
         "culture" => wf!(Culture, lim),
         "projects" => wf!(Projects, lim),
+        "chemistry" => wf!(Chemistry, lim),
         _ => wf!(TaskManager, lim),
     })
 }

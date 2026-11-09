@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: mood is -100 to 100.",
+  "error": true
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "scene",
+        "args": {
+          "id": "market",
+          "silence": 0
+        }
+      },
+      {
+        "op": "beat",
+        "args": {
+          "scene": "market",
+          "kind": "silence",
+          "tension": 0,
+          "novelty": 10,
+          "engagement": 10,
+          "threads_open": 0
+        }
+      }
+    ]
+  }
+}

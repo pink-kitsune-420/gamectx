@@ -1,8 +1,8 @@
-"""Retain or audit one local scale timing run (1,000 and 10,000 entries for forty-two character and world modules). No provider access."""
+"""Retain or audit one local scale timing run (1,000 and 10,000 entries for forty-three character and world modules). No provider access."""
 import pathlib as _pl, sys as _sys; _sys.path[1:1] = [str(d) for d in sorted(_pl.Path(__file__).resolve().parents[1].iterdir()) if d.is_dir()]  # every eval/ topic folder
 import argparse,hashlib,json,pathlib,platform,subprocess,provenance
 ROOT=pathlib.Path(__file__).resolve().parents[2]
-MODULES=['beliefs','speech_act','diet','creed','explain','stability','expectation','attention','aspiration','habit','lesson','affect','skills','body','mind','deception','relationship','offscreen','curiosity','cooperation','cognition','chatter','survival','detail','retention','roles','economy','space','drift','packs','frame','cueing','pragmatics','embodiment','surroundings','fabric','genre','minds','defenses','culture','projects','task']
+MODULES=['beliefs','speech_act','diet','creed','explain','stability','expectation','attention','aspiration','habit','lesson','affect','skills','body','mind','deception','relationship','offscreen','curiosity','cooperation','cognition','chatter','survival','detail','retention','roles','economy','space','drift','packs','frame','cueing','pragmatics','embodiment','surroundings','fabric','genre','minds','defenses','culture','projects','chemistry','task']
 SOURCES=['src/character/limits.rs']+[next(f'src/{d}/{m}.rs' for d in ('character','knowledge') if (ROOT/f'src/{d}/{m}.rs').exists()) for m in MODULES]+['eval/character/scale_measure.rs']
 FIELDS=['beings','module','fill_ns_per_op','state_bytes','state_bytes_per_being','query_median_ns','query_p95_ns','query_max_ns']
 def hashes():return {p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in SOURCES}

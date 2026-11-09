@@ -1,0 +1,79 @@
+{
+  "kind": "chemistry",
+  "args": {
+    "ops": [
+      {
+        "op": "style",
+        "args": {
+          "being": "mira",
+          "humour": "dry",
+          "tempo": "measured",
+          "formality": 30,
+          "assertiveness": 60,
+          "values": [
+            "family",
+            "craft"
+          ]
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "bo",
+          "humour": "absurd",
+          "tempo": "fast",
+          "formality": 20,
+          "assertiveness": 20,
+          "values": [
+            "craft"
+          ]
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "mira",
+          "b": "bo",
+          "landmarks": 3,
+          "favors": 2
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "rival",
+          "humour": "cutting",
+          "tempo": "fast",
+          "formality": 95,
+          "assertiveness": 95
+        }
+      },
+      {
+        "op": "history",
+        "args": {
+          "a": "mira",
+          "b": "rival",
+          "breaches": 3
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "bo",
+          "mood": -50,
+          "pacing": "steady"
+        }
+      },
+      {
+        "op": "banter",
+        "args": {
+          "speaker": "mira",
+          "listener": "rival",
+          "mood": -50,
+          "pacing": "steady"
+        }
+      }
+    ]
+  }
+}

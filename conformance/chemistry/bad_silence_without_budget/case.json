@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: no silence beat once the budget is spent.",
+  "error": true
+}

@@ -4677,3 +4677,107 @@ fn projects_survive_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn chemistry_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::chemistry::{Chemistry, FULL, RETIRE, WINDOW};
+    let mut rng = Rng(0xC4E3_0E46_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+    fn num(v: Option<&Value>) -> i64 {
+        v.unwrap().to_json().parse().unwrap()
+    }
+
+    // 47. Chemistry mutation fuzzing (limits included); one manager keeps styles, pairs, jokes and
+    // scenes across 16 rounds. Chemistry stays within 0..=100 with biases of (chemistry − 50) ÷ 2;
+    // a tease lands exactly at chemistry 60 or more; jokes are retired exactly at five uses and
+    // never fresher than 10⁶; scenes keep at most eight beats and tension within 0..=10⁶.
+    let samples = [
+        r#"{"limits":{"pairs":3,"jokes":2,"scenes":1},"ops":[{"op":"style","args":{"being":"mira","humour":"dry","tempo":"measured","formality":30,"assertiveness":60,"values":["craft"]}},{"op":"style","args":{"being":"bo","humour":"absurd","tempo":"fast","formality":20,"assertiveness":20,"values":["craft"]}},{"op":"history","args":{"a":"mira","b":"bo","landmarks":3,"favors":2,"breaches":1}},{"op":"joke","args":{"a":"mira","b":"bo","id":"goose","moment":"The goose on the bridge."}},{"op":"banter","args":{"speaker":"mira","listener":"bo","mood":20,"pacing":"steady","seed":3}},{"op":"banter","args":{"speaker":"bo","listener":"mira","mood":-40,"pacing":"escalate","move":"tease"}},{"op":"pair","args":{"a":"bo","b":"mira"}}]}"#,
+        r#"{"ops":[{"op":"scene","args":{"id":"market","tension":100000,"silence":2}},{"op":"beat","args":{"scene":"market","kind":"silence","tension":40,"novelty":60,"engagement":70,"threads_open":1}},{"op":"tick","args":{"now":4}},{"op":"beat","args":{"scene":"market","kind":"conflict","tension":-30,"novelty":10,"engagement":40,"threads_open":0}},{"op":"pace","args":{"scene":"market"}}]}"#,
+    ];
+    let mut k = Chemistry::new();
+    let mut moves = 0;
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            k = Chemistry::new();
+        }
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = k.workflow(&v) else { continue };
+            for r in out.get("results").and_then(Value::as_array).unwrap() {
+                if let Some(ch) = r.get("chemistry").filter(|_| r.get("components").is_some()) {
+                    let ch: i64 = ch.to_json().parse().unwrap();
+                    assert!((0..=100).contains(&ch));
+                    assert_eq!(num(r.get("cooperativeness_bias")), (ch - 50).div_euclid(2));
+                }
+                if r.get("move") == Some(&Value::from("tease")) {
+                    assert_eq!(r.get("lands") == Some(&Value::Bool(true)), num(r.get("chemistry")) >= 60);
+                    moves += 1;
+                }
+            }
+            for p in k.pairs.values() {
+                for j in p.jokes.values() {
+                    assert!(j.freshness <= FULL && k.freshness(j) <= FULL);
+                    assert_eq!(j.retired, j.uses >= RETIRE);
+                }
+            }
+            for s in k.scenes.values() {
+                assert!(s.beats.len() <= WINDOW && s.tension <= FULL && s.silence <= 16);
+            }
+        }
+    }
+    assert!(moves > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Chemistry::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Chemistry::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"pairs":1000000,"jokes":64,"scenes":100000}"#, true),
+        (r#"{"jokes":65}"#, false),
+        (r#"{"scenes":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Chemistry::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 64 jokes fill a pair and one more is refused; a spent joke restored over the 10¹²
+    // clock caps at 10⁶ without overflow; 64 beats keep eight, with tension clamped at both ends.
+    let mut k = Chemistry::with_limits(&parse(r#"{"jokes":64}"#, 64).unwrap()).unwrap();
+    let style = |b: &str| {
+        format!(
+            r#"{{"op":"style","args":{{"being":"{b}","humour":"dry","tempo":"fast","formality":0,"assertiveness":0}}}}"#
+        )
+    };
+    k.workflow(&req(&[style("a"), style("b")])).unwrap();
+    let jokes: Vec<String> =
+        (0..64).map(|i| format!(r#"{{"op":"joke","args":{{"a":"a","b":"b","id":"j{i}","moment":"M."}}}}"#)).collect();
+    k.workflow(&req(&jokes)).unwrap();
+    assert!(k.workflow(&req(&[r#"{"op":"joke","args":{"a":"a","b":"b","id":"j64","moment":"M."}}"#.into()])).is_err());
+    let banter =
+        r#"{"op":"banter","args":{"speaker":"a","listener":"b","mood":0,"pacing":"steady","move":"callback"}}"#;
+    k.workflow(&req(&vec![banter.to_string(); 4])).unwrap();
+    k.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).unwrap();
+    let pair = &k.pairs[&("a".to_string(), "b".to_string())];
+    assert!(pair.jokes.values().all(|j| k.freshness(j) == FULL));
+    let mut k = Chemistry::new();
+    let mut ops = vec![r#"{"op":"scene","args":{"id":"s"}}"#.to_string()];
+    for i in 0..63 {
+        let t = if i < 30 { 100 } else { -100 };
+        ops.push(format!(
+            r#"{{"op":"beat","args":{{"scene":"s","kind":"line","tension":{t},"novelty":50,"engagement":50,"threads_open":1}}}}"#
+        ));
+    }
+    k.workflow(&req(&ops)).unwrap();
+    assert_eq!(k.scenes["s"].beats.len(), WINDOW);
+    assert_eq!(k.scenes["s"].tension, 0);
+
+    // A refused op changes nothing: a callback proposed with no running joke.
+    let mut k = Chemistry::new();
+    k.workflow(&req(&[style("a"), style("b")])).unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[banter.to_string()])).is_err());
+    assert_eq!(k, before);
+}

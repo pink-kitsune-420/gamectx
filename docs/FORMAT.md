@@ -2922,6 +2922,7 @@ grows past them is refused where it used to be accepted.
 | `minds` | authored `minds` (16, 4096), assigned `beings` (1024, 10⁶) |
 | `defenses` | profiled `beings` (1024, 10⁶), held `distortions` per being (16, 256) |
 | `projects` | `projects` (256, 10⁶), `milestones` per project (8, 32) |
+| `chemistry` | styled `beings` (1024, 10⁶), `pairs` with history or jokes (4096, 10⁶), running `jokes` per pair (8, 64), `scenes` (64, 10⁵) |
 | `culture` | `beings` (members, 1024, 10⁶), `idioms` (64, 10⁵), `repertoire` per being (32, 1024), seeded `topics` (256, 10⁶), held `beliefs` (4096, 10⁶) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
@@ -3655,6 +3656,45 @@ morale ÷ 10,000 + stake ÷ 2 + sunk`, `sunk = min(30, time ÷ 50 + money ÷ 100
 - `offscreen {project, elapsed 0–10¹², luck 0–100}` → `{project, resolved success|failure|null, result}`: for an active
   project, luck below 20 fails the current milestone; luck 50 or more with `elapsed ≥ expected` completes it; otherwise
   nothing. The result is the outcome's.
+
+## Chemistry v1 (pass 4, stage 6)
+
+`gamectx::character::chemistry` (guide: [Life](characters/LIFE.md#chemistry-banter-and-pacing-pass-4-stage-6)), local
+kind `chemistry` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 27
+cases (6 malformed) live in `conformance/chemistry/`. Pairs are unordered (`a` < `b` in results).
+
+- `tick {now (0–10¹², not backwards)}` → `{now}`.
+- `style {being, humour dry|warm|absurd|cutting|none, tempo fast|measured|slow, formality 0–100, assertiveness 0–100,
+  values? [≤ 8, unique]}` → the style, values sorted.
+- `history {a, b (different), landmarks?, favors?, breaches? (0–1000, 0)}` → the counts.
+- `pair {a, b (styled, different)}` → `{a, b, chemistry, components {assertiveness, chemistry, formality, history,
+  humour, tempo, values}, cooperativeness_bias, initiative_bias, jokes [{freshness, id, retired, uses}],
+  playful_lands_percent}`. Chemistry = clamp(0, 100, 50 + humour + tempo + formality + assertiveness + values +
+  history): humour fit dry–dry 15, dry–warm 10, absurd–dry 15, cutting–dry 5, warm–warm 20, absurd–warm 15,
+  cutting–warm −20, none–warm 5, absurd–absurd 20, absurd–cutting −10, absurd–none −5, cutting–cutting 10,
+  cutting–none −15, others 0; tempo +10 equal, −15 fast with slow; formality −(gap ÷ 10); assertiveness −10 when both
+  ≥ 70, else +5 when they differ by ≥ 40; values +5 per shared value up to 20; history min(20, 4 × landmarks) + min(15,
+  3 × favors) − min(40, 8 × breaches). Biases are `floor((chemistry − 50) ÷ 2)`; the landing chance is the chemistry.
+- `joke {a, b (styled, different), id (new for the pair), moment (text ≤ 80)}` → `{a, b, freshness: 1000000, id,
+  moment}`.
+- `banter {speaker, listener (styled, different), mood −100–100, pacing end|pause|slow|escalate|steady, seed? (0–10¹²,
+  0), move? (a move)}` → `{appraisal, chemistry, joke, lands, listener, move, proposed, speaker}`. Fresh jokes have
+  freshness ≥ 500,000. Without a proposed move: `end` → exit; mood < −30 → rapport_check at chemistry ≥ 40, else exit;
+  fresh jokes and pacing not slow → callback; pacing escalate and chemistry ≥ 60 → escalate; a dry or cutting speaker
+  at chemistry ≥ 60 → tease; pacing slow or pause → deflate; a warm speaker → disguised_compliment; otherwise
+  rapport_check. A proposed callback needs a fresh joke. A callback picks the fresh joke at `FNV-1a("<seed>:<speaker>:
+  <listener>:<tick>") mod count` (ids sorted), spends 300,000 and counts a use; five uses retire it (freshness 0).
+  Freshness otherwise restores 2,000 per tick up to 10⁶. Tease: lands at chemistry ≥ 60 (playful), else insult;
+  escalate and callback: land at ≥ 50 (playful), else awkward; disguised_compliment: warm; others: neutral.
+- `scene {id (new), tension? (0–10⁶, 0), silence? (0–16, 3)}` → the advice.
+- `beat {scene, kind line|action|silence|reveal|conflict, tension −100–100, novelty 0–100, engagement 0–100,
+  threads_open 0–16}` → the advice. Tension moves by `tension × 10,000`, clamped to 0–10⁶; a silence beat needs and
+  spends budget; the last 8 beats are kept.
+- `pace {scene}` → `{advice, density, falling, novelty, scene, silence, tension, threads_open}`: over the last 4 beats,
+  `novelty` is the mean and `falling` that the last engagement is below the first; `density` counts kept beats within
+  10 ticks. Advice in order: `end` (beats, no open thread, novelty < 30, falling); `pause` (the last beat moved tension
+  by ≥ 300,000 and silence is left); `slow` (tension ≥ 800,000 or density ≥ 6); `escalate` (tension < 200,000, beats,
+  novelty ≥ 50); `steady`.
 
 ## Surroundings v1 (pass 3, stage 5)
 
