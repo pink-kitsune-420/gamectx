@@ -1,0 +1,36 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "want",
+        "args": {
+          "being": "ann",
+          "topic": "road",
+          "weight": 30
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ann"
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "road",
+          "value": "open",
+          "weight": 10
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ann"
+        }
+      }
+    ]
+  }
+}

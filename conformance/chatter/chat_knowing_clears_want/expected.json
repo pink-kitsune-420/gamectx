@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"ann","topic":"road","topics":0,"wants":1,"weight":30},{"being":"ann","knows":[],"wants":[{"topic":"road","weight":30}],"bonds":[]},{"being":"ann","secret":false,"topic":"road","topics":1,"value":"open","wants":0,"weight":10},{"being":"ann","knows":[{"secret":false,"topic":"road","value":"open","weight":10}],"wants":[],"bonds":[]}]}

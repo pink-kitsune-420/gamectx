@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The seed decides who speaks first (FNV-1a of seed:a:b, even means a); the record names the first speaker.",
+  "error": false
+}

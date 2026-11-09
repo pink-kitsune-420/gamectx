@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Learning a wanted topic, or being told it by the host, removes the want.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The guard keeps the gate-key secret at warmth 40 and tells it at warmth 60.",
+  "error": false
+}

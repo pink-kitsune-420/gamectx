@@ -1,0 +1,96 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "baker",
+          "topic": "mill_price",
+          "value": "rising",
+          "weight": 80
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "baker",
+          "topic": "new_oven",
+          "value": "built",
+          "weight": 30
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "widow",
+          "topic": "fox_den",
+          "value": "north_field",
+          "weight": 60
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "widow",
+          "topic": "mill_price",
+          "value": "rising",
+          "weight": 40
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "baker",
+          "topic": "fox_den",
+          "weight": 70
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 1,
+          "at": 1
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 2,
+          "at": 2
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 3,
+          "at": 3
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 4,
+          "at": 4
+        }
+      },
+      {
+        "op": "log",
+        "args": {
+          "limit": 5
+        }
+      }
+    ],
+    "limits": {
+      "records": 2
+    }
+  }
+}

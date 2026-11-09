@@ -1,0 +1,1 @@
+{"limits":{"beings":2,"topics":64,"wants":16,"bonds":4096,"records":256,"turns":4},"version":1,"results":[{"being":"ann","secret":false,"topic":"x","topics":1,"value":"y","wants":0,"weight":50},{"being":"bo","secret":false,"topic":"x","topics":1,"value":"z","wants":0,"weight":50},{"records":[]}]}

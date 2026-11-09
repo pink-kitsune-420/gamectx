@@ -173,10 +173,13 @@ sanctions through reputation. This connects lying (pass 1 gap 13) to a cost.
 *Implemented (pass 2 stage 4, with creeds):* `character::creed::CreedManager` (local kind
 `creed`). [Evidence](../characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5).
 
-**B6. Character-to-character conversation off-screen.** Rumors spread as records. Beings
+**B6. Character-to-character conversation off-screen.** — **DONE**. Rumors spread as records. Beings
 should also hold short exchanges with each other when they meet, chosen from what each
 knows and wants (B1), summarized as records with no model call by default. This is
 where gossip content, alliances and quarrels come from.
+
+*Implemented (pass 2 B6):* `character::chatter::Chatter` (local kind `chatter`).
+[Evidence](../characters/LIFE.md#off-screen-conversations-pass-2-b6).
 
 **B7. Status, roles and jobs.** Community membership exists. Add roles with duties
 (guard, baker, elder) that create tasks automatically, and status that affects
@@ -284,7 +287,7 @@ packet and budget modules already do.
    ([Evidence](../characters/LIFE.md#host-set-limits)).
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
-   **B6 off-screen talk**.
+   **B6 off-screen talk** — **DONE**.
 7. **C1 life cycle**, **C2 threat**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
 
 ## 6. Risks to watch while pass 1 is built

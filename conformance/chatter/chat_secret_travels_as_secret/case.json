@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A secret told to a trusted friend stays secret for the friend, who will not pass it to a stranger.",
+  "error": false
+}

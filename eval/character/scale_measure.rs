@@ -1,7 +1,7 @@
 //! Standalone host-work scale timing for character modules with host-set limits.
 //! No model, network, sleeps or engine callbacks. A counting allocator reports live heap bytes.
 use gamectx::character::{
-    affect::AffectManager, aspiration::Aspirations, cognition::Cognition, cooperation::Cooperation, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager,
+    affect::AffectManager, aspiration::Aspirations, chatter::Chatter, cognition::Cognition, cooperation::Cooperation, attention::AttentionModel, beliefs::BeliefStore, body::BodyManager,
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
@@ -60,6 +60,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("curiosity", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"init","args":{"being":"{b}","temperament":"curious","known_people":["ann"]}}"#, r#"{"op":"evaluate_novelty","args":{"being":"{b}","people":["ann","zed"]}}"#),
         ("cooperation", format!(r#"{{"promises":{n}}}"#), "", r#"{"op":"promise","args":{"id":"p_{b}","from":"{b}","to":"baker","what":"bread","due":{i}}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("cognition", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"remember","args":{"being":"{b}","id":"fire","about":"barn","what":"burned","day":{i},"people":["miller"],"importance":40}}"#, r#"{"op":"recall","args":{"being":"{b}","id":"fire","seed":7}}"#),
+        ("chatter", format!(r#"{{"beings":{},"bonds":{n}}}"#, n + 1), r#"{"op":"know","args":{"being":"baker","topic":"bread_price","value":"rising","weight":60}}"#, r#"{"op":"know","args":{"being":"{b}","topic":"road","value":"open_{i}","weight":40}}"#, r#"{"op":"meet","args":{"a":"{b}","b":"baker","seed":7}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -87,6 +88,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "curiosity" => wf!(CuriosityManager, lim),
         "cooperation" => wf!(Cooperation, lim),
         "cognition" => wf!(Cognition, lim),
+        "chatter" => wf!(Chatter, lim),
         _ => wf!(TaskManager, lim),
     })
 }

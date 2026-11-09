@@ -1,0 +1,65 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "baker",
+          "topic": "mill_price",
+          "value": "rising",
+          "weight": 80
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "baker",
+          "topic": "new_oven",
+          "value": "built",
+          "weight": 30
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "widow",
+          "topic": "fox_den",
+          "value": "north_field",
+          "weight": 60
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "widow",
+          "topic": "mill_price",
+          "value": "rising",
+          "weight": 40
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "baker",
+          "topic": "fox_den",
+          "weight": 70
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 3
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "baker"
+        }
+      }
+    ]
+  }
+}

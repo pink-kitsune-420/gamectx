@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being with no topics or wants cannot meet.",
+  "error": true
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "x",
+          "value": "same",
+          "weight": 10
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "x",
+          "value": "same",
+          "weight": 10
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "ann",
+          "b": "bo",
+          "seed": 1
+        }
+      }
+    ]
+  }
+}

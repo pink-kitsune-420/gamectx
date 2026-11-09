@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A meeting's turns may not exceed the turns limit.",
+  "error": true
+}

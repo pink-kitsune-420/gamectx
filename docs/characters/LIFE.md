@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Twenty-two character modules take a `limits` object next to
+The game decides how much it needs. Twenty-three character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -702,37 +702,38 @@ needs more.
 Measured host work at large casts (`eval/character/scale_measure.rs`, retained in
 `eval/character/scale-timing.json`; one release-mode run on an 8-core desktop CPU, single thread).
 Each module was filled with N entries by one small op each (a being, or a told claim, attitude,
-off-screen record, promise, memory or task), then given 1,000 single-op queries spread over them:
+off-screen record, promise, memory, known topic or task), then given 1,000 single-op queries spread over them:
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.5 / 2.1 | 2.0 / 2.6 | 4.4 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.5 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.4 / 3.4 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.7 | 1.7 / 1.9 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
-| `stability` (`get_warnings`) | 0.3 / 0.4 | 0.3 / 0.3 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.4 / 1.9 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 2.0 / 2.2 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.3 | 2.4 | 685 |
-| `habit` (`routine`) | 0.8 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.4 | 1,335 |
-| `affect` (`assess`) | 1.2 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.1 | 1.5 / 2.1 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.7 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.2 | 2.0 / 3.1 | 2.1 | 884 |
+| `beliefs` (`query`) | 2.2 / 3.0 | 2.1 / 2.7 | 4.4 | 2,521 |
+| `speech_act` (`assess`) | 0.4 / 0.6 | 0.5 / 0.6 | 1.3 | 173 |
+| `diet` (`choose`) | 1.9 / 2.0 | 2.4 / 2.9 | 1.9 | 613 |
+| `creed` (`judge`) | 1.6 / 1.7 | 1.8 / 2.4 | 1.1 | 294 |
+| `explain` (`query_trace`) | 3.4 / 4.0 | 4.2 / 5.2 | 3.9 | 2,283 |
+| `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
+| `expectation` (`assess`) | 1.0 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 2.1 / 2.6 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.8 / 0.8 | 1.1 / 1.6 | 2.6 | 685 |
+| `habit` (`routine`) | 0.8 / 0.8 | 1.0 / 1.5 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 1.1 | 1.7 / 2.3 | 2.5 | 1,335 |
+| `affect` (`assess`) | 1.2 / 1.5 | 1.8 / 2.5 | 2.8 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.4 | 2.1 / 2.9 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.4 | 1.7 / 2.4 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 1.1 | 1.4 / 2.1 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.1 / 1.2 | 1.8 / 2.7 | 2.3 | 884 |
 | `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 2.0 | 2.8 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.8 / 4.8 | 5.7 | 2,370 |
+| `offscreen` (`assess` one being) | 2.3 / 2.6 | 3.9 / 5.1 | 5.3 | 2,370 |
 | `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 13.7 / 14.8 | 211.0 / 238.7 | 3.4 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 2.9 | 3.7 | 1,681 |
+| `cooperation` (`assess`, scans every record) | 14.7 / 16.1 | 221.4 / 237.7 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.8 / 1.9 | 2.3 / 2.9 | 3.7 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.5 / 7.1 | 7.4 / 8.2 | 1.9 | 864 |
 | `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.8 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
-maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 211 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 258 MB across all twenty-two modules at 10,000 each, about 26 KB per
+maps), except cooperation `assess`, which walks every task, promise, resource and debt: 15 µs at
+1,000 promises, 221 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 267 MB across all twenty-three modules at 10,000 each, about 27 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -926,3 +927,41 @@ person, 1,178 memories forgotten). Robustness (`tests/robustness.rs`) covers 1,5
 each of two samples with limits, 64/65-op and limit-ceiling boundaries, a 256-motive and 256-step
 decision, the clock and memory span at their bounds, and a refused op that changes nothing.
 Scale is in the [table above](#host-set-limits). $0 API spend.
+
+## Off-screen conversations (pass 2, B6)
+
+`gamectx::character::chatter` (`Chatter`, local kind `chatter`) lets characters talk to each
+other when they meet, with no model call. Each being `know`s topics (a value, a weight 0–100,
+optionally secret) and `want`s others. `bond` sets a pair's warmth (−100..100, default 0).
+
+When two known beings `meet`, FNV-1a of `"<seed>:<a>:<b>"` picks who speaks first, and they take
+up to `turns` turns. On each turn the speaker offers its best topic by
+`2·(listener's want) + weight`, then by name. It skips topics already said in the meeting,
+topics the listener already holds with the same value, and secrets while warmth is below 60.
+
+- If the listener holds that topic with another value, the turn is a **dispute**.
+- Otherwise it is a **tell**. The listener learns the topic at half weight (if it has room), a
+  beliefs `learn` proposal goes out, and a wanted topic adds 5 warmth and a relationship `help`.
+- With nothing to offer the turn is **small talk**; two in a row end the meeting.
+
+Each meeting becomes a record. With any dispute while warmth was below 20, the meeting is a
+**quarrel**: warmth −10 per dispute, down to −100, and resentment both ways. Otherwise it is an
+**alliance** when a wanted topic was shared and warmth reached 60, **gossip** when anything was
+told, and small talk when nothing was.
+
+The widow tells the baker where the fox den is because he wants it (`chat_tell_what_is_wanted`).
+News of a thief reaches the guard two meetings later at a quarter of its weight
+(`chat_gossip_spreads_in_steps`). The guard keeps the gate key secret at warmth 40 and tells it
+at 60, and the niece who learns it keeps it secret from a stranger
+(`chat_secret_travels_as_secret`). A disagreement about the bridge is a quarrel between
+strangers and plain talk between old friends (`chat_dispute_becomes_quarrel`,
+`chat_warm_dispute_is_not_quarrel`). `log` lists records newest first, and `assess` shows a
+being's topics, wants and bonds.
+
+**Evidence (B6):** 25 conformance cases (`conformance/chatter/`, 6 malformed), 2,000 differential
+parity workflows (`eval/character/chatter_cases.py`, seed 7, 0 mismatches: 1,438 accepted, 562
+refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
+(`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
+limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
+meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
+takes 7.4 µs at 10,000 beings. $0 API spend.

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being cannot want a topic it already knows.",
+  "error": true
+}

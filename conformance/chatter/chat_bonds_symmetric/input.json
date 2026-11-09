@@ -1,0 +1,45 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "x",
+          "value": "y",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "x",
+          "value": "y",
+          "weight": 50
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "bo",
+          "b": "ann",
+          "warmth": -30
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ann"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "bo"
+        }
+      }
+    ]
+  }
+}

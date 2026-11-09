@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A meeting limited to 1 turn carries one tell even when both have more to share.",
+  "error": false
+}

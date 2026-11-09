@@ -1,0 +1,23 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "x",
+          "value": "y",
+          "weight": 50
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "ann",
+          "topic": "x"
+        }
+      }
+    ]
+  }
+}

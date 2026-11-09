@@ -2883,3 +2883,73 @@ fn cognition_survives_mutation_limits_and_boundaries() {
     assert!(cog.workflow(&req(&[fourth])).is_err());
     assert_eq!(cog, before);
 }
+
+#[test]
+fn chatter_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::chatter::Chatter;
+    let mut rng = Rng(0xC4A7_7E5B_2026_0B06);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 27. Chatter mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"beings":4,"topics":3,"wants":2,"turns":5},"ops":[{"op":"know","args":{"being":"baker","topic":"mill_price","value":"rising","weight":80}},{"op":"know","args":{"being":"widow","topic":"fox_den","value":"north","weight":60,"secret":true}},{"op":"want","args":{"being":"baker","topic":"fox_den","weight":70}},{"op":"bond","args":{"a":"baker","b":"widow","warmth":65}},{"op":"meet","args":{"a":"baker","b":"widow","seed":3,"turns":4,"at":9}},{"op":"assess","args":{"being":"baker"}}]}"#,
+        r#"{"limits":{"records":3,"bonds":2},"ops":[{"op":"know","args":{"being":"miller","topic":"bridge","value":"safe"}},{"op":"know","args":{"being":"carter","topic":"bridge","value":"broken"}},{"op":"meet","args":{"a":"miller","b":"carter","seed":2}},{"op":"meet","args":{"a":"carter","b":"miller","seed":5}},{"op":"log","args":{"being":"carter","limit":2}}]}"#,
+    ];
+    let mut chat = Chatter::new();
+    for _ in 0..1500 {
+        for s in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, s), 1 << 20) {
+                let _ = chat.workflow(&v);
+            }
+        }
+    }
+    assert!(chat.bonds.values().all(|w| (-100..=100).contains(w)));
+    assert!(chat.records.len() <= 256);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let log = r#"{"op":"log","args":{}}"#.to_string();
+    assert!(Chatter::new().workflow(&req(&vec![log.clone(); 64])).is_ok());
+    assert!(Chatter::new().workflow(&req(&vec![log; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"topics":4096,"wants":256,"bonds":1000000,"records":1000000,"turns":32}"#, true),
+        (r#"{"turns":33}"#, false),
+        (r#"{"wants":257}"#, false),
+        (r#"{"records":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Chatter::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: two beings holding 4,096 topics each meet for 32 turns.
+    let mut chat = Chatter::with_limits(&parse(r#"{"topics":4096,"turns":32}"#, 64).unwrap()).unwrap();
+    for b in ["ann", "bo"] {
+        for chunk in 0..64 {
+            let batch: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+                .map(|i| {
+                    format!(
+                        r#"{{"op":"know","args":{{"being":"{b}","topic":"{b}_t{i}","value":"v","weight":{}}}}}"#,
+                        i % 101
+                    )
+                })
+                .collect();
+            chat.workflow(&req(&batch)).unwrap();
+        }
+    }
+    let meet = r#"{"op":"meet","args":{"a":"ann","b":"bo","seed":1000000000000,"turns":32}}"#.to_string();
+    assert!(chat.workflow(&req(&[meet])).is_ok(), "both full: tells are heard but not kept");
+    assert_eq!(chat.minds["ann"].knows.len(), 4096);
+
+    // A refused op changes nothing: a meeting that would add a bond past the bonds limit.
+    let mut chat = Chatter::with_limits(&parse(r#"{"bonds":1}"#, 64).unwrap()).unwrap();
+    let setup = [
+        r#"{"op":"bond","args":{"a":"x","b":"y","warmth":0}}"#.to_string(),
+        r#"{"op":"know","args":{"being":"m","topic":"bridge","value":"safe"}}"#.to_string(),
+        r#"{"op":"know","args":{"being":"c","topic":"bridge","value":"broken"}}"#.to_string(),
+    ];
+    chat.workflow(&req(&setup)).unwrap();
+    let before = chat.clone();
+    assert!(chat.workflow(&req(&[r#"{"op":"meet","args":{"a":"m","b":"c","seed":2}}"#.into()])).is_err());
+    assert_eq!(chat, before);
+}

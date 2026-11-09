@@ -1,0 +1,33 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "x",
+          "value": "y",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "x",
+          "value": "z",
+          "weight": 50
+        }
+      },
+      {
+        "op": "log",
+        "args": {}
+      }
+    ],
+    "limits": {
+      "beings": 2,
+      "turns": 4
+    }
+  }
+}

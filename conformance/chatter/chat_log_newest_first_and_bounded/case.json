@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The log lists newest records first; with records limited to 2 only the last two meetings stay.",
+  "error": false
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "smith",
+          "topic": "ore_vein",
+          "value": "east_hill",
+          "weight": 40
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "hunter",
+          "topic": "wolf_pack",
+          "value": "west_wood",
+          "weight": 40
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "hunter",
+          "topic": "ore_vein"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "smith",
+          "topic": "wolf_pack"
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "hunter",
+          "b": "smith",
+          "warmth": 55
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "smith",
+          "b": "hunter",
+          "seed": 6
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "miller",
+          "topic": "bridge",
+          "value": "safe",
+          "weight": 70
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "carter",
+          "topic": "bridge",
+          "value": "broken",
+          "weight": 70
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "carter",
+          "b": "miller",
+          "warmth": 50
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "miller",
+          "b": "carter",
+          "seed": 2
+        }
+      }
+    ]
+  }
+}

@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-two modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-three modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1352,6 +1352,14 @@ decisions, fading memories, marked distortions). `character/cognition_cases.py -
 generator, with a hazy-memory preamble in 30% of them, against `gamectx local -` (0 mismatches: 1,560 accepted,
 440 refused, 999 impulses, 214 slips, 223 distorted recalls of which 96 merged a person, 1,178 memories
 forgotten). [Results](../docs/characters/LIFE.md#bounded-rationality-and-fallible-memory-pass-2-a7a8).
+
+## Off-screen conversations (offline)
+
+`character/chatter_reference.py` is the independent prototype of pass 2 B6 (topics known and wanted, seeded
+meetings, tells, disputes, secrets, gossip, alliances, quarrels). `character/chatter_cases.py --cap 0` checks 25
+cases (`conformance/chatter/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op like the
+cooperation generator against `gamectx local -` (0 mismatches: 1,438 accepted, 562 refused, 4,566 tells, 1,278
+disputes, 1,025 quarrels, 31 alliances). [Results](../docs/characters/LIFE.md#off-screen-conversations-pass-2-b6).
 
 ## Visual compiler and approved asset metadata (offline)
 

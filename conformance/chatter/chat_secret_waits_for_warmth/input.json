@@ -1,0 +1,58 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "guard",
+          "topic": "gate_key",
+          "value": "under_stone",
+          "weight": 90,
+          "secret": true
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "niece",
+          "topic": "song",
+          "value": "new",
+          "weight": 10
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "guard",
+          "b": "niece",
+          "warmth": 40
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "guard",
+          "b": "niece",
+          "seed": 5
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "guard",
+          "b": "niece",
+          "warmth": 60
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "guard",
+          "b": "niece",
+          "seed": 5
+        }
+      }
+    ]
+  }
+}

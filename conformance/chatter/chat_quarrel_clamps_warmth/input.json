@@ -1,0 +1,77 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "a",
+          "value": "yes",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "b",
+          "value": "yes",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "ann",
+          "topic": "c",
+          "value": "yes",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "a",
+          "value": "no",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "b",
+          "value": "no",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "bo",
+          "topic": "c",
+          "value": "no",
+          "weight": 50
+        }
+      },
+      {
+        "op": "bond",
+        "args": {
+          "a": "ann",
+          "b": "bo",
+          "warmth": -80
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "ann",
+          "b": "bo",
+          "seed": 1
+        }
+      }
+    ]
+  }
+}

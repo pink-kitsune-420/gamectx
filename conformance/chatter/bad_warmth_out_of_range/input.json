@@ -1,0 +1,15 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "bond",
+        "args": {
+          "a": "ann",
+          "b": "bo",
+          "warmth": 101
+        }
+      }
+    ]
+  }
+}

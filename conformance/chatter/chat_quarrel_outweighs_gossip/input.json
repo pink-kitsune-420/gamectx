@@ -1,0 +1,48 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "miller",
+          "topic": "bridge",
+          "value": "safe",
+          "weight": 70
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "miller",
+          "topic": "fair",
+          "value": "tomorrow",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "carter",
+          "topic": "bridge",
+          "value": "broken",
+          "weight": 70
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "miller",
+          "b": "carter",
+          "seed": 2
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "carter"
+        }
+      }
+    ]
+  }
+}

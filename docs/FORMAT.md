@@ -2906,6 +2906,7 @@ grows past them is refused where it used to be accepted.
 | `lesson` | `beings` (1024, 10⁶), `topics` per being (64, 4096), `episodes` per topic (16, 256) |
 | `cooperation` | `tasks` (64, 10⁶), `roles` per task (8, 64), `promises` (256, 10⁶), `resources` (256, 10⁶), `queue` per resource (16, 1024), `beings` holding grudges (1024, 10⁶), `grudges` per being (32, 4096; a full book evicts the weakest, then first by name), `debts` (4096, 10⁶) |
 | `cognition` | `beings` with a profile or memories (1024, 10⁶), `memories` per being (256, 65536; a full book evicts the weakest, then least important, then id), `people` per memory (8, 64), `motives` per `decide` (16, 256), `steps` per `decide` (16, 256) |
+| `chatter` | `beings` (1024, 10⁶), `topics` known per being (64, 4096; also the room to learn in a meeting), `wants` per being (16, 256), `bonds` (4096, 10⁶), `records` kept (256, 10⁶; oldest dropped), `turns` per meeting (6, 32; also the default) |
 
 ### Knowledge kinds
 
@@ -3086,6 +3087,34 @@ A profile is `{temperament, plan_depth 1–8, horizon 1–10,000, impulsiveness 
   (roll / 3) is even or the day is smaller than the shift, else earlier. Then strength += 100,000 (≤ 10⁶).
 - `forget {being, id}` → `{being, forgot}`; refused if unknown.
 - `assess {being}` → `{being, memories (strength descending, then id), profile}`.
+
+## Chatter v1 (pass 2, B6)
+
+`gamectx::character::chatter` (guide: [Life](characters/LIFE.md#off-screen-conversations-pass-2-b6)), local kind
+`chatter` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
+(6 malformed) live in `conformance/chatter/`. Topics and values are ids; warmth is −100..100 and pairs are stored
+sorted. An op that fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
+
+- `know {being, topic, value, weight? 0–100 (50), secret? (false)}` → `{being, secret, topic, topics, value,
+  wants, weight}` (`topics`/`wants` are the being's counts); replaces the topic and drops a want for it.
+- `want {being, topic (not known), weight? 1–100 (50)}` → `{being, topic, topics, wants, weight}`.
+- `bond {a ≠ b, warmth}` → `{a, b, warmth}` with `a < b`.
+- `meet {a, b (both known, different), seed, turns? 1..turns limit (the limit), at? (0)}` → `{effects, record}`.
+  Record `{id, a, b, at, first, outcome, turns [{kind, speaker, topic|null, value|null}], warmth_after,
+  warmth_before}`. `first` is `a` when FNV-1a(`"<seed>:<a>:<b>"`) is even, else `b`; turns alternate from it. A
+  speaker offers the topic with the highest `2·listener want + weight` (ties by topic) that was not said this
+  meeting, that the listener does not hold with the same value, and that is not secret unless warmth ≥ 60 (warmth
+  as it stands during the meeting). `dispute` when the listener holds the topic (another value); else `tell`: if the
+  listener has room under `topics` (counting earlier tells in this meeting), it learns `{value, weight/2, secret}`
+  after the meeting and a `{engine: "beliefs", op: "learn", args: {being, source: "told", about, relation: "is",
+  value, from}}` proposal follows; a wanted topic learned adds 5 warmth (≤ 100) and proposes relationship
+  `appraise_action` `help`. No offer gives `small_talk`; two in a row end the meeting. Outcome: `quarrel` when there
+  were disputes and the warmth before was < 20 (warmth −10·disputes, ≥ −100; affect `appraise` resentment
+  `{delta: min(100, 10·disputes), reason: "quarrel"}` (the affect engine's bound) for each side), else `alliance` when a wanted topic was learned and
+  warmth ≥ 60, else `gossip` when anything was told, else `small_talk`. A new bond past `bonds` refuses the meeting.
+- `log {being?, limit? 1–64 (16)}` → `{records}` newest first.
+- `assess {being (known)}` → `{being, knows [{secret, topic, value, weight}], wants [{topic, weight}], bonds
+  [{other, warmth}]}`.
 
 ## Game data and save files v1
 

@@ -1,0 +1,56 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "baker",
+          "topic": "thief",
+          "value": "seen_at_dawn",
+          "weight": 80
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "widow",
+          "topic": "rain",
+          "value": "coming",
+          "weight": 10
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "guard",
+          "topic": "curfew",
+          "value": "early",
+          "weight": 10
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "baker",
+          "b": "widow",
+          "seed": 3
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "widow",
+          "b": "guard",
+          "seed": 3
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "guard"
+        }
+      }
+    ]
+  }
+}

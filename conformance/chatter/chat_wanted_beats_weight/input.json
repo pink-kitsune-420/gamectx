@@ -1,0 +1,51 @@
+{
+  "kind": "chatter",
+  "args": {
+    "ops": [
+      {
+        "op": "know",
+        "args": {
+          "being": "tinker",
+          "topic": "road",
+          "value": "flooded",
+          "weight": 20
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "tinker",
+          "topic": "tale",
+          "value": "dragon",
+          "weight": 90
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "being": "smith",
+          "topic": "road",
+          "weight": 50
+        }
+      },
+      {
+        "op": "know",
+        "args": {
+          "being": "smith",
+          "topic": "iron",
+          "value": "scarce",
+          "weight": 10
+        }
+      },
+      {
+        "op": "meet",
+        "args": {
+          "a": "tinker",
+          "b": "smith",
+          "seed": 4,
+          "turns": 3
+        }
+      }
+    ]
+  }
+}

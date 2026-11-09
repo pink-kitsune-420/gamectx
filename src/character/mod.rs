@@ -7,6 +7,7 @@ pub mod attention;
 pub mod beliefs;
 pub mod body;
 pub mod cast;
+pub mod chatter;
 pub mod cognition;
 pub mod cooperation;
 pub mod creed;

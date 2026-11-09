@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With topics limited to 1, a second topic is refused.",
+  "error": true
+}
