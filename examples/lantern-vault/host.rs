@@ -36,6 +36,7 @@ pub struct Host {
     focus: Option<(String, String, u32)>,
     world: gamectx::knowledge::lore::Lore,
     knowledge: Option<PendingKnowledge>,
+    pub roleplay: Option<super::roleplay::VaultRoleplayEngine>,
 }
 impl Host {
     pub fn new(seed: u32) -> Result<Self> {
@@ -78,6 +79,8 @@ impl Host {
             .tool(Tool::from_function(&affordable.tool())?)
             .recipe(Recipe::new("turn", 4096).rows("items", obj! {}, 10, true).tool("act").tool("affordable"))
             .build()?;
+        let game_data = super::world_model::build_game_data(None).ok();
+        let roleplay = game_data.as_ref().and_then(|gd| super::roleplay::VaultRoleplayEngine::new(gd).ok());
         Ok(Self {
             game: Game::new(seed)?,
             project,
@@ -87,6 +90,7 @@ impl Host {
             focus: None,
             world,
             knowledge: None,
+            roleplay,
         })
     }
     fn codec(&self) -> Result<ChoiceCodec> {
@@ -344,6 +348,22 @@ impl Host {
         fields(v, &["op", "args"])?;
         let a = get(v, "args")?;
         match text(v, "op")? {
+            "roleplay" | "talk" => {
+                let mut keys = vec!["target", "text"];
+                if a.get("speaker").is_some() {
+                    keys.push("speaker");
+                }
+                fields(a, &keys)?;
+                let speaker = a.get("speaker").and_then(Value::as_str).unwrap_or("player_1");
+                let target = text(a, "target")?;
+                let input = text(a, "text")?;
+                if let Some(rp) = &mut self.roleplay {
+                    let result = rp.turn(&self.game, speaker, target, input)?;
+                    Ok(result.to_value())
+                } else {
+                    Err(Error::new("roleplay engine not available"))
+                }
+            }
             "knowledge_prepare" => {
                 let mut keys = vec!["speaker", "input", "context", "size"];
                 if a.get("choices_limit").is_some() {

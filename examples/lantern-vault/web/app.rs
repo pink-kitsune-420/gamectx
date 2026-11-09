@@ -102,6 +102,7 @@ pub struct App {
     pub engine_merchant: RoleplayEngine,
     pub engine_keeper: RoleplayEngine,
     pub engine_hound: RoleplayEngine,
+    pub roleplay_engine: super::super::roleplay::VaultRoleplayEngine,
 }
 fn array(v: &Value) -> Result<&[Value]> {
     v.as_array().ok_or_else(err)
@@ -180,6 +181,7 @@ impl App {
         }
         let game_data = super::super::world_model::build_game_data(Some(&roleplay))?;
         let (engine_merchant, engine_keeper, engine_hound) = super::super::world_model::build_engines(&game_data)?;
+        let roleplay_engine = super::super::roleplay::VaultRoleplayEngine::new(&game_data)?;
         let mut game = game::Game::new(seed)?;
         game.enable_world_systems();
         let out = Self {
@@ -239,6 +241,7 @@ impl App {
             engine_merchant,
             engine_keeper,
             engine_hound,
+            roleplay_engine,
         };
         out.persist_budget()?;
         Ok(out)
@@ -2868,6 +2871,25 @@ impl App {
 
                     let engine_out = self.engine_turn(line);
                     let engine_route = engine_out.as_ref().ok().and_then(|o| o.get("route")).and_then(Value::as_str);
+
+                    let rp_res = self.roleplay_engine.turn(&self.game, &self.player, &self.npc, line);
+                    if let Ok(res) = rp_res {
+                        if matches!(
+                            res.route.as_str(),
+                            "boundary_refusal"
+                                | "jailbreak_refusal"
+                                | "exploit_blocked"
+                                | "out_of_universe_grounding"
+                                | "narrative_reminiscence"
+                                | "companion_interaction"
+                                | "bargaining"
+                        ) {
+                            self.say(&res.text)?;
+                            self.speech.as_mut().unwrap().origin = "roleplay_intelligence".into();
+                            self.notice = format!("Reply verified by roleplay intelligence ({}).", res.route);
+                            return Ok((obj! {"addressed"=>true, "direct"=>true, "roleplay_route"=>res.route}, jobs));
+                        }
+                    }
 
                     if self.mind.enabled() && (kind == "greeting" || matches!(engine_route, Some("greeting"))) {
                         return Ok((self.greet()?, jobs));

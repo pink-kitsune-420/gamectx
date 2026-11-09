@@ -12,10 +12,14 @@ mod knowledge;
 mod natural;
 #[path = "../examples/lantern-vault/place.rs"]
 mod place;
+#[path = "../examples/lantern-vault/roleplay.rs"]
+mod roleplay;
 #[path = "../examples/lantern-vault/social.rs"]
 mod social;
 #[path = "../examples/lantern-vault/trade.rs"]
 mod trade;
+#[path = "../examples/lantern-vault/world_model.rs"]
+mod world_model;
 use gamectx::{obj, Value};
 fn act(host: &mut host::Host, action: &str, target: &str) {
     assert_eq!(

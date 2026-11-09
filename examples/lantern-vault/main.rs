@@ -11,6 +11,7 @@ mod routines;
 mod social;
 mod trade;
 mod web;
+pub mod roleplay;
 pub mod world_model;
 use game::{fields, get, text, uint, GOAL};
 use gamectx::{data::json, obj, Error, Result, Value};
@@ -112,6 +113,54 @@ fn play(host: &mut host::Host) -> Result<()> {
             continue;
         }
         let words = input.split_whitespace().collect::<Vec<_>>();
+        if words.len() >= 3 && (words[0] == "talk" || words[0] == "ask") {
+            let target = words[1];
+            let message = words[2..].join(" ");
+            if let Some(rp) = &mut host.roleplay {
+                match rp.turn(&host.game, "player_1", target, &message) {
+                    Ok(res) => {
+                        let name = match res.speaker.as_str() {
+                            "merchant" => "Ilen",
+                            "hound" => "Hound",
+                            _ => "Tovin",
+                        };
+                        println!("\n[{name}]: \"{}\"", res.text);
+                        continue;
+                    }
+                    Err(e) => println!("Roleplay error: {e}"),
+                }
+            }
+        }
+        if words.len() >= 2 && words[0] == "say" {
+            let target = if host.game.room == "cistern" {
+                "keeper"
+            } else if host.game.room == "workshop" {
+                "merchant"
+            } else if host.game.animal_following || host.game.room == host.game.animal_room {
+                "hound"
+            } else {
+                "nobody"
+            };
+            if target == "nobody" {
+                println!("No one is here to hear your voice.");
+                continue;
+            }
+            let message = words[1..].join(" ");
+            if let Some(rp) = &mut host.roleplay {
+                match rp.turn(&host.game, "player_1", target, &message) {
+                    Ok(res) => {
+                        let name = match res.speaker.as_str() {
+                            "merchant" => "Ilen",
+                            "hound" => "Hound",
+                            _ => "Tovin",
+                        };
+                        println!("\n[{name}]: \"{}\"", res.text);
+                        continue;
+                    }
+                    Err(e) => println!("Roleplay error: {e}"),
+                }
+            }
+        }
         let choice = host.game.choices().into_iter().find(|p| {
             if words.first().copied() != p.get("action").and_then(Value::as_str) {
                 return false;
@@ -127,6 +176,18 @@ fn play(host: &mut host::Host) -> Result<()> {
         if let Some(decision) = choice {
             let result = host.act(&obj! {"revision"=>host.game.revision,"decision"=>decision})?;
             println!("{}", result.get("message").and_then(Value::as_str).unwrap_or("Action rejected."));
+            if words[0] == "talk" && words.len() == 2 {
+                if let Some(rp) = &mut host.roleplay {
+                    if let Ok(res) = rp.turn(&host.game, "player_1", words[1], "hello") {
+                        let name = match res.speaker.as_str() {
+                            "merchant" => "Ilen",
+                            "hound" => "Hound",
+                            _ => "Tovin",
+                        };
+                        println!("[{name}]: \"{}\"", res.text);
+                    }
+                }
+            }
             show(&host.game);
         } else {
             println!("Choose one of the listed actions, or type help.");

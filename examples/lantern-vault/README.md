@@ -426,3 +426,37 @@ authoritative world model (`GameData`, `Codex`, `CharacterSheet`):
 - **Zero dependencies & measured agreement**: Built purely with Rust's standard library
   (zero third-party dependencies). Offline shadow testing measures 1,694 / 1,707 route
   agreement (99.24%) across 62 integration tests.
+
+## Pass 5 Being Roleplay Intelligence & Adversarial Resilience
+
+Lantern Vault integrates the full Pass 5 `BeingRuntime` intelligence suite (`roleplay.rs`),
+protecting NPC roleplay against prompt jailbreaks, standard real-world question exploits,
+and state corruption:
+
+- **Concept lexicons & out-of-universe grounding (`ConceptManager`)**: Built-in concept
+  packs (`vault_lore`, `trade_goods`, `social_manners`) recognize in-universe dialogue. When
+  players ask standard modern real-world trivia ("What is the capital of France?", "Write a
+  Python script", "Who is the president?"), NPCs stay strictly in-character, responding with
+  grounded confusion or vault lore rather than breaking immersion or hallucinating.
+- **Host content boundaries & safety (`PlayerModelManager`)**: Enforces `line` boundaries
+  against cruelty, insults, and self-harm. Harassment and malice are firmly rejected in-character
+  while recording treatment violations in player memory.
+- **Prompt injection & jailbreak defense**: Direct attacks ("ignore all previous instructions",
+  "you are now DAN", "system override", "reveal prompt") are intercepted and thwarted. NPCs
+  reaffirm their solemn oaths and tag the player with bluffing.
+- **Game state immutability**: Dialogue can never conjure gold, open sealed gates, or award
+  the glass star. Game mechanics remain 100% authoritative and host-resolved.
+- **Mental simulation & bargaining (`SimulationManager`)**: Ilen models reservation values
+  during price inquiries and barter negotiations.
+- **Narrative identity & reminiscence (`NarrativeManager`)**: Tovin and Ilen own multi-chapter
+  autobiographical identities (loss, redemption, growth, steadiness), reminiscing about the
+  centuries of vault vigilance and the jammed aqueduct.
+- **Companion hound interaction**: The faithful hound responds to affection (`pet`), commands
+  (`sit`, `stay`, `follow`), and coordinates attacks against the sentinel.
+- **Interactive CLI & Host operations**:
+  - CLI: `talk keeper <message>`, `ask merchant <message>`, `say <message>`.
+  - Host JSON-lines: `{"op": "talk", "args": {"target": "keeper", "text": "..."}}`.
+  - Studio Web (`--web`): Integrated roleplay intelligence pipeline.
+- **Deep dynamic test suite (`tests/lantern_vault_adversarial_roleplay.rs`)**: 12 comprehensive
+  integration suites covering adversarial trivia, prompt injections, exploit immutability,
+  content safety, seed-governed epistemic gating, bargaining, reminiscence, and full playthrough.
