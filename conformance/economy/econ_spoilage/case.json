@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Fish spoils by half each settlement, so unsold stock shrinks.",
+  "error": false
+}

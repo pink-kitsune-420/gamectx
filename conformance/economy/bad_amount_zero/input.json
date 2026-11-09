@@ -1,0 +1,39 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "flour",
+          "base": 20
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "salt",
+          "base": 50,
+          "elasticity": 500
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "fish",
+          "base": 30,
+          "spoil": 500
+        }
+      },
+      {
+        "op": "produce",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 0,
+          "by": "miller"
+        }
+      }
+    ]
+  }
+}

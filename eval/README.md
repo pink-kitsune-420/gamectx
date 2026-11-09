@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-seven modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-eight modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1396,6 +1396,15 @@ task proposals with missed counts, status from roles and standing, contest and p
 builds workflows op by op like the cooperation generator against `gamectx local -` (0 mismatches: 1,466 accepted,
 534 refused, 4,787 duty tasks, 104,469 missed duties, 155 deferrals).
 [Results](../docs/characters/LIFE.md#status-roles-and-jobs-pass-2-b7).
+
+## Economy feedback (offline)
+
+`character/economy_reference.py` is the independent prototype of pass 2 C4 (stock, production, wants and
+purchases; per-mille price multipliers that move toward a scarcity target; scarce and glut states; spoilage;
+aspiration proposals). `character/economy_cases.py --cap 0` checks 25 cases (`conformance/economy/`, 7
+malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation generator, most starting with
+three goods, against `gamectx local -` (0 mismatches: 1,549 accepted, 451 refused, 2,008 scarce and 3,110 glut
+settlements, 2,364 aspiration proposals). [Results](../docs/characters/LIFE.md#economy-feedback-pass-2-c4).
 
 ## Visual compiler and approved asset metadata (offline)
 

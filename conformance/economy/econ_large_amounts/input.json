@@ -1,0 +1,126 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "flour",
+          "base": 20
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "salt",
+          "base": 50,
+          "elasticity": 500
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "fish",
+          "base": 30,
+          "spoil": 500
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b0"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b1"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b2"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b3"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b4"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b5"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b6"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b7"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b8"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "flour",
+          "amount": 1000000,
+          "by": "b9"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 24
+        }
+      }
+    ]
+  }
+}

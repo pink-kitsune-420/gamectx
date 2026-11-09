@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Supply 10 against demand 70 makes flour scarce: the baker, 60 short, gets a need (weight 10 + unmet) and the miller an opportunity (multiplier / 50).",
+  "error": false
+}

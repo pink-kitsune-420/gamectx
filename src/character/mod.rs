@@ -16,6 +16,7 @@ pub mod deception;
 pub mod detail;
 pub mod dialogue;
 pub mod diet;
+pub mod economy;
 pub mod expectation;
 pub mod explain;
 pub mod fitness;

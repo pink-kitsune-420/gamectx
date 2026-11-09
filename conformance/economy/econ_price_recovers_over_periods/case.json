@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "After a shortage, balanced periods bring the multiplier back toward 1000 by half the gap each time.",
+  "error": false
+}

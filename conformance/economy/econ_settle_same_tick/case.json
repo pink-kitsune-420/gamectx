@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Settling twice at the same tick is allowed; the second period is empty.",
+  "error": false
+}

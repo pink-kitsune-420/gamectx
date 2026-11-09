@@ -3248,3 +3248,74 @@ fn roles_survive_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"assign","args":{"being":"mira","role":"elder"}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn economy_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::economy::Economy;
+    let mut rng = Rng(0xEC07_0C04_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 32. Economy mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"goods":2,"markets":2,"traders":3},"ops":[{"op":"good","args":{"id":"flour","base":20,"elasticity":1500,"floor":250,"ceiling":4000,"rate":500,"spoil":100}},{"op":"produce","args":{"market":"square","good":"flour","amount":10,"by":"miller"}},{"op":"want","args":{"market":"square","good":"flour","amount":70,"by":"baker"}},{"op":"buy","args":{"market":"square","good":"flour","amount":10,"by":"baker"}},{"op":"settle","args":{"now":24}},{"op":"price","args":{"market":"square","good":"flour"}}]}"#,
+        r#"{"ops":[{"op":"good","args":{"id":"salt","base":1000000000,"elasticity":10000,"ceiling":100000,"rate":1000}},{"op":"want","args":{"market":"harbor","good":"salt","amount":1000000,"by":"cook"}},{"op":"settle","args":{"now":1000000000000}},{"op":"produce","args":{"market":"harbor","good":"salt","amount":1000000,"by":"miner"}},{"op":"buy","args":{"market":"harbor","good":"salt","amount":1000000,"by":"cook"}},{"op":"assess","args":{"market":"harbor"}}]}"#,
+    ];
+    let mut k = Economy::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = k.workflow(&v);
+            }
+        }
+    }
+    for (m, stalls) in &k.markets {
+        for (g, s) in stalls {
+            assert!(s.mult >= 1 && s.mult <= 100_000 && s.wants.len() + s.made.len() <= 2 * 65_536, "{m}/{g}");
+        }
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let settle = r#"{"op":"settle","args":{"now":0}}"#.to_string();
+    assert!(Economy::new().workflow(&req(&vec![settle.clone(); 64])).is_ok());
+    assert!(Economy::new().workflow(&req(&vec![settle; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"goods":4096,"markets":1024,"traders":65536}"#, true),
+        (r#"{"traders":65537}"#, false),
+        (r#"{"markets":1025}"#, false),
+        (r#"{"goods":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Economy::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: the top base price at the top multiplier for the top amount, and stock at 10^12.
+    let mut k = Economy::new();
+    k.workflow(&req(&[
+        r#"{"op":"good","args":{"id":"gem","base":1000000000,"elasticity":10000,"ceiling":100000,"rate":1000}}"#.into(),
+        r#"{"op":"want","args":{"market":"m","good":"gem","amount":1000000,"by":"a"}}"#.into(),
+        r#"{"op":"settle","args":{"now":1}}"#.into(),
+    ]))
+    .unwrap();
+    assert_eq!(k.markets["m"]["gem"].mult, 11_000);
+    let fill = vec![r#"{"op":"produce","args":{"market":"m","good":"gem","amount":1000000,"by":"a"}}"#.to_string(); 64];
+    k.workflow(&req(&fill)).unwrap();
+    let out = k
+        .workflow(&req(&[r#"{"op":"buy","args":{"market":"m","good":"gem","amount":1000000,"by":"b"}}"#.into()]))
+        .unwrap();
+    assert!(out.to_json().contains(r#""cost":11000000000000000"#));
+
+    // A refused op changes nothing: a want past the traders limit creates no market.
+    let mut k = Economy::with_limits(&parse(r#"{"markets":1}"#, 64).unwrap()).unwrap();
+    k.workflow(&req(&[
+        r#"{"op":"good","args":{"id":"flour","base":20}}"#.into(),
+        r#"{"op":"want","args":{"market":"m1","good":"flour","amount":1,"by":"a"}}"#.into(),
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"want","args":{"market":"m2","good":"flour","amount":1,"by":"a"}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

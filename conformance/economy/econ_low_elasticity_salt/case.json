@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Salt with elasticity 500 rises only to 1250 at full shortage, so it is not scarce.",
+  "error": false
+}

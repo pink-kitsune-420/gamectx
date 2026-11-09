@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A purchase needs stock.",
+  "error": true
+}

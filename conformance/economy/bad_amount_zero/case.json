@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Amounts are at least 1.",
+  "error": true
+}

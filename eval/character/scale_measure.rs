@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, task::TaskManager,
 };
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -65,6 +65,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("detail", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"track","args":{"being":"{b}","distance":500,"group":"east_fields","needs":[{"id":"hunger","rate":10000,"level":400000},{"id":"thirst","rate":25000}]}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("retention", format!(r#"{{"entries":{n}}}"#), r#"{"op":"rule","args":{"collection":"memories","max_entries":1000000,"max_age":1000}}"#, r#"{"op":"add","args":{"collection":"memories","id":"{b}","bytes":240,"importance":60}}"#, r#"{"op":"touch","args":{"collection":"memories","id":"{b}"}}"#),
         ("roles", format!(r#"{{"beings":{n}}}"#), r#"{"op":"role","args":{"id":"farmer","status":20,"duties":[{"id":"till","action":"wait","every":24}]}}"#, r#"{"op":"assign","args":{"being":"{b}","role":"farmer"}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
+        ("economy", format!(r#"{{"traders":{}}}"#, n.max(1)), r#"{"op":"good","args":{"id":"flour","base":20}}"#, r#"{"op":"want","args":{"market":"square","good":"flour","amount":3,"by":"{b}"}}"#, r#"{"op":"price","args":{"market":"square","good":"flour"}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -97,6 +98,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "detail" => wf!(Detail, lim),
         "retention" => wf!(Retention, lim),
         "roles" => wf!(Roles, lim),
+        "economy" => wf!(Economy, lim),
         _ => wf!(TaskManager, lim),
     })
 }

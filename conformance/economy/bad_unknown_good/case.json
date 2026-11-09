@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Only defined goods trade.",
+  "error": true
+}

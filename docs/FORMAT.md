@@ -2911,6 +2911,7 @@ grows past them is refused where it used to be accepted.
 | `detail` | `beings` tracked (1024, 10⁶), `needs` per being (8, 64), `groups` of crowd members (64, 65,536) |
 | `retention` | `collections` (64, 4096), `entries` per collection (4096, 10⁶), `migrations` (16, 256), `changes` per migration (32, 256) |
 | `roles` | `roles` (64, 4096), `beings` with a role or standing (1024, 10⁶), `duties` per role (8, 64), roles `held` per being (4, 16) |
+| `economy` | `goods` (64, 4096), `markets` (16, 1024), `traders` per good and market in one period (256, 65,536) |
 
 ### Knowledge kinds
 
@@ -3239,6 +3240,32 @@ with none) + standing, 0, 100).
   if shared_roles), 0, 10⁶), listener, shared_roles, speaker, status_edge: (status speaker − status
   listener)·5,000}`.
 - `assess {being (known)}` → view. `staff {role}` → `{holders (sorted), role, seats|null, status}`.
+
+## Economy v1 (pass 2, C4)
+
+`gamectx::character::economy` (guide: [Life](characters/LIFE.md#economy-feedback-pass-2-c4)), local kind `economy`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
+malformed) live in `conformance/economy/`. Multipliers are per-mille (1000 = base price); divisions truncate toward
+zero. An op that fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
+
+A stall view is `{demand, good, market, mult, price: ⌊base·mult/1000⌋, sold, stock}`.
+
+- `good {id, base 1–10⁹, elasticity? 0–10,000 (1500), floor? 1–1000 (250), ceiling? 1000–100,000 (4000),
+  rate? 1–1000 (500), spoil? 0–1000 (0)}` → the good; defines or replaces it (markets keep their stalls).
+- `produce {market, good (defined), amount 1–10⁶, by}` → stall; stock and `by`'s production grow. `want` (same
+  args) → stall; demand and `by`'s want grow. A new market needs room under `markets`, a new being in this
+  period room under `traders`; stock and demand stay ≤ 10¹².
+- `buy {market, good (traded there), amount ≤ stock, by}` → stall plus `{amount, by, cost: amount·price}`;
+  stock falls, sold grows, `by`'s want falls by up to the amount.
+- `settle {now ≥ clock}` → `{effects, goods, now}`. For each market and good in name order, with supply =
+  stock + sold: `pressure = (demand − supply)·1000 / max(1, demand + supply)`, `target = clamp(1000 +
+  pressure·elasticity/1000, floor, ceiling)`, `mult += (target − mult)·rate/1000`. State is `scarce` at mult ≥
+  1500, `glut` at ≤ 700, else `steady`. A good entry is `{demand, from, good, market, mult, pressure, price,
+  sold, state, stock, target, unmet}` (unmet = remaining wants). When scarce, each being with a remaining want
+  (by name) gets `{engine: "aspiration", op: "experience", args: {being, kind: "need", subject: good, weight:
+  min(100, 10 + want)}}` and each producer (by name) `{…, kind: "opportunity", …, weight: min(100,
+  mult/50)}`. Then stock loses `⌊stock·spoil/1000⌋` and demand, sold, wants and production reset.
+- `price {market, good}` → stall. `assess {market}` → `{goods: [stall], market}`.
 
 ## Game data and save files v1
 

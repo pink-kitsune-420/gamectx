@@ -1,0 +1,15 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "x",
+          "base": 1,
+          "floor": 1001
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Stock 40 with no demand: pressure -1000, target clamped to the floor 250, multiplier 625, a glut.",
+  "error": false
+}

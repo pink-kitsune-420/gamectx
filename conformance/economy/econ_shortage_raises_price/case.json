@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Demand 30 against no stock: pressure 1000, target 2500, the multiplier moves halfway to 1750 and flour is scarce.",
+  "error": false
+}

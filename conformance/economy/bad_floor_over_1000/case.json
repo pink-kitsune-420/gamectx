@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The floor is at most the base multiplier 1000.",
+  "error": true
+}

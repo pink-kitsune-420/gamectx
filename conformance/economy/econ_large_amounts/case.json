@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Amounts at the bound of 10^6 settle without overflow.",
+  "error": false
+}

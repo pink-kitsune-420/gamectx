@@ -1,0 +1,16 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "gold",
+          "amount": 1,
+          "by": "a"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A good with ceiling 3000 and rate 1000 jumps straight to its target.",
+  "error": false
+}

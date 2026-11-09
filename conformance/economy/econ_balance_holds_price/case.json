@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Equal stock and demand keep the price at base.",
+  "error": false
+}

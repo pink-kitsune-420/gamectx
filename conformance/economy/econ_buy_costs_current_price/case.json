@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A purchase costs amount times the price at the current multiplier.",
+  "error": false
+}

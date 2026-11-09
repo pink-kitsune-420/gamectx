@@ -1,0 +1,58 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "flour",
+          "base": 20
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "salt",
+          "base": 50,
+          "elasticity": 500
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "fish",
+          "base": 30,
+          "spoil": 500
+        }
+      },
+      {
+        "op": "produce",
+        "args": {
+          "market": "square",
+          "good": "fish",
+          "amount": 40,
+          "by": "fisher"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 24
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 48
+        }
+      },
+      {
+        "op": "price",
+        "args": {
+          "market": "square",
+          "good": "fish"
+        }
+      }
+    ]
+  }
+}

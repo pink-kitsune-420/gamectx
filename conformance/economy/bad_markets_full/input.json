@@ -1,0 +1,51 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "flour",
+          "base": 20
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "salt",
+          "base": 50,
+          "elasticity": 500
+        }
+      },
+      {
+        "op": "good",
+        "args": {
+          "id": "fish",
+          "base": 30,
+          "spoil": 500
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "m1",
+          "good": "flour",
+          "amount": 1,
+          "by": "a"
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "m2",
+          "good": "flour",
+          "amount": 1,
+          "by": "a"
+        }
+      }
+    ],
+    "limits": {
+      "markets": 1
+    }
+  }
+}

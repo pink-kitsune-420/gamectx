@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With markets 1, a second market is refused.",
+  "error": true
+}

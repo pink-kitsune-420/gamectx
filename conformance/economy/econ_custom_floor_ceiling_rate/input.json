@@ -1,0 +1,31 @@
+{
+  "kind": "economy",
+  "args": {
+    "ops": [
+      {
+        "op": "good",
+        "args": {
+          "id": "iron",
+          "base": 100,
+          "ceiling": 3000,
+          "rate": 1000
+        }
+      },
+      {
+        "op": "want",
+        "args": {
+          "market": "square",
+          "good": "iron",
+          "amount": 5,
+          "by": "smith"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "now": 24
+        }
+      }
+    ]
+  }
+}

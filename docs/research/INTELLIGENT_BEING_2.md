@@ -205,9 +205,12 @@ choosing between them. Make safety a need.
 block each other, queue, or see across a room by line of sight. Crowding at a well
 or a counter is a large source of natural behavior.
 
-**C4. Economy feedback.** Markets and bartering exist. Prices do not respond to scarcity
+**C4. Economy feedback.** — **DONE**. Markets and bartering exist. Prices do not respond to scarcity
 created by everyone's needs and off-screen production. Without it, off-screen effects
 (pass 1 gap 10) never show up as a reason to act.
+
+*Implemented (pass 2 C4):* `character::economy::Economy` (local kind `economy`).
+[Evidence](../characters/LIFE.md#economy-feedback-pass-2-c4).
 
 **C5 (added during pass 2). Diets and foods.** Hunger was one number satisfied by a flat
 `eat`. Foods now differ in fill, taste, freshness and safety, and beings differ in what their
@@ -297,7 +300,7 @@ packet and budget modules already do.
    modules), 7b (pass 1 character modules) and 7c (knowledge kinds: places, timeline, things,
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
-5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy**, **C3 space**.
+5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy** — **DONE**, **C3 space**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
 7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs**.
