@@ -1,0 +1,1 @@
+{"version":1,"results":[{"deferred":[],"mode":"answer_then_counter_ask","steps":[{"clause":0,"kind":"answer","own":null,"what":"question_fact"},{"clause":null,"kind":"own","own":"where_is_cart","what":"ask"}],"withheld":[]}]}

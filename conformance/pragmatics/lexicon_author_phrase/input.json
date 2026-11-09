@@ -1,0 +1,23 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "lexicon",
+        "args": {
+          "act": "farewell",
+          "phrases": [
+            "begone",
+            "be off with you"
+          ]
+        }
+      },
+      {
+        "op": "parse",
+        "args": {
+          "text": "Begone, stranger."
+        }
+      }
+    ]
+  }
+}

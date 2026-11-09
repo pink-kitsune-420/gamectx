@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Clause indexes are unique.",
+  "error": true
+}

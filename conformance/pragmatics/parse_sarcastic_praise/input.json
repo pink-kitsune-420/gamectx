@@ -1,0 +1,18 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Well done on the bread.",
+          "context": {
+            "failed": [
+              "bread"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

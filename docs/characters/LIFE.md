@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Thirty-three character modules take a `limits` object next to
+The game decides how much it needs. Thirty-four character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`, `pragmatics`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -706,44 +706,45 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 1.4 / 1.5 | 2.0 / 2.6 | 4.6 | 2,521 |
+| `beliefs` (`query`) | 1.5 / 1.6 | 2.0 / 2.6 | 4.3 | 2,521 |
 | `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.5 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.6 | 1.7 / 2.0 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.4 | 4.3 / 5.3 | 3.3 | 2,283 |
+| `diet` (`choose`) | 1.8 / 2.0 | 2.1 / 2.5 | 1.8 | 613 |
+| `creed` (`judge`) | 1.6 / 1.6 | 1.8 / 2.1 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
 | `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.8 | 1.9 / 2.0 | 0.8 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.7 | 0.9 / 1.3 | 2.4 | 685 |
-| `habit` (`routine`) | 0.8 / 0.8 | 1.0 / 1.3 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.3 | 1,335 |
+| `expectation` (`assess`) | 0.9 / 1.1 | 1.5 / 2.0 | 2.0 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.1 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.5 | 2.4 | 1,335 |
 | `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.7 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.0 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.8 / 2.6 | 2.1 | 884 |
-| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 1.9 | 2.7 | 349 |
-| `offscreen` (`assess` one being) | 2.0 / 2.2 | 3.7 / 4.8 | 5.1 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 14.5 / 15.9 | 200.0 / 211.6 | 3.4 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 2.8 | 3.6 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.3 / 6.8 | 7.2 / 7.8 | 1.9 | 864 |
-| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 1.9 | 377 |
-| `detail` (`assess`) | 1.5 / 1.8 | 1.9 / 2.4 | 3.9 | 803 |
-| `retention` (`touch`) | 1.2 / 1.6 | 1.3 / 1.4 | 1.8 | 118 |
-| `roles` (`assess`) | 1.1 / 1.3 | 1.4 / 1.8 | 1.9 | 529 |
-| `economy` (`price`) | 0.9 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
-| `space` (`see`, line to a far being) | 2.4 / 2.5 | 2.7 / 2.9 | 2.0 | 198 |
-| `drift` (`experience`) | 2.0 / 2.6 | 2.3 / 2.8 | 2.5 | 1,885 |
-| `packs` (`apply`, six requests) | 6.0 / 6.1 | 6.7 / 7.4 | 4.7 | 1,089 |
-| `frame` (`frame`, one being) | 3.4 / 3.6 | 3.9 / 4.5 | 1.8 | 805 |
-| `cueing` (`cue`, one episode) | 2.9 / 3.0 | 3.5 / 4.1 | 3.0 | 3,071 |
-| `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.7 | 3.7 | 1,417 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.1 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.7 | 2,580 |
+| `deception` (`check_consistency`) | 1.0 / 1.1 | 1.8 / 2.7 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 1.9 | 2.8 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.9 | 3.8 / 4.8 | 5.3 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.1 | 1.3 / 1.8 | 0.7 | 590 |
+| `cooperation` (`assess`, scans every record) | 14.3 / 16.0 | 206.0 / 216.1 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 3.0 | 3.7 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.3 / 7.5 | 7.3 / 8.1 | 1.9 | 864 |
+| `survival` (`threat`) | 2.4 / 2.5 | 2.6 / 2.9 | 2.0 | 377 |
+| `detail` (`assess`) | 1.4 / 1.5 | 1.9 / 2.7 | 3.9 | 803 |
+| `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.4 | 1.8 | 118 |
+| `roles` (`assess`) | 1.1 / 1.2 | 1.4 / 1.9 | 1.9 | 529 |
+| `economy` (`price`) | 1.0 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
+| `space` (`see`, line to a far being) | 2.6 / 2.7 | 2.8 / 3.1 | 2.1 | 198 |
+| `drift` (`experience`) | 2.1 / 2.7 | 2.3 / 2.9 | 2.5 | 1,885 |
+| `packs` (`apply`, six requests) | 6.0 / 6.1 | 6.7 / 7.5 | 4.8 | 1,089 |
+| `frame` (`frame`, one being) | 3.5 / 3.7 | 3.9 / 4.4 | 1.7 | 805 |
+| `cueing` (`cue`, one episode) | 2.8 / 3.0 | 3.4 / 4.1 | 3.0 | 3,071 |
+| `pragmatics` (`parse`, a two-clause turn) | 10.0 / 10.2 | 10.0 / 10.2 | 2.6 | 761 |
+| `task` (`get`) | 1.5 / 1.5 | 2.2 / 2.7 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 200 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 357 MB across all thirty-three modules at 10,000 each, about 36 KB per
+1,000 promises, 206 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 365 MB across all thirty-four modules at 10,000 each, about 36 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -974,7 +975,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.2 µs at 10,000 beings. $0 API spend.
+takes 7.3 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 
@@ -1190,7 +1191,7 @@ refused, 4,251 steps walked, 288 queued uses, 75 blocked sight lines). Robustnes
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, a 256 × 256 maze at the 4,096-wall bound that forces a walk along 16
 rows, a 255-cell sight line, index consistency, and a refused move that changes nothing. Scale is
-in the [table above](#host-set-limits): `see` across the square takes 2.7 µs and `enter` 2.0 µs per
+in the [table above](#host-set-limits): `see` across the square takes 2.8 µs and `enter` 2.1 µs per
 op with 10,000 beings in one 256 × 256 room. $0 API spend.
 
 ## Slow personality change (pass 2, B4)
@@ -1347,5 +1348,49 @@ accepted, 529 refused, 1,086 recalled, 575 avoided and 16 cooling episodes, 262 
 with limits, replaying each accepted workflow op by op and re-checking every passed reply against
 the state it ran on (no masked key word outside the told cover story, no unknown secret word);
 64/65-op and limit-ceiling boundaries; a 2,000-character reply against 4,096 secrets; and a refused
-cover that changes nothing. Scale is in the [table above](#host-set-limits): `cue` takes 3.5 µs median at 10,000 beings. No model was called; how often real model replies trip the gate is not
+cover that changes nothing. Scale is in the [table above](#host-set-limits): `cue` takes 3.4 µs median at 10,000 beings. No model was called; how often real model replies trip the gate is not
 measured yet. $0 API spend.
+
+## Pragmatics (pass 3, stage 3)
+
+`gamectx::character::pragmatics` (`Pragmatics`, local kind `pragmatics`) reads what a player turn is
+doing, decides what the character answers first, and sets how forthcoming it is.
+
+**Clauses and subtext.** `parse` splits a turn into at most four clauses and classifies each with
+an original phrase lexicon: "Here is the firewood you asked for—also, is it true the apprentice
+stole from you?" is a transfer to receive and a probing question (`parse_firewood_and_question`);
+"Sorry I'm late with the flour. Here it is. Did anyone come looking for me?" is an apology to
+appraise, an item to receive and a question (`parse_apology_transfer_question`). A threat outranks
+the request it wraps (`parse_threat_beats_request`). Subtext rules use the context the host passes:
+praise for bread the context says burned is sarcastic (`parse_sarcastic_praise`), and asking about a
+fire the speaker witnessed is a test of honesty (`parse_testing_honesty`). Authors add phrases per
+act (`lexicon_author_phrase`), and when a model proposes its own clauses, `validate` accepts them
+only with known acts and texts found in the turn in order.
+
+**Agenda.** `agenda` blends the clauses' obligations with the character's own. With the bread
+burning (a motive of 92) the firewood is still received, but both replies are deferred
+(`agenda_override`); a smith answers the question and then asks where the borrowed cart is
+(`agenda_counter_ask`); a strong grievance holds a plain question back until it is addressed, while
+an urgent plea is still answered (`agenda_grievance_gate`). The thread stack keeps up to four
+conversations per being: a crash interrupts the theft talk, and ten minutes later it resumes with
+its unanswered question and `moments_ago` (`threads_interrupt_and_resume`).
+
+**Stance.** `stance` turns trust, affection and resentment into cooperativeness, keeps a
+confidential reply open only without untrusted ears (whispered at trust 60 or more, otherwise
+deflected while the gossip listens), and cuts replies to one sentence when the task is urgent or
+due within the hour (`stance_privacy_and_brevity`).
+
+**Limits.** The lexicon is English and phrase-based: irony with no context cue, indirect requests
+and phrasings the lexicon lacks are read as small talk or a plain question. Its accuracy on real
+player turns is not measured yet.
+
+**Evidence (pass 3 stage 3):** 25 conformance cases (`conformance/pragmatics/`, 7 malformed), 2,000
+differential parity workflows (`eval/character/pragmatics_cases.py`, seed 7, 0 mismatches: 1,468
+accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads
+resumed). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
+limits, checking that accepted parses keep 1–4 clauses with words and that validated clauses appear
+in order; 64/65-op and limit-ceiling boundaries; a 500-character turn of 250 sentences; multi-byte
+text around boundaries; 4,096 author phrases; and a refused lexicon entry that changes nothing.
+Scale is in the [table above](#host-set-limits): parsing a two-clause turn takes 10.0 µs median,
+the same at 1,000 and 10,000 beings (it is text work, so it is quoted apart from lookups). $0 API
+spend.

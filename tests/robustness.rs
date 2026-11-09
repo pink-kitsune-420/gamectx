@@ -3771,3 +3771,89 @@ fn cueing_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn pragmatics_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::pragmatics::Pragmatics;
+    let mut rng = Rng(0x9A6E_0E38_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 38. Pragmatics mutation fuzzing (limits included) over model-written text; one parser keeps
+    // its lexicon and thread stacks across runs. Every accepted parse keeps at most four clauses,
+    // each with words, and every accepted validation's clause texts appear in order.
+    let samples = [
+        r#"{"limits":{"beings":3,"threads":2,"phrases":4,"own":3},"ops":[{"op":"lexicon","args":{"act":"farewell","phrases":["begone","be off"]}},{"op":"parse","args":{"text":"Here is the firewood—also, is it true the apprentice stole from you? Sorry. Begone!","speaker":"player","listener":"mira","context":{"witnessed":["fire"],"failed":["bread"]}}},{"op":"validate","args":{"text":"Sorry I'm late. Here it is.","clauses":[{"text":"Sorry I'm late","act":"apology","subtext":"sincere"},{"text":"Here it is","act":"offer_or_transfer","subtext":"urgent"}]}},{"op":"agenda","args":{"clauses":[{"index":0,"act":"question_fact","subtext":"sincere"},{"index":1,"act":"request_help","subtext":"urgent"}],"motive":{"id":"work","score":40},"own":[{"id":"cart","kind":"grievance","priority":85}]}}]}"#,
+        r#"{"ops":[{"op":"open","args":{"being":"mira","id":"t1","topic":"theft","speaker":"player","question":"Did he take it?"}},{"op":"tick","args":{"now":100}},{"op":"interrupt","args":{"being":"mira","cause":"crash"}},{"op":"tick","args":{"now":110}},{"op":"resume","args":{"being":"mira","ticks_per_hour":60}},{"op":"open","args":{"being":"mira","id":"t2","topic":"oven","speaker":"mira"}},{"op":"close","args":{"being":"mira","id":"t2"}},{"op":"threads","args":{"being":"mira"}},{"op":"stance","args":{"trust":40,"affection":30,"resentment":10,"confidential":true,"bystanders":[{"being":"gossip","trusted":false,"earshot":true}],"urgency":90,"deadline_hours":1}}]}"#,
+    ];
+    let mut k = Pragmatics::new();
+    let mut parsed = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = k.workflow(&v) else { continue };
+            let ops = v.get("ops").and_then(Value::as_array).unwrap();
+            for (o, r) in ops.iter().zip(out.get("results").and_then(Value::as_array).unwrap()) {
+                let Some(cls) = r.get("clauses").and_then(Value::as_array) else { continue };
+                assert!(!cls.is_empty() && cls.len() <= 4);
+                if o.get("op") == Some(&Value::from("validate")) {
+                    let text = o.get("args").unwrap().get("text").unwrap().as_str().unwrap();
+                    let mut pos = 0;
+                    for c in cls {
+                        let t = c.get("text").unwrap().as_str().unwrap();
+                        pos += text[pos..].find(t).expect("validated clause is in the text") + t.len();
+                    }
+                } else {
+                    parsed += 1;
+                    for c in cls {
+                        assert!(c.get("text").unwrap().as_str().unwrap().chars().any(|ch| ch.is_ascii_alphanumeric()));
+                    }
+                }
+            }
+        }
+    }
+    assert!(parsed > 0);
+    assert!(k.stacks.values().all(|s| s.len() <= 16));
+    assert!(k.stacks.values().all(|s| s.iter().filter(|t| t.status != "waiting").count() <= 1));
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Pragmatics::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Pragmatics::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"threads":16,"phrases":4096,"own":64}"#, true),
+        (r#"{"threads":17}"#, false),
+        (r#"{"own":65}"#, false),
+        (r#"{"phrases":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Pragmatics::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a 500-character turn of 250 boundaries keeps four clauses and counts the rest;
+    // multi-byte text around boundaries never splits a character; 4,096 author phrases still parse.
+    let mut k = Pragmatics::with_limits(&parse(r#"{"phrases":4096}"#, 64).unwrap()).unwrap();
+    let many = "a.".repeat(250);
+    let out = k.workflow(&req(&[format!(r#"{{"op":"parse","args":{{"text":"{many}"}}}}"#)])).unwrap().to_json();
+    assert!(out.contains(r#""overflow":246"#));
+    let out =
+        k.workflow(&req(&[r#"{"op":"parse","args":{"text":"café—über! naïve; 日本 ok?"}}"#.into()])).unwrap().to_json();
+    assert!(out.contains(r#""overflow":0"#));
+    for chunk in 0..256 {
+        let phrases: Vec<String> = (0..16).map(|j| format!(r#""w{} x{}""#, chunk, j)).collect();
+        let op = format!(r#"{{"op":"lexicon","args":{{"act":"greeting","phrases":[{}]}}}}"#, phrases.join(","));
+        k.workflow(&req(&[op])).unwrap();
+    }
+    assert_eq!(k.count, 4096);
+    let out = k.workflow(&req(&[r#"{"op":"parse","args":{"text":"w255 x15 friend"}}"#.into()])).unwrap().to_json();
+    assert!(out.contains(r#""act":"greeting""#));
+
+    // A refused op changes nothing: a lexicon entry over the phrase limit.
+    let mut k = Pragmatics::with_limits(&parse(r#"{"phrases":1}"#, 64).unwrap()).unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"lexicon","args":{"act":"greeting","phrases":["ahoy","oi"]}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

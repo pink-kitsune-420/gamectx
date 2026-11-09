@@ -1,0 +1,23 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "open",
+        "args": {
+          "being": "mira",
+          "id": "theft_talk",
+          "topic": "apprentice",
+          "speaker": "player",
+          "question": "Did the boy take the pouch?"
+        }
+      },
+      {
+        "op": "resume",
+        "args": {
+          "being": "mira"
+        }
+      }
+    ]
+  }
+}

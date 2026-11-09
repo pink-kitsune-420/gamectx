@@ -1,0 +1,28 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "agenda",
+        "args": {
+          "clauses": [
+            {
+              "index": 0,
+              "act": "offer_or_transfer",
+              "subtext": "sincere"
+            },
+            {
+              "index": 1,
+              "act": "question_fact",
+              "subtext": "probing"
+            }
+          ],
+          "motive": {
+            "id": "save_bread",
+            "score": 92
+          }
+        }
+      }
+    ]
+  }
+}

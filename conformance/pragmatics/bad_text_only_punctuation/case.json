@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A turn needs at least one word.",
+  "error": true
+}

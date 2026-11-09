@@ -1,0 +1,25 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "validate",
+        "args": {
+          "text": "Sorry I'm late. Here it is.",
+          "clauses": [
+            {
+              "text": "Sorry I'm late",
+              "act": "apology",
+              "subtext": "sincere"
+            },
+            {
+              "text": "Here it is",
+              "act": "offer_or_transfer",
+              "subtext": "sincere"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

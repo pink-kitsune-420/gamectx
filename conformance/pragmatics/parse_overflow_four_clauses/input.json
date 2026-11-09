@@ -1,0 +1,13 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Hello. Nice weather. The mill is busy. Hurry now! Thanks. Goodbye."
+        }
+      }
+    ]
+  }
+}

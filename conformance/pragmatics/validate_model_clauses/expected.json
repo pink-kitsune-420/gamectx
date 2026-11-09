@@ -1,0 +1,1 @@
+{"version":1,"results":[{"clauses":[{"act":"apology","index":0,"reply":true,"subtext":"sincere","text":"Sorry I'm late","update":"appraise_apology"},{"act":"offer_or_transfer","index":1,"reply":true,"subtext":"sincere","text":"Here it is","update":"receive_item"}],"valid":true}]}

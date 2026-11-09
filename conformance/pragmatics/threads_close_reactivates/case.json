@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Closing the top thread makes the one below it active again.",
+  "error": false
+}

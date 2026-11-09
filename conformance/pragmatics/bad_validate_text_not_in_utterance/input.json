@@ -1,0 +1,20 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "validate",
+        "args": {
+          "text": "Here it is.",
+          "clauses": [
+            {
+              "text": "I stole it",
+              "act": "accusation",
+              "subtext": "sincere"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

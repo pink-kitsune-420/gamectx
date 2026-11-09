@@ -1,0 +1,49 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "open",
+        "args": {
+          "being": "mira",
+          "id": "theft_talk",
+          "topic": "apprentice",
+          "speaker": "player",
+          "question": "Did the boy take the pouch?"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 100
+        }
+      },
+      {
+        "op": "interrupt",
+        "args": {
+          "being": "mira",
+          "cause": "crash_outside"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 110
+        }
+      },
+      {
+        "op": "resume",
+        "args": {
+          "being": "mira",
+          "ticks_per_hour": 60
+        }
+      },
+      {
+        "op": "threads",
+        "args": {
+          "being": "mira"
+        }
+      }
+    ]
+  }
+}

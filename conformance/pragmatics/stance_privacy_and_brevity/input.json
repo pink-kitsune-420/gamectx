@@ -1,0 +1,46 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "stance",
+        "args": {
+          "trust": 40,
+          "affection": 30,
+          "confidential": true,
+          "bystanders": [
+            {
+              "being": "gossip"
+            }
+          ],
+          "urgency": 90
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "trust": 70,
+          "confidential": true,
+          "bystanders": [
+            {
+              "being": "gossip"
+            },
+            {
+              "being": "wife",
+              "trusted": true
+            }
+          ]
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "trust": -30,
+          "resentment": 60,
+          "urgency": 50,
+          "deadline_hours": 1
+        }
+      }
+    ]
+  }
+}

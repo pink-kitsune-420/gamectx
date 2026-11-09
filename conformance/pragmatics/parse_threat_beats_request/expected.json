@@ -1,0 +1,1 @@
+{"version":1,"results":[{"clauses":[{"act":"threat","cues":["or else"],"question":false,"index":0,"reply":true,"subtext":"sincere","text":"Help me carry this or else","update":"appraise_threat"}],"listener":null,"overflow":0,"speaker":null}]}

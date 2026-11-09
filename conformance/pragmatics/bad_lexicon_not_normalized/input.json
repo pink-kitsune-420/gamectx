@@ -1,0 +1,16 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "lexicon",
+        "args": {
+          "act": "farewell",
+          "phrases": [
+            "Begone!"
+          ]
+        }
+      }
+    ]
+  }
+}

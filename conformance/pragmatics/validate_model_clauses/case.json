@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Model-proposed clauses found in order in the utterance are accepted with their obligations.",
+  "error": false
+}

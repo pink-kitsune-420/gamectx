@@ -1,0 +1,35 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "agenda",
+        "args": {
+          "clauses": [
+            {
+              "index": 0,
+              "act": "question_fact",
+              "subtext": "sincere"
+            }
+          ],
+          "motive": {
+            "id": "work",
+            "score": 40
+          },
+          "own": [
+            {
+              "id": "where_is_cart",
+              "kind": "ask",
+              "priority": 70
+            },
+            {
+              "id": "small_debt",
+              "kind": "followup",
+              "priority": 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

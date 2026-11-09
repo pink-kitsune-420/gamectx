@@ -1,0 +1,13 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "...?!"
+        }
+      }
+    ]
+  }
+}

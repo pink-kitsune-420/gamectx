@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A proposed clause must be found in the utterance.",
+  "error": true
+}

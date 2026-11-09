@@ -2916,6 +2916,7 @@ grows past them is refused where it used to be accepted.
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 | `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
 | `cueing` | `beings` (1024, 10⁶), `episodes` per being (64, 4096), `facts` per being (64, 4096), `covers` per being (16, 256), host-only `secrets` (64, 4096), `listeners` remembered per episode (8, 64; the one told longest ago is dropped) |
+| `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
 
 ### Knowledge kinds
@@ -3433,6 +3434,52 @@ of 1–32 characters.
   masked fact that is not a word of its cover story (`cover`, by fact id), or a key word of a secret the being does
   not hold (`unknown`, by secret id). With leaks, `ok` is false and `fallback` is the first leaked cover's lie, else
   the given fallback, else `I would rather not say.`
+
+## Pragmatics v1 (pass 3, stage 3)
+
+`gamectx::character::pragmatics` (guide: [Life](characters/LIFE.md#pragmatics-pass-3-stage-3)), local kind
+`pragmatics` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
+cases (7 malformed) live in `conformance/pragmatics/`. An op that fails refuses the request; ops before it keep their
+changes, and the failing op changes nothing. Words are lower-cased runs of ASCII letters and digits; a phrase matches
+a clause when its words appear consecutively.
+
+- `lexicon {act (a lexicon act), phrases: 1–16 normalized phrases of 1–4 words}` → `{act, added, phrases (built-in
+  and author, sorted)}`; new phrases count toward `phrases`.
+- `parse {text ≤500, speaker?, listener?, context? {witnessed?, failed?: ≤16 key words}}` → `{clauses, listener,
+  overflow, speaker}`. The text splits after each `.` `?` `!` `;` or em dash; pieces are trimmed of spaces, tabs and
+  commas, pieces without words are skipped, the first 4 are kept and the rest counted in `overflow`. A clause is
+  `{act, cues, index, question, reply, subtext, text, update}`. Leading `by the way`, `and also`, `also`, `anyway`,
+  `and`, `but`, `so` or `oh` is ignored for classification. `act` is the first lexicon act in the order threat,
+  accusation, apology, offer_or_transfer, request_help, greeting, farewell, compliment with a matching phrase (`cues`
+  lists them); otherwise, if the clause ended with `?` or starts with a question word, `question_personal` when one of
+  its first three words is you, your, yours or yourself, else `question_fact`; else `small_talk`. `subtext`, first
+  match: `urgent` (now, quick, quickly, hurry, immediately, at once, or `!` on a request), `sarcastic` (a compliment
+  containing a `failed` word), `testing_honesty` (a question containing a `witnessed` word), `guilt_tripping`,
+  `bargaining`, `evasive`, `probing` (a personal question, or a question with really, true, honestly or be honest),
+  else `sincere`. `update`: apology → `appraise_apology`, offer_or_transfer → `receive_item`, accusation →
+  `appraise_accusation`, threat → `appraise_threat`, compliment → `appraise_praise`, else null. `reply` is true unless
+  the clause is sincere small talk.
+- `validate {text, clauses: 1–4 [{text, act, subtext}]}` → `{clauses, valid: true}`; each clause text must be found
+  in the utterance after the previous one; acts and subtexts come from the fixed lists.
+- `agenda {clauses: ≤4 [{index 0–3 unique, act, subtext}], motive? {id, score}, own? [{id, kind ask|followup|grievance,
+  priority}]}` → `{deferred, mode, steps, withheld}`; a step is `{clause, kind update|answer|own, own, what}`. With a
+  motive score ≥ 90: `interrupt_override`, the motive first, then every update, and every owed reply deferred.
+  Otherwise the top own item is the highest priority ≥ 60 (ties by id); a grievance of priority ≥ 80 withholds owed
+  replies to non-urgent factual or personal questions, requests and small talk. Steps go clause by clause (update,
+  then answer unless withheld), then the top own item. Mode: `conditional_gate` if anything was withheld,
+  `answer_then_counter_ask`, `raise_own` or `respond`.
+- `tick {now}`; `open {being, id, topic, speaker, question? text ≤160}` → `{being, dropped, threads}` (the new thread is
+  active, others wait; past the limit the oldest is dropped); `interrupt {being, cause}` marks the active top thread
+  interrupted; `resume {being, ticks_per_hour?}` → `{being, since, thread, unanswered}` with `since` the
+  [time anchor](#turn-frame-v1-pass-3-stage-1) of the interruption; `close {being, id}` → `{being, closed, top}` (the
+  next thread becomes active if the top was closed); `threads {being}` lists the stack top first.
+- `stance {trust −100..100, affection?, resentment?, confidential?, bystanders? [{being, trusted?, earshot?}],
+  urgency?, deadline_hours?}` → `{cooperativeness, max_sentences, privacy, score, untrusted_in_earshot, verbosity}`.
+  score = trust + ⌊affection/2⌋ − resentment: `eager` ≥ 70, `cooperative` ≥ 20, `guarded` ≥ −10, `reluctant` ≥ −40,
+  `deflecting` ≥ −70, else `hostile_refusal`. Privacy: `open` unless confidential with an untrusted bystander in
+  earshot, then `whispered` at trust ≥ 60, else `deflect_due_to_bystanders`. Sentences: 4 below urgency 30, 3 below
+  60, 2 below 85, else 1, and 1 when the deadline is at most an hour away; verbosity `full` (4), `normal` (2–3) or
+  `brief` (1).
 
 ## Game data and save files v1
 

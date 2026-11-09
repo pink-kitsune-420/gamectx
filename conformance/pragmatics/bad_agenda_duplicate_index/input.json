@@ -1,0 +1,24 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "agenda",
+        "args": {
+          "clauses": [
+            {
+              "index": 0,
+              "act": "greeting",
+              "subtext": "sincere"
+            },
+            {
+              "index": 0,
+              "act": "farewell",
+              "subtext": "sincere"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

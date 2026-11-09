@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Phrases are lower-case words separated by single spaces.",
+  "error": true
+}

@@ -1,0 +1,18 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Did you see the fire last night?",
+          "context": {
+            "witnessed": [
+              "fire"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

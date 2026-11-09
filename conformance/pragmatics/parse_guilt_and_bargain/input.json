@@ -1,0 +1,13 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "After everything I did for you. If you lend me the cart I will pay."
+        }
+      }
+    ]
+  }
+}

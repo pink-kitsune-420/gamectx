@@ -33,6 +33,7 @@ pub mod motive;
 pub mod offscreen;
 pub mod packs;
 pub mod party;
+pub mod pragmatics;
 pub mod relationship;
 pub mod retention;
 pub mod roleplay;

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Only an interrupted thread can be resumed.",
+  "error": true
+}

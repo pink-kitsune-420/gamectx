@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A threat outranks the request it is wrapped in.",
+  "error": false
+}

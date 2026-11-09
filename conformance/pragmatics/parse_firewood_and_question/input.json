@@ -1,0 +1,15 @@
+{
+  "kind": "pragmatics",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Here is the firewood you asked for\u2014also, is it true the apprentice stole from you?",
+          "speaker": "player",
+          "listener": "mira"
+        }
+      }
+    ]
+  }
+}
