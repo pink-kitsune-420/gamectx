@@ -1,0 +1,35 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "hermit",
+          "lifespan": 500,
+          "at": 0
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "hermit",
+          "thing": "hut"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "hermit",
+          "thing": "goat"
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 500
+        }
+      }
+    ]
+  }
+}

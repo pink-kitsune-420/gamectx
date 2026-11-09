@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being entered with a birth tick in the past starts at its current stage.",
+  "error": false
+}

@@ -1,0 +1,70 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "ma",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "pa",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 250
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "lad",
+          "lifespan": 1000,
+          "at": 250,
+          "parents": [
+            "ma",
+            "pa"
+          ]
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "lad",
+          "thing": "bow"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "lad",
+          "thing": "knife"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "lad",
+          "thing": "cap"
+        }
+      },
+      {
+        "op": "die",
+        "args": {
+          "being": "lad",
+          "cause": "fall",
+          "at": 260
+        }
+      }
+    ]
+  }
+}

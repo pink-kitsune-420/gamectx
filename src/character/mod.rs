@@ -34,5 +34,6 @@ pub mod sheet;
 pub mod skills;
 pub mod speech_act;
 pub mod stability;
+pub mod survival;
 pub mod task;
 pub mod tools;

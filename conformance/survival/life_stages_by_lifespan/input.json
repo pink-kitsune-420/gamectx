@@ -1,0 +1,45 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "apprentice",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 224
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 225
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 749
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 750
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

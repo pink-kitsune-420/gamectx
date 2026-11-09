@@ -1,0 +1,25 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "guard",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "guard",
+          "threat": "thief",
+          "danger": 50,
+          "temperament": "bold",
+          "strength": 80
+        }
+      }
+    ]
+  }
+}

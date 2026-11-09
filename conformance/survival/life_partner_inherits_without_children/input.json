@@ -1,0 +1,64 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "smith",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "cook",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 300
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "smith",
+          "b": "cook"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "smith",
+          "thing": "anvil"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "smith",
+          "thing": "tongs"
+        }
+      },
+      {
+        "op": "die",
+        "args": {
+          "being": "smith",
+          "cause": "fever",
+          "at": 410
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "cook"
+        }
+      }
+    ]
+  }
+}

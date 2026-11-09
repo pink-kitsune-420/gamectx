@@ -1,0 +1,28 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "miller",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "miller",
+          "threat": "raider",
+          "danger": 60,
+          "temperament": "cautious",
+          "allies": 5,
+          "exit": false,
+          "strength": 30,
+          "threat_strength": 70
+        }
+      }
+    ]
+  }
+}

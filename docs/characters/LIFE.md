@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Twenty-three character modules take a `limits` object next to
+The game decides how much it needs. Twenty-four character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -706,34 +706,35 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
-| `beliefs` (`query`) | 2.2 / 3.0 | 2.1 / 2.7 | 4.4 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.6 | 0.5 / 0.6 | 1.3 | 173 |
-| `diet` (`choose`) | 1.9 / 2.0 | 2.4 / 2.9 | 1.9 | 613 |
-| `creed` (`judge`) | 1.6 / 1.7 | 1.8 / 2.4 | 1.1 | 294 |
-| `explain` (`query_trace`) | 3.4 / 4.0 | 4.2 / 5.2 | 3.9 | 2,283 |
+| `beliefs` (`query`) | 2.9 / 3.1 | 2.1 / 2.7 | 4.3 | 2,521 |
+| `speech_act` (`assess`) | 0.8 / 0.8 | 0.4 / 0.5 | 1.2 | 173 |
+| `diet` (`choose`) | 3.4 / 3.6 | 2.1 / 2.5 | 1.8 | 613 |
+| `creed` (`judge`) | 2.3 / 2.4 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.2 / 3.3 | 4.2 / 5.1 | 3.3 | 2,283 |
 | `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 1.0 / 1.0 | 1.5 / 2.0 | 1.8 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 2.1 / 2.6 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.8 / 0.8 | 1.1 / 1.6 | 2.6 | 685 |
-| `habit` (`routine`) | 0.8 / 0.8 | 1.0 / 1.5 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.8 / 1.1 | 1.7 / 2.3 | 2.5 | 1,335 |
-| `affect` (`assess`) | 1.2 / 1.5 | 1.8 / 2.5 | 2.8 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.4 | 2.1 / 2.9 | 1.8 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.4 | 1.7 / 2.4 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 1.1 | 1.4 / 2.1 | 1.8 | 2,580 |
-| `deception` (`check_consistency`) | 1.1 / 1.2 | 1.8 / 2.7 | 2.3 | 884 |
-| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 2.0 | 2.8 | 349 |
-| `offscreen` (`assess` one being) | 2.3 / 2.6 | 3.9 / 5.1 | 5.3 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.4 / 1.8 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 14.7 / 16.1 | 221.4 / 237.7 | 3.4 | 230 |
-| `cognition` (`recall`) | 1.8 / 1.9 | 2.3 / 2.9 | 3.7 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.5 / 7.1 | 7.4 / 8.2 | 1.9 | 864 |
-| `task` (`get`) | 1.5 / 1.6 | 2.2 / 2.8 | 3.7 | 1,417 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.5 / 2.0 | 1.9 | 1,856 |
+| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.1 | 0.9 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.8 / 0.8 | 1.1 / 1.5 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.2 | 1.6 / 2.1 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.8 | 2,580 |
+| `deception` (`check_consistency`) | 1.1 / 1.2 | 1.9 / 2.8 | 2.1 | 884 |
+| `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 1.9 | 2.8 | 349 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.9 / 5.0 | 5.7 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.3 / 1.8 | 0.8 | 590 |
+| `cooperation` (`assess`, scans every record) | 13.9 / 15.2 | 203.8 / 215.1 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.8 / 1.9 | 2.2 / 2.8 | 3.7 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.4 / 6.9 | 7.3 / 8.0 | 1.9 | 864 |
+| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.7 | 2.0 | 377 |
+| `task` (`get`) | 1.5 / 1.9 | 2.2 / 2.8 | 3.7 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
-maps), except cooperation `assess`, which walks every task, promise, resource and debt: 15 µs at
-1,000 promises, 221 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 267 MB across all twenty-three modules at 10,000 each, about 27 KB per
+maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
+1,000 promises, 204 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 271 MB across all twenty-four modules at 10,000 each, about 27 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -964,4 +965,45 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.4 µs at 10,000 beings. $0 API spend.
+takes 7.3 µs at 10,000 beings. $0 API spend.
+
+## Life cycle and threat response (pass 2, C1/C2)
+
+`gamectx::character::survival` (`Survival`, local kind `survival`) gives beings a life course and
+a way to meet danger. Scores are signed millionths.
+
+**Life cycle.** A being is `born` with a lifespan in ticks (and optional parents, who must be
+living adults). It is a child below 22.5% of its lifespan, an adult below 75%, then an elder;
+`age` reports `came_of_age` and `grew_old` (`life_stages_by_lifespan`) and lets every being past
+its lifespan die of old age. Adults `pair`, and beings `own` belongings. When a being dies
+(`age` or `die` with a cause), each belonging goes in order to the next heir with room, round
+robin. Heirs are living children by birth, else the living partner, else living parents.
+Anything no heir can take is unclaimed. When the weaver dies, the loom, shears and spindle
+go to the elder son, the daughter and the elder son (`life_children_inherit_round_robin`).
+The bereaved get grief proposals (affect `emotion`: partner −60, child −50, parent −40), and a
+widowed partner may pair again.
+
+**Threat response.** `threat` appraises danger as
+`danger·10,000 + (threat strength − strength)·3,000 + injury·2,000`, clamped to 0..1,000,000.
+Below 200,000 the being ignores it. Otherwise five responses are scored, each plus a temperament
+offset (`bold`, `steady`, `cautious`, `timid`):
+
+- fight: `300,000 + (strength − threat strength)·5,000 + min(allies, 5)·100,000 − injury·4,000`
+- flee: `(exit ? 400,000 : 0) + danger/2 − injury·3,000`
+- hide: `(cover ? 450,000 : 0) + danger/3`
+- call for help: `250,000 + min(allies, 5)·50,000` with allies near, else 0
+- freeze: `danger/2 − 200,000 + injury·2,000`
+
+The highest wins. A strong bold guard fights (`threat_bold_fights`, 700,000), a cautious shepherd
+with cover hides, a timid hurt child freezes, and the same guard flees at injury 80
+(`threat_injury_changes_choice`). Safety is a need: a threat lowers it to at most
+`100 − danger/10,000`, it recovers by one per tick on `age`, and below 40 the being is `unsafe`
+(`safety_need_recovers`). Fear is proposed to affect.
+
+**Evidence (C1/C2):** 25 conformance cases (`conformance/survival/`, 6 malformed), 2,000
+differential parity workflows (`eval/character/survival_cases.py`, seed 7, 0 mismatches: 1,473
+accepted, 527 refused, 4,612 births, 2,791 deaths, 320 belongings inherited, 1,249 threat
+responses). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
+limits, 64/65-op and limit-ceiling boundaries, a parent with 256 children leaving 4,096
+belongings, lifespans at the clock bound, and a refused op that changes nothing. Scale is in the
+[table above](#host-set-limits). $0 API spend.

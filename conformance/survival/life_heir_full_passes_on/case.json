@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With belongings limited to 2, the full elder son is skipped and the loom goes to the daughter; then both are full and the shears are unclaimed.",
+  "error": false
+}

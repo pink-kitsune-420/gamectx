@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A paired being cannot pair again while the partner lives.",
+  "error": true
+}

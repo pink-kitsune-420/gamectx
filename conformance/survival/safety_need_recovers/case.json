@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A bear attack drops safety to 10 (unsafe); safety recovers by one per tick on age.",
+  "error": false
+}

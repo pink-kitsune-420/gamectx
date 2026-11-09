@@ -1,0 +1,38 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "a",
+          "lifespan": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 30
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "b",
+          "lifespan": 60,
+          "at": 30,
+          "parents": [
+            "a"
+          ]
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 100
+        }
+      }
+    ]
+  }
+}

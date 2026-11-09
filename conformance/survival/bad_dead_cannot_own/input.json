@@ -1,0 +1,29 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "a",
+          "lifespan": 100,
+          "at": 0
+        }
+      },
+      {
+        "op": "die",
+        "args": {
+          "being": "a",
+          "cause": "fever"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "a",
+          "thing": "cup"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "guard",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "guard",
+          "threat": "boar",
+          "danger": 60,
+          "temperament": "bold",
+          "strength": 70
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "guard",
+          "threat": "boar",
+          "danger": 60,
+          "temperament": "bold",
+          "strength": 70,
+          "injury": 80
+        }
+      }
+    ]
+  }
+}

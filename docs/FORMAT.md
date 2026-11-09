@@ -2907,6 +2907,7 @@ grows past them is refused where it used to be accepted.
 | `cooperation` | `tasks` (64, 10⁶), `roles` per task (8, 64), `promises` (256, 10⁶), `resources` (256, 10⁶), `queue` per resource (16, 1024), `beings` holding grudges (1024, 10⁶), `grudges` per being (32, 4096; a full book evicts the weakest, then first by name), `debts` (4096, 10⁶) |
 | `cognition` | `beings` with a profile or memories (1024, 10⁶), `memories` per being (256, 65536; a full book evicts the weakest, then least important, then id), `people` per memory (8, 64), `motives` per `decide` (16, 256), `steps` per `decide` (16, 256) |
 | `chatter` | `beings` (1024, 10⁶), `topics` known per being (64, 4096; also the room to learn in a meeting), `wants` per being (16, 256), `bonds` (4096, 10⁶), `records` kept (256, 10⁶; oldest dropped), `turns` per meeting (6, 32; also the default) |
+| `survival` | `beings` living or dead (1024, 10⁶), `belongings` per being (64, 4096; heirs without room are skipped), `children` per being (16, 256) |
 
 ### Knowledge kinds
 
@@ -3115,6 +3116,39 @@ sorted. An op that fails refuses the request; ops before it keep their changes, 
 - `log {being?, limit? 1–64 (16)}` → `{records}` newest first.
 - `assess {being (known)}` → `{being, knows [{secret, topic, value, weight}], wants [{topic, weight}], bonds
   [{other, warmth}]}`.
+
+## Survival v1 (pass 2, C1/C2)
+
+`gamectx::character::survival` (guide: [Life](characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2)), local
+kind `survival` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
+cases (6 malformed) live in `conformance/survival/`. Ticks are 0..10¹²; scores are signed millionths. An op that fails
+refuses the request; ops before it keep their changes, and the failing op changes nothing.
+
+A being view is `{alive, being, belongings, born, cause|null, children, died|null, lifespan, parents, partner|null,
+safety 0–100, stage}`. Stage is `child` when `age·10⁶/lifespan < 225,000`, `adult` below 750,000, else `elder`.
+
+- `born {being (new), lifespan 1..10¹², parents? ≤ 2 (distinct, living, not children, under the children limit),
+  at? (clock)}` → view; parents list the child. Stage from `max(0, clock − at)`.
+- `pair {a ≠ b}` → `{a, b}`; both living, not children, unpaired.
+- `own {being (living), thing (new to it)}` → `{being, belongings}`.
+- `age {now ≥ clock}` → `{deaths, events [{being, event: came_of_age|grew_old}], now}`. By being: safety
+  recovers `now − last` (≤ 100); a being with `now − born ≥ lifespan` dies of `old_age` after the stage pass, in
+  name order.
+- `die {being (living), cause, at? (clock)}` → a death.
+- A death is `{being, bereaved [{being, as: partner|child|parent}], cause, died, effects, estate [{thing,
+  to|null}]}`. Heirs: living children by (born, id), else the living partner, else living parents by id. Each
+  belonging, in order, goes to the next heir from the round-robin position that does not hold it and has room;
+  `null` if none. Bereaved (sorted) each get `{engine: "affect", op: "appraise", args: {being, subject, kind:
+  "emotion", delta: −60|−50|−40, reason: "grief"}}`. A widowed partner is unpaired.
+- `threat {being (living), threat, danger 0–100, temperament? bold|steady|cautious|timid (steady), strength?,
+  threat_strength? (50 each), injury? (0), allies? 0–1000 (0), exit? (true), cover? (false)}` → `{being, danger,
+  effects, response, safety, scores [{response, score}], threat, unsafe}`. Formulas are in the guide; offsets
+  (fight, flee, hide, call_for_help, freeze): bold (250,000, −100,000, −100,000, 0, −200,000), steady (0…),
+  cautious (−150,000, 100,000, 150,000, 100,000, 0), timid (−300,000, 50,000, 100,000, 50,000, 250,000). Danger
+  below 200,000 gives `ignore` with no effects; otherwise the highest score wins (ties in that order), safety
+  becomes `min(safety, 100 − danger/10,000)`, and `{engine: "affect", op: "appraise", args: {being, subject:
+  threat, kind: "fear", delta: danger/20,000, reason: response}}` is proposed. `unsafe` is safety < 40.
+- `assess {being (living or dead)}` → view.
 
 ## Game data and save files v1
 

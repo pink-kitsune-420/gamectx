@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being with lifespan 1,000 is a child until 225, an adult until 750, then an elder.",
+  "error": false
+}

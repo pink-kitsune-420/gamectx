@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Temperament must be bold, steady, cautious or timid.",
+  "error": true
+}

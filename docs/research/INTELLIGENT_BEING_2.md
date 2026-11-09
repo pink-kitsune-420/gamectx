@@ -187,13 +187,16 @@ conflicts (B3) and persuasion (B1).
 
 ### C. World and body
 
-**C1. Life cycle.** Species have lifespans. Characters do not age, have children, retire,
+**C1. Life cycle.** — **DONE**. Species have lifespans. Characters do not age, have children, retire,
 die of age or leave belongings and relationships behind. Needed only for long campaigns,
 but it is what makes a world feel continuous.
 
-**C2. Threat response.** With fear added (pass 1 gap 6) and injuries (gap 12), add a
+**C2. Threat response.** — **DONE**. With fear added (pass 1 gap 6) and injuries (gap 12), add a
 danger appraisal and fight/flee/hide/freeze/call-for-help actions, with temperament
 choosing between them. Make safety a need.
+
+*Implemented (pass 2 C1/C2):* `character::survival::Survival` (local kind `survival`).
+[Evidence](../characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2).
 
 **C3. Space inside a place.** Places have links and spots. Beings do not occupy spots,
 block each other, queue, or see across a room by line of sight. Crowding at a well
@@ -288,7 +291,7 @@ packet and budget modules already do.
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles**, **C4 economy**, **C3 space**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
-7. **C1 life cycle**, **C2 threat**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
+7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels**, **D3 save growth**, **D5 packs**.
 
 ## 6. Risks to watch while pass 1 is built
 

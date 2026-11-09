@@ -1,0 +1,47 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "hunter",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "hunter",
+          "threat": "bear",
+          "danger": 90
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 20
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "hunter"
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 100
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "hunter"
+        }
+      }
+    ]
+  }
+}

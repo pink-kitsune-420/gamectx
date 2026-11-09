@@ -1,0 +1,99 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "weaver",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "dyer",
+          "lifespan": 1200,
+          "at": 0
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 300
+        }
+      },
+      {
+        "op": "pair",
+        "args": {
+          "a": "weaver",
+          "b": "dyer"
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "elder_son",
+          "lifespan": 1000,
+          "at": 300,
+          "parents": [
+            "weaver",
+            "dyer"
+          ]
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 320
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "daughter",
+          "lifespan": 1000,
+          "at": 320,
+          "parents": [
+            "weaver",
+            "dyer"
+          ]
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "weaver",
+          "thing": "loom"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "weaver",
+          "thing": "shears"
+        }
+      },
+      {
+        "op": "own",
+        "args": {
+          "being": "weaver",
+          "thing": "spindle"
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 1000
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "elder_son"
+        }
+      }
+    ]
+  }
+}

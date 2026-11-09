@@ -1,0 +1,19 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "age",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "age",
+        "args": {
+          "now": 9
+        }
+      }
+    ]
+  }
+}

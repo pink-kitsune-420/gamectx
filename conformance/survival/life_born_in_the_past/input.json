@@ -1,0 +1,35 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "age",
+        "args": {
+          "now": 600
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "old_tinker",
+          "lifespan": 700,
+          "at": 0
+        }
+      },
+      {
+        "op": "born",
+        "args": {
+          "being": "young_tinker",
+          "lifespan": 700,
+          "at": 500
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "old_tinker"
+        }
+      }
+    ]
+  }
+}

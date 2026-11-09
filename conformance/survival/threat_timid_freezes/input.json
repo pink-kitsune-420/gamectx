@@ -1,0 +1,28 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "child",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "child",
+          "threat": "bear",
+          "danger": 90,
+          "temperament": "timid",
+          "strength": 10,
+          "threat_strength": 90,
+          "injury": 20,
+          "exit": false
+        }
+      }
+    ]
+  }
+}

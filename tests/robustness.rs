@@ -2953,3 +2953,77 @@ fn chatter_survives_mutation_limits_and_boundaries() {
     assert!(chat.workflow(&req(&[r#"{"op":"meet","args":{"a":"m","b":"c","seed":2}}"#.into()])).is_err());
     assert_eq!(chat, before);
 }
+
+#[test]
+fn survival_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::survival::Survival;
+    let mut rng = Rng(0x5011_7A1C_2026_0C12);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 28. Survival mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"beings":8,"belongings":3,"children":2},"ops":[{"op":"born","args":{"being":"ma","lifespan":100,"at":0}},{"op":"born","args":{"being":"pa","lifespan":120,"at":0}},{"op":"age","args":{"now":30}},{"op":"pair","args":{"a":"ma","b":"pa"}},{"op":"born","args":{"being":"kid","lifespan":100,"parents":["ma","pa"],"at":30}},{"op":"own","args":{"being":"ma","thing":"loom"}},{"op":"age","args":{"now":100}},{"op":"assess","args":{"being":"kid"}}]}"#,
+        r#"{"ops":[{"op":"born","args":{"being":"guard","lifespan":1000}},{"op":"threat","args":{"being":"guard","threat":"bear","danger":90,"temperament":"timid","strength":20,"threat_strength":90,"injury":30,"allies":3,"exit":false,"cover":true}},{"op":"die","args":{"being":"guard","cause":"bear","at":5}},{"op":"assess","args":{"being":"guard"}}]}"#,
+    ];
+    let mut s = Survival::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = s.workflow(&v);
+            }
+        }
+    }
+    assert!(s.beings.values().all(|b| b.safety <= 100 && (b.alive || b.belongings.is_empty())));
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let age = r#"{"op":"age","args":{"now":0}}"#.to_string();
+    assert!(Survival::new().workflow(&req(&vec![age.clone(); 64])).is_ok());
+    assert!(Survival::new().workflow(&req(&vec![age; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"belongings":4096,"children":256}"#, true),
+        (r#"{"children":257}"#, false),
+        (r#"{"belongings":4097}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Survival::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a parent with 256 children leaves 4,096 belongings; lifespans at the clock bound.
+    let mut s = Survival::with_limits(&parse(r#"{"children":256,"belongings":4096}"#, 64).unwrap()).unwrap();
+    s.workflow(&req(&[
+        r#"{"op":"born","args":{"being":"elder","lifespan":1000,"at":0}}"#.into(),
+        r#"{"op":"age","args":{"now":300}}"#.into(),
+    ]))
+    .unwrap();
+    for chunk in 0..4 {
+        let kids: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+            .map(|i| {
+                format!(r#"{{"op":"born","args":{{"being":"k{i}","lifespan":1000000000000,"parents":["elder"]}}}}"#)
+            })
+            .collect();
+        s.workflow(&req(&kids)).unwrap();
+    }
+    for chunk in 0..64 {
+        let things: Vec<String> = (chunk * 64..(chunk + 1) * 64)
+            .map(|i| format!(r#"{{"op":"own","args":{{"being":"elder","thing":"t{i}"}}}}"#))
+            .collect();
+        s.workflow(&req(&things)).unwrap();
+    }
+    s.workflow(&req(&[r#"{"op":"age","args":{"now":1000}}"#.into()])).unwrap();
+    assert!(!s.beings["elder"].alive);
+    assert_eq!(s.beings["k0"].belongings.len(), 16, "4,096 things round robin over 256 heirs");
+    assert!(s.workflow(&req(&[r#"{"op":"age","args":{"now":1000000000000}}"#.into()])).is_ok());
+    assert!(s.beings["k0"].alive && s.beings["k0"].stage == "elder", "born at 300, a lifespan of 10^12 has not ended");
+
+    // A refused op changes nothing: a child as a parent.
+    let mut s = Survival::new();
+    s.workflow(&req(&[r#"{"op":"born","args":{"being":"kid","lifespan":1000}}"#.into()])).unwrap();
+    let before = s.clone();
+    assert!(s
+        .workflow(&req(&[r#"{"op":"born","args":{"being":"baby","lifespan":1000,"parents":["kid"]}}"#.into()]))
+        .is_err());
+    assert_eq!(s, before);
+}

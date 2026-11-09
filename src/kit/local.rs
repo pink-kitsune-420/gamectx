@@ -122,6 +122,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "cooperation" => crate::character::cooperation::workflow(a),
         "cognition" => crate::character::cognition::workflow(a),
         "chatter" => crate::character::chatter::workflow(a),
+        "survival" => crate::character::survival::workflow(a),
         "lesson" => crate::character::lesson::workflow(a),
         "places" => crate::knowledge::places::workflow(a),
         "character-plan" => crate::character::tools::plan_fixture(a),

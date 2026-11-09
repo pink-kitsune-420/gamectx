@@ -1,0 +1,23 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "shepherd",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "shepherd",
+          "threat": "fox",
+          "danger": 10
+        }
+      }
+    ]
+  }
+}

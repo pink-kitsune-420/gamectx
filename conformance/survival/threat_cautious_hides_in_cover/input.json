@@ -1,0 +1,28 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "shepherd",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "shepherd",
+          "threat": "wolf",
+          "danger": 70,
+          "temperament": "cautious",
+          "strength": 40,
+          "threat_strength": 60,
+          "cover": true,
+          "exit": false
+        }
+      }
+    ]
+  }
+}

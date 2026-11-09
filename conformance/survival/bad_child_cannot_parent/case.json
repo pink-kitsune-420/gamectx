@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A child (under 22.5% of its lifespan) cannot be a parent.",
+  "error": true
+}

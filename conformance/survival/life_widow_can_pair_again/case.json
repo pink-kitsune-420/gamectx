@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "When a partner dies the survivor is unpaired and may pair again.",
+  "error": false
+}

@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-three modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills twenty-four modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1360,6 +1360,15 @@ meetings, tells, disputes, secrets, gossip, alliances, quarrels). `character/cha
 cases (`conformance/chatter/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op like the
 cooperation generator against `gamectx local -` (0 mismatches: 1,438 accepted, 562 refused, 4,566 tells, 1,278
 disputes, 1,025 quarrels, 31 alliances). [Results](../docs/characters/LIFE.md#off-screen-conversations-pass-2-b6).
+
+## Life cycle and threat response (offline)
+
+`character/survival_reference.py` is the independent prototype of pass 2 C1/C2 (lifespans, stages, pairs,
+children, heirs, grief, danger appraisal and responses, safety). `character/survival_cases.py --cap 0` checks 25
+cases (`conformance/survival/`, 6 malformed). `--random 2000 --seed 7` builds workflows op by op like the
+cooperation generator, with a family preamble in 30% of them, against `gamectx local -` (0 mismatches: 1,473
+accepted, 527 refused, 4,612 births, 2,791 deaths, 320 belongings inherited, 1,249 threat responses).
+[Results](../docs/characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2).
 
 ## Visual compiler and approved asset metadata (offline)
 

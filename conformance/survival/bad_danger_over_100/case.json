@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Danger is 0..100.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The same guard fights unhurt, but at injury 80 fighting drops below fleeing.",
+  "error": false
+}

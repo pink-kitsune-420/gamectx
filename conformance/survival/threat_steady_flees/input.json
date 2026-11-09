@@ -1,0 +1,23 @@
+{
+  "kind": "survival",
+  "args": {
+    "ops": [
+      {
+        "op": "born",
+        "args": {
+          "being": "traveller",
+          "lifespan": 1000,
+          "at": 0
+        }
+      },
+      {
+        "op": "threat",
+        "args": {
+          "being": "traveller",
+          "threat": "storm",
+          "danger": 80
+        }
+      }
+    ]
+  }
+}
