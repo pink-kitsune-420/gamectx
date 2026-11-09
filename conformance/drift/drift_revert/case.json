@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An author can revert a trait to its base, clearing pressure but keeping the history.",
+  "error": false
+}

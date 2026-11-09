@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With traits 2, a third trait is refused.",
+  "error": true
+}

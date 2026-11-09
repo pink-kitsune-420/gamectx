@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills twenty-nine modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1414,6 +1414,14 @@ checks 25 cases (`conformance/space/`, 7 malformed). `--random 2000 --seed 7` bu
 cooperation generator, most starting with a random room, against `gamectx local -` (0 mismatches: 1,472
 accepted, 528 refused, 4,251 steps walked, 288 queued uses, 75 blocked sight lines).
 [Results](../docs/characters/LIFE.md#space-inside-a-place-pass-2-c3).
+
+## Slow personality change (offline)
+
+`character/drift_reference.py` is the independent prototype of pass 2 B4 (capped trait drift from fading
+experience pressure, reason chains, author locks and revert). `character/drift_cases.py --cap 0` checks 25 cases
+(`conformance/drift/`, 7 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
+generator against `gamectx local -` (0 mismatches: 1,488 accepted, 512 refused, 610 shifts, 40 experiences at the
+cap, 307 locked experiences). [Results](../docs/characters/LIFE.md#slow-personality-change-pass-2-b4).
 
 ## Visual compiler and approved asset metadata (offline)
 

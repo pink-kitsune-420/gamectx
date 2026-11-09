@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A base near 1,000,000 cannot drift past 1,000,000 even inside its cap.",
+  "error": false
+}

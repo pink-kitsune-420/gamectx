@@ -3408,3 +3408,73 @@ fn space_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"move","args":{"being":"a","x":1,"y":1}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn drift_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::drift::Drift;
+    let mut rng = Rng(0xD21F_7B04_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 34. Drift mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"beings":3,"traits":2,"history":2},"ops":[{"op":"trait","args":{"being":"tomas","trait":"trust","base":600000,"cap":150000,"step":10000,"threshold":300,"fade":1}},{"op":"experience","args":{"being":"tomas","trait":"trust","push":-100,"reason":"betrayed"}},{"op":"tick","args":{"now":40}},{"op":"experience","args":{"being":"tomas","trait":"trust","push":-100,"reason":"robbed"}},{"op":"lock","args":{"being":"tomas","trait":"trust","locked":true}},{"op":"revert","args":{"being":"tomas","trait":"trust"}},{"op":"assess","args":{"being":"tomas"}}]}"#,
+        r#"{"ops":[{"op":"trait","args":{"being":"saint","trait":"kindness","base":1000000,"cap":300000,"step":100000,"threshold":1,"fade":100000}},{"op":"experience","args":{"being":"saint","trait":"kindness","push":-100,"reason":"war"}},{"op":"tick","args":{"now":1000000000000}},{"op":"lock","args":{"being":"saint","locked":false}},{"op":"assess","args":{"being":"saint","trait":"kindness"}}]}"#,
+    ];
+    let mut k = Drift::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = k.workflow(&v);
+            }
+        }
+    }
+    for (b, m) in &k.beings {
+        for (t, x) in &m.traits {
+            assert!((x.value - x.base).abs() <= x.cap && x.value.abs() <= 1_000_000, "{b}/{t}");
+            assert!(x.pressure.abs() < x.threshold && x.reasons.len() <= 8, "{b}/{t}");
+        }
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Drift::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Drift::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"traits":64,"history":256}"#, true),
+        (r#"{"history":257}"#, false),
+        (r#"{"traits":65}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Drift::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a lifetime of 6,400 blows at threshold 1 never moves a trait past its cap, and the
+    // history keeps exactly its limit; fading across 10^12 ticks does not overflow.
+    let mut k = Drift::with_limits(&parse(r#"{"history":256}"#, 64).unwrap()).unwrap();
+    k.workflow(&req(&[
+        r#"{"op":"trait","args":{"being":"a","trait":"t","base":0,"cap":300000,"step":1,"threshold":1,"fade":100000}}"#
+            .into(),
+    ]))
+    .unwrap();
+    for _ in 0..100 {
+        let blows =
+            vec![r#"{"op":"experience","args":{"being":"a","trait":"t","push":-100,"reason":"blow"}}"#.to_string(); 64];
+        k.workflow(&req(&blows)).unwrap();
+    }
+    let x = &k.beings["a"].traits["t"];
+    assert_eq!((x.value, x.history.len()), (-300_000, 256));
+    k.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000000}}"#.into()])).unwrap();
+    assert!(k.workflow(&req(&[r#"{"op":"assess","args":{"being":"a"}}"#.into()])).is_ok());
+
+    // A refused op changes nothing: a push out of range.
+    let mut k = Drift::new();
+    k.workflow(&req(&[r#"{"op":"trait","args":{"being":"a","trait":"t","base":0}}"#.into()])).unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"experience","args":{"being":"a","trait":"t","push":101,"reason":"x"}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

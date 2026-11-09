@@ -1,0 +1,15 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "a",
+          "trait": "t",
+          "base": 1000001
+        }
+      }
+    ]
+  }
+}

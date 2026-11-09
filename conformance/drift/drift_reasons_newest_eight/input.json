@@ -1,0 +1,106 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "base": 0,
+          "threshold": 1000
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_0"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_1"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_2"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_3"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_4"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_5"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_6"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_7"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_8"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "warmth",
+          "push": 100,
+          "reason": "kind_word_9"
+        }
+      }
+    ]
+  }
+}

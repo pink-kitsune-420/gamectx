@@ -2913,6 +2913,7 @@ grows past them is refused where it used to be accepted.
 | `roles` | `roles` (64, 4096), `beings` with a role or standing (1024, 10⁶), `duties` per role (8, 64), roles `held` per being (4, 16) |
 | `economy` | `goods` (64, 4096), `markets` (16, 1024), `traders` per good and market in one period (256, 65,536) |
 | `space` | `rooms` (64, 4096), `beings` placed (1024, 10⁶), `spots` per room (16, 1024), `queue` per spot (32, 4096) |
+| `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 
 ### Knowledge kinds
 
@@ -3296,6 +3297,28 @@ A being view is `{being, room, x, y}`; a spot view `{capacity, queue (in order),
   step y when `2·err ≤ dx`); `blocked` is the first wall strictly between the ends; `visible` = not blocked and
   Chebyshev distance ≤ range.
 - `crowd {room}` → `{beings (sorted), free: area − walls − beings, room, spots}`.
+
+## Drift v1 (pass 2, B4)
+
+`gamectx::character::drift` (guide: [Life](characters/LIFE.md#slow-personality-change-pass-2-b4)), local kind `drift`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
+malformed) live in `conformance/drift/`. Values are signed millionths. An op that fails refuses the request; ops
+before it keep their changes, and the failing op changes nothing.
+
+A trait view is `{base, being, cap, drift: value − base, fade, history [{at, delta, reasons, value}], locked (trait
+or being), pressure, step, threshold, trait, value}`.
+
+- `trait {being, trait, base −10⁶..10⁶, cap? 0–300,000 (150,000), step? 1–100,000 (10,000), threshold? 1–100,000
+  (300), fade? 0–100,000 (1)}` → view; defines or replaces the trait (value = base, empty history).
+- `experience {being, trait, push −100..100, reason}` → view plus `shifts`. Locked: nothing changes. Otherwise
+  pressure fades to the clock (toward 0 by fade·elapsed, not past 0), adds `push`, and `reason` joins the last 8
+  reasons. While |pressure| ≥ threshold: pressure −= sign·threshold and value becomes clamp(value + sign·step,
+  max(base − cap, −10⁶), min(base + cap, 10⁶)); a change is recorded as `{at: clock, delta, reasons, value}`
+  (history keeps the newest `history` shifts). If any threshold was crossed the reasons are cleared.
+- `tick {now ≥ clock}` → `{now}`.
+- `lock {being, locked: bool, trait?}` → `{being, locked, trait|null}`; without `trait` it locks the being.
+- `revert {being, trait}` → view; value = base, pressure 0, reasons cleared, history kept.
+- `assess {being, trait?}` → `{being, locked, traits: [view]}` with pressure faded to the clock (no change).
 
 ## Game data and save files v1
 

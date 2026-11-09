@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A shift keeps the newest 8 reasons that built it.",
+  "error": false
+}

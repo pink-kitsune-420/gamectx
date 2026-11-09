@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A locked trait ignores pushes; unlocking lets experience work again.",
+  "error": false
+}

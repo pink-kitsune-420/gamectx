@@ -1,0 +1,26 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "ana",
+          "trait": "patience",
+          "base": 0,
+          "threshold": 50,
+          "step": 5000
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "patience",
+          "push": 100,
+          "reason": "long_wait"
+        }
+      }
+    ]
+  }
+}

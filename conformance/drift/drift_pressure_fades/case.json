@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Pressure fades by 1 per tick: two blows 200 ticks apart never add up to a shift.",
+  "error": false
+}

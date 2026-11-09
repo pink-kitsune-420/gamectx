@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "locked is true or false.",
+  "error": true
+}

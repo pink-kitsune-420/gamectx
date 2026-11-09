@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Bases are -1,000,000..1,000,000.",
+  "error": true
+}

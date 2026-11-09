@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Boldness may move at most 50,000 from its base: after two steps the pressure is spent without change.",
+  "error": false
+}

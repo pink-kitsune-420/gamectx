@@ -162,10 +162,13 @@ the grudges that follow.
 *Implemented (pass 2 B2/B3):* `character::cooperation::Cooperation` (local kind
 `cooperation`). [Evidence](../characters/LIFE.md#cooperation-and-conflict-pass-2-b2b3).
 
-**B4. Slow personality change.** Identity is authored and fixed. Long experience should be
+**B4. Slow personality change.** — **DONE**. Identity is authored and fixed. Long experience should be
 able to shift values and temperament slightly, with a hard cap, a reason chain and an
 author switch to turn it off. Without it, a betrayed character can be angry but never
 becomes more guarded.
+
+*Implemented (pass 2 B4):* `character::drift::Drift` (local kind `drift`).
+[Evidence](../characters/LIFE.md#slow-personality-change-pass-2-b4).
 
 **B5. Conscience and norms.** — **DONE**. Communities have customs. Add a personal side: which norms
 the being holds, guilt or shame when it breaks one, indignation when others do, and
@@ -304,7 +307,7 @@ packet and budget modules already do.
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy** — **DONE**, **C3 space** — **DONE**.
-6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
+6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change** — **DONE**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
 7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs**.
 

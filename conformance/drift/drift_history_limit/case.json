@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With history 2 only the two newest shifts are kept.",
+  "error": false
+}

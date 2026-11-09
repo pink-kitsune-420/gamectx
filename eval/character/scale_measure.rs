@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, task::TaskManager,
 };
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -67,6 +67,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("roles", format!(r#"{{"beings":{n}}}"#), r#"{"op":"role","args":{"id":"farmer","status":20,"duties":[{"id":"till","action":"wait","every":24}]}}"#, r#"{"op":"assign","args":{"being":"{b}","role":"farmer"}}"#, r#"{"op":"assess","args":{"being":"{b}"}}"#),
         ("economy", format!(r#"{{"traders":{}}}"#, n.max(1)), r#"{"op":"good","args":{"id":"flour","base":20}}"#, r#"{"op":"want","args":{"market":"square","good":"flour","amount":3,"by":"{b}"}}"#, r#"{"op":"price","args":{"market":"square","good":"flour"}}"#),
         ("space", format!(r#"{{"beings":{}}}"#, n + 1), r#"{"op":"room","args":{"id":"square","width":256,"height":256}},{"op":"enter","args":{"being":"watcher","room":"square","x":255,"y":255}}"#, r#"{"op":"enter","args":{"being":"{b}","room":"square","x":{x},"y":{y}}}"#, r#"{"op":"see","args":{"being":"{b}","other":"watcher"}}"#),
+        ("drift", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"trait","args":{"being":"{b}","trait":"trust","base":500000}}"#, r#"{"op":"experience","args":{"being":"{b}","trait":"trust","push":-10,"reason":"slight"}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -101,6 +102,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "roles" => wf!(Roles, lim),
         "economy" => wf!(Economy, lim),
         "space" => wf!(Space, lim),
+        "drift" => wf!(Drift, lim),
         _ => wf!(TaskManager, lim),
     })
 }

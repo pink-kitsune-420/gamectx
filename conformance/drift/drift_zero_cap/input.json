@@ -1,0 +1,32 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "ana",
+          "trait": "faith",
+          "base": 500000,
+          "cap": 0,
+          "threshold": 1
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "faith",
+          "push": -100,
+          "reason": "doubt"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ana"
+        }
+      }
+    ]
+  }
+}

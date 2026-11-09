@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A cap of 0 makes a trait fixed even without a lock.",
+  "error": false
+}

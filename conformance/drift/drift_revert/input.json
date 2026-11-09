@@ -1,0 +1,70 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "tomas",
+          "trait": "trust",
+          "base": 600000
+        }
+      },
+      {
+        "op": "trait",
+        "args": {
+          "being": "tomas",
+          "trait": "boldness",
+          "base": -200000,
+          "cap": 50000,
+          "step": 25000,
+          "threshold": 200,
+          "fade": 0
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "tomas",
+          "trait": "trust",
+          "push": -100,
+          "reason": "betrayed"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "tomas",
+          "trait": "trust",
+          "push": -100,
+          "reason": "betrayed"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "tomas",
+          "trait": "trust",
+          "push": -100,
+          "reason": "betrayed"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "tomas",
+          "trait": "trust",
+          "push": -100,
+          "reason": "betrayed"
+        }
+      },
+      {
+        "op": "revert",
+        "args": {
+          "being": "tomas",
+          "trait": "trust"
+        }
+      }
+    ]
+  }
+}

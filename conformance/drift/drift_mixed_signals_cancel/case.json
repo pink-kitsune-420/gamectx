@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Opposite pushes cancel inside the pressure, so nothing changes.",
+  "error": false
+}

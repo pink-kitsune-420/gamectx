@@ -1,0 +1,34 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "saint",
+          "trait": "kindness",
+          "base": 995000,
+          "threshold": 100
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "saint",
+          "trait": "kindness",
+          "push": 100,
+          "reason": "good_deed"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "saint",
+          "trait": "kindness",
+          "push": 100,
+          "reason": "good_deed"
+        }
+      }
+    ]
+  }
+}

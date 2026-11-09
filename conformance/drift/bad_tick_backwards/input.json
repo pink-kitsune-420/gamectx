@@ -1,0 +1,19 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 5
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 4
+        }
+      }
+    ]
+  }
+}

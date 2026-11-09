@@ -1,0 +1,62 @@
+{
+  "kind": "drift",
+  "args": {
+    "ops": [
+      {
+        "op": "trait",
+        "args": {
+          "being": "ana",
+          "trait": "calm",
+          "base": 0,
+          "threshold": 100,
+          "cap": 300000
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "calm",
+          "push": 100,
+          "reason": "quiet_day_0"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "calm",
+          "push": 100,
+          "reason": "quiet_day_1"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "calm",
+          "push": 100,
+          "reason": "quiet_day_2"
+        }
+      },
+      {
+        "op": "experience",
+        "args": {
+          "being": "ana",
+          "trait": "calm",
+          "push": 100,
+          "reason": "quiet_day_3"
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "ana"
+        }
+      }
+    ],
+    "limits": {
+      "history": 2
+    }
+  }
+}

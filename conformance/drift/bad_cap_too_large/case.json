@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "No trait may drift more than 300,000.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Redefining a trait starts it again from the new base.",
+  "error": false
+}
