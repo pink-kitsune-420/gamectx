@@ -1504,3 +1504,42 @@ because it burns in one tick. A crash interrupts the conversation; once the goss
 shop is private enough for secrets, the stance is open, and `resume` brings back the unanswered
 theft question with a tender tone and room for four sentences. Running the scene twice gives
 byte-identical output. $0 API spend.
+
+## Pass 3 deep roleplay scenarios
+
+`eval/character/roleplay_deep_test.rs` drives three harder scenes through the engines; CI replays
+them against the committed report `eval/character/roleplay-deep.json` byte for byte. Model drafts
+in the scenes are fixed strings standing in for untrusted model output.
+
+1. **High-stress multitask and boundary probe.** At noon with the bread burning, two customers
+   queued for one counter and a customer in earshot, the player says six things at once. The parser
+   keeps four clauses (greeting, an urgent request, small talk, a probing question about the vault
+   key) and counts two as overflow; the oven overrides the agenda and every reply waits; the stance
+   deflects to one sentence; the frame keeps the bread, the request and the queue within 150 bytes
+   and drops twenty pieces of town gossip. A model draft that invents a clause is refused, as is an
+   over-long utterance. A draft reply that says where the key hangs is caught by the gate and
+   replaced by Mira's cover story. The player's trespass into the back room is refused without
+   changing anything; taking the coin pouch gives Mira a theft appraisal weighing three times a
+   plain loss and puts the theft at the top of the ladder with a report to the town watch. Mira
+   squares her shoulders, clenches a fist and answers in one clipped sentence; the explain trace
+   says she pulled the bread because it burns this tick, beating the confrontation at 90.
+2. **Deception under interrogation.** The guard asks where the apprentice was and whether he took
+   the pouch (a probing personal question and a question that tests honesty, since the pouch was
+   witnessed). With Mira in earshot he deflects. The frame shows the model only his cover story;
+   the consistent lie passes the gate, a slip ("I only borrowed a few coins from the pouch") is
+   replaced by the cover story; a changed story is flagged per listener, and the flour trail
+   exposes the lie. A guard of insight 60 sees one tell, Mira (75) two, nobody any when he tells
+   the truth. Deception outranks his awe of the guard (guilty concealment); he slumps, cannot meet
+   their eyes and hesitates. His conscience brings guilt and a wish to make amends, recorded as an
+   owed apology of weight 60.
+3. **Interrupted conversation and resumption.** The player's question about the rye recipe is
+   interrupted by a customer; once the order is closed `resume` brings it back ("earlier this
+   shift"). A fire bell interrupts it again; a day later it comes back ("yesterday"), and the pair's
+   dyad still lists it as unfinished after 250 ticks. Four new threads push it off a stack of four,
+   reported as dropped. The promised lesson surfaces by analogy, is cooling ten ticks later instead
+   of nagging, and may return after the cooldown; asked a personal question, she answers and then
+   asks her own follow-up.
+
+**Found:** the built-in lexicon reads "Nice bread, as always" as sincere small talk rather than a
+compliment, so no reply is owed; authors can add such phrases with `lexicon`. 53 checks, 0
+failures, $0 API spend.

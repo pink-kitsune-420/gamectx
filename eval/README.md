@@ -1456,6 +1456,17 @@ model-clause validation, the mixed-initiative agenda, the thread stack and the c
 accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads resumed).
 [Results](../docs/characters/LIFE.md#pragmatics-pass-3-stage-3).
 
+## Deep roleplay scenarios (offline)
+
+`character/roleplay_deep_test.rs` (compiled with `rustc` against the release library, like `scale_measure.rs`) plays
+three pass 3 scenes through the real engines with no model: high-stress multitask and boundary probe, deception under
+interrogation with an earshot bystander, and interrupted conversation and resumption. Each scene records every engine
+call with its exact output, a transcript of host decisions, explain traces and named checks (53 in all, each fatal on
+failure). `--output` writes `character/roleplay-deep.json`; `--check` replays the scenes and requires byte-identical
+output. Model drafts in the scenes (an invented clause, a reply that leaks a secret) are fixed strings standing in for
+untrusted model output; real model speech is not measured here. $0 API spend.
+[Scenarios](../docs/characters/LIFE.md#pass-3-deep-roleplay-scenarios).
+
 ## World and social schemas (offline)
 
 `character/surroundings_reference.py` and `character/fabric_reference.py` are the independent prototypes of pass 3
