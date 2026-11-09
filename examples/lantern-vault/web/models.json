@@ -7,7 +7,7 @@
   "residency": "on_demand",
   "idle_seconds": 60,
   "prewarm": false,
-  "ram_limit_mib": 6144,
+  "ram_limit_mib": 8192,
   "reserve_mib": 768,
   "rules": {
     "combat": true,
@@ -21,44 +21,44 @@
   },
   "profiles": {
     "text": {
-      "model": "qwen2.5:3b",
-      "size": "3",
-      "ram_mib": 2400,
-      "backend": "local_ollama"
-    },
-    "dramatic_text": {
-      "model": "qwen2.5:7b",
+      "model": "chat-8b",
       "size": "8",
       "ram_mib": 5600,
-      "backend": "local_ollama"
+      "backend": "online_openai_compatible"
+    },
+    "dramatic_text": {
+      "model": "chat-12b",
+      "size": "30",
+      "ram_mib": 6144,
+      "backend": "online_openai_compatible"
     },
     "image": {
-      "model": "sd-v1-5-q8",
-      "recipe": "sd1-checkpoint",
+      "model": "flux1-schnell",
+      "recipe": "flux-schnell",
       "selection": {
-        "model": "checkpoints/sd-v1-5-q8.gguf"
+        "model": "checkpoints/flux1-schnell-Q4_K_S.gguf"
       },
-      "ram_mib": 2600,
-      "steps": 12,
+      "ram_mib": 4096,
+      "steps": 4,
       "backend": "local_sd_cpp"
     },
     "dramatic_image": {
-      "model": "sdxl-base-q4",
+      "model": "dreamshaper-xl",
       "recipe": "sdxl-checkpoint",
       "selection": {
-        "model": "checkpoints/sdxl-base-q4.gguf"
+        "model": "checkpoints/DreamShaperXL_Turbo_v2_1.safetensors"
       },
       "ram_mib": 5600,
-      "steps": 24,
+      "steps": 8,
       "backend": "local_sd_cpp"
     },
     "tts": {
-      "model": "kokoro",
+      "model": "piper",
       "ram_mib": 600,
       "backend": "inherit"
     },
     "stt": {
-      "model": "whisper-small",
+      "model": "whisper-base",
       "ram_mib": 900,
       "backend": "inherit"
     }

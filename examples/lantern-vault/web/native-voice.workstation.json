@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "tts": {
+    "executable": "/home/yuki/ai/bin/piper/piper",
+    "voices": {
+      "merchant": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
+      "keeper": "/home/yuki/models/tts/en_GB-cori-high.onnx",
+      "alloy": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
+      "onyx": "/home/yuki/models/tts/en_GB-cori-high.onnx",
+      "bryce": "/home/yuki/models/tts/en_US-bryce-medium.onnx",
+      "cori": "/home/yuki/models/tts/en_GB-cori-high.onnx",
+      "ljspeech": "/home/yuki/models/tts/en_US-ljspeech-high.onnx",
+      "libritts": "/home/yuki/models/tts/en_US-libritts_r-medium.onnx"
+    }
+  },
+  "stt": {
+    "executable": "/home/yuki/.local/bin/whisper-cli",
+    "models": {
+      "whisper-base": "/home/yuki/models/stt/ggml-base.en.bin",
+      "whisper-small": "/home/yuki/models/stt/ggml-small.en.bin",
+      "whisper-turbo": "/home/yuki/models/stt/ggml-large-v3-turbo.bin",
+      "base": "/home/yuki/models/stt/ggml-base.en.bin",
+      "small": "/home/yuki/models/stt/ggml-small.en.bin",
+      "turbo": "/home/yuki/models/stt/ggml-large-v3-turbo.bin"
+    }
+  }
+}

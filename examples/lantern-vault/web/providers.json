@@ -6,7 +6,7 @@
   "size": "3",
   "speech_mode": "grounded",
   "local_fallback": false,
-  "cpu_threads": 2,
+  "cpu_threads": 4,
   "endpoints": {
     "local_ollama": {
       "url": "http://127.0.0.1:11434/api/chat",
@@ -15,7 +15,7 @@
     },
     "local_sd_cpp": {
       "url": "http://127.0.0.1:7860/sdapi/v1/txt2img",
-      "model": "sd-cpp-local",
+      "model": "flux1-schnell",
       "key_env": null,
       "ceiling_micros": 0
     },
@@ -32,8 +32,8 @@
       "ceiling_micros": 0
     },
     "online_openai_compatible": {
-      "url": "https://example.invalid/v1/chat/completions",
-      "key_env": "STUDIO_TEXT_API_KEY",
+      "url": "http://127.0.0.1:8080/v1/chat/completions",
+      "key_env": null,
       "ceiling_micros": 0
     },
     "online_image_api": {
@@ -77,12 +77,12 @@
       "70": ""
     },
     "online_openai_compatible": {
-      "1": "",
-      "1.5": "",
-      "3": "",
-      "8": "",
-      "30": "",
-      "70": ""
+      "1": "chat-3b",
+      "1.5": "chat-3b",
+      "3": "chat-3b",
+      "8": "chat-8b",
+      "30": "chat-12b",
+      "70": "chat-12b"
     }
   }
 }

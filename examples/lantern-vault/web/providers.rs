@@ -69,7 +69,9 @@ impl Config {
                     &["url", "model", "key_env", "ceiling_micros"]
                 },
             )?;
-            endpoint(text(e, "url")?, name.starts_with("online_"))?;
+            let url = text(e, "url")?;
+            let is_loopback = url.starts_with("http://127.0.0.1:");
+            endpoint(url, name.starts_with("online_"))?;
             if !is_text {
                 let model = text(e, "model")?;
                 if model.is_empty()
@@ -81,12 +83,16 @@ impl Config {
             }
             num(e, "ceiling_micros", 1_000_000_000_000)?;
             if name.starts_with("online_") {
-                let key = text(e, "key_env")?;
-                if key.is_empty()
-                    || key.len() > 64
-                    || !key.bytes().all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_')
-                {
-                    return Err(err());
+                if is_loopback && get(e, "key_env")? == &Value::Null {
+                    // Loopback OpenAI-compatible endpoint requires no credentials.
+                } else {
+                    let key = text(e, "key_env")?;
+                    if key.is_empty()
+                        || key.len() > 64
+                        || !key.bytes().all(|b| b.is_ascii_uppercase() || b.is_ascii_digit() || b == b'_')
+                    {
+                        return Err(err());
+                    }
                 }
             } else if get(e, "key_env")? != &Value::Null {
                 return Err(err());
@@ -124,8 +130,13 @@ impl Config {
         if !b.starts_with("online_") {
             return true;
         }
-        self.endpoint(b)
-            .and_then(|e| text(e, "key_env"))
+        let Ok(e) = self.endpoint(b) else { return false };
+        if let Ok(url) = text(e, "url") {
+            if url.starts_with("http://127.0.0.1:") {
+                return true;
+            }
+        }
+        text(e, "key_env")
             .ok()
             .and_then(|key| std::env::var(key).ok())
             .is_some_and(|x| !x.is_empty() && x.bytes().all(|b| b.is_ascii_graphic() && b != b'"' && b != b'\\'))
@@ -149,7 +160,7 @@ fn endpoint(url: &str, online: bool) -> Result<()> {
     if url.len() > 512 || !url.bytes().all(|c| c.is_ascii_alphanumeric() || b":/.-_?&=%".contains(&c)) {
         return Err(err());
     }
-    if online {
+    if online && !url.starts_with("http://127.0.0.1:") {
         let tail = url.strip_prefix("https://").ok_or_else(err)?;
         let host = tail.split('/').next().ok_or_else(err)?;
         if host.is_empty() || host.starts_with('.') || !host.contains('.') || host.contains(':') {
@@ -306,7 +317,7 @@ impl Transport for Network {
             return self.manager.execute(r, &self.dir);
         }
         if r.url.starts_with("http://127.0.0.1:") {
-            if r.url.ends_with("/api/chat") {
+            if r.url.ends_with("/api/chat") || r.url.ends_with("/v1/chat/completions") {
                 local_http_text(r)
             } else {
                 local_http(r)

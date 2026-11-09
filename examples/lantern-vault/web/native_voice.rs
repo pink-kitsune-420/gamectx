@@ -180,7 +180,12 @@ impl Native {
                 .stderr(log)
                 .spawn()
                 .map_err(|_| issue())?;
-            let spec = gamectx::obj! {"argv"=>argv,"env"=>gamectx::obj!{},"input"=>stdin,"process_group"=>true};
+            let env = if ch == "stt" {
+                gamectx::obj! {"LD_LIBRARY_PATH"=>"/home/yuki/ai/whisper.cpp/build/bin"}
+            } else {
+                gamectx::obj! {}
+            };
+            let spec = gamectx::obj! {"argv"=>argv,"env"=>env,"input"=>stdin,"process_group"=>true};
             let write = child.stdin.as_mut().ok_or_else(err)?.write_all(format!("{}\n", spec.to_json()).as_bytes());
             let deadline = Instant::now() + Duration::from_secs(90);
             let result = (|| {

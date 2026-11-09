@@ -569,7 +569,7 @@ fn manager_online_profiles_use_existing_reservations_without_local_lifecycle_cal
     assert_eq!(jobs.len(), 1);
     assert!(jobs[0].reservation.is_some());
     assert!(jobs[0].request.management.is_none());
-    assert!(jobs[0].request.url.starts_with("https://"));
+    assert!(jobs[0].request.url.starts_with("https://") || jobs[0].request.url.starts_with("http://127.0.0.1:"));
     let body = parse(std::str::from_utf8(&jobs[0].request.body).unwrap()).unwrap();
     assert_eq!(text(&body, "model").unwrap(), "online-dialogue");
     a.cancel_job(&jobs[0]).unwrap();
