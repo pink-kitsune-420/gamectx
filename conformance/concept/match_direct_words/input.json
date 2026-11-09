@@ -1,0 +1,24 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "lens",
+            "recording"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "The camera was set on the desk."
+        }
+      }
+    ]
+  }
+}

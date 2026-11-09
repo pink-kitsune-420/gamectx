@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "It is cold in here, would you mind helping?"
+        }
+      }
+    ]
+  }
+}

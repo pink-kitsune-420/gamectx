@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Detect indirect request patterns such as room temperature cues or polite preambles.",
+  "error": false
+}

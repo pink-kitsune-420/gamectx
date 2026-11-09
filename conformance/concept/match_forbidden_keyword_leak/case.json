@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An unnegated mention of a forbidden word flags an epistemic leak.",
+  "error": false
+}

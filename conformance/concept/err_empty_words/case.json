@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject empty words list for a concept.",
+  "error": true
+}

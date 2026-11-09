@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Forbidden word stemmed match flags an epistemic leak.",
+  "error": false
+}

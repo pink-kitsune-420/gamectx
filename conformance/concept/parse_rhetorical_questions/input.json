@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Who knows what tomorrow brings?"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+{"results":[{"concept":"camera_record","words":["camera"]},{"concepts":["camera_record"],"leaks":[{"forbidden":"camera","matched":"camera","negated":false}],"matched":[{"concept":"camera_record","negated":false,"word":"camera"}]}],"version":1}

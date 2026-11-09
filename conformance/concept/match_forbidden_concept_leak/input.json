@@ -1,0 +1,27 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "poison",
+          "words": [
+            "venom",
+            "toxin",
+            "bane"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "He poured the venom into the cup.",
+          "forbidden": [
+            "poison"
+          ]
+        }
+      }
+    ]
+  }
+}

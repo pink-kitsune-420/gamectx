@@ -1,0 +1,23 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "record"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "They were recording the entrance."
+        }
+      }
+    ]
+  }
+}

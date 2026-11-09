@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject invalid pack identifier.",
+  "error": true
+}

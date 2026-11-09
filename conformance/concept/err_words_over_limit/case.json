@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject words list exceeding 128 items in define op.",
+  "error": true
+}

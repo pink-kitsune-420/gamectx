@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Could you check the gate? Who cares anyway? Brilliant."
+        }
+      }
+    ]
+  }
+}

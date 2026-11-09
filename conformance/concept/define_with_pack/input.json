@@ -1,0 +1,20 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "lockbox",
+          "words": [
+            "chest",
+            "safe",
+            "vault",
+            "coffer"
+          ],
+          "pack": "security"
+        }
+      }
+    ]
+  }
+}

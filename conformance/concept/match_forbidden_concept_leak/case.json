@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A forbidden concept ID flags leaks when its synonyms appear unnegated.",
+  "error": false
+}

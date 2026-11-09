@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Negation markers track a 4-token window delimited by punctuation or conjunctions.",
+  "error": false
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "text": "There were zero guards, three horses, and twenty five barrels."
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "parse",
+        "args": {
+          "text": "Oh great, perfect timing for a crisis."
+        }
+      }
+    ]
+  }
+}

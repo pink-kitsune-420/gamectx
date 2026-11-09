@@ -1,0 +1,34 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera"
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "lockbox",
+          "words": [
+            "safe"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "He checked the camera and the safe.",
+          "concepts": [
+            "camera_record"
+          ]
+        }
+      }
+    ]
+  }
+}

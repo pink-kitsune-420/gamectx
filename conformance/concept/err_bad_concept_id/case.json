@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject invalid or whitespace concept identifier.",
+  "error": true
+}

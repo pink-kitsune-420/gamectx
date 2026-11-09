@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject word exceeding 64 characters.",
+  "error": true
+}

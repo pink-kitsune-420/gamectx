@@ -1,0 +1,1 @@
+{"results":[{"concept":"camera_record","words":["camera","lens"]},{"format":"gamectx-state","kind":"concept","limits":{"concepts":256,"packs":32,"words":1024},"state":{"concepts":[["camera_record",["camera","lens"]]],"packs":[["sec",["camera_record"]]]},"version":1}],"version":1}

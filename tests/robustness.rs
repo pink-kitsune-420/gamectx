@@ -5102,6 +5102,85 @@ fn realization_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&r, &r.limits).to_json(), before);
 }
 
+#[test]
+fn concept_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::concept::ConceptManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5052_2026_1109_0051);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut c = ConceptManager::new();
+        c.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"define","args":{"concept":"camera_record","words":["camera","lens","recording"],"pack":"security"}},
+                {"op":"define","args":{"concept":"lockbox","words":["safe","vault","coffer"],"pack":"security"}},
+                {"op":"pack","args":{"name":"security","concepts":["camera_record","lockbox"]}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        c
+    };
+
+    // 51. Concept fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut c = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            c = filled();
+        }
+        let before = persist::export(&c, &c.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match c.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&c, &c.limits);
+                let mut c2 = ConceptManager::new();
+                c2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&c2, &c2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&c, &c.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; normalize op
+    let norm = r#"{"op":"normalize","args":{"text":"test speech line"}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![norm.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![norm.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"concepts":65536,"packs":4096,"words":262144}"#, true),
+        (r#"{"concepts":65537}"#, false),
+        (r#"{"packs":4097}"#, false),
+        (r#"{"words":262145}"#, false),
+        (r#"{"concepts":0}"#, false),
+    ] {
+        let mut cm = ConceptManager::new();
+        assert_eq!(cm.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut cm = filled();
+    let before = persist::export(&cm, &cm.limits).to_json();
+    let bad_define =
+        parse(r#"{"ops":[{"op":"define","args":{"concept":"bad id!","words":["camera"]}}]}"#, 4096).unwrap();
+    assert!(cm.workflow(&bad_define).is_err());
+    assert_eq!(persist::export(&cm, &cm.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

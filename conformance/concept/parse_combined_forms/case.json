@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Parser recognizes multiple rhetorical, ironic, and indirect speech forms together.",
+  "error": false
+}

@@ -1,0 +1,23 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "lens"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "I saw no camera or lens anywhere."
+        }
+      }
+    ]
+  }
+}

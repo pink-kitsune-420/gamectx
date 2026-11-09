@@ -1,0 +1,25 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera"
+          ]
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "We found the camera by the gate.",
+          "forbidden": [
+            "camera"
+          ]
+        }
+      }
+    ]
+  }
+}

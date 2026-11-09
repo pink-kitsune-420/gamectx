@@ -1,0 +1,26 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "pack",
+        "args": {
+          "name": "gear",
+          "concepts": [
+            "pack_a",
+            "pack_b"
+          ]
+        }
+      },
+      {
+        "op": "pack",
+        "args": {
+          "name": "gear",
+          "concepts": [
+            "pack_c"
+          ]
+        }
+      }
+    ]
+  }
+}

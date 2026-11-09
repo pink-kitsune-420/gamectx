@@ -1,0 +1,37 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "lens"
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "lockbox",
+          "words": [
+            "safe",
+            "vault"
+          ]
+        }
+      },
+      {
+        "op": "pack",
+        "args": {
+          "name": "heist",
+          "concepts": [
+            "camera_record",
+            "lockbox"
+          ]
+        }
+      }
+    ]
+  }
+}

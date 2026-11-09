@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "text": "I can't and won't believe it's happening, but they're already here."
+        }
+      }
+    ]
+  }
+}

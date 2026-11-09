@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Match concepts by stemmed vocabulary.",
+  "error": false
+}

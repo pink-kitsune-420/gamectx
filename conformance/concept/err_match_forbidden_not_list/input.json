@@ -1,0 +1,14 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "match",
+        "args": {
+          "text": "hello",
+          "forbidden": "poison"
+        }
+      }
+    ]
+  }
+}

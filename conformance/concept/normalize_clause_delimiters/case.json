@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Clause delimiters reset negation countdown.",
+  "error": false
+}

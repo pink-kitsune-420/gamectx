@@ -10,6 +10,7 @@ pub mod cast;
 pub mod chatter;
 pub mod chemistry;
 pub mod cognition;
+pub mod concept;
 pub mod cooperation;
 pub mod creed;
 pub mod cueing;

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Table-driven number word to digit replacement.",
+  "error": false
+}

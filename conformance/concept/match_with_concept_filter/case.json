@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Match only against an explicit subset of concepts.",
+  "error": false
+}

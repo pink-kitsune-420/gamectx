@@ -1,0 +1,36 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera"
+          ],
+          "pack": "tech"
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "lockbox",
+          "words": [
+            "safe"
+          ],
+          "pack": "locks"
+        }
+      },
+      {
+        "op": "match",
+        "args": {
+          "text": "He checked the camera and the safe.",
+          "packs": [
+            "tech"
+          ]
+        }
+      }
+    ]
+  }
+}

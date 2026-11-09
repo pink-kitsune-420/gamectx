@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Match only against concepts belonging to a named pack.",
+  "error": false
+}

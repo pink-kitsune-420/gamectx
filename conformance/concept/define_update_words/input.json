@@ -1,0 +1,28 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "lens"
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "recording",
+            "footage"
+          ]
+        }
+      }
+    ]
+  }
+}

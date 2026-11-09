@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "text": "I did not see the lens, but he did."
+        }
+      }
+    ]
+  }
+}

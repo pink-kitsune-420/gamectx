@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "teleport",
+        "args": {
+          "destination": "nowhere"
+        }
+      }
+    ]
+  }
+}

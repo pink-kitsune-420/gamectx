@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Deterministic contraction folding for English forms.",
+  "error": false
+}

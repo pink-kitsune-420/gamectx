@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Detect rhetorical questions ending with question marks.",
+  "error": false
+}

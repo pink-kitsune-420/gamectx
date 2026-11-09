@@ -1,0 +1,14 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": []
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Reject non-list forbidden argument.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Matches in negation scope are flagged as negated: true.",
+  "error": false
+}

@@ -1,0 +1,13 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "text": "Running fitted easily cars boxes actions movement reliable."
+        }
+      }
+    ]
+  }
+}

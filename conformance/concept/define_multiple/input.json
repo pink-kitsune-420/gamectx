@@ -1,0 +1,40 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "concept": "camera_record",
+          "words": [
+            "camera",
+            "lens",
+            "recording"
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "lockbox",
+          "words": [
+            "safe",
+            "vault",
+            "coffer"
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "concept": "poison",
+          "words": [
+            "venom",
+            "bane",
+            "toxin"
+          ]
+        }
+      }
+    ]
+  }
+}

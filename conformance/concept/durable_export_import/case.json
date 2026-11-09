@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Export and import concept state preserving exact format and version.",
+  "error": false
+}

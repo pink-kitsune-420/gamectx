@@ -1,0 +1,16 @@
+{
+  "kind": "concept",
+  "args": {
+    "ops": [
+      {
+        "op": "match",
+        "args": {
+          "text": "The guards are checking the cameras.",
+          "forbidden": [
+            "camera"
+          ]
+        }
+      }
+    ]
+  }
+}

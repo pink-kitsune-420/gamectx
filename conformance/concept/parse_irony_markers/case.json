@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Detect simple irony and sarcasm markers in dialogue.",
+  "error": false
+}
