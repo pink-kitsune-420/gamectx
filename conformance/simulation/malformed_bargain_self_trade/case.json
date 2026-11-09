@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse bargain where buyer is seller",
+  "error": true
+}

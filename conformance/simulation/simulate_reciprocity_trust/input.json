@@ -1,0 +1,28 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "maren",
+          "target": "alder",
+          "trust": 90
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "maren",
+          "target": "alder",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "reciprocity"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

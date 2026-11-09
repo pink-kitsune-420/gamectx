@@ -1,0 +1,20 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "maren",
+          "target": "alder",
+          "tom": 1,
+          "candidates": [
+            {
+              "kind": "evidence"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

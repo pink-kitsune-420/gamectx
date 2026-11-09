@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse belief copy targeting self",
+  "error": true
+}

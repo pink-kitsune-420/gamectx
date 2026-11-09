@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse mental simulation with theory of mind < 2",
+  "error": true
+}

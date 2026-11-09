@@ -1,0 +1,34 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "cooper",
+          "target": "priest",
+          "distortions": [
+            "heresy"
+          ]
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "cooper",
+          "target": "priest",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "appeal_values",
+              "value": "heresy"
+            },
+            {
+              "kind": "evidence"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

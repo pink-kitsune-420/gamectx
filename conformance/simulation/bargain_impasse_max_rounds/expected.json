@@ -1,0 +1,1 @@
+{"limits":{"beings":1024,"copy_size":32,"rounds_max":5,"sim_k":3},"results":[{"outcome":"impasse","reason":"max_rounds_reached","round":5,"settlement":null}],"version":1}

@@ -1,0 +1,15 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "persuade",
+        "args": {
+          "speaker": "guard",
+          "target": "suspect",
+          "kind": "threat"
+        }
+      }
+    ]
+  }
+}

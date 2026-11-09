@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Picks highest predicted shift among candidate moves",
+  "error": false
+}

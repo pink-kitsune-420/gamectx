@@ -1,0 +1,16 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "verify",
+        "args": {
+          "speaker": "cooper",
+          "target": "priest",
+          "predicted_shift": 25,
+          "actual_shift": -10
+        }
+      }
+    ]
+  }
+}

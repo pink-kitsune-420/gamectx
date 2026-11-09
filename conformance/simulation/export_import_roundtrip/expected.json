@@ -1,0 +1,1 @@
+{"results":[{"carefulness":50,"distortions":["oath"],"holder":"cooper","shared_values":["faith"],"status":5,"target":"priest","trust":50},{"format":"gamectx-state","kind":"simulation","limits":{"beings":1024,"copy_size":32,"rounds_max":10,"sim_k":3},"state":{"beings":["cooper","priest"],"copies":[[50,["oath"],"cooper",["faith"],5,"priest",50]]},"version":1}],"version":1}

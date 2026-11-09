@@ -1,0 +1,22 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "maren",
+          "target": "alder",
+          "shared_values": [
+            "v1",
+            "v2",
+            "v3"
+          ]
+        }
+      }
+    ],
+    "limits": {
+      "copy_size": 2
+    }
+  }
+}

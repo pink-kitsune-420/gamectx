@@ -1,0 +1,24 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "cooper",
+          "target": "priest",
+          "carefulness": 70,
+          "trust": 60,
+          "status": 6,
+          "shared_values": [
+            "tradition",
+            "charity"
+          ],
+          "distortions": [
+            "salt_oath"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse round parameter exceeding rounds_max limit",
+  "error": true
+}

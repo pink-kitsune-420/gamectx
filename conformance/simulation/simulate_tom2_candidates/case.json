@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Simulate candidate moves against belief copy",
+  "error": false
+}

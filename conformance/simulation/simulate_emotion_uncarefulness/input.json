@@ -1,0 +1,29 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "maren",
+          "target": "impulsive_sailor",
+          "carefulness": 10,
+          "trust": 60
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "maren",
+          "target": "impulsive_sailor",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "emotion"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

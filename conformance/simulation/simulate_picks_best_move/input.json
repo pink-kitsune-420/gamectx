@@ -1,0 +1,36 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "cooper",
+          "target": "priest",
+          "carefulness": 30,
+          "trust": 80,
+          "shared_values": [
+            "faith"
+          ]
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "cooper",
+          "target": "priest",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "evidence"
+            },
+            {
+              "kind": "appeal_values",
+              "value": "faith"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

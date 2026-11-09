@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Simulate creates baseline prediction when no prior copy stored",
+  "error": false
+}

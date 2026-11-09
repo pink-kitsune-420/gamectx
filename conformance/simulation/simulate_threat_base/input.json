@@ -1,0 +1,28 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "guard",
+          "target": "smuggler",
+          "trust": 30
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "guard",
+          "target": "smuggler",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "threat"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

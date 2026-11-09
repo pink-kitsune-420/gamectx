@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Detected bluff causes immediate impasse",
+  "error": false
+}

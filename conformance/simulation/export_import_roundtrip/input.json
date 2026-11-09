@@ -1,0 +1,24 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "cooper",
+          "target": "priest",
+          "shared_values": [
+            "faith"
+          ],
+          "distortions": [
+            "oath"
+          ]
+        }
+      },
+      {
+        "op": "export",
+        "args": {}
+      }
+    ]
+  }
+}

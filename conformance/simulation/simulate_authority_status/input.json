@@ -1,0 +1,30 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "harbormaster",
+          "target": "dockhand",
+          "status": 2,
+          "trust": 50
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "harbormaster",
+          "target": "dockhand",
+          "tom": 2,
+          "speaker_status": 9,
+          "candidates": [
+            {
+              "kind": "authority"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

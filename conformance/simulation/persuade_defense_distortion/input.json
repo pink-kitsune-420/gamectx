@@ -1,0 +1,19 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "persuade",
+        "args": {
+          "speaker": "cooper",
+          "target": "priest",
+          "kind": "appeal_values",
+          "value": "blasphemy",
+          "distortions": [
+            "blasphemy"
+          ]
+        }
+      }
+    ]
+  }
+}

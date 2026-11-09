@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse shared values list exceeding copy_size limit",
+  "error": true
+}

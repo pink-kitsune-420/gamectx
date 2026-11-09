@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Predicted shift drops and flags defense when hitting distortion",
+  "error": false
+}

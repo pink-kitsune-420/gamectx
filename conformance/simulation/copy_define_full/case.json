@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Define belief copy of target with values and distortions",
+  "error": false
+}

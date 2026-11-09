@@ -1,0 +1,14 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "maren",
+          "target": "alder"
+        }
+      }
+    ]
+  }
+}

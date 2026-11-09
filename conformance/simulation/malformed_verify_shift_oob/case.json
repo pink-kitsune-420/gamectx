@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse shift exceeding -100..100 bound in verify",
+  "error": true
+}

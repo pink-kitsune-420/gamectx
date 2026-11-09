@@ -5426,6 +5426,85 @@ fn group_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&g, &g.limits).to_json(), before);
 }
 
+#[test]
+fn simulation_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::simulation::SimulationManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5056_2026_1109_0055);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut sm = SimulationManager::new();
+        sm.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"copy","args":{"holder":"cooper","target":"priest","carefulness":80,"trust":60,"status":7,"shared_values":["faith"],"distortions":["heresy"]}},
+                {"op":"copy","args":{"holder":"maren","target":"alder","carefulness":50,"trust":70,"status":5}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        sm
+    };
+
+    // 55. Simulation fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut sm = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            sm = filled();
+        }
+        let before = persist::export(&sm, &sm.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match sm.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&sm, &sm.limits);
+                let mut sm2 = SimulationManager::new();
+                sm2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&sm2, &sm2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&sm, &sm.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; verify op
+    let vop = r#"{"op":"verify","args":{"speaker":"maren","target":"alder","predicted_shift":20,"actual_shift":20}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![vop.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![vop.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"copy_size":256,"rounds_max":30,"sim_k":8}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"copy_size":257}"#, false),
+        (r#"{"rounds_max":31}"#, false),
+        (r#"{"sim_k":9}"#, false),
+        (r#"{"sim_k":0}"#, false),
+    ] {
+        let mut s = SimulationManager::new();
+        assert_eq!(s.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut s = filled();
+    let before = persist::export(&s, &s.limits).to_json();
+    let bad_copy =
+        parse(r#"{"ops":[{"op":"copy","args":{"holder":"self","target":"self"}}]}"#, 4096).unwrap();
+    assert!(s.workflow(&bad_copy).is_err());
+    assert_eq!(persist::export(&s, &s.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

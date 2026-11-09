@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Authority shift scales with speaker status relative to listener",
+  "error": false
+}

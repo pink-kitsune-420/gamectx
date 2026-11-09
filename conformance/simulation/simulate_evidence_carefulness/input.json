@@ -1,0 +1,29 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "copy",
+        "args": {
+          "holder": "maren",
+          "target": "scholar",
+          "carefulness": 90,
+          "trust": 50
+        }
+      },
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "maren",
+          "target": "scholar",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "evidence"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

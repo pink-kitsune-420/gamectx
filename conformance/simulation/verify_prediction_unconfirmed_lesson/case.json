@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Prediction error exceeding 10 points generates wrong_prediction lesson",
+  "error": false
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "persuade",
+        "args": {
+          "speaker": "cooper",
+          "target": "priest",
+          "kind": "evidence",
+          "carefulness": 80,
+          "trust": 60
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse simulation with candidate count exceeding sim_k",
+  "error": true
+}

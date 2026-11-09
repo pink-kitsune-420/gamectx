@@ -1,0 +1,19 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "bargain",
+        "args": {
+          "buyer": "maren",
+          "seller": "merchant",
+          "round": 3,
+          "buyer_offer": 50,
+          "seller_offer": 50,
+          "buyer_reservation": 70,
+          "seller_reservation": 40
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "kind": "simulation",
+  "args": {
+    "ops": [
+      {
+        "op": "simulate",
+        "args": {
+          "speaker": "maren",
+          "target": "alder",
+          "tom": 2,
+          "candidates": [
+            {
+              "kind": "evidence"
+            },
+            {
+              "kind": "threat"
+            },
+            {
+              "kind": "emotion"
+            }
+          ]
+        }
+      }
+    ],
+    "limits": {
+      "sim_k": 2
+    }
+  }
+}

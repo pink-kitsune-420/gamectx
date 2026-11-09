@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Bargaining round computes concessions toward reservation prices",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Bargaining reaches impasse when reaching rounds_max without deal",
+  "error": false
+}

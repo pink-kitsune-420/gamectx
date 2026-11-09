@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Bargain settles when buyer offer meets or exceeds seller offer",
+  "error": false
+}
