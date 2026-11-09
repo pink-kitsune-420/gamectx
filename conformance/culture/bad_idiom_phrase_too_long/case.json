@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: an idiom phrase is at most 60 characters.",
+  "error": true
+}

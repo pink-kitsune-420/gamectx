@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: an amount is at least 1.",
+  "error": true
+}

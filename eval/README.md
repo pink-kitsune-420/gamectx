@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills forty modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills forty-one modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1480,6 +1480,15 @@ maturity band and style, tagged distortions, strain, crisis and cooldown, defens
 against `gamectx local -` with four profiled beings across the bands (0 mismatches: 1,461 accepted, 539 refused, 2,148
 defenses, 521 crises, 9 defense loops, 34 costly contradictions; seed 1: 1,459 accepted, 0 mismatches).
 [Results](../docs/characters/LIFE.md#defense-mechanisms-and-strain-pass-4-stage-3).
+
+## Idiom and rumor mutation (offline)
+
+`character/culture_reference.py` is the independent prototype of pass 4 stage 4 (community idioms with exposure and
+fading, seeded rumor mutation with truth distance, provenance and corrections). `character/culture_cases.py --cap 0`
+checks 27 cases (`conformance/culture/`, 7 malformed). `--random 2000 --seed 7` builds workflows op by op against
+`gamectx local -` with four members, a carried idiom and two seeded rumors (0 mismatches: 1,480 accepted, 520 refused,
+1,892 tellings with 1,114 mutations and 42 corrections, 1,295 exposures at or past adoption; seed 1: 1,453 accepted, 0
+mismatches). [Results](../docs/characters/LIFE.md#idiom-and-rumor-mutation-pass-4-stage-4).
 
 ## Deep roleplay scenarios (offline)
 

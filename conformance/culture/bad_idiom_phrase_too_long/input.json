@@ -1,0 +1,17 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "idiom",
+        "args": {
+          "id": "long",
+          "community": "dock",
+          "phrase": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "meaning": "m",
+          "prestige": 1
+        }
+      }
+    ]
+  }
+}

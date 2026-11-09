@@ -1,0 +1,144 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "fay",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 80,
+          "credulity": 30
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "bo",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 10,
+          "credulity": 90
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "cy",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 5,
+          "credulity": 95
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "dee",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 30,
+          "credulity": 70
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "eli",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 60
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "newcomer",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "fay",
+          "verb": "stole",
+          "agent": "ada",
+          "place": "mill",
+          "details": [
+            "after_dark",
+            "with_a_sack"
+          ],
+          "amount": 3
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "fay",
+          "listener": "bo",
+          "topic": "missing_coins",
+          "seed": 7,
+          "fondness": 70
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "bo",
+          "listener": "cy",
+          "topic": "missing_coins",
+          "seed": 7,
+          "fondness": 70
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "cy",
+          "listener": "dee",
+          "topic": "missing_coins",
+          "seed": 7,
+          "fondness": 70
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "dee",
+          "listener": "eli",
+          "topic": "missing_coins",
+          "seed": 7,
+          "fondness": 70
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "eli",
+          "listener": "newcomer",
+          "topic": "missing_coins",
+          "seed": 7,
+          "fondness": 70
+        }
+      },
+      {
+        "op": "spread",
+        "args": {
+          "topic": "missing_coins"
+        }
+      }
+    ]
+  }
+}

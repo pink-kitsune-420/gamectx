@@ -1,0 +1,17 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "idiom",
+        "args": {
+          "id": "salt_in_the_barrel",
+          "community": "dock",
+          "phrase": "salt in the barrel",
+          "meaning": "a loss made worse by carelessness",
+          "prestige": 60
+        }
+      }
+    ]
+  }
+}

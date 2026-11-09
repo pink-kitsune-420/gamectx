@@ -1,0 +1,117 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "ada",
+          "community": "dock",
+          "status": 80,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "newcomer",
+          "community": "hill",
+          "status": 10,
+          "openness": 90,
+          "carefulness": 50,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "idiom",
+        "args": {
+          "id": "salt_in_the_barrel",
+          "community": "dock",
+          "phrase": "salt in the barrel",
+          "meaning": "a loss made worse by carelessness",
+          "prestige": 60
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "expose",
+        "args": {
+          "listener": "newcomer",
+          "speaker": "ada",
+          "idiom": "salt_in_the_barrel"
+        }
+      },
+      {
+        "op": "speech",
+        "args": {
+          "being": "newcomer"
+        }
+      }
+    ]
+  }
+}

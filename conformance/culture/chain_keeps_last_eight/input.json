@@ -1,0 +1,234 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "p0",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p1",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p2",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p3",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p4",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p5",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p6",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p7",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p8",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p9",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "p10",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "p0",
+          "verb": "took",
+          "agent": "ada"
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p0",
+          "listener": "p1",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p1",
+          "listener": "p2",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p2",
+          "listener": "p3",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p3",
+          "listener": "p4",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p4",
+          "listener": "p5",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p5",
+          "listener": "p6",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p6",
+          "listener": "p7",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p7",
+          "listener": "p8",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p8",
+          "listener": "p9",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "p9",
+          "listener": "p10",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "belief",
+        "args": {
+          "being": "p10",
+          "topic": "missing_coins"
+        }
+      }
+    ]
+  }
+}

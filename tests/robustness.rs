@@ -4443,3 +4443,132 @@ fn defenses_survive_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(d, before);
 }
+
+#[test]
+fn culture_survives_mutation_limits_and_boundaries() {
+    use gamectx::knowledge::culture::{Culture, CHAIN, FULL, MAX_AMOUNT};
+    let mut rng = Rng(0xC017_0E44_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 45. Culture mutation fuzzing (limits included); one manager keeps members, idioms and rumors
+    // across 16 rounds. Gossip never rewrites a truth; every version's chain is at most eight long
+    // and ends with its holder; operators applied never exceed hops; the belief count matches the
+    // versions held; idiom strengths stay within 0..=10⁶; a kept version always had a prior one.
+    let samples = [
+        r#"{"limits":{"beliefs":12,"repertoire":2},"ops":[{"op":"member","args":{"being":"bo","community":"dock","status":90,"openness":40,"carefulness":0,"credulity":100,"links":["cy"]}},{"op":"member","args":{"being":"cy","community":"hill","status":20,"openness":100,"carefulness":30,"credulity":100,"links":["bo"]}},{"op":"seed","args":{"topic":"coins","witness":"bo","verb":"stole","agent":"cy","place":"mill","details":["dark","sack"],"amount":3}},{"op":"tell","args":{"speaker":"bo","listener":"cy","topic":"coins","seed":7,"fondness":80}},{"op":"tell","args":{"speaker":"cy","listener":"bo","topic":"coins","seed":3,"trust":10}},{"op":"spread","args":{"topic":"coins"}}]}"#,
+        r#"{"ops":[{"op":"member","args":{"being":"ada","community":"dock","status":100,"openness":10,"carefulness":50,"credulity":50}},{"op":"member","args":{"being":"nu","community":"hill","status":10,"openness":100,"carefulness":50,"credulity":50}},{"op":"idiom","args":{"id":"salt","community":"dock","phrase":"salt in the barrel","meaning":"worse","prestige":100}},{"op":"expose","args":{"listener":"nu","speaker":"ada","idiom":"salt"}},{"op":"tick","args":{"now":3}},{"op":"speech","args":{"being":"nu"}}]}"#,
+    ];
+    let mut k = Culture::new();
+    let mut tellings = 0;
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            k = Culture::new();
+        }
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let truths = k.truths.clone();
+            let Ok(out) = k.workflow(&v) else { continue };
+            for (t, before) in &truths {
+                assert_eq!(&k.truths[t], before);
+            }
+            for r in out.get("results").and_then(Value::as_array).unwrap() {
+                if let Some(Value::Bool(kept)) = r.get("kept") {
+                    assert!(!kept || r.get("before") != Some(&Value::Null));
+                    tellings += 1;
+                }
+            }
+            let mut n = 0;
+            for (b, topics) in &k.beliefs {
+                for (t, ver) in topics {
+                    assert!(ver.chain.len() <= CHAIN && ver.chain.last() == Some(b));
+                    assert!(ver.ops <= ver.hops && ver.amount.is_none_or(|a| (1..=MAX_AMOUNT).contains(&a)));
+                    assert!(k.holders[t].contains(b));
+                    n += 1;
+                }
+            }
+            assert_eq!(n, k.count);
+            assert!(k.members.values().all(|m| m.repertoire.values().all(|e| e.strength <= FULL)));
+        }
+    }
+    assert!(tellings > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Culture::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Culture::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"idioms":100000,"repertoire":1024,"topics":1000000,"beliefs":1000000}"#, true),
+        (r#"{"repertoire":1025}"#, false),
+        (r#"{"topics":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Culture::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a 10⁹ amount told back and forth by careless, credulous gossips grows by at most
+    // half per hop, never past 10¹², and its drift is reported without overflow; strength never
+    // passes 10⁶ however often a saying is heard.
+    let mut k = Culture::new();
+    let mut ops = vec![
+        r#"{"op":"member","args":{"being":"a","community":"c","status":100,"openness":100,"carefulness":0,"credulity":100}}"#.to_string(),
+        r#"{"op":"member","args":{"being":"b","community":"d","status":100,"openness":100,"carefulness":0,"credulity":100}}"#.into(),
+        r#"{"op":"seed","args":{"topic":"t","witness":"a","verb":"took","agent":"x","amount":1000000000}}"#.into(),
+        r#"{"op":"idiom","args":{"id":"i","community":"c","phrase":"p","meaning":"m","prestige":100}}"#.into(),
+    ];
+    for s in 0..30 {
+        let (from, to) = if s % 2 == 0 { ("a", "b") } else { ("b", "a") };
+        ops.push(format!(r#"{{"op":"tell","args":{{"speaker":"{from}","listener":"{to}","topic":"t","seed":{s}}}}}"#));
+    }
+    ops.extend((0..30).map(|_| r#"{"op":"expose","args":{"listener":"b","speaker":"a","idiom":"i"}}"#.to_string()));
+    let out = k.workflow(&req(&ops)).unwrap();
+    let mut prev = 1_000_000_000u64;
+    for r in out.get("results").and_then(Value::as_array).unwrap() {
+        if let Some(b) = r.get("belief") {
+            let a: u64 = b.get("amount").unwrap().to_json().parse().unwrap();
+            assert!(a <= MAX_AMOUNT && a <= prev + prev / 2 + 1);
+            prev = a;
+        }
+    }
+    assert!(prev > 1_000_000_000);
+    assert_eq!(k.members["b"].repertoire["i"].strength, FULL);
+
+    // A teller holding 40 topics merges only with one of the first 16 others, in id order.
+    let mut k2 = Culture::with_limits(&parse(r#"{"topics":64,"beliefs":256}"#, 64).unwrap()).unwrap();
+    let member = |b: &str| {
+        format!(
+            r#"{{"op":"member","args":{{"being":"{b}","community":"c","status":1,"openness":1,"carefulness":0,"credulity":100}}}}"#
+        )
+    };
+    k2.workflow(&req(&[member("a"), member("b")])).unwrap();
+    for chunk in (0..40).collect::<Vec<_>>().chunks(32) {
+        let ops: Vec<String> = chunk
+            .iter()
+            .map(|i| format!(r#"{{"op":"seed","args":{{"topic":"t{i:02}","witness":"a","verb":"took","agent":"x"}}}}"#))
+            .collect();
+        k2.workflow(&req(&ops)).unwrap();
+    }
+    let ops: Vec<String> = (0..40)
+        .map(|s| format!(r#"{{"op":"tell","args":{{"speaker":"a","listener":"b","topic":"t39","seed":{s}}}}}"#))
+        .collect();
+    let mut merges = 0;
+    for chunk in ops.chunks(32) {
+        let out = k2.workflow(&req(chunk)).unwrap();
+        for r in out.get("results").and_then(Value::as_array).unwrap() {
+            for m in r.get("belief").and_then(|b| b.get("merged")).and_then(Value::as_array).unwrap() {
+                let n: usize = m.as_str().unwrap()[1..].parse().unwrap();
+                assert!(n < 16);
+                merges += 1;
+            }
+        }
+    }
+    assert!(merges > 0);
+
+    // A refused op changes nothing: telling a story the teller never heard.
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"tell","args":{"speaker":"a","listener":"b","topic":"unheard"}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

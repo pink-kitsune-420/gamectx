@@ -1,0 +1,28 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "fay",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "t",
+          "witness": "fay",
+          "verb": "took",
+          "agent": "ada",
+          "amount": 0
+        }
+      }
+    ]
+  }
+}

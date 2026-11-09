@@ -3,6 +3,7 @@
 pub mod action_catalog;
 pub mod codex;
 pub mod communities;
+pub mod culture;
 pub mod fabric;
 pub mod facts;
 pub mod genre;

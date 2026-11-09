@@ -1,0 +1,90 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "fay",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 100,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "bo",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 0,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "cy",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 100
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "fay",
+          "verb": "stole",
+          "agent": "ada",
+          "place": "mill",
+          "details": [
+            "after_dark",
+            "with_a_sack"
+          ],
+          "amount": 3
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "fay",
+          "listener": "bo",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "bo",
+          "listener": "cy",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "fay",
+          "listener": "cy",
+          "topic": "missing_coins",
+          "seed": 7,
+          "trust": 90
+        }
+      },
+      {
+        "op": "belief",
+        "args": {
+          "being": "cy",
+          "topic": "missing_coins"
+        }
+      }
+    ]
+  }
+}

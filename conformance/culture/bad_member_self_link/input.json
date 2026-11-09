@@ -1,0 +1,21 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "ada",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 50,
+          "links": [
+            "ada"
+          ]
+        }
+      }
+    ]
+  }
+}

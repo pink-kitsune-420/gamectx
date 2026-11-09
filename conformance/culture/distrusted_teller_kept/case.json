@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A listener keeps its own version over a teller it does not trust.",
+  "error": false
+}

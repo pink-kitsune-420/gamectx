@@ -2921,6 +2921,7 @@ grows past them is refused where it used to be accepted.
 | `genre` | authored `genres` (16, 10⁵), authored `packs` (16, 10⁵), `nodes` walked per render or normalize (4096, 10⁶) |
 | `minds` | authored `minds` (16, 4096), assigned `beings` (1024, 10⁶) |
 | `defenses` | profiled `beings` (1024, 10⁶), held `distortions` per being (16, 256) |
+| `culture` | `beings` (members, 1024, 10⁶), `idioms` (64, 10⁵), `repertoire` per being (32, 1024), seeded `topics` (256, 10⁶), held `beliefs` (4096, 10⁶) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
@@ -3587,6 +3588,40 @@ humour 40%, sublimation 50%, rationalization and intellectualization 60%, withdr
   `amount × 2,000 | 4,000 | 3,000`, not below 0.
 - `accept {being, fact (a held distortion)}` → `{being, fact, mechanism, strain}`: drops the distortion.
 - Strain decays lazily with the clock by 4,000 per tick, 2,000 while a denial, projection or displacement is held.
+
+## Culture v1 (pass 4, stage 4)
+
+`gamectx::knowledge::culture` (guide: [Life](characters/LIFE.md#idiom-and-rumor-mutation-pass-4-stage-4)), local kind
+`culture` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 27 cases
+(7 malformed) live in `conformance/culture/`. Strengths are millionths (0–1,000,000); usable at 500,000; fading 1,000
+per tick since last raised.
+
+- `tick {now (0–10¹², not backwards)}` → `{now}`.
+- `member {being, community, status, openness, carefulness, credulity (0–100 each), links? [≤ 8 beings, unique, not
+  itself]}` → the profile with links sorted. A known being keeps its repertoire.
+- `idiom {id, community, phrase (text ≤ 60), meaning (text ≤ 80), prestige 0–100}` → `{community, id, prestige}`;
+  redefining replaces.
+- `expose {listener, speaker (not the listener), idiom}` → `{adopted, gain, heard, idiom, listener, strength}`. Heard
+  when the speaker is in the idiom's community or its own strength is usable; then `gain = status(speaker) ×
+  openness(listener) × (100 + prestige) ÷ 20` and strength `min(10⁶, current + gain)`. Faded entries are pruned
+  first; a new entry past `repertoire` is refused. Otherwise gain 0 and nothing changes.
+- `speech {being}` → `{being, fading [{id, strength}], usable [{id, phrase, strength}]}`, strongest first, then id.
+- `seed {topic (new), witness (member), verb, agent, place?, details? [≤ 4 unique], amount? 1–10⁹}` → the witness's
+  version. The truth is fixed for the topic's life.
+- `tell {speaker, listener (members, different), topic (held by speaker), seed? (0–10¹², 0), fondness? (0–100, 0),
+  trust? (0–100, 50)}` → `{before {drift, ops} | null, belief, kept, mutated}`. A listener holding a version keeps it
+  when trust < 50. Otherwise `h = FNV-1a("<seed>:<speaker>:<topic>:<tick>")`; when `h mod 1000 < (100 − carefulness
+  of speaker) × credulity of listener ÷ 10`, the applicable operators in order drop_detail (details present),
+  exaggerate (amount present), shift_attribution (the agent is a member with links), merge (the speaker holds other
+  topics not yet merged, fewer than 4 merged), soften (verb stole, struck, lied, broke, threatened or cheated and
+  fondness ≥ 60) are indexed by `(h >> 10) mod count`, with `k = h >> 20` choosing: the detail `k mod n` removed; the
+  amount raised by `max(1, amount × (1 + k mod 50) ÷ 100)`, at most 10¹²; the link `k mod n` (sorted); the first 16
+  other held topics in id order, `k mod n`; the softer verb (borrowed, pushed, misspoke, damaged, warned,
+  miscounted). Chains keep the last 8 tellers; hops and operators count all.
+- `belief {being, topic}` → `{agent, amount, being, chain, details, distance {drift, ops}, hearsay (hops > 0), hops,
+  last_mutation, merged, place, topic, verb}`; drift is `|amount − truth| × 10⁶ ÷ truth` when both have amounts.
+- `spread {topic}` → `{holders, max_drift, max_ops, topic, total_ops, truth {agent, amount, details, place, verb,
+  witness}}`.
 
 ## Surroundings v1 (pass 3, stage 5)
 

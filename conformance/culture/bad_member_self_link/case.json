@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a being is not its own plausible link.",
+  "error": true
+}

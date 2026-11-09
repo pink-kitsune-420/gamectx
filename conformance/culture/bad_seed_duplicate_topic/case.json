@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a topic is seeded once.",
+  "error": true
+}

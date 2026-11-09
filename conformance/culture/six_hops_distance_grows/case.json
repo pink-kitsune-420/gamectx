@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Down a chain of gossips the distance from the truth grows.",
+  "error": false
+}

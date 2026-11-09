@@ -1,0 +1,33 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "fay",
+          "community": "hill",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "fay",
+          "verb": "stole",
+          "agent": "ada",
+          "place": "mill",
+          "details": [
+            "after_dark",
+            "with_a_sack"
+          ],
+          "amount": 3
+        }
+      }
+    ]
+  }
+}

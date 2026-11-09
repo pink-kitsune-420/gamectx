@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Ten careful hops: the chain keeps the last eight tellers, the hop count all ten.",
+  "error": false
+}

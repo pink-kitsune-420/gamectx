@@ -1,0 +1,54 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "member",
+        "args": {
+          "being": "bo",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 0,
+          "credulity": 50
+        }
+      },
+      {
+        "op": "member",
+        "args": {
+          "being": "cy",
+          "community": "dock",
+          "status": 50,
+          "openness": 50,
+          "carefulness": 50,
+          "credulity": 100
+        }
+      },
+      {
+        "op": "seed",
+        "args": {
+          "topic": "missing_coins",
+          "witness": "bo",
+          "verb": "took",
+          "agent": "ada",
+          "amount": 3
+        }
+      },
+      {
+        "op": "tell",
+        "args": {
+          "speaker": "bo",
+          "listener": "cy",
+          "topic": "missing_coins",
+          "seed": 7
+        }
+      },
+      {
+        "op": "spread",
+        "args": {
+          "topic": "missing_coins"
+        }
+      }
+    ]
+  }
+}
