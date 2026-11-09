@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"no_theft","severity":100},{"amends":true,"applies":true,"deltas":{"disagreement":0,"resentment":50,"trust":0},"guilt":50,"norm":"no_theft","offender":"apprentice","prior":0,"report_to":"town_watch","sanctions":["flee_or_confront","report_to_role"],"step":3,"witness":"mira"}]}

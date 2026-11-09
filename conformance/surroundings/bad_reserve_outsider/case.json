@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: only someone inside the place can reserve a station.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A customer may enter by day; after hours the shop is private, so a customer trespasses while Mira may enter.",
+  "error": false
+}

@@ -1,0 +1,49 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "loaf",
+          "owner": "mira",
+          "perishable": 50
+        }
+      },
+      {
+        "op": "item",
+        "args": {
+          "id": "cup",
+          "condition": 100
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 60
+        }
+      },
+      {
+        "op": "damage",
+        "args": {
+          "item": "cup",
+          "amount": 80
+        }
+      },
+      {
+        "op": "damage",
+        "args": {
+          "item": "cup",
+          "amount": 30
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "loaf",
+          "observer": "mira"
+        }
+      }
+    ]
+  }
+}

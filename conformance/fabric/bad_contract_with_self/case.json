@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a contract needs two different parties.",
+  "error": true
+}

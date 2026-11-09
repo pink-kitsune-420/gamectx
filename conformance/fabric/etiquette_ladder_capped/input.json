@@ -1,0 +1,38 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "wipe_boots",
+          "severity": "etiquette"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "wipe_boots",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "wipe_boots",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "wipe_boots",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      }
+    ]
+  }
+}

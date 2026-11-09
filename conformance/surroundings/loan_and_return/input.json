@@ -1,0 +1,38 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "ladle",
+          "owner": "mira",
+          "maker": "smith"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "ladle",
+          "how": "loan",
+          "to": "bo"
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "ladle",
+          "observer": "mira"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "ladle",
+          "how": "return",
+          "to": "mira"
+        }
+      }
+    ]
+  }
+}

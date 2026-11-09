@@ -1,0 +1,51 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "meet",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "episode": "rainy_market",
+          "summary": "The player carried her flour sacks out of the rain."
+        }
+      },
+      {
+        "op": "thread",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "id": "old_mine",
+          "opened_by": "mira",
+          "text": "You still haven't told me what you were doing at the old mine."
+        }
+      },
+      {
+        "op": "thread",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "id": "recipe",
+          "opened_by": "player",
+          "text": "The rye recipe you promised."
+        }
+      },
+      {
+        "op": "resolve",
+        "args": {
+          "a": "player",
+          "b": "mira",
+          "id": "old_mine"
+        }
+      },
+      {
+        "op": "dyad",
+        "args": {
+          "a": "mira",
+          "b": "player"
+        }
+      }
+    ]
+  }
+}

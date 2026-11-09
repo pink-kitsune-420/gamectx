@@ -1,0 +1,39 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "coin_pouch",
+          "owner": "mira",
+          "sentimental_to": [
+            "mira"
+          ]
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "coin_pouch",
+          "how": "take",
+          "to": "apprentice"
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "coin_pouch",
+          "observer": "mira"
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "coin_pouch",
+          "observer": "player"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "guard",
+          "attention": {
+            "bandwidth": 2,
+            "vigilance": 70,
+            "biases": {
+              "weapons_and_threats": 150,
+              "injuries": 120
+            }
+          }
+        }
+      },
+      {
+        "op": "notice",
+        "args": {
+          "being": "guard",
+          "stimuli": [
+            {
+              "id": "cake",
+              "category": "food_and_craft",
+              "intensity": 60
+            },
+            {
+              "id": "knife",
+              "category": "weapons_and_threats",
+              "intensity": 50
+            },
+            {
+              "id": "limp",
+              "category": "injuries",
+              "intensity": 55
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

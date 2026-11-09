@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The flour trail lasts 60 ticks: still there at 59, gone (and reported) at 60; the lock marks stay.",
+  "error": false
+}

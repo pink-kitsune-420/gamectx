@@ -1,0 +1,40 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "no_blades_at_night",
+          "severity": "taboo",
+          "applies_when": [
+            "night",
+            "weapon_drawn"
+          ]
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_blades_at_night",
+          "offender": "bo",
+          "witness": "mira",
+          "context": [
+            "day"
+          ]
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_blades_at_night",
+          "offender": "bo",
+          "witness": "mira",
+          "context": [
+            "night"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A dropped sack leaves a flour trail anyone can see as an inferred fact (not who did it); sweeping clears it.",
+  "error": false
+}

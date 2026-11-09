@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a pair that never met has no history to mark.",
+  "error": true
+}

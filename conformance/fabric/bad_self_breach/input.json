@@ -1,0 +1,23 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "no_theft",
+          "severity": "crime",
+          "report_to": "town_watch"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_theft",
+          "offender": "bo",
+          "witness": "bo"
+        }
+      }
+    ]
+  }
+}

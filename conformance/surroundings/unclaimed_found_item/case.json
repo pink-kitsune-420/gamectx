@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An item with no owner is unclaimed whoever holds it, and its first giver passes ownership.",
+  "error": false
+}

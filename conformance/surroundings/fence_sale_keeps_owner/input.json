@@ -1,0 +1,45 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "knife",
+          "owner": "mira"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "knife",
+          "how": "take",
+          "to": "thief"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "knife",
+          "how": "sale",
+          "to": "peddler"
+        }
+      },
+      {
+        "op": "item",
+        "args": {
+          "id": "loaf",
+          "owner": "mira"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "loaf",
+          "how": "gift",
+          "to": "bo"
+        }
+      }
+    ]
+  }
+}

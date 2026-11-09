@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "How they met is recorded once; meeting again returns the original encounter.",
+  "error": false
+}

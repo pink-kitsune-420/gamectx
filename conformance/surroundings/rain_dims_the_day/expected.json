@@ -1,0 +1,1 @@
+{"version":1,"results":[{"day_length":240,"phases":["dawn","day","dusk","night"],"weather":["heavy_rain"]},{"weather":"heavy_rain"},{"expired":[],"now":100},{"day_tick":100,"exterior":true,"light":"dim","need_rates":{"dryness":5,"warmth":3},"noise":25,"phase":"day","place":null,"seek_tags":["sheltered","indoor"],"temp_delta":0,"travel_pct":140,"weather":"heavy_rain"}]}

@@ -1,0 +1,21 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "bo",
+          "pragmatic": {
+            "tells": [
+              {
+                "kind": "smell",
+                "cue": "sweat"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "place",
+        "args": {
+          "id": "shop"
+        }
+      },
+      {
+        "op": "trace_kind",
+        "args": {
+          "id": "spilled_flour_trail",
+          "created_by": [
+            "crash_cart",
+            "drop_sack"
+          ],
+          "cleared_by": [
+            "sweep",
+            "clean"
+          ],
+          "visibility": "public",
+          "ttl": 60,
+          "implies": "flour_spilled_recently",
+          "sight": "White flour is dusted across the cobblestones."
+        }
+      },
+      {
+        "op": "trace_kind",
+        "args": {
+          "id": "forced_lock_marks",
+          "created_by": [
+            "pick_lock",
+            "break_entrance"
+          ],
+          "cleared_by": [
+            "repair"
+          ],
+          "visibility": "inspect",
+          "ttl": 1000,
+          "implies": "tampered_entrance",
+          "sight": "Fresh scratches score the iron lockplate."
+        }
+      },
+      {
+        "op": "act",
+        "args": {
+          "action": "drop_sack",
+          "place": "shop"
+        }
+      },
+      {
+        "op": "act",
+        "args": {
+          "action": "break_entrance",
+          "place": "shop"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 59
+        }
+      },
+      {
+        "op": "perceive",
+        "args": {
+          "place": "shop"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 60
+        }
+      },
+      {
+        "op": "perceive",
+        "args": {
+          "place": "shop",
+          "inspect": true
+        }
+      }
+    ]
+  }
+}

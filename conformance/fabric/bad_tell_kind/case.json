@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: tells are gaze, speech, posture or hands.",
+  "error": true
+}

@@ -1,0 +1,39 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "meet",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "episode": "rainy_market",
+          "summary": "The player carried her flour sacks out of the rain."
+        }
+      },
+      {
+        "op": "thread",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "id": "t1",
+          "opened_by": "mira",
+          "text": "One."
+        }
+      },
+      {
+        "op": "thread",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "id": "t2",
+          "opened_by": "mira",
+          "text": "Two."
+        }
+      }
+    ],
+    "limits": {
+      "threads": 1
+    }
+  }
+}

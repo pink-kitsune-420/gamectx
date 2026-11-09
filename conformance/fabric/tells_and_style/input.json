@@ -1,0 +1,87 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "profile",
+        "args": {
+          "being": "bo",
+          "pragmatic": {
+            "secret_keeping": 20,
+            "interrupt_tolerance": 20,
+            "small_talk_patience": 80,
+            "conflict_style": "avoidant",
+            "coping": "overwork",
+            "tells": [
+              {
+                "kind": "gaze",
+                "cue": "avoids_eye_contact",
+                "min_insight": 40
+              },
+              {
+                "kind": "speech",
+                "cue": "over_explains",
+                "min_insight": 55
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "profile",
+        "args": {
+          "being": "ana",
+          "pragmatic": {
+            "secret_keeping": 90,
+            "tells": [
+              {
+                "kind": "gaze",
+                "cue": "avoids_eye_contact",
+                "min_insight": 30
+              },
+              {
+                "kind": "speech",
+                "cue": "over_explains",
+                "min_insight": 50
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "tells",
+        "args": {
+          "being": "bo",
+          "observer_insight": 60
+        }
+      },
+      {
+        "op": "tells",
+        "args": {
+          "being": "ana",
+          "observer_insight": 60
+        }
+      },
+      {
+        "op": "tells",
+        "args": {
+          "being": "bo",
+          "observer_insight": 60,
+          "lying": false
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "bo"
+        }
+      },
+      {
+        "op": "style",
+        "args": {
+          "being": "nobody"
+        }
+      }
+    ]
+  }
+}

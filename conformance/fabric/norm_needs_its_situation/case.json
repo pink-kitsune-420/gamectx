@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "No weapons drawn after dark: by day it does not apply (and is not counted); at night it is a taboo.",
+  "error": false
+}

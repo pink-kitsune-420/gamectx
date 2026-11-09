@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A loaf that keeps 50 ticks is spoiled at 60; a cup damaged by 80 is damaged, then broken.",
+  "error": false
+}

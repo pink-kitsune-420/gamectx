@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: with room for one trace, a second trace in another place is refused.",
+  "error": true
+}

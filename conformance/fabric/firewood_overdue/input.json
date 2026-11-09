@@ -1,0 +1,37 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "contract",
+        "args": {
+          "id": "firewood",
+          "kind": "promise",
+          "debtor": "player",
+          "creditor": "mira",
+          "terms": "Bring a bundle of firewood before the evening bake",
+          "due_at": 10
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 11
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "a": "mira",
+          "b": "player"
+        }
+      }
+    ]
+  }
+}

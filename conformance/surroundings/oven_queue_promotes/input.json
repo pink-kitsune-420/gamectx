@@ -1,0 +1,157 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "environment",
+        "args": {
+          "day_length": 240,
+          "phases": [
+            {
+              "id": "dawn",
+              "start": 0,
+              "end": 30,
+              "light": "dim",
+              "temp_delta": -5
+            },
+            {
+              "id": "day",
+              "start": 30,
+              "end": 160,
+              "light": "bright"
+            },
+            {
+              "id": "dusk",
+              "start": 160,
+              "end": 190,
+              "light": "dim",
+              "temp_delta": -5
+            },
+            {
+              "id": "night",
+              "start": 190,
+              "end": 240,
+              "light": "dark",
+              "temp_delta": -15
+            }
+          ],
+          "weather": [
+            {
+              "id": "heavy_rain",
+              "light_delta": -1,
+              "noise": 25,
+              "travel_pct": 140,
+              "need_rates": {
+                "warmth": 3,
+                "dryness": 5
+              },
+              "seek_tags": [
+                "sheltered",
+                "indoor"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "place",
+        "args": {
+          "id": "bakery",
+          "owner": "mira",
+          "access": "customers_only",
+          "hours": {
+            "start": 30,
+            "end": 180,
+            "outside": "private"
+          },
+          "privacy": "semi_private",
+          "capacity": 4,
+          "stations": [
+            {
+              "id": "oven"
+            },
+            {
+              "id": "counter",
+              "max_users": 2
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 40
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "bakery",
+          "being": "mira"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "bakery",
+          "being": "apprentice",
+          "customer": true
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "bakery",
+          "being": "bo",
+          "customer": true
+        }
+      },
+      {
+        "op": "reserve",
+        "args": {
+          "place": "bakery",
+          "station": "oven",
+          "being": "mira"
+        }
+      },
+      {
+        "op": "reserve",
+        "args": {
+          "place": "bakery",
+          "station": "oven",
+          "being": "apprentice"
+        }
+      },
+      {
+        "op": "reserve",
+        "args": {
+          "place": "bakery",
+          "station": "oven",
+          "being": "bo"
+        }
+      },
+      {
+        "op": "release",
+        "args": {
+          "place": "bakery",
+          "station": "oven",
+          "being": "mira"
+        }
+      },
+      {
+        "op": "leave",
+        "args": {
+          "place": "bakery",
+          "being": "bo"
+        }
+      },
+      {
+        "op": "leave",
+        "args": {
+          "place": "bakery",
+          "being": "apprentice"
+        }
+      }
+    ]
+  }
+}

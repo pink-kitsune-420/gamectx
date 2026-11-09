@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: opening hours need a declared day.",
+  "error": true
+}

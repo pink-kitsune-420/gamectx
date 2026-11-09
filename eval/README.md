@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills thirty-five modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty-seven modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1455,6 +1455,17 @@ model-clause validation, the mixed-initiative agenda, the thread stack and the c
 --seed 7` builds workflows op by op like the cooperation generator against `gamectx local -` (0 mismatches: 1,468
 accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads resumed).
 [Results](../docs/characters/LIFE.md#pragmatics-pass-3-stage-3).
+
+## World and social schemas (offline)
+
+`character/surroundings_reference.py` and `character/fabric_reference.py` are the independent prototypes of pass 3
+stage 5 (environment, places, traces and items; norms, contracts, dyads and profiles). `character/surroundings_cases.py
+--cap 0` and `character/fabric_cases.py --cap 0` check 25 cases each (`conformance/surroundings/`,
+`conformance/fabric/`, 7 malformed each). `--random 2000 --seed 7` starts most workflows from a small valid world and
+adds random ops kept while the reference accepts them, against `gamectx local -` (0 mismatches; surroundings: 1,492
+accepted, 508 refused, 1,160 trespasses, 82 traces seen, 9 theft appraisals, 71 queue promotions; fabric: 1,461
+accepted, 539 refused, 930 top-of-ladder breaches, 168 late contracts, 47 open threads seen, 86 tells seen).
+[Results](../docs/characters/LIFE.md#world-and-social-schemas-pass-3-stage-5).
 
 ## Embodiment (offline)
 

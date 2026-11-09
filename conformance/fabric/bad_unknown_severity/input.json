@@ -1,0 +1,14 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "x",
+          "severity": "sin"
+        }
+      }
+    ]
+  }
+}

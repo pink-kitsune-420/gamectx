@@ -1,0 +1,1 @@
+{"version":1,"results":[{"day_length":240,"phases":["dawn","day","dusk","night"],"weather":["heavy_rain"]},{"weather":"heavy_rain"},{"day_length":10,"phases":["all"],"weather":[]},{"day_tick":0,"exterior":true,"light":"bright","need_rates":{},"noise":0,"phase":"all","place":null,"seek_tags":[],"temp_delta":0,"travel_pct":100,"weather":null}]}

@@ -1,0 +1,54 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "contract",
+        "args": {
+          "id": "saved_1",
+          "kind": "favor",
+          "debtor": "mira",
+          "creditor": "bo",
+          "terms": "Pulled her from the river",
+          "weight": 40
+        }
+      },
+      {
+        "op": "contract",
+        "args": {
+          "id": "saved_2",
+          "kind": "favor",
+          "debtor": "mira",
+          "creditor": "bo",
+          "terms": "Hid her from the bailiff",
+          "weight": 30
+        }
+      },
+      {
+        "op": "contract",
+        "args": {
+          "id": "flour",
+          "kind": "trade_order",
+          "debtor": "bo",
+          "creditor": "mira",
+          "terms": "Two sacks of flour",
+          "weight": 10
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "a": "bo",
+          "b": "mira"
+        }
+      },
+      {
+        "op": "ledger",
+        "args": {
+          "a": "bo",
+          "b": "ana"
+        }
+      }
+    ]
+  }
+}

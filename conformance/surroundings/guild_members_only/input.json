@@ -1,0 +1,55 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "place",
+        "args": {
+          "id": "guild",
+          "owner": "master",
+          "access": "members_only"
+        }
+      },
+      {
+        "op": "place",
+        "args": {
+          "id": "vault",
+          "owner": "master",
+          "access": "restricted"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "guild",
+          "being": "ana",
+          "member": true
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "guild",
+          "being": "bo",
+          "customer": true
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "vault",
+          "being": "ana",
+          "member": true,
+          "invited": true
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "vault",
+          "being": "master"
+        }
+      }
+    ]
+  }
+}

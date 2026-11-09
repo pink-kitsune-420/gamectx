@@ -1,0 +1,64 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "contract",
+        "args": {
+          "id": "alibi",
+          "kind": "alibi_pact",
+          "debtor": "bo",
+          "creditor": "thief",
+          "witnesses": [
+            "ana",
+            "cat"
+          ],
+          "terms": "Say we were at the mill all night",
+          "weight": 60
+        }
+      },
+      {
+        "op": "contract",
+        "args": {
+          "id": "loan",
+          "kind": "loan",
+          "debtor": "bo",
+          "creditor": "mira",
+          "terms": "Ten copper till market day",
+          "weight": 40
+        }
+      },
+      {
+        "op": "contract",
+        "args": {
+          "id": "favor",
+          "kind": "favor",
+          "debtor": "mira",
+          "creditor": "bo",
+          "terms": "One loaf, any day"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "id": "alibi",
+          "outcome": "broken"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "id": "loan",
+          "outcome": "fulfilled"
+        }
+      },
+      {
+        "op": "settle",
+        "args": {
+          "id": "favor",
+          "outcome": "released"
+        }
+      }
+    ]
+  }
+}

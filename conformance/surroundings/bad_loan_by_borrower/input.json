@@ -1,0 +1,30 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "ladle",
+          "owner": "mira"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "ladle",
+          "how": "loan",
+          "to": "bo"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "ladle",
+          "how": "loan",
+          "to": "ana"
+        }
+      }
+    ]
+  }
+}

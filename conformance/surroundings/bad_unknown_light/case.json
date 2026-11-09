@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: light is dark, dim or bright.",
+  "error": true
+}

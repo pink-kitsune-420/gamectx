@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: severity is etiquette, custom, contract, taboo or crime.",
+  "error": true
+}

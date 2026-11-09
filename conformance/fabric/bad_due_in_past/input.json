@@ -1,0 +1,24 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "tick",
+        "args": {
+          "now": 20
+        }
+      },
+      {
+        "op": "contract",
+        "args": {
+          "id": "c",
+          "kind": "loan",
+          "debtor": "bo",
+          "creditor": "mira",
+          "terms": "Ten copper",
+          "due_at": 19
+        }
+      }
+    ]
+  }
+}

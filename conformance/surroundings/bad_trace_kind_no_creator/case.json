@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a trace kind needs at least one action that leaves it.",
+  "error": true
+}

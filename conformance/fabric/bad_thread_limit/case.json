@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: with room for one unfinished thread per pair, a second is refused.",
+  "error": true
+}

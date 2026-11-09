@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "At tick 200 of a 240-tick day it is night: dark, 15 degrees colder.",
+  "error": false
+}

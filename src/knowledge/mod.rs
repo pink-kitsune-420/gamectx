@@ -3,6 +3,7 @@
 pub mod action_catalog;
 pub mod codex;
 pub mod communities;
+pub mod fabric;
 pub mod facts;
 pub mod info;
 pub mod inventory;
@@ -16,6 +17,7 @@ pub mod recall;
 pub mod recipes;
 pub mod selection;
 pub mod species;
+pub mod surroundings;
 pub mod temporal;
 pub mod things;
 pub mod timeline;

@@ -3940,3 +3940,192 @@ fn embodiment_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"react","args":{"being":"a","task":"idle"}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn surroundings_survive_mutation_limits_and_boundaries() {
+    use gamectx::knowledge::surroundings::Surroundings;
+    let mut rng = Rng(0x5A0D_0E40_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 40. Surroundings mutation fuzzing (limits included); one manager keeps its world across
+    // runs. Station users never exceed their slots, everyone at or queued for a station is inside
+    // the place, nobody is both, occupants are unique and item conditions stay within 0..=100.
+    let samples = [
+        r#"{"limits":{"places":3,"occupants":3,"traces":3},"ops":[{"op":"environment","args":{"day_length":24,"phases":[{"id":"day","start":0,"end":12,"light":"bright","temp_delta":0},{"id":"night","start":12,"end":24,"light":"dark","temp_delta":-15}],"weather":[{"id":"rain","light_delta":-1,"noise":25,"travel_pct":140,"need_rates":{"warmth":3},"seek_tags":["indoor"]}]}},{"op":"weather","args":{"kind":"rain"}},{"op":"place","args":{"id":"bakery","owner":"mira","access":"customers_only","hours":{"start":2,"end":20,"outside":"private"},"privacy":"semi_private","capacity":2,"exterior":false,"stations":[{"id":"oven","max_users":1}]}},{"op":"enter","args":{"place":"bakery","being":"bo","customer":true,"member":false,"invited":false}},{"op":"reserve","args":{"place":"bakery","station":"oven","being":"bo"}},{"op":"conditions","args":{"place":"bakery"}},{"op":"tick","args":{"now":3}}]}"#,
+        r#"{"ops":[{"op":"place","args":{"id":"lane","exterior":true}},{"op":"trace_kind","args":{"id":"flour","created_by":["drop_sack"],"cleared_by":["sweep"],"visibility":"public","ttl":5,"implies":"flour_seen","sight":"Flour."}},{"op":"act","args":{"action":"drop_sack","place":"lane"}},{"op":"perceive","args":{"place":"lane","inspect":false}},{"op":"item","args":{"id":"pouch","owner":"mira","possessor":"mira","held_as":"borrowed","condition":90,"maker":"smith","sentimental_to":["mira"],"perishable":10}},{"op":"transfer","args":{"item":"pouch","how":"take","to":"bo"}},{"op":"damage","args":{"item":"pouch","amount":30}},{"op":"inspect_item","args":{"item":"pouch","observer":"mira"}}]}"#,
+    ];
+    let mut k = Surroundings::new();
+    let mut accepted = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            if k.workflow(&v).is_err() {
+                continue;
+            }
+            accepted += 1;
+            for p in k.places.values() {
+                let mut seen = std::collections::BTreeSet::new();
+                assert!(p.occupants.iter().all(|b| seen.insert(b.clone())));
+                for s in p.stations.values() {
+                    assert!(s.users.len() as u64 <= s.max_users);
+                    for b in s.users.iter().chain(&s.queue) {
+                        assert!(p.occupants.contains(b));
+                    }
+                    assert!(s.users.iter().all(|b| !s.queue.contains(b)));
+                }
+            }
+            assert!(k.items.values().all(|i| i.condition <= 100));
+            assert!(k.traces.keys().all(|(p, t)| k.places.contains_key(p) && k.kinds.contains_key(t)));
+        }
+    }
+    assert!(accepted > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Surroundings::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Surroundings::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"places":100000,"occupants":10000,"trace_kinds":4096,"traces":1000000,"items":1000000}"#, true),
+        (r#"{"occupants":10001}"#, false),
+        (r#"{"items":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Surroundings::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a full room refuses one more; a trace lasting 10¹² ticks is still seen near the
+    // end of time, and the clock cannot pass 10¹².
+    let mut k = Surroundings::with_limits(&parse(r#"{"occupants":2}"#, 64).unwrap()).unwrap();
+    let enter = |b: &str| format!(r#"{{"op":"enter","args":{{"place":"hall","being":"{b}"}}}}"#);
+    k.workflow(&req(&[
+        r#"{"op":"place","args":{"id":"hall","stations":[{"id":"well","max_users":64}]}}"#.into(),
+        enter("a"),
+        enter("b"),
+    ]))
+    .unwrap();
+    assert!(k.workflow(&req(&[enter("c")])).is_err());
+    k.workflow(&req(&[
+        r#"{"op":"trace_kind","args":{"id":"scar","created_by":["burn"],"visibility":"inspect","ttl":1000000000000,"implies":"fire"}}"#.into(),
+        r#"{"op":"act","args":{"action":"burn","place":"hall"}}"#.into(),
+        r#"{"op":"tick","args":{"now":999999999999}}"#.into(),
+    ]))
+    .unwrap();
+    let out =
+        k.workflow(&req(&[r#"{"op":"perceive","args":{"place":"hall","inspect":true}}"#.into()])).unwrap().to_json();
+    assert!(out.contains(r#""age":999999999999"#));
+    assert!(k.workflow(&req(&[r#"{"op":"tick","args":{"now":1000000000001}}"#.into()])).is_err());
+
+    // A refused op changes nothing: a borrower trying to lend the item on.
+    let mut k = Surroundings::new();
+    k.workflow(&req(&[
+        r#"{"op":"item","args":{"id":"ladle","owner":"mira"}}"#.into(),
+        r#"{"op":"transfer","args":{"item":"ladle","how":"loan","to":"bo"}}"#.into(),
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"transfer","args":{"item":"ladle","how":"loan","to":"ana"}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}
+
+#[test]
+fn fabric_survives_mutation_limits_and_boundaries() {
+    use gamectx::knowledge::fabric::Fabric;
+    let mut rng = Rng(0xFAB0_0E40_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 41. Fabric mutation fuzzing (limits included); one manager keeps its society across runs.
+    // Steps stay within 0..=3 and a confrontation always heads the third step; no lying, no tells;
+    // pairs keep at most four landmarks; ladders and contracts stay well formed.
+    let samples = [
+        r#"{"limits":{"norms":3,"breaches":3,"contracts":3},"ops":[{"op":"norm","args":{"id":"no_theft","severity":"crime","applies_when":["night"],"guilt_cost":40,"report_to":"watch"}},{"op":"breach","args":{"norm":"no_theft","offender":"bo","witness":"mira","context":["night"],"conscience":60}},{"op":"apologize","args":{"norm":"no_theft","offender":"bo","witness":"mira"}},{"op":"contract","args":{"id":"wood","kind":"promise","debtor":"bo","creditor":"mira","terms":"Wood","witnesses":["ana"],"due_at":5,"weight":30}},{"op":"tick","args":{"now":6}},{"op":"ledger","args":{"a":"bo","b":"mira"}},{"op":"settle","args":{"id":"wood","outcome":"broken"}}]}"#,
+        r#"{"limits":{"dyads":3,"threads":2},"ops":[{"op":"meet","args":{"a":"mira","b":"bo","episode":"e0","summary":"At the well."}},{"op":"landmark","args":{"a":"mira","b":"bo","kind":"first_favor","episode":"e1","summary":"A loaf."}},{"op":"address","args":{"from":"mira","to":"bo","term":"lad"}},{"op":"thread","args":{"a":"mira","b":"bo","id":"t1","text":"The mine?","opened_by":"mira"}},{"op":"dyad","args":{"a":"bo","b":"mira"}},{"op":"profile","args":{"being":"bo","attention":{"bandwidth":2,"vigilance":60,"biases":{"threat":150}},"pragmatic":{"conflict_style":"avoidant","cooperativeness":"guarded","interrupt_tolerance":20,"small_talk_patience":80,"secret_keeping":30,"tells":[{"kind":"gaze","cue":"looks_away","min_insight":40}],"coping":"overwork"}}},{"op":"notice","args":{"being":"bo","stimuli":[{"id":"knife","category":"threat","intensity":50}]}},{"op":"tells","args":{"being":"bo","observer_insight":60,"lying":true}},{"op":"style","args":{"being":"bo"}}]}"#,
+    ];
+    let mut k = Fabric::new();
+    let mut checked = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = k.workflow(&v) else { continue };
+            let ops = v.get("ops").and_then(Value::as_array).unwrap();
+            for (o, r) in ops.iter().zip(out.get("results").and_then(Value::as_array).unwrap()) {
+                let a = o.get("args").unwrap();
+                if let Some(s) = r.get("step") {
+                    let s: u64 = s.to_json().parse().unwrap();
+                    assert!(s <= 3);
+                    let first = r.get("sanctions").and_then(Value::as_array).and_then(|x| x.first().cloned());
+                    assert_eq!(s == 3, first == Some(Value::from("flee_or_confront")));
+                    checked += 1;
+                }
+                if r.get("perceived").is_some() && a.get("lying") == Some(&Value::Bool(false)) {
+                    assert_eq!(r.get("perceived"), Some(&Value::Array(Vec::new())));
+                }
+            }
+            assert!(k.dyads.values().all(|d| d.landmarks.len() <= 4));
+            assert!(k.counts.values().all(|n| *n > 0));
+            assert!(k.contracts.values().all(|c| c.debtor != c.creditor));
+        }
+    }
+    assert!(checked > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Fabric::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Fabric::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (
+            r#"{"beings":1000000,"norms":4096,"breaches":1000000,"contracts":1000000,"dyads":1000000,"threads":32}"#,
+            true,
+        ),
+        (r#"{"threads":33}"#, false),
+        (r#"{"dyads":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Fabric::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 32 open threads in one pair; 64 stimuli at full intensity through a 300% bias with
+    // the widest bandwidth notice exactly 16; a contract due at the 10¹² clock is never overdue.
+    let mut k = Fabric::with_limits(&parse(r#"{"threads":32}"#, 64).unwrap()).unwrap();
+    let mut ops = vec![r#"{"op":"meet","args":{"a":"a","b":"b","episode":"e","summary":"Met."}}"#.to_string()];
+    ops.extend((0..32).map(|i| {
+        format!(r#"{{"op":"thread","args":{{"a":"a","b":"b","id":"t{i}","text":"Open.","opened_by":"a"}}}}"#)
+    }));
+    k.workflow(&req(&ops)).unwrap();
+    assert!(k
+        .workflow(&req(&[
+            r#"{"op":"thread","args":{"a":"a","b":"b","id":"t99","text":"One more.","opened_by":"b"}}"#.into()
+        ]))
+        .is_err());
+    let stim: Vec<String> =
+        (0..64).map(|i| format!(r#"{{"id":"s{i}","category":"threat","intensity":100}}"#)).collect();
+    k.workflow(&req(&[
+        r#"{"op":"profile","args":{"being":"g","attention":{"bandwidth":16,"vigilance":100,"biases":{"threat":300}}}}"#
+            .into(),
+    ]))
+    .unwrap();
+    let out = k
+        .workflow(&req(&[format!(r#"{{"op":"notice","args":{{"being":"g","stimuli":[{}]}}}}"#, stim.join(","))]))
+        .unwrap();
+    let r = &out.get("results").and_then(Value::as_array).unwrap()[0];
+    assert_eq!(r.get("noticed").and_then(Value::as_array).unwrap().len(), 16);
+    assert!(r.to_json().contains(r#""score":300"#));
+    k.workflow(&req(&[
+        r#"{"op":"contract","args":{"id":"far","kind":"loan","debtor":"a","creditor":"b","terms":"Someday","due_at":1000000000000}}"#.into(),
+        r#"{"op":"tick","args":{"now":1000000000000}}"#.into(),
+    ]))
+    .unwrap();
+    assert!(!k.contracts["far"].overdue);
+
+    // A refused op changes nothing: a being witnessing its own breach.
+    let mut k = Fabric::new();
+    k.workflow(&req(&[r#"{"op":"norm","args":{"id":"n","severity":"custom"}}"#.into()])).unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"breach","args":{"norm":"n","offender":"a","witness":"a"}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}

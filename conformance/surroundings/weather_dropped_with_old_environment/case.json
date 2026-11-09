@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Redeclaring the environment without heavy rain clears the current weather.",
+  "error": false
+}

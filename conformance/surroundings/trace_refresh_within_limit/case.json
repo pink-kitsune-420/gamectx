@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for one trace, dropping a second sack in the same place refreshes the trail instead of growing.",
+  "error": false
+}

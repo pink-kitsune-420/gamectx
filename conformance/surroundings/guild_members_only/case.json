@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A members-only guild hall admits members and its owner, refuses a customer, and a restricted vault only its owner.",
+  "error": false
+}

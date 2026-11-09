@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: phases must be contiguous from 0 to the day length.",
+  "error": true
+}

@@ -1,0 +1,112 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "environment",
+        "args": {
+          "day_length": 240,
+          "phases": [
+            {
+              "id": "dawn",
+              "start": 0,
+              "end": 30,
+              "light": "dim",
+              "temp_delta": -5
+            },
+            {
+              "id": "day",
+              "start": 30,
+              "end": 160,
+              "light": "bright"
+            },
+            {
+              "id": "dusk",
+              "start": 160,
+              "end": 190,
+              "light": "dim",
+              "temp_delta": -5
+            },
+            {
+              "id": "night",
+              "start": 190,
+              "end": 240,
+              "light": "dark",
+              "temp_delta": -15
+            }
+          ],
+          "weather": [
+            {
+              "id": "heavy_rain",
+              "light_delta": -1,
+              "noise": 25,
+              "travel_pct": 140,
+              "need_rates": {
+                "warmth": 3,
+                "dryness": 5
+              },
+              "seek_tags": [
+                "sheltered",
+                "indoor"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "place",
+        "args": {
+          "id": "parlor",
+          "privacy": "semi_private",
+          "capacity": 2
+        }
+      },
+      {
+        "op": "place",
+        "args": {
+          "id": "hall",
+          "privacy": "echoing"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "parlor",
+          "being": "a"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "parlor",
+          "being": "b"
+        }
+      },
+      {
+        "op": "conditions",
+        "args": {
+          "place": "parlor"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "place": "parlor",
+          "being": "c"
+        }
+      },
+      {
+        "op": "conditions",
+        "args": {
+          "place": "parlor"
+        }
+      },
+      {
+        "op": "conditions",
+        "args": {
+          "place": "hall"
+        }
+      }
+    ]
+  }
+}

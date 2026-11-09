@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: only the owner holding an item can lend it.",
+  "error": true
+}

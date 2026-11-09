@@ -1,0 +1,46 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "no_haggling",
+          "severity": "custom"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_haggling",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_haggling",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      },
+      {
+        "op": "apologize",
+        "args": {
+          "norm": "no_haggling",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "no_haggling",
+          "offender": "bo",
+          "witness": "mira"
+        }
+      }
+    ]
+  }
+}

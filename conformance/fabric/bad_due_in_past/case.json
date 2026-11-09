@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a contract cannot fall due before now.",
+  "error": true
+}

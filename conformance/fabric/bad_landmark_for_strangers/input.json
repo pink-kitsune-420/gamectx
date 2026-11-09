@@ -1,0 +1,16 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "landmark",
+        "args": {
+          "a": "bo",
+          "b": "ana",
+          "kind": "first_favor",
+          "episode": "e1"
+        }
+      }
+    ]
+  }
+}

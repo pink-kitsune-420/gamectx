@@ -1,0 +1,23 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "norm",
+        "args": {
+          "id": "keep_bargain",
+          "severity": "contract"
+        }
+      },
+      {
+        "op": "breach",
+        "args": {
+          "norm": "keep_bargain",
+          "offender": "bo",
+          "witness": "mira",
+          "conscience": 50
+        }
+      }
+    ]
+  }
+}

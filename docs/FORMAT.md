@@ -2916,6 +2916,8 @@ grows past them is refused where it used to be accepted.
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 | `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
 | `cueing` | `beings` (1024, 10⁶), `episodes` per being (64, 4096), `facts` per being (64, 4096), `covers` per being (16, 256), host-only `secrets` (64, 4096), `listeners` remembered per episode (8, 64; the one told longest ago is dropped) |
+| `surroundings` | `places` (64, 10⁵), `occupants` per place (32, 10⁴), `trace_kinds` (64, 4096), `traces` (256, 10⁶), `items` (256, 10⁶) |
+| `fabric` | `beings` with a profile (1024, 10⁶), `norms` (64, 4096), `breaches` ladders (1024, 10⁶), open `contracts` (256, 10⁶), `dyads` (1024, 10⁶), `threads` per pair (4, 32) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
@@ -3481,6 +3483,93 @@ a clause when its words appear consecutively.
   earshot, then `whispered` at trust ≥ 60, else `deflect_due_to_bystanders`. Sentences: 4 below urgency 30, 3 below
   60, 2 below 85, else 1, and 1 when the deadline is at most an hour away; verbosity `full` (4), `normal` (2–3) or
   `brief` (1).
+
+## Surroundings v1 (pass 3, stage 5)
+
+`gamectx::knowledge::surroundings` (guide: [Life](characters/LIFE.md#world-and-social-schemas-pass-3-stage-5)),
+local kind `surroundings` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version:
+1}`. Its 25 cases (7 malformed) live in `conformance/surroundings/`. An op that fails refuses the request; ops before
+it keep their changes, and the failing op changes nothing.
+
+- `tick {now ≥ clock}` → `{expired [{kind, place}], now}`; traces at least `ttl` old are removed.
+- `environment {day_length 1–10⁶, phases [1–24 {id, start, end, light dark|dim|bright, temp_delta? −100–100}],
+  weather? [≤16 {id, light_delta? −2–2, noise? 0–100, travel_pct? 50–500 (100), need_rates? {need: 0–100} (≤8),
+  seek_tags? (≤8)}]}` → `{day_length, phases, weather}`. Phases run contiguously from 0 to `day_length`. Replaces
+  the environment; a current weather it no longer declares is cleared.
+- `weather {kind?}` (a declared kind, or null for clear) → `{weather}`.
+- `conditions {place?}` → `{day_tick (clock mod day_length), exterior, light, need_rates, noise, phase, place
+  {access, crowded, discuss_secrets, earshot, id, occupants}|null, seek_tags, temp_delta, travel_pct, weather}`. No
+  place counts as outdoors. Weather shifts light (clamped), noise, need rates and sought tags only outdoors; travel
+  cost always. `earshot`: public `bystanders`, semi_private `nearby`, private `none`, echoing `everyone`;
+  `discuss_secrets`: private, or semi-private with at most 2 inside; `crowded`: occupants over `capacity`.
+- `place {id, owner?, access? (public), hours? {start, end, outside} (needs an environment; wraps past midnight when
+  start > end), privacy? (public), capacity? 1–10⁴, exterior? (false), stations? [≤16 {id, max_users? 1–64 (1)}]}` →
+  `{access, id, privacy, stations}`. Redeclaring needs the place empty.
+- `enter {place, being, customer?, member?, invited?}` → `{access, allowed, being, crowded, occupants, place,
+  trespass}`. Access now (outside the hours, `outside`): public anyone; customers_only customers, members or the
+  owner; members_only members or the owner; private the owner or the invited; restricted the owner. A trespass changes
+  nothing.
+- `leave {place, being}` → `{being, occupants, place, promoted [{being, station}]}`; frees its stations and queue places.
+- `reserve {place, station, being inside}` → `{being, granted, queue_position (0 when granted), station}`.
+- `release {place, station, being}` → `{being, promoted|null, station}`; the head of the queue moves up.
+- `trace_kind {id, created_by (1–8 actions), cleared_by? (≤8), visibility public|inspect, ttl 1–10¹², implies,
+  sight? (≤160 chars)}` → `{id}`.
+- `act {action, place}` → `{cleared, created, place}`: clears this place's traces the action clears, then leaves (or
+  refreshes) the ones it creates.
+- `perceive {place, inspect? (false)}` → `{hidden, place, traces [{age, belief: "inferred", implies, kind,
+  sight}]}`; inspect-only traces count as `hidden` unless inspecting. Traces never name who left them.
+- `item {id, owner?, possessor? (owner), held_as? borrowed|stolen|found (borrowed), condition? 0–100 (100), maker?,
+  sentimental_to? (≤8), perishable? ticks}`, `transfer {item, how gift|sale|loan|return|take|find|drop, to?}`,
+  `damage {item, amount 1–100}` → the item `{condition, condition_label, id, maker, owner, possessor,
+  sentimental_to, spoiled, status}`. Gift or sale by its owner (or of an unclaimed item) passes ownership, otherwise
+  only possession; loan needs the owner holding it; return goes to the owner; take of someone else's item makes it
+  `stolen`; find needs nobody holding it (`found`); drop leaves it `lost`. Status: `unclaimed` (no owner), `owned`,
+  `lost`, else how it is held. Labels: 0 broken, <30 damaged, <70 worn, <95 intact, else masterwork.
+- `inspect_item {item, observer}` → `{item, loss_weight_pct (300 if the observer holds it dear, else 100), observer,
+  theft_appraisal}`; a theft appraisal is the owner seeing someone else hold it, unless lent.
+
+## Social fabric v1 (pass 3, stage 5)
+
+`gamectx::knowledge::fabric` (guide: [Life](characters/LIFE.md#world-and-social-schemas-pass-3-stage-5)), local kind
+`fabric` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
+(7 malformed) live in `conformance/fabric/`. Levels are 0–100.
+
+- `tick {now ≥ clock}` → `{now, overdue}`: open contracts whose `due_at` has passed.
+- `norm {id, severity etiquette|custom|contract|taboo|crime (10, 30, 60, 80, 100), applies_when? (≤8 tags),
+  guilt_cost? (severity / 2), report_to? role}` → `{id, severity}`.
+- `breach {norm, offender, witness ≠ offender, context? (≤8 tags), conscience?}` → `{amends, applies, deltas
+  {disagreement, resentment, trust}, guilt, norm, offender, prior, report_to, sanctions, step, witness}`. A norm with
+  `applies_when` applies only if the context shares a tag (otherwise step 0, not counted). Step = min(3, base +
+  prior breaches by this offender seen by this witness), base 3 for taboo or crime, 2 for contract, else 1; etiquette
+  stops at 2. Step 1 `verbal_warning`, disagreement +10; step 2 `refuse_service`, `demand_apology_or_fine`, trust
+  −20; step 3 `flee_or_confront` (and `report_to_role` with `report_to`), resentment +50. Guilt is the guilt cost
+  when conscience ≥ 50.
+- `apologize {norm, offender, witness}` → `{norm, offender, prior, witness}`: one step back.
+- `contract {id (unused), kind alibi_pact|apology_owed|employment|favor|keep_secret|loan|promise|trade_order, debtor,
+  creditor ≠ debtor, terms (≤160 chars), witnesses? (≤8, not the parties), due_at? ≥ now, weight? 1–100 (20)}` →
+  `{id, status: "open"}`.
+- `settle {id, outcome fulfilled|released|broken}` → `{creditor, debtor, id, late, status, told, trust_delta}`:
+  fulfilled +weight/4, broken −weight (the witnesses are `told`), released 0. The contract is removed.
+- `ledger {a, b}` → `{a, a_owes_b, b, b_owes_a, help_bias {a_asks_b: min(50, b_owes_a), b_asks_a}, open,
+  overdue}`.
+- `meet {a, b, episode, summary}` → `{first_encounter {at, episode, summary}, new}`; a later meeting keeps the first.
+- `landmark {a, b, kind, episode, summary?}` → `{evicted, landmarks}`: at most 4; the same kind replaces and moves
+  last, a fifth kind drops the oldest. Needs the pair to have met, as do `address`, `thread` and `resolve`.
+- `address {from, to, term (≤40 chars)}` → `{from, term, to}`.
+- `thread {a, b, id, text, opened_by a|b}`, `resolve {a, b, id}` → `{id, open}`.
+- `dyad {a, b}` → `{a, address_a_to_b, address_b_to_a, b, first_encounter, known_for, landmarks, met, threads}`;
+  `stranger` before meeting, `acquaintance` until a term is set.
+- `profile {being, attention? {bandwidth? 1–16 (4), vigilance? (50), biases? {category: 0–300 per cent} (≤16)},
+  pragmatic? {conflict_style? direct|avoidant|diplomatic|passive_aggressive, cooperativeness? (cooperative),
+  interrupt_tolerance? (50), small_talk_patience? (50), secret_keeping? (50), tells? [≤8 {kind
+  gaze|speech|posture|hands, cue, min_insight? (50)}], coping?}}` → `{being, tells}`.
+- `notice {being, stimuli [≤64 {id, category, intensity}]}` → `{being, missed, noticed [{category, id, score}]}`:
+  score = intensity × bias / 100; those at or above 100 − vigilance, highest first, up to the bandwidth.
+- `tells {being, observer_insight, lying? (true)}` → `{being, hidden, perceived [{cue, kind}], suspicion (15 per
+  tell, ≤100)}`: a tell shows when insight ≥ its `min_insight` + secret_keeping / 5.
+- `style {being}` → `{being, conflict_style, cooperativeness, coping, on_interrupt (tolerance <30 snaps, <70
+  notes_it, else lets_it_go), on_small_talk (patience <30 cuts_to_point, <70 humors_briefly, else enjoys),
+  secret_keeping}`. Unprofiled beings use the defaults.
 
 ## Embodiment v1 (pass 3, stage 4)
 

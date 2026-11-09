@@ -1,0 +1,29 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "shell",
+          "possessor": "child"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "shell",
+          "how": "gift",
+          "to": "mira"
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "shell",
+          "observer": "mira"
+        }
+      }
+    ]
+  }
+}

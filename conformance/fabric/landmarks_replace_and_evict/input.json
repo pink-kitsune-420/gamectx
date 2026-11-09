@@ -1,0 +1,79 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "meet",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "episode": "rainy_market",
+          "summary": "The player carried her flour sacks out of the rain."
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "first_favor",
+          "episode": "e1"
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "shared_danger",
+          "episode": "e2",
+          "summary": "The mill fire."
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "worst_betrayal",
+          "episode": "e3"
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "shared_danger",
+          "episode": "e4",
+          "summary": "The flood."
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "reconciliation",
+          "episode": "e5"
+        }
+      },
+      {
+        "op": "landmark",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "kind": "first_gift",
+          "episode": "e6"
+        }
+      },
+      {
+        "op": "dyad",
+        "args": {
+          "a": "mira",
+          "b": "player"
+        }
+      }
+    ]
+  }
+}

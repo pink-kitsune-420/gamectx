@@ -1,0 +1,45 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "meet",
+        "args": {
+          "a": "mira",
+          "b": "player",
+          "episode": "rainy_market",
+          "summary": "The player carried her flour sacks out of the rain."
+        }
+      },
+      {
+        "op": "address",
+        "args": {
+          "from": "mira",
+          "to": "player",
+          "term": "love"
+        }
+      },
+      {
+        "op": "address",
+        "args": {
+          "from": "player",
+          "to": "mira",
+          "term": "Master Baker"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 30
+        }
+      },
+      {
+        "op": "dyad",
+        "args": {
+          "a": "player",
+          "b": "mira"
+        }
+      }
+    ]
+  }
+}

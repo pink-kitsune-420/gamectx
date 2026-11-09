@@ -1,0 +1,36 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "item",
+        "args": {
+          "id": "brooch",
+          "owner": "ana"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "brooch",
+          "how": "drop"
+        }
+      },
+      {
+        "op": "transfer",
+        "args": {
+          "item": "brooch",
+          "how": "find",
+          "to": "stranger"
+        }
+      },
+      {
+        "op": "inspect_item",
+        "args": {
+          "item": "brooch",
+          "observer": "ana"
+        }
+      }
+    ]
+  }
+}

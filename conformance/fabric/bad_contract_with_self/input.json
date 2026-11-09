@@ -1,0 +1,17 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "contract",
+        "args": {
+          "id": "c",
+          "kind": "promise",
+          "debtor": "bo",
+          "creditor": "bo",
+          "terms": "Nothing"
+        }
+      }
+    ]
+  }
+}

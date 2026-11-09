@@ -1,0 +1,14 @@
+{
+  "kind": "fabric",
+  "args": {
+    "ops": [
+      {
+        "op": "dyad",
+        "args": {
+          "a": "bo",
+          "b": "ana"
+        }
+      }
+    ]
+  }
+}

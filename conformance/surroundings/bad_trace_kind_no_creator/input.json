@@ -1,0 +1,17 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "trace_kind",
+        "args": {
+          "id": "soot",
+          "created_by": [],
+          "visibility": "public",
+          "ttl": 5,
+          "implies": "fire"
+        }
+      }
+    ]
+  }
+}

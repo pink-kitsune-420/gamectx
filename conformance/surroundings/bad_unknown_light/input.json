@@ -1,0 +1,21 @@
+{
+  "kind": "surroundings",
+  "args": {
+    "ops": [
+      {
+        "op": "environment",
+        "args": {
+          "day_length": 10,
+          "phases": [
+            {
+              "id": "all",
+              "start": 0,
+              "end": 10,
+              "light": "glowing"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
