@@ -4900,6 +4900,128 @@ fn saves_and_bundles_survive_mutation_limits_and_boundaries() {
     assert_eq!(b.export().to_json(), before);
 }
 
+#[test]
+fn being_runtime_survives_mutation_limits_and_boundaries() {
+    use gamectx::data::persist;
+    use gamectx::runtime::being::BeingRuntime;
+    let mut rng = Rng(0xBE14_6026_1109_0049);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut rt = BeingRuntime::new();
+        rt.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"define","args":{"being":"goat","mind":{"id":"herd_animal"},"style":{"humour":"none","tempo":"measured","formality":30,"assertiveness":60}}},
+                {"op":"edges","args":{"set":{"threat_feed":false}}},
+                {"op":"step","args":{"events":[{"engine":"surroundings","op":"place","args":{"id":"square"}}]}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        rt
+    };
+
+    // 49. Being runtime fuzzing: a runtime save is mutated and imported.
+    // An accepted import re-exports to a canonical save that imports back to itself;
+    // a refused import leaves the runtime byte-identical. Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut rt = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            rt = filled();
+        }
+        let before = persist::export(&rt, &rt.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match rt.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&rt, &rt.limits);
+                let mut c = BeingRuntime::new();
+                c.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&c, &c.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&rt, &rt.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; definitions and carry ceilings.
+    let show = r#"{"op":"show","args":{"being":"goat"}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![show.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![show.clone(); 65])).is_err());
+
+    // Ceilings and extremes for limits
+    for (lim, ok) in [
+        (r#"{"definitions":1000000}"#, true),
+        (r#"{"definitions":1000001}"#, false),
+        (r#"{"definitions":0}"#, false),
+        (r#"{"carry":4096}"#, true),
+        (r#"{"carry":4097}"#, false),
+        (r#"{"carry":0}"#, false),
+    ] {
+        let mut r = BeingRuntime::new();
+        assert_eq!(r.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Step event limits: 64 events accepted, 65 refused.
+    let mut ev_64 = Vec::new();
+    for i in 0..64 {
+        ev_64.push(format!(r#"{{"engine":"surroundings","op":"place","args":{{"id":"p{i}"}}}}"#));
+    }
+    let req_64 =
+        parse(&format!(r#"{{"ops":[{{"op":"step","args":{{"events":[{}]}}}}]}}"#, ev_64.join(",")), 1 << 20).unwrap();
+    assert!(BeingRuntime::new().workflow(&req_64).is_ok());
+
+    let mut ev_65 = ev_64.clone();
+    ev_65.push(r#"{"engine":"surroundings","op":"place","args":{"id":"p64"}}"#.to_string());
+    let req_65 =
+        parse(&format!(r#"{{"ops":[{{"op":"step","args":{{"events":[{}]}}}}]}}"#, ev_65.join(",")), 1 << 20).unwrap();
+    assert!(BeingRuntime::new().workflow(&req_65).is_err());
+
+    // Seed and odds bounds
+    let step_max_seed = parse(r#"{"ops":[{"op":"step","args":{"events":[],"seed":1000000000000}}]}"#, 4096).unwrap();
+    assert!(BeingRuntime::new().workflow(&step_max_seed).is_ok());
+    let step_over_seed = parse(r#"{"ops":[{"op":"step","args":{"events":[],"seed":1000000000001}}]}"#, 4096).unwrap();
+    assert!(BeingRuntime::new().workflow(&step_over_seed).is_err());
+
+    let attempt_1000 = parse(
+        r#"{"ops":[{"op":"step","args":{"events":[{"engine":"attempt","args":{"being":"b","task":"t","odds":1000}}]}}]}"#,
+        4096,
+    )
+    .unwrap();
+    assert!(BeingRuntime::new().workflow(&attempt_1000).is_ok());
+    let attempt_1001 = parse(
+        r#"{"ops":[{"op":"step","args":{"events":[{"engine":"attempt","args":{"being":"b","task":"t","odds":1001}}]}}]}"#,
+        4096,
+    )
+    .unwrap();
+    assert!(BeingRuntime::new().workflow(&attempt_1001).is_err());
+
+    // A refused op changes nothing:
+    let mut rt = filled();
+    let before = persist::export(&rt, &rt.limits).to_json();
+    let bad_step = parse(
+        r#"{"ops":[{"op":"step","args":{"events":[{"engine":"surroundings","op":"place","args":{"id":"new_p"}},{"engine":"drift","op":"experience","args":{"being":"zz","trait":"q","push":1,"reason":"x"}}]}}]}"#,
+        4096,
+    )
+    .unwrap();
+    assert!(rt.workflow(&bad_step).is_err());
+    assert_eq!(persist::export(&rt, &rt.limits).to_json(), before);
+
+    let bad_define = parse(r#"{"ops":[{"op":"define","args":{"being":"goat"}}]}"#, 4096).unwrap();
+    assert!(rt.workflow(&bad_define).is_err());
+    assert_eq!(persist::export(&rt, &rt.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

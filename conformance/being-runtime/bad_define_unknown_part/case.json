@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Define refuses unrecognized part keys.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Fabric breach at step >= 2 feeds defenses threat for belonging.",
+  "error": false
+}

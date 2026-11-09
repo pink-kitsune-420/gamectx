@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Protection keeps the witness's version and still lets the witness correct others.",
+  "error": false
+}

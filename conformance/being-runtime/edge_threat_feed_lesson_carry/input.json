@@ -1,0 +1,49 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "defenses",
+              "op": "profile",
+              "args": {
+                "being": "bo",
+                "maturity": 50,
+                "tolerance": 40,
+                "crisis": "confession"
+              }
+            },
+            {
+              "engine": "lesson",
+              "op": "outcome",
+              "args": {
+                "being": "bo",
+                "about": "fire",
+                "activity": "cook",
+                "result": "bad",
+                "episode": "e1"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "surroundings",
+              "op": "place",
+              "args": {
+                "id": "camp"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

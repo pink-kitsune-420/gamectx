@@ -1,0 +1,70 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "detail",
+              "op": "track",
+              "args": {
+                "being": "wen",
+                "distance": 0,
+                "needs": [
+                  {
+                    "id": "warmth",
+                    "rate": 1000,
+                    "level": 0
+                  }
+                ]
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "environment",
+              "args": {
+                "day_length": 240,
+                "phases": [
+                  {
+                    "id": "day",
+                    "start": 0,
+                    "end": 240,
+                    "light": "bright"
+                  }
+                ],
+                "weather": [
+                  {
+                    "id": "storm",
+                    "light_delta": -1,
+                    "noise": 10,
+                    "travel_pct": 100,
+                    "need_rates": {
+                      "warmth": 5
+                    },
+                    "seek_tags": [
+                      "indoor"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "weather",
+              "args": {
+                "kind": "storm"
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "conditions",
+              "args": {}
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

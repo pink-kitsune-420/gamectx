@@ -1,0 +1,76 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "surroundings",
+              "op": "environment",
+              "args": {
+                "day_length": 240,
+                "phases": [
+                  {
+                    "id": "day",
+                    "start": 0,
+                    "end": 240,
+                    "light": "bright"
+                  }
+                ]
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "place",
+              "args": {
+                "id": "gate"
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "trace_kind",
+              "args": {
+                "id": "soot",
+                "created_by": [
+                  "burn"
+                ],
+                "cleared_by": [
+                  "scrub"
+                ],
+                "visibility": "public",
+                "ttl": 60,
+                "implies": "fire_lit",
+                "sight": "soot"
+              }
+            },
+            {
+              "engine": "surroundings",
+              "op": "act",
+              "args": {
+                "action": "burn",
+                "place": "gate"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "surroundings",
+              "op": "perceive",
+              "args": {
+                "place": "gate"
+              },
+              "being": "wen"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

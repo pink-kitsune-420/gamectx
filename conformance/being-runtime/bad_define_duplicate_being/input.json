@@ -1,0 +1,19 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "being": "bo"
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "being": "bo"
+        }
+      }
+    ]
+  }
+}

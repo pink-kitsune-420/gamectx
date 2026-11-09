@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A step refusing any event rolls back all touched sections and memory.",
+  "error": true
+}

@@ -3730,7 +3730,7 @@ kind's usual `{ops, limits?}` request:
 - `import {save}` → `{from_version, kind, limits (the saved limits), version}`; the manager's state is replaced. A
   refused import changes nothing.
 
-All thirty-four kinds are at version 1; `packs` saves only authored packs (built-ins are not state).
+Thirty-three durable kinds are at version 1; `culture` is at version 2 (with boolean `protect` switch, migrating cleanly from v1); `packs` saves only authored packs (built-ins are not state).
 
 **Bundle.** Local kind `state-bundle`: `{ops: 1–64, limits?}` → `{limits?, results, version: 1}` with limit
 `sections` (default 64, ceiling 64). A bundle holds at most one manager per durable kind.
@@ -3745,6 +3745,34 @@ All thirty-four kinds are at version 1; `packs` saves only authored packs (built
   not hold). Only when every section loads does the bundle become exactly the saved managers (kinds absent from the
   save are dropped).
 - `inspect {save}` → the same report as `import`, after the same checks, without changing the bundle.
+
+## Being runtime v1 (pass 5, stage 2)
+
+`gamectx::runtime::being` (guide: [Life](characters/LIFE.md#being-runtime-pass-5-stage-2)),
+local kind `being-runtime` with [host limits](#host-limits-v1): `definitions` (default 1024, ceiling 1,000,000)
+and `carry` (default 256, ceiling 4096). `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
+Its 30 cases (11 malformed) live in `conformance/being-runtime/`.
+
+A single coordinated runtime managing thirty-four durable character and world engines plus `attempt`.
+Events in a step are executed in a deterministic stage order (0: `genre`, 1: `minds`, 2: `packs`, 3: `surroundings`,
+4: `fabric`, 5: `space`, 6: `attention`, 7: `turn-frame`, 8: `pragmatics`, 9: `expectation`, 10: `economy`,
+11: `defenses`, 12: `beliefs`, 13: `speech_act`, 14: `cueing`, 15: `projects`, 16: `survival`, 17: `diet`,
+18: `cognition`, 19: `creed`, 20: `lesson`, 21: `habit`, 22: `aspiration`, 23: `chatter`, 24: `cooperation`,
+25: `detail`, 26: `culture`, 27: `chemistry`, 28: `stability`, 29: `retention`, 30: `roles`, 31: `drift`,
+32: `explain`, 33: `attempt`, 34: `embodiment`).
+
+Twelve wired cross-engine edges with documented explain traces:
+`chemistry_cooperation`, `culture_retellings`, `failure_odds`, `genre_words`, `minds_admit`, `project_feeds`,
+`protect_witness`, `salience_budget`, `threat_feed`, `traces_beliefs`, `voice_hints`, and `weather_needs`.
+
+- `define {being, creed?, culture?, defense?, genre?, mind?, projects?, routines?, species?, style?}` → `{being, requests, results, trace}`;
+  wires modular definitions into the respective underlying engines.
+- `step {events: [≤64 event], seed? 0–10¹²}` → `{applied, budget?, carried, diff, odds?, step, trace, voice?}`;
+  sorts events by stage order, executes edge listeners, and rolls back atomically on any engine error.
+- `edges {set: {edge: bool}}` → `{applied, edges}`; enables or disables individual wired edges.
+- `show {being}` → `{being, definition}`; inspects a registered being definition.
+- `export {}` → `{"format": "gamectx-state", "kind": "being-runtime", "limits", "state", "version": 1}`.
+- `import {save}` → replaces the runtime's state after strict envelope and invariant validation.
 
 ## Surroundings v1 (pass 3, stage 5)
 

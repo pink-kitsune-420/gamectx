@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Define refuses re-defining an already defined being.",
+  "error": true
+}

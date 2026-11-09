@@ -1,0 +1,35 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "embodiment",
+              "op": "tension",
+              "args": {
+                "being": "bo",
+                "norm_breach": {
+                  "norm": "no_theft",
+                  "severity": 60,
+                  "duress": true
+                }
+              }
+            },
+            {
+              "engine": "attempt",
+              "args": {
+                "being": "bo",
+                "task": "lift_gate",
+                "odds": 800
+              }
+            }
+          ],
+          "seed": 7
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Save anywhere (culture, save v2): load the save taken halfway through culture/chain_keeps_last_eight, run the rest and save again.",
+  "error": false
+}

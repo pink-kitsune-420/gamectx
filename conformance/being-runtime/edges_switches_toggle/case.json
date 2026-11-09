@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Toggle edges switches off and observe absent step output fields.",
+  "error": false
+}

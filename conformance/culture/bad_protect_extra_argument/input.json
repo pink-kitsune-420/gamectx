@@ -1,0 +1,14 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "protect",
+        "args": {
+          "on": true,
+          "topic": "missing_coins"
+        }
+      }
+    ]
+  }
+}

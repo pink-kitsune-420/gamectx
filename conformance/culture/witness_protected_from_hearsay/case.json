@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With protection on, the witness keeps their own version, however trusted the gossip.",
+  "error": false
+}

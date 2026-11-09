@@ -1986,3 +1986,52 @@ bundle (culture 1,576, projects 599, stability 11,637 bytes in all). Save size a
 desktop the reloads cost about 5.9 ms each, mostly the 158 KB culture save
 (`eval/character/pass5-deep-timing.json`). Saves are not compressed; whether that is needed is
 left to the measurements (design O4). $0 API spend.
+
+## Being runtime (pass 5 stage 2)
+
+A single coordinated runtime (`gamectx::runtime::being::BeingRuntime` or local kind `being-runtime`)
+manages all thirty-four durable character and world engines plus `attempt`. It introduces modular
+being definitions, a deterministic event stage order, twelve wired cross-engine edges, atomic
+transactional step execution with rollback on engine errors, and export/import as canonical
+`gamectx-state` v1.
+
+A being definition (`define {being, creed?, culture?, defense?, genre?, mind?, projects?, routines?, species?, style?}`)
+wires the being's components into their respective managers in one request. Events inside a
+`step {events, seed?}` are queued and sorted into the fixed deterministic stage order:
+0: `genre`, 1: `minds`, 2: `packs`, 3: `surroundings`, 4: `fabric`, 5: `space`, 6: `attention`,
+7: `turn-frame`, 8: `pragmatics`, 9: `expectation`, 10: `economy`, 11: `defenses`, 12: `beliefs`,
+13: `speech_act`, 14: `cueing`, 15: `projects`, 16: `survival`, 17: `diet`, 18: `cognition`,
+19: `creed`, 20: `lesson`, 21: `habit`, 22: `aspiration`, 23: `chatter`, 24: `cooperation`,
+25: `detail`, 26: `culture`, 27: `chemistry`, 28: `stability`, 29: `retention`, 30: `roles`,
+31: `drift`, 32: `explain`, 33: `attempt`, 34: `embodiment`.
+
+Twelve cross-engine edges connect decisions across module boundaries and record explain traces:
+1. `chemistry_cooperation`: pair chemistry shifts cooperation `ask_help` trust by the cooperativeness bias.
+2. `culture_retellings`: chatter `meet` tells emit culture `tell` rumor retellings with FNV-1a seeded mutation.
+3. `failure_odds`: embodiment tension failure risk modifies `attempt` odds with deterministic roll.
+4. `genre_words`: normalizes fabric/surroundings events from genre vocabulary to engine words, and renders results back.
+5. `minds_admit`: routes cueing, pragmatics, and embodiment requests through the being's mind architecture before running.
+6. `project_feeds`: completed and abandoned life projects feed drift traits, lessons, and aspirations.
+7. `protect_witness`: culture `protect` follows the switch, ensuring direct witnesses retain their version against hearsay.
+8. `salience_budget`: turn-frame `rank` assigns salience shares to kept context items.
+9. `threat_feed`: fabric norm breaches queue threats into defenses profiles.
+10. `traces_beliefs`: surroundings `perceive` feeds implied facts into beliefs `learn`.
+11. `voice_hints`: embodiment tension provides voice pacing, pitch, and pause hints.
+12. `weather_needs`: surroundings weather conditions modify detail need tick rates.
+
+The runtime state itself is durable (`gamectx-state` v1) under host-set limits `definitions` (default 1024)
+and `carry` (default 256).
+
+**Evidence (pass 5 stage 2):** an independent Python reference (`eval/character/runtime_reference.py`,
+`runtime_cases.py`) and 30 conformance cases in `conformance/being-runtime/` (11 malformed), covering
+modular definitions, stage order sorting, each of the 12 edges, individual edge toggles via `edges`,
+atomic step rollback, and canonical export/import. Robustness section 49 (`tests/robustness.rs`) runs
+1,500 mutated workflows and verifies edge invariants.
+
+The deep equivalence proof (`eval/character/pass5_deep_test.rs`, report `eval/character/pass5-deep.json`,
+checked in CI; 80 checks total) proves two equivalence guarantees:
+1. Town replay: the pass 4 100-agent town replayed through `BeingRuntime::step` matches the standalone
+   run byte for byte across 1,077 reloads.
+2. Acceptance scene replay: "The Missing Ration" acceptance scene replayed through `BeingRuntime::step`
+   produces byte-identical decisions and explanations in both orbital station and village settings (0 mismatches).
+All 12 wired edges are verified with active explain traces. $0 API spend.

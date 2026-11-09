@@ -19,6 +19,11 @@
 //! listener who already holds a version keeps it unless it trusts the teller (trust ≥ 50), so a
 //! trusted witness retelling the original is a correction.
 //!
+//! `protect {on}` (pass 5, off by default) keeps a witness's own version: with it on, a witness
+//! keeps what they saw whoever retells it to them, so only the witness can correct the story.
+//! Saves are version 2 (`protect_witness` in the state); a version 1 save loads with protection
+//! off, so an old game behaves as before.
+//!
 //! Capacities are [host-set limits](crate::character::limits). Pure host computation ($0 model
 //! spend); replays are byte-identical.
 //!
@@ -174,6 +179,8 @@ pub struct Culture {
     pub holders: BTreeMap<String, BTreeSet<String>>,
     pub count: usize,
     pub clock: u64,
+    /// A witness keeps their own version of what they saw (`protect`, pass 5).
+    pub protect_witness: bool,
     pub limits: Limits,
 }
 
@@ -187,6 +194,7 @@ impl Default for Culture {
             holders: BTreeMap::new(),
             count: 0,
             clock: 0,
+            protect_witness: false,
             limits: Limits::defaults(LIMITS),
         }
     }
@@ -215,6 +223,7 @@ impl Culture {
             "seed" => self.op_seed(args, l),
             "tell" => self.op_tell(args, l),
             "belief" => self.op_belief(args),
+            "protect" => self.op_protect(args),
             "spread" => self.op_spread(args),
             "export" => persist::export_op(self, l, args),
             "import" => persist::import(self, l, args),
@@ -222,6 +231,17 @@ impl Culture {
         });
         self.limits = lim;
         out
+    }
+
+    fn op_protect(&mut self, args: &Value) -> Result<Value> {
+        keys(args, &["on"], &[])?;
+        self.protect_witness = c::get(args, "on")?.as_bool().ok_or_else(c::bad)?;
+        Ok(obj! { "protect_witness" => self.protect_witness })
+    }
+
+    /// The topic's witness, when protection is on, keeps their own version.
+    fn protected(&self, being: &str, topic: &str) -> bool {
+        self.protect_witness && self.truths.get(topic).is_some_and(|t| t.witness == being)
     }
 
     fn member(&self, b: &str) -> Result<&Member> {
@@ -425,7 +445,7 @@ impl Culture {
         let src = held.get(&topic).ok_or_else(c::bad)?;
         let old = self.beliefs.get(&lis).and_then(|t| t.get(&topic));
         let before = old.map(|o| obj! { "drift" => self.drift(&topic, o.amount), "ops" => o.ops });
-        if let Some(o) = old.filter(|_| trust < 50) {
+        if let Some(o) = old.filter(|_| trust < 50 || self.protected(&lis, &topic)) {
             return Ok(obj! {
                 "before" => before, "belief" => self.view(&lis, &topic, o), "kept" => true, "mutated" => Value::Null,
             });
@@ -533,8 +553,8 @@ persist!(Version {
     agent, amount [1, MAX_AMOUNT], chain, details, hops [0, MAX_AT], last in OPERATORS, merged, ops [0, MAX_AT],
     place, verb,
 });
-persist!(rest Culture { beliefs, clock [0, MAX_AT], idioms, members, truths });
-durable!(Culture, "culture", LIMITS);
+persist!(rest Culture { beliefs, clock [0, MAX_AT], idioms, members, protect_witness, truths });
+durable!(Culture, "culture", LIMITS, 2);
 
 fn unique_idents(xs: &[String], max: usize) -> bool {
     xs.len() <= max && xs.iter().all(|x| is_ident(x)) && xs.iter().collect::<BTreeSet<_>>().len() == xs.len()
@@ -584,8 +604,12 @@ impl Culture {
         Ok(())
     }
 
-    fn migrate_state(_from: u64, _state: Value) -> Result<Value> {
-        Err(c::bad())
+    /// Version 1 → 2: witness protection did not exist, so it is off.
+    fn migrate_state(from: u64, state: Value) -> Result<Value> {
+        match from {
+            1 => persist::with_field(state, "protect_witness", Value::Bool(false)),
+            _ => Err(c::bad()),
+        }
     }
 }
 

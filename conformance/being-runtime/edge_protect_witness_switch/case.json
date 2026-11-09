@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Culture auto-protects when protect_witness switch is on.",
+  "error": false
+}

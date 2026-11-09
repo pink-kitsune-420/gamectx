@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Attempt event refuses odds above 1000.",
+  "error": true
+}

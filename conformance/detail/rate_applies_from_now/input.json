@@ -1,0 +1,52 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "rate",
+        "args": {
+          "being": "a",
+          "need": "hunger",
+          "rate": 30000
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 20
+        }
+      },
+      {
+        "op": "assess",
+        "args": {
+          "being": "a"
+        }
+      }
+    ]
+  }
+}

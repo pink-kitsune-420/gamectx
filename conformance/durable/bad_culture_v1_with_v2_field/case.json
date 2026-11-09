@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a version 1 culture save cannot already hold the v2 field.",
+  "error": true
+}

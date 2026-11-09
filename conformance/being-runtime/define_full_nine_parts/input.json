@@ -1,0 +1,95 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "surroundings",
+              "op": "place",
+              "args": {
+                "id": "gate"
+              }
+            },
+            {
+              "engine": "creed",
+              "op": "register_creed",
+              "args": {
+                "creed": {
+                  "id": "builders",
+                  "label": "The Builders",
+                  "kind": "tradition"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "being": "wen",
+          "mind": {
+            "id": "human"
+          },
+          "genre": "orbital_station",
+          "species": "human",
+          "style": {
+            "formality": 40,
+            "assertiveness": 50,
+            "humour": "dry",
+            "tempo": "measured"
+          },
+          "culture": {
+            "community": "dock",
+            "status": 50,
+            "openness": 50,
+            "carefulness": 50,
+            "credulity": 50
+          },
+          "defense": {
+            "maturity": 50,
+            "tolerance": 40,
+            "crisis": "confession"
+          },
+          "routines": [
+            {
+              "slot": "dawn",
+              "action": "patrol"
+            }
+          ],
+          "creed": {
+            "creed": "builders",
+            "devotion": 60
+          },
+          "projects": [
+            {
+              "id": "repair_gate",
+              "aim": "fix gate",
+              "stake": 50,
+              "horizon": 200,
+              "milestones": [
+                {
+                  "id": "m1",
+                  "condition": {
+                    "kind": "task",
+                    "ref": "t1"
+                  },
+                  "expected": 10
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "being": "wen"
+        }
+      }
+    ]
+  }
+}

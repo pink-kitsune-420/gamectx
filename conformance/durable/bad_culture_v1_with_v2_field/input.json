@@ -1,0 +1,165 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "culture",
+            "limits": {
+              "beings": 1024,
+              "beliefs": 4096,
+              "idioms": 64,
+              "repertoire": 32,
+              "topics": 256
+            },
+            "state": {
+              "beliefs": [],
+              "clock": 0,
+              "idioms": [],
+              "members": [
+                [
+                  "p0",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p1",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p10",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p2",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p3",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p4",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p5",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p6",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p7",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p8",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ],
+                [
+                  "p9",
+                  {
+                    "carefulness": 100,
+                    "community": "dock",
+                    "credulity": 50,
+                    "links": [],
+                    "openness": 50,
+                    "repertoire": [],
+                    "status": 50
+                  }
+                ]
+              ],
+              "protect_witness": true,
+              "truths": []
+            },
+            "version": 1
+          }
+        }
+      }
+    ]
+  }
+}

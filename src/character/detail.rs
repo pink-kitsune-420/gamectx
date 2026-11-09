@@ -144,6 +144,7 @@ impl Detail {
             "configure" => self.op_configure(args),
             "track" => self.op_track(args, l),
             "move" => self.op_move(args, l),
+            "rate" => self.op_rate(args),
             "tick" => self.op_tick(args),
             "assess" => self.op_assess(args),
             "crowd" => self.op_crowd(args),
@@ -305,6 +306,27 @@ impl Detail {
         Ok(obj! {
             "events" => Value::Array(events.iter().map(event_view).collect()), "from" => before, "to" => detail,
             "being" => Value::Object(view),
+        })
+    }
+
+    /// `rate {being, need, rate}` (pass 5): brings the being to the clock, then sets one need's
+    /// rate, so a change of weather applies from now on and never to time already passed.
+    fn op_rate(&mut self, args: &Value) -> Result<Value> {
+        keys(args, &["being", "need", "rate"], &[])?;
+        let b = id_of(args, "being")?;
+        let nid = id_of(args, "need")?;
+        let rate = uint_bound(c::get(args, "rate")?, 0, M)?;
+        let clock = self.clock;
+        let x = self.beings.get_mut(&b).ok_or_else(c::bad)?;
+        need(x.needs.contains_key(&nid))?;
+        let events = Self::advance(x, &b, clock);
+        let n = x.needs.get_mut(&nid).ok_or_else(c::bad)?;
+        let before = n.rate;
+        n.rate = rate;
+        Ok(obj! {
+            "before" => before, "being" => Value::Object(Self::view(&b, x)),
+            "events" => Value::Array(events.iter().map(event_view).collect()), "need" => nid.as_str(),
+            "rate" => rate,
         })
     }
 

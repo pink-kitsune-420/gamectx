@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Host limit on definitions refuses excess being definitions.",
+  "error": true
+}

@@ -1,0 +1,65 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "chemistry",
+              "op": "style",
+              "args": {
+                "being": "ada",
+                "formality": 50,
+                "assertiveness": 50,
+                "humour": "warm",
+                "tempo": "measured"
+              }
+            },
+            {
+              "engine": "chemistry",
+              "op": "style",
+              "args": {
+                "being": "bo",
+                "formality": 50,
+                "assertiveness": 50,
+                "humour": "warm",
+                "tempo": "measured"
+              }
+            },
+            {
+              "engine": "cooperation",
+              "op": "form",
+              "args": {
+                "id": "harvest",
+                "organizer": "ada",
+                "goal": "barley",
+                "roles": [
+                  {
+                    "role": "aid",
+                    "being": "ada"
+                  },
+                  {
+                    "role": "cart"
+                  }
+                ]
+              }
+            },
+            {
+              "engine": "cooperation",
+              "op": "ask_help",
+              "args": {
+                "task": "harvest",
+                "role": "cart",
+                "asker": "ada",
+                "helper": "bo",
+                "trust": 10
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

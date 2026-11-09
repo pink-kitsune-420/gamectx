@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: `on` is true or false.",
+  "error": true
+}

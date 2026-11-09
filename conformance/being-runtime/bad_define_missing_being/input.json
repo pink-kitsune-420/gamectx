@@ -1,0 +1,13 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "genre": "orbital_station"
+        }
+      }
+    ]
+  }
+}

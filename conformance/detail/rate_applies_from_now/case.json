@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A faster rate applies from the clock on: time already passed keeps the old rate.",
+  "error": false
+}

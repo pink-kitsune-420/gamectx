@@ -1,0 +1,14 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "being": "bo",
+          "horoscope": "aries"
+        }
+      }
+    ]
+  }
+}

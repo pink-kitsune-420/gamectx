@@ -1,0 +1,22 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "being": "beast",
+          "mind": {
+            "id": "herd_animal"
+          },
+          "style": {
+            "humour": "warm",
+            "formality": 50,
+            "tempo": "steady",
+            "assertiveness": 50
+          }
+        }
+      }
+    ]
+  }
+}

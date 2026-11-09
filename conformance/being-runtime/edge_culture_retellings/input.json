@@ -1,0 +1,77 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "culture",
+              "op": "member",
+              "args": {
+                "being": "ada",
+                "community": "keep",
+                "status": 50,
+                "openness": 50,
+                "carefulness": 0,
+                "credulity": 50
+              }
+            },
+            {
+              "engine": "culture",
+              "op": "member",
+              "args": {
+                "being": "bo",
+                "community": "keep",
+                "status": 50,
+                "openness": 50,
+                "carefulness": 50,
+                "credulity": 100
+              }
+            },
+            {
+              "engine": "culture",
+              "op": "seed",
+              "args": {
+                "topic": "lost_key",
+                "witness": "ada",
+                "verb": "took",
+                "agent": "cy"
+              }
+            },
+            {
+              "engine": "chatter",
+              "op": "know",
+              "args": {
+                "being": "ada",
+                "topic": "lost_key",
+                "value": "cy",
+                "weight": 60
+              }
+            },
+            {
+              "engine": "chatter",
+              "op": "know",
+              "args": {
+                "being": "bo",
+                "topic": "weather",
+                "value": "cold",
+                "weight": 10
+              }
+            },
+            {
+              "engine": "chatter",
+              "op": "meet",
+              "args": {
+                "a": "ada",
+                "b": "bo",
+                "seed": 3
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

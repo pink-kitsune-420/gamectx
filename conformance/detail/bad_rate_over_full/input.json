@@ -1,0 +1,34 @@
+{
+  "kind": "detail",
+  "args": {
+    "ops": [
+      {
+        "op": "track",
+        "args": {
+          "being": "a",
+          "distance": 0,
+          "needs": [
+            {
+              "id": "hunger",
+              "rate": 10000,
+              "level": 400000
+            },
+            {
+              "id": "thirst",
+              "rate": 25000,
+              "level": 100000
+            }
+          ]
+        }
+      },
+      {
+        "op": "rate",
+        "args": {
+          "being": "a",
+          "need": "hunger",
+          "rate": 1000001
+        }
+      }
+    ]
+  }
+}

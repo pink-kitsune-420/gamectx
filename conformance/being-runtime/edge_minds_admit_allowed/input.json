@@ -1,0 +1,34 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "minds",
+              "op": "assign",
+              "args": {
+                "being": "bo",
+                "mind": "human"
+              }
+            },
+            {
+              "engine": "embodiment",
+              "op": "tension",
+              "args": {
+                "being": "bo",
+                "norm_breach": {
+                  "norm": "no_theft",
+                  "severity": 60,
+                  "duress": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

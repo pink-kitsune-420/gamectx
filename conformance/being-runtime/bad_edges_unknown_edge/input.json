@@ -1,0 +1,15 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "edges",
+        "args": {
+          "set": {
+            "telepathy": true
+          }
+        }
+      }
+    ]
+  }
+}

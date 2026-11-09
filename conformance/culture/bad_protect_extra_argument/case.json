@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: protect takes only `on`.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a version 2 culture save must hold `protect_witness`.",
+  "error": true
+}

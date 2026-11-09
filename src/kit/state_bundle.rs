@@ -44,9 +44,13 @@ pub trait Section {
     /// A fresh manager of this kind restored from `save`, keeping this manager's limits, with
     /// the save's version and saved limits.
     fn restore(&self, save: &Value) -> Result<(Box<dyn Section>, u64, Value)>;
+    /// Clones this manager into a fresh boxed section, preserving limits.
+    fn copy(&self) -> Box<dyn Section>;
+    /// The manager's inner state (for diffing without envelope overhead).
+    fn state(&self) -> Value;
 }
 
-impl<T: Durable + 'static> Section for T {
+impl<T: Durable + Clone + 'static> Section for T {
     fn kind(&self) -> &'static str {
         T::KIND
     }
@@ -63,13 +67,21 @@ impl<T: Durable + 'static> Section for T {
         let (m, from, saved) = persist::restore::<T>(save, self.limits())?;
         Ok((Box::new(m), from, saved))
     }
+
+    fn copy(&self) -> Box<dyn Section> {
+        Box::new(self.clone())
+    }
+
+    fn state(&self) -> Value {
+        persist::Persist::save(self)
+    }
 }
 
 /// A blank manager of `kind`, or `None` for a kind that has no durable state.
 pub fn blank(kind: &str) -> Option<Box<dyn Section>> {
     use crate::character as ch;
     use crate::knowledge as kn;
-    fn new<T: Durable + 'static>() -> Option<Box<dyn Section>> {
+    fn new<T: Durable + Clone + 'static>() -> Option<Box<dyn Section>> {
         Some(Box::new(T::default()))
     }
     match kind {

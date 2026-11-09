@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Embodiment failure risk adjusts attempt odds and seeded roll.",
+  "error": false
+}

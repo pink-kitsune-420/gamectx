@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Step refuses event with unknown engine.",
+  "error": true
+}

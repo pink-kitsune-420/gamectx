@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A higher rate brings the urgent tick forward.",
+  "error": false
+}

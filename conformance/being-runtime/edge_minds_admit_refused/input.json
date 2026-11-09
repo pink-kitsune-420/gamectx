@@ -1,0 +1,30 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "minds",
+              "op": "assign",
+              "args": {
+                "being": "dog",
+                "mind": "herd_animal"
+              }
+            },
+            {
+              "engine": "embodiment",
+              "op": "tension",
+              "args": {
+                "being": "dog",
+                "deceiving": true
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

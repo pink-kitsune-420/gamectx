@@ -1,0 +1,26 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "culture",
+              "op": "member",
+              "args": {
+                "being": "ada",
+                "community": "dock",
+                "status": 50,
+                "openness": 50,
+                "carefulness": 50,
+                "credulity": 50
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

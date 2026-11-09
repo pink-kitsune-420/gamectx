@@ -1,0 +1,13 @@
+{
+  "kind": "culture",
+  "args": {
+    "ops": [
+      {
+        "op": "protect",
+        "args": {
+          "on": 1
+        }
+      }
+    ]
+  }
+}

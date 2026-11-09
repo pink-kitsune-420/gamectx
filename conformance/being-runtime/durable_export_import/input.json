@@ -1,0 +1,34 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "being": "goat",
+          "mind": {
+            "id": "herd_animal"
+          },
+          "style": {
+            "humour": "none",
+            "tempo": "measured",
+            "formality": 30,
+            "assertiveness": 60
+          }
+        }
+      },
+      {
+        "op": "edges",
+        "args": {
+          "set": {
+            "threat_feed": false
+          }
+        }
+      },
+      {
+        "op": "export",
+        "args": {}
+      }
+    ]
+  }
+}

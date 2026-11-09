@@ -1,0 +1,31 @@
+{
+  "kind": "being-runtime",
+  "args": {
+    "ops": [
+      {
+        "op": "edges",
+        "args": {
+          "set": {
+            "salience_budget": false,
+            "failure_odds": false,
+            "voice_hints": false
+          }
+        }
+      },
+      {
+        "op": "step",
+        "args": {
+          "events": [
+            {
+              "engine": "surroundings",
+              "op": "place",
+              "args": {
+                "id": "square"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -450,6 +450,16 @@ pub fn restore<T: Durable>(save: &Value, limits: &Limits) -> Result<(T, u64, Val
     Ok((m, version, limits_view(T::SPEC, &saved)))
 }
 
+/// A migration step: `state` (an object) with a new field `name` added at its sorted place.
+/// Refuses a state that is not an object or already has the field.
+pub fn with_field(state: Value, name: &str, value: Value) -> Result<Value> {
+    let Value::Object(mut fields) = state else { return Err(c::bad()) };
+    let at = fields.partition_point(|(k, _)| k.as_str() < name);
+    need(fields.get(at).is_none_or(|(k, _)| k != name))?;
+    fields.insert(at, (name.to_string(), value));
+    Ok(Value::Object(fields))
+}
+
 /// Checks that `v` is an object with exactly `names`, in that (sorted) order.
 pub fn exact_fields(v: &Value, names: &[&str]) -> Result<()> {
     let rows = v.as_object().ok_or_else(c::bad)?;

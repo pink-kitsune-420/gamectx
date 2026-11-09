@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A bundle holding a culture v1 section migrates it to v2 and reports the version it came from.",
+  "error": false
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Edges op refuses non-boolean switch value.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Edges op refuses unknown edge names.",
+  "error": true
+}
