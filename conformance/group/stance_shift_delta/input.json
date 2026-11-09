@@ -1,0 +1,31 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "open_salt_store",
+          "prompt": "Open store?"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "open_salt_store",
+          "stance": 30
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "open_salt_store",
+          "delta": 15,
+          "reason": "argument_heard"
+        }
+      }
+    ]
+  }
+}

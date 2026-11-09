@@ -1,0 +1,15 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "audience",
+        "args": {
+          "speaker": "maren",
+          "audience": [],
+          "threat": 40
+        }
+      }
+    ]
+  }
+}

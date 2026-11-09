@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Consensus passes when no one has negative stance",
+  "error": false
+}

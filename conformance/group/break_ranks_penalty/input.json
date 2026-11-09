@@ -1,0 +1,57 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "open_salt_store",
+          "prompt": "Open store?"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "open_salt_store",
+          "stance": 60
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "alder",
+          "question": "open_salt_store",
+          "stance": 50
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "tressa",
+          "question": "open_salt_store",
+          "stance": 40
+        }
+      },
+      {
+        "op": "coalition",
+        "args": {
+          "id": "council_allies",
+          "question": "open_salt_store",
+          "members": [
+            "maren",
+            "alder",
+            "tressa"
+          ]
+        }
+      },
+      {
+        "op": "break_ranks",
+        "args": {
+          "being": "tressa",
+          "coalition": "council_allies"
+        }
+      }
+    ]
+  }
+}

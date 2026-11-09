@@ -1,0 +1,37 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "praise_founders",
+          "prompt": "Praise?",
+          "mode": "consensus"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "praise_founders",
+          "stance": 50
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "priest",
+          "question": "praise_founders",
+          "stance": -10
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "question": "praise_founders"
+        }
+      }
+    ]
+  }
+}

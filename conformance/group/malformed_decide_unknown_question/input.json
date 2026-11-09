@@ -1,0 +1,13 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "decide",
+        "args": {
+          "question": "ghost_question"
+        }
+      }
+    ]
+  }
+}

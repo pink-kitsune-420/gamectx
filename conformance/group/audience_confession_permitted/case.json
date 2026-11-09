@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Confession permitted when all bystanders exceed trust threshold",
+  "error": false
+}

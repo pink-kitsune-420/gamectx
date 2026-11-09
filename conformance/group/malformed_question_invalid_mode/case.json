@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse invalid decision mode",
+  "error": true
+}

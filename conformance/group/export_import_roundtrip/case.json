@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Canonical save roundtrip preserving questions, stances and coalitions",
+  "error": false
+}

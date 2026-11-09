@@ -1,0 +1,16 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "muster_guard",
+          "prompt": "Call the harbor guard?",
+          "mode": "leader",
+          "leader": "maren"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Contagion step per turn capped by contagion_cap limit",
+  "error": false
+}

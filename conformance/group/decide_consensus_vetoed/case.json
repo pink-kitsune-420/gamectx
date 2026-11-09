@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Single negative stance vetoes consensus and marks dissident",
+  "error": false
+}

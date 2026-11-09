@@ -5342,6 +5342,90 @@ fn player_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&p, &p.limits).to_json(), before);
 }
 
+#[test]
+fn group_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::group::GroupManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5055_2026_1109_0054);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut gm = GroupManager::new();
+        gm.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"question","args":{"id":"open_salt_store","prompt":"Open store?","mode":"vote"}},
+                {"op":"question","args":{"id":"muster_guard","prompt":"Muster guard?","mode":"leader","leader":"harbormaster"}},
+                {"op":"stance","args":{"being":"maren","question":"open_salt_store","stance":60}},
+                {"op":"stance","args":{"being":"alder","question":"open_salt_store","stance":50}},
+                {"op":"stance","args":{"being":"priest","question":"open_salt_store","stance":-40}},
+                {"op":"coalition","args":{"id":"allies","question":"open_salt_store","members":["alder","maren"]}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        gm
+    };
+
+    // 54. Group fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut gm = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            gm = filled();
+        }
+        let before = persist::export(&gm, &gm.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match gm.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&gm, &gm.limits);
+                let mut gm2 = GroupManager::new();
+                gm2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&gm2, &gm2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&gm, &gm.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; question op
+    let qop = r#"{"op":"question","args":{"id":"q_repeated","prompt":"p"}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![qop.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![qop.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"coalitions":64,"contagion_cap":50,"max_shift":100,"questions":64}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"coalitions":65}"#, false),
+        (r#"{"contagion_cap":51}"#, false),
+        (r#"{"max_shift":101}"#, false),
+        (r#"{"questions":65}"#, false),
+        (r#"{"questions":0}"#, false),
+    ] {
+        let mut g = GroupManager::new();
+        assert_eq!(g.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut g = filled();
+    let before = persist::export(&g, &g.limits).to_json();
+    let bad_q =
+        parse(r#"{"ops":[{"op":"question","args":{"id":"bad id!","prompt":"p"}}]}"#, 4096).unwrap();
+    assert!(g.workflow(&bad_q).is_err());
+    assert_eq!(persist::export(&g, &g.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

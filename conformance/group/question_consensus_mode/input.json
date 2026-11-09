@@ -1,0 +1,15 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "exile_traitor",
+          "prompt": "Shall the outcast be permanently exiled?",
+          "mode": "consensus"
+        }
+      }
+    ]
+  }
+}

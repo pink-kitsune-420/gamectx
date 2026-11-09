@@ -1,0 +1,24 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "contagion",
+        "args": {
+          "beings": [
+            {
+              "being": "harbormaster",
+              "mood": 80,
+              "status": 9
+            },
+            {
+              "being": "netter",
+              "mood": -40,
+              "status": 2
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

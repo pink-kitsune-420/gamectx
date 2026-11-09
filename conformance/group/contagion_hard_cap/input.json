@@ -1,0 +1,27 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "contagion",
+        "args": {
+          "beings": [
+            {
+              "being": "maren",
+              "mood": 100,
+              "status": 10
+            },
+            {
+              "being": "netter",
+              "mood": -100,
+              "status": 1
+            }
+          ]
+        }
+      }
+    ],
+    "limits": {
+      "contagion_cap": 10
+    }
+  }
+}

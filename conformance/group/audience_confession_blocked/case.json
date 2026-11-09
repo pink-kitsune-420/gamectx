@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Confession blocked if any bystander lacks sufficient trust",
+  "error": false
+}

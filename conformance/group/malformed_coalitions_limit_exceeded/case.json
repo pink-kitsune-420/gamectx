@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse coalition exceeding coalitions limit",
+  "error": true
+}

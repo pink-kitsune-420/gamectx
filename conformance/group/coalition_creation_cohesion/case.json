@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Form coalition and calculate cohesion from stances",
+  "error": false
+}

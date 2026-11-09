@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Speaker breaking ranks reassigns speaker to first remaining member",
+  "error": false
+}

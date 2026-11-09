@@ -1,0 +1,1 @@
+{"results":[{"id":"praise_founders","leader":null,"mode":"consensus","prompt":"Praise?"},{"being":"maren","delta":50,"question":"praise_founders","stance":50},{"being":"priest","delta":-10,"question":"praise_founders","stance":-10},{"dissidents":["priest"],"outcome":"vetoed","question":"praise_founders","votes":{"abstain":0,"no":1,"yes":1}}],"version":1}

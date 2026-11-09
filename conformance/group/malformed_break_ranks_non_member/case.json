@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse break_ranks from being not in coalition",
+  "error": true
+}

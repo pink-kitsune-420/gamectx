@@ -1,0 +1,32 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "q1",
+          "prompt": "p"
+        }
+      },
+      {
+        "op": "coalition",
+        "args": {
+          "id": "c1",
+          "question": "q1",
+          "members": [
+            "maren",
+            "alder"
+          ]
+        }
+      },
+      {
+        "op": "break_ranks",
+        "args": {
+          "being": "tressa",
+          "coalition": "c1"
+        }
+      }
+    ]
+  }
+}

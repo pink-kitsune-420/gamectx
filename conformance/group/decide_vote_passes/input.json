@@ -1,0 +1,45 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "open_salt_store",
+          "prompt": "Open store?",
+          "mode": "vote"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "open_salt_store",
+          "stance": 50
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "alder",
+          "question": "open_salt_store",
+          "stance": 30
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "priest",
+          "question": "open_salt_store",
+          "stance": -40
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "question": "open_salt_store"
+        }
+      }
+    ]
+  }
+}

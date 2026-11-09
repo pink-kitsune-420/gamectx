@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse leader mode without specified leader",
+  "error": true
+}

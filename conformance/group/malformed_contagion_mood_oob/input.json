@@ -1,0 +1,18 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "contagion",
+        "args": {
+          "beings": [
+            {
+              "being": "maren",
+              "mood": 150
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "open_salt_store",
+          "prompt": "Open store?"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "priest",
+          "question": "open_salt_store",
+          "stance": -90
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "priest",
+          "question": "open_salt_store",
+          "delta": -20
+        }
+      }
+    ]
+  }
+}

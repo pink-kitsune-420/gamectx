@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse coalition with fewer than 2 distinct members",
+  "error": true
+}

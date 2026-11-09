@@ -142,6 +142,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "surroundings" => crate::knowledge::surroundings::workflow(a),
         "fabric" => crate::knowledge::fabric::workflow(a),
         "genre" => crate::knowledge::genre::workflow(a),
+        "group" => crate::character::group::workflow(a),
         "minds" => crate::character::minds::workflow(a),
         "defenses" => crate::character::defenses::workflow(a),
         "culture" => crate::knowledge::culture::workflow(a),

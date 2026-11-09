@@ -1,0 +1,38 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "muster_guard",
+          "prompt": "Muster?",
+          "mode": "leader",
+          "leader": "harbormaster"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "harbormaster",
+          "question": "muster_guard",
+          "stance": 70
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "priest",
+          "question": "muster_guard",
+          "stance": -50
+        }
+      },
+      {
+        "op": "decide",
+        "args": {
+          "question": "muster_guard"
+        }
+      }
+    ]
+  }
+}

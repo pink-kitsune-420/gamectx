@@ -1,0 +1,1 @@
+{"results":[{"id":"muster_guard","leader":"harbormaster","mode":"leader","prompt":"Muster?"},{"being":"harbormaster","delta":70,"question":"muster_guard","stance":70},{"being":"priest","delta":-50,"question":"muster_guard","stance":-50},{"dissidents":["priest"],"outcome":"passed","question":"muster_guard","votes":{"abstain":0,"no":1,"yes":1}}],"version":1}

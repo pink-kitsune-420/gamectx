@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Zero bystanders gives base 1.0x threat multiplier",
+  "error": false
+}

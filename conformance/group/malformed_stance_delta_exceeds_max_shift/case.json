@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse delta larger than max_shift limit",
+  "error": true
+}

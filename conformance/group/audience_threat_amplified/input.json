@@ -1,0 +1,19 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "audience",
+        "args": {
+          "speaker": "maren",
+          "audience": [
+            "alder",
+            "priest",
+            "tressa"
+          ],
+          "threat": 50
+        }
+      }
+    ]
+  }
+}

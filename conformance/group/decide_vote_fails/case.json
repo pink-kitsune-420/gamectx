@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Vote fails when no exceeds yes",
+  "error": false
+}

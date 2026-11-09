@@ -1,0 +1,25 @@
+{
+  "kind": "group",
+  "args": {
+    "ops": [
+      {
+        "op": "question",
+        "args": {
+          "id": "q1",
+          "prompt": "p"
+        }
+      },
+      {
+        "op": "stance",
+        "args": {
+          "being": "maren",
+          "question": "q1",
+          "delta": 50
+        }
+      }
+    ],
+    "limits": {
+      "max_shift": 20
+    }
+  }
+}

@@ -1,0 +1,1 @@
+{"limits":{"beings":1024,"coalitions":16,"contagion_cap":10,"max_shift":25,"questions":16},"results":[{"beings":[{"being":"maren","mood":90,"shift":-10},{"being":"netter","mood":-90,"shift":10}],"contagion_cap":10,"room_mood":81,"variance":14661}],"version":1}
