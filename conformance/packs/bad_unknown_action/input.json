@@ -1,0 +1,24 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "role",
+          "id": "flier",
+          "pack": {
+            "status": 10,
+            "duties": [
+              {
+                "id": "fly",
+                "action": "fly",
+                "every": 2
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

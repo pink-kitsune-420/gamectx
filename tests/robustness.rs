@@ -3478,3 +3478,91 @@ fn drift_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn packs_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::packs::Packs;
+    use gamectx::kit::local::process;
+    let mut rng = Rng(0xD5FA_C4B0_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 35. Packs mutation fuzzing (limits included); one manager keeps state across runs, and
+    // every request an accepted apply emits is accepted by its own engine.
+    let samples = [
+        r#"{"limits":{"custom":3,"roles":3,"norms":2},"ops":[{"op":"define","args":{"kind":"species","id":"mule","pack":{"lifespan":262800,"needs":[{"id":"hunger","action":"feed","threshold":65,"rate_per_tick":2,"amount":20,"label":"Hunger"}]}}},{"op":"define","args":{"kind":"role","id":"ferryman","pack":{"status":25,"seats":2,"duties":[{"id":"crossing","action":"travel","every":4,"at":1,"place":"dock","priority":50}]}}},{"op":"apply","args":{"being":"jem","species":"mule","temperament":"bold","roles":["ferryman","guard"],"norms":["village","guild"]}}]}"#,
+        r#"{"ops":[{"op":"define","args":{"kind":"temperament","id":"odd","pack":{"cognition":"dreamy","survival":"timid","traits":[{"trait":"greed","base":-1000000}]}}},{"op":"define","args":{"kind":"norms","id":"sea","pack":{"tenets":[{"id":"sea_water","action":"take","severity":100,"label":"Never waste water"}]}}},{"op":"apply","args":{"being":"cato","temperament":"odd","norms":["sea","wanderer"]}},{"op":"list","args":{"kind":"norms"}},{"op":"show","args":{"kind":"role","id":"elder"}}]}"#,
+    ];
+    let mut k = Packs::new();
+    let mut checked = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                if let Ok(out) = k.workflow(&v) {
+                    for r in out.get("results").and_then(Value::as_array).unwrap_or(&[]) {
+                        for e in r.get("requests").and_then(Value::as_array).unwrap_or(&[]) {
+                            assert!(process(e).is_ok(), "{}", e.to_json());
+                            checked += 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert!(checked > 0);
+    assert!(k.count <= 3 * 1500 && k.custom.values().map(|m| m.len()).sum::<usize>() == k.count);
+
+    // Every built-in combination at the raised limits is accepted by every engine.
+    let mut k = Packs::with_limits(&parse(r#"{"roles":4,"norms":3}"#, 64).unwrap()).unwrap();
+    for sp in ["human", "dog", "horse", "goat"] {
+        for t in ["bold", "steady", "cautious", "timid", "dreamy"] {
+            let a = format!(
+                r#"{{"op":"apply","args":{{"being":"b","species":"{sp}","temperament":"{t}","roles":["guard","baker","elder","healer"],"norms":["village","guild","wanderer"]}}}}"#
+            );
+            let out = k.workflow(&req(&[a])).unwrap();
+            let rs = out.get("results").and_then(Value::as_array).unwrap()[0].get("requests").unwrap().clone();
+            assert_eq!(rs.as_array().unwrap().len(), 6);
+            for e in rs.as_array().unwrap() {
+                assert!(process(e).is_ok(), "{}", e.to_json());
+            }
+        }
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let list = r#"{"op":"list","args":{"kind":"role"}}"#.to_string();
+    assert!(Packs::new().workflow(&req(&vec![list.clone(); 64])).is_ok());
+    assert!(Packs::new().workflow(&req(&vec![list; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"custom":1000000,"roles":4,"norms":4}"#, true),
+        (r#"{"roles":5}"#, false),
+        (r#"{"norms":5}"#, false),
+        (r#"{"custom":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Packs::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: four norm sets of up to sixteen tenets may not merge past sixteen.
+    let mut k = Packs::with_limits(&parse(r#"{"norms":4}"#, 64).unwrap()).unwrap();
+    let tenets = |p: &str| {
+        (0..8)
+            .map(|i| format!(r#"{{"id":"{p}{i}","action":"take","severity":1,"label":"x"}}"#))
+            .collect::<Vec<_>>()
+            .join(",")
+    };
+    for p in ["a", "b", "c"] {
+        let d =
+            format!(r#"{{"op":"define","args":{{"kind":"norms","id":"{p}","pack":{{"tenets":[{}]}}}}}}"#, tenets(p));
+        k.workflow(&req(&[d])).unwrap();
+    }
+    assert!(k.workflow(&req(&[r#"{"op":"apply","args":{"being":"x","norms":["a","b"]}}"#.into()])).is_ok());
+    assert!(k.workflow(&req(&[r#"{"op":"apply","args":{"being":"x","norms":["a","b","c"]}}"#.into()])).is_err());
+
+    // A refused op changes nothing: replacing a built-in.
+    let mut k = Packs::new();
+    let before = k.clone();
+    let bad = r#"{"op":"define","args":{"kind":"role","id":"guard","pack":{"status":1}}}"#;
+    assert!(k.workflow(&req(&[bad.into()])).is_err());
+    assert_eq!(k, before);
+}

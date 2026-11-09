@@ -1,0 +1,46 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "norms",
+          "id": "sea",
+          "pack": {
+            "tenets": [
+              {
+                "id": "sea_no_waste_water",
+                "action": "take",
+                "severity": 70,
+                "label": "Never waste fresh water"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "kind": "role",
+          "id": "ferryman",
+          "pack": {
+            "status": 25,
+            "seats": 2,
+            "duties": [
+              {
+                "id": "crossing",
+                "action": "travel",
+                "every": 4,
+                "place": "dock"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "limits": {
+      "custom": 1
+    }
+  }
+}

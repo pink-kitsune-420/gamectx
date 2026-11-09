@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A custom mule species: missing labels, rates, thresholds and amounts take their defaults.",
+  "error": false
+}

@@ -1,0 +1,17 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "bram",
+          "temperament": "cautious",
+          "roles": [
+            "guard"
+          ]
+        }
+      }
+    ]
+  }
+}

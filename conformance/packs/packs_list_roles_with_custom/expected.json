@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"ferryman","kind":"role","pack":{"duties":[{"action":"travel","at":0,"every":4,"id":"crossing","place":"dock","priority":50}],"seats":2,"status":25}},{"builtin":["baker","elder","farmer","guard","healer"],"custom":["ferryman"],"kind":"role"}]}

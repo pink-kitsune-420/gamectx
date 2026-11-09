@@ -1,0 +1,17 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "tam",
+          "norms": [
+            "village",
+            "wanderer"
+          ]
+        }
+      }
+    ]
+  }
+}

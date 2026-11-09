@@ -29,6 +29,7 @@ pub mod living;
 pub mod mind;
 pub mod motive;
 pub mod offscreen;
+pub mod packs;
 pub mod party;
 pub mod relationship;
 pub mod retention;

@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"oda","hints":{"lifespan":null,"survival_temperament":null},"requests":[{"args":{"ops":[{"args":{"duties":[{"action":"talk","at":18,"every":24,"id":"counsel","place":"hall","priority":40}],"id":"elder","status":70,"seats":3},"op":"role"},{"args":{"being":"oda","role":"elder"},"op":"assign"}]},"kind":"roles"}]}]}

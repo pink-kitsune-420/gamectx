@@ -1,0 +1,18 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "x",
+          "roles": [
+            "guard",
+            "baker",
+            "farmer"
+          ]
+        }
+      }
+    ]
+  }
+}

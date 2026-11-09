@@ -1,0 +1,14 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "show",
+        "args": {
+          "kind": "temperament",
+          "id": "bold"
+        }
+      }
+    ]
+  }
+}

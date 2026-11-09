@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Applying a species that is neither built in nor defined is refused.",
+  "error": true
+}

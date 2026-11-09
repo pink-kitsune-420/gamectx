@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for one custom pack, a second id is refused.",
+  "error": true
+}

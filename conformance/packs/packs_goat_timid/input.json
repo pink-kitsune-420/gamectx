@@ -1,0 +1,15 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "nell",
+          "species": "goat",
+          "temperament": "timid"
+        }
+      }
+    ]
+  }
+}

@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills thirty modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty-one modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1422,6 +1422,14 @@ experience pressure, reason chains, author locks and revert). `character/drift_c
 (`conformance/drift/`, 7 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
 generator against `gamectx local -` (0 mismatches: 1,488 accepted, 512 refused, 610 shifts, 40 experiences at the
 cap, 307 locked experiences). [Results](../docs/characters/LIFE.md#slow-personality-change-pass-2-b4).
+
+## Default packs (offline)
+
+`character/packs_reference.py` is the independent prototype of pass 2 D5 (built-in and author-defined species,
+temperament, role and norm-set packs that become plain engine requests). `character/packs_cases.py --cap 0` checks
+25 cases (`conformance/packs/`, 7 malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation
+generator against `gamectx local -` (0 mismatches: 1,463 accepted, 537 refused, 6,286 applies emitting 16,534
+requests, 2,724 custom defines). [Results](../docs/characters/LIFE.md#default-packs-pass-2-d5).
 
 ## Visual compiler and approved asset metadata (offline)
 

@@ -1,0 +1,22 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "una",
+          "roles": [
+            "guard",
+            "baker",
+            "farmer",
+            "healer"
+          ]
+        }
+      }
+    ],
+    "limits": {
+      "roles": 4
+    }
+  }
+}

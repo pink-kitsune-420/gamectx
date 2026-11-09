@@ -1,0 +1,13 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "x"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Three roles exceed the default two per apply.",
+  "error": true
+}

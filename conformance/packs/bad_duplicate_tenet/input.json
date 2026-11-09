@@ -1,0 +1,34 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "norms",
+          "id": "copy",
+          "pack": {
+            "tenets": [
+              {
+                "id": "village_no_theft",
+                "action": "take",
+                "severity": 10,
+                "label": "Again"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "apply",
+        "args": {
+          "being": "x",
+          "norms": [
+            "village",
+            "copy"
+          ]
+        }
+      }
+    ]
+  }
+}

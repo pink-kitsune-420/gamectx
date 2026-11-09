@@ -1,0 +1,21 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "mira",
+          "species": "human",
+          "temperament": "bold",
+          "roles": [
+            "baker"
+          ],
+          "norms": [
+            "village"
+          ]
+        }
+      }
+    ]
+  }
+}

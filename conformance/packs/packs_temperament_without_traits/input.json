@@ -1,0 +1,25 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "temperament",
+          "id": "placid",
+          "pack": {
+            "traits": [],
+            "cognition": "steady"
+          }
+        }
+      },
+      {
+        "op": "apply",
+        "args": {
+          "being": "lio",
+          "temperament": "placid"
+        }
+      }
+    ]
+  }
+}

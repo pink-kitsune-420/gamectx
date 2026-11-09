@@ -1,0 +1,36 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "role",
+          "id": "ferryman",
+          "pack": {
+            "status": 25,
+            "seats": 2,
+            "duties": [
+              {
+                "id": "crossing",
+                "action": "travel",
+                "every": 4,
+                "place": "dock"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "apply",
+        "args": {
+          "being": "vos",
+          "species": "human",
+          "roles": [
+            "ferryman"
+          ]
+        }
+      }
+    ]
+  }
+}

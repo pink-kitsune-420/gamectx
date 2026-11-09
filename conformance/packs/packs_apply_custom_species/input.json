@@ -1,0 +1,38 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "kind": "species",
+          "id": "mule",
+          "pack": {
+            "lifespan": 262800,
+            "needs": [
+              {
+                "id": "hunger",
+                "action": "feed",
+                "threshold": 65,
+                "rate_per_tick": 2
+              },
+              {
+                "id": "load_rest",
+                "action": "unload",
+                "label": "Rest from loads"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "op": "apply",
+        "args": {
+          "being": "jem",
+          "species": "mule",
+          "temperament": "steady"
+        }
+      }
+    ]
+  }
+}

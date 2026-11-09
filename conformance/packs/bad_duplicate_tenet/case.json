@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Merged norm sets may not repeat a tenet id.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A custom temperament with no traits gives a cognition request and no drift request.",
+  "error": false
+}

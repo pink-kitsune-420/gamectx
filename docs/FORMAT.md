@@ -2914,6 +2914,7 @@ grows past them is refused where it used to be accepted.
 | `economy` | `goods` (64, 4096), `markets` (16, 1024), `traders` per good and market in one period (256, 65,536) |
 | `space` | `rooms` (64, 4096), `beings` placed (1024, 10⁶), `spots` per room (16, 1024), `queue` per spot (32, 4096) |
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
+| `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
 
 ### Knowledge kinds
 
@@ -3319,6 +3320,37 @@ or being), pressure, step, threshold, trait, value}`.
 - `lock {being, locked: bool, trait?}` → `{being, locked, trait|null}`; without `trait` it locks the being.
 - `revert {being, trait}` → view; value = base, pressure 0, reasons cleared, history kept.
 - `assess {being, trait?}` → `{being, locked, traits: [view]}` with pressure faded to the clock (no change).
+
+## Packs v1 (pass 2, D5)
+
+`gamectx::character::packs` (guide: [Life](characters/LIFE.md#default-packs-pass-2-d5)), local kind `packs` with
+[host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7 malformed)
+live in `conformance/packs/`. An op that fails refuses the request; ops before it keep their changes, and the
+failing op changes nothing. Kinds are `norms`, `role`, `species` and `temperament`; actions must be task actions.
+Packs are stored normalized (defaults filled, keys sorted):
+
+- species `{lifespan 1–10¹², needs: 1–8 [{id, action, label? text ≤40 (id), threshold? 0–100 (70), rate_per_tick?
+  0–100 (1), amount? 0–100 (20)}]}`;
+- temperament `{traits: 0–8 [{trait, base −10⁶..10⁶}], cognition? careful|dreamy|impulsive|steady (steady),
+  survival? bold|cautious|steady|timid (steady)}`;
+- role `{status 0–100, seats? 1–10⁶ (null), duties? 0–8 [{id, action, every 1–10¹², at? (0), place? (null),
+  priority? 0–100 (50)}]}`;
+- norms `{tenets: 1–16 [{id, action (any identifier), severity 1–100, label text ≤80}]}`.
+
+Ids within one pack are unique. Ops:
+
+- `define {kind, id, pack}` → `{id, kind, pack}`; a built-in id is refused; a new id counts toward `custom`,
+  redefining one does not.
+- `list {kind}` → `{builtin: [ids], custom: [ids], kind}` (sorted).
+- `show {kind, id}` → `{builtin: bool, id, kind, pack}`.
+- `apply {being, species?, temperament?, roles? (≤ roles limit), norms? (≤ norms limit)}` → `{being, hints:
+  {lifespan|null, survival_temperament|null}, requests}`. At least one pack is named; role and norm ids are
+  unique and the merged tenets number at most 16 with unique ids. `requests` are local requests `{args: {ops},
+  kind}` in this order, each only when its pack is given: `body` `init {being, needs: [{id, label, rate_per_tick,
+  satisfiers: [{action, amount}], threshold}], species}`; `survival` `born {being, lifespan}`; `cognition`
+  `profile {being, temperament}`; `drift` one `trait {base, being, trait}` per trait (omitted with no traits);
+  `roles` one `role {duties, id, status, seats?}` per role (null fields dropped) then one `assign {being, role}`
+  per role; `creed` `set_norms {being, norms}`.
 
 ## Game data and save files v1
 

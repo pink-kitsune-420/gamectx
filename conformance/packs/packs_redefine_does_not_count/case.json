@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for one custom pack, redefining the same id is still accepted.",
+  "error": false
+}

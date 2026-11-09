@@ -271,9 +271,12 @@ debugging tool for everything above, and the inspection profilers are the place 
 *Implemented (pass 2 stage 1):* `character::explain::ExplainTracer` (local kind `explain`).
 [Evidence](../characters/LIFE.md#explain-trace-pass-2-d4).
 
-**D5. Default packs.** Each faculty adds authoring work. Ship original default packs
+**D5. Default packs.** — **DONE**. Each faculty adds authoring work. Ship original default packs
 (needs and actions per species, common tasks, norm sets, temperament presets) so a
 small game gets dynamic characters with little authoring.
+
+*Implemented (pass 2 D5):* `character::packs::Packs` (local kind `packs`).
+[Evidence](../characters/LIFE.md#default-packs-pass-2-d5).
 
 ### E. The model's role
 
@@ -309,7 +312,7 @@ packet and budget modules already do.
 5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy** — **DONE**, **C3 space** — **DONE**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change** — **DONE**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
-7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs**.
+7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs** — **DONE**.
 
 ## 6. Risks to watch while pass 1 is built
 

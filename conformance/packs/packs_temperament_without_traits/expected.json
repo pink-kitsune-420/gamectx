@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"placid","kind":"temperament","pack":{"cognition":"steady","survival":"steady","traits":[]}},{"being":"lio","hints":{"lifespan":null,"survival_temperament":"steady"},"requests":[{"args":{"ops":[{"args":{"being":"lio","temperament":"steady"},"op":"profile"}]},"kind":"cognition"}]}]}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Built-in ids cannot be redefined.",
+  "error": true
+}

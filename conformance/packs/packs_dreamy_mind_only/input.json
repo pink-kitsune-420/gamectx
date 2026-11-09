@@ -1,0 +1,14 @@
+{
+  "kind": "packs",
+  "args": {
+    "ops": [
+      {
+        "op": "apply",
+        "args": {
+          "being": "ivo",
+          "temperament": "dreamy"
+        }
+      }
+    ]
+  }
+}

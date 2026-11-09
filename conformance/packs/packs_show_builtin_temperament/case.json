@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "show returns the normalized bold temperament.",
+  "error": false
+}
