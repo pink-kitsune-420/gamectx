@@ -5,6 +5,7 @@ pub mod codex;
 pub mod communities;
 pub mod fabric;
 pub mod facts;
+pub mod genre;
 pub mod info;
 pub mod inventory;
 pub mod location;

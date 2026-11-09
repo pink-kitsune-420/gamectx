@@ -1,0 +1,18 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "pack",
+        "args": {
+          "id": "p",
+          "phrases": {
+            "greeting": [
+              "Fair Winds"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

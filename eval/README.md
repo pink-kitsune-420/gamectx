@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills thirty-seven modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty-eight modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1455,6 +1455,14 @@ model-clause validation, the mixed-initiative agenda, the thread stack and the c
 --seed 7` builds workflows op by op like the cooperation generator against `gamectx local -` (0 mismatches: 1,468
 accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads resumed).
 [Results](../docs/characters/LIFE.md#pragmatics-pass-3-stage-3).
+
+## Genre profiles (offline)
+
+`character/genre_reference.py` is the independent prototype of pass 4 stage 1 (genre vocabularies, render and
+normalize, lexicon packs). `character/genre_cases.py --cap 0` checks 25 cases (`conformance/genre/`, 8 malformed).
+`--random 2000 --seed 7` builds workflows op by op against `gamectx local -` with random nested values drawn from
+every genre's words (0 mismatches: 1,487 accepted, 513 refused, 5,401 renders with 2,703 unmapped words, 1,887
+normalizations, 1,136 definitions). [Results](../docs/characters/LIFE.md#genre-profiles-pass-4-stage-1).
 
 ## Deep roleplay scenarios (offline)
 

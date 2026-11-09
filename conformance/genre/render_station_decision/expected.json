@@ -1,0 +1,1 @@
+{"version":1,"results":[{"genre":"orbital_station","unmapped":0,"value":{"access":"quarters","allowed":false,"place":{"privacy":"alcove","earshot":"nearby"},"light":"night_cycle","contracts":[{"kind":"ration_loan","weight":20},{"kind":"cover_story_pact","weight":60}],"severity_name":"station_offense","address_a_to_b":"crewmate"}}]}

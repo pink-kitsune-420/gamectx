@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A word that is not an engine word of its slot is left as it is and counted.",
+  "error": false
+}

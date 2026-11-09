@@ -1,0 +1,44 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "caravan",
+          "day_cycle": "none",
+          "axes": {
+            "tech": 10,
+            "law_reach": 5
+          }
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "id": "caravan",
+          "base": "caravan",
+          "vocab": {
+            "access": [
+              "open_camp",
+              "traders_only",
+              "kin_only",
+              "tent",
+              "forbidden"
+            ]
+          }
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "id": "caravan"
+        }
+      },
+      {
+        "op": "list",
+        "args": {}
+      }
+    ]
+  }
+}

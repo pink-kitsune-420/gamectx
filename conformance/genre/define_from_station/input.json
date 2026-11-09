@@ -1,0 +1,30 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "mining_outpost",
+          "base": "orbital_station",
+          "vocab": {
+            "light": [
+              "blackout",
+              "lamps",
+              "floodlights"
+            ]
+          },
+          "axes": {
+            "scarcity": 90
+          }
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "id": "mining_outpost"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "genre": "noir_city",
+          "keys": {
+            "privacy": "privacy"
+          },
+          "value": {
+            "privacy": "penthouse"
+          }
+        }
+      }
+    ]
+  }
+}

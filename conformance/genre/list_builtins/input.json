@@ -1,0 +1,11 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "list",
+        "args": {}
+      }
+    ]
+  }
+}

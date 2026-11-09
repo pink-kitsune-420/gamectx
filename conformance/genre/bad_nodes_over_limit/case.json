@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: one node more than the limit is refused.",
+  "error": true
+}

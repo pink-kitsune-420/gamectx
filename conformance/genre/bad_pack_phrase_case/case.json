@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: pack phrases are lower-case words separated by single spaces.",
+  "error": true
+}

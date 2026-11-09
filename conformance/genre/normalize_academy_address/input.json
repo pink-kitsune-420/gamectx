@@ -1,0 +1,22 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "genre": "academy",
+          "keys": {
+            "address": "address"
+          },
+          "value": {
+            "address": [
+              "new kid",
+              "classmate"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

@@ -7,7 +7,7 @@ use gamectx::character::{
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
     stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, pragmatics::Pragmatics, embodiment::Embodiment, task::TaskManager,
 };
-use gamectx::knowledge::{fabric::Fabric, surroundings::Surroundings};
+use gamectx::knowledge::{fabric::Fabric, genre::Genres, surroundings::Surroundings};
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::hint::black_box;
@@ -76,6 +76,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("embodiment", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"react","args":{"being":"{b}","fear":80}}"#, r#"{"op":"react","args":{"being":"{b}","shock":85,"cooperativeness":"hostile_refusal","task":"active","holding":"heirloom","bystander_untrusted":true}}"#),
         ("surroundings", format!(r#"{{"items":{n}}}"#), "", r#"{"op":"item","args":{"id":"{b}","owner":"{b}","sentimental_to":["{b}"]}}"#, r#"{"op":"inspect_item","args":{"item":"{b}","observer":"{b}"}}"#),
         ("fabric", format!(r#"{{"dyads":{n}}}"#), "", r#"{"op":"meet","args":{"a":"{b}","b":"mira","episode":"well","summary":"They met at the well."}}"#, r#"{"op":"dyad","args":{"a":"{b}","b":"mira"}}"#),
+        ("genre", format!(r#"{{"genres":{n}}}"#), "", r#"{"op":"define","args":{"id":"{b}","base":"orbital_station","axes":{"scarcity":90}}}"#, r#"{"op":"render","args":{"genre":"{b}","keys":{"access":"access","privacy":"privacy","kind":"contract","severity":"severity"},"value":{"access":"private","place":{"privacy":"semi_private"},"contracts":[{"kind":"loan"},{"kind":"alibi_pact"}],"severity":"crime"}}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -118,6 +119,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "embodiment" => wf!(Embodiment, lim),
         "surroundings" => wf!(Surroundings, lim),
         "fabric" => wf!(Fabric, lim),
+        "genre" => wf!(Genres, lim),
         _ => wf!(TaskManager, lim),
     })
 }

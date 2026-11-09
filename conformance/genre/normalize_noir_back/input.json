@@ -1,0 +1,21 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "normalize",
+        "args": {
+          "genre": "noir_city",
+          "keys": {
+            "privacy": "privacy",
+            "kind": "contract"
+          },
+          "value": {
+            "privacy": "back_room",
+            "kind": "keep_mum"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "render",
+        "args": {
+          "genre": "academy",
+          "keys": {
+            "access": "access"
+          },
+          "value": {
+            "access": [
+              "public",
+              "backstage",
+              "restricted"
+            ],
+            "note": {
+              "access": "private"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

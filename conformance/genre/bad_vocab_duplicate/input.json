@@ -1,0 +1,20 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "x",
+          "vocab": {
+            "light": [
+              "dark",
+              "dark",
+              "bright"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

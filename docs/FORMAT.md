@@ -2918,6 +2918,7 @@ grows past them is refused where it used to be accepted.
 | `cueing` | `beings` (1024, 10⁶), `episodes` per being (64, 4096), `facts` per being (64, 4096), `covers` per being (16, 256), host-only `secrets` (64, 4096), `listeners` remembered per episode (8, 64; the one told longest ago is dropped) |
 | `surroundings` | `places` (64, 10⁵), `occupants` per place (32, 10⁴), `trace_kinds` (64, 4096), `traces` (256, 10⁶), `items` (256, 10⁶) |
 | `fabric` | `beings` with a profile (1024, 10⁶), `norms` (64, 4096), `breaches` ladders (1024, 10⁶), open `contracts` (256, 10⁶), `dyads` (1024, 10⁶), `threads` per pair (4, 32) |
+| `genre` | authored `genres` (16, 10⁵), authored `packs` (16, 10⁵), `nodes` walked per render or normalize (4096, 10⁶) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
@@ -3483,6 +3484,33 @@ a clause when its words appear consecutively.
   earshot, then `whispered` at trust ≥ 60, else `deflect_due_to_bystanders`. Sentences: 4 below urgency 30, 3 below
   60, 2 below 85, else 1, and 1 when the deadline is at most an hour away; verbosity `full` (4), `normal` (2–3) or
   `brief` (1).
+
+## Genre v1 (pass 4, stage 1)
+
+`gamectx::knowledge::genre` (guide: [Life](characters/LIFE.md#genre-profiles-pass-4-stage-1)), local kind `genre` with
+[host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (8 malformed)
+live in `conformance/genre/`. Slots and their engine words, in order: `light` (dark, dim, bright), `access` (public,
+customers_only, members_only, private, restricted), `privacy` (public, semi_private, private, echoing), `severity`
+(etiquette, custom, contract, taboo, crime), `contract` (alibi_pact, apology_owed, employment, favor, keep_secret,
+loan, promise, trade_order), `address` (stranger, acquaintance). Built-in genres: `village` (engine words),
+`orbital_station`, `noir_city`, `academy`; built-in packs: `station_crew`, `noir_street`, `school_casual`.
+
+- `list {}` → `{genres, packs}` (built-in and authored, sorted).
+- `show {id}` → `{axes {tech, magic, law_reach, scarcity}, builtin, customized (slots whose words differ), day_cycle,
+  id, vocab {slot: names}}`.
+- `define {id (not built-in), base? (a genre, village), axes? (0–100 each), day_cycle? natural|artificial|none, vocab?
+  {slot: names}}` → `{customized, id}`. Starts from the base; each given slot needs exactly its arity of unique names
+  (identifiers; `address` names are text of at most 40 characters). Defining an existing id replaces it.
+- `pack {id (not built-in), phrases {act: 1–16 phrases}}` → `{acts, id, phrases}`; acts are the pragmatic lexicon
+  acts, phrases are 1–4 lower-case words joined by single spaces, unique across the pack.
+- `lexicon_requests {packs: 1–8}` → `{ops, requests [{args {ops: lexicon ops}, kind: "pragmatics"}]}`, one op per
+  pack and act in parser precedence order.
+- `render {genre, keys {key: slot} (1–16), value}` → `{genre, unmapped, value}`: a copy of `value` in which each
+  string under a named key (directly or in an array under it) that is an engine word of its slot becomes the genre's
+  word; other strings are kept and counted in `unmapped`.
+- `normalize {genre, keys, value}` → `{genre, value}`: the reverse; a string under a named key that is not one of the
+  genre's words for its slot refuses the request.
+- Both walk at most `nodes` values and 64 levels of nesting.
 
 ## Surroundings v1 (pass 3, stage 5)
 

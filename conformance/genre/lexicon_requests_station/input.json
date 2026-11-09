@@ -1,0 +1,15 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "lexicon_requests",
+        "args": {
+          "packs": [
+            "station_crew"
+          ]
+        }
+      }
+    ]
+  }
+}

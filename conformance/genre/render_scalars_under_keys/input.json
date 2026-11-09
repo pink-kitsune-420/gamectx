@@ -1,0 +1,24 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "render",
+        "args": {
+          "genre": "noir_city",
+          "keys": {
+            "light": "light"
+          },
+          "value": {
+            "light": [
+              2,
+              true,
+              null,
+              "bright"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

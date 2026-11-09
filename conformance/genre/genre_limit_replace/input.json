@@ -1,0 +1,29 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "a"
+        }
+      },
+      {
+        "op": "define",
+        "args": {
+          "id": "a",
+          "base": "noir_city"
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "id": "a"
+        }
+      }
+    ],
+    "limits": {
+      "genres": 1
+    }
+  }
+}

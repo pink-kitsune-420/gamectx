@@ -1,0 +1,16 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "village",
+          "axes": {
+            "tech": 99
+          }
+        }
+      }
+    ]
+  }
+}

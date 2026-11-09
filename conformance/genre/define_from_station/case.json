@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A mining outpost starts from the station and renames only its light; the rest is inherited.",
+  "error": false
+}

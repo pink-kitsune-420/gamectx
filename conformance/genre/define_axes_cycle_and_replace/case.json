@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A desert caravan with no day cycle, redefined from itself with new access words (keeping its axes and cycle).",
+  "error": false
+}

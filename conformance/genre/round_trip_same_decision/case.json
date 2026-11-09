@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Rendering into academy words and normalizing back gives the engine decision unchanged.",
+  "error": false
+}

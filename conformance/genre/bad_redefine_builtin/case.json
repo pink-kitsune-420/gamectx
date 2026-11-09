@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: built-in genres cannot be replaced.",
+  "error": true
+}

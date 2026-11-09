@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: names in a slot are unique.",
+  "error": true
+}

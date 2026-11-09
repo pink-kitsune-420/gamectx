@@ -1,0 +1,1 @@
+{"version":1,"results":[{"genre":"noir_city","unmapped":0,"value":{"access":"private","allowed":false,"place":{"privacy":"booth","earshot":"nearby"},"light":"neon","contracts":[{"kind":"loan","weight":20},{"kind":"alibi","weight":60}],"severity_name":"felony","address_a_to_b":"pal"}}]}

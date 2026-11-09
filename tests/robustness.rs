@@ -4129,3 +4129,97 @@ fn fabric_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"breach","args":{"norm":"n","offender":"a","witness":"a"}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn genre_survives_mutation_limits_and_boundaries() {
+    use gamectx::knowledge::genre::Genres;
+    let mut rng = Rng(0x6E4E_0E41_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 24).unwrap()
+    }
+
+    // 42. Genre mutation fuzzing (limits included); one registry keeps authored genres and packs
+    // across runs. Every accepted render with no unmapped words normalizes back to its input.
+    let samples = [
+        r#"{"limits":{"genres":3,"packs":3,"nodes":64},"ops":[{"op":"define","args":{"id":"harbor","base":"noir_city","axes":{"tech":30,"magic":5,"law_reach":40,"scarcity":50},"day_cycle":"natural","vocab":{"light":["night","lamplight","noon"],"address":["landlubber","mate"]}}},{"op":"render","args":{"genre":"harbor","keys":{"light":"light","access":"access","kind":"contract","to":"address"},"value":{"light":"dim","access":["private","public"],"deal":{"kind":"loan","to":"stranger"}}}},{"op":"show","args":{"id":"harbor"}}]}"#,
+        r#"{"ops":[{"op":"pack","args":{"id":"harbor_talk","phrases":{"greeting":["fair winds"],"threat":["walk the plank"]}}},{"op":"lexicon_requests","args":{"packs":["harbor_talk","station_crew"]}},{"op":"normalize","args":{"genre":"orbital_station","keys":{"privacy":"privacy","severity":"severity"},"value":{"privacy":"cabin","severity":["protocol","station_offense"]}}},{"op":"list","args":{}}]}"#,
+    ];
+    let mut g = Genres::new();
+    let mut round_trips = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = g.workflow(&v) else { continue };
+            let ops = v.get("ops").and_then(Value::as_array).unwrap();
+            for (o, r) in ops.iter().zip(out.get("results").and_then(Value::as_array).unwrap()) {
+                if o.get("op") != Some(&Value::from("render")) || r.get("unmapped") != Some(&Value::from(0u64)) {
+                    continue;
+                }
+                let a = o.get("args").unwrap();
+                let back = format!(
+                    r#"{{"op":"normalize","args":{{"genre":{},"keys":{},"value":{}}}}}"#,
+                    a.get("genre").unwrap().to_json(),
+                    a.get("keys").unwrap().to_json(),
+                    r.get("value").unwrap().to_json()
+                );
+                let mut fresh = g.clone();
+                fresh.limits = Genres::new().limits;
+                let n = fresh.workflow(&req(&[back])).unwrap();
+                let n = &n.get("results").and_then(Value::as_array).unwrap()[0];
+                assert_eq!(n.get("value"), a.get("value"));
+                round_trips += 1;
+            }
+        }
+    }
+    assert!(round_trips > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let list = r#"{"op":"list","args":{}}"#.to_string();
+    assert!(Genres::new().workflow(&req(&vec![list.clone(); 64])).is_ok());
+    assert!(Genres::new().workflow(&req(&vec![list; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"genres":100000,"packs":100000,"nodes":1000000}"#, true),
+        (r#"{"nodes":1000001}"#, false),
+        (r#"{"genres":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Genres::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a value of exactly 100,000 nodes renders under that limit and one more is refused;
+    // nesting 64 deep is walked and 65 deep refused.
+    let mut g = Genres::with_limits(&parse(r#"{"nodes":100000}"#, 64).unwrap()).unwrap();
+    let words = |n: usize| vec![r#""dim""#; n].join(",");
+    let big = |n: usize| {
+        format!(
+            r#"{{"op":"render","args":{{"genre":"orbital_station","keys":{{"l":"light"}},"value":{{"l":[{}]}}}}}}"#,
+            words(n)
+        )
+    };
+    let out = g.workflow(&req(&[big(99_998)])).unwrap().to_json();
+    assert!(out.contains(r#""unmapped":0"#) && out.contains("night_cycle"));
+    assert!(g.workflow(&req(&[big(99_999)])).is_err());
+    // Built as a Value: the JSON parser's own nesting limit is lower than these requests need.
+    let nest = |d: usize| {
+        let mut v = Value::from("dim");
+        for _ in 0..d {
+            v = Value::Array(vec![v]);
+        }
+        let args = Value::Object(vec![
+            ("genre".into(), Value::from("village")),
+            ("keys".into(), Value::Object(vec![("l".into(), Value::from("light"))])),
+            ("value".into(), v),
+        ]);
+        let op = Value::Object(vec![("op".into(), Value::from("normalize")), ("args".into(), args)]);
+        Value::Object(vec![("ops".into(), Value::Array(vec![op]))])
+    };
+    assert!(Genres::new().workflow(&nest(64)).is_ok());
+    assert!(Genres::new().workflow(&nest(65)).is_err());
+
+    // A refused op changes nothing: redefining a built-in genre.
+    let mut g = Genres::new();
+    g.workflow(&req(&[r#"{"op":"define","args":{"id":"a"}}"#.into()])).unwrap();
+    let before = g.clone();
+    assert!(g.workflow(&req(&[r#"{"op":"define","args":{"id":"village"}}"#.into()])).is_err());
+    assert_eq!(g, before);
+}

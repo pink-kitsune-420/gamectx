@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: light needs exactly three names.",
+  "error": true
+}

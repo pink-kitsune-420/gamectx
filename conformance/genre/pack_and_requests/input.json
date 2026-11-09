@@ -1,0 +1,33 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "pack",
+        "args": {
+          "id": "harbor_talk",
+          "phrases": {
+            "greeting": [
+              "fair winds"
+            ],
+            "threat": [
+              "walk the plank"
+            ],
+            "compliment": [
+              "shipshape"
+            ]
+          }
+        }
+      },
+      {
+        "op": "lexicon_requests",
+        "args": {
+          "packs": [
+            "noir_street",
+            "harbor_talk"
+          ]
+        }
+      }
+    ]
+  }
+}

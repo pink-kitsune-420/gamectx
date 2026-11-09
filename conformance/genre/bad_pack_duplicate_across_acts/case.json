@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: one phrase cannot belong to two acts in a pack.",
+  "error": true
+}

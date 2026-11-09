@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: keys must name a slot.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: normalizing refuses a word outside the genre's vocabulary.",
+  "error": true
+}

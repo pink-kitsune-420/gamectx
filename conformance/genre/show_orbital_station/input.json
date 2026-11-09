@@ -1,0 +1,13 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "show",
+        "args": {
+          "id": "orbital_station"
+        }
+      }
+    ]
+  }
+}

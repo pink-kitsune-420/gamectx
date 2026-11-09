@@ -1,0 +1,25 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "render",
+        "args": {
+          "genre": "village",
+          "keys": {
+            "a": "light"
+          },
+          "value": {
+            "a": [
+              "dim",
+              "dark"
+            ]
+          }
+        }
+      }
+    ],
+    "limits": {
+      "nodes": 4
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Numbers, booleans and nulls under a mapped key are left alone.",
+  "error": false
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "render",
+        "args": {
+          "genre": "village",
+          "keys": {
+            "mood": "weather"
+          },
+          "value": {
+            "mood": "dim"
+          }
+        }
+      }
+    ]
+  }
+}

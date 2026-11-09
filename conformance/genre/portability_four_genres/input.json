@@ -1,0 +1,63 @@
+{
+  "kind": "genre",
+  "args": {
+    "ops": [
+      {
+        "op": "render",
+        "args": {
+          "genre": "village",
+          "keys": {
+            "access": "access",
+            "severity_name": "severity"
+          },
+          "value": {
+            "access": "restricted",
+            "severity_name": "taboo"
+          }
+        }
+      },
+      {
+        "op": "render",
+        "args": {
+          "genre": "orbital_station",
+          "keys": {
+            "access": "access",
+            "severity_name": "severity"
+          },
+          "value": {
+            "access": "restricted",
+            "severity_name": "taboo"
+          }
+        }
+      },
+      {
+        "op": "render",
+        "args": {
+          "genre": "noir_city",
+          "keys": {
+            "access": "access",
+            "severity_name": "severity"
+          },
+          "value": {
+            "access": "restricted",
+            "severity_name": "taboo"
+          }
+        }
+      },
+      {
+        "op": "render",
+        "args": {
+          "genre": "academy",
+          "keys": {
+            "access": "access",
+            "severity_name": "severity"
+          },
+          "value": {
+            "access": "restricted",
+            "severity_name": "taboo"
+          }
+        }
+      }
+    ]
+  }
+}
