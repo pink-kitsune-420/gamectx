@@ -311,8 +311,8 @@ generated prose remains unverified. `--dialogue legacy` restores the earlier con
 while retaining local trade confirmation. New factual answers may be up to 512 characters
 to keep a complete 240-character player quote; legacy generated speech remains 240.
 The English question policy is deliberately bounded and can miss paraphrases or need
-clarification. [Measured successes and failures](../../docs/evidence/LORE_EVAL.md) include twenty
-new questions and eight additional questions, with all raw results retained.
+clarification. Successes and failures include twenty new questions and eight additional questions,
+with all raw results retained.
 
 Host additions: `knowledge_prepare` takes `{speaker,input,context,size,choices_limit?}` and returns a
 one-use factual offer or dialogue fallback; send only its `offer.request` to the model.
@@ -337,8 +337,7 @@ lore can explicitly grant `clock`, `watch`, `schedule` or `none` access (structu
 The `world` host operation reads game time; do not expose it wholesale to characters.
 `location` returns the current redacted scene. Neither underground NPC observes outdoor
 weather or the sun. See [character perception](../../docs/characters/CHARACTERS.md) for reusable
-`look_around`, visibility, clocks and reports in other games, and
-[measurements](../../docs/evidence/CONVERSATION_PATCH_EVAL.md) for test scope and failed pilots.
+`look_around`, visibility, clocks and reports in other games.
 
 ## Optional routine and sensor demonstration
 
@@ -363,7 +362,6 @@ verified exact-request token counts. Default 0 keeps the existing preflight flow
 messages, tool results, corrections, grammar, output/context or model identity recounts;
 responses are never cached. Whole-turn allowance, pinned model settings and returned
 counts are checked. This saves calls for exact repeats, not general dynamic prompts.
-[Measured results and limits](../../docs/evidence/ADVERSARIAL_EVAL.md).
 
 ## Optional dynamic-character demonstration
 

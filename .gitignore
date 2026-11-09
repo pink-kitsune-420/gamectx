@@ -1,5 +1,5 @@
 /target
-/eval/results
+/eval/
 __pycache__/
 
 /bindings/native/target/
@@ -7,4 +7,6 @@ __pycache__/
 .tickets/
 AGENTS.md
 TRACKER.md
+
+/private-docs/
 

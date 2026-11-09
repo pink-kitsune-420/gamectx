@@ -1,7 +1,7 @@
 # Working on gamectx
 
 Rules for anyone, human or agent, changing this repository. Status and next ideas live in
-[docs/ROADMAP.md](docs/ROADMAP.md); update it in the same commit as the work.
+[private-docs/ROADMAP.md](private-docs/ROADMAP.md); update it in the same commit as the work.
 
 ## Mission: Accessible, Efficient AI Gaming
 
@@ -50,8 +50,7 @@ authority over game rules and state.
    independent prototype that was measured.
 3. Add unit tests, conformance cases (including malformed/error cases), and fuzz anything
    that parses model-written text (`tests/robustness.rs`).
-4. Update `README.md`, `docs/FORMAT.md`, `docs/GUIDE.md`, `CHANGELOG.md` and
-   `docs/ROADMAP.md` with real output. Code examples in docs must run as tests
+4. Update `README.md`, `docs/FORMAT.md`, `docs/GUIDE.md` and `CHANGELOG.md` with real output. Code examples in docs must run as tests
    (`tests/readme_api.rs`, doctests).
 
 ## Checks before every commit

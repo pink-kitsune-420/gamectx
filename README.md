@@ -15,8 +15,7 @@ It is a Rust library and a command-line tool with **zero third-party dependencie
 > `0.x` prereleases. Pin an exact version, and see [CHANGELOG.md](CHANGELOG.md).
 
 **Docs:** [practical guide](docs/GUIDE.md) · [formats](docs/FORMAT.md) · [all docs](docs/README.md) ·
-[examples](examples/README.md) · [conformance cases](conformance/README.md) · [model eval](eval/README.md) ·
-[roadmap](docs/ROADMAP.md)
+[examples](examples/README.md) · [conformance cases](conformance/README.md)
 
 ## Layout (0.4.0a)
 
@@ -35,11 +34,11 @@ The library is grouped into domain modules; the [crate docs](src/lib.rs) list ev
 
 `Context`, `Table`, `Turn`, `Value`, `Error`, `Result` and `obj!` stay at the crate root.
 Repository folders follow the same grouping: [`examples/`](examples/README.md) by domain plus
-shared `fixtures/` and the `lantern-vault/` game, [`docs/`](docs/README.md) by purpose and
-[`eval/`](eval/README.md) by topic. Bindings live in `bindings/`, format cases in `conformance/`.
+shared `fixtures/` and the `lantern-vault/` game, and [`docs/`](docs/README.md) by purpose.
+Bindings live in `bindings/`, format cases in `conformance/`.
 
-The [dynamic character guide](docs/characters/LIFE.md) records the five implementation stages from
-[the agent brief](docs/research/ROLEPLAY_AGENT.md). Features default off; host rules retain authority.
+The [dynamic character guide](docs/characters/LIFE.md) records the five implementation stages.
+Features default off; host rules retain authority.
 
 ## Configurable roleplay engine, world definitions and saves (0.4.0a)
 
@@ -181,7 +180,7 @@ Independent Python/Rust checks cover **221 workflows**, including a **1,000-even
 for 128 experiences plus 128 appraisals measured median **176,881,587 → 7,338,259 ns** and
 **2,517,745 → 22,025 allocator calls**, with identical final state. In-memory structural
 validation makes zero heap allocations; these are synthetic host measurements, not model
-speed or accuracy. [Evidence, method and limits](docs/evidence/LIFE_EVAL.md).
+speed or accuracy.
 
 A retained local speech diagnostic made **24 calls**, **$0 API**: all **8/8** replies had
 valid shapes, yet both variants invented birthplace details and the character-context
@@ -201,7 +200,7 @@ Provider token counting, authoritative execution and hearing stay with the host.
 
 ## Turn-aware short speech follow-up
 
-[Speech compiler v2](docs/evidence/LIFE_SPEECH_V2_EVAL.md) gates creative policy by host profile and
+Speech compiler v2 gates creative policy by host profile and
 known-state, binds facts to explicit subjects, and keeps the current request outside JSON.
 Run `cargo run --example character-speech`; the life dungeon demo also uses it. A bounded
 sentence helper identifies punctuation endings and suspected schema-wall cutoffs without
@@ -214,7 +213,7 @@ guarantee: **48 local calls**, **$0 API**, four regressions and four new holdout
 
 ## Adversarial probes and measured limits (unreleased v0.3.1a)
 
-[Fresh probes](docs/evidence/ADVERSARIAL_EVAL.md) found and fixed unintended conversation actions,
+Adversarial probes found and fixed unintended conversation actions,
 hidden time conflicts and invalid restores: 15/57→57/57 checks pass; 900 engine steps
 match the independent rules. The installed local Qwen variant produced valid JSON on
 32/32 source/time tests but only 25/32 correct answers. Shorter context was faster and
@@ -246,8 +245,8 @@ helpers. The game supplies visibility and knowledge: NPCs do not automatically k
 global clock or outdoor weather. Scene snapshots and tool permissions are revision-bound.
 Task-focused context can grow with measured capacity while small-model attention stays
 explicitly limited. Rust, Python, Node and C# bridges support persistent character sessions.
-The [new checks](docs/evidence/CONVERSATION_PATCH_EVAL.md) report byte parity and retain failed
-speech experiments separately from deterministic routing improvements.
+Checks report byte parity and retain failed speech experiments separately from deterministic
+routing improvements.
 
 ## Playable dungeon testbed (v0.3.0a)
 
@@ -269,7 +268,7 @@ The dungeon's merchant reports unaffordable purchases locally and completes affo
 ones after yes/no confirmation. Inventory counts/sums and catalog/memory tags already
 use the existing query and metadata APIs; hosts retain inventory ownership.
 
-[Reported dialogue regressions](docs/evidence/DUNGEON_FEEDBACK.md) now preserve 11 playthrough
+Reported dialogue regressions now preserve 11 playthrough
 sequences: transaction handling and name recall work, while free-form speech can still
 invent player history or item purposes. The offline audit separates those outcomes.
 
@@ -294,7 +293,7 @@ support multiplayer hosts; the dungeon remains a single-player example. Enable t
 selectively and keep execution in the game. [Runnable example](examples/character/conversation_tools.rs).
 
 The reusable [lore and answer APIs](docs/guides/LORE.md) keep the Rust core dependency-free.
-[Local tests](docs/evidence/LORE_EVAL.md) retain the failed pilots, 17/20 on twenty new questions,
+Local tests retain the failed pilots, 17/20 on twenty new questions,
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local
 regression repair; these are small diagnostics, not universal accuracy. Every run $0 API.
 
@@ -333,8 +332,8 @@ integration and validation easier; new model accuracy has not been measured. API
 protected scene facts and whole dialogue exchanges, legal-pair decisions with one retry,
 and explicit deployment-bound guidance/format profiles. Existing filtering, arithmetic,
 queries, facts and action validation do the local work. The core remains dependency-free.
-See the [workload guide for 1B, 1.5B, 3B, 8B, 30B and 70B](docs/guides/MODEL_SIZES.md),
-[tested example](examples/packet/local-turn.rs) and [local evaluation report](docs/evidence/LOCAL_MODEL_2026_11_06.md).
+See the [workload guide for 1B, 1.5B, 3B, 8B, 30B and 70B](docs/guides/MODEL_SIZES.md) and
+[tested example](examples/packet/local-turn.rs).
 
 ## Latest alpha.3 model check
 
@@ -357,8 +356,7 @@ scores tie overall but differ on individual cases.
 
 Total usage-priced spend was **$0.05529491875**, including the initial token check and
 one interrupted runner call. These are small synthetic tabular tasks, not live gameplay
-or a test of brain/memory quality. [Full method, per-family scores, limitations and raw
-responses](docs/evidence/MODEL_TEST_2026_11_06.md).
+or a test of brain/memory quality.
 
 ## Earlier model measurements
 
@@ -684,7 +682,7 @@ Optional `query::Guidance::ExplicitSelection` supplies a supplemental system par
 `Standard` (empty supplement) remains the default. On six fresh synthetic states the
 3B model improved 46/48→48/48, while 24B fell 47/48→46/48; complete-exchange input rose
 22.0%. Choose per model/workload rather than assuming all weaker models improve.
-See the [paired report](docs/evidence/QUERY_OPTIMIZATION_2026_11_06.md) and tested example above.
+See the tested example above.
 CLI: `gamectx query --guidance explicit-selection` prints the paragraph as a JSON string.
 
 Table and catalog `relevant_to` recognize namespace and dotted ID components, including
@@ -1092,8 +1090,7 @@ Run `cargo run --example living-world` and edit [the town pack](examples/fixture
 Evidence covers 54 independent Python/Rust workflows and a retained 1,000-frame host-work
 trace. Existing outputs stay unchanged; this adds no model dependency or whole-game FPS claim.
 
-Long-session diagnostics and opt-in transient dialogue retention are documented in
-[the overnight evaluation](docs/evidence/OVERNIGHT_DEEP_EVAL.md). Routine Web chat no longer
+Long-session diagnostics and opt-in transient dialogue retention are supported. Routine Web chat no longer
 consumes rumor roots; the retained 600-turn offline trace completes with zero rejections.
 Archive-aware `Life::recall_selected` adds explicit subject filters and required causal
 anchors while preserving legacy recall. Its bounded, host-selected policy is explained
@@ -1107,9 +1104,8 @@ participant switch; delivery/recognition continue using their own speech/session
 
 For question-specific factual answers, the optional required-answer policy removes generic
 deferral while retaining source checks. A fresh restored-cast paired 3B check improves
-required-answer coverage from 3/12 to 12/12 using host-authored sentences. The completed
-[overnight report](docs/evidence/OVERNIGHT_DEEP_EVAL.md) includes raw failures, bounded-storage
-limits, tier audits and the distinction from free-model intelligence.
+required-answer coverage from 3/12 to 12/12 using host-authored sentences. The evaluation
+includes raw failures, bounded-storage limits, tier audits and the distinction from free-model intelligence.
 
 The local Studio now shows applied model status, installed Ollama names, request activity
 and offline/model reply labels. Use **Model setup** to check and apply a model, and
@@ -1150,10 +1146,7 @@ recall and factual replies as well as personal conversation; matching validated 
 can be reused, and authored lines cover offline/failed generation. Original tiny tales,
 scoped name/preference disclosures and oversized-request negotiation have separate
 contracts. Try `cargo run --bin gamectx -- local examples/fixtures/cast/expression-fixture.json`;
-that editable packet is checked in the API tests. See the [roleplay investigation](docs/research/ROLEPLAY_RESEARCH.md)
-for public research, original implementation choices and measured limitations.
+that editable packet is checked in the API tests.
 
 Current-place dialogue, twelve plot seeds per NPC with heard-history rotation, and retryable
 unheard audio are documented in [scene/delivery repairs](docs/studio/SCENE_SOCIAL_REPAIR.md).
-The [social-character audit](docs/research/SOCIAL_CHARACTER_GAPS.md) maps identity, senses,
-implicit memory, relationships, motives, actions and society to current capabilities and gaps.
