@@ -1654,3 +1654,50 @@ fn timeline_journal_entries_and_api_endpoints_expose_world_lore_and_milestones()
     let updated_entries = updated.get("journal").and_then(Value::as_array).unwrap();
     assert!(updated_entries.iter().any(|e| text(e, "id") == Ok("pump_repaired")));
 }
+
+#[test]
+fn universal_purchase_routing_and_llm_action_directing() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+    // Start in workshop where merchant trades oil (3 coins) and chalk (1 coin)
+    assert_eq!(a.game.room, "workshop");
+    assert_eq!(a.game.coins, 5);
+
+    // 1. Universal stage action for oil: *pays for the oil*
+    let (res, _) = command(&mut a, "chat", obj! {"text" => "*pays for the oil*"});
+    assert_eq!(res.get("status"), Some(&Value::str("accepted")));
+    assert_eq!(a.game.coins, 2);
+    assert!(a.game.owns("item:oil"));
+
+    // 2. Universal stage action for chalk: *pays for the chalk*
+    let (res, _) = command(&mut a, "chat", obj! {"text" => "*pays for the chalk*"});
+    assert_eq!(res.get("status"), Some(&Value::str("accepted")));
+    assert_eq!(a.game.coins, 1);
+    assert!(a.game.owns("item:chalk"));
+
+    // 3. Reset and test universal natural dialogue payment: "here are the coins for the chalk"
+    let mut a2 = chunk_app(&d, false);
+    assert_eq!(a2.game.coins, 5);
+    let (res, _) = command(&mut a2, "chat", obj! {"text" => "here are the coins for the chalk"});
+    assert_eq!(res.get("status"), Some(&Value::str("accepted")));
+    assert_eq!(a2.game.coins, 4);
+    assert!(a2.game.owns("item:chalk"));
+
+    // 4. Test LLM [ACTION: buy item:oil] directive execution in complete()
+    let mut a3 = chunk_app(&d, false);
+    let mut settings = a3.config.public();
+    set(&mut settings, "speech_mode", "dialogue".into());
+    if let Value::Object(xs) = &mut settings {
+        xs.retain(|(k, _)| k != "local_fallback" && k != "text_models");
+    }
+    set(&mut settings, "cap_micros", 0.into());
+    command(&mut a3, "settings", settings);
+    let mock_reply = "[ACTION: buy item:oil] {\"speech\": [\"Here is your hinge oil, may it serve you well.\"]}";
+    let json_bytes = format!("{{\"message\":{{\"content\":{mock_reply:?}}}}}").into_bytes();
+    let job = a3.command("chat", &obj! {"text" => "Tell me about your workshop."}).unwrap().1.remove(0);
+    a3.complete(&job, Ok(json_bytes)).unwrap();
+    assert!(a3.game.owns("item:oil"));
+    assert_eq!(a3.game.coins, 2);
+    let speech = a3.state().unwrap().get("speech").unwrap().clone();
+    assert_eq!(text(&speech, "text").unwrap(), "Here is your hinge oil, may it serve you well.");
+}

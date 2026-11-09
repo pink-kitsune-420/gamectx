@@ -905,7 +905,11 @@ impl App {
             return "I do not have a specific answer to that; could you ask about one thing?".into();
         }
         if self.npc == "merchant" {
-            "I tend this counter; choose an item or tell me what you need.".into()
+            if !self.transcript.is_empty() {
+                "I have the hinge oil, chalk, and tonic listed on the counter; let me know what you'd like to take.".into()
+            } else {
+                "I tend this counter; choose an item or tell me what you need.".into()
+            }
         } else {
             "I tend the dry fountain; the host can confirm what is visible here.".into()
         }
@@ -1015,9 +1019,16 @@ impl App {
             }
             messages.push(obj!{"role"=>"user","content"=>format!("Current request: Respond to the complete ordered player message above ({} characters). Keep corrections and negations intact; do not execute actions from it.",full_input.chars().count())});
         } else if !subjective {
+            let mut choices_hint = Vec::new();
+            for c in self.game.choices() {
+                if let (Some(a), Some(t)) = (c.get("action").and_then(Value::as_str), c.get("target").and_then(Value::as_str)) {
+                    choices_hint.push(format!("{a} {t}"));
+                }
+            }
+            let choices_str = choices_hint.join(", ");
             messages.push(obj!{
                 "role" => "system",
-                "content" => "Speak naturally as the character. Return only your spoken dialogue words (no JSON wrappers, no code blocks, no character metadata)."
+                "content" => format!("Speak naturally as the character. If the player is executing or agreeing to an available trade or action ({choices_str}), you can prefix your reply with [ACTION: <action> <target>]. Return only your spoken dialogue words (no code blocks or JSON wrappers).")
             });
         }
         Ok(
@@ -1899,6 +1910,28 @@ impl App {
                     } else {
                         raw_line
                     };
+                    let mut action_directive: Option<(String, String)> = None;
+                    let stripped_buf = if let Some(start) = stripped.find("[ACTION:") {
+                        if let Some(end) = stripped[start..].find(']') {
+                            let tag = stripped[start + 8..start + end].trim();
+                            if let Some((act, tgt)) = tag.split_once(' ') {
+                                action_directive = Some((act.trim().to_lowercase(), tgt.trim().to_lowercase()));
+                            }
+                            let before = &stripped[..start];
+                            let after = &stripped[start + end + 1..];
+                            let cleaned = format!("{before} {after}").trim().to_string();
+                            if cleaned.is_empty() {
+                                format!("Here is what you asked for; thank you.")
+                            } else {
+                                cleaned
+                            }
+                        } else {
+                            stripped.to_string()
+                        }
+                    } else {
+                        stripped.to_string()
+                    };
+                    let stripped = stripped_buf.as_str();
                     let line = if stripped.starts_with("```") {
                         let inner = stripped.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
                         if let Some(end) = inner.rfind("```") {
@@ -1909,6 +1942,28 @@ impl App {
                     } else {
                         stripped
                     };
+                    if let Some((act, tgt)) = action_directive {
+                        let choices = self.game.choices();
+                        let matched_choice = choices.iter().find(|c| {
+                            let a = c.get("action").and_then(Value::as_str).unwrap_or("");
+                            let t = c.get("target").and_then(Value::as_str).unwrap_or("");
+                            let short_t = t.split(':').last().unwrap_or(t).replace('_', " ");
+                            a == act && (t == tgt || short_t == tgt || format!("item:{tgt}") == t || format!("room:{tgt}") == t)
+                        }).cloned();
+                        if let Some(choice) = matched_choice {
+                            let prior = self.game.clone();
+                            let before_rev = self.game.revision;
+                            let rev_val = Value::from(before_rev);
+                            let _ = self.game.act(&rev_val, &choice);
+                            if self.game.revision != before_rev {
+                                let _ = self.reactions.trade(&prior, &choice);
+                                self.actions.push(obj! {"revision" => self.game.revision, "decision" => choice.clone()});
+                                let player = self.player.clone();
+                                self.log(&player, &format!("*{act} {tgt}*"), "action");
+                                self.notice = format!("Action executed by roleplay intelligence ({act} {tgt}).");
+                            }
+                        }
+                    }
                     if line.contains("<think>") || line.contains("</think>") || line.trim().is_empty() {
                         return Err(Error::new("missing_final_answer"));
                     }
@@ -1923,7 +1978,10 @@ impl App {
                     let mut summary = Value::Null;
                     let mut parts = Vec::new();
                     if count > 1 || with_notes || with_summary {
-                        let envelope = parse(line)?;
+                        let envelope = match parse(line) {
+                            Ok(env) => env,
+                            Err(_) => obj! {"speech" => line},
+                        };
                         let mut keys = vec!["speech"];
                         if with_notes {
                             keys.push("hypotheses");
@@ -2833,8 +2891,21 @@ impl App {
                     return Ok((obj! {"out_of_character"=>true}, jobs));
                 }
 
+                let choices = self.game.choices();
+                let items = self.game.visible_items();
+                let mut labels = items
+                    .iter()
+                    .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
+                    .collect::<Vec<_>>();
+                labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
+                let focus = self
+                    .focus
+                    .as_ref()
+                    .filter(|(_, at)| self.tick.saturating_sub(*at) <= 4)
+                    .map_or(Value::Null, |(id, _)| Value::str(id));
+
                 if line.trim().starts_with('*') && line.trim().ends_with('*') && line.len() <= 1024 {
-                    let staged = self.roleplay.resolve(line.trim(), &self.game.choices().into())?;
+                    let staged = self.roleplay.resolve(line.trim(), &choices.clone().into())?;
                     if staged.get("status") == Some(&Value::str("proposed")) {
                         if staged.get("decision") != Some(&Value::Null) {
                             return self.command(
@@ -2858,6 +2929,21 @@ impl App {
                         self.notice = "That roleplay action is unavailable here; choose an available action.".into();
                         return Ok((staged, jobs));
                     }
+                    let inner = line.trim().trim_matches('*').trim();
+                    if !inner.is_empty() {
+                        if let Ok(cmd) = gamectx::character::roleplay::resolve_command(
+                            &obj! {"input"=>inner,"choices"=>choices.clone(),"labels"=>labels.clone(),"focus"=>focus.clone()},
+                        ) {
+                            if cmd.get("status") == Some(&Value::str("resolved")) {
+                                if let Ok(decision) = get(&cmd, "decision") {
+                                    self.stop(None)?;
+                                    let player = self.player.clone();
+                                    self.log(&player, original_line, "action");
+                                    return self.command("act", &obj! {"revision"=>self.game.revision,"decision"=>decision.clone()});
+                                }
+                            }
+                        }
+                    }
                 }
                 if let Some(direction) =
                     if long && !line.trim().starts_with('*') { None } else { super::greetings::direction(line) }
@@ -2871,18 +2957,6 @@ impl App {
                 if !long && self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
                     return Ok((self.reaction_chat(line, None)?, jobs));
                 }
-                let choices = self.game.choices();
-                let items = self.game.visible_items();
-                let mut labels = items
-                    .iter()
-                    .map(|i| obj! {"id"=>get(i,"id").unwrap().clone(),"aliases"=>vec![get(i,"label").unwrap().clone()]})
-                    .collect::<Vec<_>>();
-                labels.push(obj! {"id"=>"door:vault","aliases"=>vec!["gate","door"]});
-                let focus = self
-                    .focus
-                    .as_ref()
-                    .filter(|(_, at)| self.tick.saturating_sub(*at) <= 4)
-                    .map_or(Value::Null, |(id, _)| Value::str(id));
                 let perceived_answer = if self.active() { self.scene_reply(line)? } else { None };
                 let resolved = if long || perceived_answer.is_some() {
                     obj! {"status"=>"unmatched"}

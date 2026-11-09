@@ -62,9 +62,60 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     if let Some(rest) = s.strip_suffix(" please") {
         s = rest;
     }
-    let (verb, mut arg) = s.split_once(' ').unwrap_or((s, ""));
+    let payment_phrases = [
+        "here are the gold pieces",
+        "here are the gold coins",
+        "here are the coins",
+        "here is the gold",
+        "here is the coin",
+        "here are the pieces",
+        "here is the payment",
+        "here is my payment",
+        "here s the gold",
+        "here s the coins",
+        "heres the gold",
+        "heres the coins",
+        "take the gold",
+        "take the coins",
+        "take my gold",
+        "take my coins",
+        "take the money",
+        "take the gold pieces",
+    ];
+    let (verb, mut arg) = if payment_phrases.contains(&s) {
+        ("buy", "coins")
+    } else if let Some((pay_part, item_part)) = s.split_once(" for ") {
+        if [
+            "here is the gold",
+            "here are the coins",
+            "here are the gold pieces",
+            "here s the coins",
+            "heres the coins",
+            "take the coins",
+            "take the gold",
+            "pay",
+            "pays",
+            "paid",
+            "give",
+            "gives",
+            "hand",
+            "hands",
+            "money",
+            "coins",
+            "gold",
+        ]
+        .iter()
+        .any(|p| pay_part.contains(p))
+        {
+            ("buy", item_part)
+        } else {
+            s.split_once(' ').unwrap_or((s, ""))
+        }
+    } else {
+        s.split_once(' ').unwrap_or((s, ""))
+    };
     let action = match verb {
-        "purchase" => "buy",
+        "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands" => "buy",
         "walk" | "travel" => "go",
         "examine" => "inspect",
         v => v,
@@ -75,7 +126,32 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     if action == "go" {
         arg = arg.strip_prefix("to ").unwrap_or(arg);
     }
+    if action == "buy" {
+        for prefix in ["for ", "over ", "to "] {
+            if let Some(rest) = arg.strip_prefix(prefix) {
+                arg = rest;
+                break;
+            }
+        }
+    }
     arg = arg.strip_prefix("the ").unwrap_or(arg);
+    let is_payment_words = action == "buy"
+        && [
+            "",
+            "coins",
+            "gold",
+            "gold pieces",
+            "the gold",
+            "the coins",
+            "money",
+            "the money",
+            "3 coins",
+            "3 gold",
+            "1 coin",
+            "1 gold",
+            "5 coins",
+        ]
+        .contains(&arg);
     let mut matched = None;
     for pair in choices {
         if text(pair, "action")? != action {
@@ -96,6 +172,9 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
                         .any(|a| a.as_str() == Some(arg))
                 })
                 || ["it", "that one", "this", "him", "her", "them", "there"].contains(&arg) && focus == target
+                || is_payment_words
+                    && (focus == target
+                        || choices.iter().filter(|c| c.get("action") == Some(&Value::str("buy"))).count() == 1)
         };
         if direct {
             if matched.is_some() {

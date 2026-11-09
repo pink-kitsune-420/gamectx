@@ -5,7 +5,13 @@
       "id": "buy_oil",
       "phrases": [
         "buys hinge oil",
-        "buys the hinge oil"
+        "buys the hinge oil",
+        "pays for the oil",
+        "pays for oil",
+        "buys the oil",
+        "buys oil",
+        "hands over 3 coins",
+        "hands over the coins"
       ],
       "decision": {
         "action": "buy",
@@ -17,7 +23,11 @@
       "id": "buy_chalk",
       "phrases": [
         "buys chalk",
-        "buys the chalk"
+        "buys the chalk",
+        "pays for chalk",
+        "pays for the chalk",
+        "buys a piece of chalk",
+        "hands over 1 coin"
       ],
       "decision": {
         "action": "buy",
@@ -29,7 +39,10 @@
       "id": "buy_tonic",
       "phrases": [
         "buys tonic",
-        "buys the tonic"
+        "buys the tonic",
+        "pays for tonic",
+        "pays for the tonic",
+        "buys health tonic"
       ],
       "decision": {
         "action": "buy",
@@ -41,7 +54,11 @@
       "id": "take_bronze_key",
       "phrases": [
         "takes bronze key",
-        "takes the bronze key"
+        "takes the bronze key",
+        "picks up bronze key",
+        "takes the key",
+        "takes key",
+        "grabs the key"
       ],
       "decision": {
         "action": "take",
