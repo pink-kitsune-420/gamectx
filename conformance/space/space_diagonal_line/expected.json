@@ -1,0 +1,1 @@
+{"version":1,"results":[{"height":5,"id":"r","walls":2,"width":5},{"being":"a","room":"r","x":0,"y":0,"served":[]},{"being":"b","room":"r","x":4,"y":4,"served":[]},{"being":"a","blocked":null,"distance":4,"other":"b","same_room":true,"visible":true}]}

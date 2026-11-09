@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being not next to a free spot waits in line instead of using it.",
+  "error": false
+}

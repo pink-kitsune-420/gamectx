@@ -1,0 +1,32 @@
+{
+  "kind": "space",
+  "args": {
+    "ops": [
+      {
+        "op": "room",
+        "args": {
+          "id": "field",
+          "width": 256,
+          "height": 256
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "a",
+          "room": "field",
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "op": "move",
+        "args": {
+          "being": "a",
+          "x": 255,
+          "y": 255
+        }
+      }
+    ]
+  }
+}

@@ -36,6 +36,7 @@ pub mod roles;
 pub mod routine;
 pub mod sheet;
 pub mod skills;
+pub mod space;
 pub mod speech_act;
 pub mod stability;
 pub mod survival;

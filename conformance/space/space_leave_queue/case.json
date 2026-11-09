@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Releasing while waiting just leaves the line.",
+  "error": false
+}

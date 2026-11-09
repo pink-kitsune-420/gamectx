@@ -1,0 +1,50 @@
+{
+  "kind": "space",
+  "args": {
+    "ops": [
+      {
+        "op": "room",
+        "args": {
+          "id": "r",
+          "width": 5,
+          "height": 5,
+          "walls": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              1
+            ]
+          ]
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "a",
+          "room": "r",
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "b",
+          "room": "r",
+          "x": 4,
+          "y": 4
+        }
+      },
+      {
+        "op": "see",
+        "args": {
+          "being": "a",
+          "other": "b"
+        }
+      }
+    ]
+  }
+}

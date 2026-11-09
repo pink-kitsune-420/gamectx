@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Limits are echoed; with queue 1 one being may wait.",
+  "error": false
+}

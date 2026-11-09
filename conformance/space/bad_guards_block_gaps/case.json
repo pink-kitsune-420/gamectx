@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With guards in both gaps of the wall the far side cannot be reached.",
+  "error": true
+}

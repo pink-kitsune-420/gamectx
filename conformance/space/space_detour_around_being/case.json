@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A being in a corridor cell forces a longer path.",
+  "error": false
+}

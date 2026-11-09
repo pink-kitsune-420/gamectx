@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Entering another room leaves the old one and its queues.",
+  "error": false
+}

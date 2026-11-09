@@ -1,0 +1,109 @@
+{
+  "kind": "space",
+  "args": {
+    "ops": [
+      {
+        "op": "room",
+        "args": {
+          "id": "yard",
+          "width": 8,
+          "height": 5,
+          "walls": [
+            [
+              3,
+              1
+            ],
+            [
+              3,
+              2
+            ],
+            [
+              3,
+              3
+            ]
+          ]
+        }
+      },
+      {
+        "op": "spot",
+        "args": {
+          "room": "yard",
+          "id": "well",
+          "x": 6,
+          "y": 2
+        }
+      },
+      {
+        "op": "spot",
+        "args": {
+          "room": "yard",
+          "id": "stall",
+          "x": 1,
+          "y": 4,
+          "capacity": 2
+        }
+      },
+      {
+        "op": "room",
+        "args": {
+          "id": "bakery",
+          "width": 3,
+          "height": 3
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "tomas",
+          "room": "yard",
+          "x": 6,
+          "y": 1
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "mira",
+          "room": "yard",
+          "x": 5,
+          "y": 2
+        }
+      },
+      {
+        "op": "use",
+        "args": {
+          "being": "tomas",
+          "spot": "well"
+        }
+      },
+      {
+        "op": "use",
+        "args": {
+          "being": "mira",
+          "spot": "well"
+        }
+      },
+      {
+        "op": "enter",
+        "args": {
+          "being": "tomas",
+          "room": "bakery",
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "op": "crowd",
+        "args": {
+          "room": "yard"
+        }
+      },
+      {
+        "op": "crowd",
+        "args": {
+          "room": "bakery"
+        }
+      }
+    ]
+  }
+}

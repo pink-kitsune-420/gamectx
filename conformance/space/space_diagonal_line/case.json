@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A perfect diagonal passes between cells only through the diagonal itself.",
+  "error": false
+}

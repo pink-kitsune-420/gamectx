@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Guards stand in both gaps of the wall; once one steps aside to (4,1), Mira gets through the top gap in 9 steps.",
+  "error": false
+}

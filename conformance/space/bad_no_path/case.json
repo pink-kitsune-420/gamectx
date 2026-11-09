@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A cell walled off on all sides cannot be reached.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Mira walks from (0,2) to (5,2) around the wall in 9 steps.",
+  "error": false
+}

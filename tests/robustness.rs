@@ -3319,3 +3319,92 @@ fn economy_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn space_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::space::Space;
+    let mut rng = Rng(0x59AC_E0C3_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 33. Space mutation fuzzing (limits included); one manager keeps state across runs.
+    let samples = [
+        r#"{"limits":{"rooms":2,"beings":4,"spots":2,"queue":2},"ops":[{"op":"room","args":{"id":"yard","width":8,"height":5,"walls":[[3,1],[3,2],[3,3]]}},{"op":"spot","args":{"room":"yard","id":"well","x":6,"y":2,"capacity":1}},{"op":"enter","args":{"being":"mira","room":"yard","x":0,"y":2}},{"op":"enter","args":{"being":"tomas","room":"yard","x":6,"y":1}},{"op":"use","args":{"being":"tomas","spot":"well"}},{"op":"use","args":{"being":"mira","spot":"well"}},{"op":"move","args":{"being":"mira","x":5,"y":2}},{"op":"release","args":{"being":"tomas","spot":"well"}},{"op":"see","args":{"being":"mira","other":"tomas","range":4}}]}"#,
+        r#"{"ops":[{"op":"room","args":{"id":"hall","width":256,"height":3}},{"op":"enter","args":{"being":"a","room":"hall","x":0,"y":1}},{"op":"enter","args":{"being":"b","room":"hall","x":255,"y":1}},{"op":"move","args":{"being":"a","x":254,"y":1}},{"op":"exit","args":{"being":"b"}},{"op":"crowd","args":{"room":"hall"}}]}"#,
+    ];
+    let mut k = Space::new();
+    for _ in 0..1500 {
+        for x in &samples {
+            if let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) {
+                let _ = k.workflow(&v);
+            }
+        }
+    }
+    // Indexes agree: every being stands on its own free, non-wall cell; spot members are present.
+    for (b, p) in &k.beings {
+        let room = &k.rooms[&p.room];
+        assert_eq!(room.cells.get(&p.at), Some(b));
+        assert!(!room.walls.contains(&p.at));
+    }
+    for (r, room) in &k.rooms {
+        assert!(room.cells.values().all(|b| k.beings[b].room == *r));
+        for sp in room.spots.values() {
+            assert!(
+                sp.users.len() as u64 <= sp.capacity
+                    && sp.users.iter().chain(&sp.queue).all(|b| k.beings[b].room == *r)
+            );
+        }
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let room = |i: usize| format!(r#"{{"op":"room","args":{{"id":"r{i}","width":1,"height":1}}}}"#);
+    assert!(Space::new().workflow(&req(&(0..64).map(room).collect::<Vec<_>>())).is_ok());
+    assert!(Space::new().workflow(&req(&(0..65).map(room).collect::<Vec<_>>())).is_err());
+    for (lim, ok) in [
+        (r#"{"rooms":4096,"beings":1000000,"spots":1024,"queue":4096}"#, true),
+        (r#"{"queue":4097}"#, false),
+        (r#"{"spots":1025}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Space::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a 256 x 256 maze with a single-cell gap per wall row forces a long walk; a full
+    // room's line of sight across 255 cells; walls at the 4,096 bound.
+    let mut walls = Vec::new();
+    for y in (1..256).step_by(2) {
+        let gap = if y % 4 == 1 { 255 } else { 0 };
+        walls.extend((0..256).filter(|x| *x != gap).map(|x| format!("[{x},{y}]")));
+    }
+    let maze = format!(
+        r#"{{"op":"room","args":{{"id":"maze","width":256,"height":256,"walls":[{}]}}}}"#,
+        walls[..4096].join(",")
+    );
+    let mut k = Space::with_limits(&parse(r#"{"beings":4}"#, 64).unwrap()).unwrap();
+    k.workflow(&req(&[maze, r#"{"op":"enter","args":{"being":"a","room":"maze","x":0,"y":0}}"#.into()])).unwrap();
+    let out = k.workflow(&req(&[r#"{"op":"move","args":{"being":"a","x":0,"y":32}}"#.into()])).unwrap().to_json();
+    let steps: u64 = out.split(r#""steps":"#).nth(1).unwrap().trim_end_matches(['}', ']']).parse().unwrap();
+    assert!(steps >= 16 * 255, "the maze forces a walk along every row: {steps}");
+    let mut wide = Space::new();
+    wide.workflow(&req(&[
+        r#"{"op":"room","args":{"id":"f","width":256,"height":256}}"#.into(),
+        r#"{"op":"enter","args":{"being":"a","room":"f","x":0,"y":0}}"#.into(),
+        r#"{"op":"enter","args":{"being":"b","room":"f","x":255,"y":200}}"#.into(),
+    ]))
+    .unwrap();
+    let seen = wide.workflow(&req(&[r#"{"op":"see","args":{"being":"a","other":"b"}}"#.into()])).unwrap().to_json();
+    assert!(seen.contains(r#""distance":255"#) && seen.contains(r#""visible":true"#), "{seen}");
+
+    // A refused op changes nothing: a move with no path.
+    let mut k = Space::new();
+    k.workflow(&req(&[
+        r#"{"op":"room","args":{"id":"r","width":3,"height":3,"walls":[[1,0],[0,1],[2,1],[1,2]]}}"#.into(),
+        r#"{"op":"enter","args":{"being":"a","room":"r","x":0,"y":0}}"#.into(),
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"move","args":{"being":"a","x":1,"y":1}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}

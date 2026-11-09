@@ -2912,6 +2912,7 @@ grows past them is refused where it used to be accepted.
 | `retention` | `collections` (64, 4096), `entries` per collection (4096, 10⁶), `migrations` (16, 256), `changes` per migration (32, 256) |
 | `roles` | `roles` (64, 4096), `beings` with a role or standing (1024, 10⁶), `duties` per role (8, 64), roles `held` per being (4, 16) |
 | `economy` | `goods` (64, 4096), `markets` (16, 1024), `traders` per good and market in one period (256, 65,536) |
+| `space` | `rooms` (64, 4096), `beings` placed (1024, 10⁶), `spots` per room (16, 1024), `queue` per spot (32, 4096) |
 
 ### Knowledge kinds
 
@@ -3266,6 +3267,35 @@ A stall view is `{demand, good, market, mult, price: ⌊base·mult/1000⌋, sold
   min(100, 10 + want)}}` and each producer (by name) `{…, kind: "opportunity", …, weight: min(100,
   mult/50)}`. Then stock loses `⌊stock·spoil/1000⌋` and demand, sold, wants and production reset.
 - `price {market, good}` → stall. `assess {market}` → `{goods: [stall], market}`.
+
+## Space v1 (pass 2, C3)
+
+`gamectx::character::space` (guide: [Life](characters/LIFE.md#space-inside-a-place-pass-2-c3)), local kind `space`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
+malformed) live in `conformance/space/`. Cells are `[x, y]` with `0 ≤ x < width`, `0 ≤ y < height`. An op that
+fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
+
+A being view is `{being, room, x, y}`; a spot view `{capacity, queue (in order), room, spot, users (sorted), x, y}`;
+`served` lists `{being, spot}` moved from a queue into a free place, in spot-name then queue order.
+
+- `room {id (new), width 1–256, height 1–256, walls? ≤ 4,096 cells}` → `{height, id, walls (distinct count),
+  width}`.
+- `spot {room, id (new), x, y (not a wall), capacity? 1–1024 (1)}` → spot view.
+- `enter {being, room, x, y}` → view plus `served`; the cell must be free and not a wall. A being already placed
+  leaves its old cell and every spot of its old room first.
+- `exit {being}` → `{being, room, served}`.
+- `move {being, x, y}` → view plus `steps`: the breadth-first four-way distance through cells that are neither
+  walls nor occupied; refused when the goal is a wall, another being's cell or unreachable. Moving to the own
+  cell is 0 steps.
+- `use {being, spot (in its room)}` → spot view plus `{being, position, status}`: `using` (position null) when
+  the Chebyshev distance to the spot is ≤ 1, a place is free and the queue is empty; otherwise `waiting` at
+  `position` (1-based) under the queue limit. Refused if already using or waiting.
+- `release {being, spot}` → spot view plus `served`: leaves the queue, or frees the place and serves the queue.
+- `see {being ≠ other, range? 0–512 (512)}` → `{being, blocked: [x, y]|null, distance|null, other, same_room,
+  visible}`. In one room, the line is the integer Bresenham line (`err = dx − dy`, step x when `2·err ≥ −dy`,
+  step y when `2·err ≤ dx`); `blocked` is the first wall strictly between the ends; `visible` = not blocked and
+  Chebyshev distance ≤ range.
+- `crowd {room}` → `{beings (sorted), free: area − walls − beings, room, spots}`.
 
 ## Game data and save files v1
 

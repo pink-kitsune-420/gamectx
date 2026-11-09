@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "When the well's user leaves the room, the first in line is served.",
+  "error": false
+}

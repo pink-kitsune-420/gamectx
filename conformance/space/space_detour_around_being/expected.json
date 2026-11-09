@@ -1,0 +1,1 @@
+{"version":1,"results":[{"height":3,"id":"hall","walls":0,"width":5},{"being":"a","room":"hall","x":0,"y":1,"served":[]},{"being":"b","room":"hall","x":2,"y":1,"served":[]},{"being":"a","room":"hall","x":4,"y":1,"steps":6}]}

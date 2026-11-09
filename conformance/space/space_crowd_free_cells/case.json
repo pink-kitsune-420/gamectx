@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "crowd counts free cells (area minus walls minus beings) and lists spots.",
+  "error": false
+}

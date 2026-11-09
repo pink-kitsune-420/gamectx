@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The wall blocks the line from (0,2) to (6,1) at (3,1); along the top row (0,0) sees (7,0).",
+  "error": false
+}

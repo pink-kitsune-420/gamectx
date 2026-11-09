@@ -1,0 +1,30 @@
+{
+  "kind": "space",
+  "args": {
+    "ops": [
+      {
+        "op": "room",
+        "args": {
+          "id": "r",
+          "width": 3,
+          "height": 3,
+          "walls": [
+            [
+              1,
+              1
+            ]
+          ]
+        }
+      },
+      {
+        "op": "spot",
+        "args": {
+          "room": "r",
+          "id": "s",
+          "x": 1,
+          "y": 1
+        }
+      }
+    ]
+  }
+}

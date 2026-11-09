@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Moving onto another being's cell is refused; moving onto your own cell takes 0 steps.",
+  "error": false
+}

@@ -201,9 +201,12 @@ choosing between them. Make safety a need.
 *Implemented (pass 2 C1/C2):* `character::survival::Survival` (local kind `survival`).
 [Evidence](../characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2).
 
-**C3. Space inside a place.** Places have links and spots. Beings do not occupy spots,
+**C3. Space inside a place.** — **DONE**. Places have links and spots. Beings do not occupy spots,
 block each other, queue, or see across a room by line of sight. Crowding at a well
 or a counter is a large source of natural behavior.
+
+*Implemented (pass 2 C3):* `character::space::Space` (local kind `space`).
+[Evidence](../characters/LIFE.md#space-inside-a-place-pass-2-c3).
 
 **C4. Economy feedback.** — **DONE**. Markets and bartering exist. Prices do not respond to scarcity
 created by everyone's needs and off-screen production. Without it, off-screen effects
@@ -300,7 +303,7 @@ packet and budget modules already do.
    modules), 7b (pass 1 character modules) and 7c (knowledge kinds: places, timeline, things,
    species, recipes, communities, actions, lore, inventory, evidence, notes, facts) — **DONE**
    ([Evidence](../characters/LIFE.md#host-set-limits)).
-5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy** — **DONE**, **C3 space**.
+5. **B2/B3 cooperation and conflict** — **DONE**, **B7 roles** — **DONE**, **C4 economy** — **DONE**, **C3 space** — **DONE**.
 6. **A7 bounded rationality** — **DONE**, **A8 forgetting** — **DONE**, **B4 slow change**, **B5 conscience** (done with creeds, stage 4),
    **B6 off-screen talk** — **DONE**.
 7. **C1 life cycle** — **DONE**, **C2 threat** — **DONE**, **D2 detail levels** — **DONE**, **D3 save growth** — **DONE**, **D5 packs**.
