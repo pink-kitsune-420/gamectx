@@ -1,0 +1,40 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "apprentice_theft",
+          "claim": "The apprentice took the coin pouch",
+          "source": "inference",
+          "keys": [
+            "took",
+            "stole",
+            "theft"
+          ]
+        }
+      },
+      {
+        "op": "cover",
+        "args": {
+          "being": "mira",
+          "id": "shield",
+          "fact": "apprentice_theft",
+          "lie": "Nothing is missing"
+        }
+      },
+      {
+        "op": "frame_facts",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "facts": [
+            "apprentice_theft"
+          ]
+        }
+      }
+    ]
+  }
+}

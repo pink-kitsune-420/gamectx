@@ -1,0 +1,59 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "loan_returned_early",
+          "features": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "tools"
+            ]
+          },
+          "valence": 40
+        }
+      },
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "fire_of_the_bakery",
+          "features": {
+            "tags": [
+              "fire",
+              "oven"
+            ]
+          },
+          "valence": -80,
+          "emotion": "fear"
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "situation": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "tools"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

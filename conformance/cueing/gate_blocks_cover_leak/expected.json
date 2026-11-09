@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"mira","framing":"guess","id":"apprentice_theft","source":"inference"},{"being":"mira","fact":"apprentice_theft","id":"protect_boy","listeners":["gossip"]},{"being":"mira","fallback":"The pouch is safe in the back","leaks":[{"id":"apprentice_theft","kind":"cover","word":"stole"}],"listener":"gossip","ok":false}]}

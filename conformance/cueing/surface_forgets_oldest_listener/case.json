@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "With room for two listeners per memory, the one told longest ago is forgotten.",
+  "error": false
+}

@@ -1,0 +1,91 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "loan_returned_early",
+          "features": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "tools"
+            ]
+          },
+          "valence": 40
+        }
+      },
+      {
+        "op": "surface",
+        "args": {
+          "being": "mira",
+          "listener": "ana",
+          "episode": "loan_returned_early"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 1
+        }
+      },
+      {
+        "op": "surface",
+        "args": {
+          "being": "mira",
+          "listener": "bo",
+          "episode": "loan_returned_early"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 2
+        }
+      },
+      {
+        "op": "surface",
+        "args": {
+          "being": "mira",
+          "listener": "cy",
+          "episode": "loan_returned_early"
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "ana",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          },
+          "cooldown": 100
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "bo",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          },
+          "cooldown": 100
+        }
+      }
+    ],
+    "limits": {
+      "listeners": 2
+    }
+  }
+}

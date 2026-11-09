@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Key words are lower-case ASCII letters and digits.",
+  "error": true
+}

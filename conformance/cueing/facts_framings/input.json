@@ -1,0 +1,87 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "saw_trail",
+          "claim": "Flour trails to the lockbox",
+          "source": "direct_witness",
+          "keys": [
+            "flour"
+          ]
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "guard_said",
+          "claim": "The gate was shut at dusk",
+          "source": "trusted_report",
+          "from": "guard",
+          "keys": [
+            "gate"
+          ],
+          "confidence": 80
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "mill_rumor",
+          "claim": "The mill is closing",
+          "source": "unverified_rumor",
+          "from": "gossip",
+          "keys": [
+            "mill"
+          ]
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "apprentice_theft",
+          "claim": "The apprentice took the coin pouch",
+          "source": "inference",
+          "keys": [
+            "took",
+            "stole",
+            "theft"
+          ]
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "flour_price",
+          "claim": "Flour costs four coins",
+          "source": "corrected_belief",
+          "previous": "Flour costs three coins",
+          "keys": [
+            "four"
+          ]
+        }
+      },
+      {
+        "op": "frame_facts",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "facts": [
+            "saw_trail",
+            "guard_said",
+            "mill_rumor",
+            "apprentice_theft",
+            "flour_price"
+          ]
+        }
+      }
+    ]
+  }
+}

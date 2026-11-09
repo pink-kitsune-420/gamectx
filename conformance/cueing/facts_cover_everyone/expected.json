@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"mira","framing":"guess","id":"apprentice_theft","source":"inference"},{"being":"mira","fact":"apprentice_theft","id":"shield","listeners":[]},{"being":"mira","facts":[{"claim":"Nothing is missing","confidence":null,"cover":"shield","framing":"cover","from":null,"id":"apprentice_theft","previous":null}],"listener":"player"}]}

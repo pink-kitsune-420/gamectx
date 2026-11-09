@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A single shared tag scores 1, below the default minimum of 2.",
+  "error": false
+}

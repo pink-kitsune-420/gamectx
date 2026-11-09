@@ -5,7 +5,7 @@ use gamectx::character::{
     creed::CreedManager, curiosity::CuriosityManager, deception::DeceptionLedger, diet::DietManager,
     expectation::ExpectationBook, explain::ExplainTracer, habit::Habits, lesson::Lessons, mind::MindManager,
     offscreen::OffscreenResolver, relationship::RelationshipManager, skills::SkillsManager, speech_act::SpeechActs,
-    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, task::TaskManager,
+    stability::StabilityMonitor, survival::Survival, detail::Detail, retention::Retention, roles::Roles, economy::Economy, space::Space, drift::Drift, packs::Packs, frame::Frame, cueing::Cueing, task::TaskManager,
 };
 use gamectx::{data::json::parse, obj, Result, Value};
 use std::alloc::{GlobalAlloc, Layout, System};
@@ -70,6 +70,7 @@ fn modules(n: usize) -> Vec<(&'static str, String, &'static str, &'static str, &
         ("drift", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"trait","args":{"being":"{b}","trait":"trust","base":500000}}"#, r#"{"op":"experience","args":{"being":"{b}","trait":"trust","push":-10,"reason":"slight"}}"#),
         ("packs", format!(r#"{{"custom":{n}}}"#), "", r#"{"op":"define","args":{"kind":"species","id":"{b}","pack":{"lifespan":8760,"needs":[{"id":"hunger","action":"feed"},{"id":"rest","action":"wait"}]}}}"#, r#"{"op":"apply","args":{"being":"x","species":"{b}","temperament":"bold","roles":["baker"],"norms":["village"]}}"#),
         ("frame", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"observe","args":{"being":"{b}","key":"trust","value":-10}}"#, r#"{"op":"frame","args":{"being":"{b}","listener":"player","bystanders":[{"being":"gossip"}],"body":{"fatigue":75},"motive":{"id":"work","score":92}}}"#),
+        ("cueing", format!(r#"{{"beings":{n}}}"#), "", r#"{"op":"episode","args":{"being":"{b}","id":"loan","features":{"actions":["loan"],"entities":["player"],"tags":["tools"]},"valence":40}}"#, r#"{"op":"cue","args":{"being":"{b}","listener":"player","situation":{"actions":["loan"],"entities":["player"],"tags":["tools","oven"]}}}"#),
         ("task", format!(r#"{{"tasks":{n}}}"#), "", r#"{"op":"propose","args":{"id":"t_{b}","owner":"{b}","steps":[{"id":"w","action":"wait"}]}}"#, r#"{"op":"get","args":{"id":"t_{b}"}}"#),
     ]
 }
@@ -107,6 +108,7 @@ fn make(name: &str, lim: &str) -> Result<Wf> {
         "drift" => wf!(Drift, lim),
         "packs" => wf!(Packs, lim),
         "frame" => wf!(Frame, lim),
+        "cueing" => wf!(Cueing, lim),
         _ => wf!(TaskManager, lim),
     })
 }

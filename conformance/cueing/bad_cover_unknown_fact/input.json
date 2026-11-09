@@ -1,0 +1,30 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "apprentice_theft",
+          "claim": "The apprentice took the coin pouch",
+          "source": "inference",
+          "keys": [
+            "took",
+            "stole",
+            "theft"
+          ]
+        }
+      },
+      {
+        "op": "cover",
+        "args": {
+          "being": "mira",
+          "id": "c",
+          "fact": "nothing",
+          "lie": "x"
+        }
+      }
+    ]
+  }
+}

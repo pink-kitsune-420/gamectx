@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"mira","framing":"guess","id":"apprentice_theft","source":"inference"},{"being":"mira","fact":"apprentice_theft","id":"protect_boy","listeners":["gossip"]},{"being":"mira","id":"protect_boy","removed":true},{"being":"mira","fallback":null,"leaks":[],"listener":"gossip","ok":true}]}

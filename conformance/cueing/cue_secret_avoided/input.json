@@ -1,0 +1,39 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "hid_the_ledger",
+          "features": {
+            "actions": [
+              "store"
+            ],
+            "places": [
+              "cellar"
+            ]
+          },
+          "valence": 10,
+          "secret": true
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "situation": {
+            "actions": [
+              "store"
+            ],
+            "places": [
+              "cellar"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

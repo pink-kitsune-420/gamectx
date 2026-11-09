@@ -3659,3 +3659,115 @@ fn turn_frame_survives_mutation_limits_and_boundaries() {
     assert!(k.workflow(&req(&[r#"{"op":"observe","args":{"being":"a","key":"k","value":1000001}}"#.into()])).is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn cueing_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::cueing::{words, Cueing};
+    let mut rng = Rng(0xC0E1_0E37_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 37. Cueing mutation fuzzing (limits included); one manager keeps state across runs, and an
+    // accepted gate never passes a reply that contains a masked key word.
+    let samples = [
+        r#"{"limits":{"beings":3,"episodes":3,"listeners":2},"ops":[{"op":"episode","args":{"being":"mira","id":"loan","features":{"actions":["loan"],"entities":["player"],"tags":["tools"],"places":["shop"]},"valence":40,"emotion":"joy","secret":false}},{"op":"episode","args":{"being":"mira","id":"fire","features":{"tags":["fire"]},"valence":-80,"emotion":"fear"}},{"op":"cue","args":{"being":"mira","listener":"player","situation":{"actions":["loan"],"tags":["fire","tools"]},"cooldown":24,"min_score":2,"max":2}},{"op":"surface","args":{"being":"mira","listener":"player","episode":"loan"}},{"op":"tick","args":{"now":5}}]}"#,
+        r#"{"limits":{"facts":3,"covers":2,"secrets":2},"ops":[{"op":"fact","args":{"being":"mira","id":"theft","claim":"The boy took it","source":"inference","keys":["took","stole"],"confidence":60}},{"op":"fact","args":{"being":"mira","id":"rumor","claim":"Mill closing","source":"unverified_rumor","from":"gossip","keys":["mill"]}},{"op":"cover","args":{"being":"mira","id":"shield","fact":"theft","lie":"The pouch is safe","listeners":["gossip"]}},{"op":"secret","args":{"id":"vault","keys":["lantern","seven"]}},{"op":"frame_facts","args":{"being":"mira","listener":"gossip","facts":["theft","rumor"]}},{"op":"gate","args":{"being":"mira","listener":"gossip","reply":"He took it; lantern seven.","fallback":"Not now."}},{"op":"uncover","args":{"being":"mira","id":"shield"}}]}"#,
+        r#"{"ops":[{"op":"fact","args":{"being":"bo","id":"theft","claim":"Ana took it","source":"direct_witness","keys":["took","ana"]}},{"op":"cover","args":{"being":"bo","id":"lie","fact":"theft","lie":"Ana was home all day"}},{"op":"secret","args":{"id":"code","keys":["seven"]}},{"op":"gate","args":{"being":"bo","listener":"guard","reply":"Ana was home all day."}},{"op":"gate","args":{"being":"bo","listener":"guard","reply":"Nothing happened here."}}]}"#,
+    ];
+    let mut k = Cueing::new();
+    let mut gates = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            if k.clone().workflow(&v).is_err() {
+                continue;
+            }
+            // Replay the accepted workflow op by op and re-check every passed gate against the
+            // state it ran on: no masked key word outside the cover story.
+            let lim = v.get("limits").map(|l| format!(r#""limits":{},"#, l.to_json())).unwrap_or_default();
+            for (n, o) in v.get("ops").and_then(Value::as_array).unwrap().iter().enumerate() {
+                let one = format!(r#"{{{}"ops":[{}]}}"#, if n == 0 { lim.as_str() } else { "" }, o.to_json());
+                let before = k.clone();
+                let out = k.workflow(&parse(&one, 1 << 20).unwrap()).unwrap();
+                let r = &out.get("results").and_then(Value::as_array).unwrap()[0];
+                if o.get("op") != Some(&Value::from("gate")) || r.get("ok") != Some(&Value::Bool(true)) {
+                    continue;
+                }
+                gates += 1;
+                let a = o.get("args").unwrap();
+                let (b, lis) =
+                    (a.get("being").unwrap().as_str().unwrap(), a.get("listener").unwrap().as_str().unwrap());
+                let said = words(a.get("reply").unwrap().as_str().unwrap());
+                let x = &before.beings[b];
+                // The first cover by id that masks a fact for this listener is the story told.
+                let mut told_for: std::collections::BTreeMap<&str, &str> = Default::default();
+                for c in x.covers.values().filter(|c| c.listeners.is_empty() || c.listeners.contains(lis)) {
+                    told_for.entry(c.fact.as_str()).or_insert(c.lie.as_str());
+                }
+                for (f, lie) in told_for {
+                    let told = words(lie);
+                    assert!(x.facts[f].keys.iter().all(|w| !said.contains(w) || told.contains(w)), "{one}");
+                }
+                for (sid, ks) in &before.secrets {
+                    assert!(x.facts.contains_key(sid) || ks.iter().all(|w| !said.contains(w)));
+                }
+            }
+        }
+    }
+    assert!(gates > 0);
+    for (b, x) in &k.beings {
+        assert!(x.episodes.values().all(|e| e.surfaced.len() <= 64 && e.valence.abs() <= 100), "{b}");
+        assert!(x.covers.values().all(|c| x.facts.contains_key(&c.fact)), "{b}");
+    }
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Cueing::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Cueing::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"episodes":4096,"facts":4096,"covers":256,"secrets":4096,"listeners":64}"#, true),
+        (r#"{"covers":257}"#, false),
+        (r#"{"listeners":65}"#, false),
+        (r#"{"episodes":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Cueing::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: a 2,000-character reply against 4,096 secrets of 8 words each; every word is a
+    // leak and the fallback is the default line.
+    let mut k = Cueing::with_limits(&parse(r#"{"secrets":4096}"#, 64).unwrap()).unwrap();
+    for chunk in (0..4096).collect::<Vec<_>>().chunks(64) {
+        let ops: Vec<String> = chunk
+            .iter()
+            .map(|i| {
+                let ks: Vec<String> = (0..8).map(|j| format!(r#""w{}""#, (i * 8 + j) % 300)).collect();
+                format!(r#"{{"op":"secret","args":{{"id":"s{i}","keys":[{}]}}}}"#, ks.join(","))
+            })
+            .collect();
+        k.workflow(&req(&ops)).unwrap();
+    }
+    k.workflow(&req(&[
+        r#"{"op":"fact","args":{"being":"a","id":"x","claim":"x","source":"inference","keys":["x"]}}"#.into()
+    ]))
+    .unwrap();
+    let reply: String = (0..300).map(|i| format!("w{i} ")).collect::<String>().chars().take(2000).collect();
+    let out = k
+        .workflow(&req(&[format!(r#"{{"op":"gate","args":{{"being":"a","listener":"b","reply":"{reply}"}}}}"#)]))
+        .unwrap()
+        .to_json();
+    assert!(out.contains(r#""fallback":"I would rather not say.""#) && out.contains(r#""ok":false"#));
+
+    // A refused op changes nothing: a cover for a fact the being does not hold.
+    let mut k = Cueing::new();
+    k.workflow(&req(&[
+        r#"{"op":"fact","args":{"being":"a","id":"x","claim":"x","source":"inference","keys":["x"]}}"#.into()
+    ]))
+    .unwrap();
+    let before = k.clone();
+    assert!(k
+        .workflow(&req(&[r#"{"op":"cover","args":{"being":"a","id":"c","fact":"y","lie":"z"}}"#.into()]))
+        .is_err());
+    assert_eq!(k, before);
+}

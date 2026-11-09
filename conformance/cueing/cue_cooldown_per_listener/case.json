@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Telling the player does not stop Mira telling the smith.",
+  "error": false
+}

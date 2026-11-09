@@ -1,0 +1,1 @@
+{"version":1,"results":[{"id":"vault_code","keys":["lantern","seven"]},{"being":"mira","framing":"state","id":"saw_trail","source":"direct_witness"},{"being":"mira","fallback":"I know nothing about vaults.","leaks":[{"id":"vault_code","kind":"unknown","word":"lantern"},{"id":"vault_code","kind":"unknown","word":"seven"}],"listener":"player","ok":false}]}

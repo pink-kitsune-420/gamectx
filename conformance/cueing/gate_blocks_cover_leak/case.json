@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A reply naming the theft to the gossip is refused and replaced by the cover story.",
+  "error": false
+}

@@ -1,0 +1,61 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "loan_returned_early",
+          "features": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "tools"
+            ]
+          },
+          "valence": 40
+        }
+      },
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "cart_broken",
+          "features": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "cart"
+            ]
+          },
+          "valence": -50
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "situation": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ]
+          },
+          "max": 4
+        }
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@ pub mod chatter;
 pub mod cognition;
 pub mod cooperation;
 pub mod creed;
+pub mod cueing;
 pub mod curiosity;
 pub mod deception;
 pub mod detail;

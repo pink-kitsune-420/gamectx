@@ -1,0 +1,48 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "apprentice_theft",
+          "claim": "The apprentice took the coin pouch",
+          "source": "inference",
+          "keys": [
+            "took",
+            "stole",
+            "theft"
+          ]
+        }
+      },
+      {
+        "op": "cover",
+        "args": {
+          "being": "mira",
+          "id": "protect_boy",
+          "fact": "apprentice_theft",
+          "lie": "The pouch is safe in the back",
+          "listeners": [
+            "gossip"
+          ]
+        }
+      },
+      {
+        "op": "uncover",
+        "args": {
+          "being": "mira",
+          "id": "protect_boy"
+        }
+      },
+      {
+        "op": "gate",
+        "args": {
+          "being": "mira",
+          "listener": "gossip",
+          "reply": "He stole it."
+        }
+      }
+    ]
+  }
+}

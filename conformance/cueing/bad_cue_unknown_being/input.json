@@ -1,0 +1,19 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

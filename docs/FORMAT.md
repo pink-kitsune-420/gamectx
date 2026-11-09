@@ -2915,6 +2915,7 @@ grows past them is refused where it used to be accepted.
 | `space` | `rooms` (64, 4096), `beings` placed (1024, 10⁶), `spots` per room (16, 1024), `queue` per spot (32, 4096) |
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 | `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
+| `cueing` | `beings` (1024, 10⁶), `episodes` per being (64, 4096), `facts` per being (64, 4096), `covers` per being (16, 256), host-only `secrets` (64, 4096), `listeners` remembered per episode (8, 64; the one told longest ago is dropped) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
 
 ### Knowledge kinds
@@ -3397,6 +3398,41 @@ cues, entities, tags, places) hold at most 16 unique identifiers and are reporte
   score·1000/bytes, then score, then smallest id, and are kept if they fit, else dropped with `budget`, or with
   `irrelevant` when the score is below `floor`. → `{budget, dropped, kept, over_budget, used}`; each list is sorted by
   score then id, with `{bytes, group, id, kind, parts, reason, score}`.
+
+## Cueing v1 (pass 3, stage 2)
+
+`gamectx::character::cueing` (guide: [Life](characters/LIFE.md#memory-cueing-and-the-epistemic-gate-pass-3-stage-2)),
+local kind `cueing` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
+Its 25 cases (7 malformed) live in `conformance/cueing/`. An op that fails refuses the request; ops before it keep
+their changes, and the failing op changes nothing. Feature lists (`actions`, `entities`, `tags`, `places`) and
+listener lists hold at most 16 unique identifiers. Key words are 1–8 unique lower-case ASCII letter-and-digit words
+of 1–32 characters.
+
+- `tick {now ≥ clock}` → `{now}`.
+- `episode {being, id, features {actions?, entities?, tags?, places?} (at least one), valence? −100..100 (0),
+  emotion?, secret? (false)}` → `{being, emotion, id, secret, valence}`; defines or replaces it (surfacing cleared).
+- `cue {being, listener, situation (features), cooldown? (24), min_score? 1–1000 (2), max? 1–16 (2)}` → `{avoid,
+  being, cooling, listener, recall, unused}`. Score = 3·shared actions + 2·shared entities + shared tags + shared
+  places; matches below `min_score` are skipped. Mode: `avoid` if secret or the emotion is `fear` or `shame`,
+  `cooling` if surfaced to this listener less than `cooldown` ticks ago, else `recall`. Each list is ordered by score,
+  then |valence|, then id; `recall` keeps the first `max` and `unused` counts the rest. A match is `{emotion, id,
+  last_surfaced, mode, score, shared {actions, entities, tags, places}, valence}`.
+- `surface {being, listener, episode}` → `{at, being, episode, listener}`; records the clock for that listener.
+- `fact {being, id, claim text ≤160, source, keys, from?, previous? text ≤160, confidence? 0–100}` → `{being,
+  framing, id, source}`. Sources and framings: `direct_witness` state (confidence 100), `trusted_report` attribute and
+  `unverified_rumor` hedge (both need `from`), `inference` guess, `corrected_belief` correct (needs `previous`);
+  confidence defaults to 60 except for witnessing.
+- `cover {being, id, fact (held), lie text ≤160, listeners? (none = everyone)}` → `{being, fact, id, listeners}`;
+  `uncover {being, id}` → `{being, id, removed: true}`.
+- `secret {id, keys}` → `{id, keys}`: a host-only fact; a being knows it only if it holds a fact with the same id.
+- `frame_facts {being, listener, facts}` → `{being, facts, listener}`; each `{claim, confidence, cover, framing,
+  from, id, previous}` in id order. For each fact the first active cover by id that masks it for this listener is the
+  story told: `framing: cover`, `claim` = the lie, and the true claim, source and confidence are withheld.
+- `gate {being, listener, reply text ≤2000, fallback? text ≤160}` → `{being, fallback, leaks, listener, ok}`. The
+  reply's words are its lower-cased runs of ASCII letters and digits. A leak `{id, kind, word}` is a key word of a
+  masked fact that is not a word of its cover story (`cover`, by fact id), or a key word of a secret the being does
+  not hold (`unknown`, by secret id). With leaks, `ok` is false and `fallback` is the first leaked cover's lie, else
+  the given fallback, else `I would rather not say.`
 
 ## Game data and save files v1
 

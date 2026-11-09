@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "After the cooldown the memory can come up again.",
+  "error": false
+}

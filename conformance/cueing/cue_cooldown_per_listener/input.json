@@ -1,0 +1,46 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "episode",
+        "args": {
+          "being": "mira",
+          "id": "loan_returned_early",
+          "features": {
+            "actions": [
+              "loan"
+            ],
+            "entities": [
+              "player"
+            ],
+            "tags": [
+              "tools"
+            ]
+          },
+          "valence": 40
+        }
+      },
+      {
+        "op": "surface",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "episode": "loan_returned_early"
+        }
+      },
+      {
+        "op": "cue",
+        "args": {
+          "being": "mira",
+          "listener": "smith",
+          "situation": {
+            "actions": [
+              "loan"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

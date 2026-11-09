@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"mira","emotion":null,"id":"hid_the_ledger","secret":true,"valence":10},{"avoid":[{"emotion":null,"id":"hid_the_ledger","last_surfaced":null,"mode":"avoid","score":4,"shared":{"actions":["store"],"entities":[],"tags":[],"places":["cellar"]},"valence":10}],"being":"mira","cooling":[],"listener":"player","recall":[],"unused":0}]}

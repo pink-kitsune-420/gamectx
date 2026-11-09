@@ -1,0 +1,19 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "x",
+          "claim": "y",
+          "source": "unverified_rumor",
+          "keys": [
+            "y"
+          ]
+        }
+      }
+    ]
+  }
+}

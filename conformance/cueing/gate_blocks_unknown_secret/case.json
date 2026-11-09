@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Mira does not know the vault code, so a reply with its words is refused with the host's fallback.",
+  "error": false
+}

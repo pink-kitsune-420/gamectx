@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A corrected belief says what was believed before.",
+  "error": true
+}

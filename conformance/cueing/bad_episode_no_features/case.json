@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "An episode needs at least one feature.",
+  "error": true
+}

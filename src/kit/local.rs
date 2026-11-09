@@ -131,6 +131,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "drift" => crate::character::drift::workflow(a),
         "packs" => crate::character::packs::workflow(a),
         "turn-frame" => crate::character::frame::workflow(a),
+        "cueing" => crate::character::cueing::workflow(a),
         "lesson" => crate::character::lesson::workflow(a),
         "places" => crate::knowledge::places::workflow(a),
         "character-plan" => crate::character::tools::plan_fixture(a),

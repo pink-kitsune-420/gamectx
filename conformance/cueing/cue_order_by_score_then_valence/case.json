@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Equal scores are ordered by the stronger feeling: the broken cart (-50) before the early return (40).",
+  "error": false
+}

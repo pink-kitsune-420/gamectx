@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Asking to borrow a tool cues the time the player returned a loan early (loan, player and tools shared).",
+  "error": false
+}

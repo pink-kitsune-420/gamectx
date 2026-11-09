@@ -1,0 +1,38 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "secret",
+        "args": {
+          "id": "vault_code",
+          "keys": [
+            "lantern",
+            "seven"
+          ]
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "mira",
+          "id": "saw_trail",
+          "claim": "Flour trails to the lockbox",
+          "source": "direct_witness",
+          "keys": [
+            "flour"
+          ]
+        }
+      },
+      {
+        "op": "gate",
+        "args": {
+          "being": "mira",
+          "listener": "player",
+          "reply": "Lantern-seven opens it, I'd guess.",
+          "fallback": "I know nothing about vaults."
+        }
+      }
+    ]
+  }
+}

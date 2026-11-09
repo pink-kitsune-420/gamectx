@@ -1,0 +1,38 @@
+{
+  "kind": "cueing",
+  "args": {
+    "ops": [
+      {
+        "op": "secret",
+        "args": {
+          "id": "vault_code",
+          "keys": [
+            "lantern",
+            "seven"
+          ]
+        }
+      },
+      {
+        "op": "fact",
+        "args": {
+          "being": "warden",
+          "id": "vault_code",
+          "claim": "The code is lantern seven",
+          "source": "direct_witness",
+          "keys": [
+            "lantern",
+            "seven"
+          ]
+        }
+      },
+      {
+        "op": "gate",
+        "args": {
+          "being": "warden",
+          "listener": "player",
+          "reply": "Lantern seven."
+        }
+      }
+    ]
+  }
+}
