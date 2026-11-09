@@ -1695,6 +1695,8 @@ fn universal_purchase_routing_and_llm_action_directing() {
     let mock_reply = "[ACTION: buy item:oil] {\"speech\": [\"Here is your hinge oil, may it serve you well.\"]}";
     let json_bytes = format!("{{\"message\":{{\"content\":{mock_reply:?}}}}}").into_bytes();
     let job = a3.command("chat", &obj! {"text" => "Tell me about your workshop."}).unwrap().1.remove(0);
+    let req_body_str = std::str::from_utf8(&job.request.body).unwrap();
+    assert!(req_body_str.contains("You are Ilen the Merchant. You own and operate this workshop counter"));
     a3.complete(&job, Ok(json_bytes)).unwrap();
     assert!(a3.game.owns("item:oil"));
     assert_eq!(a3.game.coins, 2);
