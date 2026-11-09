@@ -1799,3 +1799,45 @@ tension at both ends; and a refused callback with no running joke that changes n
 the [table above](#host-set-limits): a pair's chemistry takes 1.8 µs median at 10,000 beings.
 Chemistry does not yet feed cooperation or initiative automatically: the host applies the biases.
 $0 API spend.
+
+## Pass 4 deep tests
+
+`eval/character/pass4_deep_test.rs` runs the three deep tests that `INTELLIGENT_BEING_4.md` section 7
+declared before any pass 4 code existed. CI replays them against the committed report
+`eval/character/pass4-deep.json` byte for byte (38 checks, each fatal on failure). $0 API spend.
+
+1. **Cross-genre theft (12 checks).** One theft scene (a missing crate, a supervisor who notices it,
+   an accusation, a sanction, a hush contract, the taker's defense and a friend's banter) is authored
+   four times in each genre's own words: `crime`, `station_offense`, `felony` and `expellable`, with
+   slang lines from the `station_crew`, `noir_street` and `school_casual` packs. `normalize` maps all
+   four to the same engine words; the decisions are identical in every genre (greeting, accusation,
+   threat; the crate noticed before the hum; a step 3 sanction with a report; the taker rationalizes
+   and keeps 300,000 strain; chemistry 90 and a playful callback). `render` sends them back as four
+   different vocabularies (`acquaintance`, `spacer`, `friend`, `classmate`), and a village word in a
+   station scene is refused.
+2. **Breaking point (9 checks).** A keeper with maturity 80 and tolerance 10 takes nine escalating
+   threats one tick apart with no rest or support: humour, humour, rationalization, rationalization,
+   then denial at 806,000 strain, where the confession crisis fires once and strain halves to 400,000.
+   Inside the 72-tick cooldown the next threats and three contradictions drive strain to the
+   1,000,000 ceiling without a second crisis. Accepting the denials, two rounds of support, rest and
+   coping bring strain to 0 (1,000,000, 596,000, 272,000, 68,000, 0), and a small slight is met with
+   humour again. Every step has an explain trace.
+3. **100 agents over 180 days (17 checks).** A seeded town (seed 7) of 100 beings in four
+   communities, each with three links at home and one away, nine idioms, six rumors and a
+   three-milestone project per being, runs off-screen at 24 ticks a day: 54,000 idiom exposures and
+   11,504 retellings. Host limits hold (a 101st member and a 101st project are refused, no repertoire
+   passes 12, beliefs stay under 1,024, chains keep 8 tellers). Usable idioms are at least 85% home
+   idioms on every sample day (91 home and 16 away on day 180). A fair's fad idiom, pushed by one
+   community on days 30–60, is usable by 0, 16, 21, 17, 12, 1 and 0 beings on days 30, 45, 60, 75,
+   90, 120 and 180. Before the day 100 correction the mean truth distance of hearsay rises with hops
+   (0.11, 1.00, 1.41 and 3.58 operators for 1, 2–3, 4–7 and 8+ hops) and averages 3.06; after each
+   witness retells the truth it is 0.29. Projects end with 49 completed, 6 abandoned, 11 paused and 34
+   active, 45 of them having adapted to a fallback. The stability monitor logs 82 rumor runaways, all
+   on gossip days, and reports `recovered` once gossip stops after day 130.
+
+The town runs in 445 ms of wall time, with about 1.0 MB of live state (10,230 bytes per being,
+counting the harness's own bookkeeping) and a 2.1 MB peak heap for the whole binary, on an AMD Ryzen
+7 3800X (`eval/character/pass4-deep-timing.json`, `--timing`; not checked in CI, because wall time
+varies). The test found one engine gap: a witness's own version can be replaced by gossip, so a
+correction from that witness retells a distorted story. The town's host gives hearsay about a
+witness's own topic zero trust; `culture` does not yet protect witnesses itself.

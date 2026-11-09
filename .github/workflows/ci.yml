@@ -152,6 +152,8 @@ jobs:
       - run: ./target/upgrades-bench > /dev/null
       - run: rustc --edition=2021 -O eval/character/roleplay_deep_test.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/roleplay-deep
       - run: ./target/roleplay-deep --check eval/character/roleplay-deep.json
+      - run: rustc --edition=2021 -O eval/character/pass4_deep_test.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/pass4-deep
+      - run: ./target/pass4-deep --check eval/character/pass4-deep.json
       - run: rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/scale-measure
       - run: ./target/scale-measure > /dev/null
       - run: rustc --edition=2021 -O eval/knowledge/scale_measure.rs -L dependency=target/release/deps --extern gamectx=target/release/libgamectx.rlib -o target/knowledge-scale-measure

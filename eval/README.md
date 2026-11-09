@@ -1519,6 +1519,18 @@ output. Model drafts in the scenes (an invented clause, a reply that leaks a sec
 untrusted model output; real model speech is not measured here. $0 API spend.
 [Scenarios](../docs/characters/LIFE.md#pass-3-deep-roleplay-scenarios).
 
+## Pass 4 deep tests (offline)
+
+`character/pass4_deep_test.rs` (compiled with `rustc` against the release library) runs the three deep tests that
+`docs/research/INTELLIGENT_BEING_4.md` section 7 declared in advance: one theft scene under the village, orbital
+station, noir city and academy genres (identical decisions, four vocabularies), a breaking point (mature to immature
+defenses, one crisis at the threshold, none inside the cooldown, recovery with support) and a seeded town of 100 beings
+over 180 days (host limits, idiom clusters and a fad, rumor distance by hops and after a correction, project outcomes,
+the stability monitor). 38 checks, each fatal on failure. `--output` writes `character/pass4-deep.json`; `--check`
+replays it byte for byte (in CI); `--timing` writes `character/pass4-deep-timing.json` with wall time, live state and
+peak heap and the CPU (445 ms, 10,230 bytes per being, 2.1 MB peak on an AMD Ryzen 7 3800X). $0 API spend.
+[Results](../docs/characters/LIFE.md#pass-4-deep-tests).
+
 ## World and social schemas (offline)
 
 `character/surroundings_reference.py` and `character/fabric_reference.py` are the independent prototypes of pass 3
