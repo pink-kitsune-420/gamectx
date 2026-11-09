@@ -1,0 +1,18 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "import",
+        "args": {
+          "save": {
+            "format": "gamectx-state",
+            "kind": "wrong",
+            "version": 1,
+            "state": {}
+          }
+        }
+      }
+    ]
+  }
+}

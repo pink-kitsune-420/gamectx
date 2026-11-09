@@ -1,0 +1,23 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "boundary",
+        "args": {
+          "category": "violence",
+          "mode": "line"
+        }
+      },
+      {
+        "op": "check",
+        "args": {
+          "categories": [
+            "violence"
+          ],
+          "target": "bystander"
+        }
+      }
+    ]
+  }
+}

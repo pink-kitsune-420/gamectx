@@ -1,0 +1,13 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "check",
+        "args": {
+          "categories": []
+        }
+      }
+    ]
+  }
+}

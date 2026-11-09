@@ -5260,6 +5260,88 @@ fn tiers_survives_mutation_limits_and_boundaries() {
     assert_eq!(persist::export(&t, &t.limits).to_json(), before);
 }
 
+#[test]
+fn player_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::player::PlayerModelManager;
+    use gamectx::data::persist;
+    let mut rng = Rng(0x5054_2026_1109_0053);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 26).unwrap()
+    }
+    let filled = || {
+        let mut pm = PlayerModelManager::new();
+        pm.workflow(
+            &parse(
+                r#"{"ops":[
+                {"op":"boundary","args":{"category":"violence","mode":"veil"}},
+                {"op":"boundary","args":{"category":"insults","mode":"line"}},
+                {"op":"record","args":{"being":"alder","action":"promise_broken","thread":"salt_oath"}},
+                {"op":"record","args":{"being":"alder","action":"gift","gift":"brass_compass"}},
+                {"op":"record","args":{"being":"alder","action":"topic","topic":"navigation"}},
+                {"op":"record","args":{"being":"maren","action":"lie_caught"}}
+            ]}"#,
+                1 << 20,
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        pm
+    };
+
+    // 53. Player fuzzing: save is mutated and imported.
+    // Reset every 16 rounds.
+    let good_save = persist::export(&filled(), &filled().limits).to_json();
+    let mut pm = filled();
+    let (mut accepted, mut refused) = (0, 0);
+    for round in 0..1500 {
+        if round % 16 == 0 {
+            pm = filled();
+        }
+        let before = persist::export(&pm, &pm.limits).to_json();
+        let Ok(save) = parse(&mutate(&mut rng, &good_save), 1 << 22) else { continue };
+        let request = obj_import(&save);
+        match pm.workflow(&request) {
+            Ok(_) => {
+                accepted += 1;
+                let again = persist::export(&pm, &pm.limits);
+                let mut pm2 = PlayerModelManager::new();
+                pm2.workflow(&obj_import(&again)).unwrap();
+                assert_eq!(persist::export(&pm2, &pm2.limits), again);
+            }
+            Err(_) => {
+                refused += 1;
+                assert_eq!(persist::export(&pm, &pm.limits).to_json(), before);
+            }
+        }
+    }
+    assert!(accepted > 0 && refused > 0);
+
+    // 64/65 ops; boundary op
+    let bnd = r#"{"op":"boundary","args":{"category":"romance","mode":"off"}}"#.to_string();
+    assert!(filled().workflow(&req(&vec![bnd.clone(); 64])).is_ok());
+    assert!(filled().workflow(&req(&vec![bnd.clone(); 65])).is_err());
+
+    // Ceilings and extremes
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"boundaries":64,"topics":1024}"#, true),
+        (r#"{"beings":1000001}"#, false),
+        (r#"{"boundaries":65}"#, false),
+        (r#"{"topics":1025}"#, false),
+        (r#"{"boundaries":0}"#, false),
+    ] {
+        let mut p = PlayerModelManager::new();
+        assert_eq!(p.limits.apply(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Refused op changes nothing
+    let mut p = filled();
+    let before = persist::export(&p, &p.limits).to_json();
+    let bad_record =
+        parse(r#"{"ops":[{"op":"record","args":{"being":"bad id!","action":"lie_caught"}}]}"#, 4096).unwrap();
+    assert!(p.workflow(&bad_record).is_err());
+    assert_eq!(persist::export(&p, &p.limits).to_json(), before);
+}
+
 fn obj_import(save: &Value) -> Value {
     let mut ops = vec![(String::from("op"), Value::from("import"))];
     ops.push((String::from("args"), Value::Object(vec![(String::from("save"), save.clone())])));

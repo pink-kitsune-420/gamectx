@@ -1,0 +1,14 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "promise_kept"
+        }
+      }
+    ]
+  }
+}

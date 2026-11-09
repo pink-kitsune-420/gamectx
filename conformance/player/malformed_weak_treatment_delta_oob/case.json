@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse delta exceeding 500k bound",
+  "error": true
+}

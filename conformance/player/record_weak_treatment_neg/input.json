@@ -1,0 +1,15 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "tressa",
+          "action": "weak_treatment",
+          "delta": -400000
+        }
+      }
+    ]
+  }
+}

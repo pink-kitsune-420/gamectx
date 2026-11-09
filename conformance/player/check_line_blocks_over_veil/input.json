@@ -1,0 +1,30 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "boundary",
+        "args": {
+          "category": "violence",
+          "mode": "veil"
+        }
+      },
+      {
+        "op": "boundary",
+        "args": {
+          "category": "insults",
+          "mode": "line"
+        }
+      },
+      {
+        "op": "check",
+        "args": {
+          "categories": [
+            "violence",
+            "insults"
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "boundary",
+        "args": {
+          "category": "insults",
+          "mode": "line"
+        }
+      }
+    ],
+    "limits": {
+      "beings": 50,
+      "boundaries": 20,
+      "topics": 10
+    }
+  }
+}

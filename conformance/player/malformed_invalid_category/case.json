@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse invalid content category",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Promise kept resolves and clears open thread",
+  "error": false
+}

@@ -1,0 +1,30 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "promise_broken",
+          "thread": "salt_store_oath"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "promise_kept",
+          "thread": "salt_store_oath"
+        }
+      },
+      {
+        "op": "anchor",
+        "args": {
+          "being": "maren",
+          "now": 100
+        }
+      }
+    ]
+  }
+}

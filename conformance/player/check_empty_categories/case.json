@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Checking empty list returns allowed",
+  "error": false
+}

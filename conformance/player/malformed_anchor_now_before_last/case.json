@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse now timestamp earlier than last session",
+  "error": true
+}

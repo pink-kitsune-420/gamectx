@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse import with invalid kind",
+  "error": true
+}

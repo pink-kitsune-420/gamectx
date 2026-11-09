@@ -1,0 +1,21 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "lie_caught"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "lie_admitted"
+        }
+      }
+    ]
+  }
+}

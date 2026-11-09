@@ -1,0 +1,33 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "lie_caught"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "promise_kept"
+        }
+      },
+      {
+        "op": "reputation",
+        "args": {
+          "being": "maren"
+        }
+      },
+      {
+        "op": "reputation",
+        "args": {
+          "being": "alder"
+        }
+      }
+    ]
+  }
+}

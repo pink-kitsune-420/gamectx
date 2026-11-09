@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Session gap of 1 tick returns just now",
+  "error": false
+}

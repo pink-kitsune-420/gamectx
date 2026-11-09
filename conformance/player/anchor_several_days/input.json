@@ -1,0 +1,21 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "anchor",
+        "args": {
+          "being": "maren",
+          "now": 1000
+        }
+      },
+      {
+        "op": "anchor",
+        "args": {
+          "being": "maren",
+          "now": 1100
+        }
+      }
+    ]
+  }
+}

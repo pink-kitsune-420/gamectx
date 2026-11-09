@@ -1,0 +1,22 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "boundary",
+        "args": {
+          "category": "violence",
+          "mode": "veil"
+        }
+      },
+      {
+        "op": "check",
+        "args": {
+          "categories": [
+            "violence"
+          ]
+        }
+      }
+    ]
+  }
+}

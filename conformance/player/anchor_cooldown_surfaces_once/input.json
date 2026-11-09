@@ -1,0 +1,29 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "promise_broken",
+          "thread": "unpaid_fish"
+        }
+      },
+      {
+        "op": "anchor",
+        "args": {
+          "being": "maren",
+          "now": 100
+        }
+      },
+      {
+        "op": "anchor",
+        "args": {
+          "being": "maren",
+          "now": 150
+        }
+      }
+    ]
+  }
+}

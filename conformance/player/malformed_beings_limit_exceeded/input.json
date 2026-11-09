@@ -1,0 +1,24 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "b1",
+          "action": "promise_kept"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "b2",
+          "action": "promise_kept"
+        }
+      }
+    ],
+    "limits": {
+      "beings": 1
+    }
+  }
+}

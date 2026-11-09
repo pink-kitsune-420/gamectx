@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Positive weak treatment delta bounded at 1M",
+  "error": false
+}

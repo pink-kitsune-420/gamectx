@@ -1,0 +1,45 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "topic",
+          "topic": "zeta"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "topic",
+          "topic": "alpha"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "topic",
+          "topic": "alpha"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "gift",
+          "gift": "driftwood_whistle"
+        }
+      },
+      {
+        "op": "reputation",
+        "args": {
+          "being": "maren"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "boundary",
+        "args": {
+          "category": "cruelty",
+          "mode": "line"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "promise_broken",
+          "thread": "tide_secret"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "gift",
+          "gift": "brass_compass"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "alder",
+          "action": "topic",
+          "topic": "navigation"
+        }
+      },
+      {
+        "op": "export",
+        "args": {}
+      }
+    ]
+  }
+}

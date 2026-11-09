@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Refuse unknown record action",
+  "error": true
+}

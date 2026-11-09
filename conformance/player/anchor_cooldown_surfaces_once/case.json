@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Open threads surfaced once and cleared on next anchor",
+  "error": false
+}

@@ -1,0 +1,26 @@
+{
+  "kind": "player",
+  "args": {
+    "ops": [
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "topic",
+          "topic": "t1"
+        }
+      },
+      {
+        "op": "record",
+        "args": {
+          "being": "maren",
+          "action": "topic",
+          "topic": "t2"
+        }
+      }
+    ],
+    "limits": {
+      "topics": 1
+    }
+  }
+}
