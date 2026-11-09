@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: built-in minds cannot be redefined.",
+  "error": true
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: an affect channel is listed once.",
+  "error": true
+}

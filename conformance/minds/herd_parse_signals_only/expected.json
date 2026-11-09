@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"nanny_goat","mind":"herd_animal","pool":null},{"allowed":false,"args":null,"being":"nanny_goat","kind":"pragmatics","mind":"herd_animal","op":"parse","reasons":["signals_only"],"stripped":[],"target":"nanny_goat"}]}

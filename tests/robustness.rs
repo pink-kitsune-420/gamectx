@@ -4223,3 +4223,112 @@ fn genre_survives_mutation_limits_and_boundaries() {
     assert!(g.workflow(&req(&[r#"{"op":"define","args":{"id":"village"}}"#.into()])).is_err());
     assert_eq!(g, before);
 }
+
+#[test]
+fn minds_survive_mutation_limits_and_boundaries() {
+    use gamectx::character::minds::Minds;
+    let mut rng = Rng(0x313D_0E42_2026_1109);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+    fn results(out: &Value) -> Vec<Value> {
+        out.get("results").and_then(Value::as_array).unwrap().to_vec()
+    }
+
+    // 43. Mind mutation fuzzing (limits included); one registry keeps minds and beings across runs.
+    // Admission is allowed exactly when no reason is given, a refusal carries no args, stripped
+    // inputs are gone, the target is the being or its pool; every being is pooled exactly when its
+    // mind's memory is shared; a fixation heads the motives with the top score.
+    let samples = [
+        r#"{"limits":{"minds":3,"beings":4},"ops":[{"op":"define","args":{"id":"moss","memory":"none","affect":["fear"],"language":"none","deception":"none","theory_of_mind":0,"time_scale":50000000}},{"op":"assign","args":{"being":"m","mind":"moss"}},{"op":"assign","args":{"being":"d","mind":"hive_tender","pool":"hive"}},{"op":"admit","args":{"being":"d","kind":"cueing","op":"cue","args":{"being":"d","emotion":"shame","cooldown":30}}},{"op":"admit","args":{"being":"m","kind":"embodiment","op":"react","args":{"being":"m","lying":false,"guilt":40,"fear":10,"bystander_untrusted":true}}},{"op":"hear","args":{"being":"m","acts":["threat"]}}]}"#,
+        r#"{"ops":[{"op":"assign","args":{"being":"w","mind":"hearth_spirit"}},{"op":"fixate","args":{"being":"w","motives":[{"id":"rest","score":99},{"id":"keep_the_household","score":5}]}},{"op":"admit","args":{"being":"w","kind":"embodiment","op":"tension","args":{"being":"w","deceiving":true,"attitudes":[{"toward":"cat","affection":10,"fear":80}]}}},{"op":"admit","args":{"being":"w","kind":"pragmatics","op":"resume","args":{"ticks_per_hour":60}}},{"op":"release","args":{"being":"w"}},{"op":"tick","args":{"now":9}}]}"#,
+    ];
+    let mut m = Minds::new();
+    let (mut admits, mut fixations) = (0, 0);
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = m.workflow(&v) else { continue };
+            for r in results(&out) {
+                if let Some(Value::Bool(allowed)) = r.get("allowed") {
+                    let reasons = r.get("reasons").and_then(Value::as_array).unwrap();
+                    assert_eq!(*allowed, reasons.is_empty());
+                    let being = r.get("being").and_then(Value::as_str).unwrap();
+                    let target = r.get("target").and_then(Value::as_str).unwrap();
+                    let pool = m.beings.get(being).and_then(|s| s.pool.clone());
+                    assert!(target == being || Some(target.to_string()) == pool);
+                    match r.get("args") {
+                        Some(Value::Object(f)) => {
+                            assert!(allowed);
+                            for s in r.get("stripped").and_then(Value::as_array).unwrap() {
+                                let s = s.as_str().unwrap();
+                                assert!(s.contains('.') || f.iter().all(|(k, _)| k != s));
+                            }
+                        }
+                        other => assert!(!allowed && other == Some(&Value::Null)),
+                    }
+                    admits += 1;
+                }
+                if r.get("fixated") == Some(&Value::Bool(true)) {
+                    let ms = r.get("motives").and_then(Value::as_array).unwrap();
+                    let score = |x: &Value| x.get("score").unwrap().to_json().parse::<u64>().unwrap();
+                    assert_eq!(ms[0].get("id"), r.get("pinned"));
+                    assert!(ms.iter().all(|x| score(x) <= score(&ms[0])));
+                    assert_eq!(ms.iter().filter(|x| x.get("id") == r.get("pinned")).count(), 1);
+                    fixations += 1;
+                }
+            }
+            for st in m.beings.values() {
+                assert_eq!(st.pool.is_some(), m.mind(&st.mind).unwrap().memory == "shared");
+            }
+        }
+    }
+    assert!(admits > 0 && fixations > 0);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let show = r#"{"op":"show","args":{"id":"human"}}"#.to_string();
+    assert!(Minds::new().workflow(&req(&vec![show.clone(); 64])).is_ok());
+    assert!(Minds::new().workflow(&req(&vec![show; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"minds":4096,"beings":1000000}"#, true),
+        (r#"{"minds":4097}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Minds::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: the slowest mind stretches the largest cooldown (10¹² × 1,000) without overflow;
+    // the fastest shrinks a default cooldown to the 1-tick floor; one past 10¹² is left as sent.
+    let mut m = Minds::new();
+    let def = |id: &str, scale: u64| {
+        format!(
+            r#"{{"op":"define","args":{{"id":"{id}","memory":"individual","affect":[],"language":"full","deception":"full","theory_of_mind":2,"time_scale":{scale}}}}}"#
+        )
+    };
+    let cue = |b: &str, cd: &str| {
+        format!(r#"{{"op":"admit","args":{{"being":"{b}","kind":"cueing","op":"cue","args":{{"being":"{b}"{cd}}}}}}}"#)
+    };
+    let out = m
+        .workflow(&req(&[
+            def("glacier", 1_000_000_000),
+            def("spark", 1),
+            r#"{"op":"assign","args":{"being":"g","mind":"glacier"}}"#.into(),
+            r#"{"op":"assign","args":{"being":"s","mind":"spark"}}"#.into(),
+            cue("g", r#","cooldown":1000000000000"#),
+            cue("s", ""),
+            cue("g", r#","cooldown":1000000000001"#),
+        ]))
+        .unwrap();
+    let rs = results(&out);
+    assert!(rs[4].to_json().contains(r#""cooldown":1000000000000000"#));
+    assert!(rs[5].to_json().contains(r#""cooldown":1}"#));
+    assert!(rs[6].to_json().contains(r#""cooldown":1000000000001"#));
+
+    // A refused op changes nothing: one being past the limit.
+    let mut m = Minds::with_limits(&parse(r#"{"beings":1}"#, 64).unwrap()).unwrap();
+    m.workflow(&req(&[r#"{"op":"assign","args":{"being":"a","mind":"herd_animal"}}"#.into()])).unwrap();
+    let before = m.clone();
+    assert!(m.workflow(&req(&[r#"{"op":"assign","args":{"being":"b","mind":"human"}}"#.into()])).is_err());
+    assert_eq!(m, before);
+}

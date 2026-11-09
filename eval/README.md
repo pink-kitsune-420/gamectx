@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills thirty-eight modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty-nine modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1463,6 +1463,14 @@ normalize, lexicon packs). `character/genre_cases.py --cap 0` checks 25 cases (`
 `--random 2000 --seed 7` builds workflows op by op against `gamectx local -` with random nested values drawn from
 every genre's words (0 mismatches: 1,487 accepted, 513 refused, 5,401 renders with 2,703 unmapped words, 1,887
 normalizations, 1,136 definitions). [Results](../docs/characters/LIFE.md#genre-profiles-pass-4-stage-1).
+
+## Mind architectures (offline)
+
+`character/minds_reference.py` is the independent prototype of pass 4 stage 2 (mind architectures, admission of engine
+requests, fixation, hearing). `character/minds_cases.py --cap 0` checks 26 cases (`conformance/minds/`, 7 malformed).
+`--random 2000 --seed 7` builds workflows op by op against `gamectx local -` with every built-in and two authored minds
+assigned (0 mismatches: 1,539 accepted, 461 refused, 6,358 admissions with 1,005 refused, 388 stripped inputs and 413
+pool routes; seed 1: 1,493 accepted, 0 mismatches). [Results](../docs/characters/LIFE.md#mind-architectures-pass-4-stage-2).
 
 ## Deep roleplay scenarios (offline)
 

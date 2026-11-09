@@ -1,0 +1,38 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "ash_warden",
+          "mind": "hearth_spirit"
+        }
+      },
+      {
+        "op": "release",
+        "args": {
+          "being": "ash_warden"
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 12
+        }
+      },
+      {
+        "op": "fixate",
+        "args": {
+          "being": "ash_warden",
+          "motives": [
+            {
+              "id": "rest",
+              "score": 40
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

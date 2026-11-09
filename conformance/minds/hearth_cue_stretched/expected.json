@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"ash_warden","mind":"hearth_spirit","pool":null},{"allowed":true,"args":{"being":"ash_warden","features":{"tags":["smoke"]},"cooldown":120},"being":"ash_warden","kind":"cueing","mind":"hearth_spirit","op":"cue","reasons":[],"stripped":[],"target":"ash_warden"}]}

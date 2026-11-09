@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"drone_7","mind":"hive_tender","pool":"east_hive"},{"allowed":true,"args":{"being":"east_hive","id":"wasp_raid","features":{"tags":["wasps","east_comb"]},"strength":80},"being":"drone_7","kind":"cueing","mind":"hive_tender","op":"episode","reasons":[],"stripped":["emotion"],"target":"east_hive"}]}

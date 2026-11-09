@@ -1,0 +1,43 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "nanny_goat",
+          "mind": "herd_animal"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "nanny_goat",
+          "kind": "embodiment",
+          "op": "react",
+          "args": {
+            "being": "nanny_goat",
+            "lying": true,
+            "fear": 60
+          }
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "nanny_goat",
+          "kind": "embodiment",
+          "op": "react",
+          "args": {
+            "being": "nanny_goat",
+            "lying": false,
+            "fear": 60,
+            "anger": 30,
+            "guilt": 20,
+            "bystander_untrusted": true
+          }
+        }
+      }
+    ]
+  }
+}

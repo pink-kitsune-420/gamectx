@@ -30,6 +30,7 @@ pub mod life;
 pub mod limits;
 pub mod living;
 pub mod mind;
+pub mod minds;
 pub mod motive;
 pub mod offscreen;
 pub mod packs;

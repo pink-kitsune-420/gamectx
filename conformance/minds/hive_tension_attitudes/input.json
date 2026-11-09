@@ -1,0 +1,40 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "drone_7",
+          "mind": "hive_tender",
+          "pool": "east_hive"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "drone_7",
+          "kind": "embodiment",
+          "op": "tension",
+          "args": {
+            "being": "drone_7",
+            "deceiving": false,
+            "attitudes": [
+              {
+                "toward": "beekeeper",
+                "affection": 40,
+                "fear": 10
+              },
+              {
+                "toward": "bear",
+                "resentment": 70,
+                "fear": 90
+              },
+              "loose"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

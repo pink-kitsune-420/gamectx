@@ -1,0 +1,26 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "keep_steward",
+          "mind": "steward_intelligence"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "keep_steward",
+          "kind": "pragmatics",
+          "op": "resume",
+          "args": {
+            "thread": "grain_tally",
+            "ticks_per_hour": 60
+          }
+        }
+      }
+    ]
+  }
+}

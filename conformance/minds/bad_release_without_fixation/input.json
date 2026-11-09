@@ -1,0 +1,20 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "miller",
+          "mind": "human"
+        }
+      },
+      {
+        "op": "release",
+        "args": {
+          "being": "miller"
+        }
+      }
+    ]
+  }
+}

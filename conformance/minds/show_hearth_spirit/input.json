@@ -1,0 +1,13 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "show",
+        "args": {
+          "id": "hearth_spirit"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "After release (and a tick), motives are left as the host ordered them.",
+  "error": false
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "m",
+          "memory": "none",
+          "affect": [
+            "fear",
+            "fear"
+          ],
+          "language": "none",
+          "deception": "none",
+          "theory_of_mind": 0
+        }
+      }
+    ]
+  }
+}

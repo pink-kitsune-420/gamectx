@@ -1,0 +1,27 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "nanny_goat",
+          "mind": "herd_animal"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "nanny_goat",
+          "kind": "cueing",
+          "op": "cover",
+          "args": {
+            "being": "nanny_goat",
+            "fact": "eaten_turnips",
+            "story": "none"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A goat takes in tone, not words: word parsing is refused.",
+  "error": false
+}

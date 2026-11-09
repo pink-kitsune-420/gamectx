@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A cue with no cooldown gets the engine default, at human speed.",
+  "error": false
+}

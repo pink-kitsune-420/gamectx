@@ -1,0 +1,1 @@
+{"version":1,"results":[{"being":"drone_7","mind":"hive_tender","pool":"east_hive"},{"allowed":true,"args":{"being":"east_hive","features":{"tags":["wasps"]},"cooldown":24},"being":"drone_7","kind":"cueing","mind":"hive_tender","op":"cue","reasons":[],"stripped":[],"target":"east_hive"}]}

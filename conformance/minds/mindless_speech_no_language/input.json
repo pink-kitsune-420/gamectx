@@ -1,0 +1,52 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "moss_bloom",
+          "memory": "none",
+          "affect": [
+            "fear"
+          ],
+          "language": "none",
+          "deception": "none",
+          "theory_of_mind": 0,
+          "time_scale": 50000000
+        }
+      },
+      {
+        "op": "assign",
+        "args": {
+          "being": "cellar_moss",
+          "mind": "moss_bloom"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "cellar_moss",
+          "kind": "pragmatics",
+          "op": "open",
+          "args": {
+            "id": "t1",
+            "topic": "damp"
+          }
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "cellar_moss",
+          "kind": "embodiment",
+          "op": "voice",
+          "args": {
+            "being": "cellar_moss",
+            "fear": 40
+          }
+        }
+      }
+    ]
+  }
+}

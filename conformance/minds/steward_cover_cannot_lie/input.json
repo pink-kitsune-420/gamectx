@@ -1,0 +1,27 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "keep_steward",
+          "mind": "steward_intelligence"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "keep_steward",
+          "kind": "cueing",
+          "op": "cover",
+          "args": {
+            "being": "keep_steward",
+            "fact": "sealed_door",
+            "story": "nothing behind it"
+          }
+        }
+      }
+    ]
+  }
+}

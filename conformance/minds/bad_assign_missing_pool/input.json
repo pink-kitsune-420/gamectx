@@ -1,0 +1,14 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "drone_7",
+          "mind": "hive_tender"
+        }
+      }
+    ]
+  }
+}

@@ -2919,6 +2919,7 @@ grows past them is refused where it used to be accepted.
 | `surroundings` | `places` (64, 10⁵), `occupants` per place (32, 10⁴), `trace_kinds` (64, 4096), `traces` (256, 10⁶), `items` (256, 10⁶) |
 | `fabric` | `beings` with a profile (1024, 10⁶), `norms` (64, 4096), `breaches` ladders (1024, 10⁶), open `contracts` (256, 10⁶), `dyads` (1024, 10⁶), `threads` per pair (4, 32) |
 | `genre` | authored `genres` (16, 10⁵), authored `packs` (16, 10⁵), `nodes` walked per render or normalize (4096, 10⁶) |
+| `minds` | authored `minds` (16, 4096), assigned `beings` (1024, 10⁶) |
 | `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
@@ -3511,6 +3512,45 @@ loan, promise, trade_order), `address` (stranger, acquaintance). Built-in genres
 - `normalize {genre, keys, value}` → `{genre, value}`: the reverse; a string under a named key that is not one of the
   genre's words for its slot refuses the request.
 - Both walk at most `nodes` values and 64 levels of nesting.
+
+## Minds v1 (pass 4, stage 2)
+
+`gamectx::character::minds` (guide: [Life](characters/LIFE.md#mind-architectures-pass-4-stage-2)), local kind `minds`
+with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 26 cases (7
+malformed) live in `conformance/minds/`. Channels: affection, anger, fear, guilt, joy, resentment, shame, shock. Built-in
+minds: `human` (individual memory, every channel, full language, full deception, theory of mind 2, time scale
+1,000,000), `hive_tender` (shared; fear, joy; signals; none; 1), `steward_intelligence` (individual; shock; full;
+concealment; 2; 100,000), `herd_animal` (individual; affection, anger, fear, shock; signals; none; 0) and
+`hearth_spirit` (individual; affection, anger, guilt, resentment, shame; full; concealment; 1; 20,000,000; fixation
+`keep_the_household`, 90). Unassigned beings are human.
+
+- `tick {now (0–10¹², not backwards)}` → `{now}`.
+- `define {id (not built-in), memory individual|shared|none, affect [channels, unique], language full|signals|none,
+  deception none|concealment|full, theory_of_mind 0–2, time_scale? (1–10⁹, 1,000,000), fixation? {goal, strength
+  1–100}}` → `{id}`. Defining an existing id replaces it, unless a being assigned to it would then be pooled without
+  shared memory or shared without a pool.
+- `show {id}` → `{affect, builtin, deception, fixation {goal, strength} | null, id, language, memory, theory_of_mind,
+  time_scale}`.
+- `assign {being, mind, pool? (required exactly when memory is shared)}` → `{being, mind, pool}`; clears a release.
+- `admit {being, kind cueing|pragmatics|embodiment, op, args {…}}` → `{allowed, args | null, being, kind, mind, op,
+  reasons (sorted), stripped (sorted), target}`. Reasons: `no_memory` (a cueing memory op — episode, cue, surface, fact,
+  cover, uncover, frame_facts, gate — for a mind without memory), `cannot_lie` (cueing `cover` unless deception is
+  full; embodiment `react` with `lying: true` or `tension`/`voice` with `deceiving: true` when deception is none),
+  `no_theory_of_mind` (`cover` below theory of mind 2), `no_language` (pragmatics thread ops or embodiment `voice`
+  without language), `signals_only` (pragmatics `parse`, `validate`, `agenda` for a signals mind). Adjustments, in
+  place and in order: a shared mind's cueing `being` becomes its pool (and `target`); an `episode` emotion the mind
+  lacks is stripped; a `cue` cooldown (24 when absent or null; 0–10¹²) and a pragmatics `resume` `ticks_per_hour`
+  (1–10¹²) become `max(1, v × time_scale ÷ 1,000,000)`; theory of mind 0 strips `stance` `bystanders` and `react`
+  `bystander_untrusted`; `react` `fear`/`anger`/`shock`/`guilt`, `voice` `fear`/`affection` and `tension` attitudes'
+  `affection`/`resentment`/`fear` (named `attitudes.<field>`) are stripped for missing channels. Other values pass
+  unchanged.
+- `fixate {being, motives [{id, score 0–100}] (≤ 16, unique)}` → `{being, fixated, motives, pinned}`: with an unreleased
+  fixation, the goal comes first scored `max(strength, top score)` and any other entry for it is dropped; otherwise the
+  motives are returned as given and `pinned` is null.
+- `release {being}` (assigned, with a fixation) → `{being, released: true}`.
+- `hear {being, acts (1–4 pragmatic acts)}` → `{acts, being, tones, understood}`: `words` (acts and tones), `tone`
+  (tones only) or `nothing`. Tones: threat and accusation `hostile`; greeting, compliment, apology and
+  offer_or_transfer `friendly`; request_help `pleading`; farewell `parting`; others `neutral`.
 
 ## Surroundings v1 (pass 3, stage 5)
 

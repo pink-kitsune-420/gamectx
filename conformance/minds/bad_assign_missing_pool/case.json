@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "Malformed: a shared-memory mind needs a pool.",
+  "error": true
+}

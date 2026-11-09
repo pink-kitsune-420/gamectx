@@ -1,0 +1,32 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "define",
+        "args": {
+          "id": "tide_oracle",
+          "memory": "individual",
+          "affect": [
+            "joy",
+            "fear"
+          ],
+          "language": "full",
+          "deception": "concealment",
+          "theory_of_mind": 1,
+          "time_scale": 5000000,
+          "fixation": {
+            "goal": "read_the_tides",
+            "strength": 70
+          }
+        }
+      },
+      {
+        "op": "show",
+        "args": {
+          "id": "tide_oracle"
+        }
+      }
+    ]
+  }
+}

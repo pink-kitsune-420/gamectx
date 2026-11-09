@@ -1,0 +1,28 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "nanny_goat",
+          "mind": "herd_animal"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "nanny_goat",
+          "kind": "pragmatics",
+          "op": "stance",
+          "args": {
+            "speaker": "nanny_goat",
+            "bystanders": [
+              "miller"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

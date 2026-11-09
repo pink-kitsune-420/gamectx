@@ -1,0 +1,24 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "nanny_goat",
+          "mind": "herd_animal"
+        }
+      },
+      {
+        "op": "assign",
+        "args": {
+          "being": "kid_goat",
+          "mind": "herd_animal"
+        }
+      }
+    ],
+    "limits": {
+      "beings": 1
+    }
+  }
+}

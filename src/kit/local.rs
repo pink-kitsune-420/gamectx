@@ -137,6 +137,7 @@ pub fn process(v: &Value) -> Result<Value> {
         "surroundings" => crate::knowledge::surroundings::workflow(a),
         "fabric" => crate::knowledge::fabric::workflow(a),
         "genre" => crate::knowledge::genre::workflow(a),
+        "minds" => crate::character::minds::workflow(a),
         "lesson" => crate::character::lesson::workflow(a),
         "places" => crate::knowledge::places::workflow(a),
         "character-plan" => crate::character::tools::plan_fixture(a),

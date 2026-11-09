@@ -1,0 +1,35 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "drone_7",
+          "mind": "hive_tender",
+          "pool": "east_hive"
+        }
+      },
+      {
+        "op": "admit",
+        "args": {
+          "being": "drone_7",
+          "kind": "cueing",
+          "op": "episode",
+          "args": {
+            "being": "drone_7",
+            "id": "wasp_raid",
+            "features": {
+              "tags": [
+                "wasps",
+                "east_comb"
+              ]
+            },
+            "emotion": "shame",
+            "strength": 80
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "minds",
+  "args": {
+    "ops": [
+      {
+        "op": "assign",
+        "args": {
+          "being": "ash_warden",
+          "mind": "hearth_spirit"
+        }
+      },
+      {
+        "op": "fixate",
+        "args": {
+          "being": "ash_warden",
+          "motives": [
+            {
+              "id": "rest",
+              "score": 40
+            },
+            {
+              "id": "chase_rats",
+              "score": 95
+            },
+            {
+              "id": "keep_the_household",
+              "score": 10
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
