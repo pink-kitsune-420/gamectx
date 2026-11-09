@@ -1,0 +1,23 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "bo",
+          "attitudes": [
+            {
+              "toward": "a",
+              "affection": 1
+            },
+            {
+              "toward": "a",
+              "fear": 2
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

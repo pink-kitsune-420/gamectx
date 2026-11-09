@@ -676,11 +676,11 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 
 ## Host-set limits
 
-The game decides how much it needs. Thirty-four character modules take a `limits` object next to
+The game decides how much it needs. Thirty-five character modules take a `limits` object next to
 `ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
 `curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`, `pragmatics`). Each limit is an
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`, `pragmatics`, `embodiment`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -707,44 +707,45 @@ off-screen record, promise, memory, known topic or task), then given 1,000 singl
 | module (query) | median / p95 µs at 1k | at 10k | fill µs per op (10k) | heap bytes per entry |
 |---|---|---|---|---|
 | `beliefs` (`query`) | 1.5 / 1.6 | 2.0 / 2.6 | 4.3 | 2,521 |
-| `speech_act` (`assess`) | 0.4 / 0.5 | 0.4 / 0.5 | 1.2 | 173 |
-| `diet` (`choose`) | 1.8 / 2.0 | 2.1 / 2.5 | 1.8 | 613 |
-| `creed` (`judge`) | 1.6 / 1.6 | 1.8 / 2.1 | 1.0 | 294 |
-| `explain` (`query_trace`) | 3.3 / 3.4 | 4.2 / 5.1 | 3.3 | 2,283 |
+| `speech_act` (`assess`) | 0.4 / 0.4 | 0.4 / 0.4 | 1.2 | 173 |
+| `diet` (`choose`) | 1.8 / 1.9 | 2.1 / 2.5 | 1.7 | 613 |
+| `creed` (`judge`) | 1.5 / 1.6 | 1.7 / 1.9 | 1.0 | 294 |
+| `explain` (`query_trace`) | 3.2 / 3.3 | 4.1 / 5.1 | 3.3 | 2,283 |
 | `stability` (`get_warnings`) | 0.3 / 0.3 | 0.3 / 0.4 | 1.5 | 274 |
-| `expectation` (`assess`) | 0.9 / 1.1 | 1.5 / 2.0 | 2.0 | 1,856 |
-| `attention` (`notice`) | 1.8 / 1.9 | 1.9 / 2.1 | 0.9 | 132 |
-| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.4 | 685 |
-| `habit` (`routine`) | 0.7 / 0.8 | 1.0 / 1.4 | 1.7 | 772 |
-| `lesson` (`advice`) | 0.7 / 0.8 | 1.1 / 1.5 | 2.4 | 1,335 |
-| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.6 | 1,881 |
-| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.4 / 1.8 | 1.8 | 1,314 |
-| `body` (`assess`) | 1.0 / 1.1 | 1.6 / 2.1 | 1.1 | 1,599 |
-| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 2.0 | 1.7 | 2,580 |
+| `expectation` (`assess`) | 0.9 / 1.0 | 1.4 / 2.0 | 1.8 | 1,856 |
+| `attention` (`notice`) | 1.7 / 1.8 | 1.8 / 2.0 | 0.8 | 132 |
+| `aspiration` (`goals`) | 0.7 / 0.8 | 1.0 / 1.3 | 2.3 | 685 |
+| `habit` (`routine`) | 0.7 / 0.8 | 0.9 / 1.3 | 1.7 | 772 |
+| `lesson` (`advice`) | 0.7 / 0.8 | 1.0 / 1.4 | 2.3 | 1,335 |
+| `affect` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 2.5 | 1,881 |
+| `skills` (`evaluate_action`) | 1.0 / 1.1 | 1.3 / 1.8 | 1.7 | 1,314 |
+| `body` (`assess`) | 1.0 / 1.1 | 1.5 / 2.0 | 1.1 | 1,599 |
+| `mind` (`query`) | 0.8 / 0.9 | 1.4 / 1.9 | 1.7 | 2,580 |
 | `deception` (`check_consistency`) | 1.0 / 1.1 | 1.8 / 2.7 | 2.1 | 884 |
 | `relationship` (`assess`) | 1.0 / 1.1 | 1.4 / 1.9 | 2.8 | 349 |
-| `offscreen` (`assess` one being) | 2.1 / 2.9 | 3.8 / 4.8 | 5.3 | 2,370 |
-| `curiosity` (`evaluate_novelty`) | 1.1 / 1.1 | 1.3 / 1.8 | 0.7 | 590 |
-| `cooperation` (`assess`, scans every record) | 14.3 / 16.0 | 206.0 / 216.1 | 3.4 | 230 |
-| `cognition` (`recall`) | 1.7 / 1.8 | 2.3 / 3.0 | 3.7 | 1,681 |
-| `chatter` (`meet`, a whole meeting) | 6.3 / 7.5 | 7.3 / 8.1 | 1.9 | 864 |
-| `survival` (`threat`) | 2.4 / 2.5 | 2.6 / 2.9 | 2.0 | 377 |
-| `detail` (`assess`) | 1.4 / 1.5 | 1.9 / 2.7 | 3.9 | 803 |
-| `retention` (`touch`) | 1.2 / 1.3 | 1.3 / 1.4 | 1.8 | 118 |
-| `roles` (`assess`) | 1.1 / 1.2 | 1.4 / 1.9 | 1.9 | 529 |
-| `economy` (`price`) | 1.0 / 1.0 | 1.0 / 1.0 | 2.1 | 114 |
-| `space` (`see`, line to a far being) | 2.6 / 2.7 | 2.8 / 3.1 | 2.1 | 198 |
-| `drift` (`experience`) | 2.1 / 2.7 | 2.3 / 2.9 | 2.5 | 1,885 |
-| `packs` (`apply`, six requests) | 6.0 / 6.1 | 6.7 / 7.5 | 4.8 | 1,089 |
-| `frame` (`frame`, one being) | 3.5 / 3.7 | 3.9 / 4.4 | 1.7 | 805 |
-| `cueing` (`cue`, one episode) | 2.8 / 3.0 | 3.4 / 4.1 | 3.0 | 3,071 |
-| `pragmatics` (`parse`, a two-clause turn) | 10.0 / 10.2 | 10.0 / 10.2 | 2.6 | 761 |
-| `task` (`get`) | 1.5 / 1.5 | 2.2 / 2.7 | 3.7 | 1,417 |
+| `offscreen` (`assess` one being) | 2.1 / 2.2 | 3.8 / 4.9 | 5.6 | 2,370 |
+| `curiosity` (`evaluate_novelty`) | 1.1 / 1.2 | 1.6 / 2.0 | 0.7 | 590 |
+| `cooperation` (`assess`, scans every record) | 14.0 / 15.2 | 199.5 / 211.5 | 3.4 | 230 |
+| `cognition` (`recall`) | 1.7 / 1.8 | 2.2 / 3.0 | 3.6 | 1,681 |
+| `chatter` (`meet`, a whole meeting) | 6.2 / 6.7 | 7.2 / 7.9 | 1.9 | 864 |
+| `survival` (`threat`) | 2.4 / 2.5 | 2.5 / 2.8 | 2.0 | 377 |
+| `detail` (`assess`) | 1.5 / 1.6 | 2.0 / 2.5 | 3.9 | 803 |
+| `retention` (`touch`) | 1.1 / 1.2 | 1.3 / 1.5 | 1.8 | 118 |
+| `roles` (`assess`) | 1.1 / 1.2 | 1.7 / 2.2 | 1.9 | 529 |
+| `economy` (`price`) | 0.9 / 1.0 | 0.9 / 0.9 | 2.1 | 114 |
+| `space` (`see`, line to a far being) | 2.5 / 2.5 | 2.7 / 3.0 | 2.1 | 198 |
+| `drift` (`experience`) | 2.2 / 2.6 | 2.3 / 3.0 | 2.5 | 1,885 |
+| `packs` (`apply`, six requests) | 5.9 / 6.0 | 6.9 / 7.7 | 4.8 | 1,089 |
+| `frame` (`frame`, one being) | 3.4 / 3.6 | 4.0 / 4.6 | 1.7 | 805 |
+| `cueing` (`cue`, one episode) | 2.8 / 2.9 | 3.5 / 4.2 | 3.2 | 3,071 |
+| `pragmatics` (`parse`, a two-clause turn) | 10.4 / 10.6 | 10.8 / 11.1 | 2.6 | 761 |
+| `embodiment` (`react`, a silent turn) | 1.7 / 1.9 | 1.9 / 2.3 | 1.5 | 145 |
+| `task` (`get`) | 1.5 / 1.5 | 2.2 / 2.8 | 3.6 | 1,417 |
 
 Going from 1,000 to 10,000 entries raises query time by at most about 2× (lookups are ordered
 maps), except cooperation `assess`, which walks every task, promise, resource and debt: 14 µs at
-1,000 promises, 206 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
-these minimal entries take 365 MB across all thirty-four modules at 10,000 each, about 36 KB per
+1,000 promises, 200 µs at 10,000 (an index per being is a ROADMAP follow-up). Memory is linear:
+these minimal entries take 366 MB across all thirty-five modules at 10,000 each, about 37 KB per
 character if every module holds one entry for it; richer characters use more. The measurement found four queries that scanned everything and now use an index or an
 ordered range with unchanged output: speech-act `assess` (75 µs at 10,000 pairs before),
 relationship `assess` (214 µs), off-screen `assess` for one being (92 µs) and deception
@@ -975,7 +976,7 @@ refused, 4,566 tells, 1,278 disputes, 1,025 quarrels, 31 alliances). Robustness
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns, and a refused
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
-takes 7.3 µs at 10,000 beings. $0 API spend.
+takes 7.2 µs at 10,000 beings. $0 API spend.
 
 ## Life cycle and threat response (pass 2, C1/C2)
 
@@ -1047,7 +1048,7 @@ refused, 1,754 urgent events, 2,792 level moves, 449 promotions out of a crowd).
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, 64 needs at the top rate over 10¹² ticks at every level without
 overflow, index consistency, and a refused move that changes nothing. Scale is in the [table
-above](#host-set-limits): `assess` takes 1.9 µs and `track` 3.9 µs per op at 10,000 beings. Work
+above](#host-set-limits): `assess` takes 2.0 µs and `track` 3.9 µs per op at 10,000 beings. Work
 units are counts, not timings; $0 API spend.
 
 ## Save growth: retention and migration (pass 2, D3)
@@ -1126,7 +1127,7 @@ refused, 4,787 duty tasks, 104,469 missed duties reported, 155 contests with a d
 Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits,
 64/65-op and limit-ceiling boundaries, 16 roles of 64 every-tick duties on one being over 10¹²
 ticks (1,024 tasks), index consistency, and a refused assignment that changes nothing. Scale is
-in the [table above](#host-set-limits): `assess` takes 1.4 µs at 10,000 beings. $0 API spend.
+in the [table above](#host-set-limits): `assess` takes 1.7 µs at 10,000 beings. $0 API spend.
 
 ## Economy feedback (pass 2, C4)
 
@@ -1158,7 +1159,7 @@ accepted, 451 refused, 2,008 scarce and 3,110 glut settlements, 2,364 aspiration
 Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits,
 64/65-op and limit-ceiling boundaries, the top base price at an 11× multiplier for a million
 units (cost 1.1·10¹⁶) without overflow, and a refused op that creates no market. Scale is in the
-[table above](#host-set-limits): `price` takes 1.0 µs and `want` 2.1 µs per op at 10,000 traders.
+[table above](#host-set-limits): `price` takes 0.9 µs and `want` 2.1 µs per op at 10,000 traders.
 $0 API spend.
 
 ## Space inside a place (pass 2, C3)
@@ -1191,7 +1192,7 @@ refused, 4,251 steps walked, 288 queued uses, 75 blocked sight lines). Robustnes
 (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with limits, 64/65-op and
 limit-ceiling boundaries, a 256 × 256 maze at the 4,096-wall bound that forces a walk along 16
 rows, a 255-cell sight line, index consistency, and a refused move that changes nothing. Scale is
-in the [table above](#host-set-limits): `see` across the square takes 2.8 µs and `enter` 2.1 µs per
+in the [table above](#host-set-limits): `see` across the square takes 2.7 µs and `enter` 2.1 µs per
 op with 10,000 beings in one 256 × 256 room. $0 API spend.
 
 ## Slow personality change (pass 2, B4)
@@ -1262,7 +1263,7 @@ refused, 6,286 applies emitting 16,534 requests, 2,724 custom defines). Robustne
 request an accepted apply emits through its own engine; all twenty species and temperament
 combinations with four roles and three norm sets accepted by all six engines; 64/65-op and
 limit-ceiling boundaries; the 16-tenet merge cap; and a refused redefinition of a built-in that
-changes nothing. Scale is in the [table above](#host-set-limits): `apply` takes 6.7 µs median with 10,000 custom packs (it builds six requests, so it is quoted apart from lookups). $0 API spend.
+changes nothing. Scale is in the [table above](#host-set-limits): `apply` takes 6.9 µs median with 10,000 custom packs (it builds six requests, so it is quoted apart from lookups). $0 API spend.
 
 ## Turn frame and salience (pass 3, stage 1)
 
@@ -1307,7 +1308,7 @@ limits, checking for every accepted ranking that the kept bytes equal `used`, th
 items exceed the budget and that no score passes 1000; 64/65-op and limit-ceiling boundaries;
 4,096 items of 65,536 bytes at full weights and the 10¹² clock without overflow; a streak clamped
 at −1,000; and a refused observation that changes nothing. Scale is in the [table
-above](#host-set-limits): `frame` takes 3.9 µs median at 10,000 beings. No model was called; the
+above](#host-set-limits): `frame` takes 4.0 µs median at 10,000 beings. No model was called; the
 ranker's effect on reply quality is not measured yet. $0 API spend.
 
 ## Memory cueing and the epistemic gate (pass 3, stage 2)
@@ -1348,7 +1349,7 @@ accepted, 529 refused, 1,086 recalled, 575 avoided and 16 cooling episodes, 262 
 with limits, replaying each accepted workflow op by op and re-checking every passed reply against
 the state it ran on (no masked key word outside the told cover story, no unknown secret word);
 64/65-op and limit-ceiling boundaries; a 2,000-character reply against 4,096 secrets; and a refused
-cover that changes nothing. Scale is in the [table above](#host-set-limits): `cue` takes 3.4 µs median at 10,000 beings. No model was called; how often real model replies trip the gate is not
+cover that changes nothing. Scale is in the [table above](#host-set-limits): `cue` takes 3.5 µs median at 10,000 beings. No model was called; how often real model replies trip the gate is not
 measured yet. $0 API spend.
 
 ## Pragmatics (pass 3, stage 3)
@@ -1391,6 +1392,42 @@ resumed). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of t
 limits, checking that accepted parses keep 1–4 clauses with words and that validated clauses appear
 in order; 64/65-op and limit-ceiling boundaries; a 500-character turn of 250 sentences; multi-byte
 text around boundaries; 4,096 author phrases; and a refused lexicon entry that changes nothing.
-Scale is in the [table above](#host-set-limits): parsing a two-clause turn takes 10.0 µs median,
+Scale is in the [table above](#host-set-limits): parsing a two-clause turn takes 10.8 µs median,
 the same at 1,000 and 10,000 beings (it is text work, so it is quoted apart from lookups). $0 API
 spend.
+
+## Embodiment (pass 3, stage 4)
+
+`gamectx::character::embodiment` (`Embodiment`, local kind `embodiment`) gives a turn a body and a
+voice, so a character does not deliver every line standing still in the same tone.
+
+**Tension.** People want incompatible things at once. `tension` reads a motive near-tie (fleeing
+at 70 against keeping a promise at 62 is `torn_hesitation`, `tension_motive_near_tie`; two close
+hunger motives are no conflict), ambivalence toward someone (Mira's affection of 55 and fresh
+resentment of 50 toward the apprentice are `bittersweet_warmth`, `tension_bittersweet`; resentment
+over affection is `resentful_obligation`), a norm broken under duress (`reluctant_compliance`) and
+deception, which outranks the rest (`guilty_concealment`). Each mode carries extra task failure
+risk, hesitation ticks and a tone for the line.
+
+**Micro-reactions.** `react` picks a posture, a gaze and a hand activity by fixed rules. With
+bread burning and a gossip at the counter, Mira keeps working and watches the bystander
+(`react_mira_bread`); hostile and shocked over a broken heirloom she holds, she turns away, stares
+at it, sets down her tool and says nothing (`react_hostile_silent_turn`); a liar avoids eye contact
+(`react_lying_avoids_eyes`). The same reaction twice within three ticks is reported as `repeated`,
+so the host can word it differently (`react_repeat_within_window`).
+
+**Voice.** `voice` cuts a reply to one terse sentence under fatigue (80+), pain (50+), arousal
+(75+) or task urgency (80+), picks a pacing (breathless after exertion, trembling with fear, hesitant
+when lying or torn, clipped when terse, warm and relaxed with affection in a safe place, else
+steady) and gives speed, pitch, pause and volume hints for line selection or speech synthesis; a
+whisper drops the volume (`voice_hesitant_whisper`).
+
+**Evidence (pass 3 stage 4):** 25 conformance cases (`conformance/embodiment/`, 7 malformed), 2,000
+differential parity workflows (`eval/character/embodiment_cases.py`, seed 7, 0 mismatches: 1,562
+accepted, 438 refused, 2,531 tensions, 529 silent turns, 788 repeated reactions, 1,936 terse
+voices). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
+limits, checking that accepted voices keep 1–8 sentences (1 when terse) and that a silent turn is
+always hostile or shocked; 64/65-op and limit-ceiling boundaries; 64 attitudes at full strength; the
+widest repeat window at the 10¹² clock; and a refused reaction that changes nothing. Scale is in the
+[table above](#host-set-limits): `react` takes 1.9 µs median at 10,000 beings. The hints are not
+yet passed to speech synthesis. $0 API spend.

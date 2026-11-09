@@ -1,0 +1,13 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "voice",
+        "args": {
+          "base_sentences": 9
+        }
+      }
+    ]
+  }
+}

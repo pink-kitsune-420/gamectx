@@ -1,0 +1,20 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "tomas",
+          "attitudes": [
+            {
+              "toward": "brother",
+              "affection": 45,
+              "resentment": 70
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "voice",
+        "args": {
+          "exertion": 85,
+          "fear": 90
+        }
+      }
+    ]
+  }
+}

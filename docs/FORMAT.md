@@ -2916,6 +2916,7 @@ grows past them is refused where it used to be accepted.
 | `drift` | `beings` (1024, 10⁶), `traits` per being (16, 64), `history` shifts kept per trait (16, 256; oldest dropped) |
 | `packs` | `custom` packs defined (64, 10⁶), `roles` per apply (2, 4), `norms` sets per apply (2, 4) |
 | `cueing` | `beings` (1024, 10⁶), `episodes` per being (64, 4096), `facts` per being (64, 4096), `covers` per being (16, 256), host-only `secrets` (64, 4096), `listeners` remembered per episode (8, 64; the one told longest ago is dropped) |
+| `embodiment` | `beings` with a remembered reaction (1024, 10⁶), `attitudes` per tension call (8, 64) |
 | `pragmatics` | `beings` with threads (1024, 10⁶), `threads` per being (4, 16; the oldest is dropped), author `phrases` (64, 4096), `own` agenda items per call (8, 64) |
 | `turn-frame` | `beings` (1024, 10⁶), `keys` per being (16, 256), `samples` kept per key (16, 256; oldest dropped), `items` per rank (64, 4096) |
 
@@ -3480,6 +3481,44 @@ a clause when its words appear consecutively.
   earshot, then `whispered` at trust ≥ 60, else `deflect_due_to_bystanders`. Sentences: 4 below urgency 30, 3 below
   60, 2 below 85, else 1, and 1 when the deadline is at most an hour away; verbosity `full` (4), `normal` (2–3) or
   `brief` (1).
+
+## Embodiment v1 (pass 3, stage 4)
+
+`gamectx::character::embodiment` (guide: [Life](characters/LIFE.md#embodiment-pass-3-stage-4)), local kind
+`embodiment` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
+cases (7 malformed) live in `conformance/embodiment/`. An op that fails refuses the request; ops before it keep their
+changes, and the failing op changes nothing. Levels are 0–100.
+
+- `tick {now ≥ clock}` → `{now}`.
+- `tension {being, motives? {top, runner_up: {id, domain, score}} (different ids, runner-up ≤ top), attitudes?
+  [{toward, affection?, resentment?, respect?, fear?}], norm_breach? {norm, severity 1–100, duress? (false)},
+  deceiving?}` → `{ambivalent (sorted), being, conscience, deceiving, effects {failure_risk, hesitation_ticks, tone},
+  mode, near_tie {gap, runner_up, top}|null}`. A near-tie is a gap ≤ 12 between different domains. Someone is
+  ambivalent with affection and resentment both ≥ 40 (warm if affection ≥ resentment, else cold), or else respect and
+  fear both ≥ 50. Mode, first match: `guilty_concealment` (deceiving, or a breach without duress),
+  `reluctant_compliance` (a breach under duress), `bittersweet_warmth` (anyone warm), `resentful_obligation` (anyone
+  cold), `torn_hesitation` (respect with fear, or a near-tie), else `none`. Effects (risk per mille, ticks, tone):
+  none 0, 0, plain; reluctant_compliance 50, 1, grudging; torn_hesitation 80, 2, hesitant; bittersweet_warmth 0, 0,
+  tender; resentful_obligation 30, 0, curt; guilty_concealment 60, 1, evasive.
+- `react {being, fear?, anger?, shock?, guilt?, lying?, cooperativeness? (cooperative), tension? (none), task?
+  none|active|urgent, holding?, offering?, threat_present?, bystander_untrusted?, window? (3)}` → `{being, gaze, hand,
+  item, posture, repeated, silent}`, first match per channel. Posture: fear ≥ 70 `steps_back`; anger ≥ 70
+  `squares_shoulders`; shock ≥ 80 or hostile refusal `turns_away`; guilt ≥ 60 or torn hesitation `slumps`; eager
+  `leans_in`; else null. Gaze: lying, guilt ≥ 50 or guilty concealment `avoids_eye_contact`; fear ≥ 70
+  `glances_at_exit`; an untrusted bystander `watches_bystander`; shock ≥ 80 while holding `stares_at_held_item`; eager
+  or cooperative `meets_eyes`; else null. Hand: a threat with anger ≥ 70 `reaches_for_weapon`; anger ≥ 50
+  `clenches_fist`; offering `offers_item`; an urgent task `continues_working`; an active task with shock ≥ 50
+  `sets_down_tool`; an active task `pauses_work`; else null. `item` is the offered or stared-at item. `silent` = hostile
+  refusal or shock ≥ 90. `repeated` lists channels equal to this being's previous reaction if it was at most `window`
+  ticks ago.
+- `voice {fatigue?, pain?, arousal?, task_urgency?, fear?, affection?, exertion?, safe_place?, deceiving?, tension?,
+  base_sentences? 1–8 (4), base_verbosity? terse|normal|full (normal), privacy? open|whispered|deflect_due_to_bystanders}`
+  → `{max_sentences, pacing, pause_ms, pitch_shift, speed, terse, verbosity, volume}`. Terse (1 sentence, `terse`)
+  when fatigue ≥ 80, pain ≥ 50, arousal ≥ 75 or urgency ≥ 80. Pacing, first match: exertion ≥ 70 `breathless`, fear ≥
+  70 `trembling`, deceiving or a torn or guilty tension `hesitant`, terse `clipped`, affection ≥ 60 in a safe place
+  `warm_relaxed`, else `steady`. Hints (speed ‰, pitch in tenths of a semitone, pause ms, volume ‰): steady 1000, 0,
+  250, 1000; clipped 1150, 0, 120, 1050; breathless 1200, 20, 80, 900; hesitant 850, −10, 600, 850; trembling 1050,
+  30, 350, 750; warm_relaxed 920, −10, 400, 950; a whisper sets volume 400.
 
 ## Game data and save files v1
 

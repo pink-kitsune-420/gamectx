@@ -1,0 +1,18 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "bo",
+          "norm_breach": {
+            "norm": "no_theft",
+            "severity": 60,
+            "duress": true
+          }
+        }
+      }
+    ]
+  }
+}

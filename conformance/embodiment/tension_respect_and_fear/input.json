@@ -1,0 +1,24 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "guard",
+          "attitudes": [
+            {
+              "toward": "lord",
+              "respect": 60,
+              "fear": 55
+            },
+            {
+              "toward": "cook",
+              "affection": 80
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

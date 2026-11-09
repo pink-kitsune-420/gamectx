@@ -1,0 +1,15 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "voice",
+        "args": {
+          "fatigue": 80,
+          "base_sentences": 5,
+          "base_verbosity": "full"
+        }
+      }
+    ]
+  }
+}

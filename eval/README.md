@@ -1318,7 +1318,7 @@ limits). `limits_reference.py` is the independent limits envelope.
 the pass 1 modules; `--random 2000 --seed 7` runs growth workflows with random limits against
 `gamectx local -` (0 mismatches: 1,336 accepted, 664 refused, 1,083 with limits).
 
-`scale_measure.rs` fills thirty-four modules with 1,000 and then 10,000 entries and times 1,000 single-op
+`scale_measure.rs` fills thirty-five modules with 1,000 and then 10,000 entries and times 1,000 single-op
 queries each, counting live heap with a counting allocator. Build the release library, then
 `rustc --edition=2021 -O eval/character/scale_measure.rs -L dependency=target/release/deps --extern
 gamectx=target/release/libgamectx.rlib -o target/scale-measure`. Run it to a fresh JSON path, then
@@ -1455,6 +1455,14 @@ model-clause validation, the mixed-initiative agenda, the thread stack and the c
 --seed 7` builds workflows op by op like the cooperation generator against `gamectx local -` (0 mismatches: 1,468
 accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads resumed).
 [Results](../docs/characters/LIFE.md#pragmatics-pass-3-stage-3).
+
+## Embodiment (offline)
+
+`character/embodiment_reference.py` is the independent prototype of pass 3 stage 4 (tension modes, micro-reactions
+and voice modulation). `character/embodiment_cases.py --cap 0` checks 25 cases (`conformance/embodiment/`, 7
+malformed). `--random 2000 --seed 7` builds workflows op by op like the cooperation generator against `gamectx local
+-` (0 mismatches: 1,562 accepted, 438 refused, 2,531 tensions, 529 silent turns, 788 repeated reactions, 1,936 terse
+voices). [Results](../docs/characters/LIFE.md#embodiment-pass-3-stage-4).
 
 ## Visual compiler and approved asset metadata (offline)
 

@@ -1,0 +1,14 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "react",
+        "args": {
+          "being": "bo",
+          "cooperativeness": "friendly"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "bo",
+          "motives": {
+            "top": {
+              "id": "flee",
+              "domain": "self_preservation",
+              "score": 70
+            },
+            "runner_up": {
+              "id": "stay",
+              "domain": "promise",
+              "score": 62
+            }
+          }
+        }
+      }
+    ]
+  }
+}

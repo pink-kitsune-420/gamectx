@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A norm breach has severity 1-100.",
+  "error": true
+}

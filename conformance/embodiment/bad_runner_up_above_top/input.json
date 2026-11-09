@@ -1,0 +1,25 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "bo",
+          "motives": {
+            "top": {
+              "id": "a",
+              "domain": "x",
+              "score": 10
+            },
+            "runner_up": {
+              "id": "b",
+              "domain": "y",
+              "score": 20
+            }
+          }
+        }
+      }
+    ]
+  }
+}

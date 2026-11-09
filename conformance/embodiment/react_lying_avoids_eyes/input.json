@@ -1,0 +1,16 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "react",
+        "args": {
+          "being": "bo",
+          "lying": true,
+          "offering": "pouch",
+          "cooperativeness": "eager"
+        }
+      }
+    ]
+  }
+}

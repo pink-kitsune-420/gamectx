@@ -1,0 +1,17 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "react",
+        "args": {
+          "being": "mira",
+          "shock": 85,
+          "cooperativeness": "hostile_refusal",
+          "task": "active",
+          "holding": "heirloom"
+        }
+      }
+    ]
+  }
+}

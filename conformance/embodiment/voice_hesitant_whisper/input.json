@@ -1,0 +1,14 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "voice",
+        "args": {
+          "deceiving": true,
+          "privacy": "whispered"
+        }
+      }
+    ]
+  }
+}

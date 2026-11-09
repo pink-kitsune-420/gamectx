@@ -1,0 +1,17 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "bo",
+          "norm_breach": {
+            "norm": "n",
+            "severity": 0
+          }
+        }
+      }
+    ]
+  }
+}

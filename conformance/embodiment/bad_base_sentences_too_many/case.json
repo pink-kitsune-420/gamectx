@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "A base of at most 8 sentences.",
+  "error": true
+}

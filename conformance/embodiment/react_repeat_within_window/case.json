@@ -1,0 +1,5 @@
+{
+  "op": "local",
+  "description": "The same reaction twice within three ticks is reported as repeated.",
+  "error": false
+}

@@ -1,0 +1,16 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "react",
+        "args": {
+          "being": "guard",
+          "anger": 80,
+          "threat_present": true,
+          "cooperativeness": "deflecting"
+        }
+      }
+    ]
+  }
+}

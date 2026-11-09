@@ -1,0 +1,27 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "react",
+        "args": {
+          "being": "ana",
+          "fear": 80
+        }
+      },
+      {
+        "op": "tick",
+        "args": {
+          "now": 10
+        }
+      },
+      {
+        "op": "react",
+        "args": {
+          "being": "ana",
+          "fear": 75
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "voice",
+        "args": {
+          "affection": 70,
+          "safe_place": true,
+          "base_verbosity": "full"
+        }
+      }
+    ]
+  }
+}

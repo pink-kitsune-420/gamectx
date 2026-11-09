@@ -19,6 +19,7 @@ pub mod dialogue;
 pub mod diet;
 pub mod drift;
 pub mod economy;
+pub mod embodiment;
 pub mod expectation;
 pub mod explain;
 pub mod fitness;

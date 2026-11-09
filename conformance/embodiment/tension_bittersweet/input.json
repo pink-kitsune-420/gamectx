@@ -1,0 +1,20 @@
+{
+  "kind": "embodiment",
+  "args": {
+    "ops": [
+      {
+        "op": "tension",
+        "args": {
+          "being": "mira",
+          "attitudes": [
+            {
+              "toward": "apprentice",
+              "affection": 55,
+              "resentment": 50
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

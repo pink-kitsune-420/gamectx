@@ -3857,3 +3857,86 @@ fn pragmatics_survives_mutation_limits_and_boundaries() {
         .is_err());
     assert_eq!(k, before);
 }
+
+#[test]
+fn embodiment_survives_mutation_limits_and_boundaries() {
+    use gamectx::character::embodiment::Embodiment;
+    let mut rng = Rng(0xE3B0_0E39_2026_1108);
+    fn req(ops: &[String]) -> Value {
+        parse(&format!(r#"{{"ops":[{}]}}"#, ops.join(",")), 1 << 22).unwrap()
+    }
+
+    // 39. Embodiment mutation fuzzing (limits included); one manager keeps last reactions across
+    // runs. Accepted voices keep at most 8 sentences and terse ones exactly 1; a silent turn is
+    // only ever hostile or shocked.
+    let samples = [
+        r#"{"limits":{"beings":3,"attitudes":3},"ops":[{"op":"tension","args":{"being":"mira","motives":{"top":{"id":"flee","domain":"fear","score":70},"runner_up":{"id":"stay","domain":"promise","score":62}},"attitudes":[{"toward":"boy","affection":55,"resentment":50,"respect":10,"fear":0}],"norm_breach":{"norm":"no_theft","severity":60,"duress":true},"deceiving":false}},{"op":"react","args":{"being":"mira","fear":10,"anger":20,"shock":85,"guilt":0,"lying":false,"cooperativeness":"hostile_refusal","tension":"torn_hesitation","task":"active","holding":"heirloom","offering":"pouch","threat_present":false,"bystander_untrusted":true,"window":3}},{"op":"tick","args":{"now":2}}]}"#,
+        r#"{"ops":[{"op":"voice","args":{"fatigue":80,"pain":10,"arousal":20,"task_urgency":90,"fear":70,"affection":60,"exertion":10,"safe_place":true,"deceiving":false,"tension":"none","base_sentences":8,"base_verbosity":"full","privacy":"whispered"}}]}"#,
+    ];
+    let mut k = Embodiment::new();
+    let mut checked = 0;
+    for _ in 0..1500 {
+        for x in &samples {
+            let Ok(v) = parse(&mutate(&mut rng, x), 1 << 20) else { continue };
+            let Ok(out) = k.workflow(&v) else { continue };
+            let ops = v.get("ops").and_then(Value::as_array).unwrap();
+            for (o, r) in ops.iter().zip(out.get("results").and_then(Value::as_array).unwrap()) {
+                let a = o.get("args").unwrap();
+                if let Some(n) = r.get("max_sentences") {
+                    let n: u64 = n.to_json().parse().unwrap();
+                    assert!((1..=8).contains(&n));
+                    if r.get("terse") == Some(&Value::Bool(true)) {
+                        assert_eq!(n, 1);
+                    }
+                    checked += 1;
+                }
+                if r.get("silent") == Some(&Value::Bool(true)) {
+                    let shock: u64 = a.get("shock").map(|s| s.to_json().parse().unwrap()).unwrap_or(0);
+                    assert!(a.get("cooperativeness") == Some(&Value::from("hostile_refusal")) || shock >= 90);
+                }
+            }
+        }
+    }
+    assert!(checked > 0 && k.last.len() <= 1_000_000);
+
+    // 64/65 ops; every limit's ceiling is accepted, ceiling + 1 and 0 are refused.
+    let tick = r#"{"op":"tick","args":{"now":0}}"#.to_string();
+    assert!(Embodiment::new().workflow(&req(&vec![tick.clone(); 64])).is_ok());
+    assert!(Embodiment::new().workflow(&req(&vec![tick; 65])).is_err());
+    for (lim, ok) in [
+        (r#"{"beings":1000000,"attitudes":64}"#, true),
+        (r#"{"attitudes":65}"#, false),
+        (r#"{"beings":0}"#, false),
+        (r#"{"other":1}"#, false),
+    ] {
+        assert_eq!(Embodiment::with_limits(&parse(lim, 4096).unwrap()).is_ok(), ok, "{lim}");
+    }
+
+    // Extremes: 64 attitudes at full strength; reactions at the 10¹² clock with the widest window.
+    let mut k = Embodiment::with_limits(&parse(r#"{"attitudes":64}"#, 64).unwrap()).unwrap();
+    let atts: Vec<String> = (0..64)
+        .map(|i| format!(r#"{{"toward":"p{i}","affection":100,"resentment":100,"respect":100,"fear":100}}"#))
+        .collect();
+    let out = k
+        .workflow(&req(&[format!(r#"{{"op":"tension","args":{{"being":"a","attitudes":[{}]}}}}"#, atts.join(","))]))
+        .unwrap()
+        .to_json();
+    assert!(out.contains(r#""mode":"bittersweet_warmth""#));
+    k.workflow(&req(&[
+        r#"{"op":"react","args":{"being":"a","fear":100,"window":1000000000000}}"#.into(),
+        r#"{"op":"tick","args":{"now":1000000000000}}"#.into(),
+    ]))
+    .unwrap();
+    let out = k
+        .workflow(&req(&[r#"{"op":"react","args":{"being":"a","fear":100,"window":1000000000000}}"#.into()]))
+        .unwrap()
+        .to_json();
+    assert!(out.contains(r#""repeated":["gaze","posture"]"#));
+
+    // A refused op changes nothing: a reaction with an unknown task state.
+    let mut k = Embodiment::new();
+    k.workflow(&req(&[r#"{"op":"react","args":{"being":"a","fear":80}}"#.into()])).unwrap();
+    let before = k.clone();
+    assert!(k.workflow(&req(&[r#"{"op":"react","args":{"being":"a","task":"idle"}}"#.into()])).is_err());
+    assert_eq!(k, before);
+}
