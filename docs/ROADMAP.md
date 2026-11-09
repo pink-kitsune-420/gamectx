@@ -187,7 +187,8 @@ noted; "3 models" adds Llama 3.3 70B.
   - Follow-up (pass 4 deep tests): `culture` lets gossip replace a witness's own version; the town's host protects witnesses with zero trust, and the engine could do it itself.
   - Implemented (Pass 4 acceptance, T-048): "The Missing Ration" (`tests/acceptance_missing_ration.rs`) runs genre, minds, fabric, defenses, culture, projects, chemistry and explain together on an orbital station and in a village from data alone: the steward conceals but cannot lie, the mechanic rationalizes then displaces onto the cadet, four retellings turn one crate into three and drop the sick friend, the chief's slang reaches two of three crew, support leads to a confession and a sanction one step lower, the certification adapts, and the friend's callback ends the scene; the same decisions and explanations in both genres, different words, byte-identical replay. [Scene](characters/LIFE.md#pass-4-acceptance-the-missing-ration).
   - Pass 4 review: [PASS4_REVIEW.md](evidence/PASS4_REVIEW.md) collects tickets, benchmarks, deep-test numbers, the acceptance transcript, genre readiness and the T-009 handoff.
-  - Next: T-009 (Lantern Vault chat agreement), which waited for pass 4.
+  - Pass 5 design: [INTELLIGENT_BEING_5.md](research/INTELLIGENT_BEING_5.md) (durable state, a being runtime, small-model realization, concept-aware checks, levels of detail, the player model, groups, foresight, seasons); tickets T-049–T-057, tier 1 first (T-049 saves, T-050 runtime, T-051 realization with T-009).
+  - Next: T-049 (durable state for pass 2–4 managers).
   - Follow-up: save files could gain optional per-state compression and an in-place
     migration hook for game data updates; both need measurements first.
   - Follow-up: the command grammar still hard-codes a Lantern Vault alias (`gate`/`door`
