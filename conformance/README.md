@@ -27,7 +27,7 @@ A case passes when:
 | `op` | Input | `args` | Output |
 |---|---|---|---|
 | `kit` | `{project,op,args}` | | version-1 registration/build/query/tool-validation/feature/evaluation workflow; see [integration kit](../docs/FORMAT.md#integration-kit). Errors reject the workflow; bridge error text is diagnostic. |
-| `local` | `{kind,args}` | | local deployment and optional optimization workflows; see [contracts](../docs/FORMAT.md#local-model-workflow-contracts) and [optimization additions](../docs/OPTIMIZATION.md). |
+| `local` | `{kind,args}` | | local deployment and optional optimization workflows; see [contracts](../docs/FORMAT.md#local-model-workflow-contracts) and [optimization additions](../docs/guides/OPTIMIZATION.md). |
 | `parse` | raw JSON text | | the parsed value |
 | `table` | array of objects | `group_by` (column name or list); `formulas` (definitions for `derive`); view keys `derive`, `where`, `relevant_to`, `relevant_fallback`, `sort_by`, `limit`, `fields`, `round` as in the manifest | packed table (view applied first) |
 | `signatures` | array of tools | | the signatures text, as a JSON string; unpacking must give back the tools without any `{"type":"function"}` wrapper |
@@ -51,18 +51,18 @@ A case passes when:
 
 The `lore/` family adds 28 local cases for bounded world loading/selection and source-bound
 answers. `eval/lore_cases.py --cap 0 --check` compares 108 independent workflows;
-all 633 prior cases stay unchanged. [Exact contracts](../docs/LORE.md).
+all 633 prior cases stay unchanged. [Exact contracts](../docs/guides/LORE.md).
 
 The `conversation/` family adds 38 `op:local` fixtures for shared conversation retention,
 reply validation, entity references and explicit confirmation. Independent Python
 prototypes compare 78 workflows with `eval/conversation_cases.py --cap 0 --check`;
-all 595 prior cases remain unchanged. [Contract](../docs/CONVERSATION.md).
+all 595 prior cases remain unchanged. [Contract](../docs/guides/CONVERSATION.md).
 
 The `workflow/` family adds 30 `op:local` cases: 24 size/task profiles, two direct
 renders and four errors. Independent expectations come from `eval/workflow_reference.py`
 and `eval/workflow_cases.py --cap 0 --check`. Existing `preset`, `render_chat` and all
 565 earlier cases remain unchanged. The same cases pass through the persistent and
-native bridges with `--check-bindings`. See [WORKFLOWS](../docs/WORKFLOWS.md).
+native bridges with `--check-bindings`. See [WORKFLOWS](../docs/guides/WORKFLOWS.md).
 
 The `optimization/` family adds 69 cases using `op:local`. Independent outputs come
 from `eval/optimization_reference.py`; `optimization_cases.py --check` compares 179
@@ -75,14 +75,14 @@ input arrays/mask/thresholds), `budget` (sections/cap), `schedule` (registration
 `job` (one training workflow plus slice cap), `host` (host-policy selection workflow),
 or `sync` (publish/deliver/apply operations). The reference adapter is
 [`tests/support/runtime.rs`](../tests/support/runtime.rs); Python expectations come from
-[`eval/runtime_eval.py`](../eval/runtime_eval.py). These adapters exercise native APIs;
+[`eval/runtime/runtime_eval.py`](../eval/runtime/runtime_eval.py). These adapters exercise native APIs;
 they are not additional model tools. Error cases cover input/work bounds and invalid
 stream, revision, order, removals and scheduler events.
 
 `integration` cases use `input.kind` to exercise `bindings`, `metadata`, `diagnostics`,
 `stability`, `replay`, `journal` or `evidence`. The native adapter is
 [`tests/support/integration.rs`](../tests/support/integration.rs), with Python references
-[`integration_eval.py`](../eval/integration_eval.py) and [`evidence_eval.py`](../eval/evidence_eval.py).
+[`integration_eval.py`](../eval/runtime/integration_eval.py) and [`evidence_eval.py`](../eval/runtime/evidence_eval.py).
 Error cases include incompatible saved meanings, malformed policies/citations, stale
 snapshots, privacy changes, event-token replay and missing dependencies. These are
 native API adapters, not additional default model tools. See the corresponding
@@ -93,14 +93,14 @@ The Rust reference runner is `tests/conformance.rs`.
 `facts` workflows contain `capacity` and `operations`: register, check, packet, unpin,
 forget and forget_privacy. The native adapter is
 [`tests/support/facts.rs`](../tests/support/facts.rs), with Python expectations in
-[`facts_eval.py`](../eval/facts_eval.py). These exercise native registration and read-only
+[`facts_eval.py`](../eval/runtime/facts_eval.py). These exercise native registration and read-only
 claim checks, not a model registration capability. Cases cover typed numeric agreement,
 stale/cyclic/expired dependencies, pins, user precedence, scoped lookup, privacy erasure,
 byte budgets and clock bounds. See [registered facts](../docs/FORMAT.md#registered-facts).
 
 `upgrades` workflows select `kind`: recall, playbook, outcomes, temporal, bundle, requests
 or ledger. The native adapter is [`tests/support/upgrades.rs`](../tests/support/upgrades.rs)
-and independent expectations come from [`eval/upgrades_eval.py`](../eval/upgrades_eval.py).
+and independent expectations come from [`eval/upgrades_eval.py`](../eval/runtime/upgrades_eval.py).
 The 40 cases include 18 positive/rejection-report workflows and 22 errors. Current versus
 issued request contexts are independent snapshots; changed actor/world/schema/permissions
 must produce false. Other cases cover stale fact versions, one-use labels/tickets, absent

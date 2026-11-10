@@ -321,7 +321,7 @@ current scope/revision/source before returning `{speaker,speech,sources,status}`
 `lore_speech_prepare` accepts the existing speech-prepare args and adds authorized authored
 lore to free-form dialogue. Existing host operation outputs remain unchanged.
 
-## Dialogue fixes under development for v0.3.1a
+## Dialogue fixes and roleplay intelligence (0.4.0a)
 
 The player prompt is `you>`. Unambiguous identity/stock/scene/topic questions and literal
 letter counts resolve locally; explicit available commands in conversation use real

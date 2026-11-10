@@ -161,7 +161,7 @@ phase; it contributes time/usage but not a decision retry or intentional output 
 Unknown usage makes its total null. `eval/local/check_local_model.py` independently audits the
 cohort, raw-offer oracles, native decisions, actual supplied facts, budget counts and report.
 
-Reproduction commands and measured results are in [the local evaluation report](../evidence/LOCAL_MODEL_2026_11_06.md).
+Reproduction commands and measured results are documented in the local evaluation notes.
 The next experiments are held-out templates/live scene transitions, a 2K/4K context sweep
 when required facts justify it, and a controlled 2/4/6/8-thread comparison. Measure those
 one variable at a time. Introduce an additional resident 1B analyst only after it improves

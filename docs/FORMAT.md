@@ -416,7 +416,7 @@ or query rewriting is performed; default tools, descriptions and sessions are un
 
 The conformance `query-guidance` operation takes a JSON profile string and returns the
 supplement as a JSON string. Unknown names and non-string input fail. The profile trades
-more input for a mixed per-model result; see the [paired report](evidence/QUERY_OPTIMIZATION_2026_11_06.md).
+more input for a mixed per-model result; see the paired query optimization report.
 
 ## Query plans and host contracts
 
@@ -1200,7 +1200,7 @@ crash exclusion, provider request caps and authenticated billing remain host dut
 
 ## Model measurement references
 
-The [fresh alpha.3 model check](evidence/MODEL_TEST_2026_11_06.md) uses these existing table,
+The fresh alpha.3 model check uses these existing table,
 metadata and query-session formats without changing them. Across six synthetic states,
 full JSON and packed tables each scored 27/96; schema + query scored 91/96. Average
 completed-exchange input was 1,786.792 / 1,252.125 / 916.490 tokens. All 105 recorded
@@ -1520,7 +1520,7 @@ The user-feedback corpus `eval/lantern-vault/dungeon-feedback.json` is diagnosti
 core conformance formats. It preserves unpinned reported input/reply text and separate
 manual annotations; missing deployment/world/usage data remain null. Its offline audit
 reproduces host rules and feeds supplied speech through validation, without treating
-structural acceptance as semantic accuracy. [Report](evidence/DUNGEON_FEEDBACK.md).
+structural acceptance as semantic accuracy.
 
 
 ## Authored lore and source-bound answers (v0.3.0a)
@@ -1567,7 +1567,7 @@ use `{ok:true,result}` or `{ok:false}`. State is private host inspection, not a 
 Invalid initial configuration rejects the workflow. Model-call failures are atomic;
 recipient confirmation follows the existing one-attempt consumption contract.
 
-## Actor-visible location and world lookup (unreleased v0.3.1a)
+## Actor-visible location and world lookup (0.4.0a)
 
 These additive formats preserve existing outputs. Location definition fields are
 `version:1,revision,places`; each place has `id,label,summary,description,details`.
@@ -1604,7 +1604,7 @@ The new version-1 character host operations and view/plan shapes are documented 
 
 ## Routines, observations and time knowledge
 
-Additive unreleased v0.3.1a formats; all previous expected outputs stay unchanged.
+Additive 0.4.0a formats; all previous expected outputs stay unchanged.
 See [ROUTINES](guides/ROUTINES.md) for policy/host responsibilities and persistent operations.
 
 Routine definition, exact fields: `version:1,id,revision,calendar,activities`. At most

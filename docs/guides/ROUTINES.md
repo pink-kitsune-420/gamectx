@@ -1,6 +1,6 @@
-# Optional routines and actual time knowledge (unreleased v0.3.1a)
+# Optional routines and actual time knowledge (0.4.0a)
 
-Current adversarial/local-model findings are in [ADVERSARIAL_EVAL](../evidence/ADVERSARIAL_EVAL.md).
+Current adversarial and local-model findings are evaluated across test suites.
 The implementation measurements below retain their original evaluation scope.
 
 Start with `cargo run --example routines --locked` ([tested source](../../examples/character/routines.rs)).
@@ -265,7 +265,7 @@ select/pin the relevant original sources when the task needs its explanation. Ze
 source allowance still withholds numeric evidence; task filters still restrict the view.
 Restore rejects non-planned lifecycle timestamps before occurrence start and altered
 host frames under the same revision. Host authorization and authenticated storage remain
-necessary. [Probe results, limits and optional count reuse](../evidence/ADVERSARIAL_EVAL.md).
+necessary. Probe results, limits and optional count reuse are supported.
 
 `Runtime::activity_menu` is a host-only current eligible menu for optional
 [life initiative](../characters/LIFE.md#purposeful-initiative). `consider_routine`/`dispatch_routine`

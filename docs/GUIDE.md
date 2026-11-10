@@ -352,7 +352,7 @@ registered facts. The host owns archive I/O, validation and any model-facing too
 
 ## Reuse and checked runtime work
 
-The [fresh alpha.3 model check](evidence/MODEL_TEST_2026_11_06.md) compares full JSON, packed tables
+The fresh alpha.3 model check compares full JSON, packed tables
 and schema + query across six states/three schema families on the two smaller models.
 Scores were 27/96, 27/96 and 91/96; average input per completed exchange was
 1,786.792, 1,252.125 and 916.490, including query/correction/final-answer calls. Packing
@@ -447,7 +447,7 @@ rows, requested filters only, and the native top-N aggregate syntax. Keep it acr
 correction/final turns; do not repeatedly append it. Six fresh synthetic states measured
 3B 46/48→48/48, 24B 47/48→46/48 and 22.0% higher complete-exchange input. It is opt-in;
 model size alone does not choose a profile. See the tested query-plans example and
-[paired report](evidence/QUERY_OPTIMIZATION_2026_11_06.md).
+paired report.
 
 ## Shared registration and integration tools (v0.2.0a)
 
@@ -487,7 +487,7 @@ Profiles are explicit and bound to complete deployment identity. Two thousand co
 tokens is a starting trial, not a model capacity limit. `ollama_eval.py` measures actual
 local requests, complete turns, retries and sampled memory. Token-only checks precede
 accuracy. Compare held-out scenes/templates and actual hardware before changing defaults;
-see [the measured report](evidence/LOCAL_MODEL_2026_11_06.md) for scope and limitations.
+see the measured report for scope and limitations.
 
 ## Further optional optimizations (v0.3.0a)
 
@@ -567,7 +567,7 @@ unverified context, even when it sounds confident or uses an available citation 
 Ask the model to distinguish exact supplied quotes, current host facts and unknown
 attributes; source availability alone does not validate its explanation. `/forget`
 clears conversation material and pending replies, while host-owned inventory persists.
-The [reported regression audit](evidence/DUNGEON_FEEDBACK.md) preserves examples and verifies
+The reported regression audit preserves examples and verifies
 these storage/state boundaries without claiming the prose hallucinations are fixed.
 
 
@@ -586,7 +586,7 @@ flavor can use authored background without promoting generated dialogue into fac
 This limits invented prose in factual answers; a model can still choose the wrong valid
 source. Keep question interpretation, source validity and world changes as separate scores.
 See the [tested API example](../examples/knowledge/lore.rs), [contracts](guides/LORE.md) and
-[retained model results](evidence/LORE_EVAL.md).
+retained model results.
 
 
 ## Give conversation optional information tools
@@ -620,7 +620,7 @@ have different provenance and precision. Keep output and safety reservations whi
 counting the complete provider-rendered prompt. Increasing capacity can retain more
 relevant data, while explicit attention limits keep a small model on one task.
 
-The [new measurements](evidence/CONVERSATION_PATCH_EVAL.md) distinguish local routing and byte
+The measured evaluations distinguish local routing and byte
 parity from unsuccessful live speech diagnostics. General free-form speech is still
 experimental; it is not a verified paraphrase of authoritative facts.
 
@@ -650,7 +650,7 @@ synthetic-workload limits are recorded in [ROUTINES](guides/ROUTINES.md#optional
 
 ## Validate meaning as well as legal syntax
 
-The [new adversarial probes](evidence/ADVERSARIAL_EVAL.md) found that a legal action could still
+Adversarial probes found that a legal action could still
 violate a negated command, and a perfectly valid JSON reply could misread time sources.
 Use a whole-command grammar for local shortcuts, clarify unsupported clauses, and keep
 natural world-changing interpretations behind host confirmation. Prefer typed
@@ -694,7 +694,7 @@ legacy balanced policy unchanged. Use `SpeechTurn::from_hints` and host-declared
 mark player attributes with explicit subject and unknown status. The compiler leaves the
 actual utterance outside JSON and asks focused models for grounded short speech. Diagnose
 sentence endings with `assess_sentence` before queueing; retain raw rejected output.
-[Runnable example](../examples/character/character-speech.rs) and [paired results with retained failures](evidence/LIFE_SPEECH_V2_EVAL.md).
+[Runnable example](../examples/character/character-speech.rs) and paired results with retained failures.
 
 For multiple NPC roles, use an explicit `archetype::Blueprint` or compose modules with
 `BlueprintBuilder`. The [party example](../examples/character/party.rs) installs approved life and
@@ -945,11 +945,11 @@ confirmed-perspective fictional turn; the fixture runs in the documented API tes
 Only pass host-selected facts/attitudes and actually heard history. A character's
 invented tale is not an observation, and a player's disclosed name is still a claim.
 See [formats, evidence and limitations](studio/STUDIO_EXPRESSION.md) and the
-[short roleplay investigation](research/ROLEPLAY_RESEARCH.md).
+[roleplay engine guide](characters/ROLEPLAY_ENGINE.md).
 
 For current NPC location and perceived dialogue, reuse `Locations` with an actor-visible
 snapshot and the current revision. Do not give an NPC the player inventory to answer
 where it is. The Studio now demonstrates this path, heard-seed story rotation and
 retryable blocked audio; see [scene repairs](studio/SCENE_SOCIAL_REPAIR.md). For a larger
-character implementation, use the [feature/gap map](research/SOCIAL_CHARACTER_GAPS.md) to
+character implementation, use the [living character guide](characters/LIFE.md) to
 distinguish storage mechanisms from implicit memory use and motivation-driven behavior.

@@ -122,4 +122,4 @@ Remaining limits include finite English routing, occasional generic or presumpti
 social wording, conservative synonym rejection, semantic repetitions missed by lexical
 comparison, and finite selected memories. Grammar validity does not prove truth, literary
 quality or a natural personality. No new model, artwork or third-party RP content is
-downloaded by this work. [Research and design rationale](../research/ROLEPLAY_RESEARCH.md).
+downloaded by this work. [Roleplay engine design rationale](../characters/ROLEPLAY_ENGINE.md).

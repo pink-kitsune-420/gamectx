@@ -109,6 +109,7 @@ a [turn frame and salience ranker](docs/characters/LIFE.md#turn-frame-and-salien
 [durable state](docs/characters/LIFE.md#durable-state-pass-5-stage-1) (save a whole town after any op, load it into fresh managers and it carries on byte for byte; a damaged or doctored save is refused and changes nothing),
 [being runtime](docs/characters/LIFE.md#being-runtime-pass-5-stage-2) (a single coordinated runtime across thirty-four character and world engines, deterministic stage order, twelve wired edges, and explain traces for every cross-module step),
 and [intent packets with checked realization](docs/characters/LIFE.md#intent-packets-and-checked-realization-pass-5-stage-3) (compact closed-vocabulary packets compiled under token budgets, 5 strict host verification gates, retry with feedback, and deterministic template fallback ensuring zero scene stalls; measured 0 leaks after the gate across 200 turns on local Qwen2.5-Coder 3B and 7B models),
+and [intelligent being cognitive architecture (Pass 6)](docs/characters/ROLEPLAY_ENGINE.md) (token-bounded lexicon matching eliminating substring collisions, semantic security shielding against jailbreaks and prompt extraction, valuation- and possession-gated barter rejecting ungrounded trades and soulbound quest items, inter-character social mesh and peer Theory of Mind, immutable autobiographical ground refuting sycophantic backstory claims, state-aware epistemic refutation of false player claims against authoritative game state, metacognitive speech cleaning removing stage directions before TTS, and multi-intent utterance decomposition preventing dropped clauses; verified across 21 deep adversarial tests with zero API spend),
 with [host-set limits](docs/characters/LIFE.md#host-set-limits) so the game decides how many characters, foods, creeds and entries it needs (measured at 10,000 characters: 0.3–5.0 µs median per lookup, about 42 KB of minimal state per character across forty-three character and world modules; a whole off-screen conversation 7.2 µs; cooperation `assess` with per-being index, 1.5 µs at 10,000 promises), and of places, timeline entries, things, animals, recipes, communities, actions, lore, holdings, evidence and notes ([knowledge limits](docs/characters/LIFE.md#knowledge-modules), measured at 10,000 entries).
 
 Anything the authored stages don't cover falls through to a compiled [model
@@ -130,7 +131,7 @@ The engine only proposes; your game validates and executes.
   - Stheno 8B: same fact hits, but only 74.1% accepted because it overruns the sentence
     limit. See [the evaluation](docs/characters/ROLEPLAY_ENGINE.md#model-evaluation).
 
-## Optional local RPG, voice and art studio (unreleased v0.3.1a)
+## Optional local RPG, voice and art studio (0.4.0a)
 
 Run `cargo run --example dungeon -- --web --cap 0` and open the printed loopback URL.
 The [Lantern Vault studio](docs/studio/STUDIO.md) combines text RPG/party controls, approved art
@@ -144,7 +145,7 @@ zero real provider calls / $0 API spend. All **1,090** prior conformance cases r
 unchanged. [Editable provider profiles](examples/lantern-vault/web/providers.json) select actual
 model IDs per tier; unconfigured profiles retain deterministic fallbacks.
 
-## Optional visual specs and approved art (unreleased v0.3.1a)
+## Optional visual specs and approved art (0.4.0a)
 
 [Visual compiler and registry](docs/guides/VISUAL.md) lock an editable art bible, map live Life
 attitudes/emotions and active routine/initiative poses, and include only perceived scene
@@ -160,7 +161,7 @@ Run `cargo run --example visual`; edit [the art bible](examples/fixtures/visual/
 and **$0 API spend**. All **1,026** prior conformance cases remain unchanged. Generation is
 external; this measures metadata behavior, not image quality or image-model performance.
 
-## Optional dynamic character continuity (unreleased v0.3.1a)
+## Optional dynamic character continuity (0.4.0a)
 
 [Life APIs](docs/characters/LIFE.md) add approved character definitions, source-attributed experiences,
 bounded appraisals, parallel conversation topics, acknowledged partial speech, durable
@@ -213,7 +214,7 @@ suspected 240-character cutoffs **3/8→0/8**. V2 origin replies avoid invented 
 but weather and stock invention remain. This is an experimental diagnostic, not a grounding
 guarantee: **48 local calls**, **$0 API**, four regressions and four new holdouts.
 
-## Adversarial probes and measured limits (unreleased v0.3.1a)
+## Adversarial probes and measured limits (0.4.0a)
 
 Adversarial probes found and fixed unintended conversation actions,
 hidden time conflicts and invalid restores: 15/57→57/57 checks pass; 900 engine steps
@@ -224,7 +225,7 @@ An opt-in `--count-cache 8` reuses verified counts for identical requests: 18→
 calls over nine turns, with the same answers. All new spend $0; 159 local calls recorded.
 Default tool exposure, prior outputs and immutable native ABI remain unchanged.
 
-## Optional routines and source time knowledge (unreleased v0.3.1a)
+## Optional routines and source time knowledge (0.4.0a)
 
 [Routine APIs](docs/guides/ROUTINES.md) add bounded usual-activity definitions, deterministic
 per-character timelines, actual observation history and attributed aging time ranges.
@@ -239,7 +240,7 @@ add 54 offline workflows; a measured host update optimization avoids copying ret
 history. These are deterministic checks and a synthetic CPU benchmark, with no new
 model-accuracy or full-turn latency claim. Model/API spend $0.
 
-## Actor perception and adaptive context (unreleased v0.3.1a)
+## Actor perception and adaptive context (0.4.0a)
 
 [Character tools](docs/characters/CHARACTERS.md) provide optional `look_around`, location descriptions,
 world-state lookup and a single scoped dispatcher for notes, inventory and conversation
@@ -250,7 +251,7 @@ explicitly limited. Rust, Python, Node and C# bridges support persistent charact
 Checks report byte parity and retain failed speech experiments separately from deterministic
 routing improvements.
 
-## Playable dungeon testbed (v0.3.0a)
+## Playable dungeon testbed (0.4.0a)
 
 Run `cargo run --example dungeon -- --seed 7` for an original six-room text game.
 [Lantern Vault](examples/lantern-vault/README.md) has deterministic rules, seeded variations,
@@ -274,7 +275,7 @@ Reported dialogue regressions now preserve 11 playthrough
 sequences: transaction handling and name recall work, while free-form speech can still
 invent player history or item purposes. The offline audit separates those outcomes.
 
-## Authored world information (v0.3.0a)
+## Authored world information (0.4.0a)
 
 Use `cargo run --example dungeon -- --ai --world examples/lantern-vault/world.json` to load
 editable character backgrounds and world facts. Only relevant, authorized records reach
@@ -299,7 +300,7 @@ Local tests retain the failed pilots, 17/20 on twenty new questions,
 20/20 on their tuned rerun, and 7/8 on eight additional questions. The last miss has a local
 regression repair; these are small diagnostics, not universal accuracy. Every run $0 API.
 
-## Further local optimizations (v0.3.0a)
+## Further local optimizations (0.4.0a)
 
 [Optional optimization workflows](docs/guides/OPTIMIZATION.md) add host-declared intent guards,
 typed prepared query tools, dependency-complete evidence selection, host-assisted rendered
@@ -500,10 +501,10 @@ packet: 1906 bytes; budget 2000 bytes
 ## Quick start
 
 ```bash
-# v0.3.0a is the GitHub tag; Cargo package version is 0.3.0-a.
-cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.3.0a --locked
+# v0.4.0a is the GitHub tag; Cargo package version is 0.4.0-a.
+cargo install --git https://github.com/pink-kitsune-420/gamectx --tag v0.4.0a --locked
 # From crates.io:
-cargo install gamectx --version '=0.3.0-a' --locked
+cargo install gamectx --version '=0.4.0-a' --locked
 # or, from a clone:
 cargo build --release
 ./target/release/gamectx report examples/fixtures/ember-keep/manifest.json
@@ -549,11 +550,11 @@ Only a hash of the scope name is stored.
 
 ## Use it in your code
 
-Pin the release tag in `Cargo.toml` (package version `0.3.0-a`):
+Pin the release tag in `Cargo.toml` (package version `0.4.0-a`):
 
 ```toml
 [dependencies]
-gamectx = { git = "https://github.com/pink-kitsune-420/gamectx", tag = "v0.3.0a" }
+gamectx = { git = "https://github.com/pink-kitsune-420/gamectx", tag = "v0.4.0a" }
 ```
 
 Register what stays the same once, then set what changes each turn:
@@ -598,7 +599,7 @@ packet = subprocess.run(["gamectx", "pack", "-"], input=json.dumps(manifest),
 ```
 
 The lower-level modules (`table`, `signatures`, `view`, `budget`, ...) stay available when
-you need full control; run `cargo doc --open` from the v0.3.0a checkout for its API docs.
+you need full control; run `cargo doc --open` from the v0.4.0a checkout for its API docs.
 
 ### Give the model a query tool
 

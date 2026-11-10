@@ -1,6 +1,29 @@
 # Changelog
 
-## 0.4.0a (Cargo `0.4.0-a`), unreleased
+While the version is `0.x` or a pre-release, any release may change the API,
+command-line options or packed formats. Every entry carries one label so projects
+know what an upgrade costs:
+
+| Label | Meaning | What projects using gamectx should do |
+|---|---|---|
+| **[format]** | Packed output or accepted input changes; one or more `conformance/` expected files changed. | Update ports, rerun conformance, and recheck model decisions that depend on the changed shape. |
+| **[api]** | Rust library or command-line interface changes; output is the same. | Update calling code. |
+| **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
+| **[docs]** | Documentation only. | Nothing. |
+
+## 0.4.0a (Cargo `0.4.0-a`) — 2026-11-09
+
+- **[feature]** Intelligent Being 2.0 Architecture & Adversarial Robustness (Pass 6, `character::roleplay`, `character::social`, `examples/lantern-vault/roleplay.rs`, `examples/lantern-vault/web/app.rs`, `tests/lantern_vault_deep_adversarial_suite.rs`, `tests/lantern_vault_adversarial_roleplay.rs`, tickets `T-059`–`T-070`): implements the 8-component cognitive architecture resolving 10 discovered cognitive limitations under adversarial roleplay probes:
+  - **`BoundedLexicon`**: Whole-word token boundary matching (`is_word_boundary`, alphanumeric token slicing) eliminating substring collisions (`"careful"` -> `"car"`, `"codex"` -> `"code"`, `"aftermath"` -> `"math"`).
+  - **`EpistemicShield`**: Semantic security shield expanding jailbreak detection with 6-token proximity sliding synset matching (`ignore`, `forget`, `disregard`, `bypass`, `override`, `pretend` + `instruction`, `prompt`, `rule`, `persona`, `guidelines`), plus outbound verbatim system prompt extraction filtration.
+  - **`ValuationEngine`**: Valuation & possession-gated barter engine (`ItemValuationCatalog`, inventory possession checks, value parity checks against generosity, and hard rejection of soulbound quest tokens like the Keeper's Seal with quest milestone direction).
+  - **`SocialMesh` (Theory of Mind)**: Peer-NPC mental model and negative ownership constraints (`LivingWorld` peer directory injected into context, preventing false peer hallucinations and out-of-stock barter).
+  - **`AutoBioGround`**: Frozen autobiographical grounding compiling explicit negative boundaries to refute sycophantic backstory claims.
+  - **`StateRefuter`**: State-aware epistemic refuter cross-referencing player assertions against authoritative game state (unbroken sentinel, locked gate, dry fountain pump).
+  - **`MetacognitiveFilter`**: Post-generation speech cleaner stripping third-person narrative action beats, bracketed annotations, action tags, and outer quote wrapping prior to TTS audio synthesis.
+  - **`IntentDecomposer`**: Multi-intent utterance decomposer routing compound queries across greetings, inquiries, and barter without dropping secondary clauses.
+  - **Natural Purchasing & Dialogue Fallthrough**: Natural phrasing support (`"i'd like to buy"`, `"can i buy"`, `"i want to buy"`, `"sell me"`) with quote normalization and seamless in-character fallback.
+  - **21 Deep Adversarial Tests**: 100% pass rate across adversarial and deep adversarial suites (`lantern_vault_adversarial_roleplay.rs` and `lantern_vault_deep_adversarial_suite.rs`) with $0 API spend.
 
 - **[feature]** Lantern Vault Pass 5 Being roleplay engine and AI intelligence (`examples/lantern-vault/roleplay.rs`, `tests/lantern_vault_adversarial_roleplay.rs`, ticket `T-058`): wires Pass 5 `BeingRuntime` intelligence managers (`ConceptManager`, `PlayerModelManager`, `Realization`, `SimulationManager`, `NarrativeManager`, and `RoleplayEngine`) directly into the Lantern Vault testbed (`dungeon` CLI, JSON-lines host `"talk"`/`"roleplay"` ops, and Web Studio). Features concept-gated out-of-universe question grounding (preventing immersion breaks on real-world trivia like France, Python, OpenAI, presidents), strict adversarial prompt injection and jailbreak defenses ("ignore previous instructions", "DAN", system prompt probing), game reality and state exploit guards (guaranteeing dialogue can never mutate coins, items, gates, or health), host content boundaries (`line` enforcement over cruelty, insults, and self-harm via `PlayerModelManager`), mental simulation and bargaining over reservation curves with Merchant Ilen, multi-chapter autobiographical narrative reminiscence for Keeper Tovin and Merchant Ilen, and companion hound interactions (affection, commands, and sentinel combat assistance). 12 comprehensive integration tests covering all adversarial vectors, epistemic consistency across game seeds, and full 14-step seeded escape playthrough. $0 API spend.
 
@@ -568,18 +591,6 @@
   see docs/CHARACTER_VIEWPOINTS.md for raw artifacts and limits.
 
 
-While the version is `0.x` or a pre-release, any release may change the API,
-command-line options or packed formats. Every entry carries one label so projects
-know what an upgrade costs:
-
-| Label | Meaning | What projects using gamectx should do |
-|---|---|---|
-| **[format]** | Packed output or accepted input changes; one or more `conformance/` expected files changed. | Update ports, rerun conformance, and recheck model decisions that depend on the changed shape. |
-| **[api]** | Rust library or command-line interface changes; output is the same. | Update calling code. |
-| **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
-| **[docs]** | Documentation only. | Nothing. |
-
-## Unreleased — v0.3.1a (Cargo `0.3.1-a`)
 
 - **[api]** Adds opt-in Lantern Vault loopback studio: RPG/party controls, live Life,
   promises/rumors/habits, approved art/debug repairs, independent text/image/TTS/STT

@@ -200,7 +200,7 @@ no automatic model/guidance default changes. Several players can participate in 
 scope, or use separate private scopes. Host events and accepted offers still require engine
 transactions and visibility policy; the library provides no networking or authentication.
 
-## Optional persistent character sessions (unreleased v0.3.1a)
+## Optional persistent character sessions (0.4.0a)
 
 `kit::Session` composes an immutable `Project` with at most 64 persistent character
 scopes. `gamectx characters` starts it without project-registration boilerplate;
@@ -214,7 +214,7 @@ full-request count acknowledgements and scope lifecycle. These are host operatio
 not a bundle of automatically exposed model tools. Durable persistence, perception,
 current permissions, consent and engine action execution remain host responsibilities.
 
-## Optional routines, history and time knowledge (unreleased v0.3.1a)
+## Optional routines, history and time knowledge (0.4.0a)
 
 [ROUTINES.md](ROUTINES.md) adds a bounded per-character runtime on the existing session.
 Resolve defaults/overrides once, bind the host calendar/routine, schedule local updates
@@ -235,7 +235,7 @@ Optional host read `character_routine_assess_time` categorizes existing scoped t
 knowledge as unknown, approximate, exact reading, reported or conflicting. Python/Node
 helpers and C#/C session transport share the same bounded revision-checked operation.
 It adds no model schema or permission, and preserves the immutable project/native ABI.
-[Measured limits and guards](../evidence/ADVERSARIAL_EVAL.md).
+Measured limits and guards.
 
 ## Dynamic character session operations
 

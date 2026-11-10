@@ -75,5 +75,5 @@ Piper CLI, so it does not measure physical playback quality or guarantee every b
 autoplay policy. See `scene-voice-browser.json` for the retained result.
 
 These repairs address the immediate scene and delivery defects. The broader
-[social-character gap audit](../research/SOCIAL_CHARACTER_GAPS.md) distinguishes existing core
+[living character guide](../characters/LIFE.md) distinguishes existing core
 mechanisms from what the demo actually demonstrates.

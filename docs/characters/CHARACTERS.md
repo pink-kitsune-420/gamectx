@@ -1,4 +1,4 @@
-# Character tools and perception (unreleased v0.3.1a)
+# Character tools and perception (0.4.0a)
 
 `gamectx::character::tools` connects existing scoped notes, inventory and conversation tools
 with new read-only location/world snapshots. It is optional, provider independent,
@@ -168,7 +168,7 @@ Never reuse a count after changing provider formatting or deployment identity.
 
 These APIs constrain access and structure. They do not prove that unrestricted generated
 speech faithfully uses a tool result. Existing source-selected answers remain the safer
-default; see [the retained diagnostics](../evidence/CONVERSATION_PATCH_EVAL.md).
+default; see the retained diagnostics.
 
 Optional task-specific observation selection and timer/dependency hints are documented
 in [ROUTINES](../guides/ROUTINES.md#optional-task-selection-and-responsive-wakeups). Required source
@@ -178,7 +178,7 @@ tokens cannot silently disappear; host reads do not enable tools or widen audien
 Use the optional host `time_assessment` helper to classify time evidence locally; it
 keeps an instrument's exact reading distinct from true simulation time, and a report
 from direct observation. Capped output no longer hides a live contradictory source's
-conflict flag. [Fresh probes](../evidence/ADVERSARIAL_EVAL.md) show valid JSON and smaller contexts
+conflict flag. Fresh probes show valid JSON and smaller contexts
 still fail some source judgments on the installed model. No new tools are auto-enabled.
 
 Optional [dynamic life and continuity](LIFE.md) builds on these same views/tools. Bounded
@@ -186,4 +186,4 @@ context caps select relevant facts, facets/attitudes, original episodes and whol
 using actual `WorkloadHints`; more context never registers tools or widens permissions.
 Life appraisals are host-controlled, delivery is acknowledged by portion/audience, and
 persistent controls preserve replay metadata. Stable-prefix ordering and host efficiency
-are tested separately from the [retained failed speech diagnostic](../evidence/LIFE_EVAL.md).
+are tested separately from the retained failed speech diagnostic.

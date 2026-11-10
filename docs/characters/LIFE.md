@@ -256,7 +256,7 @@ projected sizes before mutation, without cloning history or materializing inspec
 budget includes definition/configuration and space for permitted campaign identity fields,
 so accepted hot-path updates remain checkpointable. Overflow is atomic.
 
-[Evaluation evidence](../evidence/LIFE_EVAL.md) separates deterministic contracts, host benchmarks,
+Evaluation evidence separates deterministic contracts, host benchmarks,
 model speech and human judgment. The installed model's valid JSON still invents facts;
 balanced speech, source tokens and prefixes cannot guarantee grounding. The library enforces
 host authority and available actions; free-form conversational usefulness and real speech
@@ -281,7 +281,7 @@ line, with explicit subject metadata and descriptive unknown markers such as
 replies; it is not proof of grammar, completeness of thought or grounding. Keep generated,
 validated and actually delivered portions distinct.
 
-The [fresh paired follow-up](../evidence/LIFE_SPEECH_V2_EVAL.md) preserves v1 artifacts: 48 local calls,
+The paired follow-up preserves v1 artifacts: 48 local calls,
 $0 API, 16 token-first checks and eight pairs across regressions/holdouts. Terminal endings
 improve 5/8→8/8 and suspected wall cutoffs 3/8→0/8; weather and stock invention still occur.
 Balanced free-form prose remains experimental; independent human quality review is unknown.

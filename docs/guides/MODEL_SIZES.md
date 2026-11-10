@@ -70,7 +70,7 @@ measure complete-turn benefit before adopting that architecture. The local brain
 deterministic command handling and host tools can handle routine reactions without a
 language-model call.
 
-See [LOCAL](LOCAL.md) for the executable APIs and [the local report](../evidence/LOCAL_MODEL_2026_11_06.md)
+See [LOCAL](LOCAL.md) for the executable APIs and local evaluation notes
 for what was actually measured. No larger or 1.5B model is downloaded or tested by these
 configuration templates.
 

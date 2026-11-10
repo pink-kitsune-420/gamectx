@@ -169,7 +169,7 @@ complete candidate/request JSON across five seeds. Eleven real-host/fake-generat
 cover privacy, stale replies, exact long quotes, current owner checks, source injection,
 failed budgets and external file loading. Mutation tests add 30000 attempts.
 
-[Local model report](../evidence/LORE_EVAL.md) retains successful and failed pilots, twenty new
+Local model evaluations retain successful and failed pilots, twenty new
 questions, their tuned rerun, eight further questions and the final local repair. Every
 new token/accuracy/audit run spends $0 API; no larger model was loaded.
 
