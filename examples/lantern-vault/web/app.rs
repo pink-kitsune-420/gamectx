@@ -2989,6 +2989,68 @@ impl App {
                 if !long && self.reactions.enabled() && self.active() && super::reactions::intent(line).is_some() {
                     return Ok((self.reaction_chat(line, None)?, jobs));
                 }
+                if !long && self.active() {
+                    let visible_items = self.game.visible_items();
+                    let known_items: Vec<&str> = visible_items
+                        .iter()
+                        .filter_map(|i| i.get("label").and_then(Value::as_str))
+                        .collect();
+                    if let Some(proposal) = gamectx::character::roleplay::recognize_social_intent(
+                        line,
+                        &self.player,
+                        &self.npc,
+                        &known_items,
+                    ) {
+                        let disp = gamectx::character::roleplay::SocialDisposition {
+                            trust: self.attitude_level("trust").unwrap_or(10),
+                            affinity: self.attitude_level("affinity").unwrap_or(10),
+                            resentment: self.attitude_level("resentment").unwrap_or(0),
+                            generosity: if self.npc == "merchant" { 40 } else { 60 },
+                            prudence: if self.npc == "merchant" { 70 } else { 50 },
+                            courage: if self.npc == "merchant" { 50 } else { 70 },
+                        };
+                        let actor_name = self.actor_name(&self.npc);
+                        let outcome = gamectx::character::roleplay::evaluate_social_proposal(
+                            &proposal,
+                            &disp,
+                            &actor_name,
+                        );
+                        self.stop(None)?;
+                        self.epoch += 1;
+                        self.mic_open = false;
+                        self.advance()?;
+                        let player = self.player.clone();
+                        let actor = self.npc.clone();
+                        self.log(&player, original_line, "player");
+                        let token = self.next();
+                        self.receipt(obj!{"token"=>token,"speaker"=>player.clone(),"recipients"=>vec![actor.clone()],"heard"=>vec![player.clone(),actor.clone()],"text"=>original_line,"parent"=>Value::Null})?;
+                        self.observe(&actor, &player, &format!("{player} said: {original_line}"), "conversation", 10, None)?;
+                        self.fulfill_promises()?;
+                        if let Some(act) = outcome.executable_action {
+                            let action = act.get("action").and_then(Value::as_str).unwrap_or("");
+                            let target = act.get("target").and_then(Value::as_str).unwrap_or("");
+                            if action == "buy" || action == "take" {
+                                if let Some(item) = visible_items.iter().find(|i| {
+                                    i.get("label").and_then(Value::as_str) == Some(target)
+                                        || i.get("id").and_then(Value::as_str) == Some(target)
+                                }) {
+                                    let id = item.get("id").and_then(Value::as_str).unwrap_or(target);
+                                    let _ = self.command("act", &obj! {
+                                        "revision" => self.game.revision,
+                                        "decision" => obj! {"action" => action, "target" => id}
+                                    });
+                                }
+                            }
+                        }
+                        self.say(&outcome.dialogue)?;
+                        self.speech.as_mut().unwrap().origin = "authored_social".into();
+                        return Ok((obj! {
+                            "addressed" => true,
+                            "direct" => true,
+                            "social_status" => outcome.status
+                        }, jobs));
+                    }
+                }
                 let perceived_answer = if self.active() { self.scene_reply(line)? } else { None };
                 let resolved = if long || perceived_answer.is_some() {
                     obj! {"status"=>"unmatched"}

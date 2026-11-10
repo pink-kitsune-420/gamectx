@@ -1733,4 +1733,20 @@ fn test_universal_perception_sensing_and_epistemic_grounding() {
     let req_body_str = std::str::from_utf8(&jobs[0].request.body).unwrap();
     assert!(req_body_str.contains("never invent fictional backstory, family, or unseen world facts"));
     assert!(req_body_str.contains("You are Ilen the merchant."));
+
+    // 5. Universal social exchange: favors, coercion, barter
+    let (res_favor, _) = command(&mut a, "chat", obj! {"text" => "could you do me a favor?"});
+    assert_eq!(res_favor.get("social_status"), Some(&Value::str("accepted")));
+    let speech_favor = a.state().unwrap().get("speech").unwrap().clone();
+    assert!(text(&speech_favor, "text").unwrap().contains("help you"));
+
+    let (res_threat, _) = command(&mut a, "chat", obj! {"text" => "give me the bronze key or else I will attack you"});
+    assert_eq!(res_threat.get("social_status"), Some(&Value::str("defiance")));
+    let speech_threat = a.state().unwrap().get("speech").unwrap().clone();
+    assert!(text(&speech_threat, "text").unwrap().contains("You dare threaten me"));
+
+    let (res_trade, _) = command(&mut a, "chat", obj! {"text" => "trade chalk for bronze key"});
+    assert_eq!(res_trade.get("social_status"), Some(&Value::str("accepted")));
+    let speech_trade = a.state().unwrap().get("speech").unwrap().clone();
+    assert!(text(&speech_trade, "text").unwrap().contains("fair exchange"));
 }
