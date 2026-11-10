@@ -319,6 +319,21 @@ impl Game {
         self.items.iter().filter(|x|x.location==self.room||x.location=="inventory").map(|x|
             obj! {"id"=>x.id,"label"=>x.label,"kind"=>x.kind,"owner"=>x.owner,"price"=>x.price,"affordable"=>x.owner=="merchant"&&x.price<=self.coins}).collect()
     }
+    pub fn find_item_by_name(&self, query: &str) -> Option<Value> {
+        let q = query.to_lowercase();
+        self.items.iter().find(|x| {
+            let id_name = x.id.rsplit(':').next().unwrap_or(x.id).replace('_', " ");
+            q.contains(&x.label.to_lowercase()) || q.contains(&id_name)
+        }).map(|x| obj! {
+            "id" => x.id,
+            "label" => x.label,
+            "kind" => x.kind,
+            "owner" => x.owner,
+            "location" => x.location.as_str(),
+            "price" => x.price,
+            "owned" => x.owner == "player"
+        })
+    }
     pub fn choices(&self) -> Vec<Value> {
         if self.won || self.hp == 0 || self.revision >= MAX_TURNS {
             return Vec::new();

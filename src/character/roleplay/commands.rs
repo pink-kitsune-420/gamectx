@@ -47,37 +47,57 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     if focus != &Value::Null {
         c::scope(c::text(focus)?)?;
     }
-    let s = input.to_lowercase().trim().trim_end_matches(['.', '!']).split_whitespace().collect::<Vec<_>>().join(" ");
+    let normalized = input.replace(['’', '‘'], "'");
+    let s = normalized.to_lowercase().trim().trim_end_matches(['.', '!']).split_whitespace().collect::<Vec<_>>().join(" ");
     let response = |status: &str, decision: Value| obj! {"status"=>status,"decision"=>decision};
-    if s.contains('?')
-        || s.split_whitespace().any(|w| ["not", "never", "don't", "dont", "without"].contains(&w))
-        || s.contains("looking for")
-        || s.contains("look for")
-        || s.contains("search for")
-        || s.contains("searching for")
-        || s.starts_with("where ")
-        || s.starts_with("what ")
-        || s.starts_with("who ")
-        || s.starts_with("how ")
-        || s.starts_with("why ")
-        || s.starts_with("tell me ")
-        || s.starts_with("i need ")
-        || s.starts_with("do you ")
-        || s.starts_with("can you ")
-        || s.starts_with("could you ")
-    {
-        return Ok(response("dialogue", Value::Null));
-    }
-    let mut s = s.as_str();
-    for prefix in ["please ", "i'd like to ", "i would like to "] {
-        if let Some(rest) = s.strip_prefix(prefix) {
-            s = rest;
+
+    let mut s_clean = s.as_str();
+    for prefix in ["please ", "kindly "] {
+        if let Some(rest) = s_clean.strip_prefix(prefix) {
+            s_clean = rest;
             break;
         }
     }
-    if let Some(rest) = s.strip_suffix(" please") {
-        s = rest;
+    if let Some(rest) = s_clean.strip_suffix(" please") {
+        s_clean = rest;
     }
+
+    const BUY_PREFIXES: &[&str] = &[
+        "can i buy ",
+        "could i buy ",
+        "can i purchase ",
+        "could i purchase ",
+        "can i get ",
+        "could i get ",
+        "can you sell me ",
+        "could you sell me ",
+        "can i have ",
+        "could i have ",
+        "i want to buy ",
+        "i want to purchase ",
+        "i wanna buy ",
+        "i need to buy ",
+        "i'd like to buy ",
+        "i would like to buy ",
+        "i'd like to get ",
+        "i would like to get ",
+        "i'll buy ",
+        "i will buy ",
+        "i'll take ",
+        "i will take ",
+        "sell me ",
+        "i want ",
+    ];
+
+    let mut explicit_buy_arg = None;
+    let s_no_q = s_clean.trim_end_matches('?').trim();
+    for prefix in BUY_PREFIXES {
+        if let Some(rest) = s_no_q.strip_prefix(prefix) {
+            explicit_buy_arg = Some(rest.trim());
+            break;
+        }
+    }
+
     let is_currency_token = |t: &str| {
         [
             "coin", "coins", "gold", "silver", "copper", "platinum",
@@ -88,33 +108,71 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
         ]
         .contains(&t)
     };
-    let is_payment_or_trade_phrase = |phrase: &str| {
-        let words: Vec<&str> = phrase.split_whitespace().collect();
-        let has_trade_verb = words.iter().any(|w| {
-            [
-                "pay", "pays", "paid", "give", "gives", "hand", "hands",
-                "trade", "trades", "barter", "barters", "swap", "swaps",
-                "exchange", "exchanges", "offer", "offers", "take", "takes",
-                "here",
-            ]
-            .contains(w)
-        });
-        let has_currency = words.iter().any(|w| is_currency_token(w));
-        has_currency || (has_trade_verb && words.len() <= 6)
-    };
-    let (verb, mut arg) = if is_payment_or_trade_phrase(s)
-        && (s.starts_with("here ") || s.starts_with("take ") || s.starts_with("pay ") || s.starts_with("heres ") || s.starts_with("here's ") || s.starts_with("accept "))
-        && !s.contains(" for ")
-    {
-        ("buy", "payment")
-    } else if let Some((pay_part, item_part)) = s.split_once(" for ") {
-        if is_payment_or_trade_phrase(pay_part) {
-            ("buy", item_part)
-        } else {
-            s.split_once(' ').unwrap_or((s, ""))
-        }
+
+    let (verb, mut arg) = if let Some(buy_target) = explicit_buy_arg {
+        ("buy", buy_target)
     } else {
-        s.split_once(' ').unwrap_or((s, ""))
+        if s.contains('?')
+            || s.split_whitespace().any(|w| ["not", "never", "don't", "dont", "without"].contains(&w))
+            || s.contains("looking for")
+            || s.contains("look for")
+            || s.contains("search for")
+            || s.contains("searching for")
+            || s.starts_with("where ")
+            || s.starts_with("what ")
+            || s.starts_with("who ")
+            || s.starts_with("how ")
+            || s.starts_with("why ")
+            || s.starts_with("tell me ")
+            || s.starts_with("i need ")
+            || s.starts_with("do you ")
+            || s.starts_with("can you ")
+            || s.starts_with("could you ")
+        {
+            return Ok(response("dialogue", Value::Null));
+        }
+
+        let mut s_cmd = s_clean;
+        for prefix in ["i'd like to ", "i would like to "] {
+            if let Some(rest) = s_cmd.strip_prefix(prefix) {
+                s_cmd = rest;
+                break;
+            }
+        }
+
+        let is_payment_or_trade_phrase = |phrase: &str| {
+            let words: Vec<&str> = phrase.split_whitespace().collect();
+            let has_trade_verb = words.iter().any(|w| {
+                [
+                    "pay", "pays", "paid", "give", "gives", "hand", "hands",
+                    "trade", "trades", "barter", "barters", "swap", "swaps",
+                    "exchange", "exchanges", "offer", "offers", "take", "takes",
+                    "here",
+                ]
+                .contains(w)
+            });
+            let has_currency = words.iter().any(|w| is_currency_token(w));
+            has_currency || (has_trade_verb && words.len() <= 6)
+        };
+
+        let words: Vec<&str> = s_cmd.split_whitespace().collect();
+        let has_currency = words.iter().any(|w| is_currency_token(w));
+        let is_take_payment = s_cmd.starts_with("take ") && has_currency;
+
+        if is_payment_or_trade_phrase(s_cmd)
+            && (s_cmd.starts_with("here ") || is_take_payment || s_cmd.starts_with("pay ") || s_cmd.starts_with("heres ") || s_cmd.starts_with("here's ") || s_cmd.starts_with("accept "))
+            && !s_cmd.contains(" for ")
+        {
+            ("buy", "payment")
+        } else if let Some((pay_part, item_part)) = s_cmd.split_once(" for ") {
+            if is_payment_or_trade_phrase(pay_part) {
+                ("buy", item_part)
+            } else {
+                s_cmd.split_once(' ').unwrap_or((s_cmd, ""))
+            }
+        } else {
+            s_cmd.split_once(' ').unwrap_or((s_cmd, ""))
+        }
     };
     let mut action = match verb {
         "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands"

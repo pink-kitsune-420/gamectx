@@ -3235,6 +3235,38 @@ impl App {
                         );
                     }
                     "clarify" if !addressed_talk => {
+                        if self.active() {
+                            if let Some(item) = self.game.find_item_by_name(line) {
+                                self.stop(None)?;
+                                self.epoch += 1;
+                                self.mic_open = false;
+                                self.advance()?;
+                                let player = self.player.clone();
+                                self.log(&player, original_line, "player");
+                                let _ = self.record_player_parts(input_chunks)?;
+                                self.fulfill_promises()?;
+                                let id = item.get("id").and_then(Value::as_str).unwrap_or("");
+                                let label = item.get("label").and_then(Value::as_str).unwrap_or("item");
+                                let owner = item.get("owner").and_then(Value::as_str).unwrap_or("world");
+                                let price = item.get("price").and_then(Value::as_usize).unwrap_or(0) as u32;
+                                let reply = if self.game.owns(id) {
+                                    format!("You already have the {label} in your possession.")
+                                } else if owner == "world" {
+                                    format!("The {label} is not for sale; it is resting right here in the room. You are free to take it.")
+                                } else if owner == "merchant" && price > self.game.coins {
+                                    format!("The {label} costs {price} coins, but you currently have {} coins.", self.game.coins)
+                                } else if owner != self.npc {
+                                    format!("I do not trade in the {label}; that belongs to {owner}.")
+                                } else {
+                                    format!("I cannot part with the {label} right now.")
+                                };
+                                self.say(&reply)?;
+                                self.speech.as_mut().unwrap().origin = "roleplay_intelligence".into();
+                                self.speech.as_mut().unwrap().wording_attempted = true;
+                                self.notice = "Clarification answered in character.".into();
+                                return Ok((obj! {"addressed"=>true, "direct"=>true, "in_character_clarify"=>true}, jobs));
+                            }
+                        }
                         self.stop(None)?;
                         self.epoch += 1;
                         self.mic_open = false;

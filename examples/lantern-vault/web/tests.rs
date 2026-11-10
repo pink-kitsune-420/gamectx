@@ -1782,3 +1782,88 @@ fn test_metacognitive_speech_cleaner() {
     assert_eq!(cleaned_buy, "Here is your refined hinge oil.");
     assert_eq!(buy_act, Some(("buy".to_string(), "item:oil".to_string())));
 }
+
+#[test]
+fn test_natural_purchasing_and_clarification() {
+    let d = Dir::new();
+
+    // 1. Test natural purchase phrases buying hinge oil
+    let purchase_phrases = [
+        "i'd like to buy the hinge oil",
+        "I’d like to buy the hinge oil",
+        "can i buy the hinge oil?",
+        "i want to buy the hinge oil",
+        "can you sell me the hinge oil",
+        "sell me the hinge oil",
+        "i'll buy the hinge oil",
+    ];
+
+    for phrase in purchase_phrases {
+        let mut a = chunk_app(&d, false);
+        travel(&mut a);
+        command(&mut a, "approach", obj! {"npc" => "merchant"});
+
+        let (res, _) = command(&mut a, "chat", obj! {"text" => phrase});
+        assert_eq!(
+            res.get("status"),
+            Some(&Value::str("accepted")),
+            "Phrase '{phrase}' should successfully resolve purchase"
+        );
+        assert!(a.game.owns("item:oil"), "Player should own oil after '{phrase}'");
+    }
+
+    // 2. Test natural take phrase picking up the bronze key
+    {
+        let mut a = chunk_app(&d, false);
+        travel(&mut a);
+        command(&mut a, "approach", obj! {"npc" => "merchant"});
+
+        let (res, _) = command(&mut a, "chat", obj! {"text" => "take the bronze key"});
+        assert_eq!(res.get("status"), Some(&Value::str("accepted")));
+        assert!(a.game.owns("item:bronze_key"), "Player should own bronze key after taking it");
+    }
+
+    // 3. In-character clarify responses while actively conversing with merchant
+    {
+        let mut a = chunk_app(&d, false);
+        travel(&mut a);
+        command(&mut a, "approach", obj! {"npc" => "merchant"});
+
+        // A. Buy hinge oil first
+        let (res, _) = command(&mut a, "chat", obj! {"text" => "buy hinge oil"});
+        assert_eq!(res.get("status"), Some(&Value::str("accepted")));
+
+        // B. Try to buy hinge oil again -> merchant clarifies player already owns it
+        let (res_owned, _) = command(&mut a, "chat", obj! {"text" => "i'd like to buy the hinge oil"});
+        assert_eq!(res_owned.get("addressed"), Some(&Value::Bool(true)));
+        assert_eq!(res_owned.get("in_character_clarify"), Some(&Value::Bool(true)));
+        let speech = a.state().unwrap().get("speech").unwrap().clone();
+        assert!(
+            text(&speech, "text").unwrap().contains("already have the hinge oil"),
+            "Expected already-owned response, got: {}",
+            text(&speech, "text").unwrap()
+        );
+
+        // C. Try to buy bronze key -> merchant clarifies it is unowned and free to take
+        let (res_key, _) = command(&mut a, "chat", obj! {"text" => "can i buy the bronze key?"});
+        assert_eq!(res_key.get("addressed"), Some(&Value::Bool(true)));
+        assert_eq!(res_key.get("in_character_clarify"), Some(&Value::Bool(true)));
+        let speech = a.state().unwrap().get("speech").unwrap().clone();
+        assert!(
+            text(&speech, "text").unwrap().contains("not for sale"),
+            "Expected not-for-sale response, got: {}",
+            text(&speech, "text").unwrap()
+        );
+
+        // D. Try to buy expensive tonic -> merchant clarifies insufficient funds
+        let (res_tonic, _) = command(&mut a, "chat", obj! {"text" => "i want to buy the tonic"});
+        assert_eq!(res_tonic.get("addressed"), Some(&Value::Bool(true)));
+        assert_eq!(res_tonic.get("in_character_clarify"), Some(&Value::Bool(true)));
+        let speech = a.state().unwrap().get("speech").unwrap().clone();
+        assert!(
+            text(&speech, "text").unwrap().contains("costs") && text(&speech, "text").unwrap().contains("coins"),
+            "Expected price/coins clarification, got: {}",
+            text(&speech, "text").unwrap()
+        );
+    }
+}
