@@ -140,7 +140,7 @@ Register invariant rules and tool schemas once at startup, then assemble per-tur
 ```rust
 use gamectx::{obj, Context, Table, Value};
 
-fn build_npc_prompt(player_query: &str, inventory: &Value, npcs: &Value) -> Result<String, gamectx::Error> {
+fn build_npc_prompt(player_query: &str, inventory: Value, npcs: Value) -> Result<String, gamectx::Error> {
     // Startup: stable sections are packed once and lead every packet for KV-cache reuse
     let mut game = Context::new().budget_bytes(4096);
     game.prompt("rules", "Warden Ilse guards the vault. The engine validates all actions.")?;
@@ -206,16 +206,40 @@ The roleplay engine provides characters with epistemic security, grounded tradin
 
 ```rust
 use gamectx::character::roleplay::{
-    BeingRuntime, EpistemicShield, ItemValuationCatalog, SocialMesh,
+    BoundedLexicon, IntentDecomposer, ItemValuationCatalog, ItemValuation,
+    SocialMesh, PeerEntity,
 };
 
-// Core Cognitive Protections:
-// 1. BoundedLexicon: Whole-word token boundaries eliminate substring collisions.
-// 2. EpistemicShield: 6-token synset proximity checks stop prompt injections.
-// 3. ValuationEngine: Possession & value parity checks prevent ungrounded barter.
-// 4. SocialMesh: Authoritative peer NPC knowledge prevents peer hallucinations.
-// 5. StateRefuter: Checks claims against actual game state to refute player lies.
-// 6. MetacognitiveFilter: Strips third-person beats and action tags before TTS.
+// 1. BoundedLexicon: Token boundaries eliminate substring false positives
+assert!(!BoundedLexicon::has_match("careful inspection of codex", &["car", "code"]));
+assert!(BoundedLexicon::has_match("buy a car now", &["car"]));
+
+// 2. IntentDecomposer: Multi-clause parsing preserves compound player intents
+let clauses = IntentDecomposer::decompose("hello, where is the key, and can I buy hinge oil?");
+assert_eq!(clauses.len(), 3);
+
+// 3. ItemValuationCatalog: Possession- and parity-gated barter
+let mut catalog = ItemValuationCatalog::new();
+catalog.register(ItemValuation {
+    id: "item:seal".into(),
+    label: "Keeper Seal".into(),
+    base_value: 100,
+    tradable: false,
+    soulbound_quest_token: true,
+    required_milestone: Some("pump_repaired".into()),
+});
+
+// 4. SocialMesh: Authoritative peer NPC knowledge prevents hallucinations
+let mut mesh = SocialMesh::new();
+mesh.register(PeerEntity {
+    id: "npc:tovin".into(),
+    name: "Tovin".into(),
+    role: "Keeper of the Cistern".into(),
+    location: "cistern".into(),
+    description: "Guards the fountain basin".into(),
+    known_possessions: vec!["salve".into()],
+    stance_toward_peer: "respectful".into(),
+});
 ```
 
 ### 4. Local Neural Reaction Brains
