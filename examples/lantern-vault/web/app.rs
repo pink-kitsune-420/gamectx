@@ -3291,28 +3291,33 @@ impl App {
 
                     let rp_res = self.roleplay_engine.turn(&self.game, &self.player, &self.npc, line);
                     if let Ok(res) = rp_res {
-                        if matches!(
+                        let is_epistemic_enforcement = matches!(
                             res.route.as_str(),
                             "boundary_refusal"
                                 | "jailbreak_refusal"
                                 | "exploit_blocked"
                                 | "out_of_universe_grounding"
-                                | "narrative_reminiscence"
-                                | "companion_interaction"
                                 | "bargaining"
-                                | "combat_hint"
                                 | "quest_interaction"
-                                | "place_lore"
-                                | "wellbeing_query"
-                                | "hobby_query"
-                                | "need_query"
-                                | "navigation_guidance"
                                 | "peer_lore"
                                 | "biography_refutation"
                                 | "state_refutation"
                                 | "social_redirect"
                                 | "composite_resolution"
-                        ) {
+                        );
+                        let is_grounded_conversational = self.config.speech_mode() == "grounded"
+                            && matches!(
+                                res.route.as_str(),
+                                "place_lore"
+                                    | "wellbeing_query"
+                                    | "hobby_query"
+                                    | "need_query"
+                                    | "navigation_guidance"
+                                    | "narrative_reminiscence"
+                                    | "companion_interaction"
+                                    | "combat_hint"
+                            );
+                        if is_epistemic_enforcement || is_grounded_conversational {
                             if res.route == "quest_interaction" && self.game.pump_repaired && self.npc == "keeper" {
                                 let _ = self.game.npc_transfer("keeper", "item:keeper_seal", true);
                             }
@@ -3407,7 +3412,7 @@ impl App {
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
                         return Ok((obj! {"addressed"=>true,"direct"=>true,"social"=>kind}, jobs));
                     }
-                    if self.mind.enabled() && kind == "wellbeing" {
+                    if self.mind.enabled() && kind == "wellbeing" && self.config.speech_mode() == "grounded" {
                         let response = self.social_fallback("wellbeing", trust)?;
                         self.say(&response)?;
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
