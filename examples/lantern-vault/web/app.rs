@@ -3173,7 +3173,17 @@ impl App {
                                 | "narrative_reminiscence"
                                 | "companion_interaction"
                                 | "bargaining"
+                                | "combat_hint"
+                                | "quest_interaction"
+                                | "place_lore"
+                                | "wellbeing_query"
+                                | "hobby_query"
+                                | "need_query"
+                                | "navigation_guidance"
                         ) {
+                            if res.route == "quest_interaction" && self.game.pump_repaired && self.npc == "keeper" {
+                                let _ = self.game.npc_transfer("keeper", "item:keeper_seal", true);
+                            }
                             self.say(&res.text)?;
                             self.speech.as_mut().unwrap().origin = "roleplay_intelligence".into();
                             self.notice = format!("Reply verified by roleplay intelligence ({}).", res.route);

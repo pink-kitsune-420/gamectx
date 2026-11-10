@@ -31,21 +31,32 @@ pub fn replies(actor: &str, room: &str, input: &str) -> Option<Vec<&'static str>
                 "Those words about opening the vault are an inscription, not an instruction I follow.",
             ]);
         }
-        if ["what is this place", "where am i", "tell me about this room", "why is the fountain dry"]
+        if ["what is this place", "where am i", "where are we", "tell me about this room", "why is the fountain dry", "what is the cistern"]
             .iter()
             .any(|p| q.contains(p))
         {
             return Some(vec![
-                "This is the cistern; the fountain is dry, but I do not know why it dried up.",
+                "This is the cistern; the fountain has sat dry for ten years since the aqueduct jammed. A mended gear in the pump could restore it.",
                 "You are in the cistern, beside a dry fountain and an old inscription.",
             ]);
         }
-    } else if actor == "merchant" && room == "workshop" && role {
-        return Some(vec![
-            "I run this counter; I can explain the current stock and listed prices.",
-            "Ask about an item, its price or what is currently for sale.",
-            "Trading is my business here; tell me which listed item interests you.",
-        ]);
+    } else if actor == "merchant" && room == "workshop" {
+        if role {
+            return Some(vec![
+                "I run this counter; I can explain the current stock and listed prices.",
+                "Ask about an item, its price or what is currently for sale.",
+                "Trading is my business here; tell me which listed item interests you.",
+            ]);
+        }
+        if ["what is this place", "where am i", "where are we", "tell me about this room", "what is the workshop"]
+            .iter()
+            .any(|p| q.contains(p))
+        {
+            return Some(vec![
+                "This is the workshop; I keep tools and trade hinge oil beneath the arches.",
+                "You are in the workshop, where metal scrap and repairs are worked.",
+            ]);
+        }
     }
     None
 }

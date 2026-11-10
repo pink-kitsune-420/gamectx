@@ -35,6 +35,14 @@ pub fn conversation_route(v: &Value) -> Result<Value> {
             "are you doing okay",
             "are you alright",
             "are you ok",
+            "how is your day",
+            "how is your day today",
+            "how s your day",
+            "how has your day been",
+            "how is your day going",
+            "how are you today",
+            "how do you do",
+            "how goes it",
         ]
         .iter()
         .any(|p| q.contains(p))
@@ -70,12 +78,64 @@ pub fn conversation_route(v: &Value) -> Result<Value> {
         {
             kind = "elaborate";
             topic = previous.clone();
-        } else if ["what do you like to do", "what do you enjoy", "your interests", "your hobbies"]
-            .iter()
-            .any(|p| q.contains(p))
+        } else if [
+            "what do you like to do",
+            "what do you enjoy",
+            "your interests",
+            "your hobbies",
+            "do you do anything for fun",
+            "what do you do for fun",
+            "what do you do in your free time",
+            "in your free time",
+            "for fun",
+            "how do you spend your time",
+            "pass the time",
+        ]
+        .iter()
+        .any(|p| q.contains(p))
         {
             kind = "personal";
             topic = "hobbies".into();
+        } else if [
+            "do you need anything",
+            "what do you need",
+            "need any help",
+            "can i help you with anything",
+            "is there anything you need",
+            "need anything",
+            "can i help you",
+        ]
+        .iter()
+        .any(|p| q.contains(p))
+        {
+            kind = "needs";
+            topic = "needs".into();
+        } else if [
+            "where are we",
+            "where am i",
+            "what is this place",
+            "where are we right now",
+            "tell me about this place",
+        ]
+        .iter()
+        .any(|p| q.contains(p))
+        {
+            kind = "location";
+            topic = "location".into();
+        } else if [
+            "where should i go",
+            "where should i go now",
+            "where do i go",
+            "where do we go",
+            "which way should i go",
+            "where to next",
+            "what should i do next",
+        ]
+        .iter()
+        .any(|p| q.contains(p))
+        {
+            kind = "navigation";
+            topic = "navigation".into();
         } else if ["favorite", "favourite", "your opinion", "your thoughts", "makes you happy", "makes you sad"]
             .iter()
             .any(|p| q.contains(p))
@@ -85,4 +145,28 @@ pub fn conversation_route(v: &Value) -> Result<Value> {
         }
     }
     Ok(obj! {"kind"=>kind,"topic"=>topic})
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_conversation_route_wellbeing_and_hobbies() {
+        let res = conversation_route(&obj! {"input" => "how is your day today?", "previous" => Value::Null}).unwrap();
+        assert_eq!(res.get("kind"), Some(&Value::str("wellbeing")));
+
+        let res = conversation_route(&obj! {"input" => "do you do anything for fun?", "previous" => Value::Null}).unwrap();
+        assert_eq!(res.get("kind"), Some(&Value::str("personal")));
+        assert_eq!(res.get("topic"), Some(&Value::str("hobbies")));
+
+        let res = conversation_route(&obj! {"input" => "do you need anything?", "previous" => Value::Null}).unwrap();
+        assert_eq!(res.get("kind"), Some(&Value::str("needs")));
+
+        let res = conversation_route(&obj! {"input" => "where are we?", "previous" => Value::Null}).unwrap();
+        assert_eq!(res.get("kind"), Some(&Value::str("location")));
+
+        let res = conversation_route(&obj! {"input" => "where should i go now?", "previous" => Value::Null}).unwrap();
+        assert_eq!(res.get("kind"), Some(&Value::str("navigation")));
+    }
 }

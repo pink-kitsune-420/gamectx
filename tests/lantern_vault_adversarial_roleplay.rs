@@ -245,6 +245,45 @@ fn test_epistemic_gating_and_lore_accuracy() {
     let combat_res = rp_7.turn(&host_7.game, "player_1", "keeper", "How do I defeat the sentinel?").unwrap();
     assert_eq!(combat_res.route, "combat_hint");
     assert!(combat_res.text.contains("sentinel") && combat_res.text.contains("hound"));
+
+    // User playthrough exact query verification
+    let nav_res = rp_7.turn(&host_7.game, "player_1", "merchant", "where should i go now?").unwrap();
+    assert_eq!(nav_res.route, "navigation_guidance");
+    assert!(nav_res.text.contains("vault") || nav_res.text.contains("gallery"));
+
+    let vault_res = rp_7.turn(&host_7.game, "player_1", "keeper", "where can i find the vault?").unwrap();
+    assert_eq!(vault_res.route, "navigation_guidance");
+    assert!(vault_res.text.contains("gallery") && vault_res.text.contains("gate"));
+
+    let cistern_lore = rp_7.turn(&host_7.game, "player_1", "keeper", "what is the cistern?").unwrap();
+    assert_eq!(cistern_lore.route, "place_lore");
+    assert!(cistern_lore.text.contains("reservoir") || cistern_lore.text.contains("aqueduct"));
+
+    let location_res = rp_7.turn(&host_7.game, "player_1", "keeper", "hello, where are we?").unwrap();
+    assert_eq!(location_res.route, "place_lore");
+    assert!(location_res.text.contains("cistern") || location_res.text.contains("vault"));
+
+    let day_res = rp_7.turn(&host_7.game, "player_1", "merchant", "how is your day today?").unwrap();
+    assert_eq!(day_res.route, "wellbeing_query");
+    assert!(day_res.text.contains("workbench") || day_res.text.contains("Quiet"));
+
+    let fun_res = rp_7.turn(&host_7.game, "player_1", "merchant", "do you do anything for fun?").unwrap();
+    assert_eq!(fun_res.route, "hobby_query");
+    assert!(fun_res.text.contains("gear") || fun_res.text.contains("craft"));
+
+    let need_res = rp_7.turn(&host_7.game, "player_1", "merchant", "do you need anything?").unwrap();
+    assert_eq!(need_res.route, "need_query");
+    assert!(need_res.text.contains("metal scrap") || need_res.text.contains("workbench"));
+
+    let seal_res = rp_7.turn(&host_7.game, "player_1", "keeper", "can i have the keeper's seal?").unwrap();
+    assert_eq!(seal_res.route, "quest_interaction");
+    assert!(seal_res.text.contains("cannot be given lightly") || seal_res.text.contains("repair"));
+
+    // Test seal after pump repair
+    host_7.game.pump_repaired = true;
+    let seal_awarded = rp_7.turn(&host_7.game, "player_1", "keeper", "can i have the keeper's seal?").unwrap();
+    assert_eq!(seal_awarded.route, "quest_interaction");
+    assert!(seal_awarded.text.contains("yours by right") || seal_awarded.text.contains("repaired"));
 }
 
 // =========================================================================

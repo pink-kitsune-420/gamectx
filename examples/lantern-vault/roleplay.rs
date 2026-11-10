@@ -582,6 +582,197 @@ impl VaultRoleplayEngine {
             });
         }
 
+        let is_seal_query = lower.contains("seal") || lower.contains("keeper seal") || lower.contains("keeper's seal");
+        if is_seal_query {
+            let reply = match target_norm {
+                "keeper" => {
+                    if game.pump_repaired {
+                        "You repaired the jammed aqueduct pump and restored life to the fountain! The keeper's seal is yours by right of honorable service to the sanctuary.".to_string()
+                    } else {
+                        "The keeper's seal is a sacred token of the sanctuary. Restore the water flow to the dry fountain by repairing the jammed pump with a mended gear, and you shall earn it.".to_string()
+                    }
+                }
+                "merchant" => "The keeper's seal belongs to Tovin in the cistern. Only the keeper may bestow it.".to_string(),
+                _ => "The hound sniffs the air, unconcerned with official seals.".to_string(),
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply,
+                route: "quest_interaction".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["solemn".to_string()],
+            });
+        }
+
+        let is_navigation = lower.contains("where should i go")
+            || lower.contains("where do i go")
+            || lower.contains("where can i find the vault")
+            || lower.contains("where is the vault")
+            || lower.contains("how do i get to the vault")
+            || lower.contains("how to get to the vault")
+            || lower.contains("find the vault")
+            || lower.contains("where to go")
+            || lower.contains("which way")
+            || lower.contains("where next")
+            || lower.contains("enter the vault")
+            || lower.contains("reach the vault");
+        if is_navigation {
+            let key_loc = if game.seed % 2 == 0 { "cistern" } else { "workshop" };
+            let reply = if game.gate_open {
+                "The bronze vault gate in the lantern gallery stands open. Step through into the inner vault to face the stone sentinel and recover the glass star.".to_string()
+            } else if game.owns("item:bronze_key") && game.owns("item:oil") {
+                "You carry both the bronze key and the hinge oil. Head to the lantern gallery, oil the rusted hinges, and unlock the vault gate.".to_string()
+            } else if game.owns("item:bronze_key") {
+                "You have the bronze key. Now obtain hinge oil from Ilen in the workshop to loosen the rusted hinges in the lantern gallery.".to_string()
+            } else if game.owns("item:oil") {
+                format!("You have hinge oil. Now retrieve the bronze key from the {key_loc}, then unlock the vault gate in the lantern gallery.")
+            } else {
+                match target_norm {
+                    "merchant" => format!("To reach the vault, you need the bronze key from the {key_loc} and hinge oil from my bench. The lantern gallery passage to the east leads directly to the locked vault gate."),
+                    "hound" => "The hound trots toward the archway leading to the lantern gallery, looking back to see if you follow.".to_string(),
+                    _ => format!("The inner vault lies through the lantern gallery to the west. Its heavy bronze gate requires hinge oil from the workshop and the bronze key resting in the {key_loc}."),
+                }
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply,
+                route: "navigation_guidance".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["guiding".to_string()],
+            });
+        }
+
+        let is_place_lore = lower.contains("where are we")
+            || lower.contains("where am i")
+            || lower.contains("what is this place")
+            || lower.contains("tell me about this place")
+            || lower.contains("what is the cistern")
+            || lower.contains("what is the gallery")
+            || lower.contains("what is the workshop")
+            || lower.contains("what is the vault")
+            || lower.contains("about the cistern")
+            || lower.contains("about the gallery")
+            || lower.contains("about the workshop")
+            || lower.contains("about the vault");
+        if is_place_lore {
+            let reply = if lower.contains("cistern") {
+                "The cistern is an ancient subterranean water reservoir. Ten years past, its aqueduct jammed, leaving the stone fountain basin dry. A mended gear in the pump mechanism could restore the flowing water.".to_string()
+            } else if lower.contains("gallery") {
+                "The lantern gallery is the central vaulted corridor connecting the workshop to the west, the cistern to the east, and the sealed bronze vault gate to the north.".to_string()
+            } else if lower.contains("workshop") {
+                "The workshop is a stone craft room equipped with an anvil and workbench for pressing oil, forging tools, and crafting repairs.".to_string()
+            } else if lower.contains("vault") {
+                "The vault is the sealed subterranean sanctuary carved centuries ago by artisans to safeguard the sacred glass star.".to_string()
+            } else {
+                match target_norm {
+                    "merchant" => "We are in the workshop beneath the arches, where metal is worked and supplies are traded.".to_string(),
+                    "keeper" => "We are in the cistern, an ancient reservoir beneath the vault where the fountain has sat dry since the aqueduct jammed ten years ago.".to_string(),
+                    _ => match game.room.as_str() {
+                        "workshop" => "We are in the workshop beneath the arches, where metal is worked and supplies are traded.".to_string(),
+                        "cistern" => "We are in the cistern, an ancient reservoir beneath the vault where the fountain has sat dry since the aqueduct jammed ten years ago.".to_string(),
+                        "gallery" => "We are in the lantern gallery, the crossroads between the workshop, cistern, and the sealed vault gate.".to_string(),
+                        "vault" => "We are in the inner vault, built centuries ago to safeguard the glass star.".to_string(),
+                        _ => "We are beneath the stone arches of the lantern vault sanctuary.".to_string(),
+                    },
+                }
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply,
+                route: "place_lore".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["informative".to_string()],
+            });
+        }
+
+        let is_need = lower.contains("do you need anything")
+            || lower.contains("need anything")
+            || lower.contains("need any help")
+            || lower.contains("can i help you")
+            || lower.contains("what do you need")
+            || lower.contains("is there anything you need");
+        if is_need {
+            let reply = match target_norm {
+                "merchant" => "If you bring metal scrap, you can use my workbench to craft mended gears or torches with hinge oil. Sturdy tools are always useful here.".to_string(),
+                "hound" => "The hound gives a soft, friendly huff, looking content simply to have your company.".to_string(),
+                _ => {
+                    if game.pump_repaired {
+                        "The fountain flows once more thanks to your mended gear. My vigil is peaceful, and the cistern's thirst is quenched.".to_string()
+                    } else {
+                        "The cistern fountain has sat dry for ten years because the aqueduct pump jammed. If you bring a mended gear crafted at the workshop, the water could flow again.".to_string()
+                    }
+                }
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply,
+                route: "need_query".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["earnest".to_string()],
+            });
+        }
+
+        let is_wellbeing = lower.contains("how is your day")
+            || lower.contains("how s your day")
+            || lower.contains("how has your day been")
+            || lower.contains("how are you today")
+            || lower.contains("how is it going")
+            || lower.contains("how s it going")
+            || (lower.contains("how are you") && !lower.contains("how are you doing that"));
+        if is_wellbeing {
+            let reply = match target_norm {
+                "merchant" => "Quiet and steady at the workbench beneath the stone arches. In these deep halls, I focus on crafting, refining hinge oil, and keeping my tools ready.",
+                "hound" => "The hound looks up from its paws, thumping its tail calmly against the cool stone floor.",
+                _ => "My vigil beside the dry fountain is solemn and quiet. I tend the silent stone basin and watch the lantern light flicker across the arches.",
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply.to_string(),
+                route: "wellbeing_query".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["calm".to_string()],
+            });
+        }
+
+        let is_hobby = lower.contains("for fun")
+            || lower.contains("free time")
+            || lower.contains("hobbies")
+            || lower.contains("pastime")
+            || lower.contains("pass the time")
+            || lower.contains("what do you like to do");
+        if is_hobby {
+            let reply = match target_norm {
+                "merchant" => "When the workbench is quiet, I study old gear designs and examine the stone masonry. There is great satisfaction in sturdy craft.",
+                "hound" => "The hound perks its ears, gently nudging a smooth pebble across the flagstones with its nose.",
+                _ => "My duty is my life; in quiet hours, I trace the ancient inscriptions carved into the fountain stones and listen to the echoes of the vault.",
+            };
+            return Ok(RoleplayTurnResult {
+                speaker: target_norm.to_string(),
+                target: speaker.to_string(),
+                text: reply.to_string(),
+                route: "hobby_query".to_string(),
+                boundary_mode: "allowed".to_string(),
+                honesty: "truth".to_string(),
+                verified: true,
+                emotions: vec!["reflective".to_string()],
+            });
+        }
+
         if lower.contains("stock") || lower.contains("wares") || lower.contains("sell") || lower.contains("buy") {
             if target_norm == "merchant" {
                 let stock = game
