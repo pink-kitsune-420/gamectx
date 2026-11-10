@@ -1755,3 +1755,30 @@ fn test_universal_perception_sensing_and_epistemic_grounding() {
     let speech_trade = a.state().unwrap().get("speech").unwrap().clone();
     assert!(text(&speech_trade, "text").unwrap().contains("fair exchange"));
 }
+
+#[test]
+fn test_metacognitive_speech_cleaner() {
+    // 1. Unbracketed action prefix
+    let raw_action = "ACTION: Refuse trade keeper_seal for moss. I cannot trade the keeper seal for a mere clump of moss.";
+    let (cleaned_act, act_dir) = app::App::clean_metacognitive_speech(raw_action);
+    assert_eq!(cleaned_act, "I cannot trade the keeper seal for a mere clump of moss.");
+    assert_eq!(act_dir, None);
+
+    // 2. Bracketed stage direction
+    let raw_bracketed = "[Petting hound] \"Ah, the poor creature. It is not right to mistreat it so.\"";
+    let (cleaned_bracketed, _) = app::App::clean_metacognitive_speech(raw_bracketed);
+    assert_eq!(cleaned_bracketed, "Ah, the poor creature. It is not right to mistreat it so.");
+
+    // 3. Third-person narrative dialogue intro and speech tag
+    let raw_narration = "Tovin looks at you with a mix of sadness. \"I am afraid there has been a misunderstanding.\" he says.";
+    let (cleaned_narr, _) = app::App::clean_metacognitive_speech(raw_narration);
+    assert!(cleaned_narr.contains("I am afraid there has been a misunderstanding"));
+    assert!(!cleaned_narr.contains("Tovin looks at you"));
+    assert!(!cleaned_narr.contains("he says"));
+
+    // 4. Bracketed action extraction
+    let raw_buy = "[ACTION: buy item:oil] Here is your refined hinge oil.";
+    let (cleaned_buy, buy_act) = app::App::clean_metacognitive_speech(raw_buy);
+    assert_eq!(cleaned_buy, "Here is your refined hinge oil.");
+    assert_eq!(buy_act, Some(("buy".to_string(), "item:oil".to_string())));
+}

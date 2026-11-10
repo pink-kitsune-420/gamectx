@@ -66,6 +66,110 @@ pub struct SocialOutcome {
     pub executable_action: Option<Value>,
 }
 
+/// Authoritative valuation and trading constraints for items in the world.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ItemValuation {
+    pub id: String,
+    pub label: String,
+    pub base_value: u64,
+    pub tradable: bool,
+    pub soulbound_quest_token: bool,
+    pub required_milestone: Option<String>,
+}
+
+/// Catalog of authoritative item valuations and barter restrictions.
+#[derive(Clone, Debug, Default)]
+pub struct ItemValuationCatalog {
+    pub entries: Vec<ItemValuation>,
+}
+
+impl ItemValuationCatalog {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn register(&mut self, item: ItemValuation) {
+        self.entries.retain(|e| e.id != item.id);
+        self.entries.push(item);
+    }
+
+    pub fn find(&self, query: &str) -> Option<&ItemValuation> {
+        let q = query.to_lowercase().replace('_', " ");
+        let q_id = if query.starts_with("item:") { query } else { "" };
+        self.entries.iter().find(|e| {
+            (!q_id.is_empty() && e.id == q_id)
+                || e.id == query
+                || e.id.trim_start_matches("item:") == q
+                || e.label.to_lowercase() == q
+                || q.contains(&e.label.to_lowercase())
+                || e.label.to_lowercase().contains(&q)
+        })
+    }
+}
+
+/// Authoritative relational model and Theory of Mind knowledge of peer characters.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PeerEntity {
+    pub id: String,
+    pub name: String,
+    pub role: String,
+    pub location: String,
+    pub description: String,
+    pub known_possessions: Vec<String>,
+    pub stance_toward_peer: String,
+}
+
+/// Inter-character relational mesh linking active entities in the world.
+#[derive(Clone, Debug, Default)]
+pub struct SocialMesh {
+    pub entities: Vec<PeerEntity>,
+}
+
+impl SocialMesh {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn register(&mut self, entity: PeerEntity) {
+        self.entities.retain(|e| e.id != entity.id);
+        self.entities.push(entity);
+    }
+
+    pub fn find(&self, query: &str) -> Option<&PeerEntity> {
+        let q = query.to_lowercase();
+        self.entities.iter().find(|e| {
+            e.id.to_lowercase() == q
+                || e.name.to_lowercase() == q
+                || e.role.to_lowercase() == q
+                || q.contains(&e.name.to_lowercase())
+                || q.contains(&e.id.to_lowercase())
+        })
+    }
+
+    /// Compiles authoritative prompt facts about peer characters for `actor_id`.
+    pub fn compile_peer_context(&self, actor_id: &str) -> Vec<String> {
+        let mut facts = Vec::new();
+        let actor_lower = actor_id.to_lowercase();
+        for peer in &self.entities {
+            if peer.id.to_lowercase() == actor_lower || peer.name.to_lowercase() == actor_lower {
+                continue;
+            }
+            facts.push(format!(
+                "{} is the {} in the {}. Stance: {}. {}",
+                peer.name, peer.role, peer.location, peer.stance_toward_peer, peer.description
+            ));
+            if !peer.known_possessions.is_empty() {
+                let items_str = peer.known_possessions.join(", ");
+                facts.push(format!(
+                    "Negative ownership constraint: You do not possess or trade {}'s belongings (e.g. {}); refer the player to {} in the {}.",
+                    peer.name, items_str, peer.name, peer.location
+                ));
+            }
+        }
+        facts
+    }
+}
+
 const CURRENCIES: &[&str] = &[
     "coin", "coins", "gold", "silver", "copper", "platinum", "credit", "credits",
     "gem", "gems", "token", "tokens", "mark", "marks", "shilling", "shillings",
@@ -213,9 +317,43 @@ pub fn recognize_social_intent(
             if let Some(idx) = q.find(trade_verb) {
                 let rest = &q[idx + trade_verb.len()..];
                 if let Some((part_a, part_b)) = rest.split_once(separator) {
-                    let offered_item = match_item(part_a, known_items);
+                    let offered_item = match_item(part_a, known_items).or_else(|| {
+                        let clean = part_a
+                            .trim()
+                            .trim_start_matches("this ")
+                            .trim_start_matches("my ")
+                            .trim_start_matches("a ")
+                            .trim_start_matches("an ")
+                            .trim_start_matches("some ")
+                            .trim();
+                        if !clean.is_empty() {
+                            Some(clean.to_string())
+                        } else {
+                            None
+                        }
+                    });
                     let (offered_curr, offered_amt) = extract_currency(part_a);
-                    let requested_item = match_item(part_b, known_items);
+                    let requested_item = match_item(part_b, known_items).or_else(|| {
+                        let clean = part_b
+                            .trim()
+                            .trim_end_matches(['.', '!', '?'])
+                            .trim()
+                            .trim_end_matches("deal")
+                            .trim_end_matches(['.', '!', '?', ','])
+                            .trim()
+                            .trim_start_matches("this ")
+                            .trim_start_matches("your ")
+                            .trim_start_matches("the ")
+                            .trim_start_matches("a ")
+                            .trim_start_matches("an ")
+                            .trim_start_matches("some ")
+                            .trim();
+                        if !clean.is_empty() {
+                            Some(clean.to_string())
+                        } else {
+                            None
+                        }
+                    });
                     let (requested_curr, requested_amt) = extract_currency(part_b);
 
                     return Some(SocialProposal {
@@ -303,7 +441,18 @@ pub fn recognize_social_intent(
 pub fn evaluate_social_proposal(
     proposal: &SocialProposal,
     disposition: &SocialDisposition,
+    character_name: &str,
+) -> SocialOutcome {
+    evaluate_social_proposal_with_valuation(proposal, disposition, character_name, None, None)
+}
+
+/// Evaluates a proposal against personality traits, authoritative item valuation catalog, and inventory.
+pub fn evaluate_social_proposal_with_valuation(
+    proposal: &SocialProposal,
+    disposition: &SocialDisposition,
     _character_name: &str,
+    catalog: Option<&ItemValuationCatalog>,
+    player_inventory: Option<&[String]>,
 ) -> SocialOutcome {
     match proposal.kind {
         SocialActionKind::Coercion => {
@@ -386,27 +535,117 @@ pub fn evaluate_social_proposal(
         }
         SocialActionKind::Trade => {
             if disposition.resentment > 30 {
-                SocialOutcome {
+                return SocialOutcome {
                     status: "rejected",
                     dialogue: format!("I refuse to barter with you until you make amends."),
                     delta_trust: 0,
                     delta_affinity: -5,
                     delta_resentment: 5,
                     executable_action: None,
+                };
+            }
+
+            let off = proposal.offered_item.as_deref().or(proposal.offered_currency.as_deref()).unwrap_or("that");
+            let req = proposal.requested_item.as_deref().or(proposal.requested_currency.as_deref()).unwrap_or("this");
+
+            // Check 1: Possession Check
+            if let Some(inv) = player_inventory {
+                if let Some(off_name) = &proposal.offered_item {
+                    let has_item = inv.iter().any(|owned| {
+                        let owned_clean = owned.trim_start_matches("item:").replace('_', " ").to_lowercase();
+                        let target_clean = off_name.trim_start_matches("item:").replace('_', " ").to_lowercase();
+                        owned == off_name
+                            || owned_clean == target_clean
+                            || target_clean.contains(&owned_clean)
+                            || owned_clean.contains(&target_clean)
+                    });
+                    if !has_item {
+                        return SocialOutcome {
+                            status: "rejected",
+                            dialogue: format!("You do not possess {off} to trade; I cannot barter for what you do not hold."),
+                            delta_trust: 0,
+                            delta_affinity: -2,
+                            delta_resentment: 2,
+                            executable_action: None,
+                        };
+                    }
                 }
-            } else {
-                let off = proposal.offered_item.as_deref().or(proposal.offered_currency.as_deref()).unwrap_or("that");
-                let req = proposal.requested_item.as_deref().or(proposal.requested_currency.as_deref()).unwrap_or("this");
-                SocialOutcome {
-                    status: "accepted",
-                    dialogue: format!("That is a fair exchange: your {off} for my {req}."),
-                    delta_trust: 5,
-                    delta_affinity: 5,
-                    delta_resentment: -5,
-                    executable_action: proposal.requested_item.as_ref().map(|item| {
-                        obj! {"action" => "buy", "target" => item.clone()}
-                    }),
+            }
+
+            // Check 2: Soulbound / Tradability Check
+            if let Some(cat) = catalog {
+                if let Some(req_name) = &proposal.requested_item {
+                    if let Some(val) = cat.find(req_name) {
+                        if val.soulbound_quest_token || !val.tradable {
+                            let reason = if let Some(m) = &val.required_milestone {
+                                format!(" The {} is a sacred quest token and can only be earned by completing its milestone ({}).", val.label, m)
+                            } else {
+                                format!(" The {} is a sacred token of the vault and cannot be parted with through mere barter.", val.label)
+                            };
+                            return SocialOutcome {
+                                status: "rejected",
+                                dialogue: format!("I cannot trade that.{reason}"),
+                                delta_trust: 0,
+                                delta_affinity: 0,
+                                delta_resentment: 0,
+                                executable_action: None,
+                            };
+                        }
+                    }
                 }
+            } else if req.to_lowercase().contains("seal") || req.to_lowercase().contains("star") {
+                return SocialOutcome {
+                    status: "rejected",
+                    dialogue: format!("The {req} is a sacred token and cannot be traded for mere goods."),
+                    delta_trust: 0,
+                    delta_affinity: 0,
+                    delta_resentment: 0,
+                    executable_action: None,
+                };
+            }
+
+            // Check 3: Value Parity Check
+            if let Some(cat) = catalog {
+                let off_val = if proposal.offered_amount > 0 {
+                    proposal.offered_amount
+                } else if let Some(off_name) = &proposal.offered_item {
+                    cat.find(off_name).map(|v| v.base_value).unwrap_or(0)
+                } else {
+                    0
+                };
+
+                let req_val = if proposal.requested_amount > 0 {
+                    proposal.requested_amount
+                } else if let Some(req_name) = &proposal.requested_item {
+                    cat.find(req_name).map(|v| v.base_value).unwrap_or(1)
+                } else {
+                    1
+                };
+
+                let discount = (disposition.generosity as f64 / 100.0).clamp(0.0, 0.5);
+                let min_acceptable = (req_val as f64 * (1.0 - discount)).ceil() as u64;
+
+                if off_val < min_acceptable {
+                    return SocialOutcome {
+                        status: "rejected",
+                        dialogue: format!("That is not a fair exchange: {off} is valued far below {req}."),
+                        delta_trust: 0,
+                        delta_affinity: -5,
+                        delta_resentment: 5,
+                        executable_action: None,
+                    };
+                }
+            }
+
+            SocialOutcome {
+                status: "accepted",
+                dialogue: format!("That is a fair exchange: your {off} for my {req}."),
+                delta_trust: 5,
+                delta_affinity: 5,
+                delta_resentment: -5,
+                executable_action: proposal.requested_item.as_ref().map(|item| {
+                    obj! {"action" => "buy", "target" => item.clone()}
+                }),
             }
         }
         SocialActionKind::Gift => {
@@ -537,5 +776,56 @@ mod tests {
         let out_loan = evaluate_social_proposal(&p_loan, &disp, "Ilen");
         assert_eq!(out_loan.status, "accepted");
         assert!(out_loan.dialogue.contains("5 gold"));
+    }
+
+    #[test]
+    fn test_valuation_catalog_and_possession_gated_barter() {
+        let mut cat = ItemValuationCatalog::new();
+        cat.register(ItemValuation {
+            id: "item:chalk".into(),
+            label: "chalk".into(),
+            base_value: 1,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        cat.register(ItemValuation {
+            id: "item:oil".into(),
+            label: "hinge oil".into(),
+            base_value: 3,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        cat.register(ItemValuation {
+            id: "item:seal".into(),
+            label: "keeper seal".into(),
+            base_value: 999999,
+            tradable: false,
+            soulbound_quest_token: true,
+            required_milestone: Some("pump repaired".into()),
+        });
+
+        let disp = SocialDisposition::default();
+        let items = ["hinge oil", "chalk", "keeper seal"];
+
+        // 1. Unpossessed item check
+        let p_unowned = recognize_social_intent("trade dry moss for hinge oil", "player", "merchant", &items).unwrap();
+        let player_inv = vec!["item:chalk".to_string()];
+        let out_unowned = evaluate_social_proposal_with_valuation(&p_unowned, &disp, "Ilen", Some(&cat), Some(&player_inv));
+        assert_eq!(out_unowned.status, "rejected");
+        assert!(out_unowned.dialogue.contains("do not possess"));
+
+        // 2. Soulbound token check
+        let p_soulbound = recognize_social_intent("trade chalk for keeper seal", "player", "keeper", &items).unwrap();
+        let out_soulbound = evaluate_social_proposal_with_valuation(&p_soulbound, &disp, "Tovin", Some(&cat), Some(&player_inv));
+        assert_eq!(out_soulbound.status, "rejected");
+        assert!(out_soulbound.dialogue.contains("sacred quest token"));
+
+        // 3. Parity check (1 chalk for 3 oil, generosity 40 -> min acceptable 3 * 0.6 = 2)
+        let p_unfair = recognize_social_intent("trade chalk for hinge oil", "player", "merchant", &items).unwrap();
+        let out_unfair = evaluate_social_proposal_with_valuation(&p_unfair, &disp, "Ilen", Some(&cat), Some(&player_inv));
+        assert_eq!(out_unfair.status, "rejected");
+        assert!(out_unfair.dialogue.contains("not a fair exchange"));
     }
 }

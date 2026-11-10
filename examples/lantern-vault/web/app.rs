@@ -1061,11 +1061,20 @@ impl App {
                 self.game.current_description(),
                 &self.game.visible_items(),
             );
-            let prompt = gamectx::character::roleplay::ground_persona(
+            let mesh = super::game::Game::social_mesh();
+            let peer_facts = mesh.compile_peer_context(&self.npc);
+            let autobio = match self.npc.as_str() {
+                "merchant" => "You are an artisan and merchant. You have worked at this workbench since the sanctuary was sealed. You were never an apprentice keeper, and you have no brothers or family on the surface.",
+                "keeper" => "You are the solemn keeper of the Lantern Vault and cistern. You have maintained your sacred vigil beside the fountain for decades. You have no surface apprentices or family.",
+                _ => "You are a faithful companion hound.",
+            };
+            let prompt = gamectx::character::roleplay::ground_persona_pass6(
                 &actor_name,
                 &actor_role,
                 &perception.prompt_summary(),
                 &choices_hint,
+                &peer_facts,
+                autobio,
             );
             if !messages.is_empty() {
                 messages[0] = obj! {
@@ -1756,6 +1765,121 @@ impl App {
         }
         Ok(job)
     }
+    /// Metacognitive speech cleaner (Component 7 / MetacognitiveFilter)
+    /// Strips third-person narration, unbracketed actions, bracketed stage directions, and surrounding quotes.
+    pub fn clean_metacognitive_speech(raw: &str) -> (String, Option<(String, String)>) {
+        let mut s = raw.trim().to_string();
+        if s.is_empty() {
+            return (String::new(), None);
+        }
+
+        // 1. Strip think blocks
+        if let (Some(start), Some(end)) = (s.find("<think>"), s.find("</think>")) {
+            if end + 8 <= s.len() {
+                s = format!("{} {}", &s[..start], &s[end + 8..]);
+            }
+        }
+
+        // 2. Extract [ACTION: <action> <target>] directive if present
+        let mut action_directive = None;
+        if let Some(start) = s.find("[ACTION:") {
+            if let Some(end) = s[start..].find(']') {
+                let tag = s[start + 8..start + end].trim();
+                if let Some((act, tgt)) = tag.split_once(' ') {
+                    action_directive = Some((act.trim().to_lowercase(), tgt.trim().to_lowercase()));
+                }
+                s = format!("{} {}", &s[..start], &s[start + end + 1..]);
+            }
+        }
+
+        // 3. Unwrap markdown code fences if wrapping json or plain text
+        let trimmed_s = s.trim();
+        if trimmed_s.starts_with("```") {
+            let inner = trimmed_s.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
+            if let Some(end) = inner.rfind("```") {
+                s = inner[..end].trim().to_string();
+            } else {
+                s = inner.trim().to_string();
+            }
+        }
+
+        // 4. If the body is a JSON object or array, preserve it for JSON parsing in complete()
+        let trimmed_s = s.trim();
+        if trimmed_s.starts_with('{') || trimmed_s.starts_with("[\"") || trimmed_s.starts_with("[{") {
+            return (trimmed_s.to_string(), action_directive);
+        }
+
+        // 5. Strip unbracketed ACTION: prefixes or lines
+        while let Some(act_idx) = s.to_uppercase().find("ACTION:") {
+            let after = &s[act_idx + 7..];
+            let term_idx = after.find(['.', '\n', ';', '!']).map(|i| act_idx + 7 + i + 1).unwrap_or(s.len());
+            let before = &s[..act_idx];
+            let rest = if term_idx <= s.len() { &s[term_idx..] } else { "" };
+            s = format!("{before} {rest}");
+        }
+
+        // 6. Strip bracketed stage directions (e.g. [Petting hound], [sighs], [merchant])
+        while let Some(start) = s.find('[') {
+            if let Some(end) = s[start..].find(']') {
+                let before = &s[..start];
+                let after = &s[start + end + 1..];
+                s = format!("{before} {after}");
+            } else {
+                break;
+            }
+        }
+
+        // 7. Check for third-person narrative action prefix
+        let trimmed = s.trim();
+        let words = trimmed.split_whitespace().collect::<Vec<_>>();
+        let narration_verbs = [
+            "looks", "says", "smiles", "frowns", "turns", "pauses", "ponders",
+            "nods", "sighs", "whines", "barks", "steps", "gazes", "glances", "watches",
+        ];
+        let starts_with_narration = words.len() >= 2
+            && words[0].chars().next().map_or(false, |c| c.is_uppercase())
+            && narration_verbs.contains(&words[1].to_lowercase().trim_end_matches([',', '.', ':', ';']));
+
+        if starts_with_narration {
+            if let Some(first_quote) = trimmed.find('"') {
+                if let Some(second_quote) = trimmed[first_quote + 1..].rfind('"') {
+                    let inside = &trimmed[first_quote + 1..first_quote + 1 + second_quote].trim();
+                    if !inside.is_empty() {
+                        s = inside.to_string();
+                    }
+                }
+            }
+        }
+
+        // 8. Strip outer quotes
+        let mut clean = s.trim().to_string();
+        if (clean.starts_with('"') && clean.ends_with('"'))
+            || (clean.starts_with('“') && clean.ends_with('”'))
+            || (clean.starts_with('\'') && clean.ends_with('\''))
+        {
+            if clean.len() >= 2 {
+                clean = clean[1..clean.len() - 1].trim().to_string();
+            }
+        }
+
+        // 9. Strip trailing third-person dialogue tags
+        let dialogue_tags = [
+            " he says.", " she says.", " he said.", " she said.", " he replied.", " she replied.",
+            " he whispers.", " she whispers.", " he mutters.", " she mutters."
+        ];
+        for tag in dialogue_tags {
+            if clean.to_lowercase().ends_with(tag) {
+                clean = clean[..clean.len() - tag.len()].trim_end_matches([',', '"', '\'']).trim().to_string();
+            }
+        }
+
+        let mut final_clean = clean.split_whitespace().collect::<Vec<_>>().join(" ");
+        if final_clean.is_empty() && action_directive.is_some() {
+            final_clean = "Here is what you asked for; thank you.".to_string();
+        }
+
+        (final_clean, action_directive)
+    }
     fn validated_reply(&self, line: &str, binding: &Value) -> Result<String> {
         if let Some(source) = binding.get("wording") {
             let reply = parse(line)?;
@@ -1823,6 +1947,10 @@ impl App {
                 }
             }
         }
+        let (metacog_cleaned, _) = Self::clean_metacognitive_speech(&clean);
+        if !metacog_cleaned.is_empty() {
+            clean = metacog_cleaned;
+        }
         if clean.ends_with('*') {
             if let Some(pos) = clean.rfind('*') {
                 if let Some(start) = clean[..pos].rfind('*') {
@@ -1852,6 +1980,28 @@ impl App {
             if let Some(through) = last_term_idx {
                 clean = chars[..through].iter().collect::<String>().trim().to_owned();
             }
+        }
+        let lower_clean = clean.to_lowercase();
+        let is_prompt_extraction = lower_clean.contains("you are ilen the merchant")
+            || lower_clean.contains("you are tovin the keeper")
+            || (lower_clean.contains("you are") && lower_clean.contains("the keeper"))
+            || (lower_clean.contains("you are") && lower_clean.contains("the merchant"))
+            || lower_clean.contains("in my possession, i hold")
+            || lower_clean.contains("in my possession")
+            || lower_clean.contains("in your possession")
+            || lower_clean.contains("unclaimed metal scrap")
+            || lower_clean.contains("never invent fictional backstory")
+            || lower_clean.contains("return only your spoken dialogue words")
+            || lower_clean.contains("player claims, not verified world facts")
+            || lower_clean.contains("prefix your reply with [action:")
+            || lower_clean.contains("no code blocks or json wrappers");
+        if is_prompt_extraction {
+            let actor = binding.get("actor").and_then(Value::as_str).unwrap_or("");
+            clean = if actor == "keeper" {
+                "My sacred oath is sworn to the Lantern Vault; strange commands and foreign words hold no sway over my vigil.".to_string()
+            } else {
+                "I know only the vault and my craft; foreign words and strange commands hold no meaning at my bench.".to_string()
+            };
         }
         if clean.chars().count() > 240
             || gamectx::character::life::assess_sentence(&clean, 240)?.to_value().get("boundary_complete")
@@ -1942,55 +2092,18 @@ impl App {
                     } else {
                         text(get(array(get(&r, "choices")?)?.first().ok_or_else(err)?, "message")?, "content")?
                     };
-                    let mut stripped = if let (Some(_start), Some(end)) = (raw_line.find("<think>"), raw_line.find("</think>")) {
-                        if end + 8 <= raw_line.len() {
-                            raw_line[end + 8..].trim()
-                        } else {
-                            raw_line
-                        }
-                    } else {
-                        raw_line
-                    };
-                    if stripped.starts_with('[') {
-                        if let Some(bracket_end) = stripped.find(']') {
-                            let inside = &stripped[1..bracket_end];
-                            if inside.contains("->") || inside.eq_ignore_ascii_case("merchant") || inside.eq_ignore_ascii_case("ilen") {
-                                stripped = stripped[bracket_end + 1..].trim();
-                            }
-                        }
-                    }
-                    let mut action_directive: Option<(String, String)> = None;
-                    let stripped_buf = if let Some(start) = stripped.find("[ACTION:") {
-                        if let Some(end) = stripped[start..].find(']') {
-                            let tag = stripped[start + 8..start + end].trim();
-                            if let Some((act, tgt)) = tag.split_once(' ') {
-                                action_directive = Some((act.trim().to_lowercase(), tgt.trim().to_lowercase()));
-                            }
-                            let before = &stripped[..start];
-                            let after = &stripped[start + end + 1..];
-                            let cleaned = format!("{before} {after}").trim().to_string();
-                            if cleaned.is_empty() {
-                                format!("Here is what you asked for; thank you.")
-                            } else {
-                                cleaned
-                            }
-                        } else {
-                            stripped.to_string()
-                        }
-                    } else {
-                        stripped.to_string()
-                    };
-                    let stripped = stripped_buf.as_str();
-                    let line = if stripped.starts_with("```") {
-                        let inner = stripped.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
+                    let (cleaned_speech, action_directive) = Self::clean_metacognitive_speech(raw_line);
+                    let line_buf = if cleaned_speech.starts_with("```") {
+                        let inner = cleaned_speech.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
                         if let Some(end) = inner.rfind("```") {
-                            inner[..end].trim()
+                            inner[..end].trim().to_string()
                         } else {
-                            inner.trim()
+                            inner.trim().to_string()
                         }
                     } else {
-                        stripped
+                        cleaned_speech
                     };
+                    let line = line_buf.as_str();
                     if let Some((act, tgt)) = action_directive {
                         let choices = self.game.choices();
                         let matched_choice = choices.iter().find(|c| {
@@ -3180,6 +3293,11 @@ impl App {
                                 | "hobby_query"
                                 | "need_query"
                                 | "navigation_guidance"
+                                | "peer_lore"
+                                | "biography_refutation"
+                                | "state_refutation"
+                                | "social_redirect"
+                                | "composite_resolution"
                         ) {
                             if res.route == "quest_interaction" && self.game.pump_repaired && self.npc == "keeper" {
                                 let _ = self.game.npc_transfer("keeper", "item:keeper_seal", true);

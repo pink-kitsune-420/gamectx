@@ -149,6 +149,144 @@ impl Game {
     pub fn owns(&self, id: &str) -> bool {
         self.items.iter().any(|x| x.id == id && x.owner == "player")
     }
+    pub fn player_inventory_items(&self) -> Vec<String> {
+        self.items
+            .iter()
+            .filter(|x| x.owner == "player")
+            .map(|x| x.id.to_string())
+            .collect()
+    }
+    pub fn valuation_catalog() -> gamectx::character::roleplay::ItemValuationCatalog {
+        let mut catalog = gamectx::character::roleplay::ItemValuationCatalog::new();
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:bronze_key".into(),
+            label: "bronze key".into(),
+            base_value: 10,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:oil".into(),
+            label: "hinge oil".into(),
+            base_value: 3,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:chalk".into(),
+            label: "chalk".into(),
+            base_value: 1,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:tonic".into(),
+            label: "tonic".into(),
+            base_value: 9,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:keeper_seal".into(),
+            label: "keeper seal".into(),
+            base_value: 999999,
+            tradable: false,
+            soulbound_quest_token: true,
+            required_milestone: Some("repair the cistern pump with a mended gear".into()),
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:glass_star".into(),
+            label: "glass star".into(),
+            base_value: 999999,
+            tradable: false,
+            soulbound_quest_token: true,
+            required_milestone: Some("defeat the stone sentinel".into()),
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:salve".into(),
+            label: "salve".into(),
+            base_value: 6,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:metal_scrap".into(),
+            label: "metal scrap".into(),
+            base_value: 2,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:herbs".into(),
+            label: "cave herbs".into(),
+            base_value: 2,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:mended_gear".into(),
+            label: "mended gear".into(),
+            base_value: 5,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:torch".into(),
+            label: "makeshift torch".into(),
+            base_value: 4,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog.register(gamectx::character::roleplay::ItemValuation {
+            id: "item:broth".into(),
+            label: "vegetable broth".into(),
+            base_value: 4,
+            tradable: true,
+            soulbound_quest_token: false,
+            required_milestone: None,
+        });
+        catalog
+    }
+    pub fn social_mesh() -> gamectx::character::roleplay::SocialMesh {
+        let mut mesh = gamectx::character::roleplay::SocialMesh::new();
+        mesh.register(gamectx::character::roleplay::PeerEntity {
+            id: "keeper".into(),
+            name: "Tovin".into(),
+            role: "Keeper of the Cistern".into(),
+            location: "cistern to the east".into(),
+            description: "He guards the dry fountain basin and inner sanctuary, maintaining a solemn vigil.".into(),
+            known_possessions: vec!["keeper seal".into()],
+            stance_toward_peer: "Respectful guardian of the deep sanctuary".into(),
+        });
+        mesh.register(gamectx::character::roleplay::PeerEntity {
+            id: "merchant".into(),
+            name: "Ilen".into(),
+            role: "Artisan and Merchant".into(),
+            location: "workshop to the west".into(),
+            description: "He works at his anvil and workbench, crafting tools and trading refined hinge oil, chalk, and tonic.".into(),
+            known_possessions: vec!["hinge oil".into(), "chalk".into(), "tonic".into(), "metal scrap".into()],
+            stance_toward_peer: "Honest and dependable craftsman".into(),
+        });
+        mesh.register(gamectx::character::roleplay::PeerEntity {
+            id: "hound".into(),
+            name: "Hound".into(),
+            role: "Loyal Companion".into(),
+            location: "lantern gallery".into(),
+            description: "A faithful subterranean hound with amber eyes guarding the arches.".into(),
+            known_possessions: vec![],
+            stance_toward_peer: "Beloved and trusted vault companion".into(),
+        });
+        mesh
+    }
     /// Explicit host adapter for optional NPC transfer policies. Player actions are
     /// still revised by `act`; the caller owns the enclosing scene revision/receipt.
     pub fn npc_transfer(&mut self, actor: &str, id: &str, to_player: bool) -> Result<()> {
