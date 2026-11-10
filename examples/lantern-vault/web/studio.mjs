@@ -339,7 +339,7 @@ async function loadState(){
     if(s.speech){
       $('play').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
       $('interrupt').disabled=Boolean(sessionInfo.enabled&&s.speech.player==='player_2');
-      $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated',subjective_model:'Personal reply · validated',authored_social:'Character reply · no LLM',authored_fiction:'Invented tale · no LLM',fiction_model:'Invented tale · model validated',wording_model:'AI character wording · source checked',cached_model:'Cached AI wording · matching situation',scope_model:'AI reply · shorter scope offered'})[s.speech.origin]||'Offline reply';
+      $('reply-origin').textContent=({offline:'Offline reply · no LLM',pending:'Offline reply · model working',authorized_model:'Model selected approved wording',model:'Model reply · validated',subjective_model:'Personal reply · validated',authored_social:'Character reply · no LLM',authored_fiction:'Invented tale · no LLM',fiction_model:'Invented tale · model validated',wording_model:'AI character wording · source checked',cached_model:'Cached AI wording · matching situation',scope_model:'AI reply · shorter scope offered',roleplay_intelligence:'Roleplay intelligence · verified'})[s.speech.origin]||'Offline reply';
       $('speaker').textContent=s.speech.actor+' → '+s.speech.player+(s.speech.segments>1?` · ${s.speech.segment}/${s.speech.segments}`:'');
       if(s.speech.id!==lastSpeech){
         lastSpeech=s.speech.id;

@@ -500,7 +500,11 @@ impl VaultRoleplayEngine {
         // STEP 6.1: Immutable Autobiographical Ground (AutoBioGround)
         // =====================================================================
         let claims_apprentice = lower.contains("apprentice") || lower.contains("apprentice keeper");
-        let claims_family = lower.contains("family") || lower.contains("brother") || lower.contains("brothers") || lower.contains("sister") || lower.contains("surface kin");
+        let claims_family = (lower.contains("family") && lower.contains("surface"))
+            || lower.contains("brother")
+            || lower.contains("brothers")
+            || lower.contains("sister")
+            || lower.contains("surface kin");
         if claims_apprentice {
             let reply = match target_norm {
                 "merchant" => "Your words ring false: I was never an apprentice keeper. My trade has always been anvil, metal, and honest craft at this workbench since the vault was sealed.",

@@ -1762,6 +1762,7 @@ impl App {
             let s = self.speech.as_mut().unwrap();
             s.pending = true;
             s.origin = "pending".into();
+            s.wording_attempted = true;
         }
         Ok(job)
     }
@@ -2003,9 +2004,9 @@ impl App {
                 "I know only the vault and my craft; foreign words and strange commands hold no meaning at my bench.".to_string()
             };
         }
+        let assess = gamectx::character::life::assess_sentence(&clean, 240);
         if clean.chars().count() > 240
-            || gamectx::character::life::assess_sentence(&clean, 240)?.to_value().get("boundary_complete")
-                != Some(&Value::Bool(true))
+            || assess.as_ref().map(|a| a.to_value().get("boundary_complete") != Some(&Value::Bool(true))).unwrap_or(true)
         {
             return Err(err());
         }
@@ -2377,7 +2378,14 @@ impl App {
             if let Some(s) = &mut self.speech {
                 if job.modality == "text" {
                     s.pending = false;
-                    s.origin = if s.fiction { "authored_fiction" } else { "offline" }.into();
+                    s.origin = if s.fiction {
+                        "authored_fiction"
+                    } else if job.binding.get("wording").is_some() {
+                        "authored_social"
+                    } else {
+                        "offline"
+                    }.into();
+                    s.wording_attempted = true;
                 }
                 if job.modality == "tts" {
                     s.audio = Some(obj! {"fallback"=>"browser_web_speech"});
@@ -2701,7 +2709,13 @@ impl App {
         if self
             .speech
             .as_ref()
-            .is_some_and(|s| Some(s.id) != before && !s.pending && !s.wording_attempted && !s.origin.contains("model"))
+            .is_some_and(|s| {
+                Some(s.id) != before
+                    && !s.pending
+                    && !s.wording_attempted
+                    && !s.origin.contains("model")
+                    && s.origin != "roleplay_intelligence"
+            })
             && self.speech_options.value.get("ai_wording") == Some(&Value::Bool(true))
         {
             if let Some(job) = self.word_character_reply()? {
@@ -3304,6 +3318,7 @@ impl App {
                             }
                             self.say(&res.text)?;
                             self.speech.as_mut().unwrap().origin = "roleplay_intelligence".into();
+                            self.speech.as_mut().unwrap().wording_attempted = true;
                             self.notice = format!("Reply verified by roleplay intelligence ({}).", res.route);
                             return Ok((obj! {"addressed"=>true, "direct"=>true, "roleplay_route"=>res.route}, jobs));
                         }
