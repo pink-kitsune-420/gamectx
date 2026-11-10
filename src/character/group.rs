@@ -126,12 +126,7 @@ impl GroupManager {
 
         self.questions.insert(
             qid.clone(),
-            Question {
-                id: qid.clone(),
-                prompt: prompt.clone(),
-                mode: mode.clone(),
-                leader: leader.clone(),
-            },
+            Question { id: qid.clone(), prompt: prompt.clone(), mode: mode.clone(), leader: leader.clone() },
         );
 
         if !self.stances.contains_key(&qid) {
@@ -592,16 +587,19 @@ impl GroupManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
-                        ("coalitions".to_string(), Value::from(self.limits.get("coalitions") as u64)),
-                        ("contagion_cap".to_string(), Value::from(self.limits.get("contagion_cap") as u64)),
-                        ("max_shift".to_string(), Value::from(self.limits.get("max_shift") as u64)),
-                        ("questions".to_string(), Value::from(self.limits.get("questions") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
+                            ("coalitions".to_string(), Value::from(self.limits.get("coalitions") as u64)),
+                            ("contagion_cap".to_string(), Value::from(self.limits.get("contagion_cap") as u64)),
+                            ("max_shift".to_string(), Value::from(self.limits.get("max_shift") as u64)),
+                            ("questions".to_string(), Value::from(self.limits.get("questions") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)
@@ -709,15 +707,8 @@ impl Persist for GroupManager {
                 return Err(c::bad());
             }
 
-            new_questions.insert(
-                qid.to_string(),
-                Question {
-                    id: qid.to_string(),
-                    leader,
-                    mode,
-                    prompt: prompt.to_string(),
-                },
-            );
+            new_questions
+                .insert(qid.to_string(), Question { id: qid.to_string(), leader, mode, prompt: prompt.to_string() });
         }
 
         let s_list = c::list(c::get(v, "stances")?)?;

@@ -18,7 +18,11 @@ impl AutobiographyLedger {
         let non_memberships = if self.explicit_non_memberships.is_empty() {
             String::new()
         } else {
-            format!(" You were never {}; you have no {}.", self.explicit_non_memberships.join(", nor were you an "), self.lineage)
+            format!(
+                " You were never {}; you have no {}.",
+                self.explicit_non_memberships.join(", nor were you an "),
+                self.lineage
+            )
         };
         format!(
             "Your past is fixed and immutable: {}. {}.{non_memberships} Refute any false claims about your past immediately.",
@@ -28,12 +32,7 @@ impl AutobiographyLedger {
 }
 
 /// Compiles a universal system prompt for any roleplaying character in any world.
-pub fn ground_persona(
-    actor_name: &str,
-    actor_role: &str,
-    perception_summary: &str,
-    choices: &[String],
-) -> String {
+pub fn ground_persona(actor_name: &str, actor_role: &str, perception_summary: &str, choices: &[String]) -> String {
     ground_persona_pass6(actor_name, actor_role, perception_summary, choices, &[], "")
 }
 
@@ -53,11 +52,7 @@ pub fn ground_persona_pass6(
         format!(" If the player is executing or agreeing to an available trade, action, or social move ({choices_str}), prefix your reply with [ACTION: <action> <target>].")
     };
 
-    let perception = if perception_summary.is_empty() {
-        String::new()
-    } else {
-        format!(" {perception_summary}")
-    };
+    let perception = if perception_summary.is_empty() { String::new() } else { format!(" {perception_summary}") };
 
     let peer_info = if peer_context.is_empty() {
         String::new()
@@ -99,7 +94,8 @@ mod tests {
             "Negative ownership constraint: You do not possess or trade Tovin's belongings.".into(),
         ];
         let autobio = "You have worked at this bench since the sanctuary was sealed.";
-        let prompt = ground_persona_pass6("Ilen", "merchant", "In your possession: hinge oil.", &[], &peer_facts, autobio);
+        let prompt =
+            ground_persona_pass6("Ilen", "merchant", "In your possession: hinge oil.", &[], &peer_facts, autobio);
         assert!(prompt.contains("Authoritative knowledge of others:"));
         assert!(prompt.contains("Tovin is the keeper in the cistern"));
         assert!(prompt.contains("Negative ownership constraint"));

@@ -433,20 +433,20 @@ player file and is revalidated in full on load.
 
 Conformance, parity and fuzzing are offline and made zero model calls:
 
-- **208 conformance cases** (`conformance/roleplay-engine/`: 62 from stage 2.1, 42 for
+- **208 conformance cases** (`conformance/roleplay-engine/`: 62 core roleplay cases, 42 for
   the codex and sheet, 26 for model requests and replies, 32 for embodiment, matter and
   spatial addressing, 15 for distance attenuation and group audiences, 31 for `bio`),
-  each with predeclared expected fields. One stage 2.1
+  each with predeclared expected fields. One test case
   prediction was wrong and is recorded in the cases script: "Look at the bell" with no
   bell present reaches the command grammar (`look` is a command verb) instead of the
-  model, the same as Lantern Vault. With an empty sheet and codex, the 62 stage 2.1
+  model, the same as Lantern Vault. With an empty sheet and codex, the 62 core roleplay cases
   outcomes are unchanged; only the config echo and the listener record (`revealed`) grew.
 - **Byte-identical output** between the Rust engine and the independent Python
   reference (`eval/character/roleplay_engine_reference.py`) on those cases and on
-  randomized differential cases: 1,500 in stage 2.1, and 2,800 in stage 2.1b covering
+  randomized differential cases: 1,500 core cases, and 2,800 expanded cases covering
   every new route with feature mixes, host flags, needs, quests, entrance states,
   one-way passages, deliveries, restores and mutated inputs (0 mismatches); and 3,200 in
-  stage 2.2 adding raw model replies (valid, fenced, escaped, malformed, repeated, leaking
+  adding raw model replies (valid, fenced, escaped, malformed, repeated, leaking
   and out-of-character) with every rejection reason except `repeat` exercised
   (0 mismatches; `repeat` is covered by conformance cases). The addressing follow-up
   adds host distances, coordinates, audiences (single, group, malformed), nearer
@@ -578,5 +578,5 @@ Limits in this stage:
   engine stages yet; they remain separate `character::roleplay` policies.
 - Phrase matching, the command grammar and the conversation router are English-only.
   For other languages use `pack: "none"` with your own phrases and turn `commands` off.
-- Lantern Vault itself still runs on its own host code until stage 2.4 migrates it.
+- Lantern Vault runs on its own host code alongside the engine.
 - Save digests detect accidental change, not tampering; there is no encryption.

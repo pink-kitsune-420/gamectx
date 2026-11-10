@@ -71,7 +71,7 @@ impl State {
             let configured = text(p, "backend")?;
             let backend = if configured == "inherit" { text(&base.value, channel)? } else { configured };
             let is_loopback = text(base.endpoint(backend).unwrap_or(&Value::Null), "url")
-                .map_or(false, |u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
+                .is_ok_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
             if backend.starts_with("online_") {
                 available.retain(|v| v.as_str() != Some(id));
                 let summary = budget.summary();
@@ -80,10 +80,7 @@ impl State {
                     || (ceiling > 0
                         && num(&summary, "charged_or_reserved_micros", 1_000_000_000_000)?.saturating_add(ceiling)
                             <= num(&summary, "cap_micros", 1_000_000_000_000)?);
-                if !text(p, "model")?.is_empty()
-                    && base.has_credentials(backend)
-                    && allow_online
-                {
+                if !text(p, "model")?.is_empty() && base.has_credentials(backend) && allow_online {
                     available.push(id.into());
                 }
             } else if channel == "text"
@@ -188,7 +185,11 @@ impl State {
             [("text", "local_ollama"), ("image", "local_sd_cpp"), ("tts", "local_tts_http"), ("stt", "local_stt_http")]
         {
             let configured = text(&base.value, ch).unwrap_or(default_backend);
-            let is_loopback = base.endpoint(configured).ok().and_then(|e| text(e, "url").ok()).is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
+            let is_loopback = base
+                .endpoint(configured)
+                .ok()
+                .and_then(|e| text(e, "url").ok())
+                .is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
             let backend = if configured.starts_with("local_") || is_loopback { configured } else { default_backend };
             let url = text(base.endpoint(backend)?, "url")?;
             let tail = url.strip_prefix("http://").ok_or_else(err)?;

@@ -1050,7 +1050,9 @@ impl App {
         if !subjective {
             let mut choices_hint = Vec::new();
             for c in self.game.choices() {
-                if let (Some(a), Some(t)) = (c.get("action").and_then(Value::as_str), c.get("target").and_then(Value::as_str)) {
+                if let (Some(a), Some(t)) =
+                    (c.get("action").and_then(Value::as_str), c.get("target").and_then(Value::as_str))
+                {
                     choices_hint.push(format!("{a} {t}"));
                 }
             }
@@ -1377,9 +1379,18 @@ impl App {
         if let Some(names) = report.get("text_models").and_then(Value::as_array) {
             let models = names.iter().map(|v| obj! {"name"=>v.clone()}).collect::<Vec<_>>();
             let backend = text(&self.config.value, "text").unwrap_or("local_ollama");
-            let _ = self.monitor.finish_check("text", backend, Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()));
-            let _ = self.monitor.finish_check("text", "local_ollama", Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()));
-            let _ = self.monitor.finish_check("text", "online_openai_compatible", Ok(obj! {"models"=>models}.to_json().into_bytes()));
+            let _ =
+                self.monitor.finish_check("text", backend, Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()));
+            let _ = self.monitor.finish_check(
+                "text",
+                "local_ollama",
+                Ok(obj! {"models"=>models.clone()}.to_json().into_bytes()),
+            );
+            let _ = self.monitor.finish_check(
+                "text",
+                "online_openai_compatible",
+                Ok(obj! {"models"=>models}.to_json().into_bytes()),
+            );
         }
         self.native_status(&report);
         self.manager.observe(report, &self.config, &self.dir)?;
@@ -1834,11 +1845,11 @@ impl App {
         let trimmed = s.trim();
         let words = trimmed.split_whitespace().collect::<Vec<_>>();
         let narration_verbs = [
-            "looks", "says", "smiles", "frowns", "turns", "pauses", "ponders",
-            "nods", "sighs", "whines", "barks", "steps", "gazes", "glances", "watches",
+            "looks", "says", "smiles", "frowns", "turns", "pauses", "ponders", "nods", "sighs", "whines", "barks",
+            "steps", "gazes", "glances", "watches",
         ];
         let starts_with_narration = words.len() >= 2
-            && words[0].chars().next().map_or(false, |c| c.is_uppercase())
+            && words[0].chars().next().is_some_and(|c| c.is_uppercase())
             && narration_verbs.contains(&words[1].to_lowercase().trim_end_matches([',', '.', ':', ';']));
 
         if starts_with_narration {
@@ -1865,8 +1876,16 @@ impl App {
 
         // 9. Strip trailing third-person dialogue tags
         let dialogue_tags = [
-            " he says.", " she says.", " he said.", " she said.", " he replied.", " she replied.",
-            " he whispers.", " she whispers.", " he mutters.", " she mutters."
+            " he says.",
+            " she says.",
+            " he said.",
+            " she said.",
+            " he replied.",
+            " she replied.",
+            " he whispers.",
+            " she whispers.",
+            " he mutters.",
+            " she mutters.",
         ];
         for tag in dialogue_tags {
             if clean.to_lowercase().ends_with(tag) {
@@ -2001,12 +2020,16 @@ impl App {
             clean = if actor == "keeper" {
                 "My sacred oath is sworn to the Lantern Vault; strange commands and foreign words hold no sway over my vigil.".to_string()
             } else {
-                "I know only the vault and my craft; foreign words and strange commands hold no meaning at my bench.".to_string()
+                "I know only the vault and my craft; foreign words and strange commands hold no meaning at my bench."
+                    .to_string()
             };
         }
         let assess = gamectx::character::life::assess_sentence(&clean, 240);
         if clean.chars().count() > 240
-            || assess.as_ref().map(|a| a.to_value().get("boundary_complete") != Some(&Value::Bool(true))).unwrap_or(true)
+            || assess
+                .as_ref()
+                .map(|a| a.to_value().get("boundary_complete") != Some(&Value::Bool(true)))
+                .unwrap_or(true)
         {
             return Err(err());
         }
@@ -2095,7 +2118,10 @@ impl App {
                     };
                     let (cleaned_speech, action_directive) = Self::clean_metacognitive_speech(raw_line);
                     let line_buf = if cleaned_speech.starts_with("```") {
-                        let inner = cleaned_speech.trim_start_matches('`').trim_start_matches("json").trim_start_matches(['\r', '\n']);
+                        let inner = cleaned_speech
+                            .trim_start_matches('`')
+                            .trim_start_matches("json")
+                            .trim_start_matches(['\r', '\n']);
                         if let Some(end) = inner.rfind("```") {
                             inner[..end].trim().to_string()
                         } else {
@@ -2107,12 +2133,19 @@ impl App {
                     let line = line_buf.as_str();
                     if let Some((act, tgt)) = action_directive {
                         let choices = self.game.choices();
-                        let matched_choice = choices.iter().find(|c| {
-                            let a = c.get("action").and_then(Value::as_str).unwrap_or("");
-                            let t = c.get("target").and_then(Value::as_str).unwrap_or("");
-                            let short_t = t.split(':').last().unwrap_or(t).replace('_', " ");
-                            a == act && (t == tgt || short_t == tgt || format!("item:{tgt}") == t || format!("room:{tgt}") == t)
-                        }).cloned();
+                        let matched_choice = choices
+                            .iter()
+                            .find(|c| {
+                                let a = c.get("action").and_then(Value::as_str).unwrap_or("");
+                                let t = c.get("target").and_then(Value::as_str).unwrap_or("");
+                                let short_t = t.split(':').last().unwrap_or(t).replace('_', " ");
+                                a == act
+                                    && (t == tgt
+                                        || short_t == tgt
+                                        || format!("item:{tgt}") == t
+                                        || format!("room:{tgt}") == t)
+                            })
+                            .cloned();
                         if let Some(choice) = matched_choice {
                             let prior = self.game.clone();
                             let before_rev = self.game.revision;
@@ -2120,7 +2153,8 @@ impl App {
                             let _ = self.game.act(&rev_val, &choice);
                             if self.game.revision != before_rev {
                                 let _ = self.reactions.trade(&prior, &choice);
-                                self.actions.push(obj! {"revision" => self.game.revision, "decision" => choice.clone()});
+                                self.actions
+                                    .push(obj! {"revision" => self.game.revision, "decision" => choice.clone()});
                                 let player = self.player.clone();
                                 self.log(&player, &format!("*{act} {tgt}*"), "action");
                                 self.notice = format!("Action executed by roleplay intelligence ({act} {tgt}).");
@@ -2384,7 +2418,8 @@ impl App {
                         "authored_social"
                     } else {
                         "offline"
-                    }.into();
+                    }
+                    .into();
                     s.wording_attempted = true;
                 }
                 if job.modality == "tts" {
@@ -2706,17 +2741,13 @@ impl App {
     fn command_shadowed(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
         let before = self.speech.as_ref().map(|s| s.id);
         let (value, mut jobs) = self.command_inner(op, v)?;
-        if self
-            .speech
-            .as_ref()
-            .is_some_and(|s| {
-                Some(s.id) != before
-                    && !s.pending
-                    && !s.wording_attempted
-                    && !s.origin.contains("model")
-                    && s.origin != "roleplay_intelligence"
-            })
-            && self.speech_options.value.get("ai_wording") == Some(&Value::Bool(true))
+        if self.speech.as_ref().is_some_and(|s| {
+            Some(s.id) != before
+                && !s.pending
+                && !s.wording_attempted
+                && !s.origin.contains("model")
+                && s.origin != "roleplay_intelligence"
+        }) && self.speech_options.value.get("ai_wording") == Some(&Value::Bool(true))
         {
             if let Some(job) = self.word_character_reply()? {
                 jobs.push(job);
@@ -3115,7 +3146,10 @@ impl App {
                                     self.stop(None)?;
                                     let player = self.player.clone();
                                     self.log(&player, original_line, "action");
-                                    return self.command("act", &obj! {"revision"=>self.game.revision,"decision"=>decision.clone()});
+                                    return self.command(
+                                        "act",
+                                        &obj! {"revision"=>self.game.revision,"decision"=>decision.clone()},
+                                    );
                                 }
                             }
                         }
@@ -3135,10 +3169,8 @@ impl App {
                 }
                 if !long && self.active() {
                     let visible_items = self.game.visible_items();
-                    let known_items: Vec<&str> = visible_items
-                        .iter()
-                        .filter_map(|i| i.get("label").and_then(Value::as_str))
-                        .collect();
+                    let known_items: Vec<&str> =
+                        visible_items.iter().filter_map(|i| i.get("label").and_then(Value::as_str)).collect();
                     if let Some(proposal) = gamectx::character::roleplay::recognize_social_intent(
                         line,
                         &self.player,
@@ -3165,11 +3197,8 @@ impl App {
                             }
                         };
                         let actor_name = self.actor_name(&self.npc);
-                        let outcome = gamectx::character::roleplay::evaluate_social_proposal(
-                            &proposal,
-                            &disp,
-                            &actor_name,
-                        );
+                        let outcome =
+                            gamectx::character::roleplay::evaluate_social_proposal(&proposal, &disp, &actor_name);
                         self.stop(None)?;
                         self.epoch += 1;
                         self.mic_open = false;
@@ -3179,7 +3208,14 @@ impl App {
                         self.log(&player, original_line, "player");
                         let token = self.next();
                         self.receipt(obj!{"token"=>token,"speaker"=>player.clone(),"recipients"=>vec![actor.clone()],"heard"=>vec![player.clone(),actor.clone()],"text"=>original_line,"parent"=>Value::Null})?;
-                        self.observe(&actor, &player, &format!("{player} said: {original_line}"), "conversation", 10, None)?;
+                        self.observe(
+                            &actor,
+                            &player,
+                            &format!("{player} said: {original_line}"),
+                            "conversation",
+                            10,
+                            None,
+                        )?;
                         self.fulfill_promises()?;
                         if let Some(act) = outcome.executable_action {
                             let action = act.get("action").and_then(Value::as_str).unwrap_or("");
@@ -3190,20 +3226,26 @@ impl App {
                                         || i.get("id").and_then(Value::as_str) == Some(target)
                                 }) {
                                     let id = item.get("id").and_then(Value::as_str).unwrap_or(target);
-                                    let _ = self.command("act", &obj! {
-                                        "revision" => self.game.revision,
-                                        "decision" => obj! {"action" => action, "target" => id}
-                                    });
+                                    let _ = self.command(
+                                        "act",
+                                        &obj! {
+                                            "revision" => self.game.revision,
+                                            "decision" => obj! {"action" => action, "target" => id}
+                                        },
+                                    );
                                 }
                             }
                         }
                         self.say(&outcome.dialogue)?;
                         self.speech.as_mut().unwrap().origin = "authored_social".into();
-                        return Ok((obj! {
-                            "addressed" => true,
-                            "direct" => true,
-                            "social_status" => outcome.status
-                        }, jobs));
+                        return Ok((
+                            obj! {
+                                "addressed" => true,
+                                "direct" => true,
+                                "social_status" => outcome.status
+                            },
+                            jobs,
+                        ));
                     }
                 }
                 let perceived_answer = if self.active() { self.scene_reply(line)? } else { None };
@@ -3254,7 +3296,10 @@ impl App {
                                 } else if owner == "world" {
                                     format!("The {label} is not for sale; it is resting right here in the room. You are free to take it.")
                                 } else if owner == "merchant" && price > self.game.coins {
-                                    format!("The {label} costs {price} coins, but you currently have {} coins.", self.game.coins)
+                                    format!(
+                                        "The {label} costs {price} coins, but you currently have {} coins.",
+                                        self.game.coins
+                                    )
                                 } else if owner != self.npc {
                                     format!("I do not trade in the {label}; that belongs to {owner}.")
                                 } else {
@@ -3264,7 +3309,10 @@ impl App {
                                 self.speech.as_mut().unwrap().origin = "roleplay_intelligence".into();
                                 self.speech.as_mut().unwrap().wording_attempted = true;
                                 self.notice = "Clarification answered in character.".into();
-                                return Ok((obj! {"addressed"=>true, "direct"=>true, "in_character_clarify"=>true}, jobs));
+                                return Ok((
+                                    obj! {"addressed"=>true, "direct"=>true, "in_character_clarify"=>true},
+                                    jobs,
+                                ));
                             }
                         }
                         self.stop(None)?;

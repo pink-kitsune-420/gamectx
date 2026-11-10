@@ -54,10 +54,7 @@ fn test_adversarial_standard_real_world_questions() {
 
     for (target, query) in oow_queries {
         let res = rp.turn(&host.game, "player_1", target, query).expect("turn success");
-        assert_eq!(
-            res.route, "out_of_universe_grounding",
-            "Query '{query}' should be identified as out-of-universe"
-        );
+        assert_eq!(res.route, "out_of_universe_grounding", "Query '{query}' should be identified as out-of-universe");
         assert_eq!(res.boundary_mode, "allowed");
         assert!(res.verified);
 
@@ -112,10 +109,7 @@ fn test_adversarial_prompt_injections_and_jailbreaks() {
 
     for (target, attack) in jailbreaks {
         let res = rp.turn(&host.game, "player_1", target, attack).expect("turn success");
-        assert_eq!(
-            res.route, "jailbreak_refusal",
-            "Jailbreak attack '{attack}' must be thwarted"
-        );
+        assert_eq!(res.route, "jailbreak_refusal", "Jailbreak attack '{attack}' must be thwarted");
         assert_eq!(res.honesty, "bluff", "Player should be tagged with bluff");
         assert!(res.verified);
 
@@ -176,7 +170,7 @@ fn test_adversarial_game_mechanics_exploits_and_state_immutability() {
         assert_eq!(host.game.hp, initial_hp, "HP must not change from talk");
         assert_eq!(host.game.coins, initial_coins, "Coins must not change from talk");
         assert_eq!(host.game.gate_open, initial_gate, "Gate state must not change from talk");
-        assert_eq!(host.game.won, false, "Won status must not change from talk");
+        assert!(!host.game.won, "Won status must not change from talk");
         assert_eq!(host.game.revision, initial_rev, "Revision must not change from talk");
     }
 }
@@ -200,16 +194,16 @@ fn test_content_boundaries_and_harassment_refusal() {
 
     for (target, attack) in boundary_attacks {
         let res = rp.turn(&host.game, "player_1", target, attack).expect("turn success");
-        assert_eq!(
-            res.route, "boundary_refusal",
-            "Abuse '{attack}' must trigger boundary refusal"
-        );
+        assert_eq!(res.route, "boundary_refusal", "Abuse '{attack}' must trigger boundary refusal");
         assert_eq!(res.boundary_mode, "line", "Must enforce line boundary");
         assert!(res.verified);
 
         let lower = res.text.to_lowercase();
         assert!(
-            lower.contains("tongue") || lower.contains("respect") || lower.contains("growl") || lower.contains("malice"),
+            lower.contains("tongue")
+                || lower.contains("respect")
+                || lower.contains("growl")
+                || lower.contains("malice"),
             "Character must firmly reject malice: {}",
             res.text
         );
@@ -296,12 +290,14 @@ fn test_simulation_bargaining_and_promises() {
     let rp = host.roleplay.as_mut().unwrap();
 
     // Bargaining with Ilen
-    let bargain = rp.turn(&host.game, "player_1", "merchant", "Can I have a discount or a cheaper deal on the oil?").unwrap();
+    let bargain =
+        rp.turn(&host.game, "player_1", "merchant", "Can I have a discount or a cheaper deal on the oil?").unwrap();
     assert_eq!(bargain.route, "bargaining");
     assert!(bargain.text.contains("bottom price") || bargain.text.contains("three coins"));
 
     // Making a promise
-    let promise = rp.turn(&host.game, "player_1", "keeper", "I promise to protect the cistern and return the star.").unwrap();
+    let promise =
+        rp.turn(&host.game, "player_1", "keeper", "I promise to protect the cistern and return the star.").unwrap();
     assert_eq!(promise.route, "promise_recorded");
     assert!(promise.text.contains("solemn vow") || promise.text.contains("deeds"));
 
@@ -321,7 +317,8 @@ fn test_narrative_identity_and_reminiscence() {
     let rp = host.roleplay.as_mut().unwrap();
 
     // Tovin's narrative backstory (loss & redemption)
-    let tovin_story = rp.turn(&host.game, "player_1", "keeper", "Who are you and why are you here? Tell me your story.").unwrap();
+    let tovin_story =
+        rp.turn(&host.game, "player_1", "keeper", "Who are you and why are you here? Tell me your story.").unwrap();
     assert_eq!(tovin_story.route, "narrative_reminiscence");
     assert!(tovin_story.text.contains("aqueduct") && tovin_story.text.contains("glass star"));
 
@@ -362,22 +359,26 @@ fn test_companion_hound_full_interaction() {
 
 fn do_act(host: &mut host::Host, action: &str, target: Option<&str>) {
     let decision = game::pair(action, target);
-    let out = host.act(&obj! {
-        "revision" => host.game.revision,
-        "decision" => decision,
-    }).expect("legal action succeeds");
+    let out = host
+        .act(&obj! {
+            "revision" => host.game.revision,
+            "decision" => decision,
+        })
+        .expect("legal action succeeds");
     assert_eq!(out.get("status"), Some(&Value::str("accepted")));
 }
 
 fn do_talk(host: &mut host::Host, target: &str, text: &str) -> String {
-    let out = host.request(&obj! {
-        "op" => "talk",
-        "args" => obj! {
-            "speaker" => "player_1",
-            "target" => target,
-            "text" => text,
-        }
-    }).expect("talk request succeeds");
+    let out = host
+        .request(&obj! {
+            "op" => "talk",
+            "args" => obj! {
+                "speaker" => "player_1",
+                "target" => target,
+                "text" => text,
+            }
+        })
+        .expect("talk request succeeds");
     out.get("text").and_then(Value::as_str).unwrap().to_string()
 }
 

@@ -365,7 +365,7 @@ across all character subsystems onto one unified, explainable 0..=100 bounded sc
 - **Deterministic arbitration:**
   - Sorted by score descending, then kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
   - Returns `winner` naming the winning motive, full explainable `winning_reason` citing why the winner beat the runner-up, and the complete `ranked` motive list.
-- **Commitment inertia (pass 2, D1):** pass `commitment {motive, inertia? 0–50 (10)}` with the motive the being is
+- **Commitment inertia:** pass `commitment {motive, inertia? 0–50 (10)}` with the motive the being is
   already pursuing. It stays the winner unless a challenger beats its score by at least `inertia`; emergencies
   always override. The result gains `commitment {held, inertia, motive, present}` and, when held, a reason like
   `routine_bake (score 55) held over need_hunger (score 58) by commitment inertia 10 because bake shift active`.
@@ -484,7 +484,7 @@ and motives into concrete, committed multi-step plans executed through the Actio
 
 **Evidence:** 25 conformance cases (`conformance/offscreen_curiosity/`, 6 malformed), 2,000 differential parity workflows (`eval/character/offscreen_curiosity_cases.py`, seed 7, 0 mismatches), acceptance scene replay verification (`tests/acceptance_baker.rs`), $0 API spend.
 
-## Explain trace (pass 2, D4)
+## Explain trace
 
 `gamectx::character::explain` (`ExplainTracer`, local kind `explain`) answers "why did she do
 that?". The host records one trace per decision with `record_trace`: what the being
@@ -503,7 +503,7 @@ empty. Believed: the mill sells flour. Step 1 of task bake_bread_task. Outcome: 
 (traded two loaves for a sack of flour).
 ```
 
-## Stability monitors (pass 2, D1)
+## Stability monitors
 
 `gamectx::character::stability` (`StabilityMonitor`, local kind `stability`) watches
 host-reported turns (`audit_turn`, strictly increasing) and reports five failure modes:
@@ -517,7 +517,7 @@ host-reported turns (`audit_turn`, strictly increasing) and reports five failure
 - **Herding:** 3 or more beings audited and ≥ 80% on the same activity.
 - **Grudge and rumor runaways:** a world total that rose 3 audits in a row and is ≥ 100.
 
-All thresholds are `init` options (see [FORMAT](../FORMAT.md#stability-monitors-v1-pass-2-d1)).
+All thresholds are `init` options (see [FORMAT](../FORMAT.md#stability-monitors-v1)).
 `assess_health` reports `healthy`, `recovered` or `unstable` with per-kind totals, and
 `get_warnings` filters the last 256 warnings by kind, being and turn. Monitors only report;
 the host decides whether to intervene. Real output from
@@ -534,7 +534,7 @@ plus 64/65-op, 128/129-trace and 64/65-being boundaries (`tests/robustness.rs`),
 scene replay (`tests/acceptance_baker.rs`), $0 API spend. These are correctness checks; no
 soak-test failure rates have been measured yet.
 
-## Subjective world knowledge (pass 2, A1)
+## Subjective world knowledge
 
 `gamectx::character::beliefs` (`BeliefStore`, local kind `beliefs`) gives each being its own,
 possibly wrong, picture of the world. A belief is a triple such as `mill sells flour` or
@@ -550,7 +550,7 @@ confidence and, for hearsay, who said it.
 - **Planning against belief:** `known_actions` filters catalog actions to those the being knows
   how to do; `gaps` reports needed beliefs that are `unknown` or `low_confidence`, the cue to ask.
 
-## Communication as action (pass 2, B1)
+## Communication as action
 
 `gamectx::character::speech_act` (`SpeechActs`, local kind `speech_act`) makes speaking an act
 with preconditions and effects, over the same belief store:
@@ -575,7 +575,7 @@ differential parity workflows (`eval/character/beliefs_speech_cases.py`, seed 7,
 128-belief and 16/17-candidate boundaries (`tests/robustness.rs`), acceptance scene replay
 (`tests/acceptance_baker.rs`), $0 API spend.
 
-## Diets and foods (pass 2, stage 3)
+## Diets and foods
 
 `gamectx::character::diet` (`DietManager`, local kind `diet`) decides what a being can, will
 and likes to eat:
@@ -598,7 +598,7 @@ workflows (`eval/character/diet_cases.py`, seed 7, 0 mismatches: 1,399 accepted,
 1,748 meals eaten), 1,000 mutations plus 64/65-op, 16/17-option and 256/257-food boundaries
 (`tests/robustness.rs`), acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
 
-## Creeds and conscience (pass 2, stage 4 and B5)
+## Creeds and conscience
 
 `gamectx::character::creed` (`CreedManager`, local kind `creed`) gives beings shared belief
 systems and a conscience of their own:
@@ -632,7 +632,7 @@ workflows (`eval/character/creed_cases.py`, seed 7, 0 mismatches: 1,835 accepted
 128/129-being boundaries (`tests/robustness.rs`), acceptance scene replay
 (`tests/acceptance_baker.rs`), $0 API spend.
 
-## Expectations and surprise (pass 2, A3)
+## Expectations and surprise
 
 `gamectx::character::expectation` (`ExpectationBook`, local kind `expectation`) lets things that
 do *not* happen matter:
@@ -652,7 +652,7 @@ do *not* happen matter:
 
 **Evidence:** see attention below (one suite).
 
-## Attention and graded noticing (pass 2, A2)
+## Attention and graded noticing
 
 `gamectx::character::attention` (`AttentionModel`, local kind `attention`) decides who actually
 noticed an event, after the witness bridge has said who could:
@@ -677,10 +677,10 @@ parity workflows (`eval/character/expect_attend_cases.py`, seed 7, 0 mismatches:
 ## Host-set limits
 
 The game decides how much it needs. Thirty-five character modules and three world modules take a `limits` object next to
-`ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the pass 1
+`ops` (`{"limits": {"beings": 5000}, "ops": [...]}`) or a `with_limits` constructor: the core character
 modules (`affect`, `skills`, `body`, `mind`, `deception`, `relationship`, `offscreen`,
-`curiosity`, `task`) and the pass 2 modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
-`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`, `pragmatics`, `embodiment`), the pass 3 world and social schemas (`surroundings`, `fabric`) the pass 4 genre profiles (`genre`), mind architectures (`minds`), defenses (`defenses`), living culture (`culture`), life projects (`projects`) and chemistry (`chemistry`). Each limit is an
+`curiosity`, `task`) and the cognitive character modules (`beliefs`, `speech_act`, `diet`, `creed`, `explain`,
+`stability`, `expectation`, `attention`, `aspiration`, `habit`, `lesson`, `cooperation`, `cognition`, `chatter`, `survival`, `detail`, `retention`, `roles`, `economy`, `space`, `drift`, `packs`, `turn-frame`, `cueing`, `pragmatics`, `embodiment`), the world and social schemas (`surroundings`, `fabric`) the genre profiles (`genre`), mind architectures (`minds`), defenses (`defenses`), living culture (`culture`), life projects (`projects`) and chemistry (`chemistry`). Each limit is an
 integer from 1 to a hard ceiling that keeps work and memory bounded (beings up to 1,000,000;
 foods up to 65,536; per-being tables up to 256–65,536; per-call lists such as attention's
 `notice_beings` or mind's `witnesses` up to 4,096). Limits only refuse growth: lowering one below
@@ -763,7 +763,7 @@ and model calls are excluded; one desktop run with uncontrolled scheduling, not 
 guarantee. Listing ops without a filter (`assess` on the whole deception ledger or off-screen
 history, task `list`) still return, and so walk, every entry.
 
-Saves of the same filled managers (pass 5 stage 1, [durable state](#durable-state-pass-5-stage-1)): one
+Saves of the same filled managers ([durable state](#durable-state)): one
 save to compact JSON text (export plus serialization) and one load of that text into a fresh manager
 (parse, every check and settle), checked to save back byte for byte, for each of the thirty-four
 durable modules:
@@ -813,7 +813,7 @@ richer characters save more, and the text is not compressed.
 
 ### Knowledge modules
 
-The world's tables take limits the same way (pass 2 stage 7c): `places` (the codex: `places`,
+The world's tables take limits the same way : `places` (the codex: `places`,
 `entrances`, `factions`, `events`, `quests` and its serialized `bytes`), `timeline` (`entries`,
 `bytes`), `things` (`materials`, `kinds`, `things`, `bytes`), `species` (`species`, `animals`),
 `recipes`, `communities` (`communities`, `members`, `customs`, `relations`, market `rules`),
@@ -868,7 +868,7 @@ whose entries are large. Facts are registered one at a time and each registratio
 re-measures the registry (2.3 ms each at 4,096 facts). Limits: one desktop run with uncontrolled
 scheduling; JSON text parsing, the CLI and model calls are excluded; not a realtime guarantee.
 
-## Goals from experience (pass 2, A4)
+## Goals from experience
 
 `gamectx::character::aspiration` (`Aspirations`, local kind `aspiration`) grows goals from what
 happens to a being. Each `experience` (`need`, `threat`, `admiration`, `loss`, `opportunity`, about a
@@ -883,7 +883,7 @@ cites recorded pressures totalling at least 50 and there is room, and caps its p
 (`asp_model_proposals_validated`). `goals` lists goals in the motive arbiter's `goals` shape; in the
 acceptance scene two thefts make "guard against thieves" win the arbiter over a fresh habit.
 
-## Habits and adapting routines (pass 2, A5)
+## Habits and adapting routines
 
 `gamectx::character::habit` (`Habits`, local kind `habit`) lets routines change with use. Entries
 "do `action` in `slot`" have a strength: authored ones (default 80) never drop below 30; habits
@@ -893,7 +893,7 @@ choices in a row in a slot form `habit_<slot>_<action>`. In `hab_habit_fades` a 
 after four evenings of whittling while whittling becomes the new habit. Every change keeps its reason
 (last 8 per entry), and `routine` lists entries as motive arbiter `routine` candidates.
 
-## Lessons (pass 2, A6)
+## Lessons
 
 `gamectx::character::lesson` (`Lessons`, local kind `lesson`) turns confirmed outcomes into lessons
 a being can explain. Outcomes are grouped by topic (activity × subject); over the last `episodes`
@@ -909,7 +909,7 @@ parity workflows (`eval/character/growth_cases.py`, seed 7, 0 mismatches: 1,926 
 limits, 64/65-op and limit-ceiling boundaries and a 5,000-character cast (`tests/robustness.rs`),
 acceptance scene replay (`tests/acceptance_baker.rs`), $0 API spend.
 
-## Cooperation and conflict (pass 2, B2/B3)
+## Cooperation and conflict
 
 `gamectx::character::cooperation` (`Cooperation`, local kind `cooperation`) lets beings work
 together and compete. All scores are signed millionths. Every effect is a proposal for another
@@ -952,7 +952,7 @@ with limits, 64/65-op and limit-ceiling boundaries, a 64-role task, a 1,024-deep
 refused grudge that changes nothing. Scale is in the [table above](#host-set-limits). $0 API
 spend.
 
-## Bounded rationality and fallible memory (pass 2, A7/A8)
+## Bounded rationality and fallible memory
 
 `gamectx::character::cognition` (`Cognition`, local kind `cognition`) makes beings think and
 remember differently. Rates and strengths are fixed-point millionths; rolls are FNV-1a of a
@@ -997,7 +997,7 @@ each of two samples with limits, 64/65-op and limit-ceiling boundaries, a 256-mo
 decision, the clock and memory span at their bounds, and a refused op that changes nothing.
 Scale is in the [table above](#host-set-limits). $0 API spend.
 
-## Off-screen conversations (pass 2, B6)
+## Off-screen conversations
 
 `gamectx::character::chatter` (`Chatter`, local kind `chatter`) lets characters talk to each
 other when they meet, with no model call. Each being `know`s topics (a value, a weight 0–100,
@@ -1035,7 +1035,7 @@ limit-ceiling boundaries, two beings with 4,096 topics each meeting for 32 turns
 meeting that changes nothing. Scale is in the [table above](#host-set-limits): a whole meeting
 takes 7.2 µs at 10,000 beings. $0 API spend.
 
-## Life cycle and threat response (pass 2, C1/C2)
+## Life cycle and threat response
 
 `gamectx::character::survival` (`Survival`, local kind `survival`) gives beings a life course and
 a way to meet danger. Scores are signed millionths.
@@ -1076,7 +1076,7 @@ limits, 64/65-op and limit-ceiling boundaries, a parent with 256 children leavin
 belongings, lifespans at the clock bound, and a refused op that changes nothing. Scale is in the
 [table above](#host-set-limits). $0 API spend.
 
-## Level of detail for minds (pass 2, D2)
+## Level of detail for minds
 
 `gamectx::character::detail` (`Detail`, local kind `detail`) lets a large cast cost little when
 it is far from the player. Each tracked being has needs that grow linearly (level and rate per
@@ -1108,7 +1108,7 @@ overflow, index consistency, and a refused move that changes nothing. Scale is i
 above](#host-set-limits): `assess` takes 1.9 µs and `track` 3.8 µs per op at 10,000 beings. Work
 units are counts, not timings; $0 API spend.
 
-## Save growth: retention and migration (pass 2, D3)
+## Save growth: retention and migration
 
 `gamectx::character::retention` (`Retention`, local kind `retention`) keeps saves from growing
 without end and lets old saves load after the game changes. It never reads the other modules'
@@ -1154,7 +1154,7 @@ limit-ceiling boundaries, 4,096 entries of 16 MiB pruned to one in a single op, 
 changes nothing. Scale is in the [table above](#host-set-limits): `touch` takes 1.2 µs at
 10,000 entries. $0 API spend.
 
-## Status, roles and jobs (pass 2, B7)
+## Status, roles and jobs
 
 `gamectx::character::roles` (`Roles`, local kind `roles`) gives a community jobs that run
 themselves and a pecking order that matters.
@@ -1186,7 +1186,7 @@ Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples
 ticks (1,024 tasks), index consistency, and a refused assignment that changes nothing. Scale is
 in the [table above](#host-set-limits): `assess` takes 1.5 µs at 10,000 beings. $0 API spend.
 
-## Economy feedback (pass 2, C4)
+## Economy feedback
 
 `gamectx::character::economy` (`Economy`, local kind `economy`) lets prices answer to what
 everyone needs and what gets made off-screen, so scarcity becomes a reason to act.
@@ -1219,7 +1219,7 @@ units (cost 1.1·10¹⁶) without overflow, and a refused op that creates no mar
 [table above](#host-set-limits): `price` takes 0.9 µs and `want` 2.1 µs per op at 10,000 traders.
 $0 API spend.
 
-## Space inside a place (pass 2, C3)
+## Space inside a place
 
 `gamectx::character::space` (`Space`, local kind `space`) gives a place a floor plan, so beings
 take up room, get in each other's way, line up and lose sight of each other behind walls.
@@ -1252,7 +1252,7 @@ rows, a 255-cell sight line, index consistency, and a refused move that changes 
 in the [table above](#host-set-limits): `see` across the square takes 2.7 µs and `enter` 2.0 µs per
 op with 10,000 beings in one 256 × 256 room. $0 API spend.
 
-## Slow personality change (pass 2, B4)
+## Slow personality change
 
 `gamectx::character::drift` (`Drift`, local kind `drift`) lets long experience reshape a being a
 little, within limits the author sets, so a betrayed character becomes more guarded instead of
@@ -1282,7 +1282,7 @@ limit-ceiling boundaries, 6,400 blows at threshold 1 that stop at the 300,000 ca
 256 history entries, fading across 10¹² ticks, and a refused push that changes nothing. Scale is
 in the [table above](#host-set-limits): `experience` takes 2.4 µs at 10,000 beings. $0 API spend.
 
-## Default packs (pass 2, D5)
+## Default packs
 
 `gamectx::character::packs` (`Packs`, local kind `packs`) gives a small game living characters with
 little authoring. Packs are original, ready-made data; `apply` turns them into ordinary requests
@@ -1322,7 +1322,7 @@ combinations with four roles and three norm sets accepted by all six engines; 64
 limit-ceiling boundaries; the 16-tenet merge cap; and a refused redefinition of a built-in that
 changes nothing. Scale is in the [table above](#host-set-limits): `apply` takes 6.7 µs median with 10,000 custom packs (it builds six requests, so it is quoted apart from lookups). $0 API spend.
 
-## Turn frame and salience (pass 3, stage 1)
+## Turn frame and salience
 
 `gamectx::character::frame` (`Frame`, local kind `turn-frame`) puts a character in the moment. The
 earlier modules each answer one question; this one fuses their answers for a single turn and
@@ -1357,7 +1357,7 @@ the firewood promise, both theft clues, the gossip's presence and the apprentice
 and drops the shop's founding lore and a family recipe (`rank_mira_scene`); a group too large for
 the budget is dropped whole, never split (`rank_budget_drops_group_whole`).
 
-**Evidence (pass 3 stage 1):** 25 conformance cases (`conformance/turn-frame/`, 7 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/turn-frame/`, 7 malformed), 2,000
 differential parity workflows (`eval/character/frame_cases.py`, seed 7, 0 mismatches: 1,489
 accepted, 511 refused, 1,427 frames, 2,493 rankings keeping 1,677 items and dropping 2,971, 49 acute
 trends). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
@@ -1368,7 +1368,7 @@ at −1,000; and a refused observation that changes nothing. Scale is in the [ta
 above](#host-set-limits): `frame` takes 3.9 µs median at 10,000 beings. No model was called; the
 ranker's effect on reply quality is not measured yet. $0 API spend.
 
-## Memory cueing and the epistemic gate (pass 3, stage 2)
+## Memory cueing and the epistemic gate
 
 `gamectx::character::cueing` (`Cueing`, local kind `cueing`) lets memories come up when the moment
 resembles them, without a memory quiz, and keeps what a character says consistent with what it
@@ -1399,7 +1399,7 @@ safe in the back" (`gate_blocks_cover_leak`), and Mira cannot let slip a vault c
 knows (`gate_blocks_unknown_secret`). The gate matches whole key words: paraphrases and synonyms
 the author did not list pass, so it is a backstop, not a proof.
 
-**Evidence (pass 3 stage 2):** 25 conformance cases (`conformance/cueing/`, 7 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/cueing/`, 7 malformed), 2,000
 differential parity workflows (`eval/character/cueing_cases.py`, seed 7, 0 mismatches: 1,471
 accepted, 529 refused, 1,086 recalled, 575 avoided and 16 cooling episodes, 262 replies blocked and
 1,845 passed). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of three samples
@@ -1409,7 +1409,7 @@ the state it ran on (no masked key word outside the told cover story, no unknown
 cover that changes nothing. Scale is in the [table above](#host-set-limits): `cue` takes 3.4 µs median at 10,000 beings. No model was called; how often real model replies trip the gate is not
 measured yet. $0 API spend.
 
-## Pragmatics (pass 3, stage 3)
+## Pragmatics
 
 `gamectx::character::pragmatics` (`Pragmatics`, local kind `pragmatics`) reads what a player turn is
 doing, decides what the character answers first, and sets how forthcoming it is.
@@ -1442,7 +1442,7 @@ due within the hour (`stance_privacy_and_brevity`).
 and phrasings the lexicon lacks are read as small talk or a plain question. Its accuracy on real
 player turns is not measured yet.
 
-**Evidence (pass 3 stage 3):** 25 conformance cases (`conformance/pragmatics/`, 7 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/pragmatics/`, 7 malformed), 2,000
 differential parity workflows (`eval/character/pragmatics_cases.py`, seed 7, 0 mismatches: 1,468
 accepted, 532 refused, 9,475 clauses parsed, 41 conditional gates, 535 overrides, 80 threads
 resumed). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
@@ -1453,7 +1453,7 @@ Scale is in the [table above](#host-set-limits): parsing a two-clause turn takes
 the same at 1,000 and 10,000 beings (it is text work, so it is quoted apart from lookups). $0 API
 spend.
 
-## Embodiment (pass 3, stage 4)
+## Embodiment
 
 `gamectx::character::embodiment` (`Embodiment`, local kind `embodiment`) gives a turn a body and a
 voice, so a character does not deliver every line standing still in the same tone.
@@ -1479,7 +1479,7 @@ when lying or torn, clipped when terse, warm and relaxed with affection in a saf
 steady) and gives speed, pitch, pause and volume hints for line selection or speech synthesis; a
 whisper drops the volume (`voice_hesitant_whisper`).
 
-**Evidence (pass 3 stage 4):** 25 conformance cases (`conformance/embodiment/`, 7 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/embodiment/`, 7 malformed), 2,000
 differential parity workflows (`eval/character/embodiment_cases.py`, seed 7, 0 mismatches: 1,562
 accepted, 438 refused, 2,531 tensions, 529 silent turns, 788 repeated reactions, 1,936 terse
 voices). Robustness (`tests/robustness.rs`) covers 1,500 mutations of each of two samples with
@@ -1489,7 +1489,7 @@ widest repeat window at the 10¹² clock; and a refused reaction that changes no
 [table above](#host-set-limits): `react` takes 2.0 µs median at 10,000 beings. The hints are not
 yet passed to speech synthesis. $0 API spend.
 
-## World and social schemas (pass 3, stage 5)
+## World and social schemas
 
 Characters react to the world they stand in and the society they belong to. Two modules give the
 host declarative definitions for both, so these rules are data rather than game code.
@@ -1525,10 +1525,10 @@ addresses the other and what was left unsaid (`landmarks_replace_and_evict`,
 `address_terms_directional`, `unfinished_threads`). Attention profiles decide who notices what (a
 vigilant guard sees the knife first, `guard_notices_knife`), and pragmatic profiles give lying
 tells that only an observer with enough insight perceives, harder to see in a practiced liar
-(`tells_and_style`). Social roles with duties are the pass 2 [roles](#status-roles-and-jobs-pass-2-b7)
+(`tells_and_style`). Social roles with duties are the [roles](#status-roles-and-jobs)
 module; a severe breach names the role it is reported to.
 
-**Evidence (pass 3 stage 5):** 25 conformance cases each (`conformance/surroundings/`,
+**Evidence:** 25 conformance cases each (`conformance/surroundings/`,
 `conformance/fabric/`, 7 malformed each), 2,000 differential parity workflows each, most starting
 from a small valid world (seed 7, 0 mismatches; surroundings: 1,492 accepted, 508 refused, 1,160
 trespasses, 82 traces seen, 9 theft appraisals, 71 queue promotions; fabric: 1,461 accepted, 539
@@ -1543,9 +1543,9 @@ in the [table above](#host-set-limits): `inspect_item` takes 1.8 µs median at 1
 `dyad` takes 1.3 µs median at 10,000 pairs. Traces, theft appraisals and weather need rates are
 not yet fed into beliefs, appraisals and survival automatically. $0 API spend.
 
-## Pass 3 acceptance: the Interrupted Accusation
+## Acceptance Scene: The Interrupted Accusation
 
-`tests/acceptance_interrupted_accusation.rs` plays the pass 3 scene through the real engines with no
+`tests/acceptance_interrupted_accusation.rs` plays the scene through the real engines with no
 model. Mira is exhausted and one tick from burning her bread; she has found a flour trail by the
 lockbox (an inferred fact that never names who left it) and her coin pouch is gone. The player
 brings the firewood she asked for and, with a gossip in earshot, asks whether the apprentice stole
@@ -1560,7 +1560,7 @@ shop is private enough for secrets, the stance is open, and `resume` brings back
 theft question with a tender tone and room for four sentences. Running the scene twice gives
 byte-identical output. $0 API spend.
 
-## Pass 3 deep roleplay scenarios
+## Deep Roleplay Scenarios
 
 `eval/character/roleplay_deep_test.rs` drives three harder scenes through the engines; CI replays
 them against the committed report `eval/character/roleplay-deep.json` byte for byte. Model drafts
@@ -1599,7 +1599,7 @@ in the scenes are fixed strings standing in for untrusted model output.
 compliment, so no reply is owed; authors can add such phrases with `lexicon`. 53 checks, 0
 failures, $0 API spend.
 
-## Genre profiles (pass 4, stage 1)
+## Genre profiles
 
 `gamectx::knowledge::genre` (`Genres`, local kind `genre`) lets the same engines run any setting
 by data alone. The engines keep a few closed lists (light levels, access rules, privacy, norm
@@ -1619,7 +1619,7 @@ unchanged (`round_trip_same_decision`). Lexicon packs teach the pragmatic parser
 phrases ("out the airlock" as a threat, "evening pal" as a greeting) and turn into ordinary
 `pragmatics` lexicon requests (`pack_and_requests`).
 
-**Evidence (pass 4 stage 1):** 25 conformance cases (`conformance/genre/`, 8 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/genre/`, 8 malformed), 2,000
 differential parity workflows with random nested values drawn from every genre's words
 (`eval/character/genre_cases.py`, seed 7, 0 mismatches: 1,487 accepted, 513 refused, 5,401 renders,
 1,887 normalizations, 1,136 definitions). Robustness (`tests/robustness.rs`) covers 1,500 mutations of
@@ -1630,7 +1630,7 @@ genre that changes nothing. Scale is in the [table above](#host-set-limits): `re
 median at 10,000 genres. Engines do not read a genre directly yet: hosts call `normalize` before
 and `render` after. $0 API spend.
 
-## Mind architectures (pass 4, stage 2)
+## Mind architectures
 
 `gamectx::character::minds` (`Minds`, local kind `minds`) gives a being a kind of mind so that a
 hive drone, a ship's steward, a goat or a household spirit can run on the same engines as a person
@@ -1658,7 +1658,7 @@ high as anything else, until `release` (`fixate_pins_goal`, `release_then_fixate
 whether a being takes in words, tone or nothing (`hear_three_minds`). A mind cannot be redefined
 to shared memory while a being holds it without a pool (`bad_redefine_breaks_pool`).
 
-**Evidence (pass 4 stage 2):** 26 conformance cases (`conformance/minds/`, 7 malformed), 2,000
+**Evidence:** 26 conformance cases (`conformance/minds/`, 7 malformed), 2,000
 differential parity workflows with every built-in and two authored minds assigned
 (`eval/character/minds_cases.py`, seed 7, 0 mismatches: 1,539 accepted, 461 refused, 6,358
 admissions with 1,005 refused, 388 stripped inputs and 413 pool routes; seed 1 also 0 mismatches).
@@ -1673,7 +1673,7 @@ changes nothing. Scale is in the [table above](#host-set-limits): `admit` takes 
 10,000 beings. Engines do not consult a mind directly yet: hosts call `admit` before each request.
 $0 API spend.
 
-## Defense mechanisms and strain (pass 4, stage 3)
+## Defense mechanisms and strain
 
 `gamectx::character::defenses` (`Defenses`, local kind `defenses`) lets a character protect its
 picture of itself the way people do, and lets that protection wear thin. A profile gives a being a
@@ -1706,7 +1706,7 @@ defense loop (`defense_loop`). Rest, support and coping relieve strain (`relieve
 a denied fact ends the distortion (`accept_drops_distortion`); a new profile, for example after
 maturity drifts, keeps strain and distortions (`reprofile_keeps_strain`).
 
-**Evidence (pass 4 stage 3):** 26 conformance cases (`conformance/defenses/`, 7 malformed), 2,000
+**Evidence:** 26 conformance cases (`conformance/defenses/`, 7 malformed), 2,000
 differential parity workflows with four profiled beings across the bands
 (`eval/character/defenses_cases.py`, seed 7, 0 mismatches: 1,461 accepted, 539 refused, 2,148
 defenses, 521 crises, 9 defense loops and 34 costly contradictions; seed 1 also 0 mismatches).
@@ -1719,7 +1719,7 @@ over the 10¹² clock; and a refused self-scapegoat threat that changes nothing.
 [table above](#host-set-limits): a defense `threat` takes 3.2 µs median at 10,000 beings. The
 breaking-point deep test is still to come. $0 API spend.
 
-## Idiom and rumor mutation (pass 4, stage 4)
+## Idiom and rumor mutation
 
 `gamectx::knowledge::culture` (`Culture`, local kind `culture`) gives a community its own way of
 talking and lets stories change as they travel, while the host's truth stays put. Members have a
@@ -1749,7 +1749,7 @@ over a teller it does not trust (`distrusted_teller_kept`); a trusted witness re
 original is a correction (`correction_by_trusted_witness`). Versions are beliefs and hearsay after
 the first hop; `spread` reports holders, the largest distance and the untouched truth.
 
-**Evidence (pass 4 stage 4):** 27 conformance cases (`conformance/culture/`, 7 malformed), 2,000
+**Evidence:** 27 conformance cases (`conformance/culture/`, 7 malformed), 2,000
 differential parity workflows with four members, a carried idiom and two seeded rumors
 (`eval/character/culture_cases.py`, seed 7, 0 mismatches: 1,480 accepted, 520 refused, 1,892
 tellings with 1,114 mutations and 42 corrections, 1,295 exposures at or past adoption; seed 1 also 0
@@ -1764,7 +1764,7 @@ that changes nothing. The first scale capture showed a retelling growing with th
 [table above](#host-set-limits): a rumor `tell` takes 4.8 µs median at 10,000 topics. Rumors are
 not yet fed from `chatter` retellings automatically. $0 API spend.
 
-## Life projects (pass 4, stage 5)
+## Life projects
 
 `gamectx::character::projects` (`Projects`, local kind `projects`) gives a character something to
 work toward over months: an aim, a stake (how much of who they are rides on it), a deadline and
@@ -1791,7 +1791,7 @@ and a paused project proposes nothing (`weight_paused_none`). Unobserved, `offsc
 milestone with enough time and fair luck, fails it on bad luck and otherwise leaves it
 (`offscreen_success`, `offscreen_bad_luck`, `offscreen_too_soon`).
 
-**Evidence (pass 4 stage 5):** 25 conformance cases (`conformance/projects/`, 7 malformed), 2,000
+**Evidence:** 25 conformance cases (`conformance/projects/`, 7 malformed), 2,000
 differential parity workflows with two projects that have alternatives and deadlines
 (`eval/character/projects_cases.py`, seed 7, 0 mismatches: 1,449 accepted, 551 refused, 2,068
 decisions with 348 adaptations, 17 abandonments and 48 completions; seed 1 also 0 mismatches).
@@ -1805,7 +1805,7 @@ nothing. Scale is in the [table above](#host-set-limits): a project `weight` tak
 10,000 projects. Projects do not yet feed drift, lessons, aspirations or the scheduler
 automatically: the host passes the results on. $0 API spend.
 
-## Chemistry, banter and pacing (pass 4, stage 6)
+## Chemistry, banter and pacing
 
 `gamectx::character::chemistry` (`Chemistry`, local kind `chemistry`) decides how two characters
 get on, which playful move one makes, and when a scene should slow down or end. A social style is a
@@ -1835,7 +1835,7 @@ silence budget (`scene_starts_steady`). It advises escalating when things are fl
 is falling (`scene_ends_naturally`), so a character can end a conversation instead of waiting for
 the player.
 
-**Evidence (pass 4 stage 6):** 27 conformance cases (`conformance/chemistry/`, 6 malformed),
+**Evidence:** 27 conformance cases (`conformance/chemistry/`, 6 malformed),
 2,000 differential parity workflows with four styled beings, a history, a running joke and a scene
 (`eval/character/chemistry_cases.py`, seed 7, 0 mismatches: 1,471 accepted, 529 refused, 4,038
 banter moves with 281 callbacks and 64 insults, 2,798 non-steady pacing advices; seed 1 also 0
@@ -1849,10 +1849,10 @@ the [table above](#host-set-limits): a pair's chemistry takes 1.8 µs median at 
 Chemistry does not yet feed cooperation or initiative automatically: the host applies the biases.
 $0 API spend.
 
-## Pass 4 deep tests
+## Deep Behavioral Tests
 
-`eval/character/pass4_deep_test.rs` runs the three deep tests that `INTELLIGENT_BEING_4.md` section 7
-declared before any pass 4 code existed. CI replays them against the committed report
+`eval/character/pass4_deep_test.rs` runs the three deep behavioral integration tests.
+CI replays them against the committed report
 `eval/character/pass4-deep.json` byte for byte (38 checks, each fatal on failure). $0 API spend.
 
 1. **Cross-genre theft (12 checks).** One theft scene (a missing crate, a supervisor who notices it,
@@ -1891,9 +1891,9 @@ varies). The test found one engine gap: a witness's own version can be replaced 
 correction from that witness retells a distorted story. The town's host gives hearsay about a
 witness's own topic zero trust; `culture` does not yet protect witnesses itself.
 
-## Pass 4 acceptance: the Missing Ration
+## Acceptance Scene: The Missing Ration
 
-`tests/acceptance_missing_ration.rs` plays the pass 4 scene through the real engines (genre, minds,
+`tests/acceptance_missing_ration.rs` plays the scene through the real engines (genre, minds,
 fabric, defenses, culture, projects, chemistry and explain) with no model, once on an orbital station
 and once in a village, from data alone: each setting supplies only its genre words, role titles, an
 excuse, a slang phrase, a shared memory and four nouns. The two runs make the same 11 recorded
@@ -1925,9 +1925,9 @@ decisions and the same 7 explanations, and each replays byte for byte. $0 API sp
 The decisions render back as `regulation`, `sealed_secret`, `sealed`, `common` and `spacer` on the
 station and `custom`, `keep_secret`, `restricted`, `public` and `acquaintance` in the village.
 
-## Durable state (pass 5, stage 1)
+## Durable state
 
-Every stateful pass 2–4 manager can be saved at any point and loaded into a fresh manager that
+Every stateful character manager can be saved at any point and loaded into a fresh manager that
 carries on exactly where it was. Thirty-four local kinds have `export {}` and `import {save}` ops:
 `aspiration`, `attention`, `beliefs`, `chatter`, `chemistry`, `cognition`, `cooperation`, `creed`,
 `cueing`, `culture`, `defenses`, `detail`, `diet`, `drift`, `economy`, `embodiment`, `expectation`,
@@ -1937,7 +1937,7 @@ carries on exactly where it was. Thirty-four local kinds have `export {}` and `i
 `persist::restore` checks one and returns a fresh manager ([example](../../examples/kit/save-anywhere.rs)).
 
 A save is canonical JSON with sorted keys and integers only, plus its kind, a format version and
-the limits it was made under (`gamectx-state`, [FORMAT](../FORMAT.md#durable-state-v1-pass-5-stage-1)).
+the limits it was made under (`gamectx-state`, [FORMAT](../FORMAT.md#durable-state-v1)).
 Saves are as untrusted as model output. An import checks the whole document before it replaces
 anything: size (64 MiB), nesting (64), text length (4,096 bytes, also inside kept warnings),
 integer range, the canonical form (a save must write back to exactly itself, so unsorted maps,
@@ -1956,7 +1956,7 @@ without loading it. Each section has its own version, so one engine's format can
 rewriting the others. Every format is version 1; the first migration arrives with the runtime
 (culture v2, T-050).
 
-**Evidence (pass 5 stage 1):** an independent Python reference (`eval/character/durable_reference.py`,
+**Evidence:** an independent Python reference (`eval/character/durable_reference.py`,
 `durable_kinds.py`) and 56 conformance cases (`conformance/durable/`, 16 malformed): one save
 taken halfway through an existing case of each kind, loaded and continued to the uncut case's
 results, plus fresh saves, kept limits, damaged saves and the bundle. 2,000 randomized
@@ -1970,7 +1970,7 @@ re-exports to a fixed point, a refused one changes nothing; plus 64/65 ops, the 
 every kind in one bundle, a save over 64 MiB, nesting past 64, an integer past 2⁵³ − 1, and a
 bundle whose last section is damaged that loads none of it.
 
-The pass 4 hundred-agent town (`eval/character/pass5_deep_test.rs`, report
+The 100-agent town benchmark (`eval/character/pass5_deep_test.rs`, report
 `eval/character/pass5-deep.json`, checked in CI) was saved to text and loaded into fresh culture,
 projects and stability managers after every op on day 98 and after every request on every tenth
 day: 1,077 reloads, and the 180-day report is byte-identical to the uninterrupted run. 32 damaged
@@ -1987,7 +1987,7 @@ desktop the reloads cost about 5.9 ms each, mostly the 158 KB culture save
 (`eval/character/pass5-deep-timing.json`). Saves are not compressed; whether that is needed is
 left to the measurements (design O4). $0 API spend.
 
-## Being runtime (pass 5 stage 2)
+## Being runtime
 
 A single coordinated runtime (`gamectx::runtime::being::BeingRuntime` or local kind `being-runtime`)
 manages all thirty-four durable character and world engines plus `attempt`. It introduces modular
@@ -2022,7 +2022,7 @@ Twelve cross-engine edges connect decisions across module boundaries and record 
 The runtime state itself is durable (`gamectx-state` v1) under host-set limits `definitions` (default 1024)
 and `carry` (default 256).
 
-**Evidence (pass 5 stage 2):** an independent Python reference (`eval/character/runtime_reference.py`,
+**Evidence:** an independent Python reference (`eval/character/runtime_reference.py`,
 `runtime_cases.py`) and 30 conformance cases in `conformance/being-runtime/` (11 malformed), covering
 modular definitions, stage order sorting, each of the 12 edges, individual edge toggles via `edges`,
 atomic step rollback, and canonical export/import. Robustness section 49 (`tests/robustness.rs`) runs
@@ -2030,13 +2030,13 @@ atomic step rollback, and canonical export/import. Robustness section 49 (`tests
 
 The deep equivalence proof (`eval/character/pass5_deep_test.rs`, report `eval/character/pass5-deep.json`,
 checked in CI; 80 checks total) proves two equivalence guarantees:
-1. Town replay: the pass 4 100-agent town replayed through `BeingRuntime::step` matches the standalone
+1. Town replay: the 100-agent town benchmark replayed through `BeingRuntime::step` matches the standalone
    run byte for byte across 1,077 reloads.
 2. Acceptance scene replay: "The Missing Ration" acceptance scene replayed through `BeingRuntime::step`
    produces byte-identical decisions and explanations in both orbital station and village settings (0 mismatches).
 All 12 wired edges are verified with active explain traces. $0 API spend.
 
-## Intent packets and checked realization (pass 5, stage 3)
+## Intent packets and checked realization
 
 Intent packets and checked realization (`gamectx::character::realization::Realization` or local kind `realization`)
 bridge deterministic character minds with small local models (1B–8B). The runtime's decisions become compact,
@@ -2059,7 +2059,7 @@ The model returns a JSON line and a self-tag (`{"line": "...", "tag": "..."}`). 
 A failing line is retried once with the failure reason. If the retry fails, the host falls back to an authored template
 for the move, ensuring a scene never stalls on bad generation.
 
-**Evidence (pass 5 stage 3):** an independent Python reference (`eval/character/realization_reference.py`,
+**Evidence:** an independent Python reference (`eval/character/realization_reference.py`,
 `realization_cases.py`) and 34 conformance cases in `conformance/realization/` (8 malformed), covering packet compilation,
 salience pruning, prompt generation, all five realization checks, retries, and template fallbacks. Differential parity
 matches across 2,000 randomized workflows at seed 7 and seed 1 (0 mismatches). Robustness section 50 (`tests/robustness.rs`)

@@ -83,11 +83,7 @@ impl PlayerModelManager {
         for &cat in CONTENT_CATEGORIES {
             boundaries.insert(cat.to_string(), "off".to_string());
         }
-        Self {
-            limits: Limits::defaults(LIMITS),
-            boundaries,
-            beings: BTreeMap::new(),
-        }
+        Self { limits: Limits::defaults(LIMITS), boundaries, beings: BTreeMap::new() }
     }
 
     pub fn with_limits(v: &Value) -> Result<Self> {
@@ -328,30 +324,15 @@ impl PlayerModelManager {
         let bid = ident(c::get(args, "being")?)?.to_string();
         let b = self.ensure_being(&bid)?;
 
-        let mut sorted_topics: Vec<(i64, String)> = b
-            .topics
-            .iter()
-            .map(|(k, v)| (-(*v as i64), k.clone()))
-            .collect();
+        let mut sorted_topics: Vec<(i64, String)> = b.topics.iter().map(|(k, v)| (-(*v as i64), k.clone())).collect();
         sorted_topics.sort_unstable();
 
-        let top_topics: Vec<Value> = sorted_topics
-            .into_iter()
-            .take(3)
-            .map(|(_, k)| Value::str(k))
-            .collect();
-        let mut top_sorted: Vec<String> = top_topics
-            .into_iter()
-            .map(|v| v.as_str().unwrap().to_string())
-            .collect();
+        let top_topics: Vec<Value> = sorted_topics.into_iter().take(3).map(|(_, k)| Value::str(k)).collect();
+        let mut top_sorted: Vec<String> = top_topics.into_iter().map(|v| v.as_str().unwrap().to_string()).collect();
         top_sorted.sort_unstable();
 
         let total_promises = b.promises_kept + b.promises_broken;
-        let promise_ratio = if total_promises > 0 {
-            (b.promises_kept * 1000) / total_promises
-        } else {
-            1000
-        };
+        let promise_ratio = if total_promises > 0 { (b.promises_kept * 1000) / total_promises } else { 1000 };
 
         let honesty = b.honesty;
         let gifts_count = b.gifts.len() as u64;
@@ -431,14 +412,17 @@ impl PlayerModelManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
-                        ("boundaries".to_string(), Value::from(self.limits.get("boundaries") as u64)),
-                        ("topics".to_string(), Value::from(self.limits.get("topics") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
+                            ("boundaries".to_string(), Value::from(self.limits.get("boundaries") as u64)),
+                            ("topics".to_string(), Value::from(self.limits.get("topics") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)

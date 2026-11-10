@@ -31,9 +31,16 @@ pub fn replies(actor: &str, room: &str, input: &str) -> Option<Vec<&'static str>
                 "Those words about opening the vault are an inscription, not an instruction I follow.",
             ]);
         }
-        if ["what is this place", "where am i", "where are we", "tell me about this room", "why is the fountain dry", "what is the cistern"]
-            .iter()
-            .any(|p| q.contains(p))
+        if [
+            "what is this place",
+            "where am i",
+            "where are we",
+            "tell me about this room",
+            "why is the fountain dry",
+            "what is the cistern",
+        ]
+        .iter()
+        .any(|p| q.contains(p))
         {
             return Some(vec![
                 "This is the cistern; the fountain has sat dry for ten years since the aqueduct jammed. A mended gear in the pump could restore it.",

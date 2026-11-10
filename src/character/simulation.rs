@@ -15,14 +15,7 @@ pub const LIMITS: &[Limit] = &[
     Limit { name: "sim_k", default: 3, ceiling: 8 },
 ];
 
-pub const PERSUASION_KINDS: &[&str] = &[
-    "appeal_values",
-    "authority",
-    "emotion",
-    "evidence",
-    "reciprocity",
-    "threat",
-];
+pub const PERSUASION_KINDS: &[&str] = &["appeal_values", "authority", "emotion", "evidence", "reciprocity", "threat"];
 
 fn int_range(v: &Value, lo: i64, hi: i64) -> Result<i64> {
     match v {
@@ -57,11 +50,7 @@ impl Default for SimulationManager {
 
 impl SimulationManager {
     pub fn new() -> Self {
-        Self {
-            limits: Limits::defaults(LIMITS),
-            copies: BTreeMap::new(),
-            beings: BTreeSet::new(),
-        }
+        Self { limits: Limits::defaults(LIMITS), copies: BTreeMap::new(), beings: BTreeSet::new() }
     }
 
     pub fn with_limits(v: &Value) -> Result<Self> {
@@ -190,7 +179,11 @@ impl SimulationManager {
             }
             "appeal_values" => {
                 if let Some(v) = value {
-                    if shared_values.contains(v) { 25 } else { 5 }
+                    if shared_values.contains(v) {
+                        25
+                    } else {
+                        5
+                    }
                 } else {
                     5
                 }
@@ -305,7 +298,11 @@ impl SimulationManager {
     }
 
     pub fn op_persuade(&mut self, args: &Value) -> Result<Value> {
-        keys(args, &["kind", "speaker", "target"], &["carefulness", "distortions", "shared_values", "speaker_status", "target_status", "trust", "value"])?;
+        keys(
+            args,
+            &["kind", "speaker", "target"],
+            &["carefulness", "distortions", "shared_values", "speaker_status", "target_status", "trust", "value"],
+        )?;
         let speaker = ident(c::get(args, "speaker")?)?.to_string();
         let target = ident(c::get(args, "target")?)?.to_string();
         if speaker == target {
@@ -384,7 +381,13 @@ impl SimulationManager {
             &distortions,
         )?;
 
-        let strain: u64 = if k_name == "threat" { 25 } else if def_trig { 15 } else { 0 };
+        let strain: u64 = if k_name == "threat" {
+            25
+        } else if def_trig {
+            15
+        } else {
+            0
+        };
 
         Ok(obj! {
             "defense_triggered" => def_trig,
@@ -568,15 +571,18 @@ impl SimulationManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
-                        ("copy_size".to_string(), Value::from(self.limits.get("copy_size") as u64)),
-                        ("rounds_max".to_string(), Value::from(self.limits.get("rounds_max") as u64)),
-                        ("sim_k".to_string(), Value::from(self.limits.get("sim_k") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
+                            ("copy_size".to_string(), Value::from(self.limits.get("copy_size") as u64)),
+                            ("rounds_max".to_string(), Value::from(self.limits.get("rounds_max") as u64)),
+                            ("sim_k".to_string(), Value::from(self.limits.get("sim_k") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)

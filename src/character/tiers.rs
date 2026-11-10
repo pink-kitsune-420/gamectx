@@ -64,8 +64,16 @@ impl TiersManager {
                 max_distance: 20,
                 min_relevance: 500_000,
                 keeps: [
-                    "body", "dialogue", "intents", "location", "micro_reactions", "motives", "needs", "path",
-                    "status", "tasks",
+                    "body",
+                    "dialogue",
+                    "intents",
+                    "location",
+                    "micro_reactions",
+                    "motives",
+                    "needs",
+                    "path",
+                    "status",
+                    "tasks",
                 ]
                 .iter()
                 .map(|s| s.to_string())
@@ -83,10 +91,7 @@ impl TiersManager {
                     .iter()
                     .map(|s| s.to_string())
                     .collect(),
-                drops: ["dialogue_buffer", "fine_path", "micro_reactions"]
-                    .iter()
-                    .map(|s| s.to_string())
-                    .collect(),
+                drops: ["dialogue_buffer", "fine_path", "micro_reactions"].iter().map(|s| s.to_string()).collect(),
             },
         );
         tiers.insert(
@@ -110,8 +115,15 @@ impl TiersManager {
                 min_relevance: 0,
                 keeps: ["home", "id"].iter().map(|s| s.to_string()).collect(),
                 drops: [
-                    "dialogue_buffer", "fine_path", "intents", "location", "micro_reactions", "motives", "needs",
-                    "status", "tasks",
+                    "dialogue_buffer",
+                    "fine_path",
+                    "intents",
+                    "location",
+                    "micro_reactions",
+                    "motives",
+                    "needs",
+                    "status",
+                    "tasks",
                 ]
                 .iter()
                 .map(|s| s.to_string())
@@ -119,12 +131,7 @@ impl TiersManager {
             },
         );
 
-        Self {
-            limits: Limits::defaults(LIMITS),
-            tiers,
-            beings: BTreeMap::new(),
-            summaries: BTreeMap::new(),
-        }
+        Self { limits: Limits::defaults(LIMITS), tiers, beings: BTreeMap::new(), summaries: BTreeMap::new() }
     }
 
     pub fn with_limits(v: &Value) -> Result<Self> {
@@ -147,11 +154,7 @@ impl TiersManager {
                 drops.insert(d.clone());
             }
         }
-        SummaryData {
-            tier: target_tier.to_string(),
-            kept,
-            drops,
-        }
+        SummaryData { tier: target_tier.to_string(), kept, drops }
     }
 
     fn target_tier_for(&self, distance: u64, relevance: u64) -> &str {
@@ -197,16 +200,8 @@ impl TiersManager {
         let keeps_arr: Vec<Value> = keeps.iter().cloned().map(Value::str).collect();
         let drops_arr: Vec<Value> = drops.iter().cloned().map(Value::str).collect();
 
-        self.tiers.insert(
-            tname.clone(),
-            TierConfig {
-                cost,
-                max_distance: max_dist,
-                min_relevance: min_rel,
-                keeps,
-                drops,
-            },
-        );
+        self.tiers
+            .insert(tname.clone(), TierConfig { cost, max_distance: max_dist, min_relevance: min_rel, keeps, drops });
 
         Ok(obj! {
             "cost" => cost,
@@ -264,14 +259,7 @@ impl TiersManager {
                 if !self.summaries.contains_key(&bid) && self.summaries.len() + 1 > self.limits.get("summaries") {
                     return Err(c::bad());
                 }
-                self.summaries.insert(
-                    bid.clone(),
-                    SummaryData {
-                        tier: tier.clone(),
-                        kept,
-                        drops: BTreeSet::new(),
-                    },
-                );
+                self.summaries.insert(bid.clone(), SummaryData { tier: tier.clone(), kept, drops: BTreeSet::new() });
             }
         } else if tier != "focus" {
             let sum_data = self.make_summary(&tier, &state);
@@ -281,15 +269,7 @@ impl TiersManager {
             self.summaries.insert(bid.clone(), sum_data);
         }
 
-        self.beings.insert(
-            bid.clone(),
-            BeingTierData {
-                tier: tier.clone(),
-                distance,
-                relevance,
-                state,
-            },
-        );
+        self.beings.insert(bid.clone(), BeingTierData { tier: tier.clone(), distance, relevance, state });
 
         Ok(obj! {
             "being" => bid,
@@ -573,14 +553,17 @@ impl TiersManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
-                        ("summaries".to_string(), Value::from(self.limits.get("summaries") as u64)),
-                        ("tiers".to_string(), Value::from(self.limits.get("tiers") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
+                            ("summaries".to_string(), Value::from(self.limits.get("summaries") as u64)),
+                            ("tiers".to_string(), Value::from(self.limits.get("tiers") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)
@@ -688,13 +671,7 @@ impl Persist for TiersManager {
 
             new_tiers.insert(
                 tname.to_string(),
-                TierConfig {
-                    cost,
-                    max_distance: max_dist,
-                    min_relevance: min_rel,
-                    keeps,
-                    drops,
-                },
+                TierConfig { cost, max_distance: max_dist, min_relevance: min_rel, keeps, drops },
             );
         }
 
@@ -729,15 +706,7 @@ impl Persist for TiersManager {
                 state.insert(k.clone(), sv.clone());
             }
 
-            new_beings.insert(
-                bid.to_string(),
-                BeingTierData {
-                    tier: tier.to_string(),
-                    distance,
-                    relevance,
-                    state,
-                },
-            );
+            new_beings.insert(bid.to_string(), BeingTierData { tier: tier.to_string(), distance, relevance, state });
         }
 
         let s_list = c::list(c::get(v, "summaries")?)?;
@@ -779,14 +748,7 @@ impl Persist for TiersManager {
                 drops.insert(s.to_string());
             }
 
-            new_summaries.insert(
-                bid.to_string(),
-                SummaryData {
-                    tier: tier.to_string(),
-                    kept,
-                    drops,
-                },
-            );
+            new_summaries.insert(bid.to_string(), SummaryData { tier: tier.to_string(), kept, drops });
         }
 
         mgr.tiers = new_tiers;

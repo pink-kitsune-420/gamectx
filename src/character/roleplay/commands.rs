@@ -48,7 +48,8 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
         c::scope(c::text(focus)?)?;
     }
     let normalized = input.replace(['’', '‘'], "'");
-    let s = normalized.to_lowercase().trim().trim_end_matches(['.', '!']).split_whitespace().collect::<Vec<_>>().join(" ");
+    let s =
+        normalized.to_lowercase().trim().trim_end_matches(['.', '!']).split_whitespace().collect::<Vec<_>>().join(" ");
     let response = |status: &str, decision: Value| obj! {"status"=>status,"decision"=>decision};
 
     let mut s_clean = s.as_str();
@@ -100,11 +101,39 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
 
     let is_currency_token = |t: &str| {
         [
-            "coin", "coins", "gold", "silver", "copper", "platinum",
-            "credit", "credits", "token", "tokens", "gem", "gems", "cash",
-            "money", "payment", "funds", "currency", "fee", "fare", "price",
-            "shilling", "shillings", "dollar", "dollars", "mark", "marks",
-            "piece", "pieces", "bill", "bills", "ore", "ingot", "ingots",
+            "coin",
+            "coins",
+            "gold",
+            "silver",
+            "copper",
+            "platinum",
+            "credit",
+            "credits",
+            "token",
+            "tokens",
+            "gem",
+            "gems",
+            "cash",
+            "money",
+            "payment",
+            "funds",
+            "currency",
+            "fee",
+            "fare",
+            "price",
+            "shilling",
+            "shillings",
+            "dollar",
+            "dollars",
+            "mark",
+            "marks",
+            "piece",
+            "pieces",
+            "bill",
+            "bills",
+            "ore",
+            "ingot",
+            "ingots",
         ]
         .contains(&t)
     };
@@ -144,9 +173,25 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
             let words: Vec<&str> = phrase.split_whitespace().collect();
             let has_trade_verb = words.iter().any(|w| {
                 [
-                    "pay", "pays", "paid", "give", "gives", "hand", "hands",
-                    "trade", "trades", "barter", "barters", "swap", "swaps",
-                    "exchange", "exchanges", "offer", "offers", "take", "takes",
+                    "pay",
+                    "pays",
+                    "paid",
+                    "give",
+                    "gives",
+                    "hand",
+                    "hands",
+                    "trade",
+                    "trades",
+                    "barter",
+                    "barters",
+                    "swap",
+                    "swaps",
+                    "exchange",
+                    "exchanges",
+                    "offer",
+                    "offers",
+                    "take",
+                    "takes",
                     "here",
                 ]
                 .contains(w)
@@ -160,7 +205,12 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
         let is_take_payment = s_cmd.starts_with("take ") && has_currency;
 
         if is_payment_or_trade_phrase(s_cmd)
-            && (s_cmd.starts_with("here ") || is_take_payment || s_cmd.starts_with("pay ") || s_cmd.starts_with("heres ") || s_cmd.starts_with("here's ") || s_cmd.starts_with("accept "))
+            && (s_cmd.starts_with("here ")
+                || is_take_payment
+                || s_cmd.starts_with("pay ")
+                || s_cmd.starts_with("heres ")
+                || s_cmd.starts_with("here's ")
+                || s_cmd.starts_with("accept "))
             && !s_cmd.contains(" for ")
         {
             ("buy", "payment")
@@ -175,9 +225,8 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
         }
     };
     let mut action = match verb {
-        "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands"
-        | "trade" | "trades" | "barter" | "barters" | "swap" | "swaps"
-        | "exchange" | "exchanges" | "offer" | "offers" => "buy",
+        "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands" | "trade" | "trades" | "barter"
+        | "barters" | "swap" | "swaps" | "exchange" | "exchanges" | "offer" | "offers" => "buy",
         "walk" | "travel" => "go",
         "examine" => "inspect",
         v => v,
@@ -220,7 +269,8 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
         let direct = if action == "look" && (arg.is_empty() || arg == "around" || arg.starts_with("around")) {
             true
         } else if target == &Value::Null {
-            arg.is_empty() || (action == "wait" && ["a moment", "a bit", "a second", "a minute", "awhile", "here"].contains(&arg))
+            arg.is_empty()
+                || (action == "wait" && ["a moment", "a bit", "a second", "a minute", "awhile", "here"].contains(&arg))
         } else {
             let id = c::text(target)?;
             let id_name = id.rsplit(':').next().unwrap_or(id).replace('_', " ");

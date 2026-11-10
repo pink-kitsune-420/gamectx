@@ -14,27 +14,12 @@ pub const LIMITS: &[Limit] = &[
     Limit { name: "storylets", default: 32, ceiling: 128 },
 ];
 
-pub const THEMES: &[&str] = &[
-    "contamination",
-    "growth",
-    "loss",
-    "redemption",
-    "steadiness",
-];
+pub const THEMES: &[&str] = &["contamination", "growth", "loss", "redemption", "steadiness"];
 
-pub const STORYLET_KINDS: &[&str] = &[
-    "coalition_vote",
-    "overdue_debt",
-    "project_deadline",
-    "rumor_drift",
-    "strain_threshold",
-];
+pub const STORYLET_KINDS: &[&str] =
+    &["coalition_vote", "overdue_debt", "project_deadline", "rumor_drift", "strain_threshold"];
 
-pub const SETUP_STATUSES: &[&str] = &[
-    "open",
-    "paid_off",
-    "retired",
-];
+pub const SETUP_STATUSES: &[&str] = &["open", "paid_off", "retired"];
 
 #[derive(Clone, Debug)]
 pub struct Storylet {
@@ -141,13 +126,7 @@ impl NarrativeManager {
 
         self.storylets.insert(
             sid.clone(),
-            Storylet {
-                id: sid.clone(),
-                kind: kind.clone(),
-                title: title.clone(),
-                tension,
-                actors: actors.clone(),
-            },
+            Storylet { id: sid.clone(), kind: kind.clone(), title: title.clone(), tension, actors: actors.clone() },
         );
 
         let actors_arr: Vec<Value> = actors.into_iter().map(Value::str).collect();
@@ -203,12 +182,7 @@ impl NarrativeManager {
         }
 
         // Rank by fit desc, tension desc, id asc
-        ranked.sort_by(|a, b| {
-            b.fit
-                .cmp(&a.fit)
-                .then_with(|| b.tension.cmp(&a.tension))
-                .then_with(|| a.id.cmp(&b.id))
-        });
+        ranked.sort_by(|a, b| b.fit.cmp(&a.fit).then_with(|| b.tension.cmp(&a.tension)).then_with(|| a.id.cmp(&b.id)));
 
         let ranked_arr: Vec<Value> = ranked
             .into_iter()
@@ -518,15 +492,18 @@ impl NarrativeManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
-                        ("chapters".to_string(), Value::from(self.limits.get("chapters") as u64)),
-                        ("setups".to_string(), Value::from(self.limits.get("setups") as u64)),
-                        ("storylets".to_string(), Value::from(self.limits.get("storylets") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("beings".to_string(), Value::from(self.limits.get("beings") as u64)),
+                            ("chapters".to_string(), Value::from(self.limits.get("chapters") as u64)),
+                            ("setups".to_string(), Value::from(self.limits.get("setups") as u64)),
+                            ("storylets".to_string(), Value::from(self.limits.get("storylets") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)
@@ -657,13 +634,7 @@ impl Persist for NarrativeManager {
 
             new_storylets.insert(
                 sid.to_string(),
-                Storylet {
-                    id: sid.to_string(),
-                    kind,
-                    title: title.to_string(),
-                    tension,
-                    actors,
-                },
+                Storylet { id: sid.to_string(), kind, title: title.to_string(), tension, actors },
             );
         }
 

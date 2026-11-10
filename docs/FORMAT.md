@@ -2508,7 +2508,7 @@ Ops:
     - `reaction` (0..65): situational impulses from reaction brains (bounded input, never sole arbiter).
   - Deterministic tie-breaking: score descending, kind precedence (`emergency` > `need` > `promise` > `routine` > `task` > `goal` > `reaction`), then lexicographical id.
   - Generates clear explainable `winning_reason` detailing why the winning motive defeated the runner-up.
-  - Optional `commitment {motive ident, inertia 0–50 (10)}` (pass 2, D1): when the committed motive is a
+  - Optional `commitment {motive ident, inertia 0–50 (10)}` : when the committed motive is a
     candidate, is not already first, the first is not an `emergency`, and `first.score < committed.score + inertia`,
     the committed motive moves to the front of `ranked`, becomes `winner`, and `winning_reason` reads
     `<id> (score <n>) held over <id> (score <n>) by commitment inertia <i> because <reason>`. The result then
@@ -2606,9 +2606,9 @@ Ops:
   - `evaluate_action {being, action, base_duration, base_risk, skill?, quality_bonus?}` → `{being, action, skill, level, base_duration, duration, duration_discount_percent, base_risk, risk, quality_score, quality_tier}`.
   - `teach {teacher, student, skill, hours?, same_place?}` → `{ok, teacher, student, skill, teacher_level, student_level, student_practice, practice_gained, leveled_up, relationship_effects}`.
 
-## Explain trace v1 (pass 2, D4)
+## Explain trace v1
 
-`gamectx::character::explain` (guide: [Life](characters/LIFE.md#explain-trace-pass-2-d4)). The
+`gamectx::character::explain` (guide: [Life](characters/LIFE.md#explain-trace)). The
 `explain` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
 Optional fields given as `null` count as absent. 25 additive cases (shared with stability) live in
 `conformance/explain_stability/`.
@@ -2628,9 +2628,9 @@ Optional fields given as `null` count as absent. 25 additive cases (shared with 
   then ` Triggered by: …;` ` Believed: …;` ` Step <i> of task <id>.` when present, and ` Outcome: <status>[ (<summary>)].`
 - `init {being?}` → `{cleared, ok}`: clears one being's history, or all.
 
-## Stability monitors v1 (pass 2, D1)
+## Stability monitors v1
 
-`gamectx::character::stability` (guide: [Life](characters/LIFE.md#stability-monitors-pass-2-d1)). The
+`gamectx::character::stability` (guide: [Life](characters/LIFE.md#stability-monitors)). The
 `stability` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
 
 - `init {window 2–32 (8), dither_switches 1–31 (3) < window, dither_margin 0–100 (10), critical 1–100 (80),
@@ -2658,9 +2658,9 @@ Optional fields given as `null` count as absent. 25 additive cases (shared with 
 - `get_warnings {kind?, being?, since_turn?, limit? 1–256 (32)}` → `{count, warnings}`, the most recent matches
   in log order.
 
-## Subjective beliefs v1 (pass 2, A1)
+## Subjective beliefs v1
 
-`gamectx::character::beliefs` (guide: [Life](characters/LIFE.md#subjective-world-knowledge-pass-2-a1)).
+`gamectx::character::beliefs` (guide: [Life](characters/LIFE.md#subjective-world-knowledge)).
 The `beliefs` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`.
 25 additive cases (shared with speech acts) live in `conformance/beliefs_speech/`.
 
@@ -2682,9 +2682,9 @@ At 128 beliefs per being (default) the lowest (confidence, at, triple) is evicte
 - `gaps {being, needs ≤16 triples, min_confidence? (50)}` → `{being, gaps, needs [{confidence|null, key,
   status unknown|low_confidence|known_true|known_false}]}`; `gaps` counts the first two statuses.
 
-## Speech acts v1 (pass 2, B1)
+## Speech acts v1
 
-`gamectx::character::speech_act` (guide: [Life](characters/LIFE.md#communication-as-action-pass-2-b1)).
+`gamectx::character::speech_act` (guide: [Life](characters/LIFE.md#communication-as-action)).
 The `speech_act` `local` kind runs the same op envelope and accepts every belief op above plus:
 
 - `relate {speaker, listener ≠ speaker, trust? 0–100, authority? 0–100}` → `{authority, listener, speaker, trust}`.
@@ -2718,9 +2718,9 @@ The `speech_act` `local` kind runs the same op envelope and accepts every belief
   trust ≥ 30 (`no_trusted_listener` otherwise). Ties go to the first name.
 - `assess {being}` → `{being, beliefs, trusts [{authority, speaker, trust}], wants [{from, goal, priority}]}`.
 
-## Diets and foods v1 (pass 2, stage 3)
+## Diets and foods v1
 
-`gamectx::character::diet` (guide: [Life](characters/LIFE.md#diets-and-foods-pass-2-stage-3)). The `diet`
+`gamectx::character::diet` (guide: [Life](characters/LIFE.md#diets-and-foods)). The `diet`
 `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. 25 additive cases
 live in `conformance/diet/`.
 
@@ -2758,9 +2758,9 @@ preserved? (false), at? 0–10¹² (0), made_at? ≤ at (at)}`.
 - `assess {being}` → `{allergies, being, diet, dislikes, forbids, likes, meals, recent [{at, food}]}`; refused for
   a being with no profile.
 
-## Creeds and conscience v1 (pass 2, stage 4 and B5)
+## Creeds and conscience v1
 
-`gamectx::character::creed` (guide: [Life](characters/LIFE.md#creeds-and-conscience-pass-2-stage-4-and-b5)).
+`gamectx::character::creed` (guide: [Life](characters/LIFE.md#creeds-and-conscience)).
 The `creed` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. 25
 additive cases live in `conformance/creed/`.
 
@@ -2810,9 +2810,9 @@ the first `window` ticks.
 - `assess {being}` → `{being, creed, devotion, joined_at, norms, observed [{observance, period}], standing
   [{creed, value}]}`; refused for an unknown being.
 
-## Expectations v1 (pass 2, A3)
+## Expectations v1
 
-`gamectx::character::expectation` (guide: [Life](characters/LIFE.md#expectations-and-surprise-pass-2-a3)). The
+`gamectx::character::expectation` (guide: [Life](characters/LIFE.md#expectations-and-surprise)). The
 `expectation` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 13
 cases (3 malformed, prefix `exp_`) live in `conformance/expect_attend/`.
 
@@ -2841,9 +2841,9 @@ subject: about}}`.
   relies, state "open"|"worried"|"broken"}], reliability [{about, broken, confidence, kept}]}`; refused for an
   unknown being. A 65th subject forgets the one with the fewest observations (then smallest name).
 
-## Attention v1 (pass 2, A2)
+## Attention v1
 
-`gamectx::character::attention` (guide: [Life](characters/LIFE.md#attention-and-graded-noticing-pass-2-a2)). The
+`gamectx::character::attention` (guide: [Life](characters/LIFE.md#attention-and-graded-noticing)). The
 `attention` `local` kind runs `{ops: 1–64 [{op, args?}]}` and returns `{version: 1, results: [...]}`. Its 12
 cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
 
@@ -2874,8 +2874,8 @@ cases (2 malformed, prefix `att_`) live in `conformance/expect_attend/`.
 output is unchanged. `limits: null` is accepted and echoes the current limits. Limits persist on a manager across
 workflows (`with_limits` sets them up front) and only refuse growth: existing entries beyond a lowered limit stay.
 Defaults equal the earlier fixed bounds, so outputs without `limits` are byte-identical to before. 25 cases (6
-malformed) live in `conformance/limits/` (pass 2 modules) and 25 (6 malformed) in `conformance/limits_character/`
-(pass 1 modules).
+malformed) live in `conformance/limits/` (cognitive character modules) and 25 (6 malformed) in `conformance/limits_character/`
+(core character modules).
 
 Paths that previously grew without a bound now respect a limit: skills added by `practice` and `teach`; minds,
 modelled others and beliefs added by pre-declared `beings`, `record` and `infer_from_witness`; told records added
@@ -2955,14 +2955,14 @@ Request `actions` on the `actions` kind used to be added without a bound; they n
 catalog would exceed the `actions` limit. Facts keep their saved `capacity` field as their limit; its ceiling is
 now 4096 (was 256), and the fact packet still lists at most 256 rows.
 
-## Goals from experience v1 (pass 2, A4)
+## Goals from experience v1
 
-`gamectx::character::aspiration` (guide: [Life](characters/LIFE.md#goals-from-experience-pass-2-a4)), local kind
+`gamectx::character::aspiration` (guide: [Life](characters/LIFE.md#goals-from-experience)), local kind
 `aspiration` with [host limits](#host-limits-v1). Its 9 cases (2 malformed, prefix `asp_`) live in
 `conformance/growth/`. Kinds: `admiration`, `loss`, `need`, `opportunity`, `threat`; subjects are ids of at
-most 48 characters. Templates: `need` → `stock_<s>` "Keep a store against <s>" `stock_up`; `threat` →
-`guard_<s>` "Guard against <s>" `secure_home`; `admiration` → `learn_<s>` "Learn <s>" `practice`; `loss` →
-`replace_<s>` "Replace the lost <s>" `seek`; `opportunity` → `pursue_<s>` "Pursue <s>" `pursue`.
+most 48 characters. Templates: `need` → `stock_<s>` "Keep a store against `<subject>`" `stock_up`; `threat` →
+`guard_<s>` "Guard against `<subject>`" `secure_home`; `admiration` → `learn_<s>` "Learn `<subject>`" `practice`; `loss` →
+`replace_<s>` "Replace the lost `<subject>`" `seek`; `opportunity` → `pursue_<s>` "Pursue `<subject>`" `pursue`.
 Goal view: `{action, formed_at, id, label, origin "template"|"proposal", priority, reason, target|null}`.
 
 - `experience {being, kind, subject, weight? 1–100 (50), at? (0)}` → `{being, blocked, goal|null, kind,
@@ -2981,9 +2981,9 @@ Goal view: `{action, formed_at, id, label, origin "template"|"proposal", priorit
   arbiter `goals` input).
 - `assess {being}` → `{being, goals, pressures [{count, kind, last_at, subject, total}]}`; refused if unknown.
 
-## Habits v1 (pass 2, A5)
+## Habits v1
 
-`gamectx::character::habit` (guide: [Life](characters/LIFE.md#habits-and-adapting-routines-pass-2-a5)), local kind
+`gamectx::character::habit` (guide: [Life](characters/LIFE.md#habits-and-adapting-routines)), local kind
 `habit` with [host limits](#host-limits-v1). Its 7 cases (1 malformed, prefix `hab_`) and the 2 limits cases
 (prefix `lim_`, 1 malformed) live in `conformance/growth/`. Slots are ids of at most 24 characters, actions at
 most 32. A change is `{delta, entry, reason, state, strength}` with state `kept`, `steady`, `weakened`, `faded`,
@@ -3002,9 +3002,9 @@ most 32. A change is `{delta, entry, reason, state, strength}` with state `kept`
 - `assess {being}` → `{being, entries [{action, history [{at, delta, reason}] (last 8), id, origin, slot,
   strength}], tallies [{action, slot, streak}]}`.
 
-## Lessons v1 (pass 2, A6)
+## Lessons v1
 
-`gamectx::character::lesson` (guide: [Life](characters/LIFE.md#lessons-pass-2-a6)), local kind `lesson` with
+`gamectx::character::lesson` (guide: [Life](characters/LIFE.md#lessons)), local kind `lesson` with
 [host limits](#host-limits-v1). Its 7 cases (1 malformed, prefix `les_`) live in `conformance/growth/`. A topic is
 `(about, activity)`; a full topic table evicts the one with the fewest episodes, then oldest, then key.
 
@@ -3019,9 +3019,9 @@ most 32. A change is `{delta, entry, reason, state, strength}` with state `kept`
 - `forget {being, about, activity}` → `{about, activity, being, forgot}`.
 - `assess {being}` → `{being, topics [{about, activity, episodes [{at, episode, result}], lesson}]}`.
 
-## Cooperation v1 (pass 2, B2/B3)
+## Cooperation v1
 
-`gamectx::character::cooperation` (guide: [Life](characters/LIFE.md#cooperation-and-conflict-pass-2-b2b3)), local
+`gamectx::character::cooperation` (guide: [Life](characters/LIFE.md#cooperation-and-conflict)), local
 kind `cooperation` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
 Its 25 cases (6 malformed) live in `conformance/cooperation/`. Scores are signed millionths. Trust is −100..100;
 urgency, status and effort are 0..100 (default 50); `at` is 0..10¹² (default 0). An op that fails refuses the
@@ -3073,9 +3073,9 @@ else `ready`.
 - `assess {being}` → `{being, grudges, holds [resources], owed [{by, favors}], owes [{to, favors}],
   promises_made, promises_received (pending ids), queued [{resource, position}], roles [{task, role, done}]}`.
 
-## Cognition v1 (pass 2, A7/A8)
+## Cognition v1
 
-`gamectx::character::cognition` (guide: [Life](characters/LIFE.md#bounded-rationality-and-fallible-memory-pass-2-a7a8)),
+`gamectx::character::cognition` (guide: [Life](characters/LIFE.md#bounded-rationality-and-fallible-memory)),
 local kind `cognition` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
 Its 25 cases (6 malformed) live in `conformance/cognition/`. Seeds, days and ticks are 0..10¹²; strengths and slip
 rates are millionths. A roll is FNV-1a (64-bit) of the given text. An op that fails refuses the request; ops before
@@ -3109,9 +3109,9 @@ A profile is `{temperament, plan_depth 1–8, horizon 1–10,000, impulsiveness 
 - `forget {being, id}` → `{being, forgot}`; refused if unknown.
 - `assess {being}` → `{being, memories (strength descending, then id), profile}`.
 
-## Chatter v1 (pass 2, B6)
+## Chatter v1
 
-`gamectx::character::chatter` (guide: [Life](characters/LIFE.md#off-screen-conversations-pass-2-b6)), local kind
+`gamectx::character::chatter` (guide: [Life](characters/LIFE.md#off-screen-conversations)), local kind
 `chatter` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
 (6 malformed) live in `conformance/chatter/`. Topics and values are ids; warmth is −100..100 and pairs are stored
 sorted. An op that fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
@@ -3137,9 +3137,9 @@ sorted. An op that fails refuses the request; ops before it keep their changes, 
 - `assess {being (known)}` → `{being, knows [{secret, topic, value, weight}], wants [{topic, weight}], bonds
   [{other, warmth}]}`.
 
-## Survival v1 (pass 2, C1/C2)
+## Survival v1
 
-`gamectx::character::survival` (guide: [Life](characters/LIFE.md#life-cycle-and-threat-response-pass-2-c1c2)), local
+`gamectx::character::survival` (guide: [Life](characters/LIFE.md#life-cycle-and-threat-response)), local
 kind `survival` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
 cases (6 malformed) live in `conformance/survival/`. Ticks are 0..10¹²; scores are signed millionths. An op that fails
 refuses the request; ops before it keep their changes, and the failing op changes nothing.
@@ -3170,9 +3170,9 @@ safety 0–100, stage}`. Stage is `child` when `age·10⁶/lifespan < 225,000`, 
   threat, kind: "fear", delta: danger/20,000, reason: response}}` is proposed. `unsafe` is safety < 40.
 - `assess {being (living or dead)}` → view.
 
-## Detail v1 (pass 2, D2)
+## Detail v1
 
-`gamectx::character::detail` (guide: [Life](characters/LIFE.md#level-of-detail-for-minds-pass-2-d2)), local kind
+`gamectx::character::detail` (guide: [Life](characters/LIFE.md#level-of-detail-for-minds)), local kind
 `detail` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
 (6 malformed) live in `conformance/detail/`. Ticks and distances are 0..10¹²; levels, rates and thresholds are
 millionths. An op that fails refuses the request; ops before it keep their changes, and the failing op changes
@@ -3197,9 +3197,9 @@ group. A need at tick `t` after the being's `at` is `min(10⁶, level + rate·(t
 - `crowd {group (with members)}` → `{group, members, needs [{id, mean, count}], urgent}`: each need's mean level
   now (floor) over the members that have it, and how many member needs are at or above threshold.
 
-## Retention v1 (pass 2, D3)
+## Retention v1
 
-`gamectx::character::retention` (guide: [Life](characters/LIFE.md#save-growth-retention-and-migration-pass-2-d3)),
+`gamectx::character::retention` (guide: [Life](characters/LIFE.md#save-growth-retention-and-migration)),
 local kind `retention` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
 Its 25 cases (7 malformed) live in `conformance/retention/`. Ticks are 0..10¹². An op that fails refuses the
 request; ops before it keep their changes, and the failing op changes nothing.
@@ -3228,9 +3228,9 @@ request; ops before it keep their changes, and the failing op changes nothing.
   the key if missing; `remove` deletes it; `clamp` clamps an integer (refused for any other value). Absent
   keys and non-objects are skipped; `edits` counts changed keys.
 
-## Roles v1 (pass 2, B7)
+## Roles v1
 
-`gamectx::character::roles` (guide: [Life](characters/LIFE.md#status-roles-and-jobs-pass-2-b7)), local kind `roles`
+`gamectx::character::roles` (guide: [Life](characters/LIFE.md#status-roles-and-jobs)), local kind `roles`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
 malformed) live in `conformance/roles/`. Ticks are 0..10¹²; edges and chances are millionths. An op that fails
 refuses the request; ops before it keep their changes, and the failing op changes nothing.
@@ -3257,9 +3257,9 @@ with none) + standing, 0, 100).
   listener)·5,000}`.
 - `assess {being (known)}` → view. `staff {role}` → `{holders (sorted), role, seats|null, status}`.
 
-## Economy v1 (pass 2, C4)
+## Economy v1
 
-`gamectx::character::economy` (guide: [Life](characters/LIFE.md#economy-feedback-pass-2-c4)), local kind `economy`
+`gamectx::character::economy` (guide: [Life](characters/LIFE.md#economy-feedback)), local kind `economy`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
 malformed) live in `conformance/economy/`. Multipliers are per-mille (1000 = base price); divisions truncate toward
 zero. An op that fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
@@ -3283,9 +3283,9 @@ A stall view is `{demand, good, market, mult, price: ⌊base·mult/1000⌋, sold
   mult/50)}`. Then stock loses `⌊stock·spoil/1000⌋` and demand, sold, wants and production reset.
 - `price {market, good}` → stall. `assess {market}` → `{goods: [stall], market}`.
 
-## Space v1 (pass 2, C3)
+## Space v1
 
-`gamectx::character::space` (guide: [Life](characters/LIFE.md#space-inside-a-place-pass-2-c3)), local kind `space`
+`gamectx::character::space` (guide: [Life](characters/LIFE.md#space-inside-a-place)), local kind `space`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
 malformed) live in `conformance/space/`. Cells are `[x, y]` with `0 ≤ x < width`, `0 ≤ y < height`. An op that
 fails refuses the request; ops before it keep their changes, and the failing op changes nothing.
@@ -3312,9 +3312,9 @@ A being view is `{being, room, x, y}`; a spot view `{capacity, queue (in order),
   Chebyshev distance ≤ range.
 - `crowd {room}` → `{beings (sorted), free: area − walls − beings, room, spots}`.
 
-## Drift v1 (pass 2, B4)
+## Drift v1
 
-`gamectx::character::drift` (guide: [Life](characters/LIFE.md#slow-personality-change-pass-2-b4)), local kind `drift`
+`gamectx::character::drift` (guide: [Life](characters/LIFE.md#slow-personality-change)), local kind `drift`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
 malformed) live in `conformance/drift/`. Values are signed millionths. An op that fails refuses the request; ops
 before it keep their changes, and the failing op changes nothing.
@@ -3334,9 +3334,9 @@ or being), pressure, step, threshold, trait, value}`.
 - `revert {being, trait}` → view; value = base, pressure 0, reasons cleared, history kept.
 - `assess {being, trait?}` → `{being, locked, traits: [view]}` with pressure faded to the clock (no change).
 
-## Packs v1 (pass 2, D5)
+## Packs v1
 
-`gamectx::character::packs` (guide: [Life](characters/LIFE.md#default-packs-pass-2-d5)), local kind `packs` with
+`gamectx::character::packs` (guide: [Life](characters/LIFE.md#default-packs)), local kind `packs` with
 [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7 malformed)
 live in `conformance/packs/`. An op that fails refuses the request; ops before it keep their changes, and the
 failing op changes nothing. Kinds are `norms`, `role`, `species` and `temperament`; actions must be task actions.
@@ -3365,9 +3365,9 @@ Ids within one pack are unique. Ops:
   `roles` one `role {duties, id, status, seats?}` per role (null fields dropped) then one `assign {being, role}`
   per role; `creed` `set_norms {being, norms}`.
 
-## Turn frame v1 (pass 3, stage 1)
+## Turn frame v1
 
-`gamectx::character::frame` (guide: [Life](characters/LIFE.md#turn-frame-and-salience-pass-3-stage-1)), local kind
+`gamectx::character::frame` (guide: [Life](characters/LIFE.md#turn-frame-and-salience)), local kind
 `turn-frame` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
 cases (7 malformed) live in `conformance/turn-frame/`. An op that fails refuses the request; ops before it keep their
 changes, and the failing op changes nothing. Lists in a frame or rank (bystanders, needs, emotions, listener facts,
@@ -3410,9 +3410,9 @@ cues, entities, tags, places) hold at most 16 unique identifiers and are reporte
   `irrelevant` when the score is below `floor`. → `{budget, dropped, kept, over_budget, used}`; each list is sorted by
   score then id, with `{bytes, group, id, kind, parts, reason, score}`.
 
-## Cueing v1 (pass 3, stage 2)
+## Cueing v1
 
-`gamectx::character::cueing` (guide: [Life](characters/LIFE.md#memory-cueing-and-the-epistemic-gate-pass-3-stage-2)),
+`gamectx::character::cueing` (guide: [Life](characters/LIFE.md#memory-cueing-and-the-epistemic-gate)),
 local kind `cueing` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
 Its 25 cases (7 malformed) live in `conformance/cueing/`. An op that fails refuses the request; ops before it keep
 their changes, and the failing op changes nothing. Feature lists (`actions`, `entities`, `tags`, `places`) and
@@ -3445,9 +3445,9 @@ of 1–32 characters.
   not hold (`unknown`, by secret id). With leaks, `ok` is false and `fallback` is the first leaked cover's lie, else
   the given fallback, else `I would rather not say.`
 
-## Pragmatics v1 (pass 3, stage 3)
+## Pragmatics v1
 
-`gamectx::character::pragmatics` (guide: [Life](characters/LIFE.md#pragmatics-pass-3-stage-3)), local kind
+`gamectx::character::pragmatics` (guide: [Life](characters/LIFE.md#pragmatics)), local kind
 `pragmatics` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
 cases (7 malformed) live in `conformance/pragmatics/`. An op that fails refuses the request; ops before it keep their
 changes, and the failing op changes nothing. Words are lower-cased runs of ASCII letters and digits; a phrase matches
@@ -3481,7 +3481,7 @@ a clause when its words appear consecutively.
 - `tick {now}`; `open {being, id, topic, speaker, question? text ≤160}` → `{being, dropped, threads}` (the new thread is
   active, others wait; past the limit the oldest is dropped); `interrupt {being, cause}` marks the active top thread
   interrupted; `resume {being, ticks_per_hour?}` → `{being, since, thread, unanswered}` with `since` the
-  [time anchor](#turn-frame-v1-pass-3-stage-1) of the interruption; `close {being, id}` → `{being, closed, top}` (the
+  [time anchor](#turn-frame-v1) of the interruption; `close {being, id}` → `{being, closed, top}` (the
   next thread becomes active if the top was closed); `threads {being}` lists the stack top first.
 - `stance {trust −100..100, affection?, resentment?, confidential?, bystanders? [{being, trusted?, earshot?}],
   urgency?, deadline_hours?}` → `{cooperativeness, max_sentences, privacy, score, untrusted_in_earshot, verbosity}`.
@@ -3491,9 +3491,9 @@ a clause when its words appear consecutively.
   60, 2 below 85, else 1, and 1 when the deadline is at most an hour away; verbosity `full` (4), `normal` (2–3) or
   `brief` (1).
 
-## Genre v1 (pass 4, stage 1)
+## Genre v1
 
-`gamectx::knowledge::genre` (guide: [Life](characters/LIFE.md#genre-profiles-pass-4-stage-1)), local kind `genre` with
+`gamectx::knowledge::genre` (guide: [Life](characters/LIFE.md#genre-profiles)), local kind `genre` with
 [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (8 malformed)
 live in `conformance/genre/`. Slots and their engine words, in order: `light` (dark, dim, bright), `access` (public,
 customers_only, members_only, private, restricted), `privacy` (public, semi_private, private, echoing), `severity`
@@ -3518,9 +3518,9 @@ loan, promise, trade_order), `address` (stranger, acquaintance). Built-in genres
   genre's words for its slot refuses the request.
 - Both walk at most `nodes` values and 64 levels of nesting.
 
-## Minds v1 (pass 4, stage 2)
+## Minds v1
 
-`gamectx::character::minds` (guide: [Life](characters/LIFE.md#mind-architectures-pass-4-stage-2)), local kind `minds`
+`gamectx::character::minds` (guide: [Life](characters/LIFE.md#mind-architectures)), local kind `minds`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 26 cases (7
 malformed) live in `conformance/minds/`. Channels: affection, anger, fear, guilt, joy, resentment, shame, shock. Built-in
 minds: `human` (individual memory, every channel, full language, full deception, theory of mind 2, time scale
@@ -3557,9 +3557,9 @@ concealment; 2; 100,000), `herd_animal` (individual; affection, anger, fear, sho
   (tones only) or `nothing`. Tones: threat and accusation `hostile`; greeting, compliment, apology and
   offer_or_transfer `friendly`; request_help `pleading`; farewell `parting`; others `neutral`.
 
-## Defenses v1 (pass 4, stage 3)
+## Defenses v1
 
-`gamectx::character::defenses` (guide: [Life](characters/LIFE.md#defense-mechanisms-and-strain-pass-4-stage-3)), local
+`gamectx::character::defenses` (guide: [Life](characters/LIFE.md#defense-mechanisms-and-strain)), local
 kind `defenses` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 26
 cases (7 malformed) live in `conformance/defenses/`. Strain is in millionths (0–1,000,000). Bands by effective maturity:
 `high` ≥ 70 (humour, sublimation), `mid` ≥ 40 (rationalization, intellectualization, withdrawal), `low` (denial,
@@ -3592,9 +3592,9 @@ humour 40%, sublimation 50%, rationalization and intellectualization 60%, withdr
 - `accept {being, fact (a held distortion)}` → `{being, fact, mechanism, strain}`: drops the distortion.
 - Strain decays lazily with the clock by 4,000 per tick, 2,000 while a denial, projection or displacement is held.
 
-## Culture v1 (pass 4, stage 4)
+## Culture v1
 
-`gamectx::knowledge::culture` (guide: [Life](characters/LIFE.md#idiom-and-rumor-mutation-pass-4-stage-4)), local kind
+`gamectx::knowledge::culture` (guide: [Life](characters/LIFE.md#idiom-and-rumor-mutation)), local kind
 `culture` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 27 cases
 (7 malformed) live in `conformance/culture/`. Strengths are millionths (0–1,000,000); usable at 500,000; fading 1,000
 per tick since last raised.
@@ -3626,9 +3626,9 @@ per tick since last raised.
 - `spread {topic}` → `{holders, max_drift, max_ops, topic, total_ops, truth {agent, amount, details, place, verb,
   witness}}`.
 
-## Projects v1 (pass 4, stage 5)
+## Projects v1
 
-`gamectx::character::projects` (guide: [Life](characters/LIFE.md#life-projects-pass-4-stage-5)), local kind `projects`
+`gamectx::character::projects` (guide: [Life](characters/LIFE.md#life-projects)), local kind `projects`
 with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases (7
 malformed) live in `conformance/projects/`. Morale is in millionths (0–1,000,000), starting at 700,000. `score =
 morale ÷ 10,000 + stake ÷ 2 + sunk`, `sunk = min(30, time ÷ 50 + money ÷ 100)`, or 0 after four failures in a row.
@@ -3658,9 +3658,9 @@ morale ÷ 10,000 + stake ÷ 2 + sunk`, `sunk = min(30, time ÷ 50 + money ÷ 100
   project, luck below 20 fails the current milestone; luck 50 or more with `elapsed ≥ expected` completes it; otherwise
   nothing. The result is the outcome's.
 
-## Chemistry v1 (pass 4, stage 6)
+## Chemistry v1
 
-`gamectx::character::chemistry` (guide: [Life](characters/LIFE.md#chemistry-banter-and-pacing-pass-4-stage-6)), local
+`gamectx::character::chemistry` (guide: [Life](characters/LIFE.md#chemistry-banter-and-pacing)), local
 kind `chemistry` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 27
 cases (6 malformed) live in `conformance/chemistry/`. Pairs are unordered (`a` < `b` in results).
 
@@ -3697,9 +3697,9 @@ cases (6 malformed) live in `conformance/chemistry/`. Pairs are unordered (`a` <
   by ≥ 300,000 and silence is left); `slow` (tension ≥ 800,000 or density ≥ 6); `escalate` (tension < 200,000, beats,
   novelty ≥ 50); `steady`.
 
-## Durable state v1 (pass 5, stage 1)
+## Durable state v1
 
-`gamectx::data::persist` and `gamectx::kit::state_bundle` (guide: [Life](characters/LIFE.md#durable-state-pass-5-stage-1)).
+`gamectx::data::persist` and `gamectx::kit::state_bundle` (guide: [Life](characters/LIFE.md#durable-state)).
 Its 56 cases (16 malformed) live in `conformance/durable/`.
 
 **Save.** `{"format": "gamectx-state", "kind", "limits", "state", "version"}`, keys in exactly that order. `limits` is
@@ -3747,9 +3747,9 @@ Thirty-three durable kinds are at version 1; `culture` is at version 2 (with boo
   save are dropped).
 - `inspect {save}` → the same report as `import`, after the same checks, without changing the bundle.
 
-## Being runtime v1 (pass 5, stage 2)
+## Being runtime v1
 
-`gamectx::runtime::being` (guide: [Life](characters/LIFE.md#being-runtime-pass-5-stage-2)),
+`gamectx::runtime::being` (guide: [Life](characters/LIFE.md#being-runtime)),
 local kind `being-runtime` with [host limits](#host-limits-v1): `definitions` (default 1024, ceiling 1,000,000)
 and `carry` (default 256, ceiling 4096). `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`.
 Its 30 cases (11 malformed) live in `conformance/being-runtime/`.
@@ -3775,9 +3775,9 @@ Twelve wired cross-engine edges with documented explain traces:
 - `export {}` → `{"format": "gamectx-state", "kind": "being-runtime", "limits", "state", "version": 1}`.
 - `import {save}` → replaces the runtime's state after strict envelope and invariant validation.
 
-## Realization and intent packets v1 (pass 5, stage 3)
+## Realization and intent packets v1
 
-`gamectx::character::realization` (guide: [Life](characters/LIFE.md#intent-packets-and-checked-realization-pass-5-stage-3)),
+`gamectx::character::realization` (guide: [Life](characters/LIFE.md#intent-packets-and-checked-realization)),
 local kind `realization` with [host limits](#host-limits-v1): `templates` (default 256, ceiling 1,000,000), `facts` (default 64,
 ceiling 4096), `idioms` (default 32, ceiling 1024), and `forbidden` (default 64, ceiling 4096).
 `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 34 cases (8 malformed) live in `conformance/realization/`.
@@ -3803,9 +3803,9 @@ template fallback ensuring zero scene stalls:
 - `export {}` → `{"format": "gamectx-state", "kind": "realization", "limits", "state", "version": 1}`.
 - `import {save}` → restores realization state after envelope and invariant validation.
 
-## Surroundings v1 (pass 3, stage 5)
+## Surroundings v1
 
-`gamectx::knowledge::surroundings` (guide: [Life](characters/LIFE.md#world-and-social-schemas-pass-3-stage-5)),
+`gamectx::knowledge::surroundings` (guide: [Life](characters/LIFE.md#world-and-social-schemas)),
 local kind `surroundings` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version:
 1}`. Its 25 cases (7 malformed) live in `conformance/surroundings/`. An op that fails refuses the request; ops before
 it keep their changes, and the failing op changes nothing.
@@ -3847,9 +3847,9 @@ it keep their changes, and the failing op changes nothing.
 - `inspect_item {item, observer}` → `{item, loss_weight_pct (300 if the observer holds it dear, else 100), observer,
   theft_appraisal}`; a theft appraisal is the owner seeing someone else hold it, unless lent.
 
-## Social fabric v1 (pass 3, stage 5)
+## Social fabric v1
 
-`gamectx::knowledge::fabric` (guide: [Life](characters/LIFE.md#world-and-social-schemas-pass-3-stage-5)), local kind
+`gamectx::knowledge::fabric` (guide: [Life](characters/LIFE.md#world-and-social-schemas)), local kind
 `fabric` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25 cases
 (7 malformed) live in `conformance/fabric/`. Levels are 0–100.
 
@@ -3890,9 +3890,9 @@ it keep their changes, and the failing op changes nothing.
   notes_it, else lets_it_go), on_small_talk (patience <30 cuts_to_point, <70 humors_briefly, else enjoys),
   secret_keeping}`. Unprofiled beings use the defaults.
 
-## Embodiment v1 (pass 3, stage 4)
+## Embodiment v1
 
-`gamectx::character::embodiment` (guide: [Life](characters/LIFE.md#embodiment-pass-3-stage-4)), local kind
+`gamectx::character::embodiment` (guide: [Life](characters/LIFE.md#embodiment)), local kind
 `embodiment` with [host limits](#host-limits-v1): `{ops: 1–64, limits?}` → `{limits?, results, version: 1}`. Its 25
 cases (7 malformed) live in `conformance/embodiment/`. An op that fails refuses the request; ops before it keep their
 changes, and the failing op changes nothing. Levels are 0–100.

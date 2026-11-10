@@ -24,8 +24,7 @@ pub(crate) use greetings::fixture as greetings_fixture;
 pub use greetings::GreetingMemory;
 mod conversation;
 pub use conversation::{
-    conversation_route, decompose_utterance, BoundedLexicon, ClauseIntentKind, DecomposedClause,
-    IntentDecomposer,
+    conversation_route, decompose_utterance, BoundedLexicon, ClauseIntentKind, DecomposedClause, IntentDecomposer,
 };
 mod reactions;
 pub(crate) use reactions::fixture as reactions_fixture;
@@ -41,9 +40,8 @@ mod grounding;
 pub use grounding::{ground_persona, ground_persona_pass6, AutobiographyLedger};
 pub mod social;
 pub use social::{
-    evaluate_social_proposal, evaluate_social_proposal_with_valuation, recognize_social_intent,
-    ItemValuation, ItemValuationCatalog, PeerEntity, SocialActionKind, SocialDisposition,
-    SocialMesh, SocialOutcome, SocialProposal,
+    evaluate_social_proposal, evaluate_social_proposal_with_valuation, recognize_social_intent, ItemValuation,
+    ItemValuationCatalog, PeerEntity, SocialActionKind, SocialDisposition, SocialMesh, SocialOutcome, SocialProposal,
 };
 pub mod engine;
 pub(crate) use engine::fixture as engine_fixture;

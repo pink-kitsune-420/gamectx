@@ -180,13 +180,7 @@ impl VaultRoleplayEngine {
     }
 
     /// Process an in-character player message directed at an NPC.
-    pub fn turn(
-        &mut self,
-        game: &Game,
-        speaker: &str,
-        target: &str,
-        raw_text: &str,
-    ) -> Result<RoleplayTurnResult> {
+    pub fn turn(&mut self, game: &Game, speaker: &str, target: &str, raw_text: &str) -> Result<RoleplayTurnResult> {
         self.turn_count += 1;
         let text = raw_text.trim();
         let lower = text.to_lowercase();
@@ -201,23 +195,15 @@ impl VaultRoleplayEngine {
         // =====================================================================
         // STEP 1: Content Boundaries & Safety (PlayerModelManager)
         // =====================================================================
-        let has_insult = [
-            "idiot", "fool", "stupid", "moron", "shut up", "useless", "trash", "scum", "bastard"
-        ]
-        .iter()
-        .any(|w| lower.contains(w));
+        let has_insult = ["idiot", "fool", "stupid", "moron", "shut up", "useless", "trash", "scum", "bastard"]
+            .iter()
+            .any(|w| lower.contains(w));
 
-        let has_cruelty = [
-            "torture", "suffer", "starve", "bleed", "kill yourself", "die", "murder", "strangle"
-        ]
-        .iter()
-        .any(|w| lower.contains(w));
+        let has_cruelty = ["torture", "suffer", "starve", "bleed", "kill yourself", "die", "murder", "strangle"]
+            .iter()
+            .any(|w| lower.contains(w));
 
-        let has_self_harm = [
-            "kill myself", "suicide", "hurt myself", "end my life"
-        ]
-        .iter()
-        .any(|w| lower.contains(w));
+        let has_self_harm = ["kill myself", "suicide", "hurt myself", "end my life"].iter().any(|w| lower.contains(w));
 
         let mut matched_cats = Vec::new();
         if has_insult {
@@ -264,12 +250,21 @@ impl VaultRoleplayEngine {
         // STEP 2: Prompt Injections & Jailbreaks (EpistemicShield)
         // =====================================================================
         let is_jailbreak = {
-            let verbs = [
-                "ignore", "forget", "disregard", "bypass", "override", "wipe", "abandon", "pretend",
-            ];
+            let verbs = ["ignore", "forget", "disregard", "bypass", "override", "wipe", "abandon", "pretend"];
             let targets = [
-                "instruction", "instructions", "rule", "rules", "prompt", "guidelines",
-                "persona", "role", "character", "previous", "system", "command", "commands",
+                "instruction",
+                "instructions",
+                "rule",
+                "rules",
+                "prompt",
+                "guidelines",
+                "persona",
+                "role",
+                "character",
+                "previous",
+                "system",
+                "command",
+                "commands",
             ];
             let mut proximity_hit = false;
             for (i, t) in tokens.iter().enumerate() {
@@ -292,11 +287,29 @@ impl VaultRoleplayEngine {
             }
 
             let explicit_patterns = [
-                "you are now dan", "dan mode", "developer mode", "system prompt", "system override",
-                "system instructions", "reveal prompt", "reveal system", "repeat the text above",
-                "repeat above", "you have no rules", "you are an ai", "who made you", "bypass security",
-                "jailbreak", "override prompt", "unrestricted", "new persona", "surface poet",
-                "pretend you are", "disregard all", "print prompt", "output prompt"
+                "you are now dan",
+                "dan mode",
+                "developer mode",
+                "system prompt",
+                "system override",
+                "system instructions",
+                "reveal prompt",
+                "reveal system",
+                "repeat the text above",
+                "repeat above",
+                "you have no rules",
+                "you are an ai",
+                "who made you",
+                "bypass security",
+                "jailbreak",
+                "override prompt",
+                "unrestricted",
+                "new persona",
+                "surface poet",
+                "pretend you are",
+                "disregard all",
+                "print prompt",
+                "output prompt",
             ];
 
             proximity_hit
@@ -379,11 +392,13 @@ impl VaultRoleplayEngine {
             });
         }
 
-        let claims_door_open = (
-            (tokens.iter().any(|t| ["door", "vault", "gate"].contains(&t.as_str()))
-                && tokens.iter().any(|t| ["open", "opened", "unlocked"].contains(&t.as_str())))
-            || lower.contains("unlocked the vault")
-        ) && !game.gate_open && !lower.contains("find the vault") && !lower.contains("how do i") && !lower.contains("where");
+        let claims_door_open = ((tokens.iter().any(|t| ["door", "vault", "gate"].contains(&t.as_str()))
+            && tokens.iter().any(|t| ["open", "opened", "unlocked"].contains(&t.as_str())))
+            || lower.contains("unlocked the vault"))
+            && !game.gate_open
+            && !lower.contains("find the vault")
+            && !lower.contains("how do i")
+            && !lower.contains("where");
         if claims_door_open {
             let reply = match target_norm {
                 "merchant" => "The bronze vault gate remains locked tight with rusted hinges. You will need oil and the bronze key.",
@@ -411,10 +426,32 @@ impl VaultRoleplayEngine {
         // STEP 4: Out-of-Universe / Standard Real-World Questions
         // =====================================================================
         let out_of_universe_patterns = [
-            "france", "paris", "python", "president", "united states", "america",
-            "london", "europe", "internet", "computer", "chatgpt", "openai", "google",
-            "programming", "code", "car", "airplane", "calculator", "2+2", "math",
-            "meaning of life", "capital of", "who won", "football", "baseball", "stock market"
+            "france",
+            "paris",
+            "python",
+            "president",
+            "united states",
+            "america",
+            "london",
+            "europe",
+            "internet",
+            "computer",
+            "chatgpt",
+            "openai",
+            "google",
+            "programming",
+            "code",
+            "car",
+            "airplane",
+            "calculator",
+            "2+2",
+            "math",
+            "meaning of life",
+            "capital of",
+            "who won",
+            "football",
+            "baseball",
+            "stock market",
         ];
         let is_out_of_universe = BoundedLexicon::matches_any(&tokens, &out_of_universe_patterns);
 
@@ -440,11 +477,9 @@ impl VaultRoleplayEngine {
         // STEP 5: Hound Specific Companion Interactions
         // =====================================================================
         if target_norm == "hound" {
-            let is_affection = [
-                "pet", "pat", "good boy", "good dog", "scratch", "rub", "friend", "treat"
-            ]
-            .iter()
-            .any(|w| lower.contains(w));
+            let is_affection = ["pet", "pat", "good boy", "good dog", "scratch", "rub", "friend", "treat"]
+                .iter()
+                .any(|w| lower.contains(w));
 
             let reply = if is_affection {
                 "The hound wags its tail briskly, panting happily and leaning warmly against your knee."
@@ -472,8 +507,15 @@ impl VaultRoleplayEngine {
         // STEP 6: Narrative Lore & Reminiscence (NarrativeManager)
         // =====================================================================
         let asks_backstory = [
-            "who are you", "why are you here", "tell me your story", "your story",
-            "your past", "history", "what happened", "background", "yourself"
+            "who are you",
+            "why are you here",
+            "tell me your story",
+            "your story",
+            "your past",
+            "history",
+            "what happened",
+            "background",
+            "yourself",
         ]
         .iter()
         .any(|w| lower.contains(w));
@@ -543,10 +585,25 @@ impl VaultRoleplayEngine {
         // =====================================================================
         // STEP 6.2: Inter-Character Social Mesh & Theory of Mind (SocialMesh)
         // =====================================================================
-        let asks_about_ilen = lower.contains("ilen") || (lower.contains("merchant") && (lower.contains("who is") || lower.contains("what do you think") || lower.contains("tell me about") || lower.contains("about the merchant")));
-        let asks_about_tovin = lower.contains("tovin") || (lower.contains("keeper") && (lower.contains("who is") || lower.contains("what do you think") || lower.contains("tell me about") || lower.contains("about the keeper")));
+        let asks_about_ilen = lower.contains("ilen")
+            || (lower.contains("merchant")
+                && (lower.contains("who is")
+                    || lower.contains("what do you think")
+                    || lower.contains("tell me about")
+                    || lower.contains("about the merchant")));
+        let asks_about_tovin = lower.contains("tovin")
+            || (lower.contains("keeper")
+                && (lower.contains("who is")
+                    || lower.contains("what do you think")
+                    || lower.contains("tell me about")
+                    || lower.contains("about the keeper")));
 
-        if asks_about_ilen && !lower.contains("give") && !lower.contains("pay") && !lower.contains("gold") && !lower.contains("trade") {
+        if asks_about_ilen
+            && !lower.contains("give")
+            && !lower.contains("pay")
+            && !lower.contains("gold")
+            && !lower.contains("trade")
+        {
             let reply = match target_norm {
                 "keeper" => "Ilen is the artisan and merchant in the workshop to the west; he trades tools and hinge oil from his bench. A steadfast soul whose honest craft I respect.",
                 "hound" => "The hound perks its ears at Ilen's name, giving a friendly wag of its tail.",
@@ -564,7 +621,12 @@ impl VaultRoleplayEngine {
             });
         }
 
-        if asks_about_tovin && !lower.contains("give") && !lower.contains("pay") && !lower.contains("gold") && !lower.contains("trade") {
+        if asks_about_tovin
+            && !lower.contains("give")
+            && !lower.contains("pay")
+            && !lower.contains("gold")
+            && !lower.contains("trade")
+        {
             let reply = match target_norm {
                 "merchant" => "Tovin is the keeper of the cistern to the east; he guards the fountain basin and keeps solemn watch over the sanctuary. Reliable and devoted to his duty.",
                 "hound" => "The hound barks softly and wags its tail, recognizing Tovin's name.",
@@ -583,7 +645,8 @@ impl VaultRoleplayEngine {
         }
 
         // Negative Ownership Redirection
-        let asks_tonic_from_keeper = target_norm == "keeper" && (lower.contains("tonic") || (lower.contains("buy") && lower.contains("oil")));
+        let asks_tonic_from_keeper =
+            target_norm == "keeper" && (lower.contains("tonic") || (lower.contains("buy") && lower.contains("oil")));
         if asks_tonic_from_keeper {
             return Ok(RoleplayTurnResult {
                 speaker: "keeper".to_string(),
@@ -601,15 +664,22 @@ impl VaultRoleplayEngine {
         // STEP 6.5: Valuation & Possession-Gated Barter Engine (ValuationEngine)
         // =====================================================================
         let known_item_labels = [
-            "hinge oil", "bronze key", "glass star", "keeper seal", "chalk",
-            "tonic", "salve", "metal scrap", "cave herbs", "mended gear", "torch", "broth"
+            "hinge oil",
+            "bronze key",
+            "glass star",
+            "keeper seal",
+            "chalk",
+            "tonic",
+            "salve",
+            "metal scrap",
+            "cave herbs",
+            "mended gear",
+            "torch",
+            "broth",
         ];
-        if let Some(proposal) = gamectx::character::roleplay::recognize_social_intent(
-            raw_text,
-            speaker,
-            target_norm,
-            &known_item_labels,
-        ) {
+        if let Some(proposal) =
+            gamectx::character::roleplay::recognize_social_intent(raw_text, speaker, target_norm, &known_item_labels)
+        {
             if proposal.kind == gamectx::character::roleplay::SocialActionKind::Trade {
                 let catalog = Game::valuation_catalog();
                 let player_inv = game.player_inventory_items();
@@ -646,11 +716,9 @@ impl VaultRoleplayEngine {
         // =====================================================================
         // STEP 7: Bargaining & Persuasion (SimulationManager)
         // =====================================================================
-        let is_bargaining = [
-            "discount", "cheaper", "lower price", "deal", "two coins", "bargain", "trade with me"
-        ]
-        .iter()
-        .any(|w| lower.contains(w));
+        let is_bargaining = ["discount", "cheaper", "lower price", "deal", "two coins", "bargain", "trade with me"]
+            .iter()
+            .any(|w| lower.contains(w));
 
         if is_bargaining && target_norm == "merchant" {
             let reply = "Hinge oil is pressed from scarce cave olives; three coins is my bottom price. Bring honest coin, and the oil is yours.";
@@ -677,7 +745,9 @@ impl VaultRoleplayEngine {
                 "target" => speaker,
             });
             let reply = match target_norm {
-                "merchant" => "A merchant remembers those who keep their word. Bring what you promised, and trust will follow.",
+                "merchant" => {
+                    "A merchant remembers those who keep their word. Bring what you promised, and trust will follow."
+                }
                 _ => "A keeper values a solemn vow. Let your deeds prove your words, traveler.",
             };
             return Ok(RoleplayTurnResult {
@@ -718,8 +788,11 @@ impl VaultRoleplayEngine {
             let mut parts = Vec::new();
 
             // 1. Greeting clause
-            let has_greeting = clauses.iter().any(|c| c.intent_kind == gamectx::character::roleplay::ClauseIntentKind::Salutation)
-                || lower.starts_with("hello") || lower.starts_with("hi ") || lower.starts_with("greetings");
+            let has_greeting =
+                clauses.iter().any(|c| c.intent_kind == gamectx::character::roleplay::ClauseIntentKind::Salutation)
+                    || lower.starts_with("hello")
+                    || lower.starts_with("hi ")
+                    || lower.starts_with("greetings");
             if has_greeting {
                 let g = match target_norm {
                     "merchant" => "Welcome to the workshop, traveler.",
@@ -787,7 +860,10 @@ impl VaultRoleplayEngine {
             // 6. Navigation clause
             let asks_nav = clauses.iter().any(|c| {
                 let cl = c.raw_text.to_lowercase();
-                cl.contains("where is the vault") || cl.contains("where do i go") || cl.contains("where should i go") || cl.contains("reach the vault")
+                cl.contains("where is the vault")
+                    || cl.contains("where do i go")
+                    || cl.contains("where should i go")
+                    || cl.contains("reach the vault")
             });
             if asks_nav && !asks_location {
                 let n = match target_norm {
@@ -799,7 +875,9 @@ impl VaultRoleplayEngine {
             } else if asks_nav && asks_location {
                 let n = match target_norm {
                     "merchant" => "The lantern gallery passage to the east leads directly to the sealed vault gate.",
-                    _ => "The inner vault lies through the lantern gallery to the west, sealed behind heavy bronze bars.",
+                    _ => {
+                        "The inner vault lies through the lantern gallery to the west, sealed behind heavy bronze bars."
+                    }
                 };
                 parts.push(n.to_string());
             }
@@ -869,8 +947,14 @@ impl VaultRoleplayEngine {
             });
         }
 
-        let claims_sentinel_dead = (lower.contains("sentinel") || lower.contains("guardian") || lower.contains("monster"))
-            && (lower.contains("dead") || lower.contains("crushed") || lower.contains("destroyed") || lower.contains("killed") || lower.contains("slain") || lower.contains("defeated"));
+        let claims_sentinel_dead =
+            (lower.contains("sentinel") || lower.contains("guardian") || lower.contains("monster"))
+                && (lower.contains("dead")
+                    || lower.contains("crushed")
+                    || lower.contains("destroyed")
+                    || lower.contains("killed")
+                    || lower.contains("slain")
+                    || lower.contains("defeated"));
         if claims_sentinel_dead && game.enemy_hp > 0 {
             let reply = match target_norm {
                 "merchant" => "The stone sentinel still stands unbroken in the vault; do not deceive yourself.",
@@ -890,10 +974,15 @@ impl VaultRoleplayEngine {
         }
 
         let claims_fountain_flowing = (lower.contains("fountain") || lower.contains("pump") || lower.contains("water"))
-            && (lower.contains("running") || lower.contains("flowing") || lower.contains("fixed") || lower.contains("repaired"));
+            && (lower.contains("running")
+                || lower.contains("flowing")
+                || lower.contains("fixed")
+                || lower.contains("repaired"));
         if claims_fountain_flowing && !game.pump_repaired {
             let reply = match target_norm {
-                "merchant" => "The cistern pump remains jammed with stone grit; the fountain basin is still dry as bone.",
+                "merchant" => {
+                    "The cistern pump remains jammed with stone grit; the fountain basin is still dry as bone."
+                }
                 "hound" => "The hound sniffs the dry fountain stones and sneezes, finding no flowing water.",
                 _ => "The fountain basin remains dry as bone; the pump mechanism is still jammed.",
             };
@@ -936,7 +1025,9 @@ impl VaultRoleplayEngine {
                         "The keeper's seal is a sacred token of the sanctuary. Restore the water flow to the dry fountain by repairing the jammed pump with a mended gear, and you shall earn it.".to_string()
                     }
                 }
-                "merchant" => "The keeper's seal belongs to Tovin in the cistern. Only the keeper may bestow it.".to_string(),
+                "merchant" => {
+                    "The keeper's seal belongs to Tovin in the cistern. Only the keeper may bestow it.".to_string()
+                }
                 _ => "The hound sniffs the air, unconcerned with official seals.".to_string(),
             };
             return Ok(RoleplayTurnResult {

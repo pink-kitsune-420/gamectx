@@ -60,13 +60,10 @@ const NUMBER_WORDS: &[(&str, &str)] = &[
     ("hundred", "100"),
 ];
 
-const NEGATION_MARKERS: &[&str] = &[
-    "not", "never", "no", "neither", "nor", "hardly", "scarcely", "barely", "cannot", "without",
-];
+const NEGATION_MARKERS: &[&str] =
+    &["not", "never", "no", "neither", "nor", "hardly", "scarcely", "barely", "cannot", "without"];
 
-const CLAUSE_DELIMITERS: &[&str] = &[
-    ",", ".", ";", "!", "?", "but", "however", "although", "though",
-];
+const CLAUSE_DELIMITERS: &[&str] = &[",", ".", ";", "!", "?", "but", "however", "although", "though"];
 
 const INDIRECT_REQUEST_PATTERNS: &[(&str, &str)] = &[
     ("cold_room", "it is cold in here"),
@@ -340,13 +337,8 @@ impl ConceptManager {
             return Err(c::bad());
         }
 
-        let total_words: usize = self
-            .concepts
-            .iter()
-            .filter(|(k, _)| *k != &cid)
-            .map(|(_, v)| v.len())
-            .sum::<usize>()
-            + words_set.len();
+        let total_words: usize =
+            self.concepts.iter().filter(|(k, _)| *k != &cid).map(|(_, v)| v.len()).sum::<usize>() + words_set.len();
         if total_words > self.limits.get("words") {
             return Err(c::bad());
         }
@@ -514,10 +506,7 @@ impl ConceptManager {
         let mut seen = BTreeSet::new();
         let mut dedup_leaks = Vec::new();
         for lk in leaks {
-            let key = (
-                c::text(c::get(&lk, "forbidden")?)?.to_string(),
-                c::text(c::get(&lk, "matched")?)?.to_string(),
-            );
+            let key = (c::text(c::get(&lk, "forbidden")?)?.to_string(), c::text(c::get(&lk, "matched")?)?.to_string());
             if !seen.contains(&key) {
                 seen.insert(key);
                 dedup_leaks.push(lk);
@@ -653,14 +642,17 @@ impl ConceptManager {
         };
         if supplied {
             if let Value::Object(ref mut fields) = out {
-                fields.insert(0, (
-                    "limits".to_string(),
-                    Value::Object(vec![
-                        ("concepts".to_string(), Value::from(self.limits.get("concepts") as u64)),
-                        ("packs".to_string(), Value::from(self.limits.get("packs") as u64)),
-                        ("words".to_string(), Value::from(self.limits.get("words") as u64)),
-                    ]),
-                ));
+                fields.insert(
+                    0,
+                    (
+                        "limits".to_string(),
+                        Value::Object(vec![
+                            ("concepts".to_string(), Value::from(self.limits.get("concepts") as u64)),
+                            ("packs".to_string(), Value::from(self.limits.get("packs") as u64)),
+                            ("words".to_string(), Value::from(self.limits.get("words") as u64)),
+                        ]),
+                    ),
+                );
             }
         }
         Ok(out)
@@ -673,10 +665,7 @@ impl Persist for ConceptManager {
             .concepts
             .iter()
             .map(|(k, v)| {
-                Value::Array(vec![
-                    Value::str(k.clone()),
-                    Value::Array(v.iter().cloned().map(Value::str).collect()),
-                ])
+                Value::Array(vec![Value::str(k.clone()), Value::Array(v.iter().cloned().map(Value::str).collect())])
             })
             .collect();
 
@@ -684,10 +673,7 @@ impl Persist for ConceptManager {
             .packs
             .iter()
             .map(|(k, v)| {
-                Value::Array(vec![
-                    Value::str(k.clone()),
-                    Value::Array(v.iter().cloned().map(Value::str).collect()),
-                ])
+                Value::Array(vec![Value::str(k.clone()), Value::Array(v.iter().cloned().map(Value::str).collect())])
             })
             .collect();
 

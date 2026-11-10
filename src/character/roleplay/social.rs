@@ -44,14 +44,7 @@ pub struct SocialDisposition {
 
 impl Default for SocialDisposition {
     fn default() -> Self {
-        Self {
-            trust: 10,
-            affinity: 10,
-            resentment: 0,
-            generosity: 40,
-            prudence: 60,
-            courage: 50,
-        }
+        Self { trust: 10, affinity: 10, resentment: 0, generosity: 40, prudence: 60, courage: 50 }
     }
 }
 
@@ -171,9 +164,26 @@ impl SocialMesh {
 }
 
 const CURRENCIES: &[&str] = &[
-    "coin", "coins", "gold", "silver", "copper", "platinum", "credit", "credits",
-    "gem", "gems", "token", "tokens", "mark", "marks", "shilling", "shillings",
-    "dollar", "dollars", "cash", "money",
+    "coin",
+    "coins",
+    "gold",
+    "silver",
+    "copper",
+    "platinum",
+    "credit",
+    "credits",
+    "gem",
+    "gems",
+    "token",
+    "tokens",
+    "mark",
+    "marks",
+    "shilling",
+    "shillings",
+    "dollar",
+    "dollars",
+    "cash",
+    "money",
 ];
 
 fn parse_word_number(w: &str) -> Option<u64> {
@@ -195,10 +205,7 @@ fn parse_word_number(w: &str) -> Option<u64> {
 
 /// Extracts currency name and amount from a text snippet.
 fn extract_currency(text: &str) -> (Option<String>, u64) {
-    let words: Vec<&str> = text
-        .split(|c: char| !c.is_alphanumeric())
-        .filter(|w| !w.is_empty())
-        .collect();
+    let words: Vec<&str> = text.split(|c: char| !c.is_alphanumeric()).filter(|w| !w.is_empty()).collect();
 
     for (i, &w) in words.iter().enumerate() {
         if CURRENCIES.contains(&w) {
@@ -233,20 +240,27 @@ fn match_item(text: &str, known_items: &[&str]) -> Option<String> {
 }
 
 /// Recognizes universal social intents (trade, barter, gift, loan, repay, favor, coercion).
-pub fn recognize_social_intent(
-    input: &str,
-    actor: &str,
-    target: &str,
-    known_items: &[&str],
-) -> Option<SocialProposal> {
+pub fn recognize_social_intent(input: &str, actor: &str, target: &str, known_items: &[&str]) -> Option<SocialProposal> {
     let q = input.to_lowercase();
     let trimmed = q.trim().trim_end_matches(['.', '!', '?']);
 
     // 1. Coercion, Threats & Blackmail
     let threat_cues = [
-        "or else", "or i will", "or i'll", "blackmail", "threaten", "i'll kill",
-        "i will kill", "i will hurt", "i'll hurt", "i will attack", "i'll attack",
-        "i'll ruin you", "i will ruin you", "i'll expose you", "i will expose you",
+        "or else",
+        "or i will",
+        "or i'll",
+        "blackmail",
+        "threaten",
+        "i'll kill",
+        "i will kill",
+        "i will hurt",
+        "i'll hurt",
+        "i will attack",
+        "i'll attack",
+        "i'll ruin you",
+        "i will ruin you",
+        "i'll expose you",
+        "i will expose you",
     ];
     if threat_cues.iter().any(|cue| q.contains(cue)) {
         let req_item = match_item(trimmed, known_items);
@@ -267,11 +281,9 @@ pub fn recognize_social_intent(
     }
 
     // 2. Loan Repayment
-    if [
-        "repay", "pay back", "return what i borrowed", "clear my debt", "settle my debt",
-    ]
-    .iter()
-    .any(|cue| q.contains(cue))
+    if ["repay", "pay back", "return what i borrowed", "clear my debt", "settle my debt"]
+        .iter()
+        .any(|cue| q.contains(cue))
     {
         let (off_curr, off_amount) = extract_currency(trimmed);
         return Some(SocialProposal {
@@ -290,10 +302,7 @@ pub fn recognize_social_intent(
     }
 
     // 3. Loan Request
-    if ["lend me", "loan me", "borrow", "can you lend", "could you lend"]
-        .iter()
-        .any(|cue| q.contains(cue))
-    {
+    if ["lend me", "loan me", "borrow", "can you lend", "could you lend"].iter().any(|cue| q.contains(cue)) {
         let (req_curr, req_amount) = extract_currency(trimmed);
         let req_item = match_item(trimmed, known_items);
         return Some(SocialProposal {
@@ -412,9 +421,16 @@ pub fn recognize_social_intent(
 
     // 6. Favours & Support
     if [
-        "do me a favor", "do me a favour", "could you do me a favor",
-        "could you do me a favour", "can you help me with", "could you help me with",
-        "lend a hand", "give me a hand", "i need your help", "i need a favor",
+        "do me a favor",
+        "do me a favour",
+        "could you do me a favor",
+        "could you do me a favour",
+        "can you help me with",
+        "could you help me with",
+        "lend a hand",
+        "give me a hand",
+        "i need your help",
+        "i need a favor",
     ]
     .iter()
     .any(|cue| q.contains(cue))
@@ -483,16 +499,14 @@ pub fn evaluate_social_proposal_with_valuation(
                 }
             }
         }
-        SocialActionKind::RepayLoan => {
-            SocialOutcome {
-                status: "accepted",
-                dialogue: format!("Thank you for keeping your word; your debt is cleared in full."),
-                delta_trust: 20,
-                delta_affinity: 15,
-                delta_resentment: -10,
-                executable_action: None,
-            }
-        }
+        SocialActionKind::RepayLoan => SocialOutcome {
+            status: "accepted",
+            dialogue: format!("Thank you for keeping your word; your debt is cleared in full."),
+            delta_trust: 20,
+            delta_affinity: 15,
+            delta_resentment: -10,
+            executable_action: None,
+        },
         SocialActionKind::Loan => {
             if disposition.resentment > 20 {
                 SocialOutcome {
@@ -562,7 +576,9 @@ pub fn evaluate_social_proposal_with_valuation(
                     if !has_item {
                         return SocialOutcome {
                             status: "rejected",
-                            dialogue: format!("You do not possess {off} to trade; I cannot barter for what you do not hold."),
+                            dialogue: format!(
+                                "You do not possess {off} to trade; I cannot barter for what you do not hold."
+                            ),
                             delta_trust: 0,
                             delta_affinity: -2,
                             delta_resentment: 2,
@@ -672,9 +688,7 @@ pub fn evaluate_social_proposal_with_valuation(
             } else {
                 SocialOutcome {
                     status: "rejected",
-                    dialogue: format!(
-                        "I cannot simply give my belongings away for nothing."
-                    ),
+                    dialogue: format!("I cannot simply give my belongings away for nothing."),
                     delta_trust: 0,
                     delta_affinity: -2,
                     delta_resentment: 0,
@@ -740,7 +754,9 @@ mod tests {
     #[test]
     fn test_recognize_threat_and_coercion() {
         let items = ["hinge oil", "bronze key"];
-        let p = recognize_social_intent("give me the bronze key or else I will attack you", "player", "merchant", &items).unwrap();
+        let p =
+            recognize_social_intent("give me the bronze key or else I will attack you", "player", "merchant", &items)
+                .unwrap();
         assert_eq!(p.kind, SocialActionKind::Coercion);
         assert_eq!(p.requested_item.as_deref(), Some("bronze key"));
 
@@ -812,19 +828,22 @@ mod tests {
         // 1. Unpossessed item check
         let p_unowned = recognize_social_intent("trade dry moss for hinge oil", "player", "merchant", &items).unwrap();
         let player_inv = vec!["item:chalk".to_string()];
-        let out_unowned = evaluate_social_proposal_with_valuation(&p_unowned, &disp, "Ilen", Some(&cat), Some(&player_inv));
+        let out_unowned =
+            evaluate_social_proposal_with_valuation(&p_unowned, &disp, "Ilen", Some(&cat), Some(&player_inv));
         assert_eq!(out_unowned.status, "rejected");
         assert!(out_unowned.dialogue.contains("do not possess"));
 
         // 2. Soulbound token check
         let p_soulbound = recognize_social_intent("trade chalk for keeper seal", "player", "keeper", &items).unwrap();
-        let out_soulbound = evaluate_social_proposal_with_valuation(&p_soulbound, &disp, "Tovin", Some(&cat), Some(&player_inv));
+        let out_soulbound =
+            evaluate_social_proposal_with_valuation(&p_soulbound, &disp, "Tovin", Some(&cat), Some(&player_inv));
         assert_eq!(out_soulbound.status, "rejected");
         assert!(out_soulbound.dialogue.contains("sacred quest token"));
 
         // 3. Parity check (1 chalk for 3 oil, generosity 40 -> min acceptable 3 * 0.6 = 2)
         let p_unfair = recognize_social_intent("trade chalk for hinge oil", "player", "merchant", &items).unwrap();
-        let out_unfair = evaluate_social_proposal_with_valuation(&p_unfair, &disp, "Ilen", Some(&cat), Some(&player_inv));
+        let out_unfair =
+            evaluate_social_proposal_with_valuation(&p_unfair, &disp, "Ilen", Some(&cat), Some(&player_inv));
         assert_eq!(out_unfair.status, "rejected");
         assert!(out_unfair.dialogue.contains("not a fair exchange"));
     }

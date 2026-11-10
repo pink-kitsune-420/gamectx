@@ -150,11 +150,7 @@ impl Game {
         self.items.iter().any(|x| x.id == id && x.owner == "player")
     }
     pub fn player_inventory_items(&self) -> Vec<String> {
-        self.items
-            .iter()
-            .filter(|x| x.owner == "player")
-            .map(|x| x.id.to_string())
-            .collect()
+        self.items.iter().filter(|x| x.owner == "player").map(|x| x.id.to_string()).collect()
     }
     pub fn valuation_catalog() -> gamectx::character::roleplay::ItemValuationCatalog {
         let mut catalog = gamectx::character::roleplay::ItemValuationCatalog::new();
@@ -272,7 +268,9 @@ impl Game {
             name: "Ilen".into(),
             role: "Artisan and Merchant".into(),
             location: "workshop to the west".into(),
-            description: "He works at his anvil and workbench, crafting tools and trading refined hinge oil, chalk, and tonic.".into(),
+            description:
+                "He works at his anvil and workbench, crafting tools and trading refined hinge oil, chalk, and tonic."
+                    .into(),
             known_possessions: vec!["hinge oil".into(), "chalk".into(), "tonic".into(), "metal scrap".into()],
             stance_toward_peer: "Honest and dependable craftsman".into(),
         });
@@ -321,18 +319,23 @@ impl Game {
     }
     pub fn find_item_by_name(&self, query: &str) -> Option<Value> {
         let q = query.to_lowercase();
-        self.items.iter().find(|x| {
-            let id_name = x.id.rsplit(':').next().unwrap_or(x.id).replace('_', " ");
-            q.contains(&x.label.to_lowercase()) || q.contains(&id_name)
-        }).map(|x| obj! {
-            "id" => x.id,
-            "label" => x.label,
-            "kind" => x.kind,
-            "owner" => x.owner,
-            "location" => x.location.as_str(),
-            "price" => x.price,
-            "owned" => x.owner == "player"
-        })
+        self.items
+            .iter()
+            .find(|x| {
+                let id_name = x.id.rsplit(':').next().unwrap_or(x.id).replace('_', " ");
+                q.contains(&x.label.to_lowercase()) || q.contains(&id_name)
+            })
+            .map(|x| {
+                obj! {
+                    "id" => x.id,
+                    "label" => x.label,
+                    "kind" => x.kind,
+                    "owner" => x.owner,
+                    "location" => x.location.as_str(),
+                    "price" => x.price,
+                    "owned" => x.owner == "player"
+                }
+            })
     }
     pub fn choices(&self) -> Vec<Value> {
         if self.won || self.hp == 0 || self.revision >= MAX_TURNS {

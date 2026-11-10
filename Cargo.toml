@@ -127,3 +127,23 @@ path = "examples/runtime/runtime-upgrades.rs"
 [[example]]
 name = "dungeon"
 path = "examples/lantern-vault/main.rs"
+
+[lints.rust]
+dead_code = "allow"
+
+[lints.clippy]
+manual_strip = "allow"
+manual_clamp = "allow"
+needless_range_loop = "allow"
+for_kv_map = "allow"
+if_same_then_else = "allow"
+useless_format = "allow"
+too_many_arguments = "allow"
+cast_abs_to_unsigned = "allow"
+collapsible_if = "allow"
+collapsible_match = "allow"
+double_ended_iterator_last = "allow"
+op_ref = "allow"
+manual_checked_ops = "allow"
+format_in_format_args = "allow"
+duplicated_attributes = "allow"

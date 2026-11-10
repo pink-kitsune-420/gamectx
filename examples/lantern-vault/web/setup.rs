@@ -186,7 +186,9 @@ impl Monitor {
             });
             let mut status = "unchecked";
             let mut detail = "Not checked. Apply settings, then check local servers.".to_string();
-            let is_loopback = config.endpoint(backend).ok()
+            let is_loopback = config
+                .endpoint(backend)
+                .ok()
                 .and_then(|e| text(e, "url").ok())
                 .is_some_and(|u| u.starts_with("http://127.0.0.1:") || u.starts_with("http://localhost:"));
             if !backend.starts_with("local_") && !is_loopback {
@@ -272,9 +274,18 @@ pub fn selected_model_for(c: &providers::Config, backend: &str) -> String {
 pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request> {
     let configured = text(&c.value, channel).unwrap_or("");
     let is_openai = configured == "online_openai_compatible"
-        || c.endpoint(configured).ok().and_then(|e| text(e, "url").ok()).is_some_and(|u| u.ends_with("/chat/completions"));
+        || c.endpoint(configured)
+            .ok()
+            .and_then(|e| text(e, "url").ok())
+            .is_some_and(|u| u.ends_with("/chat/completions"));
     let backend = match channel {
-        "text" => if is_openai { "online_openai_compatible" } else { "local_ollama" },
+        "text" => {
+            if is_openai {
+                "online_openai_compatible"
+            } else {
+                "local_ollama"
+            }
+        }
         "image" => "local_sd_cpp",
         "tts" => "local_tts_http",
         "stt" => "local_stt_http",
@@ -286,7 +297,16 @@ pub fn probe(c: &providers::Config, channel: &str) -> Result<providers::Request>
         management: None,
         text_token: None,
         method: if channel == "text" { providers::Method::Get } else { providers::Method::ConnectOnly },
-        url: format!("http://{root}/{}", if is_openai { "v1/models" } else if channel == "text" { "api/tags" } else { "health" }),
+        url: format!(
+            "http://{root}/{}",
+            if is_openai {
+                "v1/models"
+            } else if channel == "text" {
+                "api/tags"
+            } else {
+                "health"
+            }
+        ),
         content_type: "application/json".into(),
         body: Vec::new(),
         key_env: None,

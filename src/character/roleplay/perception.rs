@@ -66,13 +66,7 @@ impl RoomPerception {
             let list: Vec<String> = self
                 .possessions
                 .iter()
-                .map(|(label, price)| {
-                    if *price > 0 {
-                        format!("{label} ({price} coins)")
-                    } else {
-                        label.clone()
-                    }
-                })
+                .map(|(label, price)| if *price > 0 { format!("{label} ({price} coins)") } else { label.clone() })
                 .collect();
             parts.push(format!("In your possession: {}.", list.join(", ")));
         }
@@ -122,9 +116,24 @@ impl RoomPerception {
         }
 
         let is_inquiry = [
-            "where", "looking for", "look for", "find", "search", "do you have", "have you",
-            "do you see", "you see", "i need", "we need", "is there", "are there",
-            "can i get", "can you help", "help me", "tell me about", "what do you",
+            "where",
+            "looking for",
+            "look for",
+            "find",
+            "search",
+            "do you have",
+            "have you",
+            "do you see",
+            "you see",
+            "i need",
+            "we need",
+            "is there",
+            "are there",
+            "can i get",
+            "can you help",
+            "help me",
+            "tell me about",
+            "what do you",
         ]
         .iter()
         .any(|cue| q.contains(cue));
@@ -259,7 +268,9 @@ mod tests {
         assert!(q4.contains("hinge oil"));
         assert!(q4.contains("Resting in this area: bronze key."));
 
-        let q5 = p.query("can you help me? I'm looking for a bronze key and some oil for the hinge door on the vault").unwrap();
+        let q5 = p
+            .query("can you help me? I'm looking for a bronze key and some oil for the hinge door on the vault")
+            .unwrap();
         assert!(q5.contains("hinge oil (3 coins)"));
         assert!(q5.contains("bronze key"));
         assert!(q5.contains("free to pick it up"));

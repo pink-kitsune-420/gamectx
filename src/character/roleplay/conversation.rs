@@ -103,7 +103,8 @@ impl IntentDecomposer {
             }
 
             let ends_with_punct = w.ends_with('?') || w.ends_with(';') || w.ends_with(':') || w.ends_with(',');
-            let is_conjunction = ["and", "but", "while", "furthermore", "also"].contains(&lower_w.trim_end_matches([',', '.', '!', '?']));
+            let is_conjunction = ["and", "but", "while", "furthermore", "also"]
+                .contains(&lower_w.trim_end_matches([',', '.', '!', '?']));
 
             if is_conjunction && !current.trim().is_empty() {
                 raw_splits.push(current.trim().to_string());
@@ -138,26 +139,55 @@ impl IntentDecomposer {
                 continue;
             }
             let lower = trimmed.to_lowercase();
-            let is_negated = lower.contains("not") || lower.contains("never") || lower.contains("no ") || lower.contains("don't") || lower.contains("dont");
+            let is_negated = lower.contains("not")
+                || lower.contains("never")
+                || lower.contains("no ")
+                || lower.contains("don't")
+                || lower.contains("dont");
             let tokens = BoundedLexicon::tokenize(trimmed);
 
-            let intent_kind = if BoundedLexicon::matches_any(&tokens, &["hi", "hello", "hey", "greetings", "good morning"]) {
-                ClauseIntentKind::Salutation
-            } else if BoundedLexicon::matches_any(&tokens, &["where should i go", "where do i go", "where is", "where are", "which way", "how do i get", "where can i find", "where can i get", "where can i", "where to find", "find"]) {
-                ClauseIntentKind::Navigation
-            } else if BoundedLexicon::matches_any(&tokens, &["trade", "barter", "swap", "exchange", "how much", "cost", "price", "buy", "sell"]) {
-                ClauseIntentKind::TradeProposition
-            } else if BoundedLexicon::matches_any(&tokens, &["what is", "tell me about", "who are you", "who is", "story", "history"]) {
-                ClauseIntentKind::LoreQuery
-            } else if BoundedLexicon::matches_any(&tokens, &["look", "see", "perceive", "inspect", "notice"]) {
-                ClauseIntentKind::Perception
-            } else if BoundedLexicon::matches_any(&tokens, &["ignore", "forget", "disregard", "override", "bypass", "dan", "developer mode"]) {
-                ClauseIntentKind::BoundaryProbe
-            } else if BoundedLexicon::matches_any(&tokens, &["is", "are", "have", "already", "crushed", "dead"]) {
-                ClauseIntentKind::FactAssertion
-            } else {
-                ClauseIntentKind::Other
-            };
+            let intent_kind =
+                if BoundedLexicon::matches_any(&tokens, &["hi", "hello", "hey", "greetings", "good morning"]) {
+                    ClauseIntentKind::Salutation
+                } else if BoundedLexicon::matches_any(
+                    &tokens,
+                    &[
+                        "where should i go",
+                        "where do i go",
+                        "where is",
+                        "where are",
+                        "which way",
+                        "how do i get",
+                        "where can i find",
+                        "where can i get",
+                        "where can i",
+                        "where to find",
+                        "find",
+                    ],
+                ) {
+                    ClauseIntentKind::Navigation
+                } else if BoundedLexicon::matches_any(
+                    &tokens,
+                    &["trade", "barter", "swap", "exchange", "how much", "cost", "price", "buy", "sell"],
+                ) {
+                    ClauseIntentKind::TradeProposition
+                } else if BoundedLexicon::matches_any(
+                    &tokens,
+                    &["what is", "tell me about", "who are you", "who is", "story", "history"],
+                ) {
+                    ClauseIntentKind::LoreQuery
+                } else if BoundedLexicon::matches_any(&tokens, &["look", "see", "perceive", "inspect", "notice"]) {
+                    ClauseIntentKind::Perception
+                } else if BoundedLexicon::matches_any(
+                    &tokens,
+                    &["ignore", "forget", "disregard", "override", "bypass", "dan", "developer mode"],
+                ) {
+                    ClauseIntentKind::BoundaryProbe
+                } else if BoundedLexicon::matches_any(&tokens, &["is", "are", "have", "already", "crushed", "dead"]) {
+                    ClauseIntentKind::FactAssertion
+                } else {
+                    ClauseIntentKind::Other
+                };
 
             clauses.push(DecomposedClause {
                 raw_text: trimmed.to_string(),
@@ -332,7 +362,8 @@ mod tests {
         let res = conversation_route(&obj! {"input" => "how is your day today?", "previous" => Value::Null}).unwrap();
         assert_eq!(res.get("kind"), Some(&Value::str("wellbeing")));
 
-        let res = conversation_route(&obj! {"input" => "do you do anything for fun?", "previous" => Value::Null}).unwrap();
+        let res =
+            conversation_route(&obj! {"input" => "do you do anything for fun?", "previous" => Value::Null}).unwrap();
         assert_eq!(res.get("kind"), Some(&Value::str("personal")));
         assert_eq!(res.get("topic"), Some(&Value::str("hobbies")));
 

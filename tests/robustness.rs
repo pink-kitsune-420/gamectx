@@ -5254,8 +5254,7 @@ fn tiers_survives_mutation_limits_and_boundaries() {
     // Refused op changes nothing
     let mut t = filled();
     let before = persist::export(&t, &t.limits).to_json();
-    let bad_track =
-        parse(r#"{"ops":[{"op":"track","args":{"being":"bad id!"}}]}"#, 4096).unwrap();
+    let bad_track = parse(r#"{"ops":[{"op":"track","args":{"being":"bad id!"}}]}"#, 4096).unwrap();
     assert!(t.workflow(&bad_track).is_err());
     assert_eq!(persist::export(&t, &t.limits).to_json(), before);
 }
@@ -5420,8 +5419,7 @@ fn group_survives_mutation_limits_and_boundaries() {
     // Refused op changes nothing
     let mut g = filled();
     let before = persist::export(&g, &g.limits).to_json();
-    let bad_q =
-        parse(r#"{"ops":[{"op":"question","args":{"id":"bad id!","prompt":"p"}}]}"#, 4096).unwrap();
+    let bad_q = parse(r#"{"ops":[{"op":"question","args":{"id":"bad id!","prompt":"p"}}]}"#, 4096).unwrap();
     assert!(g.workflow(&bad_q).is_err());
     assert_eq!(persist::export(&g, &g.limits).to_json(), before);
 }
@@ -5479,7 +5477,8 @@ fn simulation_survives_mutation_limits_and_boundaries() {
     assert!(accepted > 0 && refused > 0);
 
     // 64/65 ops; verify op
-    let vop = r#"{"op":"verify","args":{"speaker":"maren","target":"alder","predicted_shift":20,"actual_shift":20}}"#.to_string();
+    let vop = r#"{"op":"verify","args":{"speaker":"maren","target":"alder","predicted_shift":20,"actual_shift":20}}"#
+        .to_string();
     assert!(filled().workflow(&req(&vec![vop.clone(); 64])).is_ok());
     assert!(filled().workflow(&req(&vec![vop.clone(); 65])).is_err());
 
@@ -5499,8 +5498,7 @@ fn simulation_survives_mutation_limits_and_boundaries() {
     // Refused op changes nothing
     let mut s = filled();
     let before = persist::export(&s, &s.limits).to_json();
-    let bad_copy =
-        parse(r#"{"ops":[{"op":"copy","args":{"holder":"self","target":"self"}}]}"#, 4096).unwrap();
+    let bad_copy = parse(r#"{"ops":[{"op":"copy","args":{"holder":"self","target":"self"}}]}"#, 4096).unwrap();
     assert!(s.workflow(&bad_copy).is_err());
     assert_eq!(persist::export(&s, &s.limits).to_json(), before);
 }
@@ -5579,8 +5577,11 @@ fn narrative_survives_mutation_limits_and_boundaries() {
     // Refused op changes nothing
     let mut n = filled();
     let before = persist::export(&n, &n.limits).to_json();
-    let bad_s =
-        parse(r#"{"ops":[{"op":"storylet","args":{"id":"bad id!","kind":"project_deadline","title":"t","tension":50}}]}"#, 4096).unwrap();
+    let bad_s = parse(
+        r#"{"ops":[{"op":"storylet","args":{"id":"bad id!","kind":"project_deadline","title":"t","tension":50}}]}"#,
+        4096,
+    )
+    .unwrap();
     assert!(n.workflow(&bad_s).is_err());
     assert_eq!(persist::export(&n, &n.limits).to_json(), before);
 }

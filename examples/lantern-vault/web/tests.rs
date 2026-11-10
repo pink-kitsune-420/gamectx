@@ -1724,7 +1724,11 @@ fn test_universal_perception_sensing_and_epistemic_grounding() {
     assert!(heard2.contains("hinge oil"));
 
     // 3. Natural compound inquiry: asking for shop ware AND room item simultaneously
-    let (res3, _) = command(&mut a, "chat", obj! {"text" => "can you help me? I'm looking for a bronze key and some oil for the hinge door on the vault"});
+    let (res3, _) = command(
+        &mut a,
+        "chat",
+        obj! {"text" => "can you help me? I'm looking for a bronze key and some oil for the hinge door on the vault"},
+    );
     assert_eq!(res3.get("current_perception"), Some(&true.into()));
     let speech3 = a.state().unwrap().get("speech").unwrap().clone();
     let heard3 = text(&speech3, "text").unwrap();
@@ -1759,7 +1763,8 @@ fn test_universal_perception_sensing_and_epistemic_grounding() {
 #[test]
 fn test_metacognitive_speech_cleaner() {
     // 1. Unbracketed action prefix
-    let raw_action = "ACTION: Refuse trade keeper_seal for moss. I cannot trade the keeper seal for a mere clump of moss.";
+    let raw_action =
+        "ACTION: Refuse trade keeper_seal for moss. I cannot trade the keeper seal for a mere clump of moss.";
     let (cleaned_act, act_dir) = app::App::clean_metacognitive_speech(raw_action);
     assert_eq!(cleaned_act, "I cannot trade the keeper seal for a mere clump of moss.");
     assert_eq!(act_dir, None);
@@ -1770,7 +1775,8 @@ fn test_metacognitive_speech_cleaner() {
     assert_eq!(cleaned_bracketed, "Ah, the poor creature. It is not right to mistreat it so.");
 
     // 3. Third-person narrative dialogue intro and speech tag
-    let raw_narration = "Tovin looks at you with a mix of sadness. \"I am afraid there has been a misunderstanding.\" he says.";
+    let raw_narration =
+        "Tovin looks at you with a mix of sadness. \"I am afraid there has been a misunderstanding.\" he says.";
     let (cleaned_narr, _) = app::App::clean_metacognitive_speech(raw_narration);
     assert!(cleaned_narr.contains("I am afraid there has been a misunderstanding"));
     assert!(!cleaned_narr.contains("Tovin looks at you"));
