@@ -264,6 +264,15 @@ impl App {
         self.seq += 1;
         self.seq
     }
+    fn actor_name(&self, actor: &str) -> String {
+        super::greetings::name(actor).map(str::to_owned).unwrap_or_else(|_| {
+            let mut chars = actor.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+            }
+        })
+    }
     fn active(&self) -> bool {
         self.npc == "merchant" && self.game.room == "workshop"
             || self.npc == "keeper" && self.game.room == "cistern"
@@ -960,11 +969,13 @@ impl App {
         let chunks = array(get(&sliced, "chunks")?)?;
         let input = if chunks.len() > 1 { chunks.last().unwrap().as_str().unwrap() } else { input };
 
-        let scene_desc = match self.npc.as_str() {
-            "merchant" => "An indoor merchant counter owned and run by Ilen.",
-            "keeper" => "An ancient subterranean cistern sanctuary maintained and safeguarded by Tovin.",
-            "hound" => "An ancient subterranean vault chamber.",
-            _ => "An ancient subterranean vault chamber.",
+        let actor_name = self.actor_name(&self.npc);
+        let actor_role = self.npc.replace('_', " ");
+        let room_desc = self.game.current_description();
+        let scene_desc = if room_desc.is_empty() {
+            format!("{actor_name} the {actor_role} is present here.")
+        } else {
+            format!("{room_desc} {actor_name} the {actor_role} is present here.")
         };
         let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()},"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{format!("{scene_desc} {}", self.game.current_description())}else{scene_desc.to_string()}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
         let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
@@ -1032,16 +1043,22 @@ impl App {
                     choices_hint.push(format!("{a} {t}"));
                 }
             }
-            let choices_str = choices_hint.join(", ");
-            let character_identity = match self.npc.as_str() {
-                "merchant" => "You are Ilen the Merchant. You own and operate this workshop counter and craft wares here; the player is a visiting traveler.",
-                "keeper" => "You are Tovin the Keeper. You maintain and safeguard this ancient cistern sanctuary; the player is a visiting traveler.",
-                "hound" => "You are the companion Hound. You are a faithful animal companion accompanying the traveler.",
-                _ => "You are an inhabitant of this subterranean vault; the player is a visiting traveler.",
-            };
-            messages.push(obj!{
+            let perception = gamectx::character::roleplay::RoomPerception::from_state(
+                &self.npc,
+                &actor_name,
+                &actor_role,
+                self.game.current_description(),
+                &self.game.visible_items(),
+            );
+            let prompt = gamectx::character::roleplay::ground_persona(
+                &actor_name,
+                &actor_role,
+                &perception.prompt_summary(),
+                &choices_hint,
+            );
+            messages.push(obj! {
                 "role" => "system",
-                "content" => format!("{character_identity} Speak naturally in first-person as yourself. Never confuse your identity or ownership with the player's. If the player is executing or agreeing to an available trade or action ({choices_str}), you can prefix your reply with [ACTION: <action> <target>]. Return only your spoken dialogue words (no code blocks or JSON wrappers).")
+                "content" => prompt,
             });
         }
         Ok(
@@ -1202,23 +1219,17 @@ impl App {
                 return Ok(Some(format!("We are in the {}.", label.replace('_', " "))));
             }
         }
-        if [
-            "what do you see",
-            "what can you see",
-            "look around you",
-            "what is around us",
-            "what s around us",
-            "describe your surroundings",
-        ]
-        .contains(&q.as_str())
-        {
-            return Ok(Some(if self.npc == "keeper" {
-                "I can see the dry fountain and the writing on its stone.".into()
-            } else if self.game.visible_items().iter().any(|i| i.get("owner") == Some(&Value::str("merchant"))) {
-                "I can see the counter and the goods still on offer here.".into()
-            } else {
-                "I can see the counter; none of my goods remain on offer here.".into()
-            }));
+        let actor_name = self.actor_name(&self.npc);
+        let actor_role = if self.npc == "merchant" { "merchant" } else { "keeper" };
+        let perception = gamectx::character::roleplay::RoomPerception::from_state(
+            &self.npc,
+            &actor_name,
+            actor_role,
+            self.game.current_description(),
+            &self.game.visible_items(),
+        );
+        if let Some(reply) = perception.query(input) {
+            return Ok(Some(reply));
         }
         Ok(None)
     }
@@ -3013,9 +3024,6 @@ impl App {
                         self.notice = "Choose one listed item or action using the buttons below.".into();
                         let notice = self.notice.clone();
                         self.log("host", &notice, "clarification");
-                        if self.active() {
-                            self.say("Choose one listed item or action using the buttons below.")?;
-                        }
                         return Ok((obj! {"status"=>"clarify","message"=>notice}, jobs));
                     }
                     _ => {}

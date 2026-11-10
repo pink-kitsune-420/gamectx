@@ -49,7 +49,23 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     }
     let s = input.to_lowercase().trim().trim_end_matches(['.', '!']).split_whitespace().collect::<Vec<_>>().join(" ");
     let response = |status: &str, decision: Value| obj! {"status"=>status,"decision"=>decision};
-    if s.contains('?') || s.split_whitespace().any(|w| ["not", "never", "don't", "dont", "without"].contains(&w)) {
+    if s.contains('?')
+        || s.split_whitespace().any(|w| ["not", "never", "don't", "dont", "without"].contains(&w))
+        || s.contains("looking for")
+        || s.contains("look for")
+        || s.contains("search for")
+        || s.contains("searching for")
+        || s.starts_with("where ")
+        || s.starts_with("what ")
+        || s.starts_with("who ")
+        || s.starts_with("how ")
+        || s.starts_with("why ")
+        || s.starts_with("tell me ")
+        || s.starts_with("i need ")
+        || s.starts_with("do you ")
+        || s.starts_with("can you ")
+        || s.starts_with("could you ")
+    {
         return Ok(response("dialogue", Value::Null));
     }
     let mut s = s.as_str();
@@ -62,51 +78,37 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     if let Some(rest) = s.strip_suffix(" please") {
         s = rest;
     }
-    let payment_phrases = [
-        "here are the gold pieces",
-        "here are the gold coins",
-        "here are the coins",
-        "here is the gold",
-        "here is the coin",
-        "here are the pieces",
-        "here is the payment",
-        "here is my payment",
-        "here s the gold",
-        "here s the coins",
-        "heres the gold",
-        "heres the coins",
-        "take the gold",
-        "take the coins",
-        "take my gold",
-        "take my coins",
-        "take the money",
-        "take the gold pieces",
-    ];
-    let (verb, mut arg) = if payment_phrases.contains(&s) {
-        ("buy", "coins")
-    } else if let Some((pay_part, item_part)) = s.split_once(" for ") {
-        if [
-            "here is the gold",
-            "here are the coins",
-            "here are the gold pieces",
-            "here s the coins",
-            "heres the coins",
-            "take the coins",
-            "take the gold",
-            "pay",
-            "pays",
-            "paid",
-            "give",
-            "gives",
-            "hand",
-            "hands",
-            "money",
-            "coins",
-            "gold",
+    let is_currency_token = |t: &str| {
+        [
+            "coin", "coins", "gold", "silver", "copper", "platinum",
+            "credit", "credits", "token", "tokens", "gem", "gems", "cash",
+            "money", "payment", "funds", "currency", "fee", "fare", "price",
+            "shilling", "shillings", "dollar", "dollars", "mark", "marks",
+            "piece", "pieces", "bill", "bills", "ore", "ingot", "ingots",
         ]
-        .iter()
-        .any(|p| pay_part.contains(p))
-        {
+        .contains(&t)
+    };
+    let is_payment_or_trade_phrase = |phrase: &str| {
+        let words: Vec<&str> = phrase.split_whitespace().collect();
+        let has_trade_verb = words.iter().any(|w| {
+            [
+                "pay", "pays", "paid", "give", "gives", "hand", "hands",
+                "trade", "trades", "barter", "barters", "swap", "swaps",
+                "exchange", "exchanges", "offer", "offers", "take", "takes",
+                "here",
+            ]
+            .contains(w)
+        });
+        let has_currency = words.iter().any(|w| is_currency_token(w));
+        has_currency || (has_trade_verb && words.len() <= 6)
+    };
+    let (verb, mut arg) = if is_payment_or_trade_phrase(s)
+        && (s.starts_with("here ") || s.starts_with("take ") || s.starts_with("pay ") || s.starts_with("heres ") || s.starts_with("here's ") || s.starts_with("accept "))
+        && !s.contains(" for ")
+    {
+        ("buy", "payment")
+    } else if let Some((pay_part, item_part)) = s.split_once(" for ") {
+        if is_payment_or_trade_phrase(pay_part) {
             ("buy", item_part)
         } else {
             s.split_once(' ').unwrap_or((s, ""))
@@ -114,8 +116,10 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
     } else {
         s.split_once(' ').unwrap_or((s, ""))
     };
-    let action = match verb {
-        "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands" => "buy",
+    let mut action = match verb {
+        "purchase" | "pay" | "pays" | "give" | "gives" | "hand" | "hands"
+        | "trade" | "trades" | "barter" | "barters" | "swap" | "swaps"
+        | "exchange" | "exchanges" | "offer" | "offers" => "buy",
         "walk" | "travel" => "go",
         "examine" => "inspect",
         v => v,
@@ -134,37 +138,36 @@ pub fn resolve_command(q: &Value) -> Result<Value> {
             }
         }
     }
+    arg = arg.strip_prefix("me ").unwrap_or(arg);
     arg = arg.strip_prefix("the ").unwrap_or(arg);
     let is_payment_words = action == "buy"
-        && [
-            "",
-            "coins",
-            "gold",
-            "gold pieces",
-            "the gold",
-            "the coins",
-            "money",
-            "the money",
-            "3 coins",
-            "3 gold",
-            "1 coin",
-            "1 gold",
-            "5 coins",
-        ]
-        .contains(&arg);
+        && (arg.is_empty()
+            || arg == "payment"
+            || arg.split_whitespace().all(|w| {
+                w.chars().all(|c| c.is_ascii_digit())
+                    || ["the", "my", "this", "some", "a", "an", "for"].contains(&w)
+                    || is_currency_token(w)
+            }));
+    if ["give", "gives", "hand", "hands"].contains(&verb) && !is_payment_words {
+        if choices.iter().any(|c| c.get("action") == Some(&Value::str("take"))) {
+            action = "take";
+        }
+    }
     let mut matched = None;
     for pair in choices {
         if text(pair, "action")? != action {
             continue;
         }
         let target = c::get(pair, "target")?;
-        let direct = if action == "look" && arg.is_empty() {
+        let direct = if action == "look" && (arg.is_empty() || arg == "around" || arg.starts_with("around")) {
             true
         } else if target == &Value::Null {
-            arg.is_empty()
+            arg.is_empty() || (action == "wait" && ["a moment", "a bit", "a second", "a minute", "awhile", "here"].contains(&arg))
         } else {
             let id = c::text(target)?;
-            arg == id.rsplit(':').next().unwrap_or(id).replace('_', " ")
+            let id_name = id.rsplit(':').next().unwrap_or(id).replace('_', " ");
+            arg == id_name
+                || id_name.split_whitespace().any(|w| w == arg)
                 || labels.iter().filter(|l| l.get("id") == Some(target)).any(|l| {
                     c::list(c::get(l, "aliases").expect("aliases"))
                         .expect("aliases")

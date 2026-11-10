@@ -1696,10 +1696,41 @@ fn universal_purchase_routing_and_llm_action_directing() {
     let json_bytes = format!("{{\"message\":{{\"content\":{mock_reply:?}}}}}").into_bytes();
     let job = a3.command("chat", &obj! {"text" => "Tell me about your workshop."}).unwrap().1.remove(0);
     let req_body_str = std::str::from_utf8(&job.request.body).unwrap();
-    assert!(req_body_str.contains("You are Ilen the Merchant. You own and operate this workshop counter"));
+    assert!(req_body_str.contains("You are Ilen the merchant."));
     a3.complete(&job, Ok(json_bytes)).unwrap();
     assert!(a3.game.owns("item:oil"));
     assert_eq!(a3.game.coins, 2);
     let speech = a3.state().unwrap().get("speech").unwrap().clone();
     assert_eq!(text(&speech, "text").unwrap(), "Here is your hinge oil, may it serve you well.");
+}
+
+#[test]
+fn test_universal_perception_sensing_and_epistemic_grounding() {
+    let d = Dir::new();
+    let mut a = chunk_app(&d, false);
+
+    // 1. In workshop, merchant senses bronze key resting in room
+    let (res, _) = command(&mut a, "chat", obj! {"text" => "where is the bronze key?"});
+    assert_eq!(res.get("current_perception"), Some(&true.into()));
+    let speech = a.state().unwrap().get("speech").unwrap().clone();
+    let heard = text(&speech, "text").unwrap();
+    assert!(heard.contains("bronze key is resting right here in this room"));
+
+    // 2. Merchant perceives surroundings and wares
+    let (res2, _) = command(&mut a, "chat", obj! {"text" => "what do you see?"});
+    assert_eq!(res2.get("current_perception"), Some(&true.into()));
+    let speech2 = a.state().unwrap().get("speech").unwrap().clone();
+    let heard2 = text(&speech2, "text").unwrap();
+    assert!(heard2.contains("hinge oil"));
+
+    // 3. Natural inquiry does not get hijacked by clarification
+    let (res3, _) = command(&mut a, "chat", obj! {"text" => "I'm looking for a bronze key and some hinge oil for the vault"});
+    assert_ne!(res3.get("status"), Some(&Value::str("clarify")));
+
+    // 4. Grounded persona prompt contains zero-hallucination constraint
+    let (_, jobs) = command(&mut a, "chat", obj! {"text" => "do you have family?"});
+    assert!(!jobs.is_empty());
+    let req_body_str = std::str::from_utf8(&jobs[0].request.body).unwrap();
+    assert!(req_body_str.contains("never invent fictional backstory, family, or unseen world facts"));
+    assert!(req_body_str.contains("You are Ilen the merchant."));
 }

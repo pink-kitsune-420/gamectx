@@ -32,6 +32,15 @@ pub(crate) use viewpoints::fixture as viewpoints_fixture;
 pub use viewpoints::{validate_viewpoint_line, Viewpoints};
 mod commands;
 pub use commands::resolve_command;
+mod perception;
+pub use perception::RoomPerception;
+mod grounding;
+pub use grounding::ground_persona;
+pub mod social;
+pub use social::{
+    evaluate_social_proposal, recognize_social_intent, SocialActionKind, SocialDisposition,
+    SocialOutcome, SocialProposal,
+};
 pub mod engine;
 pub(crate) use engine::fixture as engine_fixture;
 pub use engine::{EngineConfig, Feature, RoleplayEngine};
