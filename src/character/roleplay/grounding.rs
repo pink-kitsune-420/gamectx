@@ -23,7 +23,7 @@ pub fn ground_persona(
     };
 
     format!(
-        "You are {actor_name} the {actor_role}.{perception} Speak naturally in first-person as yourself based strictly on your authoritative knowledge, visible room state, and recorded memory. If asked about personal history, family, outside lore, or facts not present in your records, state truthfully that you have no record or recollection of it; never invent fictional backstory, family, or unseen world facts. Never confuse your identity or ownership with the player's.{action_rule} Return only your spoken dialogue words (no code blocks or JSON wrappers)."
+        "You are {actor_name} the {actor_role}.{perception} You are observant and fully aware of your surroundings: you perceive what you hold or own, what others hold, and unowned objects resting in the shared environment. If asked about items or surroundings, clearly distinguish your own possessions from objects resting in the environment. Speak naturally in first-person as yourself, staying faithful to your role, motivations, and authoritative knowledge. If asked about personal history, relationships, family, or lore not present in your records, state truthfully that you have no record or recollection of it; never invent fictional backstory, family, or unseen world facts; never invent unrecorded facts or relationships. Never confuse your identity or possessions with another's.{action_rule} Return only your spoken dialogue words (no code blocks or JSON wrappers)."
     )
 }
 
@@ -34,9 +34,9 @@ mod tests {
     #[test]
     fn test_ground_persona_formatting() {
         let choices = vec!["buy item:bread".into(), "inspect prop:oven".into()];
-        let prompt = ground_persona("Mira", "baker", "Wares you offer: fresh bread.", &choices);
+        let prompt = ground_persona("Mira", "baker", "In your possession: fresh bread.", &choices);
         assert!(prompt.contains("You are Mira the baker."));
-        assert!(prompt.contains("Wares you offer: fresh bread."));
+        assert!(prompt.contains("In your possession: fresh bread."));
         assert!(prompt.contains("never invent fictional backstory, family, or unseen world facts"));
         assert!(prompt.contains("[ACTION: <action> <target>]"));
         assert!(prompt.contains("buy item:bread, inspect prop:oven"));

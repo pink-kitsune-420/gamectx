@@ -360,7 +360,7 @@ pub fn evaluate_social_proposal(
                 SocialOutcome {
                     status: "accepted",
                     dialogue: format!(
-                        "Very well. I can lend you {amt} {token}. I trust you to repay me when your venture succeeds."
+                        "Very well. I can lend you {amt} {token}. I trust you to return it when you are able."
                     ),
                     delta_trust: 5,
                     delta_affinity: 10,
@@ -375,7 +375,7 @@ pub fn evaluate_social_proposal(
                 SocialOutcome {
                     status: "rejected",
                     dialogue: format!(
-                        "I cannot extend a loan right now; times are too uncertain to part with supplies without coin."
+                        "I cannot extend a loan right now; times are too uncertain to part with what I have."
                     ),
                     delta_trust: 0,
                     delta_affinity: 0,
@@ -399,7 +399,7 @@ pub fn evaluate_social_proposal(
                 let req = proposal.requested_item.as_deref().or(proposal.requested_currency.as_deref()).unwrap_or("this");
                 SocialOutcome {
                     status: "accepted",
-                    dialogue: format!("That is a fair exchange: your {off} for my {req}. A pleasure doing business."),
+                    dialogue: format!("That is a fair exchange: your {off} for my {req}."),
                     delta_trust: 5,
                     delta_affinity: 5,
                     delta_resentment: -5,
@@ -434,7 +434,7 @@ pub fn evaluate_social_proposal(
                 SocialOutcome {
                     status: "rejected",
                     dialogue: format!(
-                        "I earn my living by honest trade; I cannot simply give my supplies away for free."
+                        "I cannot simply give my belongings away for nothing."
                     ),
                     delta_trust: 0,
                     delta_affinity: -2,

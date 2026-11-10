@@ -183,7 +183,7 @@ function drawCharactersPresent(s){
   if(room==='room:workshop'){
     const div=document.createElement('div');
     div.className='character-item';
-    div.innerHTML='<div><strong>Ilen the Merchant</strong><br><span>Trading supplies at the counter</span></div>';
+    div.innerHTML='<div><strong>Ilen the Merchant</strong><br><span>Present in the workshop</span></div>';
     const btn=document.createElement('button');
     btn.type='button';
     btn.textContent='Speak';

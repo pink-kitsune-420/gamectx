@@ -269,6 +269,9 @@ impl CastPack {
         }
         Ok(Self { value: v.clone(), characters, participants, lore, locations })
     }
+    pub fn locations(&self) -> &[String] {
+        &self.locations
+    }
     pub fn to_value(&self) -> Value {
         self.value.clone()
     }

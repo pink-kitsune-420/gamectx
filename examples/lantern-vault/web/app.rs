@@ -264,6 +264,13 @@ impl App {
         self.seq += 1;
         self.seq
     }
+    fn living_location(&self) -> &str {
+        if self.pack.locations().iter().any(|l| l == &self.game.room) {
+            self.game.room.as_str()
+        } else {
+            self.pack.locations().first().map(String::as_str).unwrap_or("counter")
+        }
+    }
     fn actor_name(&self, actor: &str) -> String {
         super::greetings::name(actor).map(str::to_owned).unwrap_or_else(|_| {
             let mut chars = actor.chars();
@@ -913,27 +920,31 @@ impl App {
         if self.mind.enabled() {
             return "I do not have a specific answer to that; could you ask about one thing?".into();
         }
-        if self.npc == "merchant" {
-            if !self.transcript.is_empty() {
-                "I have the hinge oil, chalk, and tonic listed on the counter; let me know what you'd like to take.".into()
-            } else {
-                "I tend this counter; choose an item or tell me what you need.".into()
-            }
+        let visible = self.game.visible_items();
+        let possessions: Vec<_> = visible
+            .iter()
+            .filter(|i| i.get("owner").and_then(Value::as_str) == Some(&self.npc))
+            .filter_map(|i| i.get("label").and_then(Value::as_str))
+            .collect();
+        if !possessions.is_empty() {
+            format!("I have {} with me; what would you like to discuss?", possessions.join(", "))
         } else {
-            "I tend the dry fountain; the host can confirm what is visible here.".into()
+            "I am here; what can I help you with?".into()
         }
     }
     fn focused_visible(&self, input: &str) -> Value {
         let query = input.to_lowercase();
-        let stock = ["stock", "sell", "offer"].iter().any(|w| query.contains(w));
+        let stock = ["stock", "sell", "offer", "have", "possess"].iter().any(|w| query.contains(w));
         let items = self
             .game
             .visible_items()
             .into_iter()
             .filter(|i| i.get("owner").and_then(Value::as_str) != Some("player"))
             .filter(|i| {
-                stock && i.get("owner") == Some(&Value::str("merchant"))
-                    || text(i, "label").is_ok_and(|label| query.contains(label))
+                stock && i.get("owner") == Some(&Value::str(&self.npc))
+                    || text(i, "label").is_ok_and(|label| {
+                        query.contains(label) || label.split_whitespace().any(|w| w.len() >= 3 && query.contains(w))
+                    })
                     || text(i, "id")
                         .is_ok_and(|id| query.contains(&id.rsplit(':').next().unwrap_or(id).replace('_', " ")))
             })
@@ -977,8 +988,8 @@ impl App {
         } else {
             format!("{room_desc} {actor_name} the {actor_role} is present here.")
         };
-        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()},"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent stock, actions or history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{format!("{scene_desc} {}", self.game.current_description())}else{scene_desc.to_string()}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
-        let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>"counter","limit"=>hints.recall.min(4)},Some(&route))?;
+        let request = obj! {"trigger"=>trigger,"revision"=>self.tick,"life_revision"=>self.world.base_life(&self.npc)?.revision(),"listeners"=>vec![self.player.clone()],"subjects"=>Vec::<Value>::new(),"tags"=>vec!["trade","conversation"],"turn"=>obj!{"profile"=>if expanded {"expanded"}else{"focused"},"knowledge"=>if unknown {"unknown"}else{"known"},"creative"=>subjective,"speaker"=>self.player.clone(),"question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()},"facts"=>if unknown {vec![obj!{"key"=>if input.to_lowercase().contains("born"){"player_birthplace"}else{"visible_weather"},"subject"=>if input.to_lowercase().contains("born"){self.player.clone()}else{self.npc.clone()},"status"=>"unknown","value"=>Value::Null}]}else{Vec::<Value>::new()}},"rules"=>if subjective{"Express one first-person subjective mental stance; supplied facts constrain the world, while personality and heard memories inform the opinion. Do not invent history, resources, weather or actions. No tools."}else{"Speak one complete short sentence using only supplied facts. Player first-person attributes concern the named player, never the NPC. Do not invent items, unrecorded facts, actions or personal history. No tool calls. Unheard text is not shared memory."},"stable_scene"=>obj!{"id"=>self.game.room.clone(),"description"=>if expanded{format!("{scene_desc} {}", self.game.current_description())}else{scene_desc.to_string()}},"lore_select"=>obj!{"actor"=>self.npc.clone(),"grants"=>Vec::<Value>::new(),"query"=>if unknown {""}else{input},"subjects"=>vec![self.npc.clone()],"required"=>Vec::<Value>::new(),"limit"=>if unknown{0}else{hints.recall.min(4)},"max_bytes"=>4096},"affordances"=>Vec::<Value>::new(),"tools"=>Vec::<Value>::new()};
+        let selected=self.world.compile(&self.party,&self.npc,&request,&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation"],"location"=>self.living_location(),"limit"=>hints.recall.min(4)},Some(&route))?;
         let mut messages = array(get(get(&selected, "request")?, "messages")?)?.to_vec();
         let life = self.world.effective_life(&self.npc)?;
         let episodes=life.recall_selected(&obj!{"input"=>input,"tags"=>vec!["trade","conversation"],"subjects"=>vec![self.player.clone()],"required"=>Vec::<Value>::new(),"count"=>hints.recall,"archive"=>true})?;
@@ -1027,7 +1038,7 @@ impl App {
         messages[2] = obj! {"role"=>"user","content"=>state.to_json()};
         messages.insert(3,obj!{"role"=>"user","content"=>obj!{"authoritative_visible_state"=>if unknown {Value::Null}else if expanded {obj!{"room"=>self.game.room.clone(),"description"=>self.game.current_description(),"items"=>self.game.visible_items().into_iter().filter(|i|i.get("owner").and_then(Value::as_str)!=Some("player")).collect::<Vec<_>>(),"player_purse"=>"unobserved"}}else{self.focused_visible(input)},"player_birthplace"=>"unknown_to_npc","question_subject"=>if subjective{self.npc.clone()}else{self.player.clone()}}.to_json()});
         if subjective {
-            messages.insert(2,obj!{"role"=>"system","content"=>obj!{"personality"=>obj!{"actor"=>self.npc.clone(),"disposition"=>text(self.mind.profile(&self.npc)?,"traits")?},"subjective_turn"=>"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request, not your job or counter. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce past biography, promises, resources, stock, weather or secret lore. No tools."}.to_json()});
+            messages.insert(2,obj!{"role"=>"system","content"=>obj!{"personality"=>obj!{"actor"=>self.npc.clone(),"disposition"=>text(self.mind.profile(&self.npc)?,"traits")?},"subjective_turn"=>"Form a personal aspiration or opinion consistent with these dispositions, the selected attitudes and heard memories. Express a mental stance, not a world fact or action. Return speech JSON with one complete first-person sentence beginning I hope, I dream, I prefer, I value, I feel, I think or I believe. Address the specific topic in the current request. For a preference, name what was asked about. Aim for at most 130 characters. Do not introduce unrecorded biography, promises, resources, items, weather or secret lore. No tools."}.to_json()});
         }
         if chunks.len() > 1 {
             messages.pop();
@@ -1056,6 +1067,12 @@ impl App {
                 &perception.prompt_summary(),
                 &choices_hint,
             );
+            if !messages.is_empty() {
+                messages[0] = obj! {
+                    "role" => "system",
+                    "content" => prompt.clone(),
+                };
+            }
             messages.push(obj! {
                 "role" => "system",
                 "content" => prompt,
@@ -1220,11 +1237,11 @@ impl App {
             }
         }
         let actor_name = self.actor_name(&self.npc);
-        let actor_role = if self.npc == "merchant" { "merchant" } else { "keeper" };
+        let actor_role = self.npc.replace('_', " ");
         let perception = gamectx::character::roleplay::RoomPerception::from_state(
             &self.npc,
             &actor_name,
-            actor_role,
+            &actor_role,
             self.game.current_description(),
             &self.game.visible_items(),
         );
@@ -1360,7 +1377,7 @@ impl App {
         self.manager_update(Vec::new())
     }
     fn manager_update(&mut self, next: Vec<&str>) -> Result<()> {
-        let context=self.world.context(&obj! {"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>"counter","limit"=>1})?;
+        let context=self.world.context(&obj! {"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["conversation"],"location"=>self.living_location(),"limit"=>1})?;
         let atmosphere = context
             .get("atmosphere")
             .and_then(|v| v.get("state").or_else(|| v.get("tag")))
@@ -2544,7 +2561,7 @@ impl App {
         }
         let speech=self.speech.as_ref().map_or(Value::Null,|s|obj!{"id"=>s.id,"actor"=>s.actor.clone(),"player"=>s.player.clone(),"text"=>s.voice.text(),"delivery"=>s.voice.snapshot(),"pending"=>s.pending,"playback_blocked"=>s.playback_blocked,"segment"=>s.segment,"segments"=>s.total,"origin"=>s.origin.clone(),"audio"=>s.audio.clone().unwrap_or(Value::Null),"voice"=>self.config.voice(&s.actor).unwrap().clone()});
         Ok(
-            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"roleplay_memory"=>self.known_claims(),"roleplay_registry"=>self.roleplay.to_value(),"conversation_options"=>self.speech_options.value.clone(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>"counter","limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"journal"=>self.journal_entries(),"generation"=>self.epoch},
+            obj! {"game"=>self.game.public(),"player"=>self.player.clone(),"npc"=>self.npc.clone(),"npc_present"=>self.active(),"providers"=>self.config.public(),"setup"=>self.monitor.snapshot(&active_config,self.local_paused),"model_manager"=>self.manager.snapshot(),"voice_history"=>self.voice_history.snapshot(),"personality"=>self.mind.snapshot(),"roleplay_memory"=>self.known_claims(),"roleplay_registry"=>self.roleplay.to_value(),"conversation_options"=>self.speech_options.value.clone(),"deliberation"=>obj!{"config"=>self.deliberation.config.clone(),"latest"=>self.deliberation.latest.clone(),"capabilities"=>self.manager.report.get("thinking_controls").cloned().unwrap_or(Value::Null)},"greetings"=>obj!{"config"=>self.greetings.config(),"memory"=>self.greetings.checkpoint(),"next"=>if self.active()&&self.mind.enabled(){self.greeting_plan()?}else{Value::Null}},"reactions"=>self.reactions.snapshot(self.reaction_offers()?),"effective_backends"=>obj!{"text"=>self.effective_backend("text")?,"image"=>self.effective_backend("image")?,"tts"=>self.effective_backend("tts")?,"stt"=>self.effective_backend("stt")?},"spending"=>self.budget.summary(),"spending_receipts"=>get(&self.budget.checkpoint(),"ledger")?.clone(),"local_paused"=>self.local_paused,"pending_jobs"=>self.pending.len(),"notice"=>self.notice.clone(),"transcript"=>self.transcript.clone(),"speech"=>speech,"recognition"=>self.recognition.clone(),"mic"=>self.mic,"portraits"=>portrait,"scene_asset"=>scene,"characters"=>characters,"promises"=>self.interactions.iter().map(|(a,i)|obj!{"actor"=>a.clone(),"accepted"=>i.accepted_promises(),"records"=>i.to_value()}).collect::<Vec<_>>(),"living"=>self.world.context(&obj!{"actor"=>self.npc.clone(),"players"=>vec![self.player.clone()],"tags"=>vec!["trade","conversation","promises"],"location"=>self.living_location(),"limit"=>4})?,"rumors"=>self.world.rumor_ledger(),"journal"=>self.journal_entries(),"generation"=>self.epoch},
         )
     }
     pub fn command(&mut self, op: &str, v: &Value) -> Result<(Value, Vec<Job>)> {
@@ -3001,13 +3018,24 @@ impl App {
                         &self.npc,
                         &known_items,
                     ) {
-                        let disp = gamectx::character::roleplay::SocialDisposition {
-                            trust: self.attitude_level("trust").unwrap_or(10),
-                            affinity: self.attitude_level("affinity").unwrap_or(10),
-                            resentment: self.attitude_level("resentment").unwrap_or(0),
-                            generosity: if self.npc == "merchant" { 40 } else { 60 },
-                            prudence: if self.npc == "merchant" { 70 } else { 50 },
-                            courage: if self.npc == "merchant" { 50 } else { 70 },
+                        let disp = if let Ok(prof) = self.mind.profile(&self.npc) {
+                            gamectx::character::roleplay::SocialDisposition {
+                                trust: self.attitude_level("trust").unwrap_or(10),
+                                affinity: self.attitude_level("affinity").unwrap_or(10),
+                                resentment: self.attitude_level("resentment").unwrap_or(0),
+                                generosity: prof.get("generosity").and_then(Value::as_usize).unwrap_or(50) as i64,
+                                prudence: prof.get("prudence").and_then(Value::as_usize).unwrap_or(50) as i64,
+                                courage: prof.get("courage").and_then(Value::as_usize).unwrap_or(50) as i64,
+                            }
+                        } else {
+                            gamectx::character::roleplay::SocialDisposition {
+                                trust: self.attitude_level("trust").unwrap_or(10),
+                                affinity: self.attitude_level("affinity").unwrap_or(10),
+                                resentment: self.attitude_level("resentment").unwrap_or(0),
+                                generosity: 50,
+                                prudence: 50,
+                                courage: 50,
+                            }
                         };
                         let actor_name = self.actor_name(&self.npc);
                         let outcome = gamectx::character::roleplay::evaluate_social_proposal(

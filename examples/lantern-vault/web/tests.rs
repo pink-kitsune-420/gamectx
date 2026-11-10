@@ -1723,9 +1723,14 @@ fn test_universal_perception_sensing_and_epistemic_grounding() {
     let heard2 = text(&speech2, "text").unwrap();
     assert!(heard2.contains("hinge oil"));
 
-    // 3. Natural inquiry does not get hijacked by clarification
-    let (res3, _) = command(&mut a, "chat", obj! {"text" => "I'm looking for a bronze key and some hinge oil for the vault"});
-    assert_ne!(res3.get("status"), Some(&Value::str("clarify")));
+    // 3. Natural compound inquiry: asking for shop ware AND room item simultaneously
+    let (res3, _) = command(&mut a, "chat", obj! {"text" => "can you help me? I'm looking for a bronze key and some oil for the hinge door on the vault"});
+    assert_eq!(res3.get("current_perception"), Some(&true.into()));
+    let speech3 = a.state().unwrap().get("speech").unwrap().clone();
+    let heard3 = text(&speech3, "text").unwrap();
+    assert!(heard3.contains("hinge oil"));
+    assert!(heard3.contains("bronze key"));
+    assert!(heard3.contains("free to pick it up"));
 
     // 4. Grounded persona prompt contains zero-hallucination constraint
     let (_, jobs) = command(&mut a, "chat", obj! {"text" => "do you have family?"});
