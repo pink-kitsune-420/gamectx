@@ -10,6 +10,10 @@ Copy `examples/lantern-vault/web/native-voice.example.json` into the host state 
 to installed `.onnx` paths. Keep each voice's matching configuration alongside it. Fill
 `stt.executable` with whisper-cli and map model aliases in `stt.models` to local GGML files.
 Only the trusted host edits executable/model paths; browsers send validated aliases.
+Whisper runs with `LD_LIBRARY_PATH` set to the directory its executable resolves to (symlinks
+followed), so shared libraries built beside `whisper-cli` load without any path in the source.
+Keep machine-specific registrations out of the repository: `*.workstation.json` files beside
+the example are git-ignored for that purpose.
 The TTS model ID is `piper`; STT model IDs must match the configured aliases.
 
 The convenience command `dungeon --configure-voice INSTALL_DIR --web-state STATE_DIR`

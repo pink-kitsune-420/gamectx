@@ -10,3 +10,6 @@ TRACKER.md
 
 /private-docs/
 
+
+# Machine-local voice engine registrations (private paths; copy native-voice.example.json instead)
+/examples/lantern-vault/web/*.workstation.json

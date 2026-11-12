@@ -14,6 +14,37 @@ pub fn cancel() {
 fn issue() -> Error {
     Error::new("manager: Native voice failed. Check the separately installed executable/model, voice alias and host voice log.")
 }
+/// whisper.cpp builds keep their shared libraries beside `whisper-cli`. The directory the configured
+/// executable resolves to (symlinks followed) is where the loader should look, so no machine-specific
+/// path belongs in this source.
+fn library_dir(exe: &str) -> Option<String> {
+    Path::new(exe).canonicalize().ok()?.parent()?.to_str().map(str::to_owned)
+}
+#[cfg(test)]
+mod tests {
+    use super::library_dir;
+    #[test]
+    fn library_dir_follows_symlinks_and_ignores_missing_files() {
+        let root = std::env::temp_dir().join(format!("gamectx-library-dir-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let bin = root.join("build").join("bin");
+        std::fs::create_dir_all(&bin).unwrap();
+        let real = bin.join("whisper-cli");
+        std::fs::write(&real, b"").unwrap();
+        let canonical_bin = bin.canonicalize().unwrap().to_str().unwrap().to_owned();
+        assert_eq!(library_dir(real.to_str().unwrap()).as_deref(), Some(canonical_bin.as_str()));
+        #[cfg(unix)]
+        {
+            let link_dir = root.join("local");
+            std::fs::create_dir_all(&link_dir).unwrap();
+            let link = link_dir.join("whisper-cli");
+            std::os::unix::fs::symlink(&real, &link).unwrap();
+            assert_eq!(library_dir(link.to_str().unwrap()).as_deref(), Some(canonical_bin.as_str()));
+        }
+        assert_eq!(library_dir(root.join("missing").to_str().unwrap()), None);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+}
 #[derive(Clone)]
 pub struct Native {
     config: Value,
@@ -180,10 +211,10 @@ impl Native {
                 .stderr(log)
                 .spawn()
                 .map_err(|_| issue())?;
-            let env = if ch == "stt" {
-                gamectx::obj! {"LD_LIBRARY_PATH"=>"/home/yuki/ai/whisper.cpp/build/bin"}
-            } else {
-                gamectx::obj! {}
+            let library = if ch == "stt" { library_dir(&absolute(text(engine, "executable")?)?) } else { None };
+            let env = match library {
+                Some(dir) => gamectx::obj! {"LD_LIBRARY_PATH"=>dir},
+                None => gamectx::obj! {},
             };
             let spec = gamectx::obj! {"argv"=>argv,"env"=>env,"input"=>stdin,"process_group"=>true};
             let write = child.stdin.as_mut().ok_or_else(err)?.write_all(format!("{}\n", spec.to_json()).as_bytes());

@@ -11,6 +11,12 @@ know what an upgrade costs:
 | **[internal]** | Faster, safer or clearer with identical behavior; conformance files untouched. | Upgrade freely. |
 | **[docs]** | Documentation only. | Nothing. |
 
+## Unreleased
+
+- **[format]** `conformance/location/quote_name` now uses the sample name `mira`: input `my name is mira`, expected `"You told me your name is mira."`. This is the only conformance change; the output shape is the same. Ports that copied the case should update their copy.
+- **[internal]** Lantern Vault's native voice no longer hardcodes a machine path for whisper's shared libraries. Whisper now gets `LD_LIBRARY_PATH` from the directory its configured executable resolves to (symlinks followed), with a unit test. Installs whose libraries sit beside `whisper-cli` behave as before.
+- **[internal]** Removed the machine-specific `native-voice.workstation.json` from version control and git-ignored `examples/lantern-vault/web/*.workstation.json`. `native-voice.example.json` remains the template.
+
 ## 0.4.0a (Cargo `0.4.0-a`) — 2026-11-09
 
 - **[feature]** Intelligent Being 2.0 Cognitive Architecture & Adversarial Robustness (`character::roleplay`, `character::social`, `examples/lantern-vault/roleplay.rs`, `examples/lantern-vault/web/app.rs`, `tests/lantern_vault_deep_adversarial_suite.rs`, `tests/lantern_vault_adversarial_roleplay.rs`): implements the 8-component cognitive architecture resolving 10 discovered cognitive limitations under adversarial roleplay probes:
